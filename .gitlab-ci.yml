@@ -1,8 +1,3 @@
-build and install sarzak:
-  stage: .pre
-  script:
-    - "curl -k -X POST --fail -F token=glptt-8de86eccfbb716aa80ca04f19435aa1dadf34ead -F ref=develop https://git.uberfoo.com/api/v4/projects/49/trigger/pipeline"
-
 test and code cov:
   stage: build
   script:
