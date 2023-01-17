@@ -6,7 +6,9 @@ build and install sarzak:
 test and code cov:
   stage: build
   script:
-    - pwd
+    - ls -la /home/gitlab-runner
+    - ls -la /home/gitlab-runner/.cargo
+    - ls -la /home/gitlab-runner/.cargo/bin
     - /home/gitlab-runner/.cargo/bin/sarazk gen -m -d
     - CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo test
     - grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./coverage/
