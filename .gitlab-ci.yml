@@ -1,13 +1,9 @@
-  stages:
-    - install-sarzak
-    - build
-
-install-sarzak:
-  stage: install-sarzak
+build and install sarzak:
+  stage: .pre
   script:
     - "curl -X POST --fail -F token=glptt-8de86eccfbb716aa80ca04f19435aa1dadf34ead -F ref=REF_NAME https://git.uberfoo.com/api/v4/projects/49/trigger/pipeline"
 
-test-and-code-cov:
+test and code cov:
   stage: build
   script:
     - CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo test
