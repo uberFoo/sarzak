@@ -1,0 +1,3 @@
+[domains]
+sarzak = { path = "models/sarzak.json", module = "sarzak", sarzak = { meta = true, doc_tests = true } }
+drawing = { path = "models/drawing.json", module = "drawing", sarzak = { meta = true, doc_tests = true } }
