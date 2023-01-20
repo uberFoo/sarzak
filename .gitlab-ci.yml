@@ -2,9 +2,9 @@ test and code cov:
   stage: build
   script:
     - sarzak gen
-    - CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo test
-    - grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./coverage/
-    - grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o coverage.lcov
+    - CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' RUSTDOCFLAGS='-Cinstrument-coverage -Z unstable-options --persist-doctests target/debug/doctestbins' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo test
+    - grcov . --binary-path ./target/debug/doctestbins -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./coverage/
+    - grcov . --binary-path ./target/debug/doctestbins -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./coverage/
     - ~/.local/bin/lcov_cobertura coverage.lcov
     - lcov --summary coverage.lcov
   artifacts:
