@@ -1,4 +1,3 @@
-//! {"magic":"","version":"0.0.1"}
 //! ObjectStore for the instances of the "Sarzak" domain
 //!
 //! An end user should have little need to use this directly.
@@ -24,20 +23,29 @@
 //!    * [`OtherSide`]
 //!    * [`AssociativeSide`]
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::sarzak::types::{Isa, Associative, AcknowledgedEvent, Subtype, Conditionality, Relationship, Binary, Attribute, State, Object, Referent, Referrer, Supertype, OneSide, Type, Cardinality, Event, OtherSide, AssociativeSide, };
+use crate::sarzak::types::{
+    AcknowledgedEvent, Associative, AssociativeSide, Attribute, Binary, Cardinality,
+    Conditionality, Event, Isa, Object, OneSide, OtherSide, Referent, Referrer, Relationship,
+    State, Subtype, Supertype, Type,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
@@ -126,7 +134,8 @@ impl ObjectStore {
     /// Inter [`AcknowledgedEvent`] into the [`ObjectStore`]
     ///
     pub fn inter_acknowledged_event(&mut self, acknowledged_event: AcknowledgedEvent) {
-        self.acknowledged_event.insert(acknowledged_event.id, acknowledged_event);
+        self.acknowledged_event
+            .insert(acknowledged_event.id, acknowledged_event);
     }
 
     /// Exhume [`Acknowledged Event`] from the [`ObjectStore`]
@@ -162,7 +171,8 @@ impl ObjectStore {
     /// Inter [`Conditionality`] into the [`ObjectStore`]
     ///
     pub fn inter_conditionality(&mut self, conditionality: Conditionality) {
-        self.conditionality.insert(conditionality.get_id(), conditionality);
+        self.conditionality
+            .insert(conditionality.get_id(), conditionality);
     }
 
     /// Exhume [`Conditionality`] from the [`ObjectStore`]
@@ -180,7 +190,8 @@ impl ObjectStore {
     /// Inter [`Relationship`] into the [`ObjectStore`]
     ///
     pub fn inter_relationship(&mut self, relationship: Relationship) {
-        self.relationship.insert(relationship.get_id(), relationship);
+        self.relationship
+            .insert(relationship.get_id(), relationship);
     }
 
     /// Exhume [`Relationship`] from the [`ObjectStore`]
@@ -414,7 +425,8 @@ impl ObjectStore {
     /// Inter [`AssociativeSide`] into the [`ObjectStore`]
     ///
     pub fn inter_associative_side(&mut self, associative_side: AssociativeSide) {
-        self.associative_side.insert(associative_side.id, associative_side);
+        self.associative_side
+            .insert(associative_side.id, associative_side);
     }
 
     /// Exhume [`Associative Side`] from the [`ObjectStore`]
@@ -428,5 +440,4 @@ impl ObjectStore {
     pub fn iter_associative_side(&self) -> impl Iterator<Item = (&Uuid, &AssociativeSide)> {
         self.associative_side.iter()
     }
-
 }

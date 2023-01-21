@@ -1,4 +1,3 @@
-//! {"magic":"","version":"0.0.1"}
 //! ObjectStore for the instances of the "Drawing" domain
 //!
 //! An end user should have little need to use this directly.
@@ -15,20 +14,28 @@
 //!    * [`AssociativeUi`]
 //!    * [`SubtypeAnchors`]
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::drawing::types::{Anchor, BinaryUi, Point, ObjectEdge, Edge, RelationshipUi, ObjectUi, IsaUi, AssociativeUi, SubtypeAnchors, };
+use crate::drawing::types::{
+    Anchor, AssociativeUi, BinaryUi, Edge, IsaUi, ObjectEdge, ObjectUi, Point, RelationshipUi,
+    SubtypeAnchors,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
@@ -153,7 +160,8 @@ impl ObjectStore {
     /// Inter [`RelationshipUi`] into the [`ObjectStore`]
     ///
     pub fn inter_relationship_ui(&mut self, relationship_ui: RelationshipUi) {
-        self.relationship_ui.insert(relationship_ui.get_id(), relationship_ui);
+        self.relationship_ui
+            .insert(relationship_ui.get_id(), relationship_ui);
     }
 
     /// Exhume [`RelationshipUI`] from the [`ObjectStore`]
@@ -207,7 +215,8 @@ impl ObjectStore {
     /// Inter [`AssociativeUi`] into the [`ObjectStore`]
     ///
     pub fn inter_associative_ui(&mut self, associative_ui: AssociativeUi) {
-        self.associative_ui.insert(associative_ui.id, associative_ui);
+        self.associative_ui
+            .insert(associative_ui.id, associative_ui);
     }
 
     /// Exhume [`AssociativeUI`] from the [`ObjectStore`]
@@ -225,7 +234,8 @@ impl ObjectStore {
     /// Inter [`SubtypeAnchors`] into the [`ObjectStore`]
     ///
     pub fn inter_subtype_anchors(&mut self, subtype_anchors: SubtypeAnchors) {
-        self.subtype_anchors.insert(subtype_anchors.id, subtype_anchors);
+        self.subtype_anchors
+            .insert(subtype_anchors.id, subtype_anchors);
     }
 
     /// Exhume [`Subtype Anchors`] from the [`ObjectStore`]
@@ -239,5 +249,4 @@ impl ObjectStore {
     pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = (&Uuid, &SubtypeAnchors)> {
         self.subtype_anchors.iter()
     }
-
 }

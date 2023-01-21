@@ -1,4 +1,3 @@
-//! {"magic":"","version":"0.0.1"}
 //! Types for instances of the "Sarzak" domain
 //!
 //! The following types are defined herein:
@@ -31,40 +30,32 @@
 //!    * [`AssociativeSide`]
 //!    * [`INTEGER`]
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
-// Re-exports
 // {"magic":"","kind":"CriticalBlockBegin"}
 use crate::sarzak::store::ObjectStore;
 use crate::sarzak::UUID_NS;
 // {"magic":"","kind":"CriticalBlockEnd"}
 
-// Imported Objects
-// {"magic":"","kind":"CriticalBlockBegin"}
-// {"magic":"","kind":"CriticalBlockEnd"}
-
 /// The Boolean Type
 ///
-///
-///
-///
-/// 
 /// This type holds `true` and `false` values. This type is just a placeholder. It's implementation
 /// is determined downstream by the code generator.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -93,29 +84,14 @@ impl Isa {
 impl Isa {
     // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
-        // This is a totally valid, if wasteful, and odd thing to do. Sorry. 🐶
-        // ⚡️         let mighty_end = "melted_foot".to_owned();
-        // ⚡️         let object_bwe = Object::new(store, mighty_end);
-        // ⚡️         let test = Self::Subtype(Subtype::new(store, &object_bwe).id);
+        // {"magic":"","kind":"IgnoreBlockBegin"}
+        let salty_gold = "warm_airplane".to_owned();
+        let object_hpb = Object::new(store, salty_gold);
+        let test = Self::Subtype(Subtype::new(store, &object_hpb).id);
+        // {"magic":"","kind":"IgnoreBlockEnd"}
 
-        // ⚡️         let dapper_song = "verdant_map".to_owned();
-        // ⚡️         let object_pwg = Object::new(store, dapper_song);
-        // ⚡️         let test = Self::Subtype(Subtype::new(store, &object_pwg).id);
-
-        // ⚡️         let blue_eyed_rod = "thundering_sticks".to_owned();
-        // ⚡️         let object_nhu = Object::new(store, blue_eyed_rod);
-        // ⚡️         let test = Self::Subtype(Subtype::new(store, &object_nhu).id);
-// ⚡️         let shut_question = "ceaseless_measure".to_owned();
-// ⚡️         let object_dew = Object::new(store, shut_question);
-// ⚡️         let test = Self::Subtype(Subtype::new(store, &object_dew).id);
-
-        let numberless_quill = "vivacious_action".to_owned();
-        let object_yay = Object::new(store, numberless_quill);
-        let test = Self::Subtype(Subtype::new(store, &object_yay).id);
-        
         store.inter_isa(test.clone());
 
-        
         test
     }
     // {"magic":"","kind":"CriticalBlockEnd"}
@@ -149,30 +125,38 @@ impl Associative {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::AssociativeSide;
     /// # use sarzak::sarzak::Associative;
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::AssociativeSide;
     /// # use sarzak::sarzak::OtherSide;
     /// # use sarzak::sarzak::OneSide;
-    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let mellow_skirt = "phobic_level".to_owned();
-    /// let object_pzu = Object::new(&mut store, mellow_skirt);
-    /// let one_side_wbw = OneSide::new(&mut store, &object_pzu);
-    /// let ludicrous_quince = "dynamic_ticket".to_owned();
-    /// let object_zry = Object::new(&mut store, ludicrous_quince);
-    /// let other_side_jls = OtherSide::new(&mut store, &object_zry);
-    /// let witty_run = "grotesque_toothbrush".to_owned();
-    /// let object_mxk = Object::new(&mut store, witty_run);
-    /// let associative_side_mzv = AssociativeSide::new(&mut store, &object_mxk);
+    /// let therapeutic_cemetery = "precious_house".to_owned();
+    /// let object_qbd = Object::new(&mut store, therapeutic_cemetery);
+    /// let one_side_sve = OneSide::new(&mut store, &object_qbd);
+    /// let icky_silk = "arrogant_value".to_owned();
+    /// let object_pqt = Object::new(&mut store, icky_silk);
+    /// let other_side_fxk = OtherSide::new(&mut store, &object_pqt);
+    /// let paltry_flag = "devilish_join".to_owned();
+    /// let object_ylf = Object::new(&mut store, paltry_flag);
+    /// let associative_side_zdb = AssociativeSide::new(&mut store, &object_ylf);
     ///
-    /// let associative = Associative::new(&mut store, &one_side_wbw, &other_side_jls, &associative_side_mzv, 42);
+    /// let associative = Associative::new(&mut store, &one_side_sve, &other_side_fxk, &associative_side_zdb, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, one: &OneSide, other: &OtherSide, from: &AssociativeSide, number: i64, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::{}::", one, other, from, number, ).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        one: &OneSide,
+        other: &OtherSide,
+        from: &AssociativeSide,
+        number: i64,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{:?}::{}::", one, other, from, number,).as_bytes(),
+        );
         let new = Self {
             id,
             one: one.id,
@@ -181,26 +165,14 @@ impl Associative {
             number,
         };
 
-
-
-
-        
         store.inter_associative(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// An Event that Does Something
 ///
-///
-///
-///
-/// 
 /// An acknowledged event is an event that a [`State`] knows how to handle.
 ///
 /// _Generated code_
@@ -226,47 +198,41 @@ impl AcknowledgedEvent {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::AcknowledgedEvent;
     /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Event;
+    /// # use sarzak::sarzak::AcknowledgedEvent;
     /// # use sarzak::sarzak::State;
+    /// # use sarzak::sarzak::Event;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let bite_sized_word = "hapless_hot".to_owned();
-    /// let object_jgp = Object::new(&mut store, bite_sized_word);
-    /// let amuck_smile = "untidy_surprise".to_owned();
-    /// let state_emu = State::new(&mut store, &object_jgp, amuck_smile);
-    /// let rainy_wire = "axiomatic_pot".to_owned();
-    /// let object_hfp = Object::new(&mut store, rainy_wire);
-    /// let noisy_print = "skinny_basketball".to_owned();
-    /// let event_xyk = Event::new(&mut store, &object_hfp, noisy_print);
+    /// let tangy_pencil = "lush_pizzas".to_owned();
+    /// let object_iqa = Object::new(&mut store, tangy_pencil);
+    /// let squeamish_bridge = "natural_muscle".to_owned();
+    /// let state_qht = State::new(&mut store, &object_iqa, squeamish_bridge);
+    /// let tense_prose = "peaceful_smash".to_owned();
+    /// let object_lea = Object::new(&mut store, tense_prose);
+    /// let grateful_trees = "rambunctious_fruit".to_owned();
+    /// let event_pnp = Event::new(&mut store, &object_lea, grateful_trees);
     ///
-    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_emu, &event_xyk);
+    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_qht, &event_pnp);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, state_id: &State, event_id: &Event, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", state_id, event_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, state_id: &State, event_id: &Event) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::", state_id, event_id,).as_bytes(),
+        );
         let new = Self {
             id,
             state_id: state_id.id,
             event_id: event_id.id,
         };
 
-
-
-
-        
         store.inter_acknowledged_event(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The *subtype* in a *supertype-subtype* relationship.
 ///
@@ -290,38 +256,29 @@ impl Subtype {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Subtype;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let false_books = "average_robin".to_owned();
-    /// let object_shm = Object::new(&mut store, false_books);
+    /// let educated_milk = "shrill_story".to_owned();
+    /// let object_chu = Object::new(&mut store, educated_milk);
     ///
-    /// let subtype = Subtype::new(&mut store, &object_shm);
+    /// let subtype = Subtype::new(&mut store, &object_chu);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
         };
 
-
-
-
-        
         store.inter_subtype(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Conditionality {
@@ -347,10 +304,8 @@ impl Conditionality {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Unconditional(UNCONDITIONAL);
 
-        
         store.inter_conditionality(test.clone());
 
-        
         test
     }
     // {"magic":"","kind":"CriticalBlockEnd"}
@@ -358,16 +313,8 @@ impl Conditionality {
 
 /// A `Relationship` indicates that a set of objects are connected to each other in some manner
 ///. Typically it is a _real world_ relationship. In the
-///. Typically it is a _real world_ relationship. In the
-///. Typically it is a _real world_ relationship. In the
-///. Typically it is a _real world_ relationship. In the
-///. Typically it is a _real world_ relationship. In the 
 /// case of this model it is strictly an abstraction.
 ///
-///
-///
-///
-/// 
 /// There are three types of `Relationship`: [`Isa`], [`Binary`], and [`Associative`]. Thus
 /// `Relationship` is itself the *supertype* in an [`Isa`] relationship. It is a partitioning
 /// *supertype-subtype* relationship, rather one of inheritance. As such, it’s  perfectly
@@ -402,10 +349,8 @@ impl Relationship {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Isa(Isa::test_default(store).get_id());
 
-        
         store.inter_relationship(test.clone());
 
-        
         test
     }
     // {"magic":"","kind":"CriticalBlockEnd"}
@@ -413,34 +358,14 @@ impl Relationship {
 
 /// A `Binary` relationship, as it’s name implies, is a relationship between
 /// two objects. It consists of two parts, the `Dependent` end of the
-/// two objects. It consists of two parts, the `Dependent` end of the
-/// two objects. It consists of two parts, the `Dependent` end of the
-/// two objects. It consists of two parts, the `Dependent` end of the
-/// two objects. It consists of two parts, the `Dependent` end of the 
 /// relationship and the `Independent` end.
 ///
-///
-///
-///
-/// 
 /// The former is so named because it has the job of formalizing the
 /// relationship. It stores a pointer to the independent object as an attribute.
 ///
 /// The latter is aware of the relationship, but it does not store any
-///
-/// The latter is aware of the relationship, but it does not store any
-///
-/// The latter is aware of the relationship, but it does not store any
-///
-/// The latter is aware of the relationship, but it does not store any
-/// 
-/// The latter is aware of the relationship, but it does not store any 
 /// information about the relationship. That said, there are means of
 /// traversing the relationship from the `Independent` object.
-/// traversing the relationship from the `Independent` object.
-/// traversing the relationship from the `Independent` object.
-/// traversing the relationship from the `Independent` object.
-/// traversing the relationship from the `Independent` object. 
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
@@ -469,32 +394,34 @@ impl Binary {
     ///
     ///```
     /// # use sarzak::sarzak::Binary;
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Referent;
-    /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Referrer;
+    /// # use sarzak::sarzak::Cardinality;
     /// # use sarzak::sarzak::Conditionality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_obk = Conditionality::test_default(&mut store);
-    /// let abrupt_growth = "aloof_dad".to_owned();
-    /// let object_whg = Object::new(&mut store, abrupt_growth);
-    /// let cardinality_gst = Cardinality::test_default(&mut store);
-    /// let referent_zxw = Referent::new(&mut store, &conditionality_obk, &object_whg, &cardinality_gst);
-    /// let conditionality_tte = Conditionality::test_default(&mut store);
-    /// let fresh_class = "parched_force".to_owned();
-    /// let object_hvi = Object::new(&mut store, fresh_class);
-    /// let cardinality_wtv = Cardinality::test_default(&mut store);
-    /// let cheap_gate = "nonstop_back".to_owned();
-    /// let referrer_vhx = Referrer::new(&mut store, &conditionality_tte, &object_hvi, &cardinality_wtv, cheap_gate);
+    /// let conditionality_iil = Conditionality::test_default(&mut store);
+    /// let phobic_statement = "colorful_respect".to_owned();
+    /// let object_kau = Object::new(&mut store, phobic_statement);
+    /// let cardinality_xlh = Cardinality::test_default(&mut store);
+    /// let referent_byn = Referent::new(&mut store, &conditionality_iil, &object_kau, &cardinality_xlh);
+    /// let conditionality_vqa = Conditionality::test_default(&mut store);
+    /// let vacuous_bite = "testy_slope".to_owned();
+    /// let object_hvh = Object::new(&mut store, vacuous_bite);
+    /// let cardinality_ltb = Cardinality::test_default(&mut store);
+    /// let dead_bat = "married_army".to_owned();
+    /// let referrer_xgl = Referrer::new(&mut store, &conditionality_vqa, &object_hvh, &cardinality_ltb, dead_bat);
     ///
-    /// let binary = Binary::new(&mut store, &referent_zxw, &referrer_vhx, 42);
+    /// let binary = Binary::new(&mut store, &referent_byn, &referrer_xgl, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, to: &Referent, from: &Referrer, number: i64, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{}::", to, from, number, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, to: &Referent, from: &Referrer, number: i64) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{}::", to, from, number,).as_bytes(),
+        );
         let new = Self {
             id,
             to: to.id,
@@ -502,25 +429,13 @@ impl Binary {
             number,
         };
 
-
-
-
-        
         store.inter_binary(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// An `Attribute` represents a single value. Each value must have a
-/// An `Attribute` represents a single value. Each value must have a
-/// An `Attribute` represents a single value. Each value must have a
-/// An `Attribute` represents a single value. Each value must have a
-/// An `Attribute` represents a single value. Each value must have a 
 /// [`Type`], which constrains the values of data that may be assigned to
 /// an `Attribute`.
 ///
@@ -555,18 +470,25 @@ impl Attribute {
     /// # use sarzak::sarzak::Attribute;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let first_seed = "lewd_wind".to_owned();
-    /// let object = Object::new(&mut store, first_seed);
-    /// let type_dsq = Type::test_default(&mut store);
-    /// let literate_sheet = "warm_business".to_owned();
+    /// let perfect_sky = "lying_gold".to_owned();
+    /// let object = Object::new(&mut store, perfect_sky);
+    /// let type_crf = Type::test_default(&mut store);
+    /// let deserted_uncle = "colorful_bulb".to_owned();
     ///
-    /// let attribute = Attribute::new(&mut store, Some(&object), &type_dsq, literate_sheet);
+    /// let attribute = Attribute::new(&mut store, Some(&object), &type_crf, deserted_uncle);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: Option<&Object>, ty: &Type, name: std::string::String, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{}::", obj_id, ty, name, ).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        obj_id: Option<&Object>,
+        ty: &Type,
+        name: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{}::", obj_id, ty, name,).as_bytes(),
+        );
         let new = Self {
             id,
             obj_id: obj_id.map(|o| o.id),
@@ -574,19 +496,11 @@ impl Attribute {
             name,
         };
 
-
-
-
-        
         store.inter_attribute(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// An [Object] state, more precisely, a set of states, is where all the action happens.
 ///
@@ -613,47 +527,34 @@ impl State {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::State;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let healthy_loss = "gaudy_zebra".to_owned();
-    /// let object_hqs = Object::new(&mut store, healthy_loss);
-    /// let special_doll = "garrulous_jail".to_owned();
+    /// let melodic_apples = "colossal_goldfish".to_owned();
+    /// let object_luv = Object::new(&mut store, melodic_apples);
+    /// let cheerful_grandfather = "obsequious_motion".to_owned();
     ///
-    /// let state = State::new(&mut store, &object_hqs, special_doll);
+    /// let state = State::new(&mut store, &object_luv, cheerful_grandfather);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
             name,
         };
 
-
-
-
-        
         store.inter_state(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// A constant value that indicates a cardinality of _one_.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -661,26 +562,10 @@ impl State {
 pub const ONE: Uuid = uuid!["bf6924bb-089d-5c1f-bc1f-123ba1fd1ea3"];
 
 /// An `Object` is a collection of related data. By creating `Object`s, and
-/// An `Object` is a collection of related data. By creating `Object`s, and
-/// An `Object` is a collection of related data. By creating `Object`s, and
-/// An `Object` is a collection of related data. By creating `Object`s, and
-/// An `Object` is a collection of related data. By creating `Object`s, and 
 /// connecting them with `Relationships` we build a powerful abstraction.
 ///
 /// `Object`s contain [Attribute]s that represent the data that the
 /// `Object`encapsulates. All `Object`s have an attribute called `id`, which
-///
-/// `Object`s contain [Attribute]s that represent the data that the
-/// `Object`encapsulates. All `Object`s have an attribute called `id`, which
-///
-/// `Object`s contain [Attribute]s that represent the data that the
-/// `Object`encapsulates. All `Object`s have an attribute called `id`, which
-///
-/// `Object`s contain [Attribute]s that represent the data that the
-/// `Object`encapsulates. All `Object`s have an attribute called `id`, which
-/// 
-/// `Object`s contain [Attribute]s that represent the data that the 
-/// `Object`encapsulates. All `Object`s have an attribute called `id`, which 
 /// is a unique idenifier for each class of `Object`. The `id` attribute is a
 /// version 5 UUID.
 ///
@@ -707,33 +592,21 @@ impl Object {
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let true_channel = "sulky_connection".to_owned();
+    /// let lame_lunchroom = "tricky_veil".to_owned();
     ///
-    /// let object = Object::new(&mut store, true_channel);
+    /// let object = Object::new(&mut store, lame_lunchroom);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, name: std::string::String, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}::", name, ).as_bytes());
-        let new = Self {
-            id,
-            name,
-        };
+    pub fn new(store: &mut ObjectStore, name: std::string::String) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}::", name,).as_bytes());
+        let new = Self { id, name };
 
-
-
-
-        
         store.inter_object(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// This is the side being referred to in a binary relationship. It is the “to” side.
 ///
@@ -763,24 +636,31 @@ impl Referent {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Cardinality;
-    /// # use sarzak::sarzak::Referent;
     /// # use sarzak::sarzak::Conditionality;
+    /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Referent;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_mls = Conditionality::test_default(&mut store);
-    /// let vast_mask = "delicate_cloud".to_owned();
-    /// let object_bbs = Object::new(&mut store, vast_mask);
-    /// let cardinality_als = Cardinality::test_default(&mut store);
+    /// let conditionality_wej = Conditionality::test_default(&mut store);
+    /// let thinkable_guide = "breakable_trees".to_owned();
+    /// let object_qkj = Object::new(&mut store, thinkable_guide);
+    /// let cardinality_wwf = Cardinality::test_default(&mut store);
     ///
-    /// let referent = Referent::new(&mut store, &conditionality_mls, &object_bbs, &cardinality_als);
+    /// let referent = Referent::new(&mut store, &conditionality_wej, &object_qkj, &cardinality_wwf);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, conditionality: &Conditionality, obj_id: &Object, cardinality: &Cardinality, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::", conditionality, obj_id, cardinality, ).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        conditionality: &Conditionality,
+        obj_id: &Object,
+        cardinality: &Cardinality,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{:?}::", conditionality, obj_id, cardinality,).as_bytes(),
+        );
         let new = Self {
             id,
             conditionality: conditionality.get_id(),
@@ -788,33 +668,17 @@ impl Referent {
             cardinality: cardinality.get_id(),
         };
 
-
-
-
-        
         store.inter_referent(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The String Type
 ///
-///
-///
-///
-/// 
 /// This type holds unicode characters. This type is just a placeholder. It's implementation
 /// is determined downstream by the code generator.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -853,25 +717,37 @@ impl Referrer {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Referrer;
+    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::Conditionality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_vjc = Conditionality::test_default(&mut store);
-    /// let noxious_wind = "gabby_ship".to_owned();
-    /// let object_nzc = Object::new(&mut store, noxious_wind);
-    /// let cardinality_fus = Cardinality::test_default(&mut store);
-    /// let omniscient_change = "mammoth_fight".to_owned();
+    /// let conditionality_lxm = Conditionality::test_default(&mut store);
+    /// let cloudy_caption = "hanging_volleyball".to_owned();
+    /// let object_vav = Object::new(&mut store, cloudy_caption);
+    /// let cardinality_pnf = Cardinality::test_default(&mut store);
+    /// let ablaze_daughter = "average_whip".to_owned();
     ///
-    /// let referrer = Referrer::new(&mut store, &conditionality_vjc, &object_nzc, &cardinality_fus, omniscient_change);
+    /// let referrer = Referrer::new(&mut store, &conditionality_lxm, &object_vav, &cardinality_pnf, ablaze_daughter);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, conditionality: &Conditionality, obj_id: &Object, cardinality: &Cardinality, referential_attribute: std::string::String, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::{}::", conditionality, obj_id, cardinality, referential_attribute, ).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        conditionality: &Conditionality,
+        obj_id: &Object,
+        cardinality: &Cardinality,
+        referential_attribute: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!(
+                "{:?}::{:?}::{:?}::{}::",
+                conditionality, obj_id, cardinality, referential_attribute,
+            )
+            .as_bytes(),
+        );
         let new = Self {
             id,
             conditionality: conditionality.get_id(),
@@ -880,55 +756,23 @@ impl Referrer {
             referential_attribute,
         };
 
-
-
-
-        
         store.inter_referrer(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The UUID Type
 ///
 /// I feel like there are too many implementation details here.
 ///
-///
-/// I feel like there are too many implementation details here.
-///
-///
-/// I feel like there are too many implementation details here.
-///
-///
-/// I feel like there are too many implementation details here.
-///
-/// 
-/// I feel like there are too many implementation details here. 
-/// 
 /// This UUID is expected to be version 5. Generally we produce input
 /// to the hash function from other UUIDs, coupled with additional
-/// to the hash function from other UUIDs, coupled with additional
-/// to the hash function from other UUIDs, coupled with additional
-/// to the hash function from other UUIDs, coupled with additional
-/// to the hash function from other UUIDs, coupled with additional 
 /// information from the creator to ensure a unique UUID.
 ///
-///
-///
-///
-/// 
 /// The `ns` attribute is the namespace used to generate generate UUIDs
 /// given a particular instance of `UUID`.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true, "translation_name": "SarzakUuid"}
 ///
 /// _Generated code_
@@ -937,10 +781,6 @@ pub const UUID: Uuid = uuid!["dc1639ca-7e20-5a39-92e5-9a478471b8e5"];
 
 /// A constant value that indicates a cardinality of _many_.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -948,10 +788,6 @@ pub const UUID: Uuid = uuid!["dc1639ca-7e20-5a39-92e5-9a478471b8e5"];
 pub const MANY: Uuid = uuid!["0614a507-4422-5994-a59d-68dc57d2c328"];
 
 /// This object represents the *supertype* in a *supertype-subtype*
-/// This object represents the *supertype* in a *supertype-subtype*
-/// This object represents the *supertype* in a *supertype-subtype*
-/// This object represents the *supertype* in a *supertype-subtype*
-/// This object represents the *supertype* in a *supertype-subtype* 
 /// relationship.
 ///
 /// _Generated code_
@@ -978,41 +814,28 @@ impl Supertype {
     /// # use sarzak::sarzak::Supertype;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let naive_hose = "jazzy_rock".to_owned();
-    /// let object_lhn = Object::new(&mut store, naive_hose);
+    /// let willing_crown = "dangerous_lift".to_owned();
+    /// let object_fwb = Object::new(&mut store, willing_crown);
     ///
-    /// let supertype = Supertype::new(&mut store, &object_lhn);
+    /// let supertype = Supertype::new(&mut store, &object_fwb);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
         };
 
-
-
-
-        
         store.inter_supertype(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// A constant value that indicates a conditionality of _unconditional_.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -1038,45 +861,32 @@ impl OneSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::OneSide;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let abrasive_rose = "literate_foot".to_owned();
-    /// let object_dkv = Object::new(&mut store, abrasive_rose);
+    /// let troubled_fifth = "faded_basketball".to_owned();
+    /// let object_wjw = Object::new(&mut store, troubled_fifth);
     ///
-    /// let one_side = OneSide::new(&mut store, &object_dkv);
+    /// let one_side = OneSide::new(&mut store, &object_wjw);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
         };
 
-
-
-
-        
         store.inter_one_side(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The type of a value
 ///
-///
-///
-///
-/// 
 /// There are several values available: [Integer], [Boolean], [Float], [String], and [UUID]
 ///.
 ///
@@ -1117,10 +927,8 @@ impl Type {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Boolean(BOOLEAN);
 
-        
         store.inter_ty(test.clone());
 
-        
         test
     }
     // {"magic":"","kind":"CriticalBlockEnd"}
@@ -1128,10 +936,6 @@ impl Type {
 
 /// A constant value that indicates a conditionality of _conditional_.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -1162,10 +966,8 @@ impl Cardinality {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::One(ONE);
 
-        
         store.inter_cardinality(test.clone());
 
-        
         test
     }
     // {"magic":"","kind":"CriticalBlockEnd"}
@@ -1201,36 +1003,27 @@ impl Event {
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let abusive_appliance = "damaged_expert".to_owned();
-    /// let object_sra = Object::new(&mut store, abusive_appliance);
-    /// let aspiring_sack = "nice_plastic".to_owned();
+    /// let warlike_harmony = "aggressive_ladybug".to_owned();
+    /// let object_gps = Object::new(&mut store, warlike_harmony);
+    /// let nutritious_lawyer = "threatening_push".to_owned();
     ///
-    /// let event = Event::new(&mut store, &object_sra, aspiring_sack);
+    /// let event = Event::new(&mut store, &object_gps, nutritious_lawyer);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
             name,
         };
 
-
-
-
-        
         store.inter_event(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 // {"magic":"","kind":"CriticalBlockBegin"}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -1251,52 +1044,35 @@ impl OtherSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::OtherSide;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let future_advertisement = "merciful_squirrel".to_owned();
-    /// let object_vpv = Object::new(&mut store, future_advertisement);
+    /// let political_year = "giddy_pets".to_owned();
+    /// let object_qzp = Object::new(&mut store, political_year);
     ///
-    /// let other_side = OtherSide::new(&mut store, &object_vpv);
+    /// let other_side = OtherSide::new(&mut store, &object_qzp);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
         };
 
-
-
-
-        
         store.inter_other_side(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The Floating Point Type
 ///
-///
-///
-///
-/// 
 /// This type holds numbers from ℝ. This type is just a placeholder. It's implementation is
 /// determined downstream by the code generator.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
@@ -1326,51 +1102,33 @@ impl AssociativeSide {
     /// # use sarzak::sarzak::AssociativeSide;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let best_veil = "pretty_caption".to_owned();
-    /// let object_hqe = Object::new(&mut store, best_veil);
+    /// let electric_paint = "heavenly_receipt".to_owned();
+    /// let object_fzr = Object::new(&mut store, electric_paint);
     ///
-    /// let associative_side = AssociativeSide::new(&mut store, &object_hqe);
+    /// let associative_side = AssociativeSide::new(&mut store, &object_fzr);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, obj_id: &Object, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
             id,
             obj_id: obj_id.id,
         };
 
-
-
-
-        
         store.inter_associative_side(new.clone());
+        // {"magic":"","kind":"CriticalBlockEnd"}
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
 /// The Integer Type
 ///
-///
-///
-///
-/// 
 /// This is an interger that can hold positive and negative values. This type is just a placeholder
 ///. It's implementation is determined downstream by the code generator.
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
 /// _Generated code_
 //
 pub const INTEGER: Uuid = uuid!["70ec7fbd-44a2-5800-8558-349e3b22cf17"];
-
