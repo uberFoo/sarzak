@@ -47,9 +47,10 @@ use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports"}}}
 use crate::sarzak::store::ObjectStore;
 use crate::sarzak::UUID_NS;
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
 
 /// The Boolean Type
 ///
@@ -81,8 +82,8 @@ impl Isa {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-test_default"}}}
 impl Isa {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         // {"magic":"","kind":"IgnoreBlockBegin"}
         let salty_gold = "warm_airplane".to_owned();
@@ -94,10 +95,11 @@ impl Isa {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa-test_default"}}}
 
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Associative {
     /// pub id: `Uuid`,
@@ -116,9 +118,10 @@ pub struct Associative {
     ///
     pub other: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative-struct-definition"}}}
 
 impl Associative {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-new_impl"}}}
     /// Inter a new Associative and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -145,7 +148,6 @@ impl Associative {
     /// let associative = Associative::new(&mut store, &one_side_sve, &other_side_fxk, &associative_side_zdb, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         one: &OneSide,
@@ -166,17 +168,19 @@ impl Associative {
         };
 
         store.inter_associative(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative-new_impl"}}}
 }
+
 /// An Event that Does Something
 ///
 /// An acknowledged event is an event that a [`State`] knows how to handle.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"acknowledged_event-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AcknowledgedEvent {
     /// pub id: `Uuid`,
@@ -189,9 +193,10 @@ pub struct AcknowledgedEvent {
     ///
     pub state_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"acknowledged_event-struct-definition"}}}
 
 impl AcknowledgedEvent {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"acknowledged_event-new_impl"}}}
     /// Inter a new AcknowledgedEvent and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -216,7 +221,6 @@ impl AcknowledgedEvent {
     /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_qht, &event_pnp);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, state_id: &State, event_id: &Event) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -229,15 +233,17 @@ impl AcknowledgedEvent {
         };
 
         store.inter_acknowledged_event(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"acknowledged_event-new_impl"}}}
 }
+
 /// The *subtype* in a *supertype-subtype* relationship.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Subtype {
     /// pub id: `Uuid`,
@@ -247,9 +253,10 @@ pub struct Subtype {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-struct-definition"}}}
 
 impl Subtype {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-new_impl"}}}
     /// Inter a new Subtype and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -266,7 +273,6 @@ impl Subtype {
     /// let subtype = Subtype::new(&mut store, &object_chu);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
@@ -275,11 +281,12 @@ impl Subtype {
         };
 
         store.inter_subtype(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-new_impl"}}}
 }
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Conditionality {
     /// `Unconditional(Unconditional)`,
@@ -299,8 +306,8 @@ impl Conditionality {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-test_default"}}}
 impl Conditionality {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Unconditional(UNCONDITIONAL);
 
@@ -308,8 +315,8 @@ impl Conditionality {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-test_default"}}}
 
 /// A `Relationship` indicates that a set of objects are connected to each other in some manner
 ///. Typically it is a _real world_ relationship. In the
@@ -344,8 +351,8 @@ impl Relationship {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship-test_default"}}}
 impl Relationship {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Isa(Isa::test_default(store).get_id());
 
@@ -353,8 +360,8 @@ impl Relationship {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"relationship-test_default"}}}
 
 /// A `Binary` relationship, as it’s name implies, is a relationship between
 /// two objects. It consists of two parts, the `Dependent` end of the
@@ -369,6 +376,7 @@ impl Relationship {
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Binary {
     /// pub id: `Uuid`,
@@ -384,9 +392,10 @@ pub struct Binary {
     ///
     pub to: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-struct-definition"}}}
 
 impl Binary {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-new_impl"}}}
     /// Inter a new Binary and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -416,7 +425,6 @@ impl Binary {
     /// let binary = Binary::new(&mut store, &referent_byn, &referrer_xgl, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, to: &Referent, from: &Referrer, number: i64) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -430,17 +438,19 @@ impl Binary {
         };
 
         store.inter_binary(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-new_impl"}}}
 }
+
 /// An `Attribute` represents a single value. Each value must have a
 /// [`Type`], which constrains the values of data that may be assigned to
 /// an `Attribute`.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Attribute {
     /// pub id: `Uuid`,
@@ -456,9 +466,10 @@ pub struct Attribute {
     ///
     pub ty: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-struct-definition"}}}
 
 impl Attribute {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-new_impl"}}}
     /// Inter a new Attribute and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -478,7 +489,6 @@ impl Attribute {
     /// let attribute = Attribute::new(&mut store, Some(&object), &type_crf, deserted_uncle);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         obj_id: Option<&Object>,
@@ -497,15 +507,17 @@ impl Attribute {
         };
 
         store.inter_attribute(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-new_impl"}}}
 }
+
 /// An [Object] state, more precisely, a set of states, is where all the action happens.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"state-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct State {
     /// pub id: `Uuid`,
@@ -518,9 +530,10 @@ pub struct State {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"state-struct-definition"}}}
 
 impl State {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"state-new_impl"}}}
     /// Inter a new State and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -538,7 +551,6 @@ impl State {
     /// let state = State::new(&mut store, &object_luv, cheerful_grandfather);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name,).as_bytes());
         let new = Self {
@@ -548,11 +560,12 @@ impl State {
         };
 
         store.inter_state(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"state-new_impl"}}}
 }
+
 /// A constant value that indicates a cardinality of _one_.
 ///
 /// ❗️{"singleton_object": true}
@@ -571,6 +584,7 @@ pub const ONE: Uuid = uuid!["bf6924bb-089d-5c1f-bc1f-123ba1fd1ea3"];
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Object {
     /// pub id: `Uuid`,
@@ -580,9 +594,10 @@ pub struct Object {
     ///
     pub name: std::string::String,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-struct-definition"}}}
 
 impl Object {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-new_impl"}}}
     /// Inter a new Object and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -597,21 +612,22 @@ impl Object {
     /// let object = Object::new(&mut store, lame_lunchroom);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, name: std::string::String) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{}::", name,).as_bytes());
         let new = Self { id, name };
 
         store.inter_object(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-new_impl"}}}
 }
+
 /// This is the side being referred to in a binary relationship. It is the “to” side.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Referent {
     /// pub id: `Uuid`,
@@ -627,9 +643,10 @@ pub struct Referent {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-struct-definition"}}}
 
 impl Referent {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-new_impl"}}}
     /// Inter a new Referent and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -650,7 +667,6 @@ impl Referent {
     /// let referent = Referent::new(&mut store, &conditionality_wej, &object_qkj, &cardinality_wwf);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         conditionality: &Conditionality,
@@ -669,11 +685,12 @@ impl Referent {
         };
 
         store.inter_referent(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-new_impl"}}}
 }
+
 /// The String Type
 ///
 /// This type holds unicode characters. This type is just a placeholder. It's implementation
@@ -690,6 +707,7 @@ pub const STRING: Uuid = uuid!["d2f03ddf-cb09-546e-9a7a-c9d4e871efb0"];
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Referrer {
     /// pub id: `Uuid`,
@@ -708,9 +726,10 @@ pub struct Referrer {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-struct-definition"}}}
 
 impl Referrer {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-new_impl"}}}
     /// Inter a new Referrer and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -732,7 +751,6 @@ impl Referrer {
     /// let referrer = Referrer::new(&mut store, &conditionality_lxm, &object_vav, &cardinality_pnf, ablaze_daughter);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         conditionality: &Conditionality,
@@ -757,11 +775,12 @@ impl Referrer {
         };
 
         store.inter_referrer(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-new_impl"}}}
 }
+
 /// The UUID Type
 ///
 /// I feel like there are too many implementation details here.
@@ -792,6 +811,7 @@ pub const MANY: Uuid = uuid!["0614a507-4422-5994-a59d-68dc57d2c328"];
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Supertype {
     /// pub id: `Uuid`,
@@ -801,9 +821,10 @@ pub struct Supertype {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-struct-definition"}}}
 
 impl Supertype {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-new_impl"}}}
     /// Inter a new Supertype and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -820,7 +841,6 @@ impl Supertype {
     /// let supertype = Supertype::new(&mut store, &object_fwb);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
@@ -829,11 +849,12 @@ impl Supertype {
         };
 
         store.inter_supertype(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-new_impl"}}}
 }
+
 /// A constant value that indicates a conditionality of _unconditional_.
 ///
 /// ❗️{"singleton_object": true}
@@ -843,6 +864,7 @@ impl Supertype {
 pub const UNCONDITIONAL: Uuid = uuid!["0148e8ea-cf04-50f3-920c-b1aed9903e3a"];
 
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"one_side-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct OneSide {
     /// pub id: `Uuid`,
@@ -852,9 +874,10 @@ pub struct OneSide {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-struct-definition"}}}
 
 impl OneSide {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"one_side-new_impl"}}}
     /// Inter a new OneSide and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -871,7 +894,6 @@ impl OneSide {
     /// let one_side = OneSide::new(&mut store, &object_wjw);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
@@ -880,11 +902,12 @@ impl OneSide {
         };
 
         store.inter_one_side(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-new_impl"}}}
 }
+
 /// The type of a value
 ///
 /// There are several values available: [Integer], [Boolean], [Float], [String], and [UUID]
@@ -922,8 +945,8 @@ impl Type {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-test_default"}}}
 impl Type {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Boolean(BOOLEAN);
 
@@ -931,8 +954,8 @@ impl Type {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"ty-test_default"}}}
 
 /// A constant value that indicates a conditionality of _conditional_.
 ///
@@ -961,8 +984,8 @@ impl Cardinality {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-test_default"}}}
 impl Cardinality {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::One(ONE);
 
@@ -970,14 +993,15 @@ impl Cardinality {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-test_default"}}}
 
 /// An event is sent to an object, and processed by the current state. Assuming it accepts the
 /// event. Otherwise it’s dropped on the floor.
 ///
 /// _Generated code_
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Event {
     /// pub id: `Uuid`,
@@ -990,9 +1014,10 @@ pub struct Event {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"event-struct-definition"}}}
 
 impl Event {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-new_impl"}}}
     /// Inter a new Event and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1010,7 +1035,6 @@ impl Event {
     /// let event = Event::new(&mut store, &object_gps, nutritious_lawyer);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{}::", obj_id, name,).as_bytes());
         let new = Self {
@@ -1020,12 +1044,13 @@ impl Event {
         };
 
         store.inter_event(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"event-new_impl"}}}
 }
-// {"magic":"","kind":"CriticalBlockBegin"}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct OtherSide {
     /// pub id: `Uuid`,
@@ -1035,9 +1060,10 @@ pub struct OtherSide {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-struct-definition"}}}
 
 impl OtherSide {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-new_impl"}}}
     /// Inter a new OtherSide and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1054,7 +1080,6 @@ impl OtherSide {
     /// let other_side = OtherSide::new(&mut store, &object_qzp);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
@@ -1063,11 +1088,12 @@ impl OtherSide {
         };
 
         store.inter_other_side(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-new_impl"}}}
 }
+
 /// The Floating Point Type
 ///
 /// This type holds numbers from ℝ. This type is just a placeholder. It's implementation is
@@ -1080,6 +1106,7 @@ impl OtherSide {
 pub const FLOAT: Uuid = uuid!["8ca8decc-f87b-587a-a390-593d20203b6f"];
 
 // {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AssociativeSide {
     /// pub id: `Uuid`,
@@ -1089,9 +1116,10 @@ pub struct AssociativeSide {
     ///
     pub obj_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-struct-definition"}}}
 
 impl AssociativeSide {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-new_impl"}}}
     /// Inter a new AssociativeSide and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1108,7 +1136,6 @@ impl AssociativeSide {
     /// let associative_side = AssociativeSide::new(&mut store, &object_fzr);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
         let new = Self {
@@ -1117,11 +1144,12 @@ impl AssociativeSide {
         };
 
         store.inter_associative_side(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-new_impl"}}}
 }
+
 /// The Integer Type
 ///
 /// This is an interger that can hold positive and negative values. This type is just a placeholder

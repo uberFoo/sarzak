@@ -91,12 +91,14 @@ pub use sarzak_get_one_obj_across_r17;
 macro_rules! sarzak_maybe_get_one_r_from_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_referrer()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_from_across_r17;
@@ -176,18 +178,21 @@ pub use sarzak_get_one_card_across_r8;
 macro_rules! sarzak_maybe_get_many_r_tos_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referent()
-            .filter_map(|z| {
-                if z.1.cardinality == $input.get_id() {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.cardinality == $input.get_id() {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.cardinality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referent>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r8;
@@ -267,12 +272,14 @@ pub use sarzak_get_one_obj_across_r16;
 macro_rules! sarzak_maybe_get_one_r_to_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referent-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_referent()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referent-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_to_across_r16;
@@ -344,12 +351,14 @@ pub use sarzak_get_one_obj_across_r24;
 macro_rules! sarzak_maybe_get_one_r_one_across_r24 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-one_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_one_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-one_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_one_across_r24;
@@ -431,18 +440,21 @@ pub use sarzak_get_one_cond_across_r12;
 macro_rules! sarzak_maybe_get_many_r_tos_across_r12 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referent()
-            .filter_map(|z| {
-                if z.1.conditionality == $input.get_id() {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.conditionality == $input.get_id() {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.conditionality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referent>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r12;
@@ -514,12 +526,14 @@ pub use sarzak_get_one_obj_across_r26;
 macro_rules! sarzak_maybe_get_one_r_ass_across_r26 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-associative_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-associative_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_ass_across_r26;
@@ -603,18 +617,21 @@ pub use sarzak_get_one_cond_across_r11;
 macro_rules! sarzak_maybe_get_many_r_froms_across_r11 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referrer()
-            .filter_map(|z| {
-                if z.1.conditionality == $input.get_id() {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.conditionality == $input.get_id() {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.conditionality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referrer>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r11;
@@ -688,18 +705,21 @@ pub use sarzak_get_one_obj_across_r18;
 macro_rules! sarzak_maybe_get_many_ss_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-state-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_state()
-            .filter_map(|z| {
-                if z.1.obj_id == $input.id {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.obj_id == $input.id {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.obj_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&State>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-state-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_ss_across_r18;
@@ -887,13 +907,15 @@ pub use sarzak_get_one_r_oth_across_r22;
 macro_rules! sarzak_get_one_r_assoc_across_r22 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_associative()
             .find(|z| z.1.other == $input.id)
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r22;
@@ -985,13 +1007,15 @@ pub use sarzak_get_one_r_one_across_r23;
 macro_rules! sarzak_get_one_r_assoc_across_r23 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"one_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_associative()
             .find(|z| z.1.one == $input.id)
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r23;
@@ -1063,12 +1087,14 @@ pub use sarzak_get_one_obj_across_r14;
 macro_rules! sarzak_maybe_get_one_r_sup_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_supertype()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_sup_across_r14;
@@ -1160,13 +1186,15 @@ pub use sarzak_get_one_r_ass_across_r21;
 macro_rules! sarzak_get_one_r_assoc_across_r21 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_associative()
             .find(|z| z.1.from == $input.id)
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r21;
@@ -1248,18 +1276,21 @@ pub use sarzak_get_one_card_across_r9;
 macro_rules! sarzak_maybe_get_many_r_froms_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referrer()
-            .filter_map(|z| {
-                if z.1.cardinality == $input.get_id() {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.cardinality == $input.get_id() {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.cardinality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referrer>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r9;
@@ -1337,13 +1368,15 @@ pub use sarzak_get_one_t_across_r2;
 macro_rules! sarzak_get_one_a_across_r2 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_attribute()
             .find(|z| z.1.ty == $input.get_id())
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_a_across_r2;
@@ -1441,13 +1474,15 @@ pub use sarzak_get_one_r_from_across_r6;
 macro_rules! sarzak_get_one_r_bin_across_r6 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_binary()
             .find(|z| z.1.from == $input.id)
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_bin_across_r6;
@@ -1521,18 +1556,21 @@ pub use sarzak_get_one_obj_across_r19;
 macro_rules! sarzak_maybe_get_many_es_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-event-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_event()
-            .filter_map(|z| {
-                if z.1.obj_id == $input.id {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.obj_id == $input.id {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.obj_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&Event>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-event-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_es_across_r19;
@@ -1615,18 +1653,21 @@ pub use sarzak_maybe_get_one_obj_across_r1;
 macro_rules! sarzak_get_many_as_across_r1 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_attribute()
-            .filter_map(|z| {
-                if z.1.obj_id == Some($input.id) {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.obj_id == Some($input.id) {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.obj_id == Some($input.id) { Some(z.1) } else { None })
             .collect::<Vec<&Attribute>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_get_many_as_across_r1;
@@ -1698,12 +1739,14 @@ pub use sarzak_get_one_obj_across_r15;
 macro_rules! sarzak_maybe_get_one_r_sub_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_subtype()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_sub_across_r15;
@@ -1775,12 +1818,14 @@ pub use sarzak_get_one_obj_across_r25;
 macro_rules! sarzak_maybe_get_one_r_oth_across_r25 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-other_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_other_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-other_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_oth_across_r25;
@@ -1878,13 +1923,15 @@ pub use sarzak_get_one_r_to_across_r5;
 macro_rules! sarzak_get_one_r_bin_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_binary()
             .find(|z| z.1.to == $input.id)
             .map(|z| z.1)
             .unwrap()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_bin_across_r5;

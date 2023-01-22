@@ -97,12 +97,14 @@ pub use drawing_get_one_anch_across_r9;
 macro_rules! drawing_maybe_get_one_iui_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-isa_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_isa_ui()
             .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-isa_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_iui_across_r9;
@@ -206,12 +208,14 @@ pub use drawing_get_one_anch_across_r15;
 macro_rules! drawing_maybe_get_one_aui_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.other == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r15;
@@ -287,12 +291,14 @@ pub use drawing_get_one_pnt_across_r5;
 macro_rules! drawing_maybe_get_one_anch_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.offset == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r5;
@@ -396,12 +402,14 @@ pub use drawing_get_one_anch_across_r14;
 macro_rules! drawing_maybe_get_one_aui_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.one == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r14;
@@ -587,12 +595,14 @@ pub use drawing_get_one_pnt_across_r13;
 macro_rules! drawing_maybe_get_one_oui_across_r13 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-object_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_object_ui()
             .find(|z| z.1.origin == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-object_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_oui_across_r13;
@@ -696,12 +706,14 @@ pub use drawing_get_one_pnt_across_r17;
 macro_rules! drawing_maybe_get_one_aui_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.middle == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r17;
@@ -787,18 +799,21 @@ pub use drawing_get_one_oui_across_r18;
 macro_rules! drawing_get_many_oui_es_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-object_edge-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_object_edge()
-            .filter_map(|z| {
-                if z.1.oui_id == $input.id {
-                    Some(z.1)
-                } else {
-                    None
-                }
-            })
+// ⚡️             .filter_map(|z| {
+// ⚡️                 if z.1.oui_id == $input.id {
+// ⚡️                     Some(z.1)
+// ⚡️                 } else {
+// ⚡️                     None
+// ⚡️                 }
+// ⚡️             })
+            .filter_map(|z| if z.1.oui_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&ObjectEdge>>()
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-object_edge-emit_many_conditional_lookup"}}}
     }};
 }
 pub use drawing_get_many_oui_es_across_r18;
@@ -892,12 +907,14 @@ pub use drawing_get_one_anch_across_r8;
 macro_rules! drawing_maybe_get_one_bui_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_binary_ui()
             .find(|z| z.1.to == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r8;
@@ -1001,12 +1018,14 @@ pub use drawing_get_one_anch_across_r16;
 macro_rules! drawing_maybe_get_one_aui_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r16;
@@ -1082,12 +1101,14 @@ pub use drawing_get_one_edg_across_r3;
 macro_rules! drawing_maybe_get_one_anch_across_r3 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.edge == $input.get_id())
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r3;
@@ -1173,12 +1194,14 @@ pub use drawing_get_one_edg_across_r19;
 macro_rules! drawing_maybe_get_one_oui_e_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-object_edge-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_object_edge()
             .find(|z| z.1.edge == $input.get_id())
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-object_edge-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_oui_e_across_r19;
@@ -1272,12 +1295,14 @@ pub use drawing_get_one_anch_across_r7;
 macro_rules! drawing_maybe_get_one_bui_across_r7 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_binary_ui()
             .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r7;
@@ -1353,12 +1378,14 @@ pub use drawing_get_one_pnt_across_r4;
 macro_rules! drawing_maybe_get_one_anch_across_r4 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.location == $input.id)
             .map(|(_, z)| z)
-        // {"magic":"","kind":"CriticalBlockEnd"}
+// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
+            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r4;

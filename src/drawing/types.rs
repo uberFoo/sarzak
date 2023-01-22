@@ -32,18 +32,18 @@
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports"}}}
 use crate::drawing::store::ObjectStore;
 use crate::drawing::UUID_NS;
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
 
 // Imported Objects
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imported-objects"}}}
 use crate::sarzak::types::Associative;
 use crate::sarzak::types::Binary;
 use crate::sarzak::types::Isa;
 use crate::sarzak::types::Object;
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imported-objects"}}}
 
 /// An anchor, or anchor point, is the location where an arrow from a relationship attached
 /// to an object.
@@ -58,7 +58,7 @@ use crate::sarzak::types::Object;
 /// relationship phrase.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Anchor {
     /// pub id: `Uuid`,
@@ -74,9 +74,10 @@ pub struct Anchor {
     ///
     pub offset: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-struct-definition"}}}
 
 impl Anchor {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-new_impl"}}}
     /// Inter a new Anchor and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -95,7 +96,6 @@ impl Anchor {
     /// let anchor = Anchor::new(&mut store, &point_lli, &point_ygg, &edge_cal);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, location: &Point, offset: &Point, edge: &Edge) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -109,16 +109,17 @@ impl Anchor {
         };
 
         store.inter_anchor(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-new_impl"}}}
 }
+
 /// This represents additional information necessary to render a `Binary` relationship in the
 /// user interface.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct BinaryUi {
     /// pub id: `Uuid`,
@@ -135,9 +136,10 @@ pub struct BinaryUi {
     ///
     pub to: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-struct-definition"}}}
 
 impl BinaryUi {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-new_impl"}}}
     /// Inter a new BinaryUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -165,7 +167,6 @@ impl BinaryUi {
     /// let binary_ui = BinaryUi::new(&mut store, &anchor_rxr, &anchor_fwb, &binary_ayc);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, from: &Anchor, to: &Anchor, binary_id: &Binary) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -179,15 +180,16 @@ impl BinaryUi {
         };
 
         store.inter_binary_ui(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-new_impl"}}}
 }
+
 /// A point is a two-tuple that represents a location on the drawing canvas.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Point {
     /// pub id: `Uuid`,
@@ -200,9 +202,10 @@ pub struct Point {
     ///
     pub y: i64,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-struct-definition"}}}
 
 impl Point {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-new_impl"}}}
     /// Inter a new Point and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -216,23 +219,23 @@ impl Point {
     /// let point = Point::new(&mut store, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, y: i64, x: i64) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", y, x,).as_bytes());
         let new = Self { id, y, x };
 
         store.inter_point(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-new_impl"}}}
 }
+
 /// The Edge of an Object Depiction
 ///
 /// There are four edges to a rendered object.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct ObjectEdge {
     /// pub id: `Uuid`,
@@ -245,9 +248,10 @@ pub struct ObjectEdge {
     ///
     pub oui_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-struct-definition"}}}
 
 impl ObjectEdge {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-new_impl"}}}
     /// Inter a new ObjectEdge and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -271,7 +275,6 @@ impl ObjectEdge {
     /// let object_edge = ObjectEdge::new(&mut store, &edge_tvy, &object_ui_lls);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, edge: &Edge, oui_id: &ObjectUi) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", edge, oui_id,).as_bytes());
         let new = Self {
@@ -281,11 +284,12 @@ impl ObjectEdge {
         };
 
         store.inter_object_edge(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-new_impl"}}}
 }
+
 /// The top edge of the rendered box
 ///
 /// ❗️{"singleton_object": true}
@@ -348,8 +352,8 @@ impl Edge {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-test_default"}}}
 impl Edge {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Top(TOP);
 
@@ -357,8 +361,8 @@ impl Edge {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-test_default"}}}
 
 /// Additional information necessary to render relationships in the user interface.
 ///
@@ -386,8 +390,8 @@ impl RelationshipUi {
     }
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship_ui-test_default"}}}
 impl RelationshipUi {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         // {"magic":"","kind":"IgnoreBlockBegin"}
         let point_eun = Point::new(store, 42, 42);
@@ -407,8 +411,8 @@ impl RelationshipUi {
 
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"relationship_ui-test_default"}}}
 
 /// Render a rectangle
 ///
@@ -431,7 +435,7 @@ impl RelationshipUi {
 /// ```
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct ObjectUi {
     /// pub height: `i64`,
@@ -451,9 +455,10 @@ pub struct ObjectUi {
     ///
     pub origin: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-struct-definition"}}}
 
 impl ObjectUi {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-new_impl"}}}
     /// Inter a new ObjectUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -473,7 +478,6 @@ impl ObjectUi {
     /// let object_ui = ObjectUi::new(&mut store, &point_vct, &object_vlb, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         origin: &Point,
@@ -494,16 +498,17 @@ impl ObjectUi {
         };
 
         store.inter_object_ui(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-new_impl"}}}
 }
+
 /// This represents additional data necessary to render an `Isa` relationship in the user interface
 ///.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct IsaUi {
     /// pub id: `Uuid`,
@@ -517,9 +522,10 @@ pub struct IsaUi {
     ///
     pub isa: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-struct-definition"}}}
 
 impl IsaUi {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-new_impl"}}}
     /// Inter a new IsaUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -544,7 +550,6 @@ impl IsaUi {
     /// let isa_ui = IsaUi::new(&mut store, &isa_xno, &anchor_dif);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, isa: &Isa, from: &Anchor) -> Self {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", isa, from,).as_bytes());
         let new = Self {
@@ -554,12 +559,13 @@ impl IsaUi {
         };
 
         store.inter_isa_ui(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-new_impl"}}}
 }
-// {"magic":"","kind":"CriticalBlockBegin"}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AssociativeUi {
     /// pub id: `Uuid`,
@@ -582,9 +588,10 @@ pub struct AssociativeUi {
     ///
     pub other: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-struct-definition"}}}
 
 impl AssociativeUi {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-new_impl"}}}
     /// Inter a new AssociativeUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -617,7 +624,6 @@ impl AssociativeUi {
     /// let associative_ui = AssociativeUi::new(&mut store, &associative_tro, &anchor_tfl, &anchor_enw, &anchor_ili, &point_dmq);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(
         store: &mut ObjectStore,
         associative_id: &Associative,
@@ -644,18 +650,19 @@ impl AssociativeUi {
         };
 
         store.inter_associative_ui(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-new_impl"}}}
 }
+
 /// Subtype Anchors
 ///
 /// Just as it sounds, these are [`Anchor`]s used by [`Subtype`]s in an [`Isa`] relationship
 ///.
 ///
 /// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct SubtypeAnchors {
     /// pub id: `Uuid`,
@@ -668,9 +675,10 @@ pub struct SubtypeAnchors {
     ///
     pub isaui_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-struct-definition"}}}
 
 impl SubtypeAnchors {
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-new_impl"}}}
     /// Inter a new SubtypeAnchors and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -701,7 +709,6 @@ impl SubtypeAnchors {
     /// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_lbj, &isa_ui_ufp);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn new(store: &mut ObjectStore, anchor_id: &Anchor, isaui_id: &IsaUi) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -714,11 +721,12 @@ impl SubtypeAnchors {
         };
 
         store.inter_subtype_anchors(new.clone());
-        // {"magic":"","kind":"CriticalBlockEnd"}
 
         new
     }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-new_impl"}}}
 }
+
 /// The right side of a rendered box
 ///
 /// ❗️{"singleton_object": true}
