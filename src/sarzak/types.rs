@@ -57,7 +57,15 @@ use uuid::{uuid, Uuid};
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports"}}}
 use crate::sarzak::store::ObjectStore;
 use crate::sarzak::UUID_NS;
+use nut::codegen::{Extrude, SarzakObjectStore};
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"context-extrude_impl", "is_uber": true}}}
+pub(crate) struct Context<'a> {
+    pub(crate) from: &'a SarzakObjectStore,
+    pub(crate) to: &'a mut ObjectStore,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"context-extrude_impl"}}}
 
 /// An Event that Does Something
 ///
@@ -121,6 +129,9 @@ impl AcknowledgedEvent {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"acknowledged_event-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"acknowledged_event-extrude_impl", "is_uber": true}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"acknowledged_event-extrude_impl"}}}
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -197,6 +208,16 @@ impl Associative {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-extrude_impl"}}}
+impl Extrude<nut::sarzak::Associative, Context<'_>> for Associative {
+    fn extrude(orig: nut::sarzak::Associative, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative-extrude_impl"}}}
+
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AssociativeSide {
@@ -240,6 +261,16 @@ impl AssociativeSide {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::sarzak::AssociativeReferrer, Context<'_>> for AssociativeSide {
+    fn extrude(orig: nut::sarzak::AssociativeReferrer, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-extrude_impl"}}}
 
 /// An `Attribute` represents a single value. Each value must have a
 /// [`Type`], which constrains the values of data that may be assigned to
@@ -307,6 +338,16 @@ impl Attribute {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-extrude_impl"}}}
+impl Extrude<nut::sarzak::Attribute, Context<'_>> for Attribute {
+    fn extrude(orig: nut::sarzak::Attribute, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-extrude_impl"}}}
 
 /// A `Binary` relationship, as it’s name implies, is a relationship between
 /// two objects. It consists of two parts, the `Dependent` end of the
@@ -386,6 +427,16 @@ impl Binary {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-extrude_impl"}}}
+impl Extrude<nut::sarzak::Binary, Context<'_>> for Binary {
+    fn extrude(orig: nut::sarzak::Binary, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-extrude_impl"}}}
 
 /// The Boolean Type
 ///
@@ -518,6 +569,9 @@ impl Event {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"event-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-extrude_impl", "is_uber": true}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"event-extrude_impl"}}}
+
 /// The Floating Point Type
 ///
 /// This type holds numbers from ℝ. This type is just a placeholder. It's implementation is
@@ -561,9 +615,10 @@ impl Isa {
 impl Isa {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         // {"magic":"","kind":"IgnoreBlockBegin"}
-        let uppity_slave = "calm_drop".to_owned();
-        let object_rfh = Object::new(store, uppity_slave);
-        let test = Self::Subtype(Subtype::new(store, &object_rfh).id);
+        let incandescent_meat = "frantic_cart".to_owned();
+        let ten_volcano = "premium_crowd".to_owned();
+        let object_gua = Object::new(store, incandescent_meat, ten_volcano);
+        let test = Self::Subtype(Subtype::new(store, &object_gua).id);
         // {"magic":"","kind":"IgnoreBlockEnd"}
 
         store.inter_isa(test.clone());
@@ -591,6 +646,9 @@ pub const MANY: Uuid = uuid!["0614a507-4422-5994-a59d-68dc57d2c328"];
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Object {
+    /// pub description: `std::string::String`,
+    ///
+    pub description: std::string::String,
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
@@ -616,9 +674,17 @@ impl Object {
     /// let object = Object::new(&mut store, super_support);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, name: std::string::String) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}::", name,).as_bytes());
-        let new = Self { id, name };
+    pub fn new(
+        store: &mut ObjectStore,
+        description: std::string::String,
+        name: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", description, name,).as_bytes());
+        let new = Self {
+            id,
+            description,
+            name,
+        };
 
         store.inter_object(new.clone());
 
@@ -626,6 +692,18 @@ impl Object {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::sarzak::Object, Context<'_>> for Object {
+    fn extrude(orig: nut::sarzak::Object, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            description: orig.description,
+            name: orig.name.inner().clone(),
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-extrude_impl"}}}
 
 /// A constant value that indicates a cardinality of _one_.
 ///
@@ -678,6 +756,16 @@ impl OneSide {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"one_side-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::sarzak::AssociativeReferent, Context<'_>> for OneSide {
+    fn extrude(orig: nut::sarzak::AssociativeReferent, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-extrude_impl"}}}
+
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct OtherSide {
@@ -721,6 +809,16 @@ impl OtherSide {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::sarzak::AssociativeReferrer, Context<'_>> for OtherSide {
+    fn extrude(orig: nut::sarzak::AssociativeReferrer, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-extrude_impl"}}}
 
 /// This is the side being referred to in a binary relationship. It is the “to” side.
 ///
@@ -787,6 +885,16 @@ impl Referent {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-extrude_impl"}}}
+impl Extrude<nut::sarzak::Referent, Context<'_>> for Referent {
+    fn extrude(orig: nut::sarzak::Referent, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-extrude_impl"}}}
 
 /// This is the side of a binary relationship that is doing the pointing, thus it contains the
 /// referential attribute. It is connected to the “from” side of a binary relationship.
@@ -864,6 +972,18 @@ impl Referrer {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-new_impl"}}}
 }
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::sarzak::Referrer, Context<'_>> for Referrer {
+    fn extrude(orig: nut::sarzak::Referrer, context: &mut Context<'_>) -> Self {
+        let Context {
+            ref from,
+            ref mut to,
+        } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-extrude_impl"}}}
 
 /// A `Relationship` indicates that a set of objects are connected to each other in some manner
 ///. Typically it is a _real world_ relationship. In the
@@ -960,6 +1080,9 @@ impl State {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"state-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"state-extrude_impl", "is_uber": true}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"state-extrude_impl"}}}
+
 /// The String Type
 ///
 /// This type holds unicode characters. This type is just a placeholder. It's implementation
@@ -1016,6 +1139,16 @@ impl Subtype {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-extrude_impl"}}}
+impl Extrude<nut::sarzak::Subtype, Context<'_>> for Subtype {
+    fn extrude(orig: nut::sarzak::Subtype, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-extrude_impl"}}}
+
 /// This object represents the *supertype* in a *supertype-subtype*
 /// relationship.
 ///
@@ -1062,6 +1195,16 @@ impl Supertype {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-extrude_impl"}}}
+impl Extrude<nut::sarzak::Supertype, Context<'_>> for Supertype {
+    fn extrude(orig: nut::sarzak::Supertype, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-extrude_impl"}}}
 
 /// The type of a value
 ///

@@ -38,9 +38,10 @@
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports", "is_uber": true}}}
 use crate::drawing::store::ObjectStore;
 use crate::drawing::UUID_NS;
+use nut::codegen::{DrawingObjectStore, Extrude};
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
 
 // Imported Objects
@@ -50,6 +51,13 @@ use crate::sarzak::types::Binary;
 use crate::sarzak::types::Isa;
 use crate::sarzak::types::Object;
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imported-objects"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"context-extrude_impl", "is_uber": true}}}
+pub(crate) struct Context<'a> {
+    from: &'a DrawingObjectStore,
+    to: &'a mut ObjectStore,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"context-extrude_impl"}}}
 
 /// An anchor, or anchor point, is the location where an arrow from a relationship attached
 /// to an object.
@@ -119,6 +127,16 @@ impl Anchor {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-extrude_impl"}}}
+impl Extrude<nut::drawing::Anchor, Context<'_>> for Anchor {
+    fn extrude(orig: nut::drawing::Anchor, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-extrude_impl"}}}
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -211,6 +229,16 @@ impl AssociativeUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::AssociativeUI, Context<'_>> for AssociativeUi {
+    fn extrude(orig: nut::drawing::AssociativeUI, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-extrude_impl"}}}
+
 /// This represents additional information necessary to render a `Binary` relationship in the
 /// user interface.
 ///
@@ -280,6 +308,16 @@ impl BinaryUi {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::BinaryUI, Context<'_>> for BinaryUi {
+    fn extrude(orig: nut::drawing::BinaryUI, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-extrude_impl"}}}
 
 /// The bottom of a rendered box
 ///
@@ -405,6 +443,16 @@ impl IsaUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::IsaUI, Context<'_>> for IsaUi {
+    fn extrude(orig: nut::drawing::IsaUI, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-extrude_impl"}}}
+
 /// The left side of a rendered box
 ///
 /// ❗️{"singleton_object": true}
@@ -470,6 +518,16 @@ impl ObjectEdge {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-extrude_impl"}}}
+impl Extrude<nut::drawing::ObjectEdge, Context<'_>> for ObjectEdge {
+    fn extrude(orig: nut::drawing::ObjectEdge, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-extrude_impl"}}}
 
 /// Render a rectangle
 ///
@@ -560,6 +618,16 @@ impl ObjectUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-new_impl"}}}
 }
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::ObjectUI, Context<'_>> for ObjectUi {
+    fn extrude(orig: nut::drawing::ObjectUI, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-extrude_impl"}}}
+
 /// A point is a two-tuple that represents a location on the drawing canvas.
 ///
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-struct-definition"}}}
@@ -602,6 +670,16 @@ impl Point {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-extrude_impl"}}}
+impl Extrude<nut::drawing::Point, Context<'_>> for Point {
+    fn extrude(orig: nut::drawing::Point, context: &mut Context<'_>) -> Self {
+        let Context { from, ref mut to } = context;
+
+        Self::default()
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-extrude_impl"}}}
 
 /// Additional information necessary to render relationships in the user interface.
 ///
@@ -728,6 +806,16 @@ impl SubtypeAnchors {
     }
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-extrude_impl", "is_uber": true}}}
+// impl Extrude<nut::drawing::SubtypeAnchors, Context<'_>> for SubtypeAnchors {
+//     fn extrude(orig: nut::drawing::SubtypeAnchors, context: &mut Context<'_>) -> Self {
+//         let Context { from, ref mut to } = context;
+
+//         Self::default()
+//     }
+// }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-extrude_impl"}}}
 
 /// The top edge of the rendered box
 ///
