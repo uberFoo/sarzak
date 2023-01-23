@@ -47,7 +47,7 @@
 //! Use the following invocation to reproduce:
 // {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
-//!  sarzak gen
+//!  sarzak gen sarzak -i true -m true -d true -e true
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
@@ -94,22 +94,24 @@ impl AcknowledgedEvent {
     /// # Example
     ///
     ///```
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::State;
     /// # use sarzak::sarzak::AcknowledgedEvent;
     /// # use sarzak::sarzak::Event;
-    /// # use sarzak::sarzak::State;
-    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let thoughtless_representative = "jagged_lip".to_owned();
-    /// let object_mvq = Object::new(&mut store, thoughtless_representative);
-    /// let brown_rat = "defiant_zebra".to_owned();
-    /// let state_mfg = State::new(&mut store, &object_mvq, brown_rat);
-    /// let medical_texture = "fluffy_door".to_owned();
-    /// let object_ytp = Object::new(&mut store, medical_texture);
-    /// let alcoholic_bulb = "verdant_visitor".to_owned();
-    /// let event_bdj = Event::new(&mut store, &object_ytp, alcoholic_bulb);
+    /// let hissing_peace = "knotty_book".to_owned();
+    /// let obsolete_sea = "animated_doll".to_owned();
+    /// let object_vvu = Object::new(&mut store, hissing_peace, obsolete_sea);
+    /// let standing_cherry = "labored_eggs".to_owned();
+    /// let state_uzm = State::new(&mut store, &object_vvu, standing_cherry);
+    /// let fluffy_condition = "old_fashioned_statement".to_owned();
+    /// let kaput_houses = "reflective_bead".to_owned();
+    /// let object_atg = Object::new(&mut store, fluffy_condition, kaput_houses);
+    /// let two_apples = "wild_kiss".to_owned();
+    /// let event_qqw = Event::new(&mut store, &object_atg, two_apples);
     ///
-    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_mfg, &event_bdj);
+    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_uzm, &event_qqw);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, state_id: &State, event_id: &Event) -> Self {
@@ -163,23 +165,26 @@ impl Associative {
     ///
     ///```
     /// # use sarzak::sarzak::OneSide;
-    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Associative;
     /// # use sarzak::sarzak::OtherSide;
     /// # use sarzak::sarzak::AssociativeSide;
-    /// # use sarzak::sarzak::Associative;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let wandering_bed = "damp_trail".to_owned();
-    /// let object_umz = Object::new(&mut store, wandering_bed);
-    /// let one_side_fxk = OneSide::new(&mut store, &object_umz);
-    /// let placid_profit = "large_fold".to_owned();
-    /// let object_bwf = Object::new(&mut store, placid_profit);
-    /// let other_side_tle = OtherSide::new(&mut store, &object_bwf);
-    /// let snotty_roof = "jumbled_purpose".to_owned();
-    /// let object_fjm = Object::new(&mut store, snotty_roof);
-    /// let associative_side_nmw = AssociativeSide::new(&mut store, &object_fjm);
+    /// let acid_coal = "various_roll".to_owned();
+    /// let mighty_behavior = "spiky_rod".to_owned();
+    /// let object_bdk = Object::new(&mut store, acid_coal, mighty_behavior);
+    /// let one_side_dpl = OneSide::new(&mut store, &object_bdk);
+    /// let delicate_fuel = "tough_drawer".to_owned();
+    /// let feeble_size = "zonked_lip".to_owned();
+    /// let object_zbp = Object::new(&mut store, delicate_fuel, feeble_size);
+    /// let other_side_fcj = OtherSide::new(&mut store, &object_zbp);
+    /// let ritzy_bushes = "fearful_history".to_owned();
+    /// let hesitant_knowledge = "futuristic_earthquake".to_owned();
+    /// let object_twb = Object::new(&mut store, ritzy_bushes, hesitant_knowledge);
+    /// let associative_side_fbq = AssociativeSide::new(&mut store, &object_twb);
     ///
-    /// let associative = Associative::new(&mut store, &one_side_fxk, &other_side_tle, &associative_side_nmw, 42);
+    /// let associative = Associative::new(&mut store, &one_side_dpl, &other_side_fcj, &associative_side_fbq, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -242,10 +247,11 @@ impl AssociativeSide {
     /// # use sarzak::sarzak::AssociativeSide;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let thinkable_cannon = "obese_achieve".to_owned();
-    /// let object_yeu = Object::new(&mut store, thinkable_cannon);
+    /// let towering_shelf = "flaky_motion".to_owned();
+    /// let aware_hobbies = "far_flung_floor".to_owned();
+    /// let object_ain = Object::new(&mut store, towering_shelf, aware_hobbies);
     ///
-    /// let associative_side = AssociativeSide::new(&mut store, &object_yeu);
+    /// let associative_side = AssociativeSide::new(&mut store, &object_ain);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -307,12 +313,13 @@ impl Attribute {
     /// # use sarzak::sarzak::Type;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let vagabond_boundary = "spooky_play".to_owned();
-    /// let object = Object::new(&mut store, vagabond_boundary);
-    /// let type_eoq = Type::test_default(&mut store);
-    /// let macho_friends = "frightening_tail".to_owned();
+    /// let careful_rhythm = "exuberant_truck".to_owned();
+    /// let towering_babies = "stereotyped_shape".to_owned();
+    /// let object = Object::new(&mut store, careful_rhythm, towering_babies);
+    /// let type_mqc = Type::test_default(&mut store);
+    /// let third_clocks = "tough_feeling".to_owned();
     ///
-    /// let attribute = Attribute::new(&mut store, Some(&object), &type_eoq, macho_friends);
+    /// let attribute = Attribute::new(&mut store, Some(&object), &type_mqc, third_clocks);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -386,27 +393,29 @@ impl Binary {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Referrer;
-    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Referent;
+    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Binary;
+    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Cardinality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_wtm = Conditionality::test_default(&mut store);
-    /// let damaged_ladybug = "numberless_quilt".to_owned();
-    /// let object_mgf = Object::new(&mut store, damaged_ladybug);
-    /// let cardinality_ycz = Cardinality::test_default(&mut store);
-    /// let referent_ztd = Referent::new(&mut store, &conditionality_wtm, &object_mgf, &cardinality_ycz);
-    /// let conditionality_gxo = Conditionality::test_default(&mut store);
-    /// let faint_cracker = "delicious_zoo".to_owned();
-    /// let object_wie = Object::new(&mut store, faint_cracker);
-    /// let cardinality_atg = Cardinality::test_default(&mut store);
-    /// let aberrant_bushes = "spiteful_bee".to_owned();
-    /// let referrer_ngd = Referrer::new(&mut store, &conditionality_gxo, &object_wie, &cardinality_atg, aberrant_bushes);
+    /// let conditionality_jlf = Conditionality::test_default(&mut store);
+    /// let scrawny_skin = "caring_jelly".to_owned();
+    /// let intelligent_brass = "unnatural_caption".to_owned();
+    /// let object_kdu = Object::new(&mut store, scrawny_skin, intelligent_brass);
+    /// let cardinality_zqk = Cardinality::test_default(&mut store);
+    /// let referent_dgg = Referent::new(&mut store, &conditionality_jlf, &object_kdu, &cardinality_zqk);
+    /// let conditionality_nll = Conditionality::test_default(&mut store);
+    /// let worried_opinion = "internal_quilt".to_owned();
+    /// let healthy_mark = "slippery_creature".to_owned();
+    /// let object_myq = Object::new(&mut store, worried_opinion, healthy_mark);
+    /// let cardinality_voe = Cardinality::test_default(&mut store);
+    /// let unique_joke = "tightfisted_reason".to_owned();
+    /// let referrer_phm = Referrer::new(&mut store, &conditionality_nll, &object_myq, &cardinality_voe, unique_joke);
     ///
-    /// let binary = Binary::new(&mut store, &referent_ztd, &referrer_ngd, 42);
+    /// let binary = Binary::new(&mut store, &referent_dgg, &referrer_phm, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, to: &Referent, from: &Referrer, number: i64) -> Self {
@@ -543,15 +552,16 @@ impl Event {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Event;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let exclusive_pie = "chunky_pleasure".to_owned();
-    /// let object_whr = Object::new(&mut store, exclusive_pie);
-    /// let aberrant_ship = "keen_drop".to_owned();
+    /// let zonked_idea = "violent_iron".to_owned();
+    /// let hospitable_ticket = "different_color".to_owned();
+    /// let object_hxl = Object::new(&mut store, zonked_idea, hospitable_ticket);
+    /// let cluttered_quiver = "murky_sky".to_owned();
     ///
-    /// let event = Event::new(&mut store, &object_whr, aberrant_ship);
+    /// let event = Event::new(&mut store, &object_hxl, cluttered_quiver);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
@@ -615,10 +625,10 @@ impl Isa {
 impl Isa {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         // {"magic":"","kind":"IgnoreBlockBegin"}
-        let incandescent_meat = "frantic_cart".to_owned();
-        let ten_volcano = "premium_crowd".to_owned();
-        let object_gua = Object::new(store, incandescent_meat, ten_volcano);
-        let test = Self::Subtype(Subtype::new(store, &object_gua).id);
+        let lying_balance = "gamy_debt".to_owned();
+        let illustrious_partner = "grumpy_pan".to_owned();
+        let object_fwd = Object::new(store, lying_balance, illustrious_partner);
+        let test = Self::Subtype(Subtype::new(store, &object_fwd).id);
         // {"magic":"","kind":"IgnoreBlockEnd"}
 
         store.inter_isa(test.clone());
@@ -669,9 +679,10 @@ impl Object {
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let super_support = "sick_effect".to_owned();
+    /// let distinct_lunch = "unequal_thought".to_owned();
+    /// let political_cats = "truculent_wood".to_owned();
     ///
-    /// let object = Object::new(&mut store, super_support);
+    /// let object = Object::new(&mut store, distinct_lunch, political_cats);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -736,10 +747,11 @@ impl OneSide {
     /// # use sarzak::sarzak::OneSide;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let third_baseball = "yielding_legs".to_owned();
-    /// let object_zcc = Object::new(&mut store, third_baseball);
+    /// let cautious_trees = "ubiquitous_chair".to_owned();
+    /// let ubiquitous_fuel = "bouncy_brake".to_owned();
+    /// let object_xca = Object::new(&mut store, cautious_trees, ubiquitous_fuel);
     ///
-    /// let one_side = OneSide::new(&mut store, &object_zcc);
+    /// let one_side = OneSide::new(&mut store, &object_xca);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -786,14 +798,15 @@ impl OtherSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::OtherSide;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let delicious_operation = "willing_kite".to_owned();
-    /// let object_drt = Object::new(&mut store, delicious_operation);
+    /// let alert_match = "colorful_name".to_owned();
+    /// let flawless_letters = "reflective_hill".to_owned();
+    /// let object_cet = Object::new(&mut store, alert_match, flawless_letters);
     ///
-    /// let other_side = OtherSide::new(&mut store, &object_drt);
+    /// let other_side = OtherSide::new(&mut store, &object_cet);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -848,18 +861,19 @@ impl Referent {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Referent;
+    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Cardinality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_rcy = Conditionality::test_default(&mut store);
-    /// let alluring_plantation = "abnormal_game".to_owned();
-    /// let object_irt = Object::new(&mut store, alluring_plantation);
-    /// let cardinality_psm = Cardinality::test_default(&mut store);
+    /// let conditionality_oyq = Conditionality::test_default(&mut store);
+    /// let sassy_start = "upbeat_hole".to_owned();
+    /// let mixed_beds = "faint_nail".to_owned();
+    /// let object_wmo = Object::new(&mut store, sassy_start, mixed_beds);
+    /// let cardinality_fvg = Cardinality::test_default(&mut store);
     ///
-    /// let referent = Referent::new(&mut store, &conditionality_rcy, &object_irt, &cardinality_psm);
+    /// let referent = Referent::new(&mut store, &conditionality_oyq, &object_wmo, &cardinality_fvg);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -928,19 +942,20 @@ impl Referrer {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Referrer;
     /// # use sarzak::sarzak::Cardinality;
-    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Referrer;
     /// # use sarzak::sarzak::Conditionality;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_adh = Conditionality::test_default(&mut store);
-    /// let mellow_stitch = "abounding_health".to_owned();
-    /// let object_okw = Object::new(&mut store, mellow_stitch);
-    /// let cardinality_zcu = Cardinality::test_default(&mut store);
-    /// let squalid_dogs = "incandescent_dirt".to_owned();
+    /// let conditionality_bja = Conditionality::test_default(&mut store);
+    /// let careful_stage = "squalid_transport".to_owned();
+    /// let common_property = "reflective_pies".to_owned();
+    /// let object_qok = Object::new(&mut store, careful_stage, common_property);
+    /// let cardinality_cst = Cardinality::test_default(&mut store);
+    /// let absurd_system = "satisfying_children".to_owned();
     ///
-    /// let referrer = Referrer::new(&mut store, &conditionality_adh, &object_okw, &cardinality_zcu, squalid_dogs);
+    /// let referrer = Referrer::new(&mut store, &conditionality_bja, &object_qok, &cardinality_cst, absurd_system);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -1054,15 +1069,16 @@ impl State {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::State;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::State;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let sore_man = "curvy_temper".to_owned();
-    /// let object_cul = Object::new(&mut store, sore_man);
-    /// let brave_sister = "romantic_stretch".to_owned();
+    /// let painful_grip = "solid_girls".to_owned();
+    /// let savory_care = "omniscient_worm".to_owned();
+    /// let object_dby = Object::new(&mut store, painful_grip, savory_care);
+    /// let strong_middle = "quixotic_letter".to_owned();
     ///
-    /// let state = State::new(&mut store, &object_cul, brave_sister);
+    /// let state = State::new(&mut store, &object_dby, strong_middle);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
@@ -1115,14 +1131,15 @@ impl Subtype {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Subtype;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Subtype;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let black_and_white_jeans = "cool_paint".to_owned();
-    /// let object_tgn = Object::new(&mut store, black_and_white_jeans);
+    /// let drab_bells = "mammoth_arm".to_owned();
+    /// let zealous_adjustment = "wary_bike".to_owned();
+    /// let object_tmt = Object::new(&mut store, drab_bells, zealous_adjustment);
     ///
-    /// let subtype = Subtype::new(&mut store, &object_tgn);
+    /// let subtype = Subtype::new(&mut store, &object_tmt);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -1172,14 +1189,15 @@ impl Supertype {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Supertype;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Supertype;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let five_bomb = "deranged_whip".to_owned();
-    /// let object_ytj = Object::new(&mut store, five_bomb);
+    /// let damaging_slip = "whispering_crack".to_owned();
+    /// let successful_religion = "knowing_rest".to_owned();
+    /// let object_nku = Object::new(&mut store, damaging_slip, successful_religion);
     ///
-    /// let supertype = Supertype::new(&mut store, &object_ytj);
+    /// let supertype = Supertype::new(&mut store, &object_nku);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {

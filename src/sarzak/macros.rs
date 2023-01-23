@@ -9,7 +9,7 @@
 //! Use the following invocation to reproduce:
 // {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
-//!  sarzak gen
+//!  sarzak gen sarzak -i true -m true -d true -e true
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
@@ -27,23 +27,24 @@
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Conditionality;
-/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Referrer;
+/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak_get_one_obj_across_r17;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_xqy = Conditionality::test_default(&mut store);
-/// let spotless_head = "unsuitable_things".to_owned();
-/// let object_prq = Object::new(&mut store, spotless_head);
-/// let cardinality_wup = Cardinality::test_default(&mut store);
-/// let nosy_stop = "annoying_account".to_owned();
+/// let conditionality_nvq = Conditionality::test_default(&mut store);
+/// let neat_trouble = "scarce_feast".to_owned();
+/// let exciting_hydrant = "gusty_trees".to_owned();
+/// let object_zbe = Object::new(&mut store, neat_trouble, exciting_hydrant);
+/// let cardinality_jeg = Cardinality::test_default(&mut store);
+/// let juvenile_weight = "striped_ice".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_xqy, &object_prq, &cardinality_wup, nosy_stop);
+/// let referrer = Referrer::new(&mut store, &conditionality_nvq, &object_zbe, &cardinality_jeg, juvenile_weight);
 ///
-/// let object_oku = sarzak_get_one_obj_across_r17!(referrer, store);
-/// assert_eq!(&object_prq, object_oku);
+/// let object_nom = sarzak_get_one_obj_across_r17!(referrer, store);
+/// assert_eq!(&object_zbe, object_nom);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -68,37 +69,36 @@ pub use sarzak_get_one_obj_across_r17;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referrer;
-/// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak_maybe_get_one_r_from_across_r17;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_gma = Conditionality::test_default(&mut store);
-/// let jaded_branch = "grumpy_line".to_owned();
-/// let object_ucx = Object::new(&mut store, jaded_branch);
-/// let cardinality_opc = Cardinality::test_default(&mut store);
-/// let plastic_front = "wanting_pear".to_owned();
+/// let conditionality_jxn = Conditionality::test_default(&mut store);
+/// let black_nation = "exultant_airport".to_owned();
+/// let abortive_look = "adhesive_word".to_owned();
+/// let object_vwr = Object::new(&mut store, black_nation, abortive_look);
+/// let cardinality_pot = Cardinality::test_default(&mut store);
+/// let damaged_route = "grieving_picture".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_gma, &object_ucx, &cardinality_opc, plastic_front);
-/// let referrer_hoc = sarzak_maybe_get_one_r_from_across_r17!(object_ucx, store);
+/// let referrer = Referrer::new(&mut store, &conditionality_jxn, &object_vwr, &cardinality_pot, damaged_route);
+/// let referrer_akr = sarzak_maybe_get_one_r_from_across_r17!(object_vwr, store);
 ///
-/// assert_eq!(Some(&referrer), referrer_hoc);
+/// assert_eq!(Some(&referrer), referrer_akr);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_from_across_r17 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_referrer()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_from_across_r17;
@@ -116,22 +116,23 @@ pub use sarzak_maybe_get_one_r_from_across_r17;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Conditionality;
-/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Cardinality;
+/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak_get_one_card_across_r8;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_qhv = Conditionality::test_default(&mut store);
-/// let useless_knee = "selective_sea".to_owned();
-/// let object_ifj = Object::new(&mut store, useless_knee);
-/// let cardinality_jxt = Cardinality::test_default(&mut store);
+/// let conditionality_xnh = Conditionality::test_default(&mut store);
+/// let nonstop_tank = "psychedelic_galley".to_owned();
+/// let milky_shock = "boorish_reading".to_owned();
+/// let object_vrh = Object::new(&mut store, nonstop_tank, milky_shock);
+/// let cardinality_bvl = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_qhv, &object_ifj, &cardinality_jxt);
+/// let referent = Referent::new(&mut store, &conditionality_xnh, &object_vrh, &cardinality_bvl);
 ///
-/// let cardinality_xpa = sarzak_get_one_card_across_r8!(referent, store);
-/// assert_eq!(&cardinality_jxt, cardinality_xpa);
+/// let cardinality_jio = sarzak_get_one_card_across_r8!(referent, store);
+/// assert_eq!(&cardinality_bvl, cardinality_jio);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -156,43 +157,35 @@ pub use sarzak_get_one_card_across_r8;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Referent;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak_maybe_get_many_r_tos_across_r8;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_fwm = Conditionality::test_default(&mut store);
-/// let wooden_opinion = "outrageous_addition".to_owned();
-/// let object_ewh = Object::new(&mut store, wooden_opinion);
-/// let cardinality_rtk = Cardinality::test_default(&mut store);
+/// let conditionality_vyf = Conditionality::test_default(&mut store);
+/// let uttermost_hose = "marvelous_maid".to_owned();
+/// let poised_birth = "heady_teeth".to_owned();
+/// let object_efz = Object::new(&mut store, uttermost_hose, poised_birth);
+/// let cardinality_bmu = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_fwm, &object_ewh, &cardinality_rtk);
-/// let referent_kkf = sarzak_maybe_get_many_r_tos_across_r8!(cardinality_rtk, store);
+/// let referent = Referent::new(&mut store, &conditionality_vyf, &object_efz, &cardinality_bmu);
+/// let referent_szl = sarzak_maybe_get_many_r_tos_across_r8!(cardinality_bmu, store);
 ///
-/// assert!(referent_kkf.iter().find(|&x| **x == referent).is_some());
+/// assert!(referent_szl.iter().find(|&x| **x == referent).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_r_tos_across_r8 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referent()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.cardinality == $input.get_id() {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.cardinality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referent>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r8;
@@ -210,22 +203,23 @@ pub use sarzak_maybe_get_many_r_tos_across_r8;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Cardinality;
+/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_obj_across_r16;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_ijm = Conditionality::test_default(&mut store);
-/// let abundant_cable = "taboo_pain".to_owned();
-/// let object_aoe = Object::new(&mut store, abundant_cable);
-/// let cardinality_htk = Cardinality::test_default(&mut store);
+/// let conditionality_twp = Conditionality::test_default(&mut store);
+/// let temporary_clam = "stupendous_quilt".to_owned();
+/// let dazzling_society = "pretty_carpenter".to_owned();
+/// let object_fyy = Object::new(&mut store, temporary_clam, dazzling_society);
+/// let cardinality_avq = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_ijm, &object_aoe, &cardinality_htk);
+/// let referent = Referent::new(&mut store, &conditionality_twp, &object_fyy, &cardinality_avq);
 ///
-/// let object_bup = sarzak_get_one_obj_across_r16!(referent, store);
-/// assert_eq!(&object_aoe, object_bup);
+/// let object_kwk = sarzak_get_one_obj_across_r16!(referent, store);
+/// assert_eq!(&object_fyy, object_kwk);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -250,36 +244,35 @@ pub use sarzak_get_one_obj_across_r16;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Referent;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak_maybe_get_one_r_to_across_r16;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_kzj = Conditionality::test_default(&mut store);
-/// let oval_bike = "hollow_galley".to_owned();
-/// let object_sji = Object::new(&mut store, oval_bike);
-/// let cardinality_fqg = Cardinality::test_default(&mut store);
+/// let conditionality_hky = Conditionality::test_default(&mut store);
+/// let obedient_skate = "late_cry".to_owned();
+/// let amazing_behavior = "milky_attention".to_owned();
+/// let object_mzk = Object::new(&mut store, obedient_skate, amazing_behavior);
+/// let cardinality_dsu = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_kzj, &object_sji, &cardinality_fqg);
-/// let referent_ekt = sarzak_maybe_get_one_r_to_across_r16!(object_sji, store);
+/// let referent = Referent::new(&mut store, &conditionality_hky, &object_mzk, &cardinality_dsu);
+/// let referent_eav = sarzak_maybe_get_one_r_to_across_r16!(object_mzk, store);
 ///
-/// assert_eq!(Some(&referent), referent_ekt);
+/// assert_eq!(Some(&referent), referent_eav);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_to_across_r16 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referent-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_referent()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referent-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-referent-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_to_across_r16;
@@ -297,18 +290,19 @@ pub use sarzak_maybe_get_one_r_to_across_r16;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak_get_one_obj_across_r24;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let puny_creature = "periodic_eyes".to_owned();
-/// let object_gis = Object::new(&mut store, puny_creature);
+/// let alleged_pear = "barbarous_toothpaste".to_owned();
+/// let maniacal_song = "decisive_leaf".to_owned();
+/// let object_zma = Object::new(&mut store, alleged_pear, maniacal_song);
 ///
-/// let one_side = OneSide::new(&mut store, &object_gis);
+/// let one_side = OneSide::new(&mut store, &object_zma);
 ///
-/// let object_kcq = sarzak_get_one_obj_across_r24!(one_side, store);
-/// assert_eq!(&object_gis, object_kcq);
+/// let object_qwc = sarzak_get_one_obj_across_r24!(one_side, store);
+/// assert_eq!(&object_zma, object_qwc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -338,27 +332,26 @@ pub use sarzak_get_one_obj_across_r24;
 /// # use sarzak::sarzak_maybe_get_one_r_one_across_r24;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let outgoing_canvas = "slippery_toothpaste".to_owned();
-/// let object_bpc = Object::new(&mut store, outgoing_canvas);
+/// let boorish_band = "drab_garden".to_owned();
+/// let brash_cushion = "deadpan_school".to_owned();
+/// let object_enh = Object::new(&mut store, boorish_band, brash_cushion);
 ///
-/// let one_side = OneSide::new(&mut store, &object_bpc);
-/// let one_side_gup = sarzak_maybe_get_one_r_one_across_r24!(object_bpc, store);
+/// let one_side = OneSide::new(&mut store, &object_enh);
+/// let one_side_uep = sarzak_maybe_get_one_r_one_across_r24!(object_enh, store);
 ///
-/// assert_eq!(Some(&one_side), one_side_gup);
+/// assert_eq!(Some(&one_side), one_side_uep);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_one_across_r24 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-one_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_one_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-one_side-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-one_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_one_across_r24;
@@ -376,22 +369,23 @@ pub use sarzak_maybe_get_one_r_one_across_r24;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Cardinality;
-/// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_cond_across_r12;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_ufk = Conditionality::test_default(&mut store);
-/// let moaning_ink = "guarded_smash".to_owned();
-/// let object_ijd = Object::new(&mut store, moaning_ink);
-/// let cardinality_wpc = Cardinality::test_default(&mut store);
+/// let conditionality_wxw = Conditionality::test_default(&mut store);
+/// let spiteful_cook = "fancy_iron".to_owned();
+/// let honorable_scene = "puffy_distance".to_owned();
+/// let object_ang = Object::new(&mut store, spiteful_cook, honorable_scene);
+/// let cardinality_dwa = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_ufk, &object_ijd, &cardinality_wpc);
+/// let referent = Referent::new(&mut store, &conditionality_wxw, &object_ang, &cardinality_dwa);
 ///
-/// let conditionality_lqa = sarzak_get_one_cond_across_r12!(referent, store);
-/// assert_eq!(&conditionality_ufk, conditionality_lqa);
+/// let conditionality_mrj = sarzak_get_one_cond_across_r12!(referent, store);
+/// assert_eq!(&conditionality_wxw, conditionality_mrj);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -418,43 +412,35 @@ pub use sarzak_get_one_cond_across_r12;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Referent;
+/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_maybe_get_many_r_tos_across_r12;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_ilw = Conditionality::test_default(&mut store);
-/// let rabid_cherry = "cute_back".to_owned();
-/// let object_esv = Object::new(&mut store, rabid_cherry);
-/// let cardinality_xug = Cardinality::test_default(&mut store);
+/// let conditionality_xdk = Conditionality::test_default(&mut store);
+/// let inexpensive_flame = "purring_earth".to_owned();
+/// let tranquil_notebook = "majestic_position".to_owned();
+/// let object_dcr = Object::new(&mut store, inexpensive_flame, tranquil_notebook);
+/// let cardinality_ceq = Cardinality::test_default(&mut store);
 ///
-/// let referent = Referent::new(&mut store, &conditionality_ilw, &object_esv, &cardinality_xug);
-/// let referent_xhe = sarzak_maybe_get_many_r_tos_across_r12!(conditionality_ilw, store);
+/// let referent = Referent::new(&mut store, &conditionality_xdk, &object_dcr, &cardinality_ceq);
+/// let referent_gcx = sarzak_maybe_get_many_r_tos_across_r12!(conditionality_xdk, store);
 ///
-/// assert!(referent_xhe.iter().find(|&x| **x == referent).is_some());
+/// assert!(referent_gcx.iter().find(|&x| **x == referent).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_r_tos_across_r12 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referent()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.conditionality == $input.get_id() {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.conditionality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referent>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r12;
@@ -477,13 +463,14 @@ pub use sarzak_maybe_get_many_r_tos_across_r12;
 /// # use sarzak::sarzak_get_one_obj_across_r26;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let symptomatic_rock = "mushy_tongue".to_owned();
-/// let object_obx = Object::new(&mut store, symptomatic_rock);
+/// let graceful_powder = "mighty_passenger".to_owned();
+/// let handsomely_riddle = "imaginary_twist".to_owned();
+/// let object_npf = Object::new(&mut store, graceful_powder, handsomely_riddle);
 ///
-/// let associative_side = AssociativeSide::new(&mut store, &object_obx);
+/// let associative_side = AssociativeSide::new(&mut store, &object_npf);
 ///
-/// let object_nmw = sarzak_get_one_obj_across_r26!(associative_side, store);
-/// assert_eq!(&object_obx, object_nmw);
+/// let object_zze = sarzak_get_one_obj_across_r26!(associative_side, store);
+/// assert_eq!(&object_npf, object_zze);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -508,32 +495,31 @@ pub use sarzak_get_one_obj_across_r26;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak_maybe_get_one_r_ass_across_r26;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let mushy_middle = "zany_nerve".to_owned();
-/// let object_vkv = Object::new(&mut store, mushy_middle);
+/// let brainy_pull = "windy_heart".to_owned();
+/// let abstracted_sister = "acidic_father".to_owned();
+/// let object_cnv = Object::new(&mut store, brainy_pull, abstracted_sister);
 ///
-/// let associative_side = AssociativeSide::new(&mut store, &object_vkv);
-/// let associative_side_ycr = sarzak_maybe_get_one_r_ass_across_r26!(object_vkv, store);
+/// let associative_side = AssociativeSide::new(&mut store, &object_cnv);
+/// let associative_side_utf = sarzak_maybe_get_one_r_ass_across_r26!(object_cnv, store);
 ///
-/// assert_eq!(Some(&associative_side), associative_side_ycr);
+/// assert_eq!(Some(&associative_side), associative_side_utf);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_ass_across_r26 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-associative_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-associative_side-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-associative_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_ass_across_r26;
@@ -551,23 +537,24 @@ pub use sarzak_maybe_get_one_r_ass_across_r26;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Conditionality;
-/// # use sarzak::sarzak::Cardinality;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Referrer;
+/// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak_get_one_cond_across_r11;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_tds = Conditionality::test_default(&mut store);
-/// let many_polish = "unusual_hour".to_owned();
-/// let object_csr = Object::new(&mut store, many_polish);
-/// let cardinality_mjk = Cardinality::test_default(&mut store);
-/// let royal_mailbox = "meaty_drink".to_owned();
+/// let conditionality_tco = Conditionality::test_default(&mut store);
+/// let plain_father = "warm_suggestion".to_owned();
+/// let present_teeth = "willing_color".to_owned();
+/// let object_wvh = Object::new(&mut store, plain_father, present_teeth);
+/// let cardinality_jlp = Cardinality::test_default(&mut store);
+/// let harmonious_sea = "craven_lunch".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_tds, &object_csr, &cardinality_mjk, royal_mailbox);
+/// let referrer = Referrer::new(&mut store, &conditionality_tco, &object_wvh, &cardinality_jlp, harmonious_sea);
 ///
-/// let conditionality_uys = sarzak_get_one_cond_across_r11!(referrer, store);
-/// assert_eq!(&conditionality_tds, conditionality_uys);
+/// let conditionality_qya = sarzak_get_one_cond_across_r11!(referrer, store);
+/// assert_eq!(&conditionality_tco, conditionality_qya);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -594,44 +581,36 @@ pub use sarzak_get_one_cond_across_r11;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
-/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Cardinality;
+/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak_maybe_get_many_r_froms_across_r11;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_cpp = Conditionality::test_default(&mut store);
-/// let physical_cows = "glib_wave".to_owned();
-/// let object_ofx = Object::new(&mut store, physical_cows);
-/// let cardinality_ozt = Cardinality::test_default(&mut store);
-/// let interesting_fly = "disastrous_paper".to_owned();
+/// let conditionality_few = Conditionality::test_default(&mut store);
+/// let homeless_wish = "hellish_flight".to_owned();
+/// let erect_oven = "excellent_stew".to_owned();
+/// let object_vla = Object::new(&mut store, homeless_wish, erect_oven);
+/// let cardinality_ajh = Cardinality::test_default(&mut store);
+/// let three_cows = "spiky_carriage".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_cpp, &object_ofx, &cardinality_ozt, interesting_fly);
-/// let referrer_hmw = sarzak_maybe_get_many_r_froms_across_r11!(conditionality_cpp, store);
+/// let referrer = Referrer::new(&mut store, &conditionality_few, &object_vla, &cardinality_ajh, three_cows);
+/// let referrer_mmn = sarzak_maybe_get_many_r_froms_across_r11!(conditionality_few, store);
 ///
-/// assert!(referrer_hmw.iter().find(|&x| **x == referrer).is_some());
+/// assert!(referrer_mmn.iter().find(|&x| **x == referrer).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_r_froms_across_r11 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referrer()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.conditionality == $input.get_id() {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.conditionality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referrer>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r11;
@@ -654,14 +633,15 @@ pub use sarzak_maybe_get_many_r_froms_across_r11;
 /// # use sarzak::sarzak_get_one_obj_across_r18;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let colossal_measure = "white_step".to_owned();
-/// let object_pij = Object::new(&mut store, colossal_measure);
-/// let sneaky_regret = "shut_turn".to_owned();
+/// let chubby_wealth = "zesty_crack".to_owned();
+/// let parsimonious_ants = "dirty_peace".to_owned();
+/// let object_ths = Object::new(&mut store, chubby_wealth, parsimonious_ants);
+/// let stale_nest = "burly_oatmeal".to_owned();
 ///
-/// let state = State::new(&mut store, &object_pij, sneaky_regret);
+/// let state = State::new(&mut store, &object_ths, stale_nest);
 ///
-/// let object_ldr = sarzak_get_one_obj_across_r18!(state, store);
-/// assert_eq!(&object_pij, object_ldr);
+/// let object_zyr = sarzak_get_one_obj_across_r18!(state, store);
+/// assert_eq!(&object_ths, object_zyr);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -691,35 +671,27 @@ pub use sarzak_get_one_obj_across_r18;
 /// # use sarzak::sarzak_maybe_get_many_ss_across_r18;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let gifted_skin = "hideous_kite".to_owned();
-/// let object_wvf = Object::new(&mut store, gifted_skin);
-/// let tidy_chance = "unkempt_approval".to_owned();
+/// let amuck_zinc = "married_mother".to_owned();
+/// let auspicious_stone = "racial_tin".to_owned();
+/// let object_mts = Object::new(&mut store, amuck_zinc, auspicious_stone);
+/// let trashy_paper = "mammoth_trail".to_owned();
 ///
-/// let state = State::new(&mut store, &object_wvf, tidy_chance);
-/// let state_lva = sarzak_maybe_get_many_ss_across_r18!(object_wvf, store);
+/// let state = State::new(&mut store, &object_mts, trashy_paper);
+/// let state_ivd = sarzak_maybe_get_many_ss_across_r18!(object_mts, store);
 ///
-/// assert!(state_lva.iter().find(|&x| **x == state).is_some());
+/// assert!(state_ivd.iter().find(|&x| **x == state).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_ss_across_r18 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-state-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_state()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.obj_id == $input.id {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.obj_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&State>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-state-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-state-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_ss_across_r18;
@@ -738,25 +710,27 @@ pub use sarzak_maybe_get_many_ss_across_r18;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::AcknowledgedEvent;
-/// # use sarzak::sarzak::State;
 /// # use sarzak::sarzak::Event;
+/// # use sarzak::sarzak::AcknowledgedEvent;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::State;
 /// # use sarzak::sarzak_get_many_e_across_r20;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let natural_dress = "lively_egg".to_owned();
-/// let object_jyg = Object::new(&mut store, natural_dress);
-/// let enchanted_note = "judicious_silver".to_owned();
-/// let state_uku = State::new(&mut store, &object_jyg, enchanted_note);
-/// let panoramic_quiet = "different_achieve".to_owned();
-/// let object_uzs = Object::new(&mut store, panoramic_quiet);
-/// let tense_eggs = "plucky_brush".to_owned();
-/// let event_kgx = Event::new(&mut store, &object_uzs, tense_eggs);
-/// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_uku, &event_kgx);
+/// let equal_moon = "unequal_church".to_owned();
+/// let husky_apple = "perfect_milk".to_owned();
+/// let object_vdr = Object::new(&mut store, equal_moon, husky_apple);
+/// let cooing_rock = "cagey_form".to_owned();
+/// let state_qxl = State::new(&mut store, &object_vdr, cooing_rock);
+/// let messy_hydrant = "actually_group".to_owned();
+/// let violet_curtain = "overt_trip".to_owned();
+/// let object_iqq = Object::new(&mut store, messy_hydrant, violet_curtain);
+/// let threatening_daughter = "broad_theory".to_owned();
+/// let event_qee = Event::new(&mut store, &object_iqq, threatening_daughter);
+/// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_qxl, &event_qee);
 ///
-/// let event_uvo = sarzak_get_many_e_across_r20!(state_uku, store);
-/// assert!(event_uvo.iter().find(|&x| **x == event_kgx).is_some());
+/// let event_iwo = sarzak_get_many_e_across_r20!(state_qxl, store);
+/// assert!(event_iwo.iter().find(|&x| **x == event_qee).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -788,23 +762,25 @@ pub use sarzak_get_many_e_across_r20;
 ///```
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::AcknowledgedEvent;
-/// # use sarzak::sarzak::State;
 /// # use sarzak::sarzak::Event;
+/// # use sarzak::sarzak::State;
 /// # use sarzak::sarzak_get_many_s_across_r20;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let little_plastic = "faulty_sort".to_owned();
-/// let object_qsw = Object::new(&mut store, little_plastic);
-/// let giant_event = "penitent_flower".to_owned();
-/// let state_agp = State::new(&mut store, &object_qsw, giant_event);
-/// let glorious_sort = "fast_protest".to_owned();
-/// let object_gnz = Object::new(&mut store, glorious_sort);
-/// let quick_answer = "rhetorical_insurance".to_owned();
-/// let event_xpr = Event::new(&mut store, &object_gnz, quick_answer);
-/// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_agp, &event_xpr);
+/// let striped_children = "unhealthy_engine".to_owned();
+/// let daily_beggar = "dispensable_trousers".to_owned();
+/// let object_psm = Object::new(&mut store, striped_children, daily_beggar);
+/// let robust_grape = "polite_orange".to_owned();
+/// let state_lpz = State::new(&mut store, &object_psm, robust_grape);
+/// let abundant_idea = "finicky_gun".to_owned();
+/// let willing_approval = "omniscient_pocket".to_owned();
+/// let object_ctj = Object::new(&mut store, abundant_idea, willing_approval);
+/// let therapeutic_match = "infamous_body".to_owned();
+/// let event_jzf = Event::new(&mut store, &object_ctj, therapeutic_match);
+/// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_lpz, &event_jzf);
 ///
-/// let state_ftd = sarzak_get_many_s_across_r20!(event_xpr, store);
-/// assert!(state_ftd.iter().find(|&x| **x == state_agp).is_some());
+/// let state_zct = sarzak_get_many_s_across_r20!(event_jzf, store);
+/// assert!(state_zct.iter().find(|&x| **x == state_lpz).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -833,28 +809,31 @@ pub use sarzak_get_many_s_across_r20;
 /// # Example
 ///
 ///```
+/// # use sarzak::sarzak::OtherSide;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::OneSide;
-/// # use sarzak::sarzak::OtherSide;
-/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::Associative;
+/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak_get_one_r_oth_across_r22;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let successful_berry = "inconclusive_price".to_owned();
-/// let object_wwy = Object::new(&mut store, successful_berry);
-/// let one_side_uon = OneSide::new(&mut store, &object_wwy);
-/// let rhetorical_time = "knowledgeable_whip".to_owned();
-/// let object_pcj = Object::new(&mut store, rhetorical_time);
-/// let other_side_hwx = OtherSide::new(&mut store, &object_pcj);
-/// let groovy_design = "next_crown".to_owned();
-/// let object_jwh = Object::new(&mut store, groovy_design);
-/// let associative_side_qmb = AssociativeSide::new(&mut store, &object_jwh);
+/// let large_ornament = "heavy_way".to_owned();
+/// let snobbish_detail = "flagrant_basin".to_owned();
+/// let object_ldm = Object::new(&mut store, large_ornament, snobbish_detail);
+/// let one_side_dzc = OneSide::new(&mut store, &object_ldm);
+/// let loutish_instrument = "nebulous_music".to_owned();
+/// let befitting_hope = "spotty_page".to_owned();
+/// let object_nmh = Object::new(&mut store, loutish_instrument, befitting_hope);
+/// let other_side_tie = OtherSide::new(&mut store, &object_nmh);
+/// let macabre_dinosaurs = "humdrum_help".to_owned();
+/// let giddy_bite = "diligent_whistle".to_owned();
+/// let object_ttv = Object::new(&mut store, macabre_dinosaurs, giddy_bite);
+/// let associative_side_tvi = AssociativeSide::new(&mut store, &object_ttv);
 ///
-/// let associative = Associative::new(&mut store, &one_side_uon, &other_side_hwx, &associative_side_qmb, 42);
+/// let associative = Associative::new(&mut store, &one_side_dzc, &other_side_tie, &associative_side_tvi, 42);
 ///
-/// let other_side_ecs = sarzak_get_one_r_oth_across_r22!(associative, store);
-/// assert_eq!(&other_side_hwx, other_side_ecs);
+/// let other_side_rai = sarzak_get_one_r_oth_across_r22!(associative, store);
+/// assert_eq!(&other_side_tie, other_side_rai);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -880,33 +859,35 @@ pub use sarzak_get_one_r_oth_across_r22;
 ///
 ///```
 /// # use sarzak::sarzak::OtherSide;
+/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak_get_one_r_assoc_across_r22;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let obscene_potato = "direful_loss".to_owned();
-/// let object_sen = Object::new(&mut store, obscene_potato);
-/// let one_side_fez = OneSide::new(&mut store, &object_sen);
-/// let robust_history = "material_copper".to_owned();
-/// let object_zox = Object::new(&mut store, robust_history);
-/// let other_side_cca = OtherSide::new(&mut store, &object_zox);
-/// let lyrical_plate = "adhesive_kettle".to_owned();
-/// let object_qgh = Object::new(&mut store, lyrical_plate);
-/// let associative_side_dpk = AssociativeSide::new(&mut store, &object_qgh);
+/// let ragged_team = "subdued_rings".to_owned();
+/// let adorable_steel = "overconfident_jump".to_owned();
+/// let object_ppz = Object::new(&mut store, ragged_team, adorable_steel);
+/// let one_side_isr = OneSide::new(&mut store, &object_ppz);
+/// let tasteful_flight = "quack_appliance".to_owned();
+/// let cooperative_prison = "broad_pies".to_owned();
+/// let object_rnn = Object::new(&mut store, tasteful_flight, cooperative_prison);
+/// let other_side_mgx = OtherSide::new(&mut store, &object_rnn);
+/// let eight_lizards = "normal_cannon".to_owned();
+/// let lamentable_bun = "high_pitched_geese".to_owned();
+/// let object_jey = Object::new(&mut store, eight_lizards, lamentable_bun);
+/// let associative_side_sfx = AssociativeSide::new(&mut store, &object_jey);
 ///
-/// let associative = Associative::new(&mut store, &one_side_fez, &other_side_cca, &associative_side_dpk, 42);
-/// let associative_dwe = sarzak_get_one_r_assoc_across_r22!(other_side_cca, store);
+/// let associative = Associative::new(&mut store, &one_side_isr, &other_side_mgx, &associative_side_sfx, 42);
+/// let associative_bzb = sarzak_get_one_r_assoc_across_r22!(other_side_mgx, store);
 ///
-/// assert_eq!(&associative, associative_dwe);
+/// assert_eq!(&associative, associative_bzb);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_r_assoc_across_r22 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"other_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -914,8 +895,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r22 {
             .find(|z| z.1.other == $input.id)
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-associative-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"other_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r22;
@@ -933,28 +913,31 @@ pub use sarzak_get_one_r_assoc_across_r22;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::OtherSide;
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::OneSide;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_r_one_across_r23;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let aggressive_kettle = "devilish_cellar".to_owned();
-/// let object_gkd = Object::new(&mut store, aggressive_kettle);
-/// let one_side_vwl = OneSide::new(&mut store, &object_gkd);
-/// let abhorrent_mother = "material_band".to_owned();
-/// let object_mce = Object::new(&mut store, abhorrent_mother);
-/// let other_side_vrn = OtherSide::new(&mut store, &object_mce);
-/// let exotic_cord = "caring_start".to_owned();
-/// let object_gzo = Object::new(&mut store, exotic_cord);
-/// let associative_side_fal = AssociativeSide::new(&mut store, &object_gzo);
+/// let drunk_lamp = "dreary_structure".to_owned();
+/// let colossal_mother = "nutty_volcano".to_owned();
+/// let object_kjj = Object::new(&mut store, drunk_lamp, colossal_mother);
+/// let one_side_lkv = OneSide::new(&mut store, &object_kjj);
+/// let magenta_camp = "average_wish".to_owned();
+/// let parsimonious_attempt = "cloistered_minute".to_owned();
+/// let object_hdo = Object::new(&mut store, magenta_camp, parsimonious_attempt);
+/// let other_side_ocz = OtherSide::new(&mut store, &object_hdo);
+/// let real_angle = "broken_attack".to_owned();
+/// let tough_lizards = "zippy_note".to_owned();
+/// let object_exv = Object::new(&mut store, real_angle, tough_lizards);
+/// let associative_side_lft = AssociativeSide::new(&mut store, &object_exv);
 ///
-/// let associative = Associative::new(&mut store, &one_side_vwl, &other_side_vrn, &associative_side_fal, 42);
+/// let associative = Associative::new(&mut store, &one_side_lkv, &other_side_ocz, &associative_side_lft, 42);
 ///
-/// let one_side_oco = sarzak_get_one_r_one_across_r23!(associative, store);
-/// assert_eq!(&one_side_vwl, one_side_oco);
+/// let one_side_wiv = sarzak_get_one_r_one_across_r23!(associative, store);
+/// assert_eq!(&one_side_lkv, one_side_wiv);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -979,34 +962,36 @@ pub use sarzak_get_one_r_one_across_r23;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::sarzak::OtherSide;
-/// # use sarzak::sarzak::Object;
-/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::OneSide;
+/// # use sarzak::sarzak::Associative;
+/// # use sarzak::sarzak::AssociativeSide;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_r_assoc_across_r23;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let obsolete_metal = "actually_weight".to_owned();
-/// let object_dpj = Object::new(&mut store, obsolete_metal);
-/// let one_side_rfl = OneSide::new(&mut store, &object_dpj);
-/// let cloistered_smile = "loose_hall".to_owned();
-/// let object_qoa = Object::new(&mut store, cloistered_smile);
-/// let other_side_vli = OtherSide::new(&mut store, &object_qoa);
-/// let mere_rest = "thick_pest".to_owned();
-/// let object_qss = Object::new(&mut store, mere_rest);
-/// let associative_side_pfq = AssociativeSide::new(&mut store, &object_qss);
+/// let irate_boat = "direful_spiders".to_owned();
+/// let brash_pickle = "obedient_quartz".to_owned();
+/// let object_zhw = Object::new(&mut store, irate_boat, brash_pickle);
+/// let one_side_hrf = OneSide::new(&mut store, &object_zhw);
+/// let ignorant_son = "itchy_texture".to_owned();
+/// let cowardly_tramp = "obsequious_jail".to_owned();
+/// let object_xti = Object::new(&mut store, ignorant_son, cowardly_tramp);
+/// let other_side_spw = OtherSide::new(&mut store, &object_xti);
+/// let spiffy_trees = "ill_bubble".to_owned();
+/// let periodic_cherries = "abundant_trousers".to_owned();
+/// let object_acb = Object::new(&mut store, spiffy_trees, periodic_cherries);
+/// let associative_side_ucp = AssociativeSide::new(&mut store, &object_acb);
 ///
-/// let associative = Associative::new(&mut store, &one_side_rfl, &other_side_vli, &associative_side_pfq, 42);
-/// let associative_fhl = sarzak_get_one_r_assoc_across_r23!(one_side_rfl, store);
+/// let associative = Associative::new(&mut store, &one_side_hrf, &other_side_spw, &associative_side_ucp, 42);
+/// let associative_xoy = sarzak_get_one_r_assoc_across_r23!(one_side_hrf, store);
 ///
-/// assert_eq!(&associative, associative_fhl);
+/// assert_eq!(&associative, associative_xoy);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_r_assoc_across_r23 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"one_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -1014,8 +999,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r23 {
             .find(|z| z.1.one == $input.id)
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-associative-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"one_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r23;
@@ -1038,13 +1022,14 @@ pub use sarzak_get_one_r_assoc_across_r23;
 /// # use sarzak::sarzak_get_one_obj_across_r14;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let healthy_unit = "absorbed_rest".to_owned();
-/// let object_sdn = Object::new(&mut store, healthy_unit);
+/// let silent_hand = "bewildered_approval".to_owned();
+/// let pink_heart = "staking_brick".to_owned();
+/// let object_ecn = Object::new(&mut store, silent_hand, pink_heart);
 ///
-/// let supertype = Supertype::new(&mut store, &object_sdn);
+/// let supertype = Supertype::new(&mut store, &object_ecn);
 ///
-/// let object_wmc = sarzak_get_one_obj_across_r14!(supertype, store);
-/// assert_eq!(&object_sdn, object_wmc);
+/// let object_opb = sarzak_get_one_obj_across_r14!(supertype, store);
+/// assert_eq!(&object_ecn, object_opb);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1074,27 +1059,26 @@ pub use sarzak_get_one_obj_across_r14;
 /// # use sarzak::sarzak_maybe_get_one_r_sup_across_r14;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let horrible_approval = "serious_debt".to_owned();
-/// let object_blo = Object::new(&mut store, horrible_approval);
+/// let ajar_hobbies = "tearful_division".to_owned();
+/// let succinct_competition = "open_whip".to_owned();
+/// let object_tee = Object::new(&mut store, ajar_hobbies, succinct_competition);
 ///
-/// let supertype = Supertype::new(&mut store, &object_blo);
-/// let supertype_unu = sarzak_maybe_get_one_r_sup_across_r14!(object_blo, store);
+/// let supertype = Supertype::new(&mut store, &object_tee);
+/// let supertype_fzc = sarzak_maybe_get_one_r_sup_across_r14!(object_tee, store);
 ///
-/// assert_eq!(Some(&supertype), supertype_unu);
+/// assert_eq!(Some(&supertype), supertype_fzc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_sup_across_r14 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_supertype()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_sup_across_r14;
@@ -1112,28 +1096,31 @@ pub use sarzak_maybe_get_one_r_sup_across_r14;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
-/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak::OtherSide;
-/// # use sarzak::sarzak::AssociativeSide;
 /// # use sarzak::sarzak::Associative;
+/// # use sarzak::sarzak::AssociativeSide;
+/// # use sarzak::sarzak::OneSide;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_r_ass_across_r21;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let nimble_trick = "different_arch".to_owned();
-/// let object_bxc = Object::new(&mut store, nimble_trick);
-/// let one_side_vgz = OneSide::new(&mut store, &object_bxc);
-/// let animated_cars = "drab_blade".to_owned();
-/// let object_dgk = Object::new(&mut store, animated_cars);
-/// let other_side_fio = OtherSide::new(&mut store, &object_dgk);
-/// let unequaled_pump = "clean_good_bye".to_owned();
-/// let object_zgm = Object::new(&mut store, unequaled_pump);
-/// let associative_side_zfo = AssociativeSide::new(&mut store, &object_zgm);
+/// let better_guitar = "illustrious_rainstorm".to_owned();
+/// let unwritten_shake = "panoramic_weather".to_owned();
+/// let object_vge = Object::new(&mut store, better_guitar, unwritten_shake);
+/// let one_side_wqv = OneSide::new(&mut store, &object_vge);
+/// let hot_error = "imaginary_brush".to_owned();
+/// let stupendous_guide = "phobic_stew".to_owned();
+/// let object_iwx = Object::new(&mut store, hot_error, stupendous_guide);
+/// let other_side_imq = OtherSide::new(&mut store, &object_iwx);
+/// let threatening_desire = "domineering_governor".to_owned();
+/// let public_breath = "expensive_action".to_owned();
+/// let object_ddm = Object::new(&mut store, threatening_desire, public_breath);
+/// let associative_side_zuf = AssociativeSide::new(&mut store, &object_ddm);
 ///
-/// let associative = Associative::new(&mut store, &one_side_vgz, &other_side_fio, &associative_side_zfo, 42);
+/// let associative = Associative::new(&mut store, &one_side_wqv, &other_side_imq, &associative_side_zuf, 42);
 ///
-/// let associative_side_piz = sarzak_get_one_r_ass_across_r21!(associative, store);
-/// assert_eq!(&associative_side_zfo, associative_side_piz);
+/// let associative_side_qdu = sarzak_get_one_r_ass_across_r21!(associative, store);
+/// assert_eq!(&associative_side_zuf, associative_side_qdu);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1158,34 +1145,36 @@ pub use sarzak_get_one_r_ass_across_r21;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::AssociativeSide;
-/// # use sarzak::sarzak::OneSide;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Associative;
+/// # use sarzak::sarzak::OneSide;
 /// # use sarzak::sarzak::OtherSide;
 /// # use sarzak::sarzak_get_one_r_assoc_across_r21;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let quiet_sail = "jolly_attempt".to_owned();
-/// let object_qfx = Object::new(&mut store, quiet_sail);
-/// let one_side_uwd = OneSide::new(&mut store, &object_qfx);
-/// let worthless_back = "even_acoustics".to_owned();
-/// let object_atr = Object::new(&mut store, worthless_back);
-/// let other_side_vnt = OtherSide::new(&mut store, &object_atr);
-/// let tough_leg = "ruthless_direction".to_owned();
-/// let object_xcj = Object::new(&mut store, tough_leg);
-/// let associative_side_cdz = AssociativeSide::new(&mut store, &object_xcj);
+/// let few_fire = "nosy_mountain".to_owned();
+/// let unnatural_skate = "ragged_laugh".to_owned();
+/// let object_rzv = Object::new(&mut store, few_fire, unnatural_skate);
+/// let one_side_rcg = OneSide::new(&mut store, &object_rzv);
+/// let neat_bear = "helpful_beggar".to_owned();
+/// let receptive_bird = "frantic_stone".to_owned();
+/// let object_qbc = Object::new(&mut store, neat_bear, receptive_bird);
+/// let other_side_fos = OtherSide::new(&mut store, &object_qbc);
+/// let greedy_kettle = "heady_event".to_owned();
+/// let damaged_observation = "thoughtless_fight".to_owned();
+/// let object_fho = Object::new(&mut store, greedy_kettle, damaged_observation);
+/// let associative_side_dsl = AssociativeSide::new(&mut store, &object_fho);
 ///
-/// let associative = Associative::new(&mut store, &one_side_uwd, &other_side_vnt, &associative_side_cdz, 42);
-/// let associative_sub = sarzak_get_one_r_assoc_across_r21!(associative_side_cdz, store);
+/// let associative = Associative::new(&mut store, &one_side_rcg, &other_side_fos, &associative_side_dsl, 42);
+/// let associative_xrt = sarzak_get_one_r_assoc_across_r21!(associative_side_dsl, store);
 ///
-/// assert_eq!(&associative, associative_sub);
+/// assert_eq!(&associative, associative_xrt);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_r_assoc_across_r21 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_side-associative-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -1193,8 +1182,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r21 {
             .find(|z| z.1.from == $input.id)
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-associative-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_side-associative-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r21;
@@ -1212,23 +1200,24 @@ pub use sarzak_get_one_r_assoc_across_r21;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak_get_one_card_across_r9;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_thx = Conditionality::test_default(&mut store);
-/// let gray_birds = "puzzling_body".to_owned();
-/// let object_lkl = Object::new(&mut store, gray_birds);
-/// let cardinality_wvw = Cardinality::test_default(&mut store);
-/// let possessive_idea = "exultant_business".to_owned();
+/// let conditionality_kwt = Conditionality::test_default(&mut store);
+/// let puffy_ant = "debonair_comb".to_owned();
+/// let demonic_cream = "terrible_things".to_owned();
+/// let object_atr = Object::new(&mut store, puffy_ant, demonic_cream);
+/// let cardinality_vsn = Cardinality::test_default(&mut store);
+/// let cuddly_airport = "spotty_spoon".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_thx, &object_lkl, &cardinality_wvw, possessive_idea);
+/// let referrer = Referrer::new(&mut store, &conditionality_kwt, &object_atr, &cardinality_vsn, cuddly_airport);
 ///
-/// let cardinality_ulg = sarzak_get_one_card_across_r9!(referrer, store);
-/// assert_eq!(&cardinality_wvw, cardinality_ulg);
+/// let cardinality_bxt = sarzak_get_one_card_across_r9!(referrer, store);
+/// assert_eq!(&cardinality_vsn, cardinality_bxt);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1253,44 +1242,36 @@ pub use sarzak_get_one_card_across_r9;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referrer;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Referrer;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_maybe_get_many_r_froms_across_r9;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_rxt = Conditionality::test_default(&mut store);
-/// let complex_push = "phobic_stone".to_owned();
-/// let object_bqx = Object::new(&mut store, complex_push);
-/// let cardinality_qtd = Cardinality::test_default(&mut store);
-/// let vigorous_song = "tiny_cub".to_owned();
+/// let conditionality_bwu = Conditionality::test_default(&mut store);
+/// let quaint_death = "dead_believe".to_owned();
+/// let bashful_payment = "spiteful_man".to_owned();
+/// let object_wnw = Object::new(&mut store, quaint_death, bashful_payment);
+/// let cardinality_qvw = Cardinality::test_default(&mut store);
+/// let whimsical_skin = "elated_boundary".to_owned();
 ///
-/// let referrer = Referrer::new(&mut store, &conditionality_rxt, &object_bqx, &cardinality_qtd, vigorous_song);
-/// let referrer_cef = sarzak_maybe_get_many_r_froms_across_r9!(cardinality_qtd, store);
+/// let referrer = Referrer::new(&mut store, &conditionality_bwu, &object_wnw, &cardinality_qvw, whimsical_skin);
+/// let referrer_dwf = sarzak_maybe_get_many_r_froms_across_r9!(cardinality_qvw, store);
 ///
-/// assert!(referrer_cef.iter().find(|&x| **x == referrer).is_some());
+/// assert!(referrer_dwf.iter().find(|&x| **x == referrer).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_r_froms_across_r9 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_referrer()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.cardinality == $input.get_id() {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.cardinality == $input.get_id() { Some(z.1) } else { None })
             .collect::<Vec<&Referrer>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r9;
@@ -1308,21 +1289,22 @@ pub use sarzak_maybe_get_many_r_froms_across_r9;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Type;
 /// # use sarzak::sarzak::Attribute;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_t_across_r2;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let big_girl = "jaded_ants".to_owned();
-/// let object = Object::new(&mut store, big_girl);
-/// let type_kvk = Type::test_default(&mut store);
-/// let exotic_minister = "measly_behavior".to_owned();
+/// let phobic_actor = "foamy_zipper".to_owned();
+/// let fertile_arm = "wanting_rod".to_owned();
+/// let object = Object::new(&mut store, phobic_actor, fertile_arm);
+/// let type_yyc = Type::test_default(&mut store);
+/// let horrible_garden = "interesting_reading".to_owned();
 ///
-/// let attribute = Attribute::new(&mut store, Some(&object), &type_kvk, exotic_minister);
+/// let attribute = Attribute::new(&mut store, Some(&object), &type_yyc, horrible_garden);
 ///
-/// let type_eql = sarzak_get_one_t_across_r2!(attribute, store);
-/// assert_eq!(&type_kvk, type_eql);
+/// let type_xnj = sarzak_get_one_t_across_r2!(attribute, store);
+/// assert_eq!(&type_yyc, type_xnj);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1347,27 +1329,27 @@ pub use sarzak_get_one_t_across_r2;
 /// # Example
 ///
 ///```
+/// # use sarzak::sarzak::Type;
 /// # use sarzak::sarzak::Attribute;
 /// # use sarzak::sarzak::Object;
-/// # use sarzak::sarzak::Type;
 /// # use sarzak::sarzak_get_one_a_across_r2;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let difficult_chair = "tired_year".to_owned();
-/// let object = Object::new(&mut store, difficult_chair);
-/// let type_cwd = Type::test_default(&mut store);
-/// let rich_hobbies = "acceptable_friend".to_owned();
+/// let naughty_science = "extra_small_tramp".to_owned();
+/// let instinctive_attack = "uptight_boy".to_owned();
+/// let object = Object::new(&mut store, naughty_science, instinctive_attack);
+/// let type_csq = Type::test_default(&mut store);
+/// let ambitious_addition = "pleasant_balance".to_owned();
 ///
-/// let attribute = Attribute::new(&mut store, Some(&object), &type_cwd, rich_hobbies);
-/// let attribute_xnh = sarzak_get_one_a_across_r2!(type_cwd, store);
+/// let attribute = Attribute::new(&mut store, Some(&object), &type_csq, ambitious_addition);
+/// let attribute_zsc = sarzak_get_one_a_across_r2!(type_csq, store);
 ///
-/// assert_eq!(&attribute, attribute_xnh);
+/// assert_eq!(&attribute, attribute_zsc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_a_across_r2 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -1375,8 +1357,7 @@ macro_rules! sarzak_get_one_a_across_r2 {
             .find(|z| z.1.ty == $input.get_id())
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_a_across_r2;
@@ -1394,31 +1375,33 @@ pub use sarzak_get_one_a_across_r2;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Referrer;
+/// # use sarzak::sarzak::Binary;
+/// # use sarzak::sarzak::Referent;
+/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Cardinality;
-/// # use sarzak::sarzak::Referent;
-/// # use sarzak::sarzak::Binary;
-/// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak_get_one_r_from_across_r6;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_cni = Conditionality::test_default(&mut store);
-/// let stiff_stage = "charming_horn".to_owned();
-/// let object_vjd = Object::new(&mut store, stiff_stage);
-/// let cardinality_ozm = Cardinality::test_default(&mut store);
-/// let referent_gre = Referent::new(&mut store, &conditionality_cni, &object_vjd, &cardinality_ozm);
-/// let conditionality_blc = Conditionality::test_default(&mut store);
-/// let grateful_talk = "sticky_cart".to_owned();
-/// let object_pss = Object::new(&mut store, grateful_talk);
-/// let cardinality_sdt = Cardinality::test_default(&mut store);
-/// let inquisitive_operation = "cheerful_verse".to_owned();
-/// let referrer_asv = Referrer::new(&mut store, &conditionality_blc, &object_pss, &cardinality_sdt, inquisitive_operation);
+/// let conditionality_plk = Conditionality::test_default(&mut store);
+/// let weary_locket = "undesirable_eggs".to_owned();
+/// let five_zebra = "selective_soup".to_owned();
+/// let object_nbg = Object::new(&mut store, weary_locket, five_zebra);
+/// let cardinality_kcp = Cardinality::test_default(&mut store);
+/// let referent_xsc = Referent::new(&mut store, &conditionality_plk, &object_nbg, &cardinality_kcp);
+/// let conditionality_xff = Conditionality::test_default(&mut store);
+/// let lewd_chickens = "addicted_hot".to_owned();
+/// let lacking_snail = "jagged_oil".to_owned();
+/// let object_enf = Object::new(&mut store, lewd_chickens, lacking_snail);
+/// let cardinality_ihs = Cardinality::test_default(&mut store);
+/// let upset_marble = "bustling_thought".to_owned();
+/// let referrer_hiy = Referrer::new(&mut store, &conditionality_xff, &object_enf, &cardinality_ihs, upset_marble);
 ///
-/// let binary = Binary::new(&mut store, &referent_gre, &referrer_asv, 42);
+/// let binary = Binary::new(&mut store, &referent_xsc, &referrer_hiy, 42);
 ///
-/// let referrer_zec = sarzak_get_one_r_from_across_r6!(binary, store);
-/// assert_eq!(&referrer_asv, referrer_zec);
+/// let referrer_mec = sarzak_get_one_r_from_across_r6!(binary, store);
+/// assert_eq!(&referrer_hiy, referrer_mec);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1443,37 +1426,38 @@ pub use sarzak_get_one_r_from_across_r6;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Binary;
-/// # use sarzak::sarzak::Conditionality;
-/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Referrer;
+/// # use sarzak::sarzak::Binary;
+/// # use sarzak::sarzak::Referent;
+/// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_r_bin_across_r6;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_foq = Conditionality::test_default(&mut store);
-/// let tranquil_table = "hideous_railway".to_owned();
-/// let object_jja = Object::new(&mut store, tranquil_table);
-/// let cardinality_alr = Cardinality::test_default(&mut store);
-/// let referent_fnc = Referent::new(&mut store, &conditionality_foq, &object_jja, &cardinality_alr);
-/// let conditionality_jbb = Conditionality::test_default(&mut store);
-/// let dark_skate = "simplistic_rub".to_owned();
-/// let object_ula = Object::new(&mut store, dark_skate);
-/// let cardinality_plm = Cardinality::test_default(&mut store);
-/// let abnormal_bell = "typical_believe".to_owned();
-/// let referrer_sqm = Referrer::new(&mut store, &conditionality_jbb, &object_ula, &cardinality_plm, abnormal_bell);
+/// let conditionality_kgg = Conditionality::test_default(&mut store);
+/// let natural_vein = "ugliest_zebra".to_owned();
+/// let frightening_actor = "illegal_hand".to_owned();
+/// let object_yhi = Object::new(&mut store, natural_vein, frightening_actor);
+/// let cardinality_bev = Cardinality::test_default(&mut store);
+/// let referent_ixf = Referent::new(&mut store, &conditionality_kgg, &object_yhi, &cardinality_bev);
+/// let conditionality_whk = Conditionality::test_default(&mut store);
+/// let angry_house = "imaginary_adjustment".to_owned();
+/// let embarrassed_ant = "curved_angle".to_owned();
+/// let object_nre = Object::new(&mut store, angry_house, embarrassed_ant);
+/// let cardinality_mld = Cardinality::test_default(&mut store);
+/// let aquatic_suit = "giant_waste".to_owned();
+/// let referrer_ptv = Referrer::new(&mut store, &conditionality_whk, &object_nre, &cardinality_mld, aquatic_suit);
 ///
-/// let binary = Binary::new(&mut store, &referent_fnc, &referrer_sqm, 42);
-/// let binary_nng = sarzak_get_one_r_bin_across_r6!(referrer_sqm, store);
+/// let binary = Binary::new(&mut store, &referent_ixf, &referrer_ptv, 42);
+/// let binary_tzs = sarzak_get_one_r_bin_across_r6!(referrer_ptv, store);
 ///
-/// assert_eq!(&binary, binary_nng);
+/// assert_eq!(&binary, binary_tzs);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_r_bin_across_r6 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -1481,8 +1465,7 @@ macro_rules! sarzak_get_one_r_bin_across_r6 {
             .find(|z| z.1.from == $input.id)
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_bin_across_r6;
@@ -1500,19 +1483,20 @@ pub use sarzak_get_one_r_bin_across_r6;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Event;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_obj_across_r19;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let careful_rule = "instinctive_design".to_owned();
-/// let object_snf = Object::new(&mut store, careful_rule);
-/// let half_rain = "living_dogs".to_owned();
+/// let aberrant_spy = "general_account".to_owned();
+/// let ragged_summer = "fluffy_run".to_owned();
+/// let object_wic = Object::new(&mut store, aberrant_spy, ragged_summer);
+/// let rebel_laugh = "troubled_pump".to_owned();
 ///
-/// let event = Event::new(&mut store, &object_snf, half_rain);
+/// let event = Event::new(&mut store, &object_wic, rebel_laugh);
 ///
-/// let object_anx = sarzak_get_one_obj_across_r19!(event, store);
-/// assert_eq!(&object_snf, object_anx);
+/// let object_dil = sarzak_get_one_obj_across_r19!(event, store);
+/// assert_eq!(&object_wic, object_dil);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1537,40 +1521,32 @@ pub use sarzak_get_one_obj_across_r19;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Event;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_maybe_get_many_es_across_r19;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let envious_question = "mammoth_wave".to_owned();
-/// let object_bnw = Object::new(&mut store, envious_question);
-/// let ancient_afternoon = "erratic_relation".to_owned();
+/// let careful_cub = "helpless_zephyr".to_owned();
+/// let workable_orange = "fallacious_paper".to_owned();
+/// let object_nhb = Object::new(&mut store, careful_cub, workable_orange);
+/// let earthy_wire = "industrious_mass".to_owned();
 ///
-/// let event = Event::new(&mut store, &object_bnw, ancient_afternoon);
-/// let event_qtq = sarzak_maybe_get_many_es_across_r19!(object_bnw, store);
+/// let event = Event::new(&mut store, &object_nhb, earthy_wire);
+/// let event_erd = sarzak_maybe_get_many_es_across_r19!(object_nhb, store);
 ///
-/// assert!(event_qtq.iter().find(|&x| **x == event).is_some());
+/// assert!(event_erd.iter().find(|&x| **x == event).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_many_es_across_r19 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-event-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_event()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.obj_id == $input.id {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.obj_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&Event>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-event-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-event-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_many_es_across_r19;
@@ -1588,22 +1564,24 @@ pub use sarzak_maybe_get_many_es_across_r19;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Attribute;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Type;
+/// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Attribute;
 /// # use sarzak::sarzak_maybe_get_one_obj_across_r1;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let breakable_organization = "shocking_oranges".to_owned();
-/// let object = Object::new(&mut store, breakable_organization);
-/// let type_vbo = Type::test_default(&mut store);
-/// let chilly_offer = "ambitious_wine".to_owned();
-/// let nimble_kitty = "waggish_stick".to_owned();
+/// let spiteful_jelly = "delirious_spoon".to_owned();
+/// let interesting_news = "impartial_governor".to_owned();
+/// let object = Object::new(&mut store, spiteful_jelly, interesting_news);
+/// let type_pte = Type::test_default(&mut store);
+/// let wary_lizards = "adamant_volcano".to_owned();
+/// let thundering_plate = "colorful_plane".to_owned();
+/// let erect_queen = "cuddly_moon".to_owned();
 ///
-/// let attribute = Attribute::new(&mut store, Some(&object), &type_vbo, chilly_offer);
+/// let attribute = Attribute::new(&mut store, Some(&object), &type_pte, wary_lizards);
 ///
-/// let object_jpd = sarzak_maybe_get_one_obj_across_r1!(attribute, store);
-/// assert_eq!(Some(&object), object_jpd);
+/// let object_hht = sarzak_maybe_get_one_obj_across_r1!(attribute, store);
+/// assert_eq!(Some(&object), object_hht);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1637,37 +1615,30 @@ pub use sarzak_maybe_get_one_obj_across_r1;
 /// # use sarzak::sarzak_get_many_as_across_r1;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let materialistic_instrument = "mixed_riddle".to_owned();
-/// let courageous_stem = "boorish_snakes".to_owned();
-/// let object = Object::new(&mut store, courageous_stem);
-/// let type_ukn = Type::test_default(&mut store);
-/// let future_ocean = "oafish_bait".to_owned();
+/// let anxious_dress = "flat_sun".to_owned();
+/// let discreet_stream = "murky_cloud".to_owned();
+/// let sedate_field = "loud_crowd".to_owned();
+/// let odd_advertisement = "glorious_comparison".to_owned();
+/// let object = Object::new(&mut store, sedate_field, odd_advertisement);
+/// let type_ksw = Type::test_default(&mut store);
+/// let spotless_linen = "questionable_increase".to_owned();
 ///
-/// let attribute = Attribute::new(&mut store, Some(&object), &type_ukn, future_ocean);
+/// let attribute = Attribute::new(&mut store, Some(&object), &type_ksw, spotless_linen);
 ///
-/// let attribute_ykk = sarzak_get_many_as_across_r1!(object, store);
-/// assert!(attribute_ykk.iter().find(|&x| **x == attribute).is_some());
+/// let attribute_tuk = sarzak_get_many_as_across_r1!(object, store);
+/// assert!(attribute_tuk.iter().find(|&x| **x == attribute).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_many_as_across_r1 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_attribute()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.obj_id == Some($input.id) {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.obj_id == Some($input.id) { Some(z.1) } else { None })
             .collect::<Vec<&Attribute>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
     }};
 }
 pub use sarzak_get_many_as_across_r1;
@@ -1685,18 +1656,19 @@ pub use sarzak_get_many_as_across_r1;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Subtype;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_get_one_obj_across_r15;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let like_salt = "new_bit".to_owned();
-/// let object_kvf = Object::new(&mut store, like_salt);
+/// let juvenile_jar = "shivering_whistle".to_owned();
+/// let fretful_horn = "loud_glue".to_owned();
+/// let object_one = Object::new(&mut store, juvenile_jar, fretful_horn);
 ///
-/// let subtype = Subtype::new(&mut store, &object_kvf);
+/// let subtype = Subtype::new(&mut store, &object_one);
 ///
-/// let object_igx = sarzak_get_one_obj_across_r15!(subtype, store);
-/// assert_eq!(&object_kvf, object_igx);
+/// let object_upa = sarzak_get_one_obj_across_r15!(subtype, store);
+/// assert_eq!(&object_one, object_upa);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1726,27 +1698,26 @@ pub use sarzak_get_one_obj_across_r15;
 /// # use sarzak::sarzak_maybe_get_one_r_sub_across_r15;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let frantic_library = "squealing_sock".to_owned();
-/// let object_zvj = Object::new(&mut store, frantic_library);
+/// let tightfisted_car = "rustic_grass".to_owned();
+/// let shaky_impulse = "real_mine".to_owned();
+/// let object_gia = Object::new(&mut store, tightfisted_car, shaky_impulse);
 ///
-/// let subtype = Subtype::new(&mut store, &object_zvj);
-/// let subtype_vem = sarzak_maybe_get_one_r_sub_across_r15!(object_zvj, store);
+/// let subtype = Subtype::new(&mut store, &object_gia);
+/// let subtype_sox = sarzak_maybe_get_one_r_sub_across_r15!(object_gia, store);
 ///
-/// assert_eq!(Some(&subtype), subtype_vem);
+/// assert_eq!(Some(&subtype), subtype_sox);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_sub_across_r15 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_subtype()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_sub_across_r15;
@@ -1769,13 +1740,14 @@ pub use sarzak_maybe_get_one_r_sub_across_r15;
 /// # use sarzak::sarzak_get_one_obj_across_r25;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let far_office = "versed_trick".to_owned();
-/// let object_eor = Object::new(&mut store, far_office);
+/// let adjoining_surprise = "warlike_power".to_owned();
+/// let literate_kittens = "acceptable_front".to_owned();
+/// let object_zim = Object::new(&mut store, adjoining_surprise, literate_kittens);
 ///
-/// let other_side = OtherSide::new(&mut store, &object_eor);
+/// let other_side = OtherSide::new(&mut store, &object_zim);
 ///
-/// let object_nny = sarzak_get_one_obj_across_r25!(other_side, store);
-/// assert_eq!(&object_eor, object_nny);
+/// let object_gfu = sarzak_get_one_obj_across_r25!(other_side, store);
+/// assert_eq!(&object_zim, object_gfu);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1800,32 +1772,31 @@ pub use sarzak_get_one_obj_across_r25;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::OtherSide;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak_maybe_get_one_r_oth_across_r25;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let secretive_calendar = "awesome_time".to_owned();
-/// let object_jmb = Object::new(&mut store, secretive_calendar);
+/// let tremendous_jail = "lame_tendency".to_owned();
+/// let unwritten_fuel = "tense_square".to_owned();
+/// let object_kme = Object::new(&mut store, tremendous_jail, unwritten_fuel);
 ///
-/// let other_side = OtherSide::new(&mut store, &object_jmb);
-/// let other_side_hon = sarzak_maybe_get_one_r_oth_across_r25!(object_jmb, store);
+/// let other_side = OtherSide::new(&mut store, &object_kme);
+/// let other_side_llg = sarzak_maybe_get_one_r_oth_across_r25!(object_kme, store);
 ///
-/// assert_eq!(Some(&other_side), other_side_hon);
+/// assert_eq!(Some(&other_side), other_side_llg);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_maybe_get_one_r_oth_across_r25 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-other_side-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_other_side()
             .find(|z| z.1.obj_id == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-other_side-emit_one_conditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object-other_side-emit_one_conditional_lookup"}}}
     }};
 }
 pub use sarzak_maybe_get_one_r_oth_across_r25;
@@ -1843,31 +1814,33 @@ pub use sarzak_maybe_get_one_r_oth_across_r25;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Cardinality;
 /// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Conditionality;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::sarzak::Binary;
-/// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak_get_one_r_to_across_r5;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_pps = Conditionality::test_default(&mut store);
-/// let mellow_flowers = "screeching_plot".to_owned();
-/// let object_vnj = Object::new(&mut store, mellow_flowers);
-/// let cardinality_tnv = Cardinality::test_default(&mut store);
-/// let referent_uws = Referent::new(&mut store, &conditionality_pps, &object_vnj, &cardinality_tnv);
-/// let conditionality_ijo = Conditionality::test_default(&mut store);
-/// let gamy_decision = "elated_tent".to_owned();
-/// let object_hfm = Object::new(&mut store, gamy_decision);
-/// let cardinality_bbl = Cardinality::test_default(&mut store);
-/// let possible_bean = "miscreant_angle".to_owned();
-/// let referrer_ehw = Referrer::new(&mut store, &conditionality_ijo, &object_hfm, &cardinality_bbl, possible_bean);
+/// let conditionality_ste = Conditionality::test_default(&mut store);
+/// let classy_suggestion = "quirky_kite".to_owned();
+/// let clever_pancake = "naughty_desire".to_owned();
+/// let object_elk = Object::new(&mut store, classy_suggestion, clever_pancake);
+/// let cardinality_acf = Cardinality::test_default(&mut store);
+/// let referent_man = Referent::new(&mut store, &conditionality_ste, &object_elk, &cardinality_acf);
+/// let conditionality_lsz = Conditionality::test_default(&mut store);
+/// let handsome_marble = "boorish_sack".to_owned();
+/// let medical_hole = "massive_children".to_owned();
+/// let object_wkc = Object::new(&mut store, handsome_marble, medical_hole);
+/// let cardinality_ces = Cardinality::test_default(&mut store);
+/// let tacit_good_bye = "aberrant_dinner".to_owned();
+/// let referrer_jni = Referrer::new(&mut store, &conditionality_lsz, &object_wkc, &cardinality_ces, tacit_good_bye);
 ///
-/// let binary = Binary::new(&mut store, &referent_uws, &referrer_ehw, 42);
+/// let binary = Binary::new(&mut store, &referent_man, &referrer_jni, 42);
 ///
-/// let referent_atp = sarzak_get_one_r_to_across_r5!(binary, store);
-/// assert_eq!(&referent_uws, referent_atp);
+/// let referent_qtf = sarzak_get_one_r_to_across_r5!(binary, store);
+/// assert_eq!(&referent_man, referent_qtf);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1892,37 +1865,38 @@ pub use sarzak_get_one_r_to_across_r5;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Cardinality;
-/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak::Conditionality;
 /// # use sarzak::sarzak::Binary;
 /// # use sarzak::sarzak::Referent;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::sarzak::Cardinality;
+/// # use sarzak::sarzak::Referrer;
 /// # use sarzak::sarzak_get_one_r_bin_across_r5;
 /// # let mut store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let conditionality_wdj = Conditionality::test_default(&mut store);
-/// let aback_education = "jolly_zinc".to_owned();
-/// let object_wto = Object::new(&mut store, aback_education);
-/// let cardinality_kaq = Cardinality::test_default(&mut store);
-/// let referent_ypw = Referent::new(&mut store, &conditionality_wdj, &object_wto, &cardinality_kaq);
-/// let conditionality_wro = Conditionality::test_default(&mut store);
-/// let subsequent_trains = "gleaming_regret".to_owned();
-/// let object_hoy = Object::new(&mut store, subsequent_trains);
-/// let cardinality_jzs = Cardinality::test_default(&mut store);
-/// let drab_direction = "limping_print".to_owned();
-/// let referrer_kxc = Referrer::new(&mut store, &conditionality_wro, &object_hoy, &cardinality_jzs, drab_direction);
+/// let conditionality_uma = Conditionality::test_default(&mut store);
+/// let damp_earthquake = "fast_organization".to_owned();
+/// let keen_meeting = "silent_game".to_owned();
+/// let object_isw = Object::new(&mut store, damp_earthquake, keen_meeting);
+/// let cardinality_myq = Cardinality::test_default(&mut store);
+/// let referent_yir = Referent::new(&mut store, &conditionality_uma, &object_isw, &cardinality_myq);
+/// let conditionality_xke = Conditionality::test_default(&mut store);
+/// let savory_butter = "wiggly_jail".to_owned();
+/// let defiant_judge = "silky_quicksand".to_owned();
+/// let object_jdm = Object::new(&mut store, savory_butter, defiant_judge);
+/// let cardinality_soo = Cardinality::test_default(&mut store);
+/// let mysterious_brothers = "robust_purpose".to_owned();
+/// let referrer_pjr = Referrer::new(&mut store, &conditionality_xke, &object_jdm, &cardinality_soo, mysterious_brothers);
 ///
-/// let binary = Binary::new(&mut store, &referent_ypw, &referrer_kxc, 42);
-/// let binary_nmz = sarzak_get_one_r_bin_across_r5!(referent_ypw, store);
+/// let binary = Binary::new(&mut store, &referent_yir, &referrer_pjr, 42);
+/// let binary_mmo = sarzak_get_one_r_bin_across_r5!(referent_yir, store);
 ///
-/// assert_eq!(&binary, binary_nmz);
+/// assert_eq!(&binary, binary_mmo);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! sarzak_get_one_r_bin_across_r5 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
@@ -1930,8 +1904,7 @@ macro_rules! sarzak_get_one_r_bin_across_r5 {
             .find(|z| z.1.to == $input.id)
             .map(|z| z.1)
             .unwrap()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
     }};
 }
 pub use sarzak_get_one_r_bin_across_r5;
