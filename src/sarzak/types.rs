@@ -47,7 +47,7 @@
 //! Use the following invocation to reproduce:
 // {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
-//!  sarzak gen sarzak -i true -m true -d true -e true
+//!  sarzak gen
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
@@ -94,24 +94,26 @@ impl AcknowledgedEvent {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::State;
     /// # use sarzak::sarzak::AcknowledgedEvent;
+    /// # use sarzak::sarzak::State;
     /// # use sarzak::sarzak::Event;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let hissing_peace = "knotty_book".to_owned();
-    /// let obsolete_sea = "animated_doll".to_owned();
-    /// let object_vvu = Object::new(&mut store, hissing_peace, obsolete_sea);
-    /// let standing_cherry = "labored_eggs".to_owned();
-    /// let state_uzm = State::new(&mut store, &object_vvu, standing_cherry);
-    /// let fluffy_condition = "old_fashioned_statement".to_owned();
-    /// let kaput_houses = "reflective_bead".to_owned();
-    /// let object_atg = Object::new(&mut store, fluffy_condition, kaput_houses);
-    /// let two_apples = "wild_kiss".to_owned();
-    /// let event_qqw = Event::new(&mut store, &object_atg, two_apples);
+    /// let terrific_yam = "curvy_dime".to_owned();
+    /// let zippy_owner = "aquatic_arch".to_owned();
+    /// let delirious_reward = "spiffy_team".to_owned();
+    /// let object_xpb = Object::new(&mut store, terrific_yam, zippy_owner, delirious_reward);
+    /// let unused_hope = "acoustic_town".to_owned();
+    /// let state_zau = State::new(&mut store, &object_xpb, unused_hope);
+    /// let gentle_coast = "wacky_believe".to_owned();
+    /// let successful_glass = "glistening_crate".to_owned();
+    /// let rambunctious_distance = "lazy_cause".to_owned();
+    /// let object_bqk = Object::new(&mut store, gentle_coast, successful_glass, rambunctious_distance);
+    /// let unbecoming_frogs = "rainy_owl".to_owned();
+    /// let event_ulg = Event::new(&mut store, &object_bqk, unbecoming_frogs);
     ///
-    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_uzm, &event_qqw);
+    /// let acknowledged_event = AcknowledgedEvent::new(&mut store, &state_zau, &event_ulg);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, state_id: &State, event_id: &Event) -> Self {
@@ -164,27 +166,30 @@ impl Associative {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::OneSide;
     /// # use sarzak::sarzak::Associative;
-    /// # use sarzak::sarzak::OtherSide;
-    /// # use sarzak::sarzak::AssociativeSide;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::OtherSide;
+    /// # use sarzak::sarzak::OneSide;
+    /// # use sarzak::sarzak::AssociativeSide;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let acid_coal = "various_roll".to_owned();
-    /// let mighty_behavior = "spiky_rod".to_owned();
-    /// let object_bdk = Object::new(&mut store, acid_coal, mighty_behavior);
-    /// let one_side_dpl = OneSide::new(&mut store, &object_bdk);
-    /// let delicate_fuel = "tough_drawer".to_owned();
-    /// let feeble_size = "zonked_lip".to_owned();
-    /// let object_zbp = Object::new(&mut store, delicate_fuel, feeble_size);
-    /// let other_side_fcj = OtherSide::new(&mut store, &object_zbp);
-    /// let ritzy_bushes = "fearful_history".to_owned();
-    /// let hesitant_knowledge = "futuristic_earthquake".to_owned();
-    /// let object_twb = Object::new(&mut store, ritzy_bushes, hesitant_knowledge);
-    /// let associative_side_fbq = AssociativeSide::new(&mut store, &object_twb);
+    /// let animated_ray = "violent_fight".to_owned();
+    /// let amusing_sneeze = "aspiring_process".to_owned();
+    /// let pale_credit = "thirsty_engine".to_owned();
+    /// let object_pji = Object::new(&mut store, animated_ray, amusing_sneeze, pale_credit);
+    /// let one_side_rim = OneSide::new(&mut store, &object_pji);
+    /// let excited_voice = "youthful_bat".to_owned();
+    /// let outrageous_sweater = "old_cushion".to_owned();
+    /// let lewd_oven = "standing_hand".to_owned();
+    /// let object_dnm = Object::new(&mut store, excited_voice, outrageous_sweater, lewd_oven);
+    /// let other_side_isa = OtherSide::new(&mut store, &object_dnm);
+    /// let craven_gold = "exuberant_butter".to_owned();
+    /// let abiding_cherry = "hanging_swim".to_owned();
+    /// let red_mother = "unbiased_process".to_owned();
+    /// let object_rcb = Object::new(&mut store, craven_gold, abiding_cherry, red_mother);
+    /// let associative_side_ggy = AssociativeSide::new(&mut store, &object_rcb);
     ///
-    /// let associative = Associative::new(&mut store, &one_side_dpl, &other_side_fcj, &associative_side_fbq, 42);
+    /// let associative = Associative::new(&mut store, &one_side_rim, &other_side_isa, &associative_side_ggy, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -243,15 +248,16 @@ impl AssociativeSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::AssociativeSide;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let towering_shelf = "flaky_motion".to_owned();
-    /// let aware_hobbies = "far_flung_floor".to_owned();
-    /// let object_ain = Object::new(&mut store, towering_shelf, aware_hobbies);
+    /// let aboard_brick = "untidy_country".to_owned();
+    /// let poor_father = "present_doll".to_owned();
+    /// let fallacious_cattle = "abnormal_egg".to_owned();
+    /// let object_jiw = Object::new(&mut store, aboard_brick, poor_father, fallacious_cattle);
     ///
-    /// let associative_side = AssociativeSide::new(&mut store, &object_ain);
+    /// let associative_side = AssociativeSide::new(&mut store, &object_jiw);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -308,18 +314,19 @@ impl Attribute {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Attribute;
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Type;
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Attribute;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let careful_rhythm = "exuberant_truck".to_owned();
-    /// let towering_babies = "stereotyped_shape".to_owned();
-    /// let object = Object::new(&mut store, careful_rhythm, towering_babies);
-    /// let type_mqc = Type::test_default(&mut store);
-    /// let third_clocks = "tough_feeling".to_owned();
+    /// let flimsy_blade = "amuck_clocks".to_owned();
+    /// let embarrassed_carriage = "coordinated_shelf".to_owned();
+    /// let purple_corn = "jumbled_sisters".to_owned();
+    /// let object = Object::new(&mut store, flimsy_blade, embarrassed_carriage, purple_corn);
+    /// let type_gdt = Type::test_default(&mut store);
+    /// let wary_cake = "actually_lamp".to_owned();
     ///
-    /// let attribute = Attribute::new(&mut store, Some(&object), &type_mqc, third_clocks);
+    /// let attribute = Attribute::new(&mut store, Some(&object), &type_gdt, wary_cake);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -346,12 +353,37 @@ impl Attribute {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Attribute, Context<'_>> for Attribute {
     fn extrude(orig: nut::sarzak::Attribute, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // Ugh, this is a slog.
+        // In nut, the attributes are stored in a dict (name, uuid) hanging off
+        // of object. We need to search all of the objects, and all of their
+        // attributes to find the one with this id.
+        let mut obj_iter = context.from.iter_object();
+        let obj_id = loop {
+            if let Some((_, obj)) = obj_iter.next() {
+                let mut attr_iter = obj.attributes.iter();
+                if let Some(_) = loop {
+                    if let Some((_, attr_id)) = attr_iter.next() {
+                        if attr_id == &orig.id {
+                            break Some(true);
+                        }
+                    } else {
+                        break None;
+                    }
+                } {
+                    break obj.id;
+                }
+            }
+        };
 
-        Self::default()
+        Self {
+            id: orig.id,
+            name: orig.name.inner().clone(),
+            obj_id: Some(obj_id),
+            ty: Type::get_type_from_nut(&orig.attr_t),
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"attribute-extrude_impl"}}}
@@ -393,29 +425,31 @@ impl Binary {
     /// # Example
     ///
     ///```
+    /// # use sarzak::sarzak::Cardinality;
     /// # use sarzak::sarzak::Referrer;
     /// # use sarzak::sarzak::Referent;
     /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Binary;
     /// # use sarzak::sarzak::Conditionality;
-    /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::Binary;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_jlf = Conditionality::test_default(&mut store);
-    /// let scrawny_skin = "caring_jelly".to_owned();
-    /// let intelligent_brass = "unnatural_caption".to_owned();
-    /// let object_kdu = Object::new(&mut store, scrawny_skin, intelligent_brass);
-    /// let cardinality_zqk = Cardinality::test_default(&mut store);
-    /// let referent_dgg = Referent::new(&mut store, &conditionality_jlf, &object_kdu, &cardinality_zqk);
-    /// let conditionality_nll = Conditionality::test_default(&mut store);
-    /// let worried_opinion = "internal_quilt".to_owned();
-    /// let healthy_mark = "slippery_creature".to_owned();
-    /// let object_myq = Object::new(&mut store, worried_opinion, healthy_mark);
-    /// let cardinality_voe = Cardinality::test_default(&mut store);
-    /// let unique_joke = "tightfisted_reason".to_owned();
-    /// let referrer_phm = Referrer::new(&mut store, &conditionality_nll, &object_myq, &cardinality_voe, unique_joke);
+    /// let conditionality_fsp = Conditionality::test_default(&mut store);
+    /// let gigantic_observation = "tacit_scissors".to_owned();
+    /// let cuddly_slip = "oval_lace".to_owned();
+    /// let ubiquitous_hose = "scrawny_group".to_owned();
+    /// let object_pnw = Object::new(&mut store, gigantic_observation, cuddly_slip, ubiquitous_hose);
+    /// let cardinality_hwo = Cardinality::test_default(&mut store);
+    /// let referent_kwm = Referent::new(&mut store, &conditionality_fsp, &object_pnw, &cardinality_hwo);
+    /// let conditionality_uuw = Conditionality::test_default(&mut store);
+    /// let chilly_attraction = "lackadaisical_key".to_owned();
+    /// let last_apparel = "deep_distance".to_owned();
+    /// let sable_brush = "cool_tendency".to_owned();
+    /// let object_vel = Object::new(&mut store, chilly_attraction, last_apparel, sable_brush);
+    /// let cardinality_uzb = Cardinality::test_default(&mut store);
+    /// let rebel_metal = "cloudy_tent".to_owned();
+    /// let referrer_usg = Referrer::new(&mut store, &conditionality_uuw, &object_vel, &cardinality_uzb, rebel_metal);
     ///
-    /// let binary = Binary::new(&mut store, &referent_dgg, &referrer_phm, 42);
+    /// let binary = Binary::new(&mut store, &referent_kwm, &referrer_usg, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, to: &Referent, from: &Referrer, number: i64) -> Self {
@@ -437,12 +471,25 @@ impl Binary {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Binary, Context<'_>> for Binary {
     fn extrude(orig: nut::sarzak::Binary, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        let referrer = context.from.exhume_referrer(&orig.from).unwrap();
+        let referrer = Referrer::extrude(referrer.clone(), context);
+        let referrer_id = referrer.id;
+        context.to.inter_referrer(referrer);
 
-        Self::default()
+        let referent = context.from.exhume_referent(&orig.to).unwrap();
+        let referent = Referent::extrude(referent.clone(), context);
+        let referent_id = referent.id;
+        context.to.inter_referent(referent);
+
+        Self {
+            id: orig.id,
+            number: orig.number as i64,
+            from: referrer_id,
+            to: referent_id,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary-extrude_impl"}}}
@@ -457,6 +504,7 @@ impl Extrude<nut::sarzak::Binary, Context<'_>> for Binary {
 //
 pub const BOOLEAN: Uuid = uuid!["4554e9f9-0506-5fde-836c-07cb3cbb0399"];
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Cardinality {
     /// `One(One)`,
@@ -466,12 +514,24 @@ pub enum Cardinality {
     ///
     Many(Uuid),
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Cardinality-enum-get-id-impl"}}}
 impl Cardinality {
     pub fn get_id(&self) -> Uuid {
         match *self {
             Self::One(z) => z,
             Self::Many(z) => z,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Cardinality-enum-get-id-impl"}}}
+
+impl Cardinality {
+    fn get_cardinality_from_nut(card: &nut::sarzak::Cardinality) -> Uuid {
+        match card {
+            nut::sarzak::Cardinality::One => ONE,
+            nut::sarzak::Cardinality::Many => MANY,
         }
     }
 }
@@ -495,6 +555,7 @@ impl Cardinality {
 //
 pub const CONDITIONAL: Uuid = uuid!["fc6aa4ae-4ab5-5b43-a7c1-52bbd3e69f34"];
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Conditionality {
     /// `Unconditional(Unconditional)`,
@@ -504,12 +565,24 @@ pub enum Conditionality {
     ///
     Conditional(Uuid),
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Conditionality-enum-get-id-impl"}}}
 impl Conditionality {
     pub fn get_id(&self) -> Uuid {
         match *self {
             Self::Unconditional(z) => z,
             Self::Conditional(z) => z,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Conditionality-enum-get-id-impl"}}}
+
+impl Conditionality {
+    fn get_conditionality_from_nut(cond: &nut::sarzak::Conditionality) -> Uuid {
+        match cond {
+            nut::sarzak::Conditionality::Conditional => CONDITIONAL,
+            nut::sarzak::Conditionality::Unconditional => UNCONDITIONAL,
         }
     }
 }
@@ -556,12 +629,13 @@ impl Event {
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let zonked_idea = "violent_iron".to_owned();
-    /// let hospitable_ticket = "different_color".to_owned();
-    /// let object_hxl = Object::new(&mut store, zonked_idea, hospitable_ticket);
-    /// let cluttered_quiver = "murky_sky".to_owned();
+    /// let disturbed_whistle = "nervous_fifth".to_owned();
+    /// let optimal_spy = "pricey_quiver".to_owned();
+    /// let questionable_arch = "overwrought_cast".to_owned();
+    /// let object_umu = Object::new(&mut store, disturbed_whistle, optimal_spy, questionable_arch);
+    /// let questionable_language = "real_chess".to_owned();
     ///
-    /// let event = Event::new(&mut store, &object_hxl, cluttered_quiver);
+    /// let event = Event::new(&mut store, &object_umu, questionable_language);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
@@ -602,41 +676,77 @@ pub const FLOAT: Uuid = uuid!["8ca8decc-f87b-587a-a390-593d20203b6f"];
 //
 pub const INTEGER: Uuid = uuid!["70ec7fbd-44a2-5800-8558-349e3b22cf17"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Isa {
-    /// `Subtype(Subtype)`,
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct Isa {
+    /// pub id: `Uuid`,
     ///
-    Subtype(Uuid),
-    /// `Supertype(Supertype)`,
+    pub id: Uuid,
+    /// pub number: `i64`,
     ///
-    Supertype(Uuid),
+    pub number: i64,
+    /// pub supertype: `Supertype`,
+    ///
+    pub supertype: Uuid,
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa-struct-definition"}}}
 
 impl Isa {
-    pub fn get_id(&self) -> Uuid {
-        match *self {
-            Self::Subtype(z) => z,
-            Self::Supertype(z) => z,
+    // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-new_impl"}}}
+    /// Inter a new Isa and return it's `id`
+    ///
+    // {"magic":"","kind":"IgnoreBlockBegin"}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::sarzak::Supertype;
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Isa;
+    /// # let mut store = sarzak::sarzak::ObjectStore::new();
+    ///
+    /// let abstracted_badge = "nifty_geese".to_owned();
+    /// let rampant_horses = "obeisant_education".to_owned();
+    /// let steep_soda = "general_hook".to_owned();
+    /// let object_zyt = Object::new(&mut store, abstracted_badge, rampant_horses, steep_soda);
+    /// let supertype_bgj = Supertype::new(&mut store, &object_zyt);
+    ///
+    /// let isa = Isa::new(&mut store, &supertype_bgj, 42);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(store: &mut ObjectStore, supertype: &Supertype, number: i64) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{}::", supertype, number,).as_bytes(),
+        );
+        let new = Self {
+            id,
+            supertype: supertype.id,
+            number,
+        };
+
+        store.inter_isa(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa-new_impl"}}}
+}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::sarzak::Isa, Context<'_>> for Isa {
+    fn extrude(orig: nut::sarzak::Isa, context: &mut Context<'_>) -> Self {
+        let supertype = context.from.exhume_supertype(&orig.supertype).unwrap();
+        let supertype = Supertype::extrude(supertype.clone(), context);
+        let id = supertype.id;
+        context.to.inter_supertype(supertype);
+
+        Self {
+            id: orig.id,
+            number: orig.number as i64,
+            supertype: id,
         }
     }
 }
-
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-test_default"}}}
-impl Isa {
-    pub fn test_default(store: &mut ObjectStore) -> Self {
-        // {"magic":"","kind":"IgnoreBlockBegin"}
-        let lying_balance = "gamy_debt".to_owned();
-        let illustrious_partner = "grumpy_pan".to_owned();
-        let object_fwd = Object::new(store, lying_balance, illustrious_partner);
-        let test = Self::Subtype(Subtype::new(store, &object_fwd).id);
-        // {"magic":"","kind":"IgnoreBlockEnd"}
-
-        store.inter_isa(test.clone());
-
-        test
-    }
-}
-// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa-test_default"}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa-extrude_impl"}}}
 
 /// A constant value that indicates a cardinality of _many_.
 ///
@@ -662,6 +772,9 @@ pub struct Object {
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
+    /// pub key letters: `std::string::String`,
+    ///
+    pub key_letters: std::string::String,
     /// pub name: `std::string::String`,
     ///
     pub name: std::string::String,
@@ -679,21 +792,27 @@ impl Object {
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let distinct_lunch = "unequal_thought".to_owned();
-    /// let political_cats = "truculent_wood".to_owned();
+    /// let gullible_vein = "supreme_dock".to_owned();
+    /// let spiritual_toad = "plastic_snake".to_owned();
+    /// let plain_form = "young_ball".to_owned();
     ///
-    /// let object = Object::new(&mut store, distinct_lunch, political_cats);
+    /// let object = Object::new(&mut store, gullible_vein, spiritual_toad, plain_form);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
         store: &mut ObjectStore,
         description: std::string::String,
+        key_letters: std::string::String,
         name: std::string::String,
     ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", description, name,).as_bytes());
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{}::{}::{}::", description, key_letters, name,).as_bytes(),
+        );
         let new = Self {
             id,
             description,
+            key_letters,
             name,
         };
 
@@ -706,10 +825,11 @@ impl Object {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Object, Context<'_>> for Object {
-    fn extrude(orig: nut::sarzak::Object, _context: &mut Context<'_>) -> Self {
+    fn extrude(orig: nut::sarzak::Object, context: &mut Context<'_>) -> Self {
         Self {
             id: orig.id,
             description: orig.description,
+            key_letters: orig.key_letter,
             name: orig.name.inner().clone(),
         }
     }
@@ -743,15 +863,16 @@ impl OneSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::OneSide;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let cautious_trees = "ubiquitous_chair".to_owned();
-    /// let ubiquitous_fuel = "bouncy_brake".to_owned();
-    /// let object_xca = Object::new(&mut store, cautious_trees, ubiquitous_fuel);
+    /// let lean_party = "wretched_coil".to_owned();
+    /// let evasive_songs = "tender_jeans".to_owned();
+    /// let tangy_earth = "hard_railway".to_owned();
+    /// let object_lzj = Object::new(&mut store, lean_party, evasive_songs, tangy_earth);
     ///
-    /// let one_side = OneSide::new(&mut store, &object_xca);
+    /// let one_side = OneSide::new(&mut store, &object_lzj);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -798,15 +919,16 @@ impl OtherSide {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::OtherSide;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::OtherSide;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let alert_match = "colorful_name".to_owned();
-    /// let flawless_letters = "reflective_hill".to_owned();
-    /// let object_cet = Object::new(&mut store, alert_match, flawless_letters);
+    /// let violet_beginner = "changeable_jump".to_owned();
+    /// let damaging_hand = "foolish_chance".to_owned();
+    /// let loud_pest = "spiky_tramp".to_owned();
+    /// let object_pxk = Object::new(&mut store, violet_beginner, damaging_hand, loud_pest);
     ///
-    /// let other_side = OtherSide::new(&mut store, &object_cet);
+    /// let other_side = OtherSide::new(&mut store, &object_pxk);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -861,19 +983,20 @@ impl Referent {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Referent;
+    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::Cardinality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_oyq = Conditionality::test_default(&mut store);
-    /// let sassy_start = "upbeat_hole".to_owned();
-    /// let mixed_beds = "faint_nail".to_owned();
-    /// let object_wmo = Object::new(&mut store, sassy_start, mixed_beds);
-    /// let cardinality_fvg = Cardinality::test_default(&mut store);
+    /// let conditionality_xhx = Conditionality::test_default(&mut store);
+    /// let raspy_wrench = "filthy_lettuce".to_owned();
+    /// let spectacular_lock = "strong_distribution".to_owned();
+    /// let thinkable_battle = "meaty_care".to_owned();
+    /// let object_qjg = Object::new(&mut store, raspy_wrench, spectacular_lock, thinkable_battle);
+    /// let cardinality_qxx = Cardinality::test_default(&mut store);
     ///
-    /// let referent = Referent::new(&mut store, &conditionality_oyq, &object_wmo, &cardinality_fvg);
+    /// let referent = Referent::new(&mut store, &conditionality_xhx, &object_qjg, &cardinality_qxx);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -900,12 +1023,15 @@ impl Referent {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Referent, Context<'_>> for Referent {
-    fn extrude(orig: nut::sarzak::Referent, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
-
-        Self::default()
+    fn extrude(orig: nut::sarzak::Referent, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            cardinality: Cardinality::get_cardinality_from_nut(&orig.cardinality),
+            conditionality: Conditionality::get_conditionality_from_nut(&orig.conditionality),
+            obj_id: orig.obj_id,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referent-extrude_impl"}}}
@@ -942,20 +1068,21 @@ impl Referrer {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Cardinality;
     /// # use sarzak::sarzak::Referrer;
     /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Cardinality;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let conditionality_bja = Conditionality::test_default(&mut store);
-    /// let careful_stage = "squalid_transport".to_owned();
-    /// let common_property = "reflective_pies".to_owned();
-    /// let object_qok = Object::new(&mut store, careful_stage, common_property);
-    /// let cardinality_cst = Cardinality::test_default(&mut store);
-    /// let absurd_system = "satisfying_children".to_owned();
+    /// let conditionality_nqk = Conditionality::test_default(&mut store);
+    /// let eatable_vein = "cruel_bed".to_owned();
+    /// let superficial_ball = "married_jellyfish".to_owned();
+    /// let subdued_baby = "mixed_trail".to_owned();
+    /// let object_pep = Object::new(&mut store, eatable_vein, superficial_ball, subdued_baby);
+    /// let cardinality_idn = Cardinality::test_default(&mut store);
+    /// let overrated_birds = "mushy_cheese".to_owned();
     ///
-    /// let referrer = Referrer::new(&mut store, &conditionality_bja, &object_qok, &cardinality_cst, absurd_system);
+    /// let referrer = Referrer::new(&mut store, &conditionality_nqk, &object_pep, &cardinality_idn, overrated_birds);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -989,13 +1116,14 @@ impl Referrer {
 }
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Referrer, Context<'_>> for Referrer {
-    fn extrude(orig: nut::sarzak::Referrer, context: &mut Context<'_>) -> Self {
-        let Context {
-            ref from,
-            ref mut to,
-        } = context;
-
-        Self::default()
+    fn extrude(orig: nut::sarzak::Referrer, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            referential_attribute: orig.referential_attribute.inner().clone(),
+            cardinality: Cardinality::get_cardinality_from_nut(&orig.cardinality),
+            conditionality: Conditionality::get_conditionality_from_nut(&orig.conditionality),
+            obj_id: orig.obj_id,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"referrer-extrude_impl"}}}
@@ -1009,6 +1137,7 @@ impl Extrude<nut::sarzak::Referrer, Context<'_>> for Referrer {
 /// *supertype-subtype* relationship, rather one of inheritance. As such, it’s  perfectly
 /// suited to a rust `enum`! 😃
 ///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Relationship {
     /// `Isa(Isa)`,
@@ -1021,7 +1150,9 @@ pub enum Relationship {
     ///
     Binary(Uuid),
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Relationship-enum-get-id-impl"}}}
 impl Relationship {
     pub fn get_id(&self) -> Uuid {
         match *self {
@@ -1031,11 +1162,19 @@ impl Relationship {
         }
     }
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Relationship-enum-get-id-impl"}}}
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship-test_default"}}}
 impl Relationship {
     pub fn test_default(store: &mut ObjectStore) -> Self {
-        let test = Self::Isa(Isa::test_default(store).get_id());
+        // {"magic":"","kind":"IgnoreBlockBegin"}
+        let burly_harbor = "square_curve".to_owned();
+        let puzzled_jar = "ill_informed_soda".to_owned();
+        let didactic_question = "premium_bedroom".to_owned();
+        let object_trr = Object::new(store, burly_harbor, puzzled_jar, didactic_question);
+        let supertype_chv = Supertype::new(store, &object_trr);
+        let test = Self::Isa(Isa::new(store, &supertype_chv, 42).id);
+        // {"magic":"","kind":"IgnoreBlockEnd"}
 
         store.inter_relationship(test.clone());
 
@@ -1043,6 +1182,34 @@ impl Relationship {
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"relationship-test_default"}}}
+
+impl Extrude<nut::sarzak::Relationship, Context<'_>> for Relationship {
+    fn extrude(orig: nut::sarzak::Relationship, context: &mut Context<'_>) -> Self {
+        match orig {
+            nut::sarzak::Relationship::Binary(b_id) => {
+                let b = context.from.exhume_binary(&b_id).unwrap();
+                let binary = Binary::extrude(b.clone(), context);
+                let id = binary.id;
+                context.to.inter_binary(binary);
+                Self::Binary(id)
+            }
+            nut::sarzak::Relationship::Isa(i_id) => {
+                let i = context.from.exhume_isa(&i_id).unwrap();
+                let isa = Isa::extrude(i.clone(), context);
+                let id = isa.id;
+                context.to.inter_isa(isa);
+                Self::Isa(id)
+            }
+            nut::sarzak::Relationship::Associative(a_id) => {
+                let a = context.from.exhume_associative(&a_id).unwrap();
+                let Associative = Associative::extrude(a.clone(), context);
+                let id = Associative.id;
+                context.to.inter_associative(Associative);
+                Self::Associative(id)
+            }
+        }
+    }
+}
 
 /// An [Object] state, more precisely, a set of states, is where all the action happens.
 ///
@@ -1069,16 +1236,17 @@ impl State {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::sarzak::State;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let painful_grip = "solid_girls".to_owned();
-    /// let savory_care = "omniscient_worm".to_owned();
-    /// let object_dby = Object::new(&mut store, painful_grip, savory_care);
-    /// let strong_middle = "quixotic_letter".to_owned();
+    /// let brave_manager = "homely_class".to_owned();
+    /// let weary_linen = "untidy_downtown".to_owned();
+    /// let exuberant_letters = "fascinated_pets".to_owned();
+    /// let object_xkj = Object::new(&mut store, brave_manager, weary_linen, exuberant_letters);
+    /// let concerned_daughter = "obscene_digestion".to_owned();
     ///
-    /// let state = State::new(&mut store, &object_dby, strong_middle);
+    /// let state = State::new(&mut store, &object_xkj, concerned_daughter);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object, name: std::string::String) -> Self {
@@ -1117,6 +1285,9 @@ pub struct Subtype {
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
+    /// pub isa: `Isa`,
+    ///
+    pub isa: Uuid,
     /// pub obj_id: `Object`,
     ///
     pub obj_id: Uuid,
@@ -1132,20 +1303,30 @@ impl Subtype {
     ///
     ///```
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Supertype;
     /// # use sarzak::sarzak::Subtype;
+    /// # use sarzak::sarzak::Isa;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let drab_bells = "mammoth_arm".to_owned();
-    /// let zealous_adjustment = "wary_bike".to_owned();
-    /// let object_tmt = Object::new(&mut store, drab_bells, zealous_adjustment);
+    /// let plausible_note = "freezing_quilt".to_owned();
+    /// let awful_wax = "free_iron".to_owned();
+    /// let eight_stream = "smelly_boot".to_owned();
+    /// let object_aof = Object::new(&mut store, plausible_note, awful_wax, eight_stream);
+    /// let supertype_pah = Supertype::new(&mut store, &object_aof);
+    /// let isa_wit = Isa::new(&mut store, &supertype_pah, 42);
+    /// let pastoral_chain = "questionable_party".to_owned();
+    /// let gaping_plastic = "tightfisted_foot".to_owned();
+    /// let lying_driving = "demonic_idea".to_owned();
+    /// let object_htx = Object::new(&mut store, pastoral_chain, gaping_plastic, lying_driving);
     ///
-    /// let subtype = Subtype::new(&mut store, &object_tmt);
+    /// let subtype = Subtype::new(&mut store, &isa_wit, &object_htx);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
+    pub fn new(store: &mut ObjectStore, isa: &Isa, obj_id: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", isa, obj_id,).as_bytes());
         let new = Self {
             id,
+            isa: isa.id,
             obj_id: obj_id.id,
         };
 
@@ -1156,12 +1337,38 @@ impl Subtype {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Subtype, Context<'_>> for Subtype {
     fn extrude(orig: nut::sarzak::Subtype, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // In nut the subtypes are stored in a Vec hanging off of Isa.
+        // We search all the Isa's, and all their subtypes, looking for this
+        // id. The code is sort of dense, and using a loop as the rhs in an if
+        // let is an interesting choice. On one hand I like it, and on another
+        // I wonder if it couldn't be clearer? I think it's better than a
+        // nested for loop with sentinels.
+        let mut isa_iter = context.from.iter_isa();
+        let isa_id = loop {
+            if let Some((_, isa)) = isa_iter.next() {
+                let mut sub_iter = isa.subtypes.iter();
+                if let Some(_) = loop {
+                    if let Some(sub_id) = sub_iter.next() {
+                        if sub_id == &orig.id {
+                            break Some(true);
+                        }
+                    } else {
+                        break None;
+                    }
+                } {
+                    break isa.id;
+                }
+            }
+        };
 
-        Self::default()
+        Self {
+            id: orig.id,
+            isa: isa_id,
+            obj_id: orig.obj_id,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype-extrude_impl"}}}
@@ -1193,11 +1400,12 @@ impl Supertype {
     /// # use sarzak::sarzak::Supertype;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let damaging_slip = "whispering_crack".to_owned();
-    /// let successful_religion = "knowing_rest".to_owned();
-    /// let object_nku = Object::new(&mut store, damaging_slip, successful_religion);
+    /// let cultured_key = "teeny_tiny_bit".to_owned();
+    /// let dapper_brothers = "macabre_pig".to_owned();
+    /// let juvenile_gun = "nifty_appliance".to_owned();
+    /// let object_lvs = Object::new(&mut store, cultured_key, dapper_brothers, juvenile_gun);
     ///
-    /// let supertype = Supertype::new(&mut store, &object_nku);
+    /// let supertype = Supertype::new(&mut store, &object_lvs);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
@@ -1214,12 +1422,13 @@ impl Supertype {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Supertype, Context<'_>> for Supertype {
-    fn extrude(orig: nut::sarzak::Supertype, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
-
-        Self::default()
+    fn extrude(orig: nut::sarzak::Supertype, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            obj_id: orig.obj_id,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"supertype-extrude_impl"}}}
@@ -1229,6 +1438,7 @@ impl Extrude<nut::sarzak::Supertype, Context<'_>> for Supertype {
 /// There are several values available: [Integer], [Boolean], [Float], [String], and [UUID]
 ///.
 ///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Type {
     /// `Boolean(Boolean)`,
@@ -1247,7 +1457,9 @@ pub enum Type {
     ///
     Integer(Uuid),
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Type-enum-get-id-impl"}}}
 impl Type {
     pub fn get_id(&self) -> Uuid {
         match *self {
@@ -1256,6 +1468,20 @@ impl Type {
             Self::Uuid(z) => z,
             Self::Float(z) => z,
             Self::Integer(z) => z,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Type-enum-get-id-impl"}}}
+
+impl Type {
+    fn get_type_from_nut(ty: &nut::sarzak::Type) -> Uuid {
+        match ty {
+            nut::sarzak::Type::Boolean => BOOLEAN,
+            nut::sarzak::Type::Float => FLOAT,
+            nut::sarzak::Type::Integer => INTEGER,
+            nut::sarzak::Type::String => STRING,
+            nut::sarzak::Type::Uuid => UUID,
+            nut::sarzak::Type::ForeignKey(_) => panic!("ForeignKey is invalid."),
         }
     }
 }

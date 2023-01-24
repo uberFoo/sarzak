@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
-pub struct Error(SarzakError);
+pub struct Error(pub(crate) SarzakError);
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
@@ -17,4 +17,6 @@ pub(crate) enum SarzakError {
         path: PathBuf,
         source: std::io::Error,
     },
+    #[snafu(display("error building domain: {}", message))]
+    DomainBuilder { message: String },
 }

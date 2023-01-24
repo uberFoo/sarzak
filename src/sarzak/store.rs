@@ -98,7 +98,7 @@ impl ObjectStore {
     /// Inter [`Isa`] into the [`ObjectStore`]
     ///
     pub fn inter_isa(&mut self, isa: Isa) {
-        self.isa.insert(isa.get_id(), isa);
+        self.isa.insert(isa.id, isa);
     }
 
     /// Exhume [`Isa`] from the [`ObjectStore`]
