@@ -12,4 +12,4 @@ nut = { path = "../nut" }
 snafu = "0.7.4"
 
 [lib]
-doctest = false
+doctest = true
