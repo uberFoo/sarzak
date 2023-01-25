@@ -93,7 +93,6 @@ pub struct Anchor {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-new_impl"}}}
 impl Anchor {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-new_impl"}}} //⚡️
     /// Inter a new Anchor and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -131,7 +130,7 @@ impl Anchor {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::drawing::Anchor, Context<'_>> for Anchor {
     fn extrude(orig: nut::drawing::Anchor, context: &mut Context<'_>) -> Self {
         // This is kosher because we keep the id when we extrude Point.
@@ -164,10 +163,12 @@ pub struct AssociativeUi {
     /// [`nut::sarzak::Associative`]
     ///
     pub associative_id: Uuid,
-    /// pub from: `Anchor`,
+    //     /// pub from: `Anchor`, //⚡️
+    /// pub from: `Point`,
     ///
     pub from: Uuid,
-    /// pub middle: `Point`,
+    //     /// pub middle: `Point`, //⚡️
+    /// pub middle: `Anchor`,
     ///
     pub middle: Uuid,
     /// pub one: `Anchor`,
@@ -217,26 +218,35 @@ impl AssociativeUi {
     pub fn new(
         store: &mut ObjectStore,
         associative_id: &Associative,
-        from: &Anchor,
+        //         from: &Anchor, //⚡️
+        middle: &Anchor,
         one: &Anchor,
         other: &Anchor,
-        middle: &Point,
+        //         middle: &Point, //⚡️
+        from: &Point,
     ) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
             format!(
                 "{:?}::{:?}::{:?}::{:?}::{:?}::",
-                associative_id, from, one, other, middle,
+                //                 associative_id, from, one, other, middle, //⚡️
+                associative_id,
+                middle,
+                one,
+                other,
+                from,
             )
             .as_bytes(),
         );
         let new = Self {
             id,
             associative_id: associative_id.id,
-            from: from.id,
+            //             from: from.id, //⚡️
+            middle: middle.id,
             one: one.id,
             other: other.id,
-            middle: middle.id,
+            //             middle: middle.id, //⚡️
+            from: from.id,
         };
 
         store.inter_associative_ui(new.clone());
@@ -605,12 +615,7 @@ impl ObjectEdge {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-extrude_impl"}}}
-impl Extrude<nut::drawing::ObjectEdge, Context<'_>> for ObjectEdge {
-    fn extrude(orig: nut::drawing::ObjectEdge, context: &mut Context<'_>) -> Self {
-        Self::default()
-    }
-}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-extrude_impl", "is_uber": true}}}
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-extrude_impl"}}}
 
 /// Render a rectangle
@@ -706,7 +711,26 @@ impl ObjectUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}
 impl Extrude<nut::drawing::ObjectUI, Context<'_>> for ObjectUi {
     fn extrude(orig: nut::drawing::ObjectUI, context: &mut Context<'_>) -> Self {
-        Self::default()
+        let point = context.from.exhume_point(&orig.origin).unwrap();
+        let point = Point::extrude(point.clone(), context);
+        context.to.inter_point(point);
+
+        let oui = Self {
+            height: orig.height,
+            id: orig.id,
+            width: orig.width,
+            object_id: orig.object,
+            origin: orig.origin,
+        };
+
+        // Create the four edges. I think it's a waste of time, because I think that
+        // the abstraction is incorrect.
+        ObjectEdge::new(context.to, &Edge::Top(TOP), &oui);
+        ObjectEdge::new(context.to, &Edge::Left(LEFT), &oui);
+        ObjectEdge::new(context.to, &Edge::Right(RIGHT), &oui);
+        ObjectEdge::new(context.to, &Edge::Bottom(BOTTOM), &oui);
+
+        oui
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-extrude_impl"}}}
@@ -755,7 +779,7 @@ impl Point {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-extrude_impl"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::drawing::Point, Context<'_>> for Point {
     fn extrude(orig: nut::drawing::Point, _context: &mut Context<'_>) -> Self {
         Self {

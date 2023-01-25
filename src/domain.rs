@@ -377,8 +377,6 @@ mod tests {
             .unwrap()
             .build();
         assert!(sarzak.is_ok());
-
-        dbg!(sarzak);
     }
 
     #[test]

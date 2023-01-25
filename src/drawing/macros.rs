@@ -651,7 +651,8 @@ macro_rules! drawing_get_one_pnt_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
-        $store.exhume_point(&$input.middle).unwrap()
+        //         $store.exhume_point(&$input.middle).unwrap() //⚡️
+        $store.exhume_point(&$input.from).unwrap()
         // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-emit_one_unconditional"}}}
     }};
 }
@@ -707,7 +708,8 @@ macro_rules! drawing_maybe_get_one_aui_across_r17 {
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
-            .find(|z| z.1.middle == $input.id)
+//             .find(|z| z.1.middle == $input.id) //⚡️
+            .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
         // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
     }};
@@ -956,7 +958,8 @@ macro_rules! drawing_get_one_anch_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
-        $store.exhume_anchor(&$input.from).unwrap()
+        //         $store.exhume_anchor(&$input.from).unwrap() //⚡️
+        $store.exhume_anchor(&$input.middle).unwrap()
         // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
@@ -1012,7 +1015,8 @@ macro_rules! drawing_maybe_get_one_aui_across_r16 {
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
-            .find(|z| z.1.from == $input.id)
+//             .find(|z| z.1.from == $input.id) //⚡️
+            .find(|z| z.1.middle == $input.id)
             .map(|(_, z)| z)
         // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
