@@ -41,6 +41,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports", "is_uber": true}}}
 use crate::drawing::store::ObjectStore;
 use crate::drawing::UUID_NS;
+use crate::sarzak::store::ObjectStore as SarzakObjectStore;
 use nut::codegen::{DrawingObjectStore, Extrude};
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
 
@@ -54,8 +55,9 @@ use crate::sarzak::types::Object;
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"context-extrude_impl", "is_uber": true}}}
 pub(crate) struct Context<'a> {
-    from: &'a DrawingObjectStore,
-    to: &'a mut ObjectStore,
+    pub(crate) from: &'a DrawingObjectStore,
+    pub(crate) to: &'a mut ObjectStore,
+    pub(crate) sarzak: &'a SarzakObjectStore,
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"context-extrude_impl"}}}
 
@@ -132,9 +134,22 @@ impl Anchor {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-extrude_impl"}}}
 impl Extrude<nut::drawing::Anchor, Context<'_>> for Anchor {
     fn extrude(orig: nut::drawing::Anchor, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // This is kosher because we keep the id when we extrude Point.
+        for i in [orig.location, orig.offset] {
+            let point = context.from.exhume_point(&i).unwrap();
+            let point = Point::extrude(point.clone(), context);
+            context.to.inter_point(point);
+        }
 
-        Self::default()
+        let edge = context.from.exhume_edge(&orig.edge).unwrap();
+        let edge = Edge::get_edge_from_nut(&edge);
+
+        Self {
+            id: orig.id,
+            edge,
+            location: orig.location,
+            offset: orig.offset,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-extrude_impl"}}}
@@ -234,9 +249,25 @@ impl AssociativeUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-extrude_impl", "is_uber":true}}}
 impl Extrude<nut::drawing::AssociativeUI, Context<'_>> for AssociativeUi {
     fn extrude(orig: nut::drawing::AssociativeUI, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // This is 😎 because we keep the same id when we extrude Anchor.
+        for i in [orig.one, orig.other, orig.middle] {
+            let anchor = context.from.exhume_anchor(&i).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+            context.to.inter_anchor(anchor);
+        }
 
-        Self::default()
+        let point = context.from.exhume_point(&orig.from).unwrap();
+        let point = Point::extrude(point.clone(), context);
+        context.to.inter_point(point);
+
+        Self {
+            id: orig.id,
+            associative_id: orig.associative_id,
+            from: orig.from,
+            middle: orig.middle,
+            one: orig.one,
+            other: orig.other,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-extrude_impl"}}}
@@ -315,9 +346,23 @@ impl BinaryUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-extrude_impl", "is_uber":true}}}
 impl Extrude<nut::drawing::BinaryUI, Context<'_>> for BinaryUi {
     fn extrude(orig: nut::drawing::BinaryUI, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // Extrude from and to. Leave binary_id alone, as it's the object in the
+        // sarzak domain. I suppose we can do a sanity check...
+        assert!(context.sarzak.exhume_binary(&orig.binary).is_some());
 
-        Self::default()
+        // This is 😎 because we keep the same id when we extrude Anchor.
+        for i in [orig.from, orig.to] {
+            let anchor = context.from.exhume_anchor(&i).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+            context.to.inter_anchor(anchor);
+        }
+
+        Self {
+            id: orig.id,
+            binary_id: orig.binary,
+            from: orig.from,
+            to: orig.to,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-extrude_impl"}}}
@@ -390,6 +435,17 @@ impl Edge {
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-test_default"}}}
 
+impl Edge {
+    fn get_edge_from_nut(edge: &nut::drawing::Edge) -> Uuid {
+        match edge {
+            nut::drawing::Edge::Top(_) => TOP,
+            nut::drawing::Edge::Left(_) => LEFT,
+            nut::drawing::Edge::Right(_) => RIGHT,
+            nut::drawing::Edge::Bottom(_) => BOTTOM,
+        }
+    }
+}
+
 /// This represents additional data necessary to render an `Isa` relationship in the user interface
 ///.
 ///
@@ -439,7 +495,6 @@ impl IsaUi {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", isa, from,).as_bytes());
         let new = Self {
             id,
-            //             isa: isa.get_id(), //⚡️
             isa: isa.id,
             from: from.id,
         };
@@ -454,9 +509,31 @@ impl IsaUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-extrude_impl", "is_uber":true}}}
 impl Extrude<nut::drawing::IsaUI, Context<'_>> for IsaUi {
     fn extrude(orig: nut::drawing::IsaUI, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
+        // Verify the imported object.
+        assert!(context.sarzak.exhume_isa(&orig.isa).is_some());
 
-        Self::default()
+        let anchor = context.from.exhume_anchor(&orig.from).unwrap();
+        let anchor = Anchor::extrude(anchor.clone(), context);
+        let id = anchor.id;
+        context.to.inter_anchor(anchor);
+
+        let isa_ui = Self {
+            id: orig.id,
+            from: id,
+            isa: orig.isa,
+        };
+
+        // In nut the to anchors are stored in a Vec. We break those out to
+        // SubtypeAnchors here.
+        for to in orig.to.iter() {
+            let anchor = context.from.exhume_anchor(&to).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+
+            SubtypeAnchors::new(context.to, &anchor, &isa_ui);
+            context.to.inter_anchor(anchor);
+        }
+
+        isa_ui
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-extrude_impl"}}}
@@ -531,8 +608,6 @@ impl ObjectEdge {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-extrude_impl"}}}
 impl Extrude<nut::drawing::ObjectEdge, Context<'_>> for ObjectEdge {
     fn extrude(orig: nut::drawing::ObjectEdge, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
-
         Self::default()
     }
 }
@@ -631,8 +706,6 @@ impl ObjectUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}
 impl Extrude<nut::drawing::ObjectUI, Context<'_>> for ObjectUi {
     fn extrude(orig: nut::drawing::ObjectUI, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
-
         Self::default()
     }
 }
@@ -684,10 +757,12 @@ impl Point {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-extrude_impl"}}}
 impl Extrude<nut::drawing::Point, Context<'_>> for Point {
-    fn extrude(orig: nut::drawing::Point, context: &mut Context<'_>) -> Self {
-        let Context { from, ref mut to } = context;
-
-        Self::default()
+    fn extrude(orig: nut::drawing::Point, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            x: orig.x,
+            y: orig.x,
+        }
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-extrude_impl"}}}
@@ -744,6 +819,37 @@ impl RelationshipUi {
     }
 }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"relationship_ui-test_default"}}}
+
+impl Extrude<nut::drawing::RelationshipUI, Context<'_>> for RelationshipUi {
+    fn extrude(input: nut::drawing::RelationshipUI, context: &mut Context<'_>) -> Self {
+        match input {
+            nut::drawing::RelationshipUI::BinaryUI(b_id) => {
+                let b = context.from.exhume_binary_ui(&b_id).unwrap();
+                let binary_ui = BinaryUi::extrude(b.clone(), context);
+                let id = binary_ui.id;
+                context.to.inter_binary_ui(binary_ui);
+
+                Self::BinaryUi(id)
+            }
+            nut::drawing::RelationshipUI::IsaUI(i_id) => {
+                let i = context.from.exhume_isa_ui(&i_id).unwrap();
+                let isa_ui = IsaUi::extrude(i.clone(), context);
+                let id = isa_ui.id;
+                context.to.inter_isa_ui(isa_ui);
+
+                Self::IsaUi(id)
+            }
+            nut::drawing::RelationshipUI::AssociativeUI(a_id) => {
+                let a = context.from.exhume_associative_ui(&a_id).unwrap();
+                let associative_ui = AssociativeUi::extrude(a.clone(), context);
+                let id = associative_ui.id;
+                context.to.inter_associative_ui(associative_ui);
+
+                Self::AssociativeUi(id)
+            }
+        }
+    }
+}
 
 /// The right side of a rendered box
 ///
@@ -823,13 +929,6 @@ impl SubtypeAnchors {
 }
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-extrude_impl", "is_uber": true}}}
-// impl Extrude<nut::drawing::SubtypeAnchors, Context<'_>> for SubtypeAnchors {
-//     fn extrude(orig: nut::drawing::SubtypeAnchors, context: &mut Context<'_>) -> Self {
-//         let Context { from, ref mut to } = context;
-
-//         Self::default()
-//     }
-// }
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-extrude_impl"}}}
 
 /// The top edge of the rendered box

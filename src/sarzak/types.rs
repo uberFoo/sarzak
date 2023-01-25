@@ -1185,6 +1185,7 @@ impl Extrude<nut::sarzak::Relationship, Context<'_>> for Relationship {
                 let binary = Binary::extrude(b.clone(), context);
                 let id = binary.id;
                 context.to.inter_binary(binary);
+
                 Self::Binary(id)
             }
             nut::sarzak::Relationship::Isa(i_id) => {
@@ -1192,13 +1193,15 @@ impl Extrude<nut::sarzak::Relationship, Context<'_>> for Relationship {
                 let isa = Isa::extrude(i.clone(), context);
                 let id = isa.id;
                 context.to.inter_isa(isa);
+
                 Self::Isa(id)
             }
             nut::sarzak::Relationship::Associative(a_id) => {
                 let a = context.from.exhume_associative(&a_id).unwrap();
-                let Associative = Associative::extrude(a.clone(), context);
-                let id = Associative.id;
-                context.to.inter_associative(Associative);
+                let associative = Associative::extrude(a.clone(), context);
+                let id = associative.id;
+                context.to.inter_associative(associative);
+
                 Self::Associative(id)
             }
         }
