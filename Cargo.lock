@@ -283,7 +283,7 @@ dependencies = [
 [[package]]
 name = "nut"
 version = "1.0.0"
-source = "git+ssh://git@git.uberfoo.com:30001/sarzak/nut.git?branch=develop#7a40d59ad629fc9fd29b0442ea688350a8f66cb8"
+source = "git+https://gitlab-runner:7kzem8nVeizSJQnLPWFY@git.uberfoo.com/sarzak/nut.git?branch=develop#7a40d59ad629fc9fd29b0442ea688350a8f66cb8"
 dependencies = [
  "anyhow",
  "clap 4.1.1",
