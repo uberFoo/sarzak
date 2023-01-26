@@ -1,69 +1,79 @@
-//! {"magic":"","version":"0.0.1"}
 //! Types for instances of the "Drawing" domain
+//! # Domain Description
+//!
+//! Domain for drawing boxen and lines.
+//!
+//!
+//! # Contents
 //!
 //! The following types are defined herein:
 //!    * [`Anchor`]
-//!    * [`BinaryUi`]
-//!    * [`Point`]
-//!    * [`ObjectEdge`]
-//!    * [`TOP`]
-//!    * [`LEFT`]
-//!    * [`Edge`]
-//!    * [`RelationshipUi`]
-//!    * [`ObjectUi`]
-//!    * [`IsaUi`]
 //!    * [`AssociativeUi`]
-//!    * [`SubtypeAnchors`]
-//!    * [`RIGHT`]
+//!    * [`BinaryUi`]
 //!    * [`BOTTOM`]
+//!    * [`Edge`]
+//!    * [`IsaUi`]
+//!    * [`LEFT`]
+//!    * [`ObjectEdge`]
+//!    * [`ObjectUi`]
+//!    * [`Point`]
+//!    * [`RelationshipUi`]
+//!    * [`RIGHT`]
+//!    * [`SubtypeAnchors`]
+//!    * [`TOP`]
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
-// Re-exports
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports", "is_uber": true}}}
 use crate::drawing::store::ObjectStore;
 use crate::drawing::UUID_NS;
-// {"magic":"","kind":"CriticalBlockEnd"}
+use crate::sarzak::store::ObjectStore as SarzakObjectStore;
+use nut::codegen::{DrawingObjectStore, Extrude};
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imports"}}}
 
 // Imported Objects
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imported-objects"}}}
 use crate::sarzak::types::Associative;
 use crate::sarzak::types::Binary;
 use crate::sarzak::types::Isa;
 use crate::sarzak::types::Object;
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imported-objects"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"context-extrude_impl", "is_uber": true}}}
+pub(crate) struct Context<'a> {
+    pub(crate) from: &'a DrawingObjectStore,
+    pub(crate) to: &'a mut ObjectStore,
+    pub(crate) sarzak: &'a SarzakObjectStore,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"context-extrude_impl"}}}
 
 /// An anchor, or anchor point, is the location where an arrow from a relationship attached
 /// to an object.
 ///
-///
-///
-///
-/// 
 /// Rather than storing the `x` and `y` coordinates of where the anchor attaches, we are related
 /// to an [Edge], which is related to a box, which is related to the [Object] to which we are
 /// attached. This of course completes the circuit from the [Relationship] for which we are
 /// drawing the lines in the first place.
 ///
-///
-///
-///
-/// 
 /// Anchor also contains a direction, so that we know the orientation to draw the arrows. Finally
 ///, there is an offset, which is a point that describes the offset from the anchor for the
 /// relationship phrase.
 ///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Anchor {
     /// pub id: `Uuid`,
@@ -79,8 +89,9 @@ pub struct Anchor {
     ///
     pub offset: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-struct-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-new_impl"}}}
 impl Anchor {
     /// Inter a new Anchor and return it's `id`
     ///
@@ -89,21 +100,22 @@ impl Anchor {
     ///
     ///```
     /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::drawing::Point;
     /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::Point;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_gvs = Point::new(&mut store, 42, 42);
-    /// let point_onx = Point::new(&mut store, 42, 42);
-    /// let edge_zcm = Edge::test_default(&mut store);
+    /// let point_aej = Point::new(&mut store, 42, 42);
+    /// let point_zlo = Point::new(&mut store, 42, 42);
+    /// let edge_bko = Edge::test_default(&mut store);
     ///
-    /// let anchor = Anchor::new(&mut store, &point_gvs, &point_onx, &edge_zcm);
+    /// let anchor = Anchor::new(&mut store, &point_aej, &point_zlo, &edge_bko);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, location: &Point, offset: &Point, edge: &Edge, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::", location, offset, edge, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, location: &Point, offset: &Point, edge: &Edge) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{:?}::", location, offset, edge,).as_bytes(),
+        );
         let new = Self {
             id,
             location: location.id,
@@ -111,25 +123,169 @@ impl Anchor {
             edge: edge.get_id(),
         };
 
-
-
-
-        
         store.inter_anchor(new.clone());
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::drawing::Anchor, Context<'_>> for Anchor {
+    fn extrude(orig: nut::drawing::Anchor, context: &mut Context<'_>) -> Self {
+        // This is kosher because we keep the id when we extrude Point.
+        for i in [orig.location, orig.offset] {
+            let point = context.from.exhume_point(&i).unwrap();
+            let point = Point::extrude(point.clone(), context);
+            context.to.inter_point(point);
+        }
+
+        let edge = context.from.exhume_edge(&orig.edge).unwrap();
+        let edge = Edge::get_edge_from_nut(&edge);
+
+        Self {
+            id: orig.id,
+            edge,
+            location: orig.location,
+            offset: orig.offset,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-extrude_impl"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct AssociativeUi {
+    /// pub id: `Uuid`,
+    ///
+    pub id: Uuid,
+    /// Imported from the sarzak domain.
+    /// [`nut::sarzak::Associative`]
+    ///
+    pub associative_id: Uuid,
+    //     /// pub from: `Anchor`, //⚡️
+    /// pub from: `Point`,
+    ///
+    pub from: Uuid,
+    //     /// pub middle: `Point`, //⚡️
+    /// pub middle: `Anchor`,
+    ///
+    pub middle: Uuid,
+    /// pub one: `Anchor`,
+    ///
+    pub one: Uuid,
+    /// pub other: `Anchor`,
+    ///
+    pub other: Uuid,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-struct-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-new_impl"}}}
+impl AssociativeUi {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-new_impl"}}} //⚡️
+    /// Inter a new AssociativeUi and return it's `id`
+    ///
+    // {"magic":"","kind":"IgnoreBlockBegin"}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::sarzak::Associative;
+    /// # use sarzak::drawing::Point;
+    /// # use sarzak::drawing::Anchor;
+    /// # use sarzak::drawing::AssociativeUi;
+    /// # use sarzak::drawing::Edge;
+    /// # let mut store = sarzak::drawing::ObjectStore::new();
+    ///
+    /// let associative_rho = Associative::default();
+    ///
+    /// let point_ddt = Point::new(&mut store, 42, 42);
+    /// let point_toy = Point::new(&mut store, 42, 42);
+    /// let edge_afu = Edge::test_default(&mut store);
+    /// let anchor_jyd = Anchor::new(&mut store, &point_ddt, &point_toy, &edge_afu);
+    /// let point_taf = Point::new(&mut store, 42, 42);
+    /// let point_rpb = Point::new(&mut store, 42, 42);
+    /// let edge_nas = Edge::test_default(&mut store);
+    /// let anchor_xyc = Anchor::new(&mut store, &point_taf, &point_rpb, &edge_nas);
+    /// let point_seh = Point::new(&mut store, 42, 42);
+    /// let point_kcp = Point::new(&mut store, 42, 42);
+    /// let edge_gkp = Edge::test_default(&mut store);
+    /// let anchor_uef = Anchor::new(&mut store, &point_seh, &point_kcp, &edge_gkp);
+    /// let point_qag = Point::new(&mut store, 42, 42);
+    ///
+    /// let associative_ui = AssociativeUi::new(&mut store, &associative_rho, &anchor_jyd, &anchor_xyc, &anchor_uef, &point_qag);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(
+        store: &mut ObjectStore,
+        associative_id: &Associative,
+        //         from: &Anchor, //⚡️
+        middle: &Anchor,
+        one: &Anchor,
+        other: &Anchor,
+        //         middle: &Point, //⚡️
+        from: &Point,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!(
+                "{:?}::{:?}::{:?}::{:?}::{:?}::",
+                //                 associative_id, from, one, other, middle, //⚡️
+                associative_id,
+                middle,
+                one,
+                other,
+                from,
+            )
+            .as_bytes(),
+        );
+        let new = Self {
+            id,
+            associative_id: associative_id.id,
+            //             from: from.id, //⚡️
+            middle: middle.id,
+            one: one.id,
+            other: other.id,
+            //             middle: middle.id, //⚡️
+            from: from.id,
+        };
+
+        store.inter_associative_ui(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-new_impl"}}}
+}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::AssociativeUI, Context<'_>> for AssociativeUi {
+    fn extrude(orig: nut::drawing::AssociativeUI, context: &mut Context<'_>) -> Self {
+        // This is 😎 because we keep the same id when we extrude Anchor.
+        for i in [orig.one, orig.other, orig.middle] {
+            let anchor = context.from.exhume_anchor(&i).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+            context.to.inter_anchor(anchor);
+        }
+
+        let point = context.from.exhume_point(&orig.from).unwrap();
+        let point = Point::extrude(point.clone(), context);
+        context.to.inter_point(point);
+
+        Self {
+            id: orig.id,
+            associative_id: orig.associative_id,
+            from: orig.from,
+            middle: orig.middle,
+            one: orig.one,
+            other: orig.other,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-extrude_impl"}}}
+
 /// This represents additional information necessary to render a `Binary` relationship in the
 /// user interface.
 ///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct BinaryUi {
     /// pub id: `Uuid`,
@@ -146,40 +302,43 @@ pub struct BinaryUi {
     ///
     pub to: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-struct-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-new_impl"}}}
 impl BinaryUi {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-new_impl"}}} //⚡️
     /// Inter a new BinaryUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::Edge;
     /// # use sarzak::drawing::BinaryUi;
+    /// # use sarzak::drawing::Anchor;
+    /// # use sarzak::drawing::Edge;
     /// # use sarzak::drawing::Point;
     /// # use sarzak::sarzak::Binary;
-    /// # use sarzak::drawing::Anchor;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_ihj = Point::new(&mut store, 42, 42);
-    /// let point_vcx = Point::new(&mut store, 42, 42);
-    /// let edge_glp = Edge::test_default(&mut store);
-    /// let anchor_fio = Anchor::new(&mut store, &point_ihj, &point_vcx, &edge_glp);
-    /// let point_hoe = Point::new(&mut store, 42, 42);
-    /// let point_zrq = Point::new(&mut store, 42, 42);
-    /// let edge_nve = Edge::test_default(&mut store);
-    /// let anchor_exm = Anchor::new(&mut store, &point_hoe, &point_zrq, &edge_nve);
-    /// let binary_yip = Binary::default();
+    /// let point_ykc = Point::new(&mut store, 42, 42);
+    /// let point_ktu = Point::new(&mut store, 42, 42);
+    /// let edge_byd = Edge::test_default(&mut store);
+    /// let anchor_cgr = Anchor::new(&mut store, &point_ykc, &point_ktu, &edge_byd);
+    /// let point_fnp = Point::new(&mut store, 42, 42);
+    /// let point_iyf = Point::new(&mut store, 42, 42);
+    /// let edge_inx = Edge::test_default(&mut store);
+    /// let anchor_haz = Anchor::new(&mut store, &point_fnp, &point_iyf, &edge_inx);
+    /// let binary_tga = Binary::default();
     ///
     ///
-    /// let binary_ui = BinaryUi::new(&mut store, &anchor_fio, &anchor_exm, &binary_yip);
+    /// let binary_ui = BinaryUi::new(&mut store, &anchor_cgr, &anchor_haz, &binary_tga);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, from: &Anchor, to: &Anchor, binary_id: &Binary, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::", from, to, binary_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, from: &Anchor, to: &Anchor, binary_id: &Binary) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{:?}::", from, to, binary_id,).as_bytes(),
+        );
         let new = Self {
             id,
             from: from.id,
@@ -187,211 +346,63 @@ impl BinaryUi {
             binary_id: binary_id.id,
         };
 
-
-
-
-        
         store.inter_binary_ui(new.clone());
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-new_impl"}}}
 }
-/// A point is a two-tuple that represents a location on the drawing canvas.
-///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
-pub struct Point {
-    /// pub id: `Uuid`,
-    ///
-    pub id: Uuid,
-    /// pub x: `i64`,
-    ///
-    pub x: i64,
-    /// pub y: `i64`,
-    ///
-    pub y: i64,
-}
-// {"magic":"","kind":"CriticalBlockEnd"}
 
-impl Point {
-    /// Inter a new Point and return it's `id`
-    ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
-    /// # Example
-    ///
-    ///```
-    /// # use sarzak::drawing::Point;
-    /// # let mut store = sarzak::drawing::ObjectStore::new();
-    ///
-    ///
-    /// let point = Point::new(&mut store, 42, 42);
-    ///```
-    // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, y: i64, x: i64, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", y, x, ).as_bytes());
-        let new = Self {
-            id,
-            y,
-            x,
-        };
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::BinaryUI, Context<'_>> for BinaryUi {
+    fn extrude(orig: nut::drawing::BinaryUI, context: &mut Context<'_>) -> Self {
+        // Extrude from and to. Leave binary_id alone, as it's the object in the
+        // sarzak domain. I suppose we can do a sanity check...
+        assert!(context.sarzak.exhume_binary(&orig.binary).is_some());
 
+        // This is 😎 because we keep the same id when we extrude Anchor.
+        for i in [orig.from, orig.to] {
+            let anchor = context.from.exhume_anchor(&i).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+            context.to.inter_anchor(anchor);
+        }
 
-
-
-        
-        store.inter_point(new.clone());
-
-
-
-
-        
-        new
+        Self {
+            id: orig.id,
+            binary_id: orig.binary,
+            from: orig.from,
+            to: orig.to,
+        }
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
-/// The Edge of an Object Depiction
-///
-///
-///
-///
-/// 
-/// There are four edges to a rendered object.
-///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
-pub struct ObjectEdge {
-    /// pub id: `Uuid`,
-    ///
-    pub id: Uuid,
-    /// pub edge: `Edge`,
-    ///
-    pub edge: Uuid,
-    /// pub oui_id: `ObjectUI`,
-    ///
-    pub oui_id: Uuid,
-}
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-extrude_impl"}}}
 
-impl ObjectEdge {
-    /// Inter a new ObjectEdge and return it's `id`
-    ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
-    /// # Example
-    ///
-    ///```
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::drawing::ObjectEdge;
-    /// # use sarzak::drawing::ObjectUi;
-    /// # use sarzak::drawing::Edge;
-    /// # use sarzak::drawing::Point;
-    /// # let mut store = sarzak::drawing::ObjectStore::new();
-    ///
-    /// let edge_spz = Edge::test_default(&mut store);
-    /// let point_rra = Point::new(&mut store, 42, 42);
-    /// let petite_hose = "wakeful_science".to_owned();
-    /// let object_brf = Object::default();
-    ///
-    /// let object_ui_gfp = ObjectUi::new(&mut store, &point_rra, &object_brf, 42, 42);
-    ///
-    /// let object_edge = ObjectEdge::new(&mut store, &edge_spz, &object_ui_gfp);
-    ///```
-    // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, edge: &Edge, oui_id: &ObjectUi, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", edge, oui_id, ).as_bytes());
-        let new = Self {
-            id,
-            edge: edge.get_id(),
-            oui_id: oui_id.id,
-        };
-
-
-
-
-        
-        store.inter_object_edge(new.clone());
-
-
-
-
-        
-        new
-    }
-    // {"magic":"","kind":"CriticalBlockEnd"}
-}
-/// The top edge of the rendered box
+/// The bottom of a rendered box
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
-/// _Generated code_
 //
-pub const TOP: Uuid = uuid!["66416a6d-1227-53b5-bb5a-bfd45e0ea72e"];
-
-/// The left side of a rendered box
-///
-///
-///
-///
-/// 
-/// ❗️{"singleton_object": true}
-///
-/// _Generated code_
-//
-pub const LEFT: Uuid = uuid!["8125ae7e-9edb-5e9c-be33-643f1277e0e0"];
+pub const BOTTOM: Uuid = uuid!["cd977757-dbcb-5e5d-a0dc-d0e6624db6a0"];
 
 /// An attachment point for an [Anchor]
 ///
-///
-///
-///
-/// 
 /// It’s used with [Anchor] to orient the arrows on the ends of the lines according to the
 /// side of the box to which they are attached. Some arrows are on top, some bottom, etc.
 ///
-///
-///
-///
-/// 
 /// This is not rendered as a visible item. The [ObjectUI] manages that by itself. This instead
 /// renders an invisible line. The line is used for several things. For one, when hovered over
 /// the cursor changes to the appropriate one for resizing.
 ///
-///
-///
-///
-/// 
 /// Also, this is used to register where relationship may anchor.
 ///
-///
-///
-///
-/// 
 /// It’s this last regard that is somewhat concerning. Indicating that an anchor is attached
 /// to an edge get’s us the connection we need between an [Object] and a [Relationship]. But
 /// it’s under-specified. It doesn’t indicate where along the edge the arrow is connected
 ///.
 ///
-///
-///
-///
-/// 
 /// I’m considering put a relationship back between [Anchor] and [Point].
 ///
-/// _Generated code_
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Edge {
     /// `Top(Top)`,
@@ -407,7 +418,9 @@ pub enum Edge {
     ///
     Bottom(Uuid),
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Edge-enum-get-id-impl"}}}
 impl Edge {
     pub fn get_id(&self) -> Uuid {
         match *self {
@@ -418,155 +431,203 @@ impl Edge {
         }
     }
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Edge-enum-get-id-impl"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-test_default"}}}
 impl Edge {
-    // {"magic":"","kind":"CriticalBlockBegin"}
     pub fn test_default(store: &mut ObjectStore) -> Self {
         let test = Self::Top(TOP);
 
-        
         store.inter_edge(test.clone());
 
-        
         test
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-test_default"}}}
 
-/// Additional information necessary to render relationships in the user interface.
-///
-/// _Generated code_
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum RelationshipUi {
-    /// `BinaryUi(BinaryUi)`,
-    ///
-    BinaryUi(Uuid),
-    /// `IsaUi(IsaUi)`,
-    ///
-    IsaUi(Uuid),
-    /// `AssociativeUi(AssociativeUi)`,
-    ///
-    AssociativeUi(Uuid),
-}
-
-impl RelationshipUi {
-    pub fn get_id(&self) -> Uuid {
-        match *self {
-            Self::BinaryUi(z) => z,
-            Self::IsaUi(z) => z,
-            Self::AssociativeUi(z) => z,
+impl Edge {
+    fn get_edge_from_nut(edge: &nut::drawing::Edge) -> Uuid {
+        match edge {
+            nut::drawing::Edge::Top(_) => TOP,
+            nut::drawing::Edge::Left(_) => LEFT,
+            nut::drawing::Edge::Right(_) => RIGHT,
+            nut::drawing::Edge::Bottom(_) => BOTTOM,
         }
     }
 }
 
-impl RelationshipUi {
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    pub fn test_default(store: &mut ObjectStore) -> Self {
-        // This is a totally valid, if wasteful, and odd thing to do. Sorry. 🐶
-        // ⚡️         let point_auv = Point::new(store, 42, 42);
-        // ⚡️         let point_psb = Point::new(store, 42, 42);
-        // ⚡️         let edge_gjl = Edge::test_default(store);
-        // ⚡️         let anchor_iao = Anchor::new(store, &point_auv, &point_psb, &edge_gjl);
-        // ⚡️         let point_jtc = Point::new(store, 42, 42);
-        // ⚡️         let point_dwm = Point::new(store, 42, 42);
-        // ⚡️         let edge_qkr = Edge::test_default(store);
-        // ⚡️         let anchor_tux = Anchor::new(store, &point_jtc, &point_dwm, &edge_qkr);
-        // ⚡️         let binary_byu = Binary::default();
-
-        // ⚡️         let test = Self::BinaryUi(BinaryUi::new(store, &anchor_iao, &anchor_tux, &binary_byu).id);
-
-        // ⚡️         let point_gah = Point::new(store, 42, 42);
-        // ⚡️         let point_zlr = Point::new(store, 42, 42);
-        // ⚡️         let edge_jrb = Edge::test_default(store);
-        // ⚡️         let anchor_nqc = Anchor::new(store, &point_gah, &point_zlr, &edge_jrb);
-        // ⚡️         let point_sbd = Point::new(store, 42, 42);
-        // ⚡️         let point_jkc = Point::new(store, 42, 42);
-        // ⚡️         let edge_yyt = Edge::test_default(store);
-        // ⚡️         let anchor_gug = Anchor::new(store, &point_sbd, &point_jkc, &edge_yyt);
-        // ⚡️         let binary_duc = Binary::default();
-
-        // ⚡️         let test = Self::BinaryUi(BinaryUi::new(store, &anchor_nqc, &anchor_gug, &binary_duc).id);
-
-        // ⚡️         let point_deg = Point::new(store, 42, 42);
-        // ⚡️         let point_xyu = Point::new(store, 42, 42);
-        // ⚡️         let edge_mhg = Edge::test_default(store);
-        // ⚡️         let anchor_ton = Anchor::new(store, &point_deg, &point_xyu, &edge_mhg);
-        // ⚡️         let point_psq = Point::new(store, 42, 42);
-        // ⚡️         let point_gjc = Point::new(store, 42, 42);
-        // ⚡️         let edge_lrv = Edge::test_default(store);
-        // ⚡️         let anchor_xse = Anchor::new(store, &point_psq, &point_gjc, &edge_lrv);
-        // ⚡️         let binary_dnz = Binary::default();
-
-        // ⚡️         let test = Self::BinaryUi(BinaryUi::new(store, &anchor_ton, &anchor_xse, &binary_dnz).id);
-
-        // ⚡️         let point_mnz = Point::new(store, 42, 42);
-        // ⚡️         let point_ofb = Point::new(store, 42, 42);
-        // ⚡️         let edge_xnz = Edge::test_default(store);
-        // ⚡️         let anchor_xir = Anchor::new(store, &point_mnz, &point_ofb, &edge_xnz);
-        // ⚡️         let point_nqn = Point::new(store, 42, 42);
-        // ⚡️         let point_gqf = Point::new(store, 42, 42);
-        // ⚡️         let edge_goz = Edge::test_default(store);
-        // ⚡️         let anchor_nvz = Anchor::new(store, &point_nqn, &point_gqf, &edge_goz);
-        // ⚡️         let binary_txe = Binary::default();
-// ⚡️         let point_omf = Point::new(store, 42, 42);
-// ⚡️         let point_tcq = Point::new(store, 42, 42);
-// ⚡️         let edge_hfn = Edge::test_default(store);
-// ⚡️         let anchor_fsm = Anchor::new(store, &point_omf, &point_tcq, &edge_hfn);
-// ⚡️         let point_fua = Point::new(store, 42, 42);
-// ⚡️         let point_gox = Point::new(store, 42, 42);
-// ⚡️         let edge_set = Edge::test_default(store);
-// ⚡️         let anchor_jrx = Anchor::new(store, &point_fua, &point_gox, &edge_set);
-// ⚡️         let binary_ptl = Binary::default();
-
-        // ⚡️         let test = Self::BinaryUi(BinaryUi::new(store, &anchor_xir, &anchor_nvz, &binary_txe).id);
-// ⚡️         let test = Self::BinaryUi(BinaryUi::new(store, &anchor_fsm, &anchor_jrx, &binary_ptl).id);
-
-        let point_qtd = Point::new(store, 42, 42);
-        let point_fuv = Point::new(store, 42, 42);
-        let edge_hhm = Edge::test_default(store);
-        let anchor_zwt = Anchor::new(store, &point_qtd, &point_fuv, &edge_hhm);
-        let point_enr = Point::new(store, 42, 42);
-        let point_ifm = Point::new(store, 42, 42);
-        let edge_etr = Edge::test_default(store);
-        let anchor_uzf = Anchor::new(store, &point_enr, &point_ifm, &edge_etr);
-        let binary_rov = Binary::default();
-        
-        let test = Self::BinaryUi(BinaryUi::new(store, &anchor_zwt, &anchor_uzf, &binary_rov).id);
-        
-        store.inter_relationship_ui(test.clone());
-
-        
-        test
-    }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+/// This represents additional data necessary to render an `Isa` relationship in the user interface
+///.
+///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct IsaUi {
+    /// pub id: `Uuid`,
+    ///
+    pub id: Uuid,
+    /// pub from: `Anchor`,
+    ///
+    pub from: Uuid,
+    /// Imported from the sarzak domain.
+    /// [`nut::sarzak::Isa`]
+    ///
+    pub isa: Uuid,
 }
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-struct-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-new_impl"}}}
+impl IsaUi {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-new_impl"}}} //⚡️
+    /// Inter a new IsaUi and return it's `id`
+    ///
+    // {"magic":"","kind":"IgnoreBlockBegin"}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::drawing::Anchor;
+    /// # use sarzak::sarzak::Isa;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::IsaUi;
+    /// # use sarzak::drawing::Point;
+    /// # let mut store = sarzak::drawing::ObjectStore::new();
+    ///
+    /// let isa_iet = Isa::default();
+    ///
+    /// let point_ywt = Point::new(&mut store, 42, 42);
+    /// let point_rzg = Point::new(&mut store, 42, 42);
+    /// let edge_hon = Edge::test_default(&mut store);
+    /// let anchor_skt = Anchor::new(&mut store, &point_ywt, &point_rzg, &edge_hon);
+    ///
+    /// let isa_ui = IsaUi::new(&mut store, &isa_iet, &anchor_skt);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(store: &mut ObjectStore, isa: &Isa, from: &Anchor) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", isa, from,).as_bytes());
+        let new = Self {
+            id,
+            isa: isa.id,
+            from: from.id,
+        };
+
+        store.inter_isa_ui(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-new_impl"}}}
+}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::IsaUI, Context<'_>> for IsaUi {
+    fn extrude(orig: nut::drawing::IsaUI, context: &mut Context<'_>) -> Self {
+        // Verify the imported object.
+        assert!(context.sarzak.exhume_isa(&orig.isa).is_some());
+
+        let anchor = context.from.exhume_anchor(&orig.from).unwrap();
+        let anchor = Anchor::extrude(anchor.clone(), context);
+        let id = anchor.id;
+        context.to.inter_anchor(anchor);
+
+        let isa_ui = Self {
+            id: orig.id,
+            from: id,
+            isa: orig.isa,
+        };
+
+        // In nut the to anchors are stored in a Vec. We break those out to
+        // SubtypeAnchors here.
+        for to in orig.to.iter() {
+            let anchor = context.from.exhume_anchor(&to).unwrap();
+            let anchor = Anchor::extrude(anchor.clone(), context);
+
+            SubtypeAnchors::new(context.to, &anchor, &isa_ui);
+            context.to.inter_anchor(anchor);
+        }
+
+        isa_ui
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-extrude_impl"}}}
+
+/// The left side of a rendered box
+///
+/// ❗️{"singleton_object": true}
+///
+//
+pub const LEFT: Uuid = uuid!["8125ae7e-9edb-5e9c-be33-643f1277e0e0"];
+
+/// The Edge of an Object Depiction
+///
+/// There are four edges to a rendered object.
+///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct ObjectEdge {
+    /// pub id: `Uuid`,
+    ///
+    pub id: Uuid,
+    /// pub edge: `Edge`,
+    ///
+    pub edge: Uuid,
+    /// pub oui_id: `ObjectUI`,
+    ///
+    pub oui_id: Uuid,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-struct-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-new_impl"}}}
+impl ObjectEdge {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-new_impl"}}} //⚡️
+    /// Inter a new ObjectEdge and return it's `id`
+    ///
+    // {"magic":"","kind":"IgnoreBlockBegin"}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::drawing::ObjectEdge;
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::drawing::Point;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::ObjectUi;
+    /// # let mut store = sarzak::drawing::ObjectStore::new();
+    ///
+    /// let edge_soh = Edge::test_default(&mut store);
+    /// let point_uzl = Point::new(&mut store, 42, 42);
+    /// let gratis_bedroom = "simple_farm".to_owned();
+    /// let object_jxg = Object::default();
+    ///
+    /// let object_ui_lld = ObjectUi::new(&mut store, &point_uzl, &object_jxg, 42, 42);
+    ///
+    /// let object_edge = ObjectEdge::new(&mut store, &edge_soh, &object_ui_lld);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(store: &mut ObjectStore, edge: &Edge, oui_id: &ObjectUi) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", edge, oui_id,).as_bytes());
+        let new = Self {
+            id,
+            edge: edge.get_id(),
+            oui_id: oui_id.id,
+        };
+
+        store.inter_object_edge(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-new_impl"}}}
+}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-extrude_impl", "is_uber": true}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_edge-extrude_impl"}}}
 
 /// Render a rectangle
 ///
-///
-///
-///
-/// 
 /// This represents additional information that is necessary to draw an Object in the user interface
 ///.
 ///
-///
-///
-///
-/// 
 /// Note that although we are logically related to [Edge] via `R14` we actually render our own
 /// edges. We use the svg rect primitive to do this.
 ///
-///
-///
-///
-/// 
 /// I’m throwing this in for the fuck of it. I don’t know if it’ll be useful or not.
 ///
-///
-///
-///
-/// 
 /// ```js
 /// var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 /// rect.setAttribute('class', 'objectRect');
@@ -577,8 +638,7 @@ impl RelationshipUi {
 ///  rect.setAttribute('height', obj.height);
 /// ```
 ///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct ObjectUi {
     /// pub height: `i64`,
@@ -598,32 +658,41 @@ pub struct ObjectUi {
     ///
     pub origin: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-struct-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-new_impl"}}}
 impl ObjectUi {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-new_impl"}}} //⚡️
     /// Inter a new ObjectUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::ObjectUi;
     /// # use sarzak::drawing::Point;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::drawing::ObjectUi;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_jig = Point::new(&mut store, 42, 42);
-    /// let electric_body = "acoustic_suggestion".to_owned();
-    /// let object_fue = Object::default();
+    /// let point_koq = Point::new(&mut store, 42, 42);
+    /// let aloof_drug = "imaginary_bread".to_owned();
+    /// let object_dux = Object::default();
     ///
     ///
-    /// let object_ui = ObjectUi::new(&mut store, &point_jig, &object_fue, 42, 42);
+    /// let object_ui = ObjectUi::new(&mut store, &point_koq, &object_dux, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, origin: &Point, object_id: &Object, width: i64, height: i64, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{}::{}::", origin, object_id, width, height, ).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        origin: &Point,
+        object_id: &Object,
+        width: i64,
+        height: i64,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::{}::{}::", origin, object_id, width, height,).as_bytes(),
+        );
         let new = Self {
             id,
             origin: origin.id,
@@ -632,185 +701,193 @@ impl ObjectUi {
             height,
         };
 
-
-
-
-        
         store.inter_object_ui(new.clone());
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-new_impl"}}}
 }
-/// This represents additional data necessary to render an `Isa` relationship in the user interface
-///.
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}
+impl Extrude<nut::drawing::ObjectUI, Context<'_>> for ObjectUi {
+    fn extrude(orig: nut::drawing::ObjectUI, context: &mut Context<'_>) -> Self {
+        let point = context.from.exhume_point(&orig.origin).unwrap();
+        let point = Point::extrude(point.clone(), context);
+        context.to.inter_point(point);
+
+        let oui = Self {
+            height: orig.height,
+            id: orig.id,
+            width: orig.width,
+            object_id: orig.object,
+            origin: orig.origin,
+        };
+
+        // Create the four edges. I think it's a waste of time, because I think that
+        // the abstraction is incorrect.
+        ObjectEdge::new(context.to, &Edge::Top(TOP), &oui);
+        ObjectEdge::new(context.to, &Edge::Left(LEFT), &oui);
+        ObjectEdge::new(context.to, &Edge::Right(RIGHT), &oui);
+        ObjectEdge::new(context.to, &Edge::Bottom(BOTTOM), &oui);
+
+        oui
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-extrude_impl"}}}
+
+/// A point is a two-tuple that represents a location on the drawing canvas.
 ///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
-pub struct IsaUi {
+pub struct Point {
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
-    /// pub from: `Anchor`,
+    /// pub x: `i64`,
     ///
-    pub from: Uuid,
-    /// Imported from the sarzak domain.
-    /// [`nut::sarzak::Isa`]
+    pub x: i64,
+    /// pub y: `i64`,
     ///
-    pub isa: Uuid,
+    pub y: i64,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-struct-definition"}}}
 
-impl IsaUi {
-    /// Inter a new IsaUi and return it's `id`
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-new_impl"}}}
+impl Point {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-new_impl"}}} //⚡️
+    /// Inter a new Point and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::sarzak::Isa;
-    /// # use sarzak::drawing::Edge;
-    /// # use sarzak::drawing::Point;
-    /// # use sarzak::drawing::IsaUi;
-    /// # let mut store = sarzak::drawing::ObjectStore::new();
-    /// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
-    ///
-    /// let isa_tqx = Isa::test_default(&mut sarzak_store);
-    ///
-    /// let point_ksc = Point::new(&mut store, 42, 42);
-    /// let point_xjh = Point::new(&mut store, 42, 42);
-    /// let edge_hnv = Edge::test_default(&mut store);
-    /// let anchor_coc = Anchor::new(&mut store, &point_ksc, &point_xjh, &edge_hnv);
-    ///
-    /// let isa_ui = IsaUi::new(&mut store, &isa_tqx, &anchor_coc);
-    ///```
-    // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, isa: &Isa, from: &Anchor, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", isa, from, ).as_bytes());
-        let new = Self {
-            id,
-            isa: isa.get_id(),
-            from: from.id,
-        };
-
-
-
-
-        
-        store.inter_isa_ui(new.clone());
-
-
-
-
-        
-        new
-    }
-    // {"magic":"","kind":"CriticalBlockEnd"}
-}
-// {"magic":"","kind":"CriticalBlockBegin"}
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
-pub struct AssociativeUi {
-    /// pub id: `Uuid`,
-    ///
-    pub id: Uuid,
-    /// Imported from the sarzak domain.
-    /// [`nut::sarzak::Associative`]
-    ///
-    pub associative_id: Uuid,
-    /// pub from: `Anchor`,
-    ///
-    pub from: Uuid,
-    /// pub middle: `Point`,
-    ///
-    pub middle: Uuid,
-    /// pub one: `Anchor`,
-    ///
-    pub one: Uuid,
-    /// pub other: `Anchor`,
-    ///
-    pub other: Uuid,
-}
-// {"magic":"","kind":"CriticalBlockEnd"}
-
-impl AssociativeUi {
-    /// Inter a new AssociativeUi and return it's `id`
-    ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
-    /// # Example
-    ///
-    ///```
-    /// # use sarzak::sarzak::Associative;
-    /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::drawing::Edge;
-    /// # use sarzak::drawing::AssociativeUi;
     /// # use sarzak::drawing::Point;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let associative_bwp = Associative::default();
     ///
-    /// let point_kzk = Point::new(&mut store, 42, 42);
-    /// let point_kbb = Point::new(&mut store, 42, 42);
-    /// let edge_umy = Edge::test_default(&mut store);
-    /// let anchor_oum = Anchor::new(&mut store, &point_kzk, &point_kbb, &edge_umy);
-    /// let point_kid = Point::new(&mut store, 42, 42);
-    /// let point_jaa = Point::new(&mut store, 42, 42);
-    /// let edge_ugb = Edge::test_default(&mut store);
-    /// let anchor_wtu = Anchor::new(&mut store, &point_kid, &point_jaa, &edge_ugb);
-    /// let point_wvl = Point::new(&mut store, 42, 42);
-    /// let point_wzf = Point::new(&mut store, 42, 42);
-    /// let edge_uke = Edge::test_default(&mut store);
-    /// let anchor_qym = Anchor::new(&mut store, &point_wvl, &point_wzf, &edge_uke);
-    /// let point_lhn = Point::new(&mut store, 42, 42);
-    ///
-    /// let associative_ui = AssociativeUi::new(&mut store, &associative_bwp, &anchor_oum, &anchor_wtu, &anchor_qym, &point_lhn);
+    /// let point = Point::new(&mut store, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, associative_id: &Associative, from: &Anchor, one: &Anchor, other: &Anchor, middle: &Point, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::{:?}::{:?}::{:?}::", associative_id, from, one, other, middle, ).as_bytes());
-        let new = Self {
-            id,
-            associative_id: associative_id.id,
-            from: from.id,
-            one: one.id,
-            other: other.id,
-            middle: middle.id,
-        };
+    pub fn new(store: &mut ObjectStore, y: i64, x: i64) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", y, x,).as_bytes());
+        let new = Self { id, y, x };
 
+        store.inter_point(new.clone());
 
-
-
-        
-        store.inter_associative_ui(new.clone());
-
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-new_impl"}}}
 }
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-extrude_impl", "is_uber": true}}}
+impl Extrude<nut::drawing::Point, Context<'_>> for Point {
+    fn extrude(orig: nut::drawing::Point, _context: &mut Context<'_>) -> Self {
+        Self {
+            id: orig.id,
+            x: orig.x,
+            y: orig.x,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-extrude_impl"}}}
+
+/// Additional information necessary to render relationships in the user interface.
+///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship_ui-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum RelationshipUi {
+    /// `BinaryUi(BinaryUi)`,
+    ///
+    BinaryUi(Uuid),
+    /// `IsaUi(IsaUi)`,
+    ///
+    IsaUi(Uuid),
+    /// `AssociativeUi(AssociativeUi)`,
+    ///
+    AssociativeUi(Uuid),
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"RelationshipUi-enum-get-id-impl"}}}
+impl RelationshipUi {
+    pub fn get_id(&self) -> Uuid {
+        match *self {
+            Self::BinaryUi(z) => z,
+            Self::IsaUi(z) => z,
+            Self::AssociativeUi(z) => z,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"RelationshipUi-enum-get-id-impl"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship_ui-test_default"}}}
+impl RelationshipUi {
+    pub fn test_default(store: &mut ObjectStore) -> Self {
+        // {"magic":"","kind":"IgnoreBlockBegin"}
+        let point_zuh = Point::new(store, 42, 42);
+        let point_mvp = Point::new(store, 42, 42);
+        let edge_gmo = Edge::test_default(store);
+        let anchor_pwd = Anchor::new(store, &point_zuh, &point_mvp, &edge_gmo);
+        let point_wok = Point::new(store, 42, 42);
+        let point_hmw = Point::new(store, 42, 42);
+        let edge_asf = Edge::test_default(store);
+        let anchor_pzb = Anchor::new(store, &point_wok, &point_hmw, &edge_asf);
+        let binary_iae = Binary::default();
+
+        let test = Self::BinaryUi(BinaryUi::new(store, &anchor_pwd, &anchor_pzb, &binary_iae).id);
+        // {"magic":"","kind":"IgnoreBlockEnd"}
+
+        store.inter_relationship_ui(test.clone());
+
+        test
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"relationship_ui-test_default"}}}
+
+impl Extrude<nut::drawing::RelationshipUI, Context<'_>> for RelationshipUi {
+    fn extrude(input: nut::drawing::RelationshipUI, context: &mut Context<'_>) -> Self {
+        match input {
+            nut::drawing::RelationshipUI::BinaryUI(b_id) => {
+                let b = context.from.exhume_binary_ui(&b_id).unwrap();
+                let binary_ui = BinaryUi::extrude(b.clone(), context);
+                let id = binary_ui.id;
+                context.to.inter_binary_ui(binary_ui);
+
+                Self::BinaryUi(id)
+            }
+            nut::drawing::RelationshipUI::IsaUI(i_id) => {
+                let i = context.from.exhume_isa_ui(&i_id).unwrap();
+                let isa_ui = IsaUi::extrude(i.clone(), context);
+                let id = isa_ui.id;
+                context.to.inter_isa_ui(isa_ui);
+
+                Self::IsaUi(id)
+            }
+            nut::drawing::RelationshipUI::AssociativeUI(a_id) => {
+                let a = context.from.exhume_associative_ui(&a_id).unwrap();
+                let associative_ui = AssociativeUi::extrude(a.clone(), context);
+                let id = associative_ui.id;
+                context.to.inter_associative_ui(associative_ui);
+
+                Self::AssociativeUi(id)
+            }
+        }
+    }
+}
+
+/// The right side of a rendered box
+///
+/// ❗️{"singleton_object": true}
+///
+//
+pub const RIGHT: Uuid = uuid!["1d99f96f-d110-5adf-a108-9fb0b707dae3"];
+
 /// Subtype Anchors
 ///
-///
-///
-///
-/// 
 /// Just as it sounds, these are [`Anchor`]s used by [`Subtype`]s in an [`Isa`] relationship
 ///.
 ///
-/// _Generated code_
-// {"magic":"","kind":"CriticalBlockBegin"}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct SubtypeAnchors {
     /// pub id: `Uuid`,
@@ -823,9 +900,11 @@ pub struct SubtypeAnchors {
     ///
     pub isaui_id: Uuid,
 }
-// {"magic":"","kind":"CriticalBlockEnd"}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-struct-definition"}}}
 
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-new_impl"}}}
 impl SubtypeAnchors {
+    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-new_impl"}}} //⚡️
     /// Inter a new SubtypeAnchors and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -833,75 +912,52 @@ impl SubtypeAnchors {
     ///
     ///```
     /// # use sarzak::drawing::IsaUi;
-    /// # use sarzak::drawing::Anchor;
     /// # use sarzak::drawing::Point;
-    /// # use sarzak::drawing::SubtypeAnchors;
     /// # use sarzak::sarzak::Isa;
+    /// # use sarzak::drawing::SubtypeAnchors;
+    /// # use sarzak::drawing::Anchor;
     /// # use sarzak::drawing::Edge;
-    ///
     /// # let mut store = sarzak::drawing::ObjectStore::new();
-    /// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let point_lzn = Point::new(&mut store, 42, 42);
-    /// let point_fxr = Point::new(&mut store, 42, 42);
-    /// let edge_xvg = Edge::test_default(&mut store);
-    /// let anchor_rek = Anchor::new(&mut store, &point_lzn, &point_fxr, &edge_xvg);
-    /// let isa_wbm = Isa::test_default(&mut sarzak_store);
+    /// let point_sbb = Point::new(&mut store, 42, 42);
+    /// let point_vsk = Point::new(&mut store, 42, 42);
+    /// let edge_dco = Edge::test_default(&mut store);
+    /// let anchor_rvv = Anchor::new(&mut store, &point_sbb, &point_vsk, &edge_dco);
+    /// let isa_hjj = Isa::default();
     ///
-    /// let point_ibm = Point::new(&mut store, 42, 42);
-    /// let point_ren = Point::new(&mut store, 42, 42);
-    /// let edge_scq = Edge::test_default(&mut store);
-    /// let anchor_hva = Anchor::new(&mut store, &point_ibm, &point_ren, &edge_scq);
-    /// let isa_ui_sqd = IsaUi::new(&mut store, &isa_wbm, &anchor_hva);
+    /// let point_ath = Point::new(&mut store, 42, 42);
+    /// let point_qms = Point::new(&mut store, 42, 42);
+    /// let edge_inr = Edge::test_default(&mut store);
+    /// let anchor_nfp = Anchor::new(&mut store, &point_ath, &point_qms, &edge_inr);
+    /// let isa_ui_hvb = IsaUi::new(&mut store, &isa_hjj, &anchor_nfp);
     ///
-    /// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_rek, &isa_ui_sqd);
+    /// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_rvv, &isa_ui_hvb);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    // {"magic":"","kind":"CriticalBlockBegin"}
-    #[rustfmt::skip]
-    pub fn new(store: &mut ObjectStore, anchor_id: &Anchor, isaui_id: &IsaUi, ) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::{:?}::", anchor_id, isaui_id, ).as_bytes());
+    pub fn new(store: &mut ObjectStore, anchor_id: &Anchor, isaui_id: &IsaUi) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!("{:?}::{:?}::", anchor_id, isaui_id,).as_bytes(),
+        );
         let new = Self {
             id,
             anchor_id: anchor_id.id,
             isaui_id: isaui_id.id,
         };
 
-
-
-
-        
         store.inter_subtype_anchors(new.clone());
 
-
-
-
-        
         new
     }
-    // {"magic":"","kind":"CriticalBlockEnd"}
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-new_impl"}}}
 }
-/// The right side of a rendered box
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-extrude_impl", "is_uber": true}}}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"subtype_anchors-extrude_impl"}}}
+
+/// The top edge of the rendered box
 ///
-///
-///
-///
-/// 
 /// ❗️{"singleton_object": true}
 ///
-/// _Generated code_
 //
-pub const RIGHT: Uuid = uuid!["1d99f96f-d110-5adf-a108-9fb0b707dae3"];
-
-/// The bottom of a rendered box
-///
-///
-///
-///
-/// 
-/// ❗️{"singleton_object": true}
-///
-/// _Generated code_
-//
-pub const BOTTOM: Uuid = uuid!["cd977757-dbcb-5e5d-a0dc-d0e6624db6a0"];
-
+pub const TOP: Uuid = uuid!["66416a6d-1227-53b5-bb5a-bfd45e0ea72e"];

@@ -1,14 +1,18 @@
-//! {"magic":"","version":"0.0.1"}
 //! Macros for navigating the "Drawing" domain
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 
 /// Macro to traverse [`IsaUi`][🦀] ➡ [`Anchor`][🦞], via _R9_
 ///
@@ -23,33 +27,34 @@
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::sarzak::Isa;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::drawing_get_one_anch_across_r9;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
-/// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let isa_cik = Isa::test_default(&mut sarzak_store);
+/// let isa_fiu = Isa::default();
 ///
-/// let point_gvh = Point::new(&mut store, 42, 42);
-/// let point_ful = Point::new(&mut store, 42, 42);
-/// let edge_ycy = Edge::test_default(&mut store);
-/// let anchor_wpm = Anchor::new(&mut store, &point_gvh, &point_ful, &edge_ycy);
+/// let point_pxe = Point::new(&mut store, 42, 42);
+/// let point_kns = Point::new(&mut store, 42, 42);
+/// let edge_kks = Edge::test_default(&mut store);
+/// let anchor_bnb = Anchor::new(&mut store, &point_pxe, &point_kns, &edge_kks);
 ///
-/// let isa_ui = IsaUi::new(&mut store, &isa_cik, &anchor_wpm);
+/// let isa_ui = IsaUi::new(&mut store, &isa_fiu, &anchor_bnb);
 ///
-/// let anchor_bko = drawing_get_one_anch_across_r9!(isa_ui, store);
-/// assert_eq!(&anchor_wpm, anchor_bko);
+/// let anchor_whh = drawing_get_one_anch_across_r9!(isa_ui, store);
+/// assert_eq!(&anchor_bnb, anchor_whh);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r9 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_anchor(&$input.from).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r9;
@@ -67,39 +72,37 @@ pub use drawing_get_one_anch_across_r9;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::IsaUi;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::sarzak::Isa;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_iui_across_r9;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
-/// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let isa_qbo = Isa::test_default(&mut sarzak_store);
+/// let isa_juv = Isa::default();
 ///
-/// let point_pvs = Point::new(&mut store, 42, 42);
-/// let point_nnc = Point::new(&mut store, 42, 42);
-/// let edge_kjj = Edge::test_default(&mut store);
-/// let anchor_sgx = Anchor::new(&mut store, &point_pvs, &point_nnc, &edge_kjj);
+/// let point_ree = Point::new(&mut store, 42, 42);
+/// let point_zsc = Point::new(&mut store, 42, 42);
+/// let edge_vhp = Edge::test_default(&mut store);
+/// let anchor_hqk = Anchor::new(&mut store, &point_ree, &point_zsc, &edge_vhp);
 ///
-/// let isa_ui = IsaUi::new(&mut store, &isa_qbo, &anchor_sgx);
-/// let isa_ui_lvq = drawing_maybe_get_one_iui_across_r9!(anchor_sgx, store);
+/// let isa_ui = IsaUi::new(&mut store, &isa_juv, &anchor_hqk);
+/// let isa_ui_wnp = drawing_maybe_get_one_iui_across_r9!(anchor_hqk, store);
 ///
-/// assert_eq!(Some(&isa_ui), isa_ui_lvq);
+/// assert_eq!(Some(&isa_ui), isa_ui_wnp);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_iui_across_r9 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-isa_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_isa_ui()
             .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-isa_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_iui_across_r9;
@@ -118,40 +121,42 @@ pub use drawing_maybe_get_one_iui_across_r9;
 ///
 ///```
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_anch_across_r15;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_ohm = Associative::default();
+/// let associative_eqg = Associative::default();
 ///
-/// let point_hci = Point::new(&mut store, 42, 42);
-/// let point_uwz = Point::new(&mut store, 42, 42);
-/// let edge_loa = Edge::test_default(&mut store);
-/// let anchor_sln = Anchor::new(&mut store, &point_hci, &point_uwz, &edge_loa);
-/// let point_jni = Point::new(&mut store, 42, 42);
-/// let point_vip = Point::new(&mut store, 42, 42);
-/// let edge_viu = Edge::test_default(&mut store);
-/// let anchor_ufg = Anchor::new(&mut store, &point_jni, &point_vip, &edge_viu);
-/// let point_yvl = Point::new(&mut store, 42, 42);
-/// let point_bah = Point::new(&mut store, 42, 42);
-/// let edge_ogo = Edge::test_default(&mut store);
-/// let anchor_hwz = Anchor::new(&mut store, &point_yvl, &point_bah, &edge_ogo);
-/// let point_meh = Point::new(&mut store, 42, 42);
+/// let point_yyv = Point::new(&mut store, 42, 42);
+/// let point_pit = Point::new(&mut store, 42, 42);
+/// let edge_huo = Edge::test_default(&mut store);
+/// let anchor_yhb = Anchor::new(&mut store, &point_yyv, &point_pit, &edge_huo);
+/// let point_ivt = Point::new(&mut store, 42, 42);
+/// let point_the = Point::new(&mut store, 42, 42);
+/// let edge_tvy = Edge::test_default(&mut store);
+/// let anchor_ltn = Anchor::new(&mut store, &point_ivt, &point_the, &edge_tvy);
+/// let point_kns = Point::new(&mut store, 42, 42);
+/// let point_fbl = Point::new(&mut store, 42, 42);
+/// let edge_wlo = Edge::test_default(&mut store);
+/// let anchor_ecl = Anchor::new(&mut store, &point_kns, &point_fbl, &edge_wlo);
+/// let point_lrj = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_ohm, &anchor_sln, &anchor_ufg, &anchor_hwz, &point_meh);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_eqg, &anchor_yhb, &anchor_ltn, &anchor_ecl, &point_lrj);
 ///
-/// let anchor_hxw = drawing_get_one_anch_across_r15!(associative_ui, store);
-/// assert_eq!(&anchor_sln, anchor_hxw);
+/// let anchor_nfl = drawing_get_one_anch_across_r15!(associative_ui, store);
+/// assert_eq!(&anchor_yhb, anchor_nfl);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r15 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_anchor(&$input.other).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r15;
@@ -169,47 +174,46 @@ pub use drawing_get_one_anch_across_r15;
 /// # Example
 ///
 ///```
+/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Point;
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r15;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_oit = Associative::default();
+/// let associative_juv = Associative::default();
 ///
-/// let point_vdd = Point::new(&mut store, 42, 42);
-/// let point_cla = Point::new(&mut store, 42, 42);
-/// let edge_nor = Edge::test_default(&mut store);
-/// let anchor_emv = Anchor::new(&mut store, &point_vdd, &point_cla, &edge_nor);
-/// let point_vtz = Point::new(&mut store, 42, 42);
-/// let point_cnp = Point::new(&mut store, 42, 42);
-/// let edge_rmr = Edge::test_default(&mut store);
-/// let anchor_nxw = Anchor::new(&mut store, &point_vtz, &point_cnp, &edge_rmr);
-/// let point_xgu = Point::new(&mut store, 42, 42);
-/// let point_otg = Point::new(&mut store, 42, 42);
-/// let edge_pws = Edge::test_default(&mut store);
-/// let anchor_flt = Anchor::new(&mut store, &point_xgu, &point_otg, &edge_pws);
-/// let point_fkl = Point::new(&mut store, 42, 42);
+/// let point_upf = Point::new(&mut store, 42, 42);
+/// let point_wzd = Point::new(&mut store, 42, 42);
+/// let edge_ojg = Edge::test_default(&mut store);
+/// let anchor_ihf = Anchor::new(&mut store, &point_upf, &point_wzd, &edge_ojg);
+/// let point_dny = Point::new(&mut store, 42, 42);
+/// let point_xeh = Point::new(&mut store, 42, 42);
+/// let edge_uct = Edge::test_default(&mut store);
+/// let anchor_ijp = Anchor::new(&mut store, &point_dny, &point_xeh, &edge_uct);
+/// let point_svp = Point::new(&mut store, 42, 42);
+/// let point_uok = Point::new(&mut store, 42, 42);
+/// let edge_stf = Edge::test_default(&mut store);
+/// let anchor_teh = Anchor::new(&mut store, &point_svp, &point_uok, &edge_stf);
+/// let point_rwv = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_oit, &anchor_emv, &anchor_nxw, &anchor_flt, &point_fkl);
-/// let associative_ui_pcu = drawing_maybe_get_one_aui_across_r15!(anchor_emv, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_juv, &anchor_ihf, &anchor_ijp, &anchor_teh, &point_rwv);
+/// let associative_ui_snr = drawing_maybe_get_one_aui_across_r15!(anchor_ihf, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_pcu);
+/// assert_eq!(Some(&associative_ui), associative_ui_snr);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_aui_across_r15 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.other == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r15;
@@ -228,26 +232,28 @@ pub use drawing_maybe_get_one_aui_across_r15;
 ///
 ///```
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_pnt_across_r5;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_plu = Point::new(&mut store, 42, 42);
-/// let point_xvm = Point::new(&mut store, 42, 42);
-/// let edge_fkk = Edge::test_default(&mut store);
+/// let point_bko = Point::new(&mut store, 42, 42);
+/// let point_ycj = Point::new(&mut store, 42, 42);
+/// let edge_nsn = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_plu, &point_xvm, &edge_fkk);
+/// let anchor = Anchor::new(&mut store, &point_bko, &point_ycj, &edge_nsn);
 ///
-/// let point_prb = drawing_get_one_pnt_across_r5!(anchor, store);
-/// assert_eq!(&point_plu, point_prb);
+/// let point_cut = drawing_get_one_pnt_across_r5!(anchor, store);
+/// assert_eq!(&point_bko, point_cut);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_pnt_across_r5 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_point(&$input.offset).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_pnt_across_r5;
@@ -266,32 +272,31 @@ pub use drawing_get_one_pnt_across_r5;
 ///
 ///```
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r5;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_xsl = Point::new(&mut store, 42, 42);
-/// let point_xzq = Point::new(&mut store, 42, 42);
-/// let edge_ckc = Edge::test_default(&mut store);
+/// let point_fqq = Point::new(&mut store, 42, 42);
+/// let point_tyz = Point::new(&mut store, 42, 42);
+/// let edge_svm = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_xsl, &point_xzq, &edge_ckc);
-/// let anchor_xgr = drawing_maybe_get_one_anch_across_r5!(point_xsl, store);
+/// let anchor = Anchor::new(&mut store, &point_fqq, &point_tyz, &edge_svm);
+/// let anchor_xgj = drawing_maybe_get_one_anch_across_r5!(point_fqq, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_xgr);
+/// assert_eq!(Some(&anchor), anchor_xgj);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_anch_across_r5 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.offset == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r5;
@@ -309,41 +314,43 @@ pub use drawing_maybe_get_one_anch_across_r5;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::AssociativeUi;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_anch_across_r14;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_ugi = Associative::default();
+/// let associative_kdj = Associative::default();
 ///
-/// let point_ecs = Point::new(&mut store, 42, 42);
-/// let point_zhq = Point::new(&mut store, 42, 42);
-/// let edge_ijr = Edge::test_default(&mut store);
-/// let anchor_yfq = Anchor::new(&mut store, &point_ecs, &point_zhq, &edge_ijr);
-/// let point_uaa = Point::new(&mut store, 42, 42);
-/// let point_cgn = Point::new(&mut store, 42, 42);
-/// let edge_tki = Edge::test_default(&mut store);
-/// let anchor_tfg = Anchor::new(&mut store, &point_uaa, &point_cgn, &edge_tki);
-/// let point_ohc = Point::new(&mut store, 42, 42);
-/// let point_jhy = Point::new(&mut store, 42, 42);
-/// let edge_dxi = Edge::test_default(&mut store);
-/// let anchor_rnn = Anchor::new(&mut store, &point_ohc, &point_jhy, &edge_dxi);
-/// let point_gmj = Point::new(&mut store, 42, 42);
+/// let point_pcd = Point::new(&mut store, 42, 42);
+/// let point_aca = Point::new(&mut store, 42, 42);
+/// let edge_des = Edge::test_default(&mut store);
+/// let anchor_xzl = Anchor::new(&mut store, &point_pcd, &point_aca, &edge_des);
+/// let point_zsq = Point::new(&mut store, 42, 42);
+/// let point_mhe = Point::new(&mut store, 42, 42);
+/// let edge_rru = Edge::test_default(&mut store);
+/// let anchor_khn = Anchor::new(&mut store, &point_zsq, &point_mhe, &edge_rru);
+/// let point_hja = Point::new(&mut store, 42, 42);
+/// let point_biw = Point::new(&mut store, 42, 42);
+/// let edge_jfn = Edge::test_default(&mut store);
+/// let anchor_lip = Anchor::new(&mut store, &point_hja, &point_biw, &edge_jfn);
+/// let point_gwn = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_ugi, &anchor_yfq, &anchor_tfg, &anchor_rnn, &point_gmj);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_kdj, &anchor_xzl, &anchor_khn, &anchor_lip, &point_gwn);
 ///
-/// let anchor_qza = drawing_get_one_anch_across_r14!(associative_ui, store);
-/// assert_eq!(&anchor_yfq, anchor_qza);
+/// let anchor_ogd = drawing_get_one_anch_across_r14!(associative_ui, store);
+/// assert_eq!(&anchor_xzl, anchor_ogd);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r14 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_anchor(&$input.one).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r14;
@@ -362,46 +369,45 @@ pub use drawing_get_one_anch_across_r14;
 ///
 ///```
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r14;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_pfu = Associative::default();
+/// let associative_yfg = Associative::default();
 ///
-/// let point_hqt = Point::new(&mut store, 42, 42);
-/// let point_btz = Point::new(&mut store, 42, 42);
-/// let edge_dxv = Edge::test_default(&mut store);
-/// let anchor_yoy = Anchor::new(&mut store, &point_hqt, &point_btz, &edge_dxv);
-/// let point_nbd = Point::new(&mut store, 42, 42);
-/// let point_rku = Point::new(&mut store, 42, 42);
-/// let edge_ljm = Edge::test_default(&mut store);
-/// let anchor_hku = Anchor::new(&mut store, &point_nbd, &point_rku, &edge_ljm);
-/// let point_bmi = Point::new(&mut store, 42, 42);
-/// let point_zgd = Point::new(&mut store, 42, 42);
-/// let edge_yvu = Edge::test_default(&mut store);
-/// let anchor_kwl = Anchor::new(&mut store, &point_bmi, &point_zgd, &edge_yvu);
-/// let point_zud = Point::new(&mut store, 42, 42);
+/// let point_dvb = Point::new(&mut store, 42, 42);
+/// let point_wei = Point::new(&mut store, 42, 42);
+/// let edge_qey = Edge::test_default(&mut store);
+/// let anchor_amc = Anchor::new(&mut store, &point_dvb, &point_wei, &edge_qey);
+/// let point_zlg = Point::new(&mut store, 42, 42);
+/// let point_bjk = Point::new(&mut store, 42, 42);
+/// let edge_lxi = Edge::test_default(&mut store);
+/// let anchor_kwt = Anchor::new(&mut store, &point_zlg, &point_bjk, &edge_lxi);
+/// let point_env = Point::new(&mut store, 42, 42);
+/// let point_qpc = Point::new(&mut store, 42, 42);
+/// let edge_poh = Edge::test_default(&mut store);
+/// let anchor_dwm = Anchor::new(&mut store, &point_env, &point_qpc, &edge_poh);
+/// let point_qvb = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_pfu, &anchor_yoy, &anchor_hku, &anchor_kwl, &point_zud);
-/// let associative_ui_bqy = drawing_maybe_get_one_aui_across_r14!(anchor_yoy, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_yfg, &anchor_amc, &anchor_kwt, &anchor_dwm, &point_qvb);
+/// let associative_ui_lcz = drawing_maybe_get_one_aui_across_r14!(anchor_amc, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_bqy);
+/// assert_eq!(Some(&associative_ui), associative_ui_lcz);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_aui_across_r14 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
             .find(|z| z.1.one == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r14;
@@ -422,29 +428,28 @@ pub use drawing_maybe_get_one_aui_across_r14;
 ///```
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::SubtypeAnchors;
+/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::sarzak::Isa;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_iui_across_r10;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
-/// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let point_ami = Point::new(&mut store, 42, 42);
-/// let point_qpp = Point::new(&mut store, 42, 42);
-/// let edge_mas = Edge::test_default(&mut store);
-/// let anchor_qpk = Anchor::new(&mut store, &point_ami, &point_qpp, &edge_mas);
-/// let isa_xge = Isa::test_default(&mut sarzak_store);
+/// let point_cmg = Point::new(&mut store, 42, 42);
+/// let point_gzw = Point::new(&mut store, 42, 42);
+/// let edge_kpb = Edge::test_default(&mut store);
+/// let anchor_gzt = Anchor::new(&mut store, &point_cmg, &point_gzw, &edge_kpb);
+/// let isa_gnq = Isa::default();
 ///
-/// let point_ubj = Point::new(&mut store, 42, 42);
-/// let point_aed = Point::new(&mut store, 42, 42);
-/// let edge_mxf = Edge::test_default(&mut store);
-/// let anchor_wam = Anchor::new(&mut store, &point_ubj, &point_aed, &edge_mxf);
-/// let isa_ui_qzf = IsaUi::new(&mut store, &isa_xge, &anchor_wam);
-/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_qpk, &isa_ui_qzf);
+/// let point_klh = Point::new(&mut store, 42, 42);
+/// let point_itj = Point::new(&mut store, 42, 42);
+/// let edge_bnc = Edge::test_default(&mut store);
+/// let anchor_vsx = Anchor::new(&mut store, &point_klh, &point_itj, &edge_bnc);
+/// let isa_ui_zfi = IsaUi::new(&mut store, &isa_gnq, &anchor_vsx);
+/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_gzt, &isa_ui_zfi);
 ///
-/// let isa_ui_mdu = drawing_maybe_get_one_iui_across_r10!(anchor_qpk, store);
-/// assert_eq!(Some(&isa_ui_qzf), isa_ui_mdu);
+/// let isa_ui_hmr = drawing_maybe_get_one_iui_across_r10!(anchor_gzt, store);
+/// assert_eq!(Some(&isa_ui_zfi), isa_ui_hmr);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -474,31 +479,30 @@ pub use drawing_maybe_get_one_iui_across_r10;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::IsaUi;
-/// # use sarzak::drawing::SubtypeAnchors;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::SubtypeAnchors;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::sarzak::Isa;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_get_many_anch_across_r10;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
-/// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
 ///
-/// let point_pzd = Point::new(&mut store, 42, 42);
-/// let point_taa = Point::new(&mut store, 42, 42);
-/// let edge_cet = Edge::test_default(&mut store);
-/// let anchor_cpw = Anchor::new(&mut store, &point_pzd, &point_taa, &edge_cet);
-/// let isa_cfy = Isa::test_default(&mut sarzak_store);
+/// let point_vzs = Point::new(&mut store, 42, 42);
+/// let point_yjf = Point::new(&mut store, 42, 42);
+/// let edge_hkv = Edge::test_default(&mut store);
+/// let anchor_bup = Anchor::new(&mut store, &point_vzs, &point_yjf, &edge_hkv);
+/// let isa_acf = Isa::default();
 ///
-/// let point_icu = Point::new(&mut store, 42, 42);
-/// let point_xnu = Point::new(&mut store, 42, 42);
-/// let edge_szc = Edge::test_default(&mut store);
-/// let anchor_azf = Anchor::new(&mut store, &point_icu, &point_xnu, &edge_szc);
-/// let isa_ui_ipf = IsaUi::new(&mut store, &isa_cfy, &anchor_azf);
-/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_cpw, &isa_ui_ipf);
+/// let point_puc = Point::new(&mut store, 42, 42);
+/// let point_hbv = Point::new(&mut store, 42, 42);
+/// let edge_pud = Edge::test_default(&mut store);
+/// let anchor_zhe = Anchor::new(&mut store, &point_puc, &point_hbv, &edge_pud);
+/// let isa_ui_fep = IsaUi::new(&mut store, &isa_acf, &anchor_zhe);
+/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_bup, &isa_ui_fep);
 ///
-/// let anchor_fji = drawing_get_many_anch_across_r10!(isa_ui_ipf, store);
-/// assert!(anchor_fji.iter().find(|&x| **x == anchor_cpw).is_some());
+/// let anchor_ott = drawing_get_many_anch_across_r10!(isa_ui_fep, store);
+/// assert!(anchor_ott.iter().find(|&x| **x == anchor_bup).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -527,28 +531,30 @@ pub use drawing_get_many_anch_across_r10;
 /// # Example
 ///
 ///```
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing_get_one_pnt_across_r13;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_jiu = Point::new(&mut store, 42, 42);
-/// let innate_silk = "possessive_letters".to_owned();
-/// let object_bgr = Object::default();
+/// let point_frl = Point::new(&mut store, 42, 42);
+/// let understood_can = "heartbreaking_pleasure".to_owned();
+/// let object_lyp = Object::default();
 ///
 ///
-/// let object_ui = ObjectUi::new(&mut store, &point_jiu, &object_bgr, 42, 42);
+/// let object_ui = ObjectUi::new(&mut store, &point_frl, &object_lyp, 42, 42);
 ///
-/// let point_nwr = drawing_get_one_pnt_across_r13!(object_ui, store);
-/// assert_eq!(&point_jiu, point_nwr);
+/// let point_tiw = drawing_get_one_pnt_across_r13!(object_ui, store);
+/// assert_eq!(&point_frl, point_tiw);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_pnt_across_r13 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_point(&$input.origin).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_pnt_across_r13;
@@ -566,34 +572,33 @@ pub use drawing_get_one_pnt_across_r13;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_oui_across_r13;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_fck = Point::new(&mut store, 42, 42);
-/// let wealthy_apple = "colossal_low".to_owned();
-/// let object_qdx = Object::default();
+/// let point_yxq = Point::new(&mut store, 42, 42);
+/// let draconian_uncle = "outstanding_carpenter".to_owned();
+/// let object_zkp = Object::default();
 ///
 ///
-/// let object_ui = ObjectUi::new(&mut store, &point_fck, &object_qdx, 42, 42);
-/// let object_ui_fef = drawing_maybe_get_one_oui_across_r13!(point_fck, store);
+/// let object_ui = ObjectUi::new(&mut store, &point_yxq, &object_zkp, 42, 42);
+/// let object_ui_gjx = drawing_maybe_get_one_oui_across_r13!(point_yxq, store);
 ///
-/// assert_eq!(Some(&object_ui), object_ui_fef);
+/// assert_eq!(Some(&object_ui), object_ui_gjx);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_oui_across_r13 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-object_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_object_ui()
             .find(|z| z.1.origin == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-object_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_oui_across_r13;
@@ -611,41 +616,44 @@ pub use drawing_maybe_get_one_oui_across_r13;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_pnt_across_r17;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_kci = Associative::default();
+/// let associative_oxy = Associative::default();
 ///
-/// let point_itm = Point::new(&mut store, 42, 42);
-/// let point_zfg = Point::new(&mut store, 42, 42);
-/// let edge_wug = Edge::test_default(&mut store);
-/// let anchor_yhl = Anchor::new(&mut store, &point_itm, &point_zfg, &edge_wug);
-/// let point_fzc = Point::new(&mut store, 42, 42);
-/// let point_zyv = Point::new(&mut store, 42, 42);
-/// let edge_svg = Edge::test_default(&mut store);
-/// let anchor_kae = Anchor::new(&mut store, &point_fzc, &point_zyv, &edge_svg);
-/// let point_for = Point::new(&mut store, 42, 42);
-/// let point_puo = Point::new(&mut store, 42, 42);
-/// let edge_oor = Edge::test_default(&mut store);
-/// let anchor_gct = Anchor::new(&mut store, &point_for, &point_puo, &edge_oor);
-/// let point_xxy = Point::new(&mut store, 42, 42);
+/// let point_wef = Point::new(&mut store, 42, 42);
+/// let point_zlh = Point::new(&mut store, 42, 42);
+/// let edge_cwf = Edge::test_default(&mut store);
+/// let anchor_fvm = Anchor::new(&mut store, &point_wef, &point_zlh, &edge_cwf);
+/// let point_ugb = Point::new(&mut store, 42, 42);
+/// let point_wfy = Point::new(&mut store, 42, 42);
+/// let edge_gjm = Edge::test_default(&mut store);
+/// let anchor_qtr = Anchor::new(&mut store, &point_ugb, &point_wfy, &edge_gjm);
+/// let point_jkp = Point::new(&mut store, 42, 42);
+/// let point_une = Point::new(&mut store, 42, 42);
+/// let edge_wqr = Edge::test_default(&mut store);
+/// let anchor_fop = Anchor::new(&mut store, &point_jkp, &point_une, &edge_wqr);
+/// let point_yco = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_kci, &anchor_yhl, &anchor_kae, &anchor_gct, &point_xxy);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_oxy, &anchor_fvm, &anchor_qtr, &anchor_fop, &point_yco);
 ///
-/// let point_pgz = drawing_get_one_pnt_across_r17!(associative_ui, store);
-/// assert_eq!(&point_xxy, point_pgz);
+/// let point_vod = drawing_get_one_pnt_across_r17!(associative_ui, store);
+/// assert_eq!(&point_yco, point_vod);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_pnt_across_r17 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
-        $store.exhume_point(&$input.middle).unwrap()
+        //         $store.exhume_point(&$input.middle).unwrap() //⚡️
+        $store.exhume_point(&$input.from).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_pnt_across_r17;
@@ -663,47 +671,47 @@ pub use drawing_get_one_pnt_across_r17;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::AssociativeUi;
+/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r17;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_pjg = Associative::default();
+/// let associative_srj = Associative::default();
 ///
-/// let point_rxf = Point::new(&mut store, 42, 42);
-/// let point_rxn = Point::new(&mut store, 42, 42);
-/// let edge_nbd = Edge::test_default(&mut store);
-/// let anchor_rlx = Anchor::new(&mut store, &point_rxf, &point_rxn, &edge_nbd);
-/// let point_ieo = Point::new(&mut store, 42, 42);
-/// let point_tfk = Point::new(&mut store, 42, 42);
-/// let edge_ccu = Edge::test_default(&mut store);
-/// let anchor_has = Anchor::new(&mut store, &point_ieo, &point_tfk, &edge_ccu);
-/// let point_mbk = Point::new(&mut store, 42, 42);
-/// let point_jcx = Point::new(&mut store, 42, 42);
-/// let edge_jer = Edge::test_default(&mut store);
-/// let anchor_hde = Anchor::new(&mut store, &point_mbk, &point_jcx, &edge_jer);
-/// let point_ehf = Point::new(&mut store, 42, 42);
+/// let point_udl = Point::new(&mut store, 42, 42);
+/// let point_icn = Point::new(&mut store, 42, 42);
+/// let edge_ieh = Edge::test_default(&mut store);
+/// let anchor_cwb = Anchor::new(&mut store, &point_udl, &point_icn, &edge_ieh);
+/// let point_gyn = Point::new(&mut store, 42, 42);
+/// let point_igy = Point::new(&mut store, 42, 42);
+/// let edge_ehh = Edge::test_default(&mut store);
+/// let anchor_grp = Anchor::new(&mut store, &point_gyn, &point_igy, &edge_ehh);
+/// let point_bbd = Point::new(&mut store, 42, 42);
+/// let point_sqm = Point::new(&mut store, 42, 42);
+/// let edge_xuk = Edge::test_default(&mut store);
+/// let anchor_jrf = Anchor::new(&mut store, &point_bbd, &point_sqm, &edge_xuk);
+/// let point_ury = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_pjg, &anchor_rlx, &anchor_has, &anchor_hde, &point_ehf);
-/// let associative_ui_nlc = drawing_maybe_get_one_aui_across_r17!(point_ehf, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_srj, &anchor_cwb, &anchor_grp, &anchor_jrf, &point_ury);
+/// let associative_ui_ivy = drawing_maybe_get_one_aui_across_r17!(point_ury, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_nlc);
+/// assert_eq!(Some(&associative_ui), associative_ui_ivy);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_aui_across_r17 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
-            .find(|z| z.1.middle == $input.id)
+//             .find(|z| z.1.middle == $input.id) //⚡️
+            .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r17;
@@ -722,31 +730,33 @@ pub use drawing_maybe_get_one_aui_across_r17;
 ///
 ///```
 /// # use sarzak::drawing::ObjectUi;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_oui_across_r18;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_gfr = Edge::test_default(&mut store);
-/// let point_wtw = Point::new(&mut store, 42, 42);
-/// let holistic_support = "ordinary_brain".to_owned();
-/// let object_dxf = Object::default();
+/// let edge_wlr = Edge::test_default(&mut store);
+/// let point_aoy = Point::new(&mut store, 42, 42);
+/// let peaceful_yoke = "nondescript_box".to_owned();
+/// let object_euz = Object::default();
 ///
-/// let object_ui_nlz = ObjectUi::new(&mut store, &point_wtw, &object_dxf, 42, 42);
+/// let object_ui_jit = ObjectUi::new(&mut store, &point_aoy, &object_euz, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_gfr, &object_ui_nlz);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_wlr, &object_ui_jit);
 ///
-/// let object_ui_kfs = drawing_get_one_oui_across_r18!(object_edge, store);
-/// assert_eq!(&object_ui_nlz, object_ui_kfs);
+/// let object_ui_utz = drawing_get_one_oui_across_r18!(object_edge, store);
+/// assert_eq!(&object_ui_jit, object_ui_utz);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_oui_across_r18 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_object_ui(&$input.oui_id).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_oui_across_r18;
@@ -764,45 +774,37 @@ pub use drawing_get_one_oui_across_r18;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::sarzak::Object;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing::ObjectUi;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Object;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_many_oui_es_across_r18;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_nhf = Edge::test_default(&mut store);
-/// let point_fux = Point::new(&mut store, 42, 42);
-/// let bad_reason = "overjoyed_use".to_owned();
-/// let object_sgc = Object::default();
+/// let edge_qfq = Edge::test_default(&mut store);
+/// let point_zvc = Point::new(&mut store, 42, 42);
+/// let zany_galley = "attractive_song".to_owned();
+/// let object_aok = Object::default();
 ///
-/// let object_ui_uhc = ObjectUi::new(&mut store, &point_fux, &object_sgc, 42, 42);
+/// let object_ui_mol = ObjectUi::new(&mut store, &point_zvc, &object_aok, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_nhf, &object_ui_uhc);
-/// let object_edge_okz = drawing_get_many_oui_es_across_r18!(object_ui_uhc, store);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_qfq, &object_ui_mol);
+/// let object_edge_alz = drawing_get_many_oui_es_across_r18!(object_ui_mol, store);
 ///
-/// assert!(object_edge_okz.iter().find(|&x| **x == object_edge).is_some());
+/// assert!(object_edge_alz.iter().find(|&x| **x == object_edge).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_many_oui_es_across_r18 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-object_edge-emit_many_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_many_conditional_lookup
         $store
             .iter_object_edge()
-// ⚡️             .filter_map(|z| {
-// ⚡️                 if z.1.oui_id == $input.id {
-// ⚡️                     Some(z.1)
-// ⚡️                 } else {
-// ⚡️                     None
-// ⚡️                 }
-// ⚡️             })
             .filter_map(|z| if z.1.oui_id == $input.id { Some(z.1) } else { None })
             .collect::<Vec<&ObjectEdge>>()
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-object_edge-emit_many_conditional_lookup"}}}
     }};
 }
 pub use drawing_get_many_oui_es_across_r18;
@@ -822,34 +824,36 @@ pub use drawing_get_many_oui_es_across_r18;
 ///```
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::BinaryUi;
+/// # use sarzak::sarzak::Binary;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::sarzak::Binary;
 /// # use sarzak::drawing_get_one_anch_across_r8;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_odv = Point::new(&mut store, 42, 42);
-/// let point_pjw = Point::new(&mut store, 42, 42);
-/// let edge_zzl = Edge::test_default(&mut store);
-/// let anchor_ltq = Anchor::new(&mut store, &point_odv, &point_pjw, &edge_zzl);
-/// let point_htq = Point::new(&mut store, 42, 42);
-/// let point_aed = Point::new(&mut store, 42, 42);
-/// let edge_rwe = Edge::test_default(&mut store);
-/// let anchor_awe = Anchor::new(&mut store, &point_htq, &point_aed, &edge_rwe);
-/// let binary_fcn = Binary::default();
+/// let point_kbs = Point::new(&mut store, 42, 42);
+/// let point_fdq = Point::new(&mut store, 42, 42);
+/// let edge_gwf = Edge::test_default(&mut store);
+/// let anchor_fmn = Anchor::new(&mut store, &point_kbs, &point_fdq, &edge_gwf);
+/// let point_rlr = Point::new(&mut store, 42, 42);
+/// let point_hyz = Point::new(&mut store, 42, 42);
+/// let edge_qvm = Edge::test_default(&mut store);
+/// let anchor_fov = Anchor::new(&mut store, &point_rlr, &point_hyz, &edge_qvm);
+/// let binary_vgy = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_ltq, &anchor_awe, &binary_fcn);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_fmn, &anchor_fov, &binary_vgy);
 ///
-/// let anchor_zgs = drawing_get_one_anch_across_r8!(binary_ui, store);
-/// assert_eq!(&anchor_ltq, anchor_zgs);
+/// let anchor_ins = drawing_get_one_anch_across_r8!(binary_ui, store);
+/// assert_eq!(&anchor_fmn, anchor_ins);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r8 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_anchor(&$input.to).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r8;
@@ -867,42 +871,41 @@ pub use drawing_get_one_anch_across_r8;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::BinaryUi;
 /// # use sarzak::sarzak::Binary;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::BinaryUi;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_bui_across_r8;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_buf = Point::new(&mut store, 42, 42);
-/// let point_nus = Point::new(&mut store, 42, 42);
-/// let edge_tfe = Edge::test_default(&mut store);
-/// let anchor_lrg = Anchor::new(&mut store, &point_buf, &point_nus, &edge_tfe);
-/// let point_ncm = Point::new(&mut store, 42, 42);
-/// let point_bce = Point::new(&mut store, 42, 42);
-/// let edge_vex = Edge::test_default(&mut store);
-/// let anchor_xro = Anchor::new(&mut store, &point_ncm, &point_bce, &edge_vex);
-/// let binary_wlm = Binary::default();
+/// let point_wkp = Point::new(&mut store, 42, 42);
+/// let point_xvj = Point::new(&mut store, 42, 42);
+/// let edge_vcd = Edge::test_default(&mut store);
+/// let anchor_shz = Anchor::new(&mut store, &point_wkp, &point_xvj, &edge_vcd);
+/// let point_gol = Point::new(&mut store, 42, 42);
+/// let point_sdg = Point::new(&mut store, 42, 42);
+/// let edge_wmj = Edge::test_default(&mut store);
+/// let anchor_yvs = Anchor::new(&mut store, &point_gol, &point_sdg, &edge_wmj);
+/// let binary_wya = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_lrg, &anchor_xro, &binary_wlm);
-/// let binary_ui_ioy = drawing_maybe_get_one_bui_across_r8!(anchor_lrg, store);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_shz, &anchor_yvs, &binary_wya);
+/// let binary_ui_zto = drawing_maybe_get_one_bui_across_r8!(anchor_shz, store);
 ///
-/// assert_eq!(Some(&binary_ui), binary_ui_ioy);
+/// assert_eq!(Some(&binary_ui), binary_ui_zto);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_bui_across_r8 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_binary_ui()
             .find(|z| z.1.to == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r8;
@@ -922,39 +925,42 @@ pub use drawing_maybe_get_one_bui_across_r8;
 ///```
 /// # use sarzak::drawing::Point;
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::AssociativeUi;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_get_one_anch_across_r16;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_bcf = Associative::default();
+/// let associative_gsg = Associative::default();
 ///
-/// let point_awl = Point::new(&mut store, 42, 42);
-/// let point_aom = Point::new(&mut store, 42, 42);
-/// let edge_zpq = Edge::test_default(&mut store);
-/// let anchor_upz = Anchor::new(&mut store, &point_awl, &point_aom, &edge_zpq);
-/// let point_flu = Point::new(&mut store, 42, 42);
-/// let point_wcy = Point::new(&mut store, 42, 42);
-/// let edge_zcn = Edge::test_default(&mut store);
-/// let anchor_skm = Anchor::new(&mut store, &point_flu, &point_wcy, &edge_zcn);
-/// let point_gjm = Point::new(&mut store, 42, 42);
-/// let point_hnp = Point::new(&mut store, 42, 42);
-/// let edge_ctt = Edge::test_default(&mut store);
-/// let anchor_rrl = Anchor::new(&mut store, &point_gjm, &point_hnp, &edge_ctt);
-/// let point_wey = Point::new(&mut store, 42, 42);
+/// let point_yih = Point::new(&mut store, 42, 42);
+/// let point_lag = Point::new(&mut store, 42, 42);
+/// let edge_acw = Edge::test_default(&mut store);
+/// let anchor_stf = Anchor::new(&mut store, &point_yih, &point_lag, &edge_acw);
+/// let point_sub = Point::new(&mut store, 42, 42);
+/// let point_hkz = Point::new(&mut store, 42, 42);
+/// let edge_ugu = Edge::test_default(&mut store);
+/// let anchor_tld = Anchor::new(&mut store, &point_sub, &point_hkz, &edge_ugu);
+/// let point_ddn = Point::new(&mut store, 42, 42);
+/// let point_qac = Point::new(&mut store, 42, 42);
+/// let edge_cyd = Edge::test_default(&mut store);
+/// let anchor_vds = Anchor::new(&mut store, &point_ddn, &point_qac, &edge_cyd);
+/// let point_smz = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_bcf, &anchor_upz, &anchor_skm, &anchor_rrl, &point_wey);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_gsg, &anchor_stf, &anchor_tld, &anchor_vds, &point_smz);
 ///
-/// let anchor_rww = drawing_get_one_anch_across_r16!(associative_ui, store);
-/// assert_eq!(&anchor_upz, anchor_rww);
+/// let anchor_kne = drawing_get_one_anch_across_r16!(associative_ui, store);
+/// assert_eq!(&anchor_stf, anchor_kne);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r16 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
-        $store.exhume_anchor(&$input.from).unwrap()
+        //         $store.exhume_anchor(&$input.from).unwrap() //⚡️
+        $store.exhume_anchor(&$input.middle).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r16;
@@ -972,47 +978,47 @@ pub use drawing_get_one_anch_across_r16;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r16;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_til = Associative::default();
+/// let associative_dro = Associative::default();
 ///
-/// let point_jto = Point::new(&mut store, 42, 42);
-/// let point_pli = Point::new(&mut store, 42, 42);
-/// let edge_kgf = Edge::test_default(&mut store);
-/// let anchor_xmj = Anchor::new(&mut store, &point_jto, &point_pli, &edge_kgf);
-/// let point_hda = Point::new(&mut store, 42, 42);
-/// let point_qny = Point::new(&mut store, 42, 42);
-/// let edge_joe = Edge::test_default(&mut store);
-/// let anchor_jzt = Anchor::new(&mut store, &point_hda, &point_qny, &edge_joe);
-/// let point_btr = Point::new(&mut store, 42, 42);
-/// let point_abu = Point::new(&mut store, 42, 42);
-/// let edge_xto = Edge::test_default(&mut store);
-/// let anchor_rnb = Anchor::new(&mut store, &point_btr, &point_abu, &edge_xto);
-/// let point_nlw = Point::new(&mut store, 42, 42);
+/// let point_orh = Point::new(&mut store, 42, 42);
+/// let point_mln = Point::new(&mut store, 42, 42);
+/// let edge_aek = Edge::test_default(&mut store);
+/// let anchor_sge = Anchor::new(&mut store, &point_orh, &point_mln, &edge_aek);
+/// let point_dzi = Point::new(&mut store, 42, 42);
+/// let point_odf = Point::new(&mut store, 42, 42);
+/// let edge_yyy = Edge::test_default(&mut store);
+/// let anchor_nzk = Anchor::new(&mut store, &point_dzi, &point_odf, &edge_yyy);
+/// let point_npf = Point::new(&mut store, 42, 42);
+/// let point_nud = Point::new(&mut store, 42, 42);
+/// let edge_eon = Edge::test_default(&mut store);
+/// let anchor_lwp = Anchor::new(&mut store, &point_npf, &point_nud, &edge_eon);
+/// let point_ija = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_til, &anchor_xmj, &anchor_jzt, &anchor_rnb, &point_nlw);
-/// let associative_ui_vuv = drawing_maybe_get_one_aui_across_r16!(anchor_xmj, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_dro, &anchor_sge, &anchor_nzk, &anchor_lwp, &point_ija);
+/// let associative_ui_ybl = drawing_maybe_get_one_aui_across_r16!(anchor_sge, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_vuv);
+/// assert_eq!(Some(&associative_ui), associative_ui_ybl);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_aui_across_r16 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_associative_ui()
-            .find(|z| z.1.from == $input.id)
+//             .find(|z| z.1.from == $input.id) //⚡️
+            .find(|z| z.1.middle == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r16;
@@ -1030,27 +1036,29 @@ pub use drawing_maybe_get_one_aui_across_r16;
 /// # Example
 ///
 ///```
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_edg_across_r3;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_agh = Point::new(&mut store, 42, 42);
-/// let point_vmy = Point::new(&mut store, 42, 42);
-/// let edge_ckq = Edge::test_default(&mut store);
+/// let point_sfv = Point::new(&mut store, 42, 42);
+/// let point_ypw = Point::new(&mut store, 42, 42);
+/// let edge_glk = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_agh, &point_vmy, &edge_ckq);
+/// let anchor = Anchor::new(&mut store, &point_sfv, &point_ypw, &edge_glk);
 ///
-/// let edge_yqs = drawing_get_one_edg_across_r3!(anchor, store);
-/// assert_eq!(&edge_ckq, edge_yqs);
+/// let edge_cqc = drawing_get_one_edg_across_r3!(anchor, store);
+/// assert_eq!(&edge_glk, edge_cqc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_edg_across_r3 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_edge(&$input.edge).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_edg_across_r3;
@@ -1069,32 +1077,31 @@ pub use drawing_get_one_edg_across_r3;
 ///
 ///```
 /// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r3;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_tks = Point::new(&mut store, 42, 42);
-/// let point_yug = Point::new(&mut store, 42, 42);
-/// let edge_ovv = Edge::test_default(&mut store);
+/// let point_lpp = Point::new(&mut store, 42, 42);
+/// let point_qrh = Point::new(&mut store, 42, 42);
+/// let edge_afl = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_tks, &point_yug, &edge_ovv);
-/// let anchor_fyp = drawing_maybe_get_one_anch_across_r3!(edge_ovv, store);
+/// let anchor = Anchor::new(&mut store, &point_lpp, &point_qrh, &edge_afl);
+/// let anchor_kgi = drawing_maybe_get_one_anch_across_r3!(edge_afl, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_fyp);
+/// assert_eq!(Some(&anchor), anchor_kgi);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_anch_across_r3 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.edge == $input.get_id())
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r3;
@@ -1112,32 +1119,34 @@ pub use drawing_maybe_get_one_anch_across_r3;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing_get_one_edg_across_r19;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_rtt = Edge::test_default(&mut store);
-/// let point_icy = Point::new(&mut store, 42, 42);
-/// let fat_shape = "false_stick".to_owned();
-/// let object_cbw = Object::default();
+/// let edge_woi = Edge::test_default(&mut store);
+/// let point_jqb = Point::new(&mut store, 42, 42);
+/// let heavy_shame = "scrawny_hands".to_owned();
+/// let object_cli = Object::default();
 ///
-/// let object_ui_rxq = ObjectUi::new(&mut store, &point_icy, &object_cbw, 42, 42);
+/// let object_ui_ors = ObjectUi::new(&mut store, &point_jqb, &object_cli, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_rtt, &object_ui_rxq);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_woi, &object_ui_ors);
 ///
-/// let edge_vix = drawing_get_one_edg_across_r19!(object_edge, store);
-/// assert_eq!(&edge_rtt, edge_vix);
+/// let edge_yem = drawing_get_one_edg_across_r19!(object_edge, store);
+/// assert_eq!(&edge_woi, edge_yem);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_edg_across_r19 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_edge(&$input.edge).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_edg_across_r19;
@@ -1155,38 +1164,37 @@ pub use drawing_get_one_edg_across_r19;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::ObjectUi;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing::ObjectEdge;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing_maybe_get_one_oui_e_across_r19;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_dcg = Edge::test_default(&mut store);
-/// let point_rox = Point::new(&mut store, 42, 42);
-/// let two_daughter = "well_to_do_gun".to_owned();
-/// let object_jmi = Object::default();
+/// let edge_hnv = Edge::test_default(&mut store);
+/// let point_guw = Point::new(&mut store, 42, 42);
+/// let valuable_support = "gleaming_tiger".to_owned();
+/// let object_wld = Object::default();
 ///
-/// let object_ui_kxt = ObjectUi::new(&mut store, &point_rox, &object_jmi, 42, 42);
+/// let object_ui_xbu = ObjectUi::new(&mut store, &point_guw, &object_wld, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_dcg, &object_ui_kxt);
-/// let object_edge_okf = drawing_maybe_get_one_oui_e_across_r19!(edge_dcg, store);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_hnv, &object_ui_xbu);
+/// let object_edge_xdc = drawing_maybe_get_one_oui_e_across_r19!(edge_hnv, store);
 ///
-/// assert_eq!(Some(&object_edge), object_edge_okf);
+/// assert_eq!(Some(&object_edge), object_edge_xdc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_oui_e_across_r19 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-object_edge-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_object_edge()
             .find(|z| z.1.edge == $input.get_id())
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"edge-object_edge-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_oui_e_across_r19;
@@ -1204,36 +1212,38 @@ pub use drawing_maybe_get_one_oui_e_across_r19;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::BinaryUi;
-/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::sarzak::Binary;
-/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::BinaryUi;
 /// # use sarzak::drawing_get_one_anch_across_r7;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_yqp = Point::new(&mut store, 42, 42);
-/// let point_cqy = Point::new(&mut store, 42, 42);
-/// let edge_sxb = Edge::test_default(&mut store);
-/// let anchor_thr = Anchor::new(&mut store, &point_yqp, &point_cqy, &edge_sxb);
-/// let point_oxf = Point::new(&mut store, 42, 42);
-/// let point_asp = Point::new(&mut store, 42, 42);
-/// let edge_pqp = Edge::test_default(&mut store);
-/// let anchor_acr = Anchor::new(&mut store, &point_oxf, &point_asp, &edge_pqp);
-/// let binary_pnk = Binary::default();
+/// let point_hfd = Point::new(&mut store, 42, 42);
+/// let point_igh = Point::new(&mut store, 42, 42);
+/// let edge_ihc = Edge::test_default(&mut store);
+/// let anchor_lda = Anchor::new(&mut store, &point_hfd, &point_igh, &edge_ihc);
+/// let point_nro = Point::new(&mut store, 42, 42);
+/// let point_crt = Point::new(&mut store, 42, 42);
+/// let edge_wzh = Edge::test_default(&mut store);
+/// let anchor_ifw = Anchor::new(&mut store, &point_nro, &point_crt, &edge_wzh);
+/// let binary_fwb = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_thr, &anchor_acr, &binary_pnk);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_lda, &anchor_ifw, &binary_fwb);
 ///
-/// let anchor_ggw = drawing_get_one_anch_across_r7!(binary_ui, store);
-/// assert_eq!(&anchor_thr, anchor_ggw);
+/// let anchor_wfe = drawing_get_one_anch_across_r7!(binary_ui, store);
+/// assert_eq!(&anchor_lda, anchor_wfe);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_anch_across_r7 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_anchor(&$input.from).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_anch_across_r7;
@@ -1253,40 +1263,39 @@ pub use drawing_get_one_anch_across_r7;
 ///```
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Binary;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::BinaryUi;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_bui_across_r7;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_qyb = Point::new(&mut store, 42, 42);
-/// let point_lnz = Point::new(&mut store, 42, 42);
-/// let edge_wam = Edge::test_default(&mut store);
-/// let anchor_afv = Anchor::new(&mut store, &point_qyb, &point_lnz, &edge_wam);
-/// let point_kci = Point::new(&mut store, 42, 42);
-/// let point_drr = Point::new(&mut store, 42, 42);
-/// let edge_lsz = Edge::test_default(&mut store);
-/// let anchor_tbs = Anchor::new(&mut store, &point_kci, &point_drr, &edge_lsz);
-/// let binary_xty = Binary::default();
+/// let point_pkn = Point::new(&mut store, 42, 42);
+/// let point_cuj = Point::new(&mut store, 42, 42);
+/// let edge_epp = Edge::test_default(&mut store);
+/// let anchor_vdc = Anchor::new(&mut store, &point_pkn, &point_cuj, &edge_epp);
+/// let point_dzn = Point::new(&mut store, 42, 42);
+/// let point_ibm = Point::new(&mut store, 42, 42);
+/// let edge_lfr = Edge::test_default(&mut store);
+/// let anchor_ezr = Anchor::new(&mut store, &point_dzn, &point_ibm, &edge_lfr);
+/// let binary_rsn = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_afv, &anchor_tbs, &binary_xty);
-/// let binary_ui_xpm = drawing_maybe_get_one_bui_across_r7!(anchor_afv, store);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_vdc, &anchor_ezr, &binary_rsn);
+/// let binary_ui_kqj = drawing_maybe_get_one_bui_across_r7!(anchor_vdc, store);
 ///
-/// assert_eq!(Some(&binary_ui), binary_ui_xpm);
+/// assert_eq!(Some(&binary_ui), binary_ui_kqj);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_bui_across_r7 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_binary_ui()
             .find(|z| z.1.from == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r7;
@@ -1304,27 +1313,29 @@ pub use drawing_maybe_get_one_bui_across_r7;
 /// # Example
 ///
 ///```
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_pnt_across_r4;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_ccn = Point::new(&mut store, 42, 42);
-/// let point_cyk = Point::new(&mut store, 42, 42);
-/// let edge_yyu = Edge::test_default(&mut store);
+/// let point_rfb = Point::new(&mut store, 42, 42);
+/// let point_idd = Point::new(&mut store, 42, 42);
+/// let edge_sty = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_ccn, &point_cyk, &edge_yyu);
+/// let anchor = Anchor::new(&mut store, &point_rfb, &point_idd, &edge_sty);
 ///
-/// let point_trj = drawing_get_one_pnt_across_r4!(anchor, store);
-/// assert_eq!(&point_ccn, point_trj);
+/// let point_lco = drawing_get_one_pnt_across_r4!(anchor, store);
+/// assert_eq!(&point_rfb, point_lco);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_get_one_pnt_across_r4 {
     ($input:expr, $store:expr) => {{
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
         // nut::codegen::template::macros::emit_one_unconditional
         $store.exhume_point(&$input.location).unwrap()
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-emit_one_unconditional"}}}
     }};
 }
 pub use drawing_get_one_pnt_across_r4;
@@ -1342,33 +1353,32 @@ pub use drawing_get_one_pnt_across_r4;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r4;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_qsa = Point::new(&mut store, 42, 42);
-/// let point_tst = Point::new(&mut store, 42, 42);
-/// let edge_bwt = Edge::test_default(&mut store);
+/// let point_vvn = Point::new(&mut store, 42, 42);
+/// let point_aoi = Point::new(&mut store, 42, 42);
+/// let edge_agd = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_qsa, &point_tst, &edge_bwt);
-/// let anchor_xse = drawing_maybe_get_one_anch_across_r4!(point_qsa, store);
+/// let anchor = Anchor::new(&mut store, &point_vvn, &point_aoi, &edge_agd);
+/// let anchor_obc = drawing_maybe_get_one_anch_across_r4!(point_vvn, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_xse);
+/// assert_eq!(Some(&anchor), anchor_obc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
 macro_rules! drawing_maybe_get_one_anch_across_r4 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":"CriticalBlockBegin"}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
         // nut::codegen::template::macros::emit_one_conditional_lookup
         $store
             .iter_anchor()
             .find(|z| z.1.location == $input.id)
             .map(|(_, z)| z)
-// ⚡️         // {"magic":"","kind":"CriticalBlockEnd"}
-            // {"magic":"","kind":"CriticalBlockEnd"}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r4;

@@ -1,17 +1,6 @@
+pub mod domain;
 pub mod drawing;
+pub mod error;
 pub mod sarzak;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -1,4 +1,3 @@
-//! {"magic":"","version":"0.0.1"}
 //! ObjectStore for the instances of the "Sarzak" domain
 //!
 //! An end user should have little need to use this directly.
@@ -17,27 +16,35 @@
 //!    * [`Referent`]
 //!    * [`Referrer`]
 //!    * [`Supertype`]
-//!    * [`OneSide`]
 //!    * [`Type`]
 //!    * [`Cardinality`]
 //!    * [`Event`]
-//!    * [`OtherSide`]
-//!    * [`AssociativeSide`]
+//!    * [`AssociativeReferent`]
+//!    * [`AssociativeReferrer`]
 //!
-//! Generated Code -- edit _carefully_.
-//! Don't mess with anything between {"magic":"","kind":"CriticalBlockBegin"}
-//! and {"magic":"","kind":"CriticalBlockEnd"}. Otherwise, you should be free
+//! # Generated Code -- edit _with care_.
+//!
+//! Don't mess with anything between `{"magic":"","kind":"CriticalBlockBegin"}`
+//! and `{"magic":"","kind":"CriticalBlockEnd"}`. Otherwise, you should be free
 //! to go wild. Happy hacking!
+//!
 //! Use the following invocation to reproduce:
+// {"magic":"","kind":"IgnoreBlockBegin"}
 //! ```shell
 //!  sarzak gen
 //! ```
+// {"magic":"","kind":"IgnoreBlockEnd"}
+// {"magic":"","version":"0.5.0"}
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::sarzak::types::{Isa, Associative, AcknowledgedEvent, Subtype, Conditionality, Relationship, Binary, Attribute, State, Object, Referent, Referrer, Supertype, OneSide, Type, Cardinality, Event, OtherSide, AssociativeSide, };
+use crate::sarzak::types::{
+    AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
+    Cardinality, Conditionality, Event, Isa, Object, Referent, Referrer, Relationship, State,
+    Subtype, Supertype, Type,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
@@ -54,12 +61,11 @@ pub struct ObjectStore {
     referent: HashMap<Uuid, Referent>,
     referrer: HashMap<Uuid, Referrer>,
     supertype: HashMap<Uuid, Supertype>,
-    one_side: HashMap<Uuid, OneSide>,
     ty: HashMap<Uuid, Type>,
     cardinality: HashMap<Uuid, Cardinality>,
     event: HashMap<Uuid, Event>,
-    other_side: HashMap<Uuid, OtherSide>,
-    associative_side: HashMap<Uuid, AssociativeSide>,
+    associative_referent: HashMap<Uuid, AssociativeReferent>,
+    associative_referrer: HashMap<Uuid, AssociativeReferrer>,
 }
 
 impl ObjectStore {
@@ -78,19 +84,18 @@ impl ObjectStore {
             referent: HashMap::new(),
             referrer: HashMap::new(),
             supertype: HashMap::new(),
-            one_side: HashMap::new(),
             ty: HashMap::new(),
             cardinality: HashMap::new(),
             event: HashMap::new(),
-            other_side: HashMap::new(),
-            associative_side: HashMap::new(),
+            associative_referent: HashMap::new(),
+            associative_referrer: HashMap::new(),
         }
     }
 
     /// Inter [`Isa`] into the [`ObjectStore`]
     ///
     pub fn inter_isa(&mut self, isa: Isa) {
-        self.isa.insert(isa.get_id(), isa);
+        self.isa.insert(isa.id, isa);
     }
 
     /// Exhume [`Isa`] from the [`ObjectStore`]
@@ -126,7 +131,8 @@ impl ObjectStore {
     /// Inter [`AcknowledgedEvent`] into the [`ObjectStore`]
     ///
     pub fn inter_acknowledged_event(&mut self, acknowledged_event: AcknowledgedEvent) {
-        self.acknowledged_event.insert(acknowledged_event.id, acknowledged_event);
+        self.acknowledged_event
+            .insert(acknowledged_event.id, acknowledged_event);
     }
 
     /// Exhume [`Acknowledged Event`] from the [`ObjectStore`]
@@ -162,7 +168,8 @@ impl ObjectStore {
     /// Inter [`Conditionality`] into the [`ObjectStore`]
     ///
     pub fn inter_conditionality(&mut self, conditionality: Conditionality) {
-        self.conditionality.insert(conditionality.get_id(), conditionality);
+        self.conditionality
+            .insert(conditionality.get_id(), conditionality);
     }
 
     /// Exhume [`Conditionality`] from the [`ObjectStore`]
@@ -180,7 +187,8 @@ impl ObjectStore {
     /// Inter [`Relationship`] into the [`ObjectStore`]
     ///
     pub fn inter_relationship(&mut self, relationship: Relationship) {
-        self.relationship.insert(relationship.get_id(), relationship);
+        self.relationship
+            .insert(relationship.get_id(), relationship);
     }
 
     /// Exhume [`Relationship`] from the [`ObjectStore`]
@@ -321,24 +329,6 @@ impl ObjectStore {
         self.supertype.iter()
     }
 
-    /// Inter [`OneSide`] into the [`ObjectStore`]
-    ///
-    pub fn inter_one_side(&mut self, one_side: OneSide) {
-        self.one_side.insert(one_side.id, one_side);
-    }
-
-    /// Exhume [`One Side`] from the [`ObjectStore`]
-    ///
-    pub fn exhume_one_side(&self, id: &Uuid) -> Option<&OneSide> {
-        self.one_side.get(id)
-    }
-
-    /// Get an iterator over the internal `HashMap<(&Uuid, OneSide)>` in the [`ObjectStore`]
-    ///
-    pub fn iter_one_side(&self) -> impl Iterator<Item = (&Uuid, &OneSide)> {
-        self.one_side.iter()
-    }
-
     /// Inter [`Type`] into the [`ObjectStore`]
     ///
     pub fn inter_ty(&mut self, ty: Type) {
@@ -393,40 +383,41 @@ impl ObjectStore {
         self.event.iter()
     }
 
-    /// Inter [`OtherSide`] into the [`ObjectStore`]
+    /// Inter [`AssociativeReferent`] into the [`ObjectStore`]
     ///
-    pub fn inter_other_side(&mut self, other_side: OtherSide) {
-        self.other_side.insert(other_side.id, other_side);
+    pub fn inter_associative_referent(&mut self, associative_referent: AssociativeReferent) {
+        self.associative_referent
+            .insert(associative_referent.id, associative_referent);
     }
 
-    /// Exhume [`Other Side`] from the [`ObjectStore`]
+    /// Exhume [`Associative Referent`] from the [`ObjectStore`]
     ///
-    pub fn exhume_other_side(&self, id: &Uuid) -> Option<&OtherSide> {
-        self.other_side.get(id)
+    pub fn exhume_associative_referent(&self, id: &Uuid) -> Option<&AssociativeReferent> {
+        self.associative_referent.get(id)
     }
 
-    /// Get an iterator over the internal `HashMap<(&Uuid, OtherSide)>` in the [`ObjectStore`]
+    /// Get an iterator over the internal `HashMap<(&Uuid, AssociativeReferent)>` in the [`ObjectStore`]
     ///
-    pub fn iter_other_side(&self) -> impl Iterator<Item = (&Uuid, &OtherSide)> {
-        self.other_side.iter()
+    pub fn iter_associative_referent(&self) -> impl Iterator<Item = (&Uuid, &AssociativeReferent)> {
+        self.associative_referent.iter()
     }
 
-    /// Inter [`AssociativeSide`] into the [`ObjectStore`]
+    /// Inter [`AssociativeReferrer`] into the [`ObjectStore`]
     ///
-    pub fn inter_associative_side(&mut self, associative_side: AssociativeSide) {
-        self.associative_side.insert(associative_side.id, associative_side);
+    pub fn inter_associative_referrer(&mut self, associative_referrer: AssociativeReferrer) {
+        self.associative_referrer
+            .insert(associative_referrer.id, associative_referrer);
     }
 
-    /// Exhume [`Associative Side`] from the [`ObjectStore`]
+    /// Exhume [`Associative Referrer`] from the [`ObjectStore`]
     ///
-    pub fn exhume_associative_side(&self, id: &Uuid) -> Option<&AssociativeSide> {
-        self.associative_side.get(id)
+    pub fn exhume_associative_referrer(&self, id: &Uuid) -> Option<&AssociativeReferrer> {
+        self.associative_referrer.get(id)
     }
 
-    /// Get an iterator over the internal `HashMap<(&Uuid, AssociativeSide)>` in the [`ObjectStore`]
+    /// Get an iterator over the internal `HashMap<(&Uuid, AssociativeReferrer)>` in the [`ObjectStore`]
     ///
-    pub fn iter_associative_side(&self) -> impl Iterator<Item = (&Uuid, &AssociativeSide)> {
-        self.associative_side.iter()
+    pub fn iter_associative_referrer(&self) -> impl Iterator<Item = (&Uuid, &AssociativeReferrer)> {
+        self.associative_referrer.iter()
     }
-
 }
