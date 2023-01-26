@@ -163,11 +163,9 @@ pub struct AssociativeUi {
     /// [`nut::sarzak::Associative`]
     ///
     pub associative_id: Uuid,
-    //     /// pub from: `Anchor`, //⚡️
     /// pub from: `Point`,
     ///
     pub from: Uuid,
-    //     /// pub middle: `Point`, //⚡️
     /// pub middle: `Anchor`,
     ///
     pub middle: Uuid,
@@ -182,7 +180,6 @@ pub struct AssociativeUi {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-new_impl"}}}
 impl AssociativeUi {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-new_impl"}}} //⚡️
     /// Inter a new AssociativeUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -218,34 +215,25 @@ impl AssociativeUi {
     pub fn new(
         store: &mut ObjectStore,
         associative_id: &Associative,
-        //         from: &Anchor, //⚡️
         middle: &Anchor,
         one: &Anchor,
         other: &Anchor,
-        //         middle: &Point, //⚡️
         from: &Point,
     ) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
             format!(
                 "{:?}::{:?}::{:?}::{:?}::{:?}::",
-                //                 associative_id, from, one, other, middle, //⚡️
-                associative_id,
-                middle,
-                one,
-                other,
-                from,
+                associative_id, middle, one, other, from,
             )
             .as_bytes(),
         );
         let new = Self {
             id,
             associative_id: associative_id.id,
-            //             from: from.id, //⚡️
             middle: middle.id,
             one: one.id,
             other: other.id,
-            //             middle: middle.id, //⚡️
             from: from.id,
         };
 
@@ -306,7 +294,6 @@ pub struct BinaryUi {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-new_impl"}}}
 impl BinaryUi {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-new_impl"}}} //⚡️
     /// Inter a new BinaryUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -477,7 +464,6 @@ pub struct IsaUi {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-new_impl"}}}
 impl IsaUi {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-new_impl"}}} //⚡️
     /// Inter a new IsaUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -576,7 +562,6 @@ pub struct ObjectEdge {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-new_impl"}}}
 impl ObjectEdge {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_edge-new_impl"}}} //⚡️
     /// Inter a new ObjectEdge and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -662,7 +647,6 @@ pub struct ObjectUi {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-new_impl"}}}
 impl ObjectUi {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-new_impl"}}} //⚡️
     /// Inter a new ObjectUi and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -754,7 +738,6 @@ pub struct Point {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-new_impl"}}}
 impl Point {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-new_impl"}}} //⚡️
     /// Inter a new Point and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -904,7 +887,6 @@ pub struct SubtypeAnchors {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-new_impl"}}}
 impl SubtypeAnchors {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype_anchors-new_impl"}}} //⚡️
     /// Inter a new SubtypeAnchors and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}

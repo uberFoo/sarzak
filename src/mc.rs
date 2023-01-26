@@ -1,23 +1,31 @@
 //! Model Compiler Primitives
 //!
 //!
-use std::{any::Any, path::PathBuf};
+use std::{
+    any::Any,
+    path::{Path, PathBuf},
+};
 
 use snafu::prelude::*;
 
 use crate::domain::Domain;
 
+pub type Result<T, E = ModelCompilerError> = std::result::Result<T, E>;
+
 #[derive(Debug, Snafu)]
+#[snafu(visibility(pub))]
 pub enum ModelCompilerError {
     #[snafu(display("ModelError: {}", description))]
-    ModelError { description: String },
-    #[snafu(display("I/O Error: {}, caused by {}", path.display(), source))]
-    IOError {
+    Model { description: String },
+    #[snafu(display("I/O Error caused by {}", source))]
+    IO { source: std::io::Error },
+    #[snafu(display("File Error: {}, caused by {}", path.display(), source))]
+    File {
         path: PathBuf,
         source: std::io::Error,
     },
     #[snafu(display("Compiler Error: {}", description))]
-    CompilerError { description: String },
+    Compiler { description: String },
 }
 
 pub trait ModelCompilerOptions {
@@ -25,11 +33,11 @@ pub trait ModelCompilerOptions {
 }
 
 pub trait SarzakModelCompiler {
-    fn compile(
+    fn compile<P: AsRef<Path>>(
         &self,
         model: &Domain,
-        package: &str,
-        src_path: &PathBuf,
+        module: &str,
+        src_path: P,
         options: Box<&dyn ModelCompilerOptions>,
         test: bool,
     ) -> Result<(), ModelCompilerError>;

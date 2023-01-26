@@ -90,7 +90,6 @@ pub struct AcknowledgedEvent {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"acknowledged_event-new_impl"}}}
 impl AcknowledgedEvent {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"acknowledged_event-new_impl"}}} //⚡️
     /// Inter a new AcknowledgedEvent and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -149,15 +148,12 @@ pub struct Associative {
     /// pub number: `i64`,
     ///
     pub number: i64,
-    //     /// pub from: `Associative Side`, //⚡️
     /// pub from: `Associative Referrer`,
     ///
     pub from: Uuid,
-    //     /// pub one: `One Side`, //⚡️
     /// pub one: `Associative Referent`,
     ///
     pub one: Uuid,
-    //     /// pub other: `Other Side`, //⚡️
     /// pub other: `Associative Referent`,
     ///
     pub other: Uuid,
@@ -166,7 +162,6 @@ pub struct Associative {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-new_impl"}}}
 impl Associative {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative-new_impl"}}} //⚡️
     /// Inter a new Associative and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -200,9 +195,6 @@ impl Associative {
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
         store: &mut ObjectStore,
-        //         one: &OneSide, //⚡️
-        //         other: &OtherSide, //⚡️
-        //         from: &AssociativeSide, //⚡️
         one: &AssociativeReferent,
         other: &AssociativeReferent,
         from: &AssociativeReferrer,
@@ -407,7 +399,6 @@ pub struct Attribute {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-new_impl"}}}
 impl Attribute {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"attribute-new_impl"}}} //⚡️
     /// Inter a new Attribute and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -519,7 +510,6 @@ pub struct Binary {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-new_impl"}}}
 impl Binary {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary-new_impl"}}} //⚡️
     /// Inter a new Binary and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -720,7 +710,6 @@ pub struct Event {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-new_impl"}}}
 impl Event {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-new_impl"}}} //⚡️
     /// Inter a new Event and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -795,7 +784,6 @@ pub struct Isa {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-new_impl"}}}
 impl Isa {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-new_impl"}}} //⚡️
     /// Inter a new Isa and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -886,7 +874,6 @@ pub struct Object {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-new_impl"}}}
 impl Object {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-new_impl"}}} //⚡️
     /// Inter a new Object and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -969,7 +956,6 @@ pub struct Referent {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-new_impl"}}}
 impl Referent {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-new_impl"}}} //⚡️
     /// Inter a new Referent and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1055,7 +1041,6 @@ pub struct Referrer {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-new_impl"}}}
 impl Referrer {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-new_impl"}}} //⚡️
     /// Inter a new Referrer and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1227,7 +1212,6 @@ pub struct State {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"state-new_impl"}}}
 impl State {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"state-new_impl"}}} //⚡️
     /// Inter a new State and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1294,7 +1278,6 @@ pub struct Subtype {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-new_impl"}}}
 impl Subtype {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"subtype-new_impl"}}} //⚡️
     /// Inter a new Subtype and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}
@@ -1389,7 +1372,6 @@ pub struct Supertype {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-new_impl"}}}
 impl Supertype {
-    //     // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-new_impl"}}} //⚡️
     /// Inter a new Supertype and return it's `id`
     ///
     // {"magic":"","kind":"IgnoreBlockBegin"}

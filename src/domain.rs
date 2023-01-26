@@ -70,7 +70,7 @@ use crate::{
 ///     })
 ///     .build().unwrap();
 ///
-/// let store = sarzak.get_sarzak();
+/// let store = sarzak.sarzak();
 /// assert_eq!(&Cardinality::One(ONE), store.exhume_cardinality(&ONE).unwrap())
 ///```
 ///
@@ -238,7 +238,7 @@ impl Domain {
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model instances.
-    pub fn get_sarzak(&self) -> &SarzakObjectStore {
+    pub fn sarzak(&self) -> &SarzakObjectStore {
         &self.sarzak
     }
 }
