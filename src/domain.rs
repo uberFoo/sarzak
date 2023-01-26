@@ -385,7 +385,7 @@ mod tests {
         assert!(err.is_err());
 
         let ok = DomainBuilder::new()
-            .cuckoo_model("models/sarzak.json")
+            .cuckoo_model("models/drawing.json")
             .unwrap()
             .build();
         assert!(ok.is_ok());
