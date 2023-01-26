@@ -374,7 +374,7 @@ impl AssociativeReferrer {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referrer-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::AssociativeReferrer, Context<'_>> for AssociativeReferrer {
-    fn extrude(orig: nut::sarzak::AssociativeReferrer, context: &mut Context<'_>) -> Self {
+    fn extrude(orig: nut::sarzak::AssociativeReferrer, _context: &mut Context<'_>) -> Self {
         Self {
             id: orig.id,
             obj_id: orig.obj_id,
@@ -929,7 +929,7 @@ impl Object {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-extrude_impl", "is_uber": true}}}
 impl Extrude<nut::sarzak::Object, Context<'_>> for Object {
-    fn extrude(orig: nut::sarzak::Object, context: &mut Context<'_>) -> Self {
+    fn extrude(orig: nut::sarzak::Object, _context: &mut Context<'_>) -> Self {
         Self {
             id: orig.id,
             description: orig.description,
