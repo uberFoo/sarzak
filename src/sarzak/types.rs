@@ -53,6 +53,7 @@
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
+// {"magic":"","version":"1.0.0"}
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
@@ -893,18 +894,21 @@ impl Object {
     pub fn new(
         store: &mut ObjectStore,
         description: std::string::String,
-        key_letters: std::string::String,
+        //         key_letters: std::string::String, //⚡️
         name: std::string::String,
+        key_letters: std::string::String,
     ) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}::{}::{}::", description, key_letters, name,).as_bytes(),
+            //             format!("{}::{}::{}::", description, key_letters, name,).as_bytes(), //⚡️
+            format!("{}::{}::{}::", description, name, key_letters,).as_bytes(),
         );
         let new = Self {
             id,
             description,
-            key_letters,
+            //             key_letters, //⚡️
             name,
+            key_letters,
         };
 
         store.inter_object(new.clone());

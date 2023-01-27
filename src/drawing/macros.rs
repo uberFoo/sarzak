@@ -13,6 +13,7 @@
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
+// {"magic":"","version":"1.0.0"}
 
 /// Macro to traverse [`IsaUi`][🦀] ➡ [`Anchor`][🦞], via _R9_
 ///
@@ -49,6 +50,7 @@
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r9-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -58,6 +60,7 @@ macro_rules! drawing_get_one_anch_across_r9 {
     }};
 }
 pub use drawing_get_one_anch_across_r9;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r9-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`IsaUi`][🦞], via _R9(c)_
 ///
@@ -94,6 +97,7 @@ pub use drawing_get_one_anch_across_r9;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_iui_across_r9-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_iui_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-isa_ui-emit_one_conditional_lookup"}}}
@@ -106,6 +110,7 @@ macro_rules! drawing_maybe_get_one_iui_across_r9 {
     }};
 }
 pub use drawing_maybe_get_one_iui_across_r9;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_iui_across_r9-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeUi`][🦀] ➡ [`Anchor`][🦞], via _R15_
 ///
@@ -151,6 +156,7 @@ pub use drawing_maybe_get_one_iui_across_r9;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r15-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -160,6 +166,7 @@ macro_rules! drawing_get_one_anch_across_r15 {
     }};
 }
 pub use drawing_get_one_anch_across_r15;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r15-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`AssociativeUi`][🦞], via _R15(c)_
 ///
@@ -205,6 +212,7 @@ pub use drawing_get_one_anch_across_r15;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_aui_across_r15-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_aui_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
@@ -217,6 +225,7 @@ macro_rules! drawing_maybe_get_one_aui_across_r15 {
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r15;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_aui_across_r15-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`Point`][🦞], via _R5_
 ///
@@ -248,6 +257,7 @@ pub use drawing_maybe_get_one_aui_across_r15;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_pnt_across_r5-emit_binary_main"}}}
 macro_rules! drawing_get_one_pnt_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
@@ -257,6 +267,7 @@ macro_rules! drawing_get_one_pnt_across_r5 {
     }};
 }
 pub use drawing_get_one_pnt_across_r5;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_pnt_across_r5-emit_binary_main"}}}
 
 /// Macro to traverse [`Point`][🦀] ➡ [`Anchor`][🦞], via _R5(c)_
 ///
@@ -288,6 +299,7 @@ pub use drawing_get_one_pnt_across_r5;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_anch_across_r5-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_anch_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
@@ -300,6 +312,7 @@ macro_rules! drawing_maybe_get_one_anch_across_r5 {
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r5;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_anch_across_r5-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeUi`][🦀] ➡ [`Anchor`][🦞], via _R14_
 ///
@@ -345,6 +358,7 @@ pub use drawing_maybe_get_one_anch_across_r5;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r14-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -354,6 +368,7 @@ macro_rules! drawing_get_one_anch_across_r14 {
     }};
 }
 pub use drawing_get_one_anch_across_r14;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r14-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`AssociativeUi`][🦞], via _R14(c)_
 ///
@@ -399,6 +414,7 @@ pub use drawing_get_one_anch_across_r14;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_aui_across_r14-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_aui_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
@@ -411,6 +427,7 @@ macro_rules! drawing_maybe_get_one_aui_across_r14 {
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r14;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_aui_across_r14-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`IsaUi`][🦞], across [`SubtypeAnchors`][🦑] via _R10_
 ///
@@ -453,6 +470,7 @@ pub use drawing_maybe_get_one_aui_across_r14;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_iui_across_r10-emit_associative_main"}}}
 macro_rules! drawing_maybe_get_one_iui_across_r10 {
     ($input:expr, $store:expr) => {{
         // nut::codegen::template::macros::emit_assoc_maybe_get_one
@@ -464,6 +482,7 @@ macro_rules! drawing_maybe_get_one_iui_across_r10 {
     }};
 }
 pub use drawing_maybe_get_one_iui_across_r10;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_iui_across_r10-emit_associative_main"}}}
 
 /// Macro to traverse [`IsaUi`][🦀] ➡ [`Anchor`][🦞], across [`SubtypeAnchors`][🦑] via _R10_
 ///
@@ -506,6 +525,7 @@ pub use drawing_maybe_get_one_iui_across_r10;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_many_anch_across_r10-emit_associative_main"}}}
 macro_rules! drawing_get_many_anch_across_r10 {
     ($input:expr, $store:expr) => {{
         // nut::codegen::template::macros::emit_assoc_many
@@ -517,6 +537,7 @@ macro_rules! drawing_get_many_anch_across_r10 {
     }};
 }
 pub use drawing_get_many_anch_across_r10;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_many_anch_across_r10-emit_associative_main"}}}
 
 /// Macro to traverse [`ObjectUi`][🦀] ➡ [`Point`][🦞], via _R13_
 ///
@@ -549,6 +570,7 @@ pub use drawing_get_many_anch_across_r10;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_pnt_across_r13-emit_binary_main"}}}
 macro_rules! drawing_get_one_pnt_across_r13 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
@@ -558,6 +580,7 @@ macro_rules! drawing_get_one_pnt_across_r13 {
     }};
 }
 pub use drawing_get_one_pnt_across_r13;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_pnt_across_r13-emit_binary_main"}}}
 
 /// Macro to traverse [`Point`][🦀] ➡ [`ObjectUi`][🦞], via _R13(c)_
 ///
@@ -590,6 +613,7 @@ pub use drawing_get_one_pnt_across_r13;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_oui_across_r13-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_oui_across_r13 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-object_ui-emit_one_conditional_lookup"}}}
@@ -602,6 +626,7 @@ macro_rules! drawing_maybe_get_one_oui_across_r13 {
     }};
 }
 pub use drawing_maybe_get_one_oui_across_r13;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_oui_across_r13-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeUi`][🦀] ➡ [`Point`][🦞], via _R17_
 ///
@@ -647,6 +672,7 @@ pub use drawing_maybe_get_one_oui_across_r13;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_pnt_across_r17-emit_binary_main"}}}
 macro_rules! drawing_get_one_pnt_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
@@ -656,6 +682,7 @@ macro_rules! drawing_get_one_pnt_across_r17 {
     }};
 }
 pub use drawing_get_one_pnt_across_r17;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_pnt_across_r17-emit_binary_main"}}}
 
 /// Macro to traverse [`Point`][🦀] ➡ [`AssociativeUi`][🦞], via _R17(c)_
 ///
@@ -701,6 +728,7 @@ pub use drawing_get_one_pnt_across_r17;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_aui_across_r17-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_aui_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-associative_ui-emit_one_conditional_lookup"}}}
@@ -713,6 +741,7 @@ macro_rules! drawing_maybe_get_one_aui_across_r17 {
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r17;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_aui_across_r17-emit_binary_main"}}}
 
 /// Macro to traverse [`ObjectEdge`][🦀] ➡ [`ObjectUi`][🦞], via _R18_
 ///
@@ -749,6 +778,7 @@ pub use drawing_maybe_get_one_aui_across_r17;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_oui_across_r18-emit_binary_main"}}}
 macro_rules! drawing_get_one_oui_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-emit_one_unconditional"}}}
@@ -758,6 +788,7 @@ macro_rules! drawing_get_one_oui_across_r18 {
     }};
 }
 pub use drawing_get_one_oui_across_r18;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_oui_across_r18-emit_binary_main"}}}
 
 /// Macro to traverse [`ObjectUi`][🦀] ➡ [`ObjectEdge`][🦞], via _R18_
 ///
@@ -794,6 +825,7 @@ pub use drawing_get_one_oui_across_r18;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_many_oui_es_across_r18-emit_binary_main"}}}
 macro_rules! drawing_get_many_oui_es_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-object_edge-emit_many_conditional_lookup"}}}
@@ -806,6 +838,7 @@ macro_rules! drawing_get_many_oui_es_across_r18 {
     }};
 }
 pub use drawing_get_many_oui_es_across_r18;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_many_oui_es_across_r18-emit_binary_main"}}}
 
 /// Macro to traverse [`BinaryUi`][🦀] ➡ [`Anchor`][🦞], via _R8_
 ///
@@ -846,6 +879,7 @@ pub use drawing_get_many_oui_es_across_r18;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r8-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -855,6 +889,7 @@ macro_rules! drawing_get_one_anch_across_r8 {
     }};
 }
 pub use drawing_get_one_anch_across_r8;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r8-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`BinaryUi`][🦞], via _R8(c)_
 ///
@@ -895,6 +930,7 @@ pub use drawing_get_one_anch_across_r8;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_bui_across_r8-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_bui_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
@@ -907,6 +943,7 @@ macro_rules! drawing_maybe_get_one_bui_across_r8 {
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r8;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_bui_across_r8-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeUi`][🦀] ➡ [`Anchor`][🦞], via _R16_
 ///
@@ -952,6 +989,7 @@ pub use drawing_maybe_get_one_bui_across_r8;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r16-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -961,6 +999,7 @@ macro_rules! drawing_get_one_anch_across_r16 {
     }};
 }
 pub use drawing_get_one_anch_across_r16;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r16-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`AssociativeUi`][🦞], via _R16(c)_
 ///
@@ -1006,6 +1045,7 @@ pub use drawing_get_one_anch_across_r16;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_aui_across_r16-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_aui_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-associative_ui-emit_one_conditional_lookup"}}}
@@ -1018,6 +1058,7 @@ macro_rules! drawing_maybe_get_one_aui_across_r16 {
     }};
 }
 pub use drawing_maybe_get_one_aui_across_r16;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_aui_across_r16-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`Edge`][🦞], via _R3_
 ///
@@ -1049,6 +1090,7 @@ pub use drawing_maybe_get_one_aui_across_r16;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_edg_across_r3-emit_binary_main"}}}
 macro_rules! drawing_get_one_edg_across_r3 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-emit_one_unconditional"}}}
@@ -1058,6 +1100,7 @@ macro_rules! drawing_get_one_edg_across_r3 {
     }};
 }
 pub use drawing_get_one_edg_across_r3;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_edg_across_r3-emit_binary_main"}}}
 
 /// Macro to traverse [`Edge`][🦀] ➡ [`Anchor`][🦞], via _R3(c)_
 ///
@@ -1089,6 +1132,7 @@ pub use drawing_get_one_edg_across_r3;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_anch_across_r3-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_anch_across_r3 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-anchor-emit_one_conditional_lookup"}}}
@@ -1101,6 +1145,7 @@ macro_rules! drawing_maybe_get_one_anch_across_r3 {
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r3;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_anch_across_r3-emit_binary_main"}}}
 
 /// Macro to traverse [`ObjectEdge`][🦀] ➡ [`Edge`][🦞], via _R19_
 ///
@@ -1137,6 +1182,7 @@ pub use drawing_maybe_get_one_anch_across_r3;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_edg_across_r19-emit_binary_main"}}}
 macro_rules! drawing_get_one_edg_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-emit_one_unconditional"}}}
@@ -1146,6 +1192,7 @@ macro_rules! drawing_get_one_edg_across_r19 {
     }};
 }
 pub use drawing_get_one_edg_across_r19;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_edg_across_r19-emit_binary_main"}}}
 
 /// Macro to traverse [`Edge`][🦀] ➡ [`ObjectEdge`][🦞], via _R19(c)_
 ///
@@ -1182,6 +1229,7 @@ pub use drawing_get_one_edg_across_r19;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_oui_e_across_r19-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_oui_e_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"edge-object_edge-emit_one_conditional_lookup"}}}
@@ -1194,6 +1242,7 @@ macro_rules! drawing_maybe_get_one_oui_e_across_r19 {
     }};
 }
 pub use drawing_maybe_get_one_oui_e_across_r19;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_oui_e_across_r19-emit_binary_main"}}}
 
 /// Macro to traverse [`BinaryUi`][🦀] ➡ [`Anchor`][🦞], via _R7_
 ///
@@ -1234,6 +1283,7 @@ pub use drawing_maybe_get_one_oui_e_across_r19;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_anch_across_r7-emit_binary_main"}}}
 macro_rules! drawing_get_one_anch_across_r7 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-emit_one_unconditional"}}}
@@ -1243,6 +1293,7 @@ macro_rules! drawing_get_one_anch_across_r7 {
     }};
 }
 pub use drawing_get_one_anch_across_r7;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_anch_across_r7-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`BinaryUi`][🦞], via _R7(c)_
 ///
@@ -1283,6 +1334,7 @@ pub use drawing_get_one_anch_across_r7;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_bui_across_r7-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_bui_across_r7 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"anchor-binary_ui-emit_one_conditional_lookup"}}}
@@ -1295,6 +1347,7 @@ macro_rules! drawing_maybe_get_one_bui_across_r7 {
     }};
 }
 pub use drawing_maybe_get_one_bui_across_r7;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_bui_across_r7-emit_binary_main"}}}
 
 /// Macro to traverse [`Anchor`][🦀] ➡ [`Point`][🦞], via _R4_
 ///
@@ -1326,6 +1379,7 @@ pub use drawing_maybe_get_one_bui_across_r7;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_get_one_pnt_across_r4-emit_binary_main"}}}
 macro_rules! drawing_get_one_pnt_across_r4 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-emit_one_unconditional"}}}
@@ -1335,6 +1389,7 @@ macro_rules! drawing_get_one_pnt_across_r4 {
     }};
 }
 pub use drawing_get_one_pnt_across_r4;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_get_one_pnt_across_r4-emit_binary_main"}}}
 
 /// Macro to traverse [`Point`][🦀] ➡ [`Anchor`][🦞], via _R4(c)_
 ///
@@ -1366,6 +1421,7 @@ pub use drawing_get_one_pnt_across_r4;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"drawing_maybe_get_one_anch_across_r4-emit_binary_main"}}}
 macro_rules! drawing_maybe_get_one_anch_across_r4 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"point-anchor-emit_one_conditional_lookup"}}}
@@ -1378,3 +1434,4 @@ macro_rules! drawing_maybe_get_one_anch_across_r4 {
     }};
 }
 pub use drawing_maybe_get_one_anch_across_r4;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"drawing_maybe_get_one_anch_across_r4-emit_binary_main"}}}

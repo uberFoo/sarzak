@@ -13,6 +13,7 @@
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
+// {"magic":"","version":"1.0.0"}
 
 /// Macro to traverse [`Referrer`][🦀] ➡ [`Object`][🦞], via _R17_
 ///
@@ -49,6 +50,7 @@
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r17-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -58,6 +60,7 @@ macro_rules! sarzak_get_one_obj_across_r17 {
     }};
 }
 pub use sarzak_get_one_obj_across_r17;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r17-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Referrer`][🦞], via _R17(c)_
 ///
@@ -94,6 +97,7 @@ pub use sarzak_get_one_obj_across_r17;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_r_from_across_r17-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_r_from_across_r17 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referrer-emit_one_conditional_lookup"}}}
@@ -106,6 +110,7 @@ macro_rules! sarzak_maybe_get_one_r_from_across_r17 {
     }};
 }
 pub use sarzak_maybe_get_one_r_from_across_r17;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_r_from_across_r17-emit_binary_main"}}}
 
 /// Macro to traverse [`Referent`][🦀] ➡ [`Cardinality`][🦞], via _R8_
 ///
@@ -141,6 +146,7 @@ pub use sarzak_maybe_get_one_r_from_across_r17;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_card_across_r8-emit_binary_main"}}}
 macro_rules! sarzak_get_one_card_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-emit_one_unconditional"}}}
@@ -150,6 +156,7 @@ macro_rules! sarzak_get_one_card_across_r8 {
     }};
 }
 pub use sarzak_get_one_card_across_r8;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_card_across_r8-emit_binary_main"}}}
 
 /// Macro to traverse [`Cardinality`][🦀] ➡ [`Referent`][🦞], via _R8(c)_
 ///
@@ -185,6 +192,7 @@ pub use sarzak_get_one_card_across_r8;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_r_tos_across_r8-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_r_tos_across_r8 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referent-emit_many_conditional_lookup"}}}
@@ -197,6 +205,7 @@ macro_rules! sarzak_maybe_get_many_r_tos_across_r8 {
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r8;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_r_tos_across_r8-emit_binary_main"}}}
 
 /// Macro to traverse [`Referent`][🦀] ➡ [`Object`][🦞], via _R16_
 ///
@@ -232,6 +241,7 @@ pub use sarzak_maybe_get_many_r_tos_across_r8;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r16-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -241,6 +251,7 @@ macro_rules! sarzak_get_one_obj_across_r16 {
     }};
 }
 pub use sarzak_get_one_obj_across_r16;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r16-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Referent`][🦞], via _R16(c)_
 ///
@@ -276,6 +287,7 @@ pub use sarzak_get_one_obj_across_r16;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_r_to_across_r16-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_r_to_across_r16 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-referent-emit_one_conditional_lookup"}}}
@@ -288,6 +300,7 @@ macro_rules! sarzak_maybe_get_one_r_to_across_r16 {
     }};
 }
 pub use sarzak_maybe_get_one_r_to_across_r16;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_r_to_across_r16-emit_binary_main"}}}
 
 /// Macro to traverse [`Referent`][🦀] ➡ [`Conditionality`][🦞], via _R12_
 ///
@@ -323,6 +336,7 @@ pub use sarzak_maybe_get_one_r_to_across_r16;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_cond_across_r12-emit_binary_main"}}}
 macro_rules! sarzak_get_one_cond_across_r12 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-emit_one_unconditional"}}}
@@ -332,6 +346,7 @@ macro_rules! sarzak_get_one_cond_across_r12 {
     }};
 }
 pub use sarzak_get_one_cond_across_r12;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_cond_across_r12-emit_binary_main"}}}
 
 /// Macro to traverse [`Conditionality`][🦀] ➡ [`Referent`][🦞], via _R12(c)_
 ///
@@ -367,6 +382,7 @@ pub use sarzak_get_one_cond_across_r12;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_r_tos_across_r12-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_r_tos_across_r12 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referent-emit_many_conditional_lookup"}}}
@@ -379,6 +395,7 @@ macro_rules! sarzak_maybe_get_many_r_tos_across_r12 {
     }};
 }
 pub use sarzak_maybe_get_many_r_tos_across_r12;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_r_tos_across_r12-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeReferrer`][🦀] ➡ [`Object`][🦞], via _R26_
 ///
@@ -410,6 +427,7 @@ pub use sarzak_maybe_get_many_r_tos_across_r12;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r26-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r26 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -419,6 +437,7 @@ macro_rules! sarzak_get_one_obj_across_r26 {
     }};
 }
 pub use sarzak_get_one_obj_across_r26;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r26-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`AssociativeReferrer`][🦞], via _R26(c)_
 ///
@@ -450,6 +469,7 @@ pub use sarzak_get_one_obj_across_r26;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_ass_from_across_r26-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_ass_from_across_r26 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-associative_referrer-emit_one_conditional_lookup"}}}
@@ -462,6 +482,7 @@ macro_rules! sarzak_maybe_get_one_ass_from_across_r26 {
     }};
 }
 pub use sarzak_maybe_get_one_ass_from_across_r26;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_ass_from_across_r26-emit_binary_main"}}}
 
 /// Macro to traverse [`Referrer`][🦀] ➡ [`Conditionality`][🦞], via _R11_
 ///
@@ -498,6 +519,7 @@ pub use sarzak_maybe_get_one_ass_from_across_r26;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_cond_across_r11-emit_binary_main"}}}
 macro_rules! sarzak_get_one_cond_across_r11 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-emit_one_unconditional"}}}
@@ -507,6 +529,7 @@ macro_rules! sarzak_get_one_cond_across_r11 {
     }};
 }
 pub use sarzak_get_one_cond_across_r11;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_cond_across_r11-emit_binary_main"}}}
 
 /// Macro to traverse [`Conditionality`][🦀] ➡ [`Referrer`][🦞], via _R11(c)_
 ///
@@ -543,6 +566,7 @@ pub use sarzak_get_one_cond_across_r11;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_r_froms_across_r11-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_r_froms_across_r11 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"conditionality-referrer-emit_many_conditional_lookup"}}}
@@ -555,6 +579,7 @@ macro_rules! sarzak_maybe_get_many_r_froms_across_r11 {
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r11;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_r_froms_across_r11-emit_binary_main"}}}
 
 /// Macro to traverse [`Subtype`][🦀] ➡ [`Isa`][🦞], via _R27_
 ///
@@ -594,6 +619,7 @@ pub use sarzak_maybe_get_many_r_froms_across_r11;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_isa_across_r27-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_isa_across_r27 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-emit_one_unconditional"}}}
@@ -603,6 +629,7 @@ macro_rules! sarzak_get_one_r_isa_across_r27 {
     }};
 }
 pub use sarzak_get_one_r_isa_across_r27;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_isa_across_r27-emit_binary_main"}}}
 
 /// Macro to traverse [`Isa`][🦀] ➡ [`Subtype`][🦞], via _R27_
 ///
@@ -642,6 +669,7 @@ pub use sarzak_get_one_r_isa_across_r27;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_many_r_subs_across_r27-emit_binary_main"}}}
 macro_rules! sarzak_get_many_r_subs_across_r27 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa-subtype-emit_many_conditional_lookup"}}}
@@ -654,6 +682,7 @@ macro_rules! sarzak_get_many_r_subs_across_r27 {
     }};
 }
 pub use sarzak_get_many_r_subs_across_r27;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_many_r_subs_across_r27-emit_binary_main"}}}
 
 /// Macro to traverse [`Isa`][🦀] ➡ [`Supertype`][🦞], via _R13_
 ///
@@ -687,6 +716,7 @@ pub use sarzak_get_many_r_subs_across_r27;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_sup_across_r13-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_sup_across_r13 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-emit_one_unconditional"}}}
@@ -696,6 +726,7 @@ macro_rules! sarzak_get_one_r_sup_across_r13 {
     }};
 }
 pub use sarzak_get_one_r_sup_across_r13;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_sup_across_r13-emit_binary_main"}}}
 
 /// Macro to traverse [`Supertype`][🦀] ➡ [`Isa`][🦞], via _R13_
 ///
@@ -729,6 +760,7 @@ pub use sarzak_get_one_r_sup_across_r13;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_isa_across_r13-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_isa_across_r13 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"supertype-isa-emit_one_unconditional_lookup"}}}
@@ -742,6 +774,7 @@ macro_rules! sarzak_get_one_r_isa_across_r13 {
     }};
 }
 pub use sarzak_get_one_r_isa_across_r13;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_isa_across_r13-emit_binary_main"}}}
 
 /// Macro to traverse [`State`][🦀] ➡ [`Object`][🦞], via _R18_
 ///
@@ -774,6 +807,7 @@ pub use sarzak_get_one_r_isa_across_r13;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r18-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -783,6 +817,7 @@ macro_rules! sarzak_get_one_obj_across_r18 {
     }};
 }
 pub use sarzak_get_one_obj_across_r18;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r18-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`State`][🦞], via _R18(c)_
 ///
@@ -815,6 +850,7 @@ pub use sarzak_get_one_obj_across_r18;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_ss_across_r18-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_ss_across_r18 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-state-emit_many_conditional_lookup"}}}
@@ -827,6 +863,7 @@ macro_rules! sarzak_maybe_get_many_ss_across_r18 {
     }};
 }
 pub use sarzak_maybe_get_many_ss_across_r18;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_ss_across_r18-emit_binary_main"}}}
 
 /// Macro to traverse [`State`][🦀] ➡ [`Event`][🦞], across [`AcknowledgedEvent`][🦑] via _R20_
 ///
@@ -868,6 +905,7 @@ pub use sarzak_maybe_get_many_ss_across_r18;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_many_e_across_r20-emit_associative_main"}}}
 macro_rules! sarzak_get_many_e_across_r20 {
     ($input:expr, $store:expr) => {{
         // nut::codegen::template::macros::emit_assoc_many
@@ -879,6 +917,7 @@ macro_rules! sarzak_get_many_e_across_r20 {
     }};
 }
 pub use sarzak_get_many_e_across_r20;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_many_e_across_r20-emit_associative_main"}}}
 
 /// Macro to traverse [`Event`][🦀] ➡ [`State`][🦞], across [`AcknowledgedEvent`][🦑] via _R20_
 ///
@@ -920,6 +959,7 @@ pub use sarzak_get_many_e_across_r20;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_many_s_across_r20-emit_associative_main"}}}
 macro_rules! sarzak_get_many_s_across_r20 {
     ($input:expr, $store:expr) => {{
         // nut::codegen::template::macros::emit_assoc_many
@@ -931,6 +971,7 @@ macro_rules! sarzak_get_many_s_across_r20 {
     }};
 }
 pub use sarzak_get_many_s_across_r20;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_many_s_across_r20-emit_associative_main"}}}
 
 /// Macro to traverse [`Associative`][🦀] ➡ [`AssociativeReferent`][🦞], via _R22_
 ///
@@ -975,6 +1016,7 @@ pub use sarzak_get_many_s_across_r20;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_ass_to_across_r22-emit_binary_main"}}}
 macro_rules! sarzak_get_one_ass_to_across_r22 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referent-emit_one_unconditional"}}}
@@ -984,6 +1026,7 @@ macro_rules! sarzak_get_one_ass_to_across_r22 {
     }};
 }
 pub use sarzak_get_one_ass_to_across_r22;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_ass_to_across_r22-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeReferent`][🦀] ➡ [`Associative`][🦞], via _R22_
 ///
@@ -1028,6 +1071,7 @@ pub use sarzak_get_one_ass_to_across_r22;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_assoc_across_r22-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_assoc_across_r22 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referent-associative-emit_one_unconditional_lookup"}}}
@@ -1041,6 +1085,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r22 {
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r22;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_assoc_across_r22-emit_binary_main"}}}
 
 /// Macro to traverse [`Supertype`][🦀] ➡ [`Object`][🦞], via _R14_
 ///
@@ -1072,6 +1117,7 @@ pub use sarzak_get_one_r_assoc_across_r22;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r14-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -1081,6 +1127,7 @@ macro_rules! sarzak_get_one_obj_across_r14 {
     }};
 }
 pub use sarzak_get_one_obj_across_r14;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r14-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Supertype`][🦞], via _R14(c)_
 ///
@@ -1112,6 +1159,7 @@ pub use sarzak_get_one_obj_across_r14;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_r_sup_across_r14-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_r_sup_across_r14 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-supertype-emit_one_conditional_lookup"}}}
@@ -1124,6 +1172,7 @@ macro_rules! sarzak_maybe_get_one_r_sup_across_r14 {
     }};
 }
 pub use sarzak_maybe_get_one_r_sup_across_r14;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_r_sup_across_r14-emit_binary_main"}}}
 
 /// Macro to traverse [`Associative`][🦀] ➡ [`AssociativeReferrer`][🦞], via _R21_
 ///
@@ -1168,6 +1217,7 @@ pub use sarzak_maybe_get_one_r_sup_across_r14;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_ass_from_across_r21-emit_binary_main"}}}
 macro_rules! sarzak_get_one_ass_from_across_r21 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referrer-emit_one_unconditional"}}}
@@ -1177,6 +1227,7 @@ macro_rules! sarzak_get_one_ass_from_across_r21 {
     }};
 }
 pub use sarzak_get_one_ass_from_across_r21;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_ass_from_across_r21-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeReferrer`][🦀] ➡ [`Associative`][🦞], via _R21_
 ///
@@ -1221,6 +1272,7 @@ pub use sarzak_get_one_ass_from_across_r21;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_assoc_across_r21-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_assoc_across_r21 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referrer-associative-emit_one_unconditional_lookup"}}}
@@ -1234,6 +1286,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r21 {
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r21;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_assoc_across_r21-emit_binary_main"}}}
 
 /// Macro to traverse [`Referrer`][🦀] ➡ [`Cardinality`][🦞], via _R9_
 ///
@@ -1270,6 +1323,7 @@ pub use sarzak_get_one_r_assoc_across_r21;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_card_across_r9-emit_binary_main"}}}
 macro_rules! sarzak_get_one_card_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-emit_one_unconditional"}}}
@@ -1279,6 +1333,7 @@ macro_rules! sarzak_get_one_card_across_r9 {
     }};
 }
 pub use sarzak_get_one_card_across_r9;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_card_across_r9-emit_binary_main"}}}
 
 /// Macro to traverse [`Cardinality`][🦀] ➡ [`Referrer`][🦞], via _R9(c)_
 ///
@@ -1315,6 +1370,7 @@ pub use sarzak_get_one_card_across_r9;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_r_froms_across_r9-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_r_froms_across_r9 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"cardinality-referrer-emit_many_conditional_lookup"}}}
@@ -1327,6 +1383,7 @@ macro_rules! sarzak_maybe_get_many_r_froms_across_r9 {
     }};
 }
 pub use sarzak_maybe_get_many_r_froms_across_r9;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_r_froms_across_r9-emit_binary_main"}}}
 
 /// Macro to traverse [`Attribute`][🦀] ➡ [`Type`][🦞], via _R2_
 ///
@@ -1361,6 +1418,7 @@ pub use sarzak_maybe_get_many_r_froms_across_r9;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_t_across_r2-emit_binary_main"}}}
 macro_rules! sarzak_get_one_t_across_r2 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-emit_one_unconditional"}}}
@@ -1370,6 +1428,7 @@ macro_rules! sarzak_get_one_t_across_r2 {
     }};
 }
 pub use sarzak_get_one_t_across_r2;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_t_across_r2-emit_binary_main"}}}
 
 /// Macro to traverse [`Type`][🦀] ➡ [`Attribute`][🦞], via _R2_
 ///
@@ -1404,6 +1463,7 @@ pub use sarzak_get_one_t_across_r2;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_a_across_r2-emit_binary_main"}}}
 macro_rules! sarzak_get_one_a_across_r2 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"ty-attribute-emit_one_unconditional_lookup"}}}
@@ -1417,6 +1477,7 @@ macro_rules! sarzak_get_one_a_across_r2 {
     }};
 }
 pub use sarzak_get_one_a_across_r2;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_a_across_r2-emit_binary_main"}}}
 
 /// Macro to traverse [`Binary`][🦀] ➡ [`Referrer`][🦞], via _R6_
 ///
@@ -1463,6 +1524,7 @@ pub use sarzak_get_one_a_across_r2;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_from_across_r6-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_from_across_r6 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-emit_one_unconditional"}}}
@@ -1472,6 +1534,7 @@ macro_rules! sarzak_get_one_r_from_across_r6 {
     }};
 }
 pub use sarzak_get_one_r_from_across_r6;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_from_across_r6-emit_binary_main"}}}
 
 /// Macro to traverse [`Referrer`][🦀] ➡ [`Binary`][🦞], via _R6_
 ///
@@ -1518,6 +1581,7 @@ pub use sarzak_get_one_r_from_across_r6;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_bin_across_r6-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_bin_across_r6 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referrer-binary-emit_one_unconditional_lookup"}}}
@@ -1531,6 +1595,7 @@ macro_rules! sarzak_get_one_r_bin_across_r6 {
     }};
 }
 pub use sarzak_get_one_r_bin_across_r6;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_bin_across_r6-emit_binary_main"}}}
 
 /// Macro to traverse [`Event`][🦀] ➡ [`Object`][🦞], via _R19_
 ///
@@ -1563,6 +1628,7 @@ pub use sarzak_get_one_r_bin_across_r6;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r19-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -1572,6 +1638,7 @@ macro_rules! sarzak_get_one_obj_across_r19 {
     }};
 }
 pub use sarzak_get_one_obj_across_r19;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r19-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Event`][🦞], via _R19(c)_
 ///
@@ -1604,6 +1671,7 @@ pub use sarzak_get_one_obj_across_r19;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_many_es_across_r19-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_many_es_across_r19 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-event-emit_many_conditional_lookup"}}}
@@ -1616,6 +1684,7 @@ macro_rules! sarzak_maybe_get_many_es_across_r19 {
     }};
 }
 pub use sarzak_maybe_get_many_es_across_r19;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_many_es_across_r19-emit_binary_main"}}}
 
 /// Macro to traverse [`Attribute`][🦀] ➡ [`Object`][🦞], via _R1(c)_
 ///
@@ -1653,6 +1722,7 @@ pub use sarzak_maybe_get_many_es_across_r19;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_obj_across_r1-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_obj_across_r1 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_conditional"}}}
@@ -1665,6 +1735,7 @@ macro_rules! sarzak_maybe_get_one_obj_across_r1 {
     }};
 }
 pub use sarzak_maybe_get_one_obj_across_r1;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_obj_across_r1-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Attribute`][🦞], via _R1_
 ///
@@ -1702,6 +1773,7 @@ pub use sarzak_maybe_get_one_obj_across_r1;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_many_as_across_r1-emit_binary_main"}}}
 macro_rules! sarzak_get_many_as_across_r1 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-attribute-emit_many_conditional_lookup"}}}
@@ -1714,6 +1786,7 @@ macro_rules! sarzak_get_many_as_across_r1 {
     }};
 }
 pub use sarzak_get_many_as_across_r1;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_many_as_across_r1-emit_binary_main"}}}
 
 /// Macro to traverse [`Subtype`][🦀] ➡ [`Object`][🦞], via _R15_
 ///
@@ -1753,6 +1826,7 @@ pub use sarzak_get_many_as_across_r1;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r15-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -1762,6 +1836,7 @@ macro_rules! sarzak_get_one_obj_across_r15 {
     }};
 }
 pub use sarzak_get_one_obj_across_r15;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r15-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`Subtype`][🦞], via _R15(c)_
 ///
@@ -1801,6 +1876,7 @@ pub use sarzak_get_one_obj_across_r15;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_r_sub_across_r15-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_r_sub_across_r15 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-subtype-emit_one_conditional_lookup"}}}
@@ -1813,6 +1889,7 @@ macro_rules! sarzak_maybe_get_one_r_sub_across_r15 {
     }};
 }
 pub use sarzak_maybe_get_one_r_sub_across_r15;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_r_sub_across_r15-emit_binary_main"}}}
 
 /// Macro to traverse [`Associative`][🦀] ➡ [`AssociativeReferent`][🦞], via _R23_
 ///
@@ -1857,6 +1934,7 @@ pub use sarzak_maybe_get_one_r_sub_across_r15;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_ass_to_across_r23-emit_binary_main"}}}
 macro_rules! sarzak_get_one_ass_to_across_r23 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referent-emit_one_unconditional"}}}
@@ -1866,6 +1944,7 @@ macro_rules! sarzak_get_one_ass_to_across_r23 {
     }};
 }
 pub use sarzak_get_one_ass_to_across_r23;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_ass_to_across_r23-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeReferent`][🦀] ➡ [`Associative`][🦞], via _R23_
 ///
@@ -1910,6 +1989,7 @@ pub use sarzak_get_one_ass_to_across_r23;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_assoc_across_r23-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_assoc_across_r23 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referent-associative-emit_one_unconditional_lookup"}}}
@@ -1923,6 +2003,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r23 {
     }};
 }
 pub use sarzak_get_one_r_assoc_across_r23;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_assoc_across_r23-emit_binary_main"}}}
 
 /// Macro to traverse [`AssociativeReferent`][🦀] ➡ [`Object`][🦞], via _R25_
 ///
@@ -1954,6 +2035,7 @@ pub use sarzak_get_one_r_assoc_across_r23;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_obj_across_r25-emit_binary_main"}}}
 macro_rules! sarzak_get_one_obj_across_r25 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-emit_one_unconditional"}}}
@@ -1963,6 +2045,7 @@ macro_rules! sarzak_get_one_obj_across_r25 {
     }};
 }
 pub use sarzak_get_one_obj_across_r25;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_obj_across_r25-emit_binary_main"}}}
 
 /// Macro to traverse [`Object`][🦀] ➡ [`AssociativeReferent`][🦞], via _R25(c)_
 ///
@@ -1994,6 +2077,7 @@ pub use sarzak_get_one_obj_across_r25;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_maybe_get_one_ass_to_across_r25-emit_binary_main"}}}
 macro_rules! sarzak_maybe_get_one_ass_to_across_r25 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-associative_referent-emit_one_conditional_lookup"}}}
@@ -2006,6 +2090,7 @@ macro_rules! sarzak_maybe_get_one_ass_to_across_r25 {
     }};
 }
 pub use sarzak_maybe_get_one_ass_to_across_r25;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_maybe_get_one_ass_to_across_r25-emit_binary_main"}}}
 
 /// Macro to traverse [`Binary`][🦀] ➡ [`Referent`][🦞], via _R5_
 ///
@@ -2052,6 +2137,7 @@ pub use sarzak_maybe_get_one_ass_to_across_r25;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_to_across_r5-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_to_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-emit_one_unconditional"}}}
@@ -2061,6 +2147,7 @@ macro_rules! sarzak_get_one_r_to_across_r5 {
     }};
 }
 pub use sarzak_get_one_r_to_across_r5;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_to_across_r5-emit_binary_main"}}}
 
 /// Macro to traverse [`Referent`][🦀] ➡ [`Binary`][🦞], via _R5_
 ///
@@ -2107,6 +2194,7 @@ pub use sarzak_get_one_r_to_across_r5;
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"sarzak_get_one_r_bin_across_r5-emit_binary_main"}}}
 macro_rules! sarzak_get_one_r_bin_across_r5 {
     ($input:expr, $store:expr) => {{
         // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-binary-emit_one_unconditional_lookup"}}}
@@ -2120,3 +2208,4 @@ macro_rules! sarzak_get_one_r_bin_across_r5 {
     }};
 }
 pub use sarzak_get_one_r_bin_across_r5;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"sarzak_get_one_r_bin_across_r5-emit_binary_main"}}}

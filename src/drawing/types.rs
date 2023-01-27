@@ -35,6 +35,7 @@
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
+// {"magic":"","version":"1.0.0"}
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
@@ -670,19 +671,22 @@ impl ObjectUi {
         store: &mut ObjectStore,
         origin: &Point,
         object_id: &Object,
-        width: i64,
+        //         width: i64, //⚡️
         height: i64,
+        width: i64,
     ) -> Self {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{:?}::{:?}::{}::{}::", origin, object_id, width, height,).as_bytes(),
+            //             format!("{:?}::{:?}::{}::{}::", origin, object_id, width, height,).as_bytes(), //⚡️
+            format!("{:?}::{:?}::{}::{}::", origin, object_id, height, width,).as_bytes(),
         );
         let new = Self {
             id,
             origin: origin.id,
             object_id: object_id.id,
-            width,
+            //             width, //⚡️
             height,
+            width,
         };
 
         store.inter_object_ui(new.clone());
@@ -751,9 +755,12 @@ impl Point {
     /// let point = Point::new(&mut store, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, y: i64, x: i64) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", y, x,).as_bytes());
-        let new = Self { id, y, x };
+    //     pub fn new(store: &mut ObjectStore, y: i64, x: i64) -> Self { //⚡️
+    //         let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", y, x,).as_bytes()); //⚡️
+    //         let new = Self { id, y, x }; //⚡️
+    pub fn new(store: &mut ObjectStore, x: i64, y: i64) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", x, y,).as_bytes());
+        let new = Self { id, x, y };
 
         store.inter_point(new.clone());
 

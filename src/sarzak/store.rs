@@ -35,6 +35,7 @@
 //! ```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 // {"magic":"","version":"0.5.0"}
+// {"magic":"","version":"1.0.0"}
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
