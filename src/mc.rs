@@ -19,6 +19,8 @@ pub enum ModelCompilerError {
     Model { description: String },
     #[snafu(display("I/O Error caused by {}", source))]
     IO { source: std::io::Error },
+    #[snafu(display("Format Error caused by {}", source))]
+    Format { source: std::fmt::Error },
     #[snafu(display("File Error: {}, caused by {}", path.display(), source))]
     File {
         path: PathBuf,
