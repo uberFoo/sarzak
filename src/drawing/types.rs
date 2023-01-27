@@ -100,16 +100,16 @@ impl Anchor {
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::drawing::Edge;
     /// # use sarzak::drawing::Point;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::Anchor;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_aej = Point::new(&mut store, 42, 42);
-    /// let point_zlo = Point::new(&mut store, 42, 42);
-    /// let edge_bko = Edge::test_default(&mut store);
+    /// let point_hcw = Point::new(&mut store, 42, 42);
+    /// let point_qnm = Point::new(&mut store, 42, 42);
+    /// let edge_wux = Edge::test_default(&mut store);
     ///
-    /// let anchor = Anchor::new(&mut store, &point_aej, &point_zlo, &edge_bko);
+    /// let anchor = Anchor::new(&mut store, &point_hcw, &point_qnm, &edge_wux);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, location: &Point, offset: &Point, edge: &Edge) -> Self {
@@ -187,30 +187,30 @@ impl AssociativeUi {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::Associative;
-    /// # use sarzak::drawing::Point;
     /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::drawing::AssociativeUi;
+    /// # use sarzak::sarzak::Associative;
     /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::AssociativeUi;
+    /// # use sarzak::drawing::Point;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let associative_rho = Associative::default();
+    /// let associative_jfn = Associative::default();
     ///
-    /// let point_ddt = Point::new(&mut store, 42, 42);
-    /// let point_toy = Point::new(&mut store, 42, 42);
-    /// let edge_afu = Edge::test_default(&mut store);
-    /// let anchor_jyd = Anchor::new(&mut store, &point_ddt, &point_toy, &edge_afu);
-    /// let point_taf = Point::new(&mut store, 42, 42);
-    /// let point_rpb = Point::new(&mut store, 42, 42);
-    /// let edge_nas = Edge::test_default(&mut store);
-    /// let anchor_xyc = Anchor::new(&mut store, &point_taf, &point_rpb, &edge_nas);
-    /// let point_seh = Point::new(&mut store, 42, 42);
-    /// let point_kcp = Point::new(&mut store, 42, 42);
-    /// let edge_gkp = Edge::test_default(&mut store);
-    /// let anchor_uef = Anchor::new(&mut store, &point_seh, &point_kcp, &edge_gkp);
-    /// let point_qag = Point::new(&mut store, 42, 42);
+    /// let point_npk = Point::new(&mut store, 42, 42);
+    /// let point_mar = Point::new(&mut store, 42, 42);
+    /// let edge_ngt = Edge::test_default(&mut store);
+    /// let anchor_buo = Anchor::new(&mut store, &point_npk, &point_mar, &edge_ngt);
+    /// let point_pjo = Point::new(&mut store, 42, 42);
+    /// let point_qxi = Point::new(&mut store, 42, 42);
+    /// let edge_aqo = Edge::test_default(&mut store);
+    /// let anchor_cjn = Anchor::new(&mut store, &point_pjo, &point_qxi, &edge_aqo);
+    /// let point_irx = Point::new(&mut store, 42, 42);
+    /// let point_eje = Point::new(&mut store, 42, 42);
+    /// let edge_joc = Edge::test_default(&mut store);
+    /// let anchor_fex = Anchor::new(&mut store, &point_irx, &point_eje, &edge_joc);
+    /// let point_hvh = Point::new(&mut store, 42, 42);
     ///
-    /// let associative_ui = AssociativeUi::new(&mut store, &associative_rho, &anchor_jyd, &anchor_xyc, &anchor_uef, &point_qag);
+    /// let associative_ui = AssociativeUi::new(&mut store, &associative_jfn, &anchor_buo, &anchor_cjn, &anchor_fex, &point_hvh);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -301,25 +301,25 @@ impl BinaryUi {
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::BinaryUi;
     /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::drawing::Edge;
-    /// # use sarzak::drawing::Point;
     /// # use sarzak::sarzak::Binary;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::BinaryUi;
+    /// # use sarzak::drawing::Point;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_ykc = Point::new(&mut store, 42, 42);
-    /// let point_ktu = Point::new(&mut store, 42, 42);
-    /// let edge_byd = Edge::test_default(&mut store);
-    /// let anchor_cgr = Anchor::new(&mut store, &point_ykc, &point_ktu, &edge_byd);
-    /// let point_fnp = Point::new(&mut store, 42, 42);
-    /// let point_iyf = Point::new(&mut store, 42, 42);
-    /// let edge_inx = Edge::test_default(&mut store);
-    /// let anchor_haz = Anchor::new(&mut store, &point_fnp, &point_iyf, &edge_inx);
-    /// let binary_tga = Binary::default();
+    /// let point_sur = Point::new(&mut store, 42, 42);
+    /// let point_kec = Point::new(&mut store, 42, 42);
+    /// let edge_eie = Edge::test_default(&mut store);
+    /// let anchor_sib = Anchor::new(&mut store, &point_sur, &point_kec, &edge_eie);
+    /// let point_dtb = Point::new(&mut store, 42, 42);
+    /// let point_foj = Point::new(&mut store, 42, 42);
+    /// let edge_psu = Edge::test_default(&mut store);
+    /// let anchor_ysb = Anchor::new(&mut store, &point_dtb, &point_foj, &edge_psu);
+    /// let binary_oae = Binary::default();
     ///
     ///
-    /// let binary_ui = BinaryUi::new(&mut store, &anchor_cgr, &anchor_haz, &binary_tga);
+    /// let binary_ui = BinaryUi::new(&mut store, &anchor_sib, &anchor_ysb, &binary_oae);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, from: &Anchor, to: &Anchor, binary_id: &Binary) -> Self {
@@ -472,20 +472,20 @@ impl IsaUi {
     ///
     ///```
     /// # use sarzak::drawing::Anchor;
-    /// # use sarzak::sarzak::Isa;
-    /// # use sarzak::drawing::Edge;
     /// # use sarzak::drawing::IsaUi;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::sarzak::Isa;
     /// # use sarzak::drawing::Point;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let isa_iet = Isa::default();
+    /// let isa_krm = Isa::default();
     ///
-    /// let point_ywt = Point::new(&mut store, 42, 42);
-    /// let point_rzg = Point::new(&mut store, 42, 42);
-    /// let edge_hon = Edge::test_default(&mut store);
-    /// let anchor_skt = Anchor::new(&mut store, &point_ywt, &point_rzg, &edge_hon);
+    /// let point_aks = Point::new(&mut store, 42, 42);
+    /// let point_lma = Point::new(&mut store, 42, 42);
+    /// let edge_nfb = Edge::test_default(&mut store);
+    /// let anchor_cui = Anchor::new(&mut store, &point_aks, &point_lma, &edge_nfb);
     ///
-    /// let isa_ui = IsaUi::new(&mut store, &isa_iet, &anchor_skt);
+    /// let isa_ui = IsaUi::new(&mut store, &isa_krm, &anchor_cui);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, isa: &Isa, from: &Anchor) -> Self {
@@ -569,21 +569,21 @@ impl ObjectEdge {
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::ObjectEdge;
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::drawing::Point;
-    /// # use sarzak::drawing::Edge;
     /// # use sarzak::drawing::ObjectUi;
+    /// # use sarzak::drawing::ObjectEdge;
+    /// # use sarzak::drawing::Edge;
+    /// # use sarzak::drawing::Point;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let edge_soh = Edge::test_default(&mut store);
-    /// let point_uzl = Point::new(&mut store, 42, 42);
-    /// let gratis_bedroom = "simple_farm".to_owned();
-    /// let object_jxg = Object::default();
+    /// let edge_pov = Edge::test_default(&mut store);
+    /// let point_fsb = Point::new(&mut store, 42, 42);
+    /// let sick_birds = "skinny_camp".to_owned();
+    /// let object_lyd = Object::default();
     ///
-    /// let object_ui_lld = ObjectUi::new(&mut store, &point_uzl, &object_jxg, 42, 42);
+    /// let object_ui_flg = ObjectUi::new(&mut store, &point_fsb, &object_lyd, 42, 42);
     ///
-    /// let object_edge = ObjectEdge::new(&mut store, &edge_soh, &object_ui_lld);
+    /// let object_edge = ObjectEdge::new(&mut store, &edge_pov, &object_ui_flg);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, edge: &Edge, oui_id: &ObjectUi) -> Self {
@@ -655,16 +655,16 @@ impl ObjectUi {
     ///
     ///```
     /// # use sarzak::drawing::Point;
-    /// # use sarzak::sarzak::Object;
     /// # use sarzak::drawing::ObjectUi;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_koq = Point::new(&mut store, 42, 42);
-    /// let aloof_drug = "imaginary_bread".to_owned();
-    /// let object_dux = Object::default();
+    /// let point_duu = Point::new(&mut store, 42, 42);
+    /// let mean_development = "staking_volcano".to_owned();
+    /// let object_xme = Object::default();
     ///
     ///
-    /// let object_ui = ObjectUi::new(&mut store, &point_koq, &object_dux, 42, 42);
+    /// let object_ui = ObjectUi::new(&mut store, &point_duu, &object_xme, 42, 42);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -814,17 +814,17 @@ impl RelationshipUi {
 impl RelationshipUi {
     pub fn test_default(store: &mut ObjectStore) -> Self {
         // {"magic":"","kind":"IgnoreBlockBegin"}
-        let point_zuh = Point::new(store, 42, 42);
-        let point_mvp = Point::new(store, 42, 42);
-        let edge_gmo = Edge::test_default(store);
-        let anchor_pwd = Anchor::new(store, &point_zuh, &point_mvp, &edge_gmo);
-        let point_wok = Point::new(store, 42, 42);
-        let point_hmw = Point::new(store, 42, 42);
-        let edge_asf = Edge::test_default(store);
-        let anchor_pzb = Anchor::new(store, &point_wok, &point_hmw, &edge_asf);
-        let binary_iae = Binary::default();
+        let point_eto = Point::new(store, 42, 42);
+        let point_jxl = Point::new(store, 42, 42);
+        let edge_cnx = Edge::test_default(store);
+        let anchor_pxq = Anchor::new(store, &point_eto, &point_jxl, &edge_cnx);
+        let point_jtv = Point::new(store, 42, 42);
+        let point_etv = Point::new(store, 42, 42);
+        let edge_pew = Edge::test_default(store);
+        let anchor_nxs = Anchor::new(store, &point_jtv, &point_etv, &edge_pew);
+        let binary_zcw = Binary::default();
 
-        let test = Self::BinaryUi(BinaryUi::new(store, &anchor_pwd, &anchor_pzb, &binary_iae).id);
+        let test = Self::BinaryUi(BinaryUi::new(store, &anchor_pxq, &anchor_nxs, &binary_zcw).id);
         // {"magic":"","kind":"IgnoreBlockEnd"}
 
         store.inter_relationship_ui(test.clone());
@@ -900,27 +900,27 @@ impl SubtypeAnchors {
     /// # Example
     ///
     ///```
-    /// # use sarzak::drawing::IsaUi;
-    /// # use sarzak::drawing::Point;
-    /// # use sarzak::sarzak::Isa;
     /// # use sarzak::drawing::SubtypeAnchors;
+    /// # use sarzak::drawing::IsaUi;
+    /// # use sarzak::sarzak::Isa;
     /// # use sarzak::drawing::Anchor;
+    /// # use sarzak::drawing::Point;
     /// # use sarzak::drawing::Edge;
     /// # let mut store = sarzak::drawing::ObjectStore::new();
     ///
-    /// let point_sbb = Point::new(&mut store, 42, 42);
-    /// let point_vsk = Point::new(&mut store, 42, 42);
-    /// let edge_dco = Edge::test_default(&mut store);
-    /// let anchor_rvv = Anchor::new(&mut store, &point_sbb, &point_vsk, &edge_dco);
-    /// let isa_hjj = Isa::default();
+    /// let point_vyo = Point::new(&mut store, 42, 42);
+    /// let point_khk = Point::new(&mut store, 42, 42);
+    /// let edge_jun = Edge::test_default(&mut store);
+    /// let anchor_cgh = Anchor::new(&mut store, &point_vyo, &point_khk, &edge_jun);
+    /// let isa_ghm = Isa::default();
     ///
-    /// let point_ath = Point::new(&mut store, 42, 42);
-    /// let point_qms = Point::new(&mut store, 42, 42);
-    /// let edge_inr = Edge::test_default(&mut store);
-    /// let anchor_nfp = Anchor::new(&mut store, &point_ath, &point_qms, &edge_inr);
-    /// let isa_ui_hvb = IsaUi::new(&mut store, &isa_hjj, &anchor_nfp);
+    /// let point_mcv = Point::new(&mut store, 42, 42);
+    /// let point_unu = Point::new(&mut store, 42, 42);
+    /// let edge_soz = Edge::test_default(&mut store);
+    /// let anchor_kkd = Anchor::new(&mut store, &point_mcv, &point_unu, &edge_soz);
+    /// let isa_ui_efx = IsaUi::new(&mut store, &isa_ghm, &anchor_kkd);
     ///
-    /// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_rvv, &isa_ui_hvb);
+    /// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_cgh, &isa_ui_efx);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(store: &mut ObjectStore, anchor_id: &Anchor, isaui_id: &IsaUi) -> Self {
