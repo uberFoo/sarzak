@@ -4,9 +4,7 @@
 //! Currently that means a model.
 use std::path::Path;
 
-use serde::{Deserialize, Serialize};
-use snafu::prelude::*;
-
+use log;
 use nut::{
     codegen::{
         DrawingObjectStore as FromDrawingObjectStore, Extrude,
@@ -14,6 +12,8 @@ use nut::{
     },
     sarzak::SarzakModel as FromModel,
 };
+use serde::{Deserialize, Serialize};
+use snafu::prelude::*;
 
 use crate::{
     drawing::{
@@ -183,14 +183,17 @@ impl DomainBuilder {
 
         // Run the pre_extrude function, if there is one.
         if let Some(ref func) = self.pre_load {
+            log::debug!("executing preload function");
             func(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
         }
 
+        log::debug!("loading and converting doamin");
         // This is where the real work happens.
         extrude_cuckoo_domain(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
 
         // Run the post_extrude function, if it exists.
         if let Some(ref func) = self.post_load {
+            log::debug!("executing postload function");
             func(&mut sarzak, &mut drawing);
         }
 
@@ -268,6 +271,7 @@ fn extrude_cuckoo_domain(
         from: sarzak_from,
         to: sarzak_to,
     };
+
     SarzakObjectStore::extrude(sarzak_from.clone(), &mut context);
 
     // More primitives. They also happen to be leaves/roots. Whatever.
@@ -368,10 +372,20 @@ impl Extrude<FromDrawingObjectStore, DrawingContext<'_>> for DrawingObjectStore 
 
 #[cfg(test)]
 mod tests {
+    use std::sync::atomic::{AtomicBool, Ordering};
+
     use super::*;
+    use pretty_env_logger;
+
+    static LOGGER: AtomicBool = AtomicBool::new(false);
 
     #[test]
     fn test_load_sarzak() {
+        if !LOGGER.load(Ordering::Relaxed) {
+            LOGGER.store(true, Ordering::Relaxed);
+            pretty_env_logger::init();
+        }
+
         let sarzak = DomainBuilder::new()
             .cuckoo_model("models/sarzak.json")
             .unwrap()
@@ -381,6 +395,11 @@ mod tests {
 
     #[test]
     fn test_builder() {
+        if !LOGGER.load(Ordering::Relaxed) {
+            LOGGER.store(true, Ordering::Relaxed);
+            pretty_env_logger::init();
+        }
+
         let err = DomainBuilder::new().build();
         assert!(err.is_err());
 
