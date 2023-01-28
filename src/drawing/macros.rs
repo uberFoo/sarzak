@@ -28,25 +28,25 @@
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Isa;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::IsaUi;
 /// # use sarzak::drawing_get_one_anch_across_r9;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let isa_agl = Isa::default();
+/// let isa_yag = Isa::default();
 ///
-/// let point_tvm = Point::new(&mut store, 42, 42);
-/// let point_tct = Point::new(&mut store, 42, 42);
-/// let edge_xcp = Edge::test_default(&mut store);
-/// let anchor_gph = Anchor::new(&mut store, &point_tvm, &point_tct, &edge_xcp);
+/// let point_grp = Point::new(&mut store, 42, 42);
+/// let point_jnw = Point::new(&mut store, 42, 42);
+/// let edge_bhn = Edge::test_default(&mut store);
+/// let anchor_lwc = Anchor::new(&mut store, &point_grp, &point_jnw, &edge_bhn);
 ///
-/// let isa_ui = IsaUi::new(&mut store, &isa_agl, &anchor_gph);
+/// let isa_ui = IsaUi::new(&mut store, &isa_yag, &anchor_lwc);
 ///
-/// let anchor_ixp = drawing_get_one_anch_across_r9!(isa_ui, store);
-/// assert_eq!(&anchor_gph, anchor_ixp);
+/// let anchor_xus = drawing_get_one_anch_across_r9!(isa_ui, store);
+/// assert_eq!(&anchor_lwc, anchor_xus);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -75,25 +75,25 @@ pub use drawing_get_one_anch_across_r9;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::IsaUi;
-/// # use sarzak::sarzak::Isa;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::sarzak::Isa;
 /// # use sarzak::drawing_maybe_get_one_iui_across_r9;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let isa_dzx = Isa::default();
+/// let isa_jvx = Isa::default();
 ///
-/// let point_ryo = Point::new(&mut store, 42, 42);
-/// let point_ekt = Point::new(&mut store, 42, 42);
-/// let edge_ykm = Edge::test_default(&mut store);
-/// let anchor_qxd = Anchor::new(&mut store, &point_ryo, &point_ekt, &edge_ykm);
+/// let point_eaw = Point::new(&mut store, 42, 42);
+/// let point_zsz = Point::new(&mut store, 42, 42);
+/// let edge_csw = Edge::test_default(&mut store);
+/// let anchor_ecp = Anchor::new(&mut store, &point_eaw, &point_zsz, &edge_csw);
 ///
-/// let isa_ui = IsaUi::new(&mut store, &isa_dzx, &anchor_qxd);
-/// let isa_ui_cwk = drawing_maybe_get_one_iui_across_r9!(anchor_qxd, store);
+/// let isa_ui = IsaUi::new(&mut store, &isa_jvx, &anchor_ecp);
+/// let isa_ui_ado = drawing_maybe_get_one_iui_across_r9!(anchor_ecp, store);
 ///
-/// assert_eq!(Some(&isa_ui), isa_ui_cwk);
+/// assert_eq!(Some(&isa_ui), isa_ui_ado);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -126,33 +126,33 @@ pub use drawing_maybe_get_one_iui_across_r9;
 ///
 ///```
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_anch_across_r15;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_ann = Associative::default();
+/// let associative_dah = Associative::default();
 ///
-/// let point_stu = Point::new(&mut store, 42, 42);
-/// let point_qel = Point::new(&mut store, 42, 42);
-/// let edge_dsz = Edge::test_default(&mut store);
-/// let anchor_vzl = Anchor::new(&mut store, &point_stu, &point_qel, &edge_dsz);
-/// let point_dlm = Point::new(&mut store, 42, 42);
-/// let point_ikx = Point::new(&mut store, 42, 42);
-/// let edge_rer = Edge::test_default(&mut store);
-/// let anchor_ove = Anchor::new(&mut store, &point_dlm, &point_ikx, &edge_rer);
-/// let point_kfx = Point::new(&mut store, 42, 42);
-/// let point_lho = Point::new(&mut store, 42, 42);
-/// let edge_xkl = Edge::test_default(&mut store);
-/// let anchor_fxr = Anchor::new(&mut store, &point_kfx, &point_lho, &edge_xkl);
-/// let point_ovr = Point::new(&mut store, 42, 42);
+/// let point_fwv = Point::new(&mut store, 42, 42);
+/// let point_gps = Point::new(&mut store, 42, 42);
+/// let edge_jow = Edge::test_default(&mut store);
+/// let anchor_wmi = Anchor::new(&mut store, &point_fwv, &point_gps, &edge_jow);
+/// let point_rer = Point::new(&mut store, 42, 42);
+/// let point_xly = Point::new(&mut store, 42, 42);
+/// let edge_gdz = Edge::test_default(&mut store);
+/// let anchor_elm = Anchor::new(&mut store, &point_rer, &point_xly, &edge_gdz);
+/// let point_uxw = Point::new(&mut store, 42, 42);
+/// let point_uxs = Point::new(&mut store, 42, 42);
+/// let edge_luo = Edge::test_default(&mut store);
+/// let anchor_ekb = Anchor::new(&mut store, &point_uxw, &point_uxs, &edge_luo);
+/// let point_uqe = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_ann, &anchor_vzl, &anchor_ove, &anchor_fxr, &point_ovr);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_dah, &anchor_wmi, &anchor_elm, &anchor_ekb, &point_uqe);
 ///
-/// let anchor_itv = drawing_get_one_anch_across_r15!(associative_ui, store);
-/// assert_eq!(&anchor_vzl, anchor_itv);
+/// let anchor_sxp = drawing_get_one_anch_across_r15!(associative_ui, store);
+/// assert_eq!(&anchor_wmi, anchor_sxp);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -181,34 +181,34 @@ pub use drawing_get_one_anch_across_r15;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Anchor;
+/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r15;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_kwo = Associative::default();
+/// let associative_rdc = Associative::default();
 ///
-/// let point_ytn = Point::new(&mut store, 42, 42);
-/// let point_vze = Point::new(&mut store, 42, 42);
-/// let edge_jka = Edge::test_default(&mut store);
-/// let anchor_wbp = Anchor::new(&mut store, &point_ytn, &point_vze, &edge_jka);
-/// let point_etf = Point::new(&mut store, 42, 42);
-/// let point_gyy = Point::new(&mut store, 42, 42);
-/// let edge_zvk = Edge::test_default(&mut store);
-/// let anchor_kgd = Anchor::new(&mut store, &point_etf, &point_gyy, &edge_zvk);
-/// let point_mer = Point::new(&mut store, 42, 42);
-/// let point_mej = Point::new(&mut store, 42, 42);
-/// let edge_cky = Edge::test_default(&mut store);
-/// let anchor_fnu = Anchor::new(&mut store, &point_mer, &point_mej, &edge_cky);
-/// let point_jxe = Point::new(&mut store, 42, 42);
+/// let point_jwl = Point::new(&mut store, 42, 42);
+/// let point_pdu = Point::new(&mut store, 42, 42);
+/// let edge_ull = Edge::test_default(&mut store);
+/// let anchor_ftb = Anchor::new(&mut store, &point_jwl, &point_pdu, &edge_ull);
+/// let point_gcb = Point::new(&mut store, 42, 42);
+/// let point_dmj = Point::new(&mut store, 42, 42);
+/// let edge_juc = Edge::test_default(&mut store);
+/// let anchor_dcc = Anchor::new(&mut store, &point_gcb, &point_dmj, &edge_juc);
+/// let point_ote = Point::new(&mut store, 42, 42);
+/// let point_pmm = Point::new(&mut store, 42, 42);
+/// let edge_dca = Edge::test_default(&mut store);
+/// let anchor_nmf = Anchor::new(&mut store, &point_ote, &point_pmm, &edge_dca);
+/// let point_rdg = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_kwo, &anchor_wbp, &anchor_kgd, &anchor_fnu, &point_jxe);
-/// let associative_ui_fzk = drawing_maybe_get_one_aui_across_r15!(anchor_wbp, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_rdc, &anchor_ftb, &anchor_dcc, &anchor_nmf, &point_rdg);
+/// let associative_ui_irm = drawing_maybe_get_one_aui_across_r15!(anchor_ftb, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_fzk);
+/// assert_eq!(Some(&associative_ui), associative_ui_irm);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -240,20 +240,20 @@ pub use drawing_maybe_get_one_aui_across_r15;
 /// # Example
 ///
 ///```
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_pnt_across_r5;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_kmc = Point::new(&mut store, 42, 42);
-/// let point_xxh = Point::new(&mut store, 42, 42);
-/// let edge_qhk = Edge::test_default(&mut store);
+/// let point_plp = Point::new(&mut store, 42, 42);
+/// let point_iou = Point::new(&mut store, 42, 42);
+/// let edge_roj = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_kmc, &point_xxh, &edge_qhk);
+/// let anchor = Anchor::new(&mut store, &point_plp, &point_iou, &edge_roj);
 ///
-/// let point_zrh = drawing_get_one_pnt_across_r5!(anchor, store);
-/// assert_eq!(&point_kmc, point_zrh);
+/// let point_mni = drawing_get_one_pnt_across_r5!(anchor, store);
+/// assert_eq!(&point_plp, point_mni);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -283,19 +283,19 @@ pub use drawing_get_one_pnt_across_r5;
 ///
 ///```
 /// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r5;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_wrd = Point::new(&mut store, 42, 42);
-/// let point_qnk = Point::new(&mut store, 42, 42);
-/// let edge_iax = Edge::test_default(&mut store);
+/// let point_zlz = Point::new(&mut store, 42, 42);
+/// let point_brj = Point::new(&mut store, 42, 42);
+/// let edge_ssg = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_wrd, &point_qnk, &edge_iax);
-/// let anchor_ynb = drawing_maybe_get_one_anch_across_r5!(point_wrd, store);
+/// let anchor = Anchor::new(&mut store, &point_zlz, &point_brj, &edge_ssg);
+/// let anchor_nkf = drawing_maybe_get_one_anch_across_r5!(point_zlz, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_ynb);
+/// assert_eq!(Some(&anchor), anchor_nkf);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -327,34 +327,34 @@ pub use drawing_maybe_get_one_anch_across_r5;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing_get_one_anch_across_r14;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_dch = Associative::default();
+/// let associative_tja = Associative::default();
 ///
-/// let point_wwy = Point::new(&mut store, 42, 42);
-/// let point_dhw = Point::new(&mut store, 42, 42);
-/// let edge_nzd = Edge::test_default(&mut store);
-/// let anchor_jah = Anchor::new(&mut store, &point_wwy, &point_dhw, &edge_nzd);
-/// let point_ovm = Point::new(&mut store, 42, 42);
-/// let point_nzu = Point::new(&mut store, 42, 42);
-/// let edge_xky = Edge::test_default(&mut store);
-/// let anchor_kdd = Anchor::new(&mut store, &point_ovm, &point_nzu, &edge_xky);
-/// let point_cab = Point::new(&mut store, 42, 42);
-/// let point_rwf = Point::new(&mut store, 42, 42);
-/// let edge_lpl = Edge::test_default(&mut store);
-/// let anchor_fsc = Anchor::new(&mut store, &point_cab, &point_rwf, &edge_lpl);
-/// let point_cxn = Point::new(&mut store, 42, 42);
+/// let point_zur = Point::new(&mut store, 42, 42);
+/// let point_uzi = Point::new(&mut store, 42, 42);
+/// let edge_kcq = Edge::test_default(&mut store);
+/// let anchor_sfk = Anchor::new(&mut store, &point_zur, &point_uzi, &edge_kcq);
+/// let point_zkb = Point::new(&mut store, 42, 42);
+/// let point_pfe = Point::new(&mut store, 42, 42);
+/// let edge_wom = Edge::test_default(&mut store);
+/// let anchor_yrs = Anchor::new(&mut store, &point_zkb, &point_pfe, &edge_wom);
+/// let point_dol = Point::new(&mut store, 42, 42);
+/// let point_mei = Point::new(&mut store, 42, 42);
+/// let edge_tmw = Edge::test_default(&mut store);
+/// let anchor_gsf = Anchor::new(&mut store, &point_dol, &point_mei, &edge_tmw);
+/// let point_rms = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_dch, &anchor_jah, &anchor_kdd, &anchor_fsc, &point_cxn);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_tja, &anchor_sfk, &anchor_yrs, &anchor_gsf, &point_rms);
 ///
-/// let anchor_elf = drawing_get_one_anch_across_r14!(associative_ui, store);
-/// assert_eq!(&anchor_jah, anchor_elf);
+/// let anchor_esv = drawing_get_one_anch_across_r14!(associative_ui, store);
+/// assert_eq!(&anchor_sfk, anchor_esv);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -383,34 +383,34 @@ pub use drawing_get_one_anch_across_r14;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r14;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_mgo = Associative::default();
+/// let associative_kjp = Associative::default();
 ///
-/// let point_nyg = Point::new(&mut store, 42, 42);
-/// let point_xkk = Point::new(&mut store, 42, 42);
-/// let edge_dmu = Edge::test_default(&mut store);
-/// let anchor_nql = Anchor::new(&mut store, &point_nyg, &point_xkk, &edge_dmu);
-/// let point_lje = Point::new(&mut store, 42, 42);
-/// let point_moc = Point::new(&mut store, 42, 42);
-/// let edge_rzg = Edge::test_default(&mut store);
-/// let anchor_xvj = Anchor::new(&mut store, &point_lje, &point_moc, &edge_rzg);
-/// let point_kxd = Point::new(&mut store, 42, 42);
-/// let point_eua = Point::new(&mut store, 42, 42);
-/// let edge_vpm = Edge::test_default(&mut store);
-/// let anchor_idm = Anchor::new(&mut store, &point_kxd, &point_eua, &edge_vpm);
-/// let point_kpo = Point::new(&mut store, 42, 42);
+/// let point_ctq = Point::new(&mut store, 42, 42);
+/// let point_uyo = Point::new(&mut store, 42, 42);
+/// let edge_lwi = Edge::test_default(&mut store);
+/// let anchor_jif = Anchor::new(&mut store, &point_ctq, &point_uyo, &edge_lwi);
+/// let point_rlr = Point::new(&mut store, 42, 42);
+/// let point_pit = Point::new(&mut store, 42, 42);
+/// let edge_bfd = Edge::test_default(&mut store);
+/// let anchor_ecs = Anchor::new(&mut store, &point_rlr, &point_pit, &edge_bfd);
+/// let point_stz = Point::new(&mut store, 42, 42);
+/// let point_mba = Point::new(&mut store, 42, 42);
+/// let edge_ofc = Edge::test_default(&mut store);
+/// let anchor_qsz = Anchor::new(&mut store, &point_stz, &point_mba, &edge_ofc);
+/// let point_deh = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_mgo, &anchor_nql, &anchor_xvj, &anchor_idm, &point_kpo);
-/// let associative_ui_qiy = drawing_maybe_get_one_aui_across_r14!(anchor_nql, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_kjp, &anchor_jif, &anchor_ecs, &anchor_qsz, &point_deh);
+/// let associative_ui_cdi = drawing_maybe_get_one_aui_across_r14!(anchor_jif, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_qiy);
+/// assert_eq!(Some(&associative_ui), associative_ui_cdi);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -443,30 +443,30 @@ pub use drawing_maybe_get_one_aui_across_r14;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::sarzak::Isa;
 /// # use sarzak::drawing::IsaUi;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::SubtypeAnchors;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::SubtypeAnchors;
+/// # use sarzak::sarzak::Isa;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_maybe_get_one_iui_across_r10;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_nyq = Point::new(&mut store, 42, 42);
-/// let point_jmd = Point::new(&mut store, 42, 42);
-/// let edge_itm = Edge::test_default(&mut store);
-/// let anchor_rub = Anchor::new(&mut store, &point_nyq, &point_jmd, &edge_itm);
-/// let isa_ncg = Isa::default();
+/// let point_yae = Point::new(&mut store, 42, 42);
+/// let point_nbr = Point::new(&mut store, 42, 42);
+/// let edge_ygx = Edge::test_default(&mut store);
+/// let anchor_syy = Anchor::new(&mut store, &point_yae, &point_nbr, &edge_ygx);
+/// let isa_ggd = Isa::default();
 ///
-/// let point_yvo = Point::new(&mut store, 42, 42);
-/// let point_sae = Point::new(&mut store, 42, 42);
-/// let edge_enj = Edge::test_default(&mut store);
-/// let anchor_rpu = Anchor::new(&mut store, &point_yvo, &point_sae, &edge_enj);
-/// let isa_ui_umv = IsaUi::new(&mut store, &isa_ncg, &anchor_rpu);
-/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_rub, &isa_ui_umv);
+/// let point_fkb = Point::new(&mut store, 42, 42);
+/// let point_rde = Point::new(&mut store, 42, 42);
+/// let edge_ual = Edge::test_default(&mut store);
+/// let anchor_ggy = Anchor::new(&mut store, &point_fkb, &point_rde, &edge_ual);
+/// let isa_ui_scp = IsaUi::new(&mut store, &isa_ggd, &anchor_ggy);
+/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_syy, &isa_ui_scp);
 ///
-/// let isa_ui_fga = drawing_maybe_get_one_iui_across_r10!(anchor_rub, store);
-/// assert_eq!(Some(&isa_ui_umv), isa_ui_fga);
+/// let isa_ui_sci = drawing_maybe_get_one_iui_across_r10!(anchor_syy, store);
+/// assert_eq!(Some(&isa_ui_scp), isa_ui_sci);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -498,30 +498,30 @@ pub use drawing_maybe_get_one_iui_across_r10;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::SubtypeAnchors;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::IsaUi;
 /// # use sarzak::sarzak::Isa;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::SubtypeAnchors;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_many_anch_across_r10;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_yof = Point::new(&mut store, 42, 42);
-/// let point_ied = Point::new(&mut store, 42, 42);
-/// let edge_gwy = Edge::test_default(&mut store);
-/// let anchor_dzo = Anchor::new(&mut store, &point_yof, &point_ied, &edge_gwy);
-/// let isa_rpu = Isa::default();
+/// let point_ktq = Point::new(&mut store, 42, 42);
+/// let point_lza = Point::new(&mut store, 42, 42);
+/// let edge_fje = Edge::test_default(&mut store);
+/// let anchor_ptu = Anchor::new(&mut store, &point_ktq, &point_lza, &edge_fje);
+/// let isa_dhd = Isa::default();
 ///
-/// let point_cvd = Point::new(&mut store, 42, 42);
-/// let point_lrj = Point::new(&mut store, 42, 42);
-/// let edge_qqu = Edge::test_default(&mut store);
-/// let anchor_yht = Anchor::new(&mut store, &point_cvd, &point_lrj, &edge_qqu);
-/// let isa_ui_xew = IsaUi::new(&mut store, &isa_rpu, &anchor_yht);
-/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_dzo, &isa_ui_xew);
+/// let point_uno = Point::new(&mut store, 42, 42);
+/// let point_jdj = Point::new(&mut store, 42, 42);
+/// let edge_vwq = Edge::test_default(&mut store);
+/// let anchor_mfy = Anchor::new(&mut store, &point_uno, &point_jdj, &edge_vwq);
+/// let isa_ui_hmu = IsaUi::new(&mut store, &isa_dhd, &anchor_mfy);
+/// let subtype_anchors = SubtypeAnchors::new(&mut store, &anchor_ptu, &isa_ui_hmu);
 ///
-/// let anchor_tsc = drawing_get_many_anch_across_r10!(isa_ui_xew, store);
-/// assert!(anchor_tsc.iter().find(|&x| **x == anchor_dzo).is_some());
+/// let anchor_chr = drawing_get_many_anch_across_r10!(isa_ui_hmu, store);
+/// assert!(anchor_chr.iter().find(|&x| **x == anchor_ptu).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -552,21 +552,21 @@ pub use drawing_get_many_anch_across_r10;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::ObjectUi;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::sarzak::Object;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing_get_one_pnt_across_r13;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_uea = Point::new(&mut store, 42, 42);
-/// let decisive_activity = "first_condition".to_owned();
-/// let object_cia = Object::default();
+/// let point_zkj = Point::new(&mut store, 42, 42);
+/// let abortive_donkey = "interesting_slave".to_owned();
+/// let object_vfs = Object::default();
 ///
 ///
-/// let object_ui = ObjectUi::new(&mut store, &point_uea, &object_cia, 42, 42);
+/// let object_ui = ObjectUi::new(&mut store, &point_zkj, &object_vfs, 42, 42);
 ///
-/// let point_dmc = drawing_get_one_pnt_across_r13!(object_ui, store);
-/// assert_eq!(&point_uea, point_dmc);
+/// let point_hnh = drawing_get_one_pnt_across_r13!(object_ui, store);
+/// assert_eq!(&point_zkj, point_hnh);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -595,21 +595,21 @@ pub use drawing_get_one_pnt_across_r13;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Object;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::ObjectUi;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing_maybe_get_one_oui_across_r13;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_aio = Point::new(&mut store, 42, 42);
-/// let lonely_quicksand = "far_flung_sister".to_owned();
-/// let object_rvy = Object::default();
+/// let point_sfy = Point::new(&mut store, 42, 42);
+/// let childlike_bite = "quickest_spoon".to_owned();
+/// let object_jqg = Object::default();
 ///
 ///
-/// let object_ui = ObjectUi::new(&mut store, &point_aio, &object_rvy, 42, 42);
-/// let object_ui_bxr = drawing_maybe_get_one_oui_across_r13!(point_aio, store);
+/// let object_ui = ObjectUi::new(&mut store, &point_sfy, &object_jqg, 42, 42);
+/// let object_ui_poz = drawing_maybe_get_one_oui_across_r13!(point_sfy, store);
 ///
-/// assert_eq!(Some(&object_ui), object_ui_bxr);
+/// assert_eq!(Some(&object_ui), object_ui_poz);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -642,33 +642,33 @@ pub use drawing_maybe_get_one_oui_across_r13;
 ///
 ///```
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::AssociativeUi;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_pnt_across_r17;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_egm = Associative::default();
+/// let associative_eov = Associative::default();
 ///
-/// let point_ngx = Point::new(&mut store, 42, 42);
-/// let point_mpb = Point::new(&mut store, 42, 42);
-/// let edge_ngm = Edge::test_default(&mut store);
-/// let anchor_ooy = Anchor::new(&mut store, &point_ngx, &point_mpb, &edge_ngm);
-/// let point_hnz = Point::new(&mut store, 42, 42);
-/// let point_yyg = Point::new(&mut store, 42, 42);
-/// let edge_kqy = Edge::test_default(&mut store);
-/// let anchor_wib = Anchor::new(&mut store, &point_hnz, &point_yyg, &edge_kqy);
-/// let point_azu = Point::new(&mut store, 42, 42);
-/// let point_yip = Point::new(&mut store, 42, 42);
-/// let edge_gtc = Edge::test_default(&mut store);
-/// let anchor_aom = Anchor::new(&mut store, &point_azu, &point_yip, &edge_gtc);
-/// let point_slf = Point::new(&mut store, 42, 42);
+/// let point_vgb = Point::new(&mut store, 42, 42);
+/// let point_jiu = Point::new(&mut store, 42, 42);
+/// let edge_vbv = Edge::test_default(&mut store);
+/// let anchor_yzn = Anchor::new(&mut store, &point_vgb, &point_jiu, &edge_vbv);
+/// let point_ylp = Point::new(&mut store, 42, 42);
+/// let point_kza = Point::new(&mut store, 42, 42);
+/// let edge_xmt = Edge::test_default(&mut store);
+/// let anchor_tpz = Anchor::new(&mut store, &point_ylp, &point_kza, &edge_xmt);
+/// let point_hql = Point::new(&mut store, 42, 42);
+/// let point_bjp = Point::new(&mut store, 42, 42);
+/// let edge_mhg = Edge::test_default(&mut store);
+/// let anchor_fpl = Anchor::new(&mut store, &point_hql, &point_bjp, &edge_mhg);
+/// let point_joe = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_egm, &anchor_ooy, &anchor_wib, &anchor_aom, &point_slf);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_eov, &anchor_yzn, &anchor_tpz, &anchor_fpl, &point_joe);
 ///
-/// let point_yjo = drawing_get_one_pnt_across_r17!(associative_ui, store);
-/// assert_eq!(&point_slf, point_yjo);
+/// let point_olf = drawing_get_one_pnt_across_r17!(associative_ui, store);
+/// assert_eq!(&point_joe, point_olf);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -698,33 +698,33 @@ pub use drawing_get_one_pnt_across_r17;
 ///
 ///```
 /// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Anchor;
+/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
-/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r17;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_kod = Associative::default();
+/// let associative_cdd = Associative::default();
 ///
-/// let point_sbv = Point::new(&mut store, 42, 42);
-/// let point_lsu = Point::new(&mut store, 42, 42);
-/// let edge_ywn = Edge::test_default(&mut store);
-/// let anchor_cgf = Anchor::new(&mut store, &point_sbv, &point_lsu, &edge_ywn);
-/// let point_osv = Point::new(&mut store, 42, 42);
-/// let point_xzz = Point::new(&mut store, 42, 42);
-/// let edge_mlu = Edge::test_default(&mut store);
-/// let anchor_zwj = Anchor::new(&mut store, &point_osv, &point_xzz, &edge_mlu);
-/// let point_xnu = Point::new(&mut store, 42, 42);
-/// let point_twy = Point::new(&mut store, 42, 42);
-/// let edge_gzq = Edge::test_default(&mut store);
-/// let anchor_vnh = Anchor::new(&mut store, &point_xnu, &point_twy, &edge_gzq);
-/// let point_cfy = Point::new(&mut store, 42, 42);
+/// let point_ijy = Point::new(&mut store, 42, 42);
+/// let point_lta = Point::new(&mut store, 42, 42);
+/// let edge_jef = Edge::test_default(&mut store);
+/// let anchor_nmj = Anchor::new(&mut store, &point_ijy, &point_lta, &edge_jef);
+/// let point_tjz = Point::new(&mut store, 42, 42);
+/// let point_ibh = Point::new(&mut store, 42, 42);
+/// let edge_dti = Edge::test_default(&mut store);
+/// let anchor_yst = Anchor::new(&mut store, &point_tjz, &point_ibh, &edge_dti);
+/// let point_som = Point::new(&mut store, 42, 42);
+/// let point_fax = Point::new(&mut store, 42, 42);
+/// let edge_gda = Edge::test_default(&mut store);
+/// let anchor_mbh = Anchor::new(&mut store, &point_som, &point_fax, &edge_gda);
+/// let point_nfv = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_kod, &anchor_cgf, &anchor_zwj, &anchor_vnh, &point_cfy);
-/// let associative_ui_nmb = drawing_maybe_get_one_aui_across_r17!(point_cfy, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_cdd, &anchor_nmj, &anchor_yst, &anchor_mbh, &point_nfv);
+/// let associative_ui_puc = drawing_maybe_get_one_aui_across_r17!(point_nfv, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_nmb);
+/// assert_eq!(Some(&associative_ui), associative_ui_puc);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -757,24 +757,24 @@ pub use drawing_maybe_get_one_aui_across_r17;
 ///
 ///```
 /// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::ObjectUi;
+/// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::ObjectEdge;
+/// # use sarzak::drawing::ObjectUi;
 /// # use sarzak::drawing_get_one_oui_across_r18;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_vse = Edge::test_default(&mut store);
-/// let point_nml = Point::new(&mut store, 42, 42);
-/// let overjoyed_chair = "guiltless_channel".to_owned();
-/// let object_wuv = Object::default();
+/// let edge_era = Edge::test_default(&mut store);
+/// let point_nnq = Point::new(&mut store, 42, 42);
+/// let disagreeable_apple = "calculating_pigs".to_owned();
+/// let object_vip = Object::default();
 ///
-/// let object_ui_ozk = ObjectUi::new(&mut store, &point_nml, &object_wuv, 42, 42);
+/// let object_ui_oqe = ObjectUi::new(&mut store, &point_nnq, &object_vip, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_vse, &object_ui_ozk);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_era, &object_ui_oqe);
 ///
-/// let object_ui_xwc = drawing_get_one_oui_across_r18!(object_edge, store);
-/// assert_eq!(&object_ui_ozk, object_ui_xwc);
+/// let object_ui_qle = drawing_get_one_oui_across_r18!(object_edge, store);
+/// assert_eq!(&object_ui_oqe, object_ui_qle);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -803,25 +803,25 @@ pub use drawing_get_one_oui_across_r18;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
+/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::ObjectUi;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing_get_many_oui_es_across_r18;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_cab = Edge::test_default(&mut store);
-/// let point_pcv = Point::new(&mut store, 42, 42);
-/// let green_action = "fine_idea".to_owned();
-/// let object_xwk = Object::default();
+/// let edge_dwh = Edge::test_default(&mut store);
+/// let point_vjn = Point::new(&mut store, 42, 42);
+/// let successful_grandfather = "astonishing_feast".to_owned();
+/// let object_zls = Object::default();
 ///
-/// let object_ui_nck = ObjectUi::new(&mut store, &point_pcv, &object_xwk, 42, 42);
+/// let object_ui_zif = ObjectUi::new(&mut store, &point_vjn, &object_zls, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_cab, &object_ui_nck);
-/// let object_edge_ydz = drawing_get_many_oui_es_across_r18!(object_ui_nck, store);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_dwh, &object_ui_zif);
+/// let object_edge_hlo = drawing_get_many_oui_es_across_r18!(object_ui_zif, store);
 ///
-/// assert!(object_edge_ydz.iter().find(|&x| **x == object_edge).is_some());
+/// assert!(object_edge_hlo.iter().find(|&x| **x == object_edge).is_some());
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -854,28 +854,28 @@ pub use drawing_get_many_oui_es_across_r18;
 ///
 ///```
 /// # use sarzak::drawing::BinaryUi;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Anchor;
 /// # use sarzak::sarzak::Binary;
 /// # use sarzak::drawing_get_one_anch_across_r8;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_slv = Point::new(&mut store, 42, 42);
-/// let point_ahn = Point::new(&mut store, 42, 42);
-/// let edge_cxh = Edge::test_default(&mut store);
-/// let anchor_url = Anchor::new(&mut store, &point_slv, &point_ahn, &edge_cxh);
-/// let point_gmi = Point::new(&mut store, 42, 42);
-/// let point_hkb = Point::new(&mut store, 42, 42);
-/// let edge_sro = Edge::test_default(&mut store);
-/// let anchor_bct = Anchor::new(&mut store, &point_gmi, &point_hkb, &edge_sro);
-/// let binary_xun = Binary::default();
+/// let point_hvf = Point::new(&mut store, 42, 42);
+/// let point_nvo = Point::new(&mut store, 42, 42);
+/// let edge_kcb = Edge::test_default(&mut store);
+/// let anchor_fbf = Anchor::new(&mut store, &point_hvf, &point_nvo, &edge_kcb);
+/// let point_erd = Point::new(&mut store, 42, 42);
+/// let point_aap = Point::new(&mut store, 42, 42);
+/// let edge_glk = Edge::test_default(&mut store);
+/// let anchor_zma = Anchor::new(&mut store, &point_erd, &point_aap, &edge_glk);
+/// let binary_dfb = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_url, &anchor_bct, &binary_xun);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_fbf, &anchor_zma, &binary_dfb);
 ///
-/// let anchor_jcp = drawing_get_one_anch_across_r8!(binary_ui, store);
-/// assert_eq!(&anchor_url, anchor_jcp);
+/// let anchor_nky = drawing_get_one_anch_across_r8!(binary_ui, store);
+/// assert_eq!(&anchor_fbf, anchor_nky);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -904,29 +904,29 @@ pub use drawing_get_one_anch_across_r8;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::BinaryUi;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::sarzak::Binary;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::BinaryUi;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_maybe_get_one_bui_across_r8;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_dtf = Point::new(&mut store, 42, 42);
-/// let point_ypu = Point::new(&mut store, 42, 42);
-/// let edge_txx = Edge::test_default(&mut store);
-/// let anchor_zio = Anchor::new(&mut store, &point_dtf, &point_ypu, &edge_txx);
-/// let point_pra = Point::new(&mut store, 42, 42);
-/// let point_ymo = Point::new(&mut store, 42, 42);
-/// let edge_lma = Edge::test_default(&mut store);
-/// let anchor_sfz = Anchor::new(&mut store, &point_pra, &point_ymo, &edge_lma);
-/// let binary_pgt = Binary::default();
+/// let point_uuk = Point::new(&mut store, 42, 42);
+/// let point_tlc = Point::new(&mut store, 42, 42);
+/// let edge_edm = Edge::test_default(&mut store);
+/// let anchor_gqb = Anchor::new(&mut store, &point_uuk, &point_tlc, &edge_edm);
+/// let point_hem = Point::new(&mut store, 42, 42);
+/// let point_gnu = Point::new(&mut store, 42, 42);
+/// let edge_vyo = Edge::test_default(&mut store);
+/// let anchor_xkq = Anchor::new(&mut store, &point_hem, &point_gnu, &edge_vyo);
+/// let binary_myl = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_zio, &anchor_sfz, &binary_pgt);
-/// let binary_ui_apt = drawing_maybe_get_one_bui_across_r8!(anchor_zio, store);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_gqb, &anchor_xkq, &binary_myl);
+/// let binary_ui_tzb = drawing_maybe_get_one_bui_across_r8!(anchor_gqb, store);
 ///
-/// assert_eq!(Some(&binary_ui), binary_ui_apt);
+/// assert_eq!(Some(&binary_ui), binary_ui_tzb);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -959,33 +959,33 @@ pub use drawing_maybe_get_one_bui_across_r8;
 ///
 ///```
 /// # use sarzak::sarzak::Associative;
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::AssociativeUi;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_anch_across_r16;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_paf = Associative::default();
+/// let associative_ovg = Associative::default();
 ///
-/// let point_zxu = Point::new(&mut store, 42, 42);
-/// let point_kwa = Point::new(&mut store, 42, 42);
-/// let edge_dln = Edge::test_default(&mut store);
-/// let anchor_rfg = Anchor::new(&mut store, &point_zxu, &point_kwa, &edge_dln);
-/// let point_sqa = Point::new(&mut store, 42, 42);
-/// let point_bkb = Point::new(&mut store, 42, 42);
-/// let edge_iox = Edge::test_default(&mut store);
-/// let anchor_urt = Anchor::new(&mut store, &point_sqa, &point_bkb, &edge_iox);
-/// let point_ukx = Point::new(&mut store, 42, 42);
-/// let point_egp = Point::new(&mut store, 42, 42);
-/// let edge_opp = Edge::test_default(&mut store);
-/// let anchor_mgh = Anchor::new(&mut store, &point_ukx, &point_egp, &edge_opp);
-/// let point_vsv = Point::new(&mut store, 42, 42);
+/// let point_fdj = Point::new(&mut store, 42, 42);
+/// let point_bnk = Point::new(&mut store, 42, 42);
+/// let edge_qga = Edge::test_default(&mut store);
+/// let anchor_jhd = Anchor::new(&mut store, &point_fdj, &point_bnk, &edge_qga);
+/// let point_ivc = Point::new(&mut store, 42, 42);
+/// let point_nnj = Point::new(&mut store, 42, 42);
+/// let edge_rsi = Edge::test_default(&mut store);
+/// let anchor_qgp = Anchor::new(&mut store, &point_ivc, &point_nnj, &edge_rsi);
+/// let point_lge = Point::new(&mut store, 42, 42);
+/// let point_zhb = Point::new(&mut store, 42, 42);
+/// let edge_myt = Edge::test_default(&mut store);
+/// let anchor_yqf = Anchor::new(&mut store, &point_lge, &point_zhb, &edge_myt);
+/// let point_prk = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_paf, &anchor_rfg, &anchor_urt, &anchor_mgh, &point_vsv);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_ovg, &anchor_jhd, &anchor_qgp, &anchor_yqf, &point_prk);
 ///
-/// let anchor_ivb = drawing_get_one_anch_across_r16!(associative_ui, store);
-/// assert_eq!(&anchor_rfg, anchor_ivb);
+/// let anchor_ngf = drawing_get_one_anch_across_r16!(associative_ui, store);
+/// assert_eq!(&anchor_jhd, anchor_ngf);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1014,34 +1014,34 @@ pub use drawing_get_one_anch_across_r16;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::AssociativeUi;
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::Anchor;
-/// # use sarzak::sarzak::Associative;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::AssociativeUi;
+/// # use sarzak::sarzak::Associative;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_maybe_get_one_aui_across_r16;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let associative_uua = Associative::default();
+/// let associative_sbr = Associative::default();
 ///
-/// let point_uzt = Point::new(&mut store, 42, 42);
-/// let point_vef = Point::new(&mut store, 42, 42);
-/// let edge_hky = Edge::test_default(&mut store);
-/// let anchor_tni = Anchor::new(&mut store, &point_uzt, &point_vef, &edge_hky);
-/// let point_pwu = Point::new(&mut store, 42, 42);
-/// let point_snr = Point::new(&mut store, 42, 42);
-/// let edge_dae = Edge::test_default(&mut store);
-/// let anchor_aks = Anchor::new(&mut store, &point_pwu, &point_snr, &edge_dae);
-/// let point_chj = Point::new(&mut store, 42, 42);
-/// let point_lgj = Point::new(&mut store, 42, 42);
-/// let edge_aio = Edge::test_default(&mut store);
-/// let anchor_yzx = Anchor::new(&mut store, &point_chj, &point_lgj, &edge_aio);
-/// let point_vya = Point::new(&mut store, 42, 42);
+/// let point_lgg = Point::new(&mut store, 42, 42);
+/// let point_axp = Point::new(&mut store, 42, 42);
+/// let edge_dnu = Edge::test_default(&mut store);
+/// let anchor_hjh = Anchor::new(&mut store, &point_lgg, &point_axp, &edge_dnu);
+/// let point_qce = Point::new(&mut store, 42, 42);
+/// let point_aao = Point::new(&mut store, 42, 42);
+/// let edge_xyo = Edge::test_default(&mut store);
+/// let anchor_joc = Anchor::new(&mut store, &point_qce, &point_aao, &edge_xyo);
+/// let point_wnq = Point::new(&mut store, 42, 42);
+/// let point_lai = Point::new(&mut store, 42, 42);
+/// let edge_qrs = Edge::test_default(&mut store);
+/// let anchor_gku = Anchor::new(&mut store, &point_wnq, &point_lai, &edge_qrs);
+/// let point_euw = Point::new(&mut store, 42, 42);
 ///
-/// let associative_ui = AssociativeUi::new(&mut store, &associative_uua, &anchor_tni, &anchor_aks, &anchor_yzx, &point_vya);
-/// let associative_ui_ykc = drawing_maybe_get_one_aui_across_r16!(anchor_tni, store);
+/// let associative_ui = AssociativeUi::new(&mut store, &associative_sbr, &anchor_hjh, &anchor_joc, &anchor_gku, &point_euw);
+/// let associative_ui_qxa = drawing_maybe_get_one_aui_across_r16!(anchor_hjh, store);
 ///
-/// assert_eq!(Some(&associative_ui), associative_ui_ykc);
+/// assert_eq!(Some(&associative_ui), associative_ui_qxa);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1073,20 +1073,20 @@ pub use drawing_maybe_get_one_aui_across_r16;
 /// # Example
 ///
 ///```
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_get_one_edg_across_r3;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_kob = Point::new(&mut store, 42, 42);
-/// let point_fya = Point::new(&mut store, 42, 42);
-/// let edge_iyx = Edge::test_default(&mut store);
+/// let point_gnh = Point::new(&mut store, 42, 42);
+/// let point_ldh = Point::new(&mut store, 42, 42);
+/// let edge_xnq = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_kob, &point_fya, &edge_iyx);
+/// let anchor = Anchor::new(&mut store, &point_gnh, &point_ldh, &edge_xnq);
 ///
-/// let edge_qab = drawing_get_one_edg_across_r3!(anchor, store);
-/// assert_eq!(&edge_iyx, edge_qab);
+/// let edge_wir = drawing_get_one_edg_across_r3!(anchor, store);
+/// assert_eq!(&edge_xnq, edge_wir);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1121,14 +1121,14 @@ pub use drawing_get_one_edg_across_r3;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r3;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_snt = Point::new(&mut store, 42, 42);
-/// let point_vzq = Point::new(&mut store, 42, 42);
-/// let edge_uqy = Edge::test_default(&mut store);
+/// let point_khg = Point::new(&mut store, 42, 42);
+/// let point_aci = Point::new(&mut store, 42, 42);
+/// let edge_zlm = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_snt, &point_vzq, &edge_uqy);
-/// let anchor_znb = drawing_maybe_get_one_anch_across_r3!(edge_uqy, store);
+/// let anchor = Anchor::new(&mut store, &point_khg, &point_aci, &edge_zlm);
+/// let anchor_aox = drawing_maybe_get_one_anch_across_r3!(edge_zlm, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_znb);
+/// assert_eq!(Some(&anchor), anchor_aox);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1160,25 +1160,25 @@ pub use drawing_maybe_get_one_anch_across_r3;
 /// # Example
 ///
 ///```
-/// # use sarzak::drawing::Edge;
-/// # use sarzak::drawing::ObjectEdge;
-/// # use sarzak::drawing::Point;
-/// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::ObjectUi;
+/// # use sarzak::sarzak::Object;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing_get_one_edg_across_r19;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_wll = Edge::test_default(&mut store);
-/// let point_vyf = Point::new(&mut store, 42, 42);
-/// let tidy_suit = "brave_twist".to_owned();
-/// let object_ldh = Object::default();
+/// let edge_jfb = Edge::test_default(&mut store);
+/// let point_zsb = Point::new(&mut store, 42, 42);
+/// let testy_arch = "young_dog".to_owned();
+/// let object_xqv = Object::default();
 ///
-/// let object_ui_gsk = ObjectUi::new(&mut store, &point_vyf, &object_ldh, 42, 42);
+/// let object_ui_ryx = ObjectUi::new(&mut store, &point_zsb, &object_xqv, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_wll, &object_ui_gsk);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_jfb, &object_ui_ryx);
 ///
-/// let edge_evi = drawing_get_one_edg_across_r19!(object_edge, store);
-/// assert_eq!(&edge_wll, edge_evi);
+/// let edge_sje = drawing_get_one_edg_across_r19!(object_edge, store);
+/// assert_eq!(&edge_jfb, edge_sje);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1209,23 +1209,23 @@ pub use drawing_get_one_edg_across_r19;
 ///```
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::drawing::ObjectUi;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::ObjectEdge;
 /// # use sarzak::drawing::Point;
+/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing_maybe_get_one_oui_e_across_r19;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let edge_oxt = Edge::test_default(&mut store);
-/// let point_lzf = Point::new(&mut store, 42, 42);
-/// let hot_comfort = "uttermost_clouds".to_owned();
-/// let object_uii = Object::default();
+/// let edge_ixo = Edge::test_default(&mut store);
+/// let point_mrb = Point::new(&mut store, 42, 42);
+/// let nifty_drink = "outgoing_tub".to_owned();
+/// let object_nmq = Object::default();
 ///
-/// let object_ui_hkl = ObjectUi::new(&mut store, &point_lzf, &object_uii, 42, 42);
+/// let object_ui_dto = ObjectUi::new(&mut store, &point_mrb, &object_nmq, 42, 42);
 ///
-/// let object_edge = ObjectEdge::new(&mut store, &edge_oxt, &object_ui_hkl);
-/// let object_edge_nly = drawing_maybe_get_one_oui_e_across_r19!(edge_oxt, store);
+/// let object_edge = ObjectEdge::new(&mut store, &edge_ixo, &object_ui_dto);
+/// let object_edge_fzn = drawing_maybe_get_one_oui_e_across_r19!(edge_ixo, store);
 ///
-/// assert_eq!(Some(&object_edge), object_edge_nly);
+/// assert_eq!(Some(&object_edge), object_edge_fzn);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1257,29 +1257,29 @@ pub use drawing_maybe_get_one_oui_e_across_r19;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Binary;
-/// # use sarzak::drawing::Anchor;
 /// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::BinaryUi;
+/// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::sarzak::Binary;
 /// # use sarzak::drawing_get_one_anch_across_r7;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_llc = Point::new(&mut store, 42, 42);
-/// let point_xjy = Point::new(&mut store, 42, 42);
-/// let edge_gcs = Edge::test_default(&mut store);
-/// let anchor_yda = Anchor::new(&mut store, &point_llc, &point_xjy, &edge_gcs);
-/// let point_uwn = Point::new(&mut store, 42, 42);
-/// let point_dff = Point::new(&mut store, 42, 42);
-/// let edge_tne = Edge::test_default(&mut store);
-/// let anchor_usx = Anchor::new(&mut store, &point_uwn, &point_dff, &edge_tne);
-/// let binary_gqg = Binary::default();
+/// let point_cuf = Point::new(&mut store, 42, 42);
+/// let point_eno = Point::new(&mut store, 42, 42);
+/// let edge_fty = Edge::test_default(&mut store);
+/// let anchor_nft = Anchor::new(&mut store, &point_cuf, &point_eno, &edge_fty);
+/// let point_arm = Point::new(&mut store, 42, 42);
+/// let point_gye = Point::new(&mut store, 42, 42);
+/// let edge_egg = Edge::test_default(&mut store);
+/// let anchor_pfa = Anchor::new(&mut store, &point_arm, &point_gye, &edge_egg);
+/// let binary_oja = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_yda, &anchor_usx, &binary_gqg);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_nft, &anchor_pfa, &binary_oja);
 ///
-/// let anchor_qwa = drawing_get_one_anch_across_r7!(binary_ui, store);
-/// assert_eq!(&anchor_yda, anchor_qwa);
+/// let anchor_aqa = drawing_get_one_anch_across_r7!(binary_ui, store);
+/// assert_eq!(&anchor_nft, anchor_aqa);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1308,29 +1308,29 @@ pub use drawing_get_one_anch_across_r7;
 /// # Example
 ///
 ///```
-/// # use sarzak::sarzak::Binary;
-/// # use sarzak::drawing::BinaryUi;
-/// # use sarzak::drawing::Point;
-/// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
+/// # use sarzak::drawing::BinaryUi;
+/// # use sarzak::drawing::Edge;
+/// # use sarzak::drawing::Point;
+/// # use sarzak::sarzak::Binary;
 /// # use sarzak::drawing_maybe_get_one_bui_across_r7;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_bjs = Point::new(&mut store, 42, 42);
-/// let point_caq = Point::new(&mut store, 42, 42);
-/// let edge_vdh = Edge::test_default(&mut store);
-/// let anchor_vst = Anchor::new(&mut store, &point_bjs, &point_caq, &edge_vdh);
-/// let point_vfy = Point::new(&mut store, 42, 42);
-/// let point_hje = Point::new(&mut store, 42, 42);
-/// let edge_lli = Edge::test_default(&mut store);
-/// let anchor_lvu = Anchor::new(&mut store, &point_vfy, &point_hje, &edge_lli);
-/// let binary_erc = Binary::default();
+/// let point_rhb = Point::new(&mut store, 42, 42);
+/// let point_pjw = Point::new(&mut store, 42, 42);
+/// let edge_hdu = Edge::test_default(&mut store);
+/// let anchor_vun = Anchor::new(&mut store, &point_rhb, &point_pjw, &edge_hdu);
+/// let point_mkw = Point::new(&mut store, 42, 42);
+/// let point_ajb = Point::new(&mut store, 42, 42);
+/// let edge_sdz = Edge::test_default(&mut store);
+/// let anchor_xyn = Anchor::new(&mut store, &point_mkw, &point_ajb, &edge_sdz);
+/// let binary_elm = Binary::default();
 ///
 ///
-/// let binary_ui = BinaryUi::new(&mut store, &anchor_vst, &anchor_lvu, &binary_erc);
-/// let binary_ui_sgd = drawing_maybe_get_one_bui_across_r7!(anchor_vst, store);
+/// let binary_ui = BinaryUi::new(&mut store, &anchor_vun, &anchor_xyn, &binary_elm);
+/// let binary_ui_hje = drawing_maybe_get_one_bui_across_r7!(anchor_vun, store);
 ///
-/// assert_eq!(Some(&binary_ui), binary_ui_sgd);
+/// assert_eq!(Some(&binary_ui), binary_ui_hje);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1362,20 +1362,20 @@ pub use drawing_maybe_get_one_bui_across_r7;
 /// # Example
 ///
 ///```
+/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing::Edge;
 /// # use sarzak::drawing::Anchor;
-/// # use sarzak::drawing::Point;
 /// # use sarzak::drawing_get_one_pnt_across_r4;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_vcf = Point::new(&mut store, 42, 42);
-/// let point_xmy = Point::new(&mut store, 42, 42);
-/// let edge_fpj = Edge::test_default(&mut store);
+/// let point_ozd = Point::new(&mut store, 42, 42);
+/// let point_hgg = Point::new(&mut store, 42, 42);
+/// let edge_oct = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_vcf, &point_xmy, &edge_fpj);
+/// let anchor = Anchor::new(&mut store, &point_ozd, &point_hgg, &edge_oct);
 ///
-/// let point_gqk = drawing_get_one_pnt_across_r4!(anchor, store);
-/// assert_eq!(&point_vcf, point_gqk);
+/// let point_kmt = drawing_get_one_pnt_across_r4!(anchor, store);
+/// assert_eq!(&point_ozd, point_kmt);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
@@ -1410,14 +1410,14 @@ pub use drawing_get_one_pnt_across_r4;
 /// # use sarzak::drawing_maybe_get_one_anch_across_r4;
 /// # let mut store = sarzak::drawing::ObjectStore::new();
 ///
-/// let point_hah = Point::new(&mut store, 42, 42);
-/// let point_upt = Point::new(&mut store, 42, 42);
-/// let edge_vjf = Edge::test_default(&mut store);
+/// let point_cck = Point::new(&mut store, 42, 42);
+/// let point_gbw = Point::new(&mut store, 42, 42);
+/// let edge_mgx = Edge::test_default(&mut store);
 ///
-/// let anchor = Anchor::new(&mut store, &point_hah, &point_upt, &edge_vjf);
-/// let anchor_sfg = drawing_maybe_get_one_anch_across_r4!(point_hah, store);
+/// let anchor = Anchor::new(&mut store, &point_cck, &point_gbw, &edge_mgx);
+/// let anchor_udw = drawing_maybe_get_one_anch_across_r4!(point_cck, store);
 ///
-/// assert_eq!(Some(&anchor), anchor_sfg);
+/// assert_eq!(Some(&anchor), anchor_udw);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
