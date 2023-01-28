@@ -30,7 +30,7 @@ pub enum ModelCompilerError {
     Compiler { description: String },
 }
 
-pub trait ModelCompilerOptions {
+pub trait ModelCompilerOptions: std::fmt::Debug {
     fn as_any(&self) -> &dyn Any;
 }
 
