@@ -237,6 +237,12 @@ impl Domain {
         domain
     }
 
+    /// Return the name of the domain
+    ///
+    pub fn domain(&self) -> &str {
+        &self.domain
+    }
+
     /// Return a reference to the sarzak store
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
