@@ -22,7 +22,7 @@
 ///
 /// [🦀]: crate::woog::types::ObjectMethod
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin","is_uber":true}
+// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -84,7 +84,7 @@ pub use woog_maybe_get_many_params_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::ObjectMethod
-// {"magic":"","kind":"IgnoreBlockBegin","is_uber":true}
+// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -124,7 +124,7 @@ pub use woog_maybe_get_many_params_across_r5;
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"woog_get_one_meth_across_r5-emit_binary_main"}}}
 macro_rules! woog_get_one_meth_across_r5 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-object_method-emit_one_unconditional_lookup","is_uber":true}}}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-object_method-emit_one_unconditional_lookup", "is_uber":true}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_object_method()
@@ -145,7 +145,7 @@ pub use woog_get_one_meth_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin","is_uber":true}
+// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -194,7 +194,7 @@ pub use woog_maybe_get_one_param_across_r1;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin","is_uber":true}
+// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -223,7 +223,7 @@ pub use woog_maybe_get_one_param_across_r1;
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"woog_get_one_param_across_r1-emit_binary_main"}}}
 macro_rules! woog_get_one_param_across_r1 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-parameter-emit_one_unconditional_lookup","is_uber":true}}}
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-parameter-emit_one_unconditional_lookup", "is_uber":true}}}
         // nut::codegen::template::macros::emit_one_unconditional_lookup
         $store
             .iter_parameter()

@@ -83,7 +83,7 @@ pub struct ObjectMethod {
 impl ObjectMethod {
     /// Inter a new ObjectMethod and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin" "is_uber": true}
+    // {"magic":"","kind":"IgnoreBlockBegin":{"is_uber": true}}
     /// # Example
     ///
     ///```
@@ -170,7 +170,7 @@ pub struct Parameter {
 impl Parameter {
     /// Inter a new Parameter and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin" "is_uber": true}
+    // {"magic":"","kind":"IgnoreBlockBegin":{"is_uber": true}}
     /// # Example
     ///
     ///```
