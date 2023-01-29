@@ -21,7 +21,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 //! ```shell
 //!  sarzak gen
 //! ```

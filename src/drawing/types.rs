@@ -29,7 +29,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 //! ```shell
 //!  sarzak gen
 //! ```
@@ -96,7 +96,7 @@ pub struct Anchor {
 impl Anchor {
     /// Inter a new Anchor and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -183,7 +183,7 @@ pub struct AssociativeUi {
 impl AssociativeUi {
     /// Inter a new AssociativeUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -245,7 +245,7 @@ impl AssociativeUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_ui-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-extrude_impl", "is_uber":true}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_ui-extrude_impl", "is_uber":true}}}}
 impl Extrude<nut::drawing::AssociativeUI, Context<'_>> for AssociativeUi {
     fn extrude(orig: nut::drawing::AssociativeUI, context: &mut Context<'_>) -> Self {
         // This is 😎 because we keep the same id when we extrude Anchor.
@@ -297,7 +297,7 @@ pub struct BinaryUi {
 impl BinaryUi {
     /// Inter a new BinaryUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -341,7 +341,7 @@ impl BinaryUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"binary_ui-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-extrude_impl", "is_uber":true}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"binary_ui-extrude_impl", "is_uber":true}}}}
 impl Extrude<nut::drawing::BinaryUI, Context<'_>> for BinaryUi {
     fn extrude(orig: nut::drawing::BinaryUI, context: &mut Context<'_>) -> Self {
         // Extrude from and to. Leave binary_id alone, as it's the object in the
@@ -467,7 +467,7 @@ pub struct IsaUi {
 impl IsaUi {
     /// Inter a new IsaUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -503,7 +503,7 @@ impl IsaUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"isa_ui-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-extrude_impl", "is_uber":true}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"isa_ui-extrude_impl", "is_uber":true}}}}
 impl Extrude<nut::drawing::IsaUI, Context<'_>> for IsaUi {
     fn extrude(orig: nut::drawing::IsaUI, context: &mut Context<'_>) -> Self {
         // Verify the imported object.
@@ -565,7 +565,7 @@ pub struct ObjectEdge {
 impl ObjectEdge {
     /// Inter a new ObjectEdge and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -650,7 +650,7 @@ pub struct ObjectUi {
 impl ObjectUi {
     /// Inter a new ObjectUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -696,7 +696,7 @@ impl ObjectUi {
     // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"object_ui-new_impl"}}}
 }
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object_ui-extrude_impl", "is_uber":true}}}}
 impl Extrude<nut::drawing::ObjectUI, Context<'_>> for ObjectUi {
     fn extrude(orig: nut::drawing::ObjectUI, context: &mut Context<'_>) -> Self {
         let point = context.from.exhume_point(&orig.origin).unwrap();
@@ -744,7 +744,7 @@ pub struct Point {
 impl Point {
     /// Inter a new Point and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -813,7 +813,7 @@ impl RelationshipUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship_ui-test_default"}}}
 impl RelationshipUi {
     pub fn test_default(store: &mut ObjectStore) -> Self {
-        // {"magic":"","kind":"IgnoreBlockBegin"}
+        // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
         let point_lxr = Point::new(store, 42, 42);
         let point_ars = Point::new(store, 42, 42);
         let edge_vql = Edge::test_default(store);
@@ -896,7 +896,7 @@ pub struct SubtypeAnchors {
 impl SubtypeAnchors {
     /// Inter a new SubtypeAnchors and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
