@@ -17,7 +17,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 //! ```shell
 //!  sarzak gen -d woog sarzak -e false -m true -d true -i true
 //! ```

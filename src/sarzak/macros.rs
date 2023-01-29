@@ -7,7 +7,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 //! ```shell
 //!  sarzak gen
 //! ```
@@ -23,7 +23,7 @@
 ///
 /// [🦀]: crate::sarzak::types::Referrer
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -71,7 +71,7 @@ pub use sarzak_get_one_obj_across_r17;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Referrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -122,7 +122,7 @@ pub use sarzak_maybe_get_many_r_froms_across_r17;
 ///
 /// [🦀]: crate::sarzak::types::Referent
 /// [🦞]: crate::sarzak::types::Cardinality
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -169,7 +169,7 @@ pub use sarzak_get_one_card_across_r8;
 ///
 /// [🦀]: crate::sarzak::types::Cardinality
 /// [🦞]: crate::sarzak::types::Referent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -219,7 +219,7 @@ pub use sarzak_maybe_get_many_r_tos_across_r8;
 ///
 /// [🦀]: crate::sarzak::types::Referent
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -266,7 +266,7 @@ pub use sarzak_get_one_obj_across_r16;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Referent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -316,7 +316,7 @@ pub use sarzak_maybe_get_many_r_tos_across_r16;
 ///
 /// [🦀]: crate::sarzak::types::Referent
 /// [🦞]: crate::sarzak::types::Conditionality
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -363,7 +363,7 @@ pub use sarzak_get_one_cond_across_r12;
 ///
 /// [🦀]: crate::sarzak::types::Conditionality
 /// [🦞]: crate::sarzak::types::Referent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -413,7 +413,7 @@ pub use sarzak_maybe_get_many_r_tos_across_r12;
 ///
 /// [🦀]: crate::sarzak::types::AssociativeReferrer
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -455,7 +455,7 @@ pub use sarzak_get_one_obj_across_r26;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::AssociativeReferrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -500,7 +500,7 @@ pub use sarzak_maybe_get_many_ass_froms_across_r26;
 ///
 /// [🦀]: crate::sarzak::types::Referrer
 /// [🦞]: crate::sarzak::types::Conditionality
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -548,7 +548,7 @@ pub use sarzak_get_one_cond_across_r11;
 ///
 /// [🦀]: crate::sarzak::types::Conditionality
 /// [🦞]: crate::sarzak::types::Referrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -599,7 +599,7 @@ pub use sarzak_maybe_get_many_r_froms_across_r11;
 ///
 /// [🦀]: crate::sarzak::types::Subtype
 /// [🦞]: crate::sarzak::types::Isa
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -649,7 +649,7 @@ pub use sarzak_get_one_r_isa_across_r27;
 ///
 /// [🦀]: crate::sarzak::types::Isa
 /// [🦞]: crate::sarzak::types::Subtype
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -702,7 +702,7 @@ pub use sarzak_get_many_r_subs_across_r27;
 ///
 /// [🦀]: crate::sarzak::types::Isa
 /// [🦞]: crate::sarzak::types::Supertype
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -746,7 +746,7 @@ pub use sarzak_get_one_r_sup_across_r13;
 ///
 /// [🦀]: crate::sarzak::types::Supertype
 /// [🦞]: crate::sarzak::types::Isa
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -794,7 +794,7 @@ pub use sarzak_get_one_r_isa_across_r13;
 ///
 /// [🦀]: crate::sarzak::types::State
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -837,7 +837,7 @@ pub use sarzak_get_one_obj_across_r18;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::State
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -884,7 +884,7 @@ pub use sarzak_maybe_get_many_ss_across_r18;
 /// [🦀]: crate::sarzak::types::State
 /// [🦞]: crate::sarzak::types::Event
 /// [🦑]: crate::sarzak::types::AcknowledgedEvent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -938,7 +938,7 @@ pub use sarzak_get_many_e_across_r20;
 /// [🦀]: crate::sarzak::types::Event
 /// [🦞]: crate::sarzak::types::State
 /// [🦑]: crate::sarzak::types::AcknowledgedEvent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -991,7 +991,7 @@ pub use sarzak_get_many_s_across_r20;
 ///
 /// [🦀]: crate::sarzak::types::Associative
 /// [🦞]: crate::sarzak::types::AssociativeReferent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1046,7 +1046,7 @@ pub use sarzak_get_one_ass_to_across_r22;
 ///
 /// [🦀]: crate::sarzak::types::AssociativeReferent
 /// [🦞]: crate::sarzak::types::Associative
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1105,7 +1105,7 @@ pub use sarzak_get_one_r_assoc_across_r22;
 ///
 /// [🦀]: crate::sarzak::types::Supertype
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1147,7 +1147,7 @@ pub use sarzak_get_one_obj_across_r14;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Supertype
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1192,7 +1192,7 @@ pub use sarzak_maybe_get_many_r_sups_across_r14;
 ///
 /// [🦀]: crate::sarzak::types::Associative
 /// [🦞]: crate::sarzak::types::AssociativeReferrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1247,7 +1247,7 @@ pub use sarzak_get_one_ass_from_across_r21;
 ///
 /// [🦀]: crate::sarzak::types::AssociativeReferrer
 /// [🦞]: crate::sarzak::types::Associative
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1306,7 +1306,7 @@ pub use sarzak_get_one_r_assoc_across_r21;
 ///
 /// [🦀]: crate::sarzak::types::Referrer
 /// [🦞]: crate::sarzak::types::Cardinality
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1354,7 +1354,7 @@ pub use sarzak_get_one_card_across_r9;
 ///
 /// [🦀]: crate::sarzak::types::Cardinality
 /// [🦞]: crate::sarzak::types::Referrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1405,7 +1405,7 @@ pub use sarzak_maybe_get_many_r_froms_across_r9;
 ///
 /// [🦀]: crate::sarzak::types::Attribute
 /// [🦞]: crate::sarzak::types::Type
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1450,7 +1450,7 @@ pub use sarzak_get_one_t_across_r2;
 ///
 /// [🦀]: crate::sarzak::types::Type
 /// [🦞]: crate::sarzak::types::Attribute
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1499,7 +1499,7 @@ pub use sarzak_get_one_a_across_r2;
 ///
 /// [🦀]: crate::sarzak::types::Binary
 /// [🦞]: crate::sarzak::types::Referrer
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1558,7 +1558,7 @@ pub use sarzak_get_one_r_from_across_r6;
 ///
 /// [🦀]: crate::sarzak::types::Referrer
 /// [🦞]: crate::sarzak::types::Binary
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1621,7 +1621,7 @@ pub use sarzak_get_one_r_bin_across_r6;
 ///
 /// [🦀]: crate::sarzak::types::Event
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1664,7 +1664,7 @@ pub use sarzak_get_one_obj_across_r19;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Event
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1710,7 +1710,7 @@ pub use sarzak_maybe_get_many_es_across_r19;
 ///
 /// [🦀]: crate::sarzak::types::Attribute
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1761,7 +1761,7 @@ pub use sarzak_maybe_get_one_obj_across_r1;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Attribute
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1812,7 +1812,7 @@ pub use sarzak_get_many_as_across_r1;
 ///
 /// [🦀]: crate::sarzak::types::Subtype
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1862,7 +1862,7 @@ pub use sarzak_get_one_obj_across_r15;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::Subtype
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1915,7 +1915,7 @@ pub use sarzak_maybe_get_many_r_subs_across_r15;
 ///
 /// [🦀]: crate::sarzak::types::Associative
 /// [🦞]: crate::sarzak::types::AssociativeReferent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -1970,7 +1970,7 @@ pub use sarzak_get_one_ass_to_across_r23;
 ///
 /// [🦀]: crate::sarzak::types::AssociativeReferent
 /// [🦞]: crate::sarzak::types::Associative
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -2029,7 +2029,7 @@ pub use sarzak_get_one_r_assoc_across_r23;
 ///
 /// [🦀]: crate::sarzak::types::AssociativeReferent
 /// [🦞]: crate::sarzak::types::Object
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -2071,7 +2071,7 @@ pub use sarzak_get_one_obj_across_r25;
 ///
 /// [🦀]: crate::sarzak::types::Object
 /// [🦞]: crate::sarzak::types::AssociativeReferent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -2116,7 +2116,7 @@ pub use sarzak_maybe_get_many_ass_tos_across_r25;
 ///
 /// [🦀]: crate::sarzak::types::Binary
 /// [🦞]: crate::sarzak::types::Referent
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -2175,7 +2175,7 @@ pub use sarzak_get_one_r_to_across_r5;
 ///
 /// [🦀]: crate::sarzak::types::Referent
 /// [🦞]: crate::sarzak::types::Binary
-// {"magic":"","kind":{"IgnoreBlockBegin":{}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
