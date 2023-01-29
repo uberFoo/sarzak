@@ -7,7 +7,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 //! ```shell
 //!  sarzak gen -d woog sarzak -e false -m true -d true -i true
 //! ```
@@ -22,7 +22,7 @@
 ///
 /// [🦀]: crate::woog::types::ObjectMethod
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -84,7 +84,7 @@ pub use woog_maybe_get_many_params_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::ObjectMethod
-// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -145,7 +145,7 @@ pub use woog_get_one_meth_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///
@@ -194,7 +194,7 @@ pub use woog_maybe_get_one_param_across_r1;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":"IgnoreBlockBegin":{"is_uber":true}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}
 ///
 /// # Example
 ///

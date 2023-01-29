@@ -29,7 +29,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 //! ```shell
 //!  sarzak gen
 //! ```
@@ -96,7 +96,7 @@ pub struct Anchor {
 impl Anchor {
     /// Inter a new Anchor and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -183,7 +183,7 @@ pub struct AssociativeUi {
 impl AssociativeUi {
     /// Inter a new AssociativeUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -297,7 +297,7 @@ pub struct BinaryUi {
 impl BinaryUi {
     /// Inter a new BinaryUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -467,7 +467,7 @@ pub struct IsaUi {
 impl IsaUi {
     /// Inter a new IsaUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -565,7 +565,7 @@ pub struct ObjectEdge {
 impl ObjectEdge {
     /// Inter a new ObjectEdge and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -650,7 +650,7 @@ pub struct ObjectUi {
 impl ObjectUi {
     /// Inter a new ObjectUi and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -744,7 +744,7 @@ pub struct Point {
 impl Point {
     /// Inter a new Point and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -813,7 +813,7 @@ impl RelationshipUi {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship_ui-test_default"}}}
 impl RelationshipUi {
     pub fn test_default(store: &mut ObjectStore) -> Self {
-        // {"magic":"","kind":"IgnoreBlockBegin"}
+        // {"magic":"","kind":{"IgnoreBlockBegin":{}}
         let point_lxr = Point::new(store, 42, 42);
         let point_ars = Point::new(store, 42, 42);
         let edge_vql = Edge::test_default(store);
@@ -896,7 +896,7 @@ pub struct SubtypeAnchors {
 impl SubtypeAnchors {
     /// Inter a new SubtypeAnchors and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```

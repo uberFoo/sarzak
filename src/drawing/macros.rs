@@ -7,7 +7,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 //! ```shell
 //!  sarzak gen
 //! ```
@@ -23,7 +23,7 @@
 ///
 /// [🦀]: crate::drawing::types::IsaUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -70,7 +70,7 @@ pub use drawing_get_one_anch_across_r9;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::IsaUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -120,7 +120,7 @@ pub use drawing_maybe_get_one_iui_across_r9;
 ///
 /// [🦀]: crate::drawing::types::AssociativeUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -176,7 +176,7 @@ pub use drawing_get_one_anch_across_r15;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::AssociativeUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -235,7 +235,7 @@ pub use drawing_maybe_get_one_aui_across_r15;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::Point
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -277,7 +277,7 @@ pub use drawing_get_one_pnt_across_r5;
 ///
 /// [🦀]: crate::drawing::types::Point
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -322,7 +322,7 @@ pub use drawing_maybe_get_one_anch_across_r5;
 ///
 /// [🦀]: crate::drawing::types::AssociativeUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -378,7 +378,7 @@ pub use drawing_get_one_anch_across_r14;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::AssociativeUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -438,7 +438,7 @@ pub use drawing_maybe_get_one_aui_across_r14;
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::IsaUi
 /// [🦑]: crate::drawing::types::SubtypeAnchors
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -493,7 +493,7 @@ pub use drawing_maybe_get_one_iui_across_r10;
 /// [🦀]: crate::drawing::types::IsaUi
 /// [🦞]: crate::drawing::types::Anchor
 /// [🦑]: crate::drawing::types::SubtypeAnchors
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -547,7 +547,7 @@ pub use drawing_get_many_anch_across_r10;
 ///
 /// [🦀]: crate::drawing::types::ObjectUi
 /// [🦞]: crate::drawing::types::Point
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -590,7 +590,7 @@ pub use drawing_get_one_pnt_across_r13;
 ///
 /// [🦀]: crate::drawing::types::Point
 /// [🦞]: crate::drawing::types::ObjectUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -636,7 +636,7 @@ pub use drawing_maybe_get_one_oui_across_r13;
 ///
 /// [🦀]: crate::drawing::types::AssociativeUi
 /// [🦞]: crate::drawing::types::Point
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -692,7 +692,7 @@ pub use drawing_get_one_pnt_across_r17;
 ///
 /// [🦀]: crate::drawing::types::Point
 /// [🦞]: crate::drawing::types::AssociativeUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -751,7 +751,7 @@ pub use drawing_maybe_get_one_aui_across_r17;
 ///
 /// [🦀]: crate::drawing::types::ObjectEdge
 /// [🦞]: crate::drawing::types::ObjectUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -798,7 +798,7 @@ pub use drawing_get_one_oui_across_r18;
 ///
 /// [🦀]: crate::drawing::types::ObjectUi
 /// [🦞]: crate::drawing::types::ObjectEdge
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -848,7 +848,7 @@ pub use drawing_get_many_oui_es_across_r18;
 ///
 /// [🦀]: crate::drawing::types::BinaryUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -899,7 +899,7 @@ pub use drawing_get_one_anch_across_r8;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::BinaryUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -953,7 +953,7 @@ pub use drawing_maybe_get_one_bui_across_r8;
 ///
 /// [🦀]: crate::drawing::types::AssociativeUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1009,7 +1009,7 @@ pub use drawing_get_one_anch_across_r16;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::AssociativeUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1068,7 +1068,7 @@ pub use drawing_maybe_get_one_aui_across_r16;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::Edge
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1110,7 +1110,7 @@ pub use drawing_get_one_edg_across_r3;
 ///
 /// [🦀]: crate::drawing::types::Edge
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1155,7 +1155,7 @@ pub use drawing_maybe_get_one_anch_across_r3;
 ///
 /// [🦀]: crate::drawing::types::ObjectEdge
 /// [🦞]: crate::drawing::types::Edge
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1202,7 +1202,7 @@ pub use drawing_get_one_edg_across_r19;
 ///
 /// [🦀]: crate::drawing::types::Edge
 /// [🦞]: crate::drawing::types::ObjectEdge
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1252,7 +1252,7 @@ pub use drawing_maybe_get_one_oui_e_across_r19;
 ///
 /// [🦀]: crate::drawing::types::BinaryUi
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1303,7 +1303,7 @@ pub use drawing_get_one_anch_across_r7;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::BinaryUi
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1357,7 +1357,7 @@ pub use drawing_maybe_get_one_bui_across_r7;
 ///
 /// [🦀]: crate::drawing::types::Anchor
 /// [🦞]: crate::drawing::types::Point
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///
@@ -1399,7 +1399,7 @@ pub use drawing_get_one_pnt_across_r4;
 ///
 /// [🦀]: crate::drawing::types::Point
 /// [🦞]: crate::drawing::types::Anchor
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 ///
 /// # Example
 ///

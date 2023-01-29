@@ -17,7 +17,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 //! ```shell
 //!  sarzak gen -d woog sarzak -e false -m true -d true -i true
 //! ```
@@ -83,7 +83,7 @@ pub struct ObjectMethod {
 impl ObjectMethod {
     /// Inter a new ObjectMethod and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin":{"is_uber": true}}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber": true}}
     /// # Example
     ///
     ///```
@@ -170,7 +170,7 @@ pub struct Parameter {
 impl Parameter {
     /// Inter a new Parameter and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin":{"is_uber": true}}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber": true}}
     /// # Example
     ///
     ///```

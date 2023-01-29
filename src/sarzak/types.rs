@@ -47,7 +47,7 @@
 //! to go wild. Happy hacking!
 //!
 //! Use the following invocation to reproduce:
-// {"magic":"","kind":"IgnoreBlockBegin"}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}
 //! ```shell
 //!  sarzak gen
 //! ```
@@ -93,7 +93,7 @@ pub struct AcknowledgedEvent {
 impl AcknowledgedEvent {
     /// Inter a new AcknowledgedEvent and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -165,7 +165,7 @@ pub struct Associative {
 impl Associative {
     /// Inter a new Associative and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -273,7 +273,7 @@ pub struct AssociativeReferent {
 impl AssociativeReferent {
     /// Inter a new AssociativeReferent and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -335,7 +335,7 @@ pub struct AssociativeReferrer {
 impl AssociativeReferrer {
     /// Inter a new AssociativeReferrer and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -402,7 +402,7 @@ pub struct Attribute {
 impl Attribute {
     /// Inter a new Attribute and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -513,7 +513,7 @@ pub struct Binary {
 impl Binary {
     /// Inter a new Binary and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -715,7 +715,7 @@ pub struct Event {
 impl Event {
     /// Inter a new Event and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -789,7 +789,7 @@ pub struct Isa {
 impl Isa {
     /// Inter a new Isa and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -879,7 +879,7 @@ pub struct Object {
 impl Object {
     /// Inter a new Object and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -967,7 +967,7 @@ pub struct Referent {
 impl Referent {
     /// Inter a new Referent and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -1064,7 +1064,7 @@ pub struct Referrer {
 impl Referrer {
     /// Inter a new Referrer and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -1173,7 +1173,7 @@ impl Relationship {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"relationship-test_default"}}}
 impl Relationship {
     pub fn test_default(store: &mut ObjectStore) -> Self {
-        // {"magic":"","kind":"IgnoreBlockBegin"}
+        // {"magic":"","kind":{"IgnoreBlockBegin":{}}
         let spotless_degree = "accurate_pie".to_owned();
         let true_insurance = "pumped_kittens".to_owned();
         let spiritual_cabbage = "adaptable_pizzas".to_owned();
@@ -1241,7 +1241,7 @@ pub struct State {
 impl State {
     /// Inter a new State and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -1307,7 +1307,7 @@ pub struct Subtype {
 impl Subtype {
     /// Inter a new Subtype and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
@@ -1401,7 +1401,7 @@ pub struct Supertype {
 impl Supertype {
     /// Inter a new Supertype and return it's `id`
     ///
-    // {"magic":"","kind":"IgnoreBlockBegin"}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}
     /// # Example
     ///
     ///```
