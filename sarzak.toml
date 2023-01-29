@@ -1,6 +1,6 @@
 [domains]
-sarzak = { path = "models/sarzak.json", module = "sarzak", sarzak = { meta = true, doc_tests = true, extrude = true, ignore_ignore = false } }
-drawing = { path = "models/drawing.json", module = "drawing", sarzak = { meta = true, doc_tests = true, extrude = true, ignore_ignore = false } }
+sarzak = { path = "models/sarzak.json", module = "sarzak", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = false } }
+drawing = { path = "models/drawing.json", module = "drawing", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = false } }
 
 [domains.woog]
 path = "models/woog.json"
