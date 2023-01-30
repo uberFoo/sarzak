@@ -243,12 +243,26 @@ impl Domain {
         &self.domain
     }
 
+    /// Return the domain description
+    ///
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+
     /// Return a reference to the sarzak store
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model instances.
     pub fn sarzak(&self) -> &SarzakObjectStore {
         &self.sarzak
+    }
+
+    /// Return a reference to the drawing store
+    ///
+    /// This returns a reference to the [`ObjectStore`] that contains the domain
+    /// model UI instances.
+    pub fn drawing(&self) -> &DrawingObjectStore {
+        &self.drawing
     }
 }
 
