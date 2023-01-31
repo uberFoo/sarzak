@@ -31,7 +31,6 @@ use crate::{
             UUID,
         },
     },
-    woog::store::ObjectStore as WoogObjectStore,
     VERSION,
 };
 
@@ -181,7 +180,6 @@ impl DomainBuilder {
 
         let mut sarzak = SarzakObjectStore::new();
         let mut drawing = DrawingObjectStore::new();
-        let woog = WoogObjectStore::new();
 
         // Run the pre_extrude function, if there is one.
         if let Some(ref func) = self.pre_load {
@@ -204,7 +202,6 @@ impl DomainBuilder {
             model.description,
             sarzak,
             drawing,
-            woog,
         ))
     }
 }
@@ -216,7 +213,6 @@ pub struct Domain {
     description: String,
     sarzak: SarzakObjectStore,
     drawing: DrawingObjectStore,
-    woog: WoogObjectStore,
 }
 
 impl Domain {
@@ -229,15 +225,13 @@ impl Domain {
         description: String,
         sarzak: SarzakObjectStore,
         drawing: DrawingObjectStore,
-        woog: WoogObjectStore,
     ) -> Self {
         let domain = Domain {
             version: VERSION.to_owned(),
             domain: domain,
             description: description,
-            sarzak,
-            drawing,
-            woog,
+            sarzak: sarzak,
+            drawing: drawing,
         };
 
         domain
@@ -269,14 +263,6 @@ impl Domain {
     /// model UI instances.
     pub fn drawing(&self) -> &DrawingObjectStore {
         &self.drawing
-    }
-
-    /// Return a reference to the woog store
-    ///
-    /// This returns a reference to the [`ObjectStore`] that contains the domain
-    /// model compiler instances.
-    pub fn woog(&self) -> &WoogObjectStore {
-        &self.woog
     }
 }
 

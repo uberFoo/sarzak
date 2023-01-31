@@ -14,6 +14,7 @@
 //!    * [`State`]
 //!    * [`Object`]
 //!    * [`Referent`]
+//!    * [`Reference`]
 //!    * [`Referrer`]
 //!    * [`Supertype`]
 //!    * [`Type`]
@@ -43,8 +44,8 @@ use uuid::Uuid;
 
 use crate::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Cardinality, Conditionality, Event, Isa, Object, Referent, Referrer, Relationship, State,
-    Subtype, Supertype, Type,
+    Cardinality, Conditionality, Event, Isa, Object, Reference, Referent, Referrer, Relationship,
+    State, Subtype, Supertype, Type,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -60,6 +61,7 @@ pub struct ObjectStore {
     state: HashMap<Uuid, State>,
     object: HashMap<Uuid, Object>,
     referent: HashMap<Uuid, Referent>,
+    reference: HashMap<Uuid, Reference>,
     referrer: HashMap<Uuid, Referrer>,
     supertype: HashMap<Uuid, Supertype>,
     ty: HashMap<Uuid, Type>,
@@ -83,6 +85,7 @@ impl ObjectStore {
             state: HashMap::new(),
             object: HashMap::new(),
             referent: HashMap::new(),
+            reference: HashMap::new(),
             referrer: HashMap::new(),
             supertype: HashMap::new(),
             ty: HashMap::new(),
@@ -292,6 +295,24 @@ impl ObjectStore {
     ///
     pub fn iter_referent(&self) -> impl Iterator<Item = (&Uuid, &Referent)> {
         self.referent.iter()
+    }
+
+    /// Inter [`Reference`] into the [`ObjectStore`]
+    ///
+    pub fn inter_reference(&mut self, reference: Reference) {
+        self.reference.insert(reference.id, reference);
+    }
+
+    /// Exhume [`Reference`] from the [`ObjectStore`]
+    ///
+    pub fn exhume_reference(&self, id: &Uuid) -> Option<&Reference> {
+        self.reference.get(id)
+    }
+
+    /// Get an iterator over the internal `HashMap<(&Uuid, Reference)>` in the [`ObjectStore`]
+    ///
+    pub fn iter_reference(&self) -> impl Iterator<Item = (&Uuid, &Reference)> {
+        self.reference.iter()
     }
 
     /// Inter [`Referrer`] into the [`ObjectStore`]

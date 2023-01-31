@@ -37,7 +37,7 @@ pub trait ModelCompilerOptions: std::fmt::Debug {
 pub trait SarzakModelCompiler {
     fn compile<P: AsRef<Path>>(
         &self,
-        model: &Domain,
+        domain: &Domain,
         module: &str,
         src_path: P,
         options: Box<&dyn ModelCompilerOptions>,

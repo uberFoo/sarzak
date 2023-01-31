@@ -26,7 +26,7 @@
 //!    * [`MANY`]
 //!    * [`Object`]
 //!    * [`ONE`]
-//!    * [`REFERENCE`]
+//!    * [`Reference`]
 //!    * [`Referent`]
 //!    * [`Referrer`]
 //!    * [`Relationship`]
@@ -948,10 +948,51 @@ pub const ONE: Uuid = uuid!["bf6924bb-089d-5c1f-bc1f-123ba1fd1ea3"];
 /// Maybe if I take this to mean just a reference type, and don't tie it directly to [`Object
 ///`]? I'm going to go that route I think.
 ///
-/// ❗️{"singleton_object": true}
-///
-//
-pub const REFERENCE: Uuid = uuid!["47cb41d9-8f9c-5f3d-8892-85c1dea4b102"];
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"reference-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct Reference {
+    /// pub id: `Uuid`,
+    ///
+    pub id: Uuid,
+    /// pub object: `Object`,
+    ///
+    pub object: Uuid,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"reference-struct-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"reference-new_impl"}}}
+impl Reference {
+    /// Inter a new Reference and return it's `id`
+    ///
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Reference;
+    /// # let mut store = sarzak::sarzak::ObjectStore::new();
+    ///
+    /// let second_hall = "attractive_flight".to_owned();
+    /// let calm_discovery = "warm_glove".to_owned();
+    /// let friendly_giraffe = "stale_hospital".to_owned();
+    /// let object_xes = Object::new(&mut store, second_hall, calm_discovery, friendly_giraffe);
+    ///
+    /// let reference = Reference::new(&mut store, &object_xes);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(store: &mut ObjectStore, object: &Object) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", object,).as_bytes());
+        let new = Self {
+            id,
+            object: object.id,
+        };
+
+        store.inter_reference(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"reference-new_impl"}}}
+}
 
 /// This is the side being referred to in a binary relationship. It is the “to” side.
 ///
