@@ -55,7 +55,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports"}}}
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imports", "is_uber": true}}}
 use crate::sarzak::store::ObjectStore;
 use crate::sarzak::UUID_NS;
 use nut::codegen::{Extrude, SarzakObjectStore};
@@ -1507,6 +1507,9 @@ pub enum Type {
     /// `Boolean(Boolean)`,
     ///
     Boolean(Uuid),
+    /// `Object(Object)`,
+    ///
+    Object(Uuid),
     /// `Reference(Reference)`,
     ///
     Reference(Uuid),
@@ -1530,6 +1533,7 @@ impl Type {
     pub fn get_id(&self) -> Uuid {
         match *self {
             Self::Boolean(z) => z,
+            Self::Object(z) => z,
             Self::Reference(z) => z,
             Self::String(z) => z,
             Self::Uuid(z) => z,

@@ -283,8 +283,50 @@ fn extrude_cuckoo_domain(
         from: sarzak_from,
         to: sarzak_to,
     };
-
     SarzakStore::extrude(sarzak_from.clone(), &mut context);
+
+    // I added a new type, and now we need to create instances of it.
+    // Note that we are doing this all in the context of the new
+    // domain, since it's now complete. This is really a post-extrusing
+    // step, and maybe belongs there. It's here because this is a legit
+    // part of the model, that really could have been done by cuckoo, had
+    // I had the forethought.
+    //
+    // It's pretty neat that I can use all the macro-goodness in the new
+    // version.
+    //
+    // We are doing all the cloning so that we can mutably borrow `context.to`.
+    //
+    // I'm stealing this loop to also inter a type for owned objects.
+    //
+    let objects: Vec<(Uuid, Object)> = context
+        .to
+        .iter_object()
+        .into_iter()
+        .map(|(u, o)| (*u, o.clone()))
+        .collect();
+    for (_id, obj) in &objects {
+        let referrers: Vec<Referrer> = sarzak_maybe_get_many_r_froms_across_r17!(obj, context.to)
+            .into_iter()
+            .cloned()
+            .collect();
+
+        // Create on owned type for each object
+        let ty = Type::Object(obj.id);
+        context.to.inter_ty(ty);
+
+        // Create a reference type for each object participating as a referent.
+        // for referrer in &referrers {
+        //     let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
+        //     let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
+        //     let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
+
+        let reference = Reference::new(context.to, &obj.clone());
+        let ty = Type::Reference(reference.id);
+
+        context.to.inter_ty(ty);
+        // }
+    }
 
     // More primitives. They also happen to be leaves/roots. Whatever.
     drawing_to.inter_edge(Edge::Top(TOP));
@@ -345,42 +387,6 @@ impl Extrude<FromSarzakStore, SarzakContext<'_>> for SarzakStore {
         for (_id, rel) in from.iter_relationship() {
             let new = Relationship::extrude(rel.clone(), context);
             context.to.inter_relationship(new);
-        }
-
-        // I added a new type, and now we need to create instances of it.
-        // Note that we are doing this all in the context of the new
-        // domain, since it's now complete. This is really a post-extrusing
-        // step, and maybe belongs there. It's here because this is a legit
-        // part of the model, that really could have been done by cuckoo, had
-        // I had the forethought.
-        //
-        // It's pretty neat that I can use all the macro-goodness in the new
-        // version.
-        //
-        // We are doing all the cloning so that we can mutably borrow `context.to`.
-        //
-        let objects: Vec<(Uuid, Object)> = context
-            .to
-            .iter_object()
-            .into_iter()
-            .map(|(u, o)| (*u, o.clone()))
-            .collect();
-        for (_id, obj) in &objects {
-            let referrers: Vec<Referrer> =
-                sarzak_maybe_get_many_r_froms_across_r17!(obj, context.to)
-                    .into_iter()
-                    .cloned()
-                    .collect();
-
-            for referrer in &referrers {
-                let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
-                let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
-                let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
-
-                let reference = Reference::new(context.to, &obj.clone());
-                let ty = Type::Reference(reference.id);
-                context.to.inter_ty(ty);
-            }
         }
 
         // What's with all this cloning all of a sudden? I'm cloning all over
