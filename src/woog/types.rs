@@ -33,12 +33,6 @@ use crate::woog::UUID_NS;
 
 // Imported Objects
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"imported-objects"}}}
-// use sarzak::sarzak::Object; //⚡️
-// use sarzak::sarzak::Type; //⚡️
-// use crate::sarzak::types::Object; //⚡️
-// use crate::sarzak::types::Type; //⚡️
-// use sarzak::sarzak::Object; //⚡️
-// use sarzak::sarzak::Type; //⚡️
 use crate::sarzak::types::Object;
 use crate::sarzak::types::Type;
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imported-objects"}}}
@@ -83,7 +77,7 @@ pub struct ObjectMethod {
 impl ObjectMethod {
     /// Inter a new ObjectMethod and return it's `id`
     ///
-    // {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber": true}}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```
@@ -170,7 +164,7 @@ pub struct Parameter {
 impl Parameter {
     /// Inter a new Parameter and return it's `id`
     ///
-    // {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber": true}}
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
     /// # Example
     ///
     ///```

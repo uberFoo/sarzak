@@ -22,7 +22,7 @@
 ///
 /// [🦀]: crate::woog::types::ObjectMethod
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -31,7 +31,7 @@
 /// # use sarzak::sarzak::Object;
 /// # use sarzak::woog::Parameter;
 /// # use sarzak::sarzak::Type;
-/// # use sarzak::woog_maybe_get_many_params_across_r5;
+/// # use sarzak::woog_maybe_get_one_param_across_r5;
 /// # let mut store = sarzak::woog::ObjectStore::new();
 /// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
 ///
@@ -54,27 +54,25 @@
 ///
 /// let object_method = ObjectMethod::new(&mut store, Some(&parameter), &object_dmz, &type_grc, hard_dust, superb_cloth);
 ///
-/// let parameter_yqs = woog_maybe_get_many_params_across_r5!(object_method, store);
-/// assert_eq!(Some(&&parameter), parameter_yqs.iter().next());
+/// let parameter_yqs = woog_maybe_get_one_param_across_r5!(object_method, store);
+/// assert_eq!(Some(&parameter), parameter_yqs);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"woog_maybe_get_many_params_across_r5-emit_binary_main"}}}
-macro_rules! woog_maybe_get_many_params_across_r5 {
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"woog_maybe_get_one_param_across_r5-emit_binary_main"}}}
+macro_rules! woog_maybe_get_one_param_across_r5 {
     ($input:expr, $store:expr) => {{
-        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-emit_many_unconditional"}}}
-        // nut::codegen::template::macros::emit_many_unconditional
-        let mut result = Vec::new();
-        for z in &$input.param {
-            let param = $store.exhume_parameter(&z).unwrap();
-            result.push(param);
+        // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"parameter-emit_one_conditional"}}}
+        // nut::codegen::template::macros::emit_one_conditional
+        match &$input.param {
+            Some(i) => $store.exhume_parameter(i),
+            None => None,
         }
-        result
-        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"parameter-emit_many_unconditional"}}}
+        // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"parameter-emit_one_conditional"}}}
     }};
 }
-pub use woog_maybe_get_many_params_across_r5;
-// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"woog_maybe_get_many_params_across_r5-emit_binary_main"}}}
+pub use woog_maybe_get_one_param_across_r5;
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"woog_maybe_get_one_param_across_r5-emit_binary_main"}}}
 
 /// Macro to traverse [`Parameter`][🦀] ➡ [`ObjectMethod`][🦞], via _R5_
 ///
@@ -84,7 +82,7 @@ pub use woog_maybe_get_many_params_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::ObjectMethod
-// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -145,7 +143,7 @@ pub use woog_get_one_meth_across_r5;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
@@ -194,7 +192,7 @@ pub use woog_maybe_get_one_param_across_r1;
 ///
 /// [🦀]: crate::woog::types::Parameter
 /// [🦞]: crate::woog::types::Parameter
-// {"magic":"","kind":{"IgnoreBlockBegin":{"is_uber":true}}}
+// {"magic":"","kind":{"IgnoreBlockBegin":{}}}
 ///
 /// # Example
 ///
