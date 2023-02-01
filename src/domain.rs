@@ -7,28 +7,32 @@ use std::path::Path;
 use log;
 use nut::{
     codegen::{
-        DrawingObjectStore as FromDrawingObjectStore, Extrude,
-        SarzakObjectStore as FromSarzakObjectStore,
+        DrawingObjectStore as FromDrawingStore, Extrude, SarzakObjectStore as FromSarzakStore,
     },
     sarzak::SarzakModel as FromModel,
 };
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
+use uuid::Uuid;
 
 use crate::{
     drawing::{
-        store::ObjectStore as DrawingObjectStore,
+        store::ObjectStore as DrawingStore,
         types::{
             Context as DrawingContext, Edge, ObjectUi, RelationshipUi, BOTTOM, LEFT, RIGHT, TOP,
         },
     },
     error::{DomainBuilderSnafu, FileOpenSnafu, Result},
     sarzak::{
-        store::ObjectStore as SarzakObjectStore,
+        macros::{
+            sarzak_get_one_obj_across_r16, sarzak_get_one_r_bin_across_r6,
+            sarzak_get_one_r_to_across_r5, sarzak_maybe_get_many_r_froms_across_r17,
+        },
+        store::ObjectStore as SarzakStore,
         types::{
-            Attribute, Cardinality, Conditionality, Context as SarzakContext, Object, Relationship,
-            Subtype, Type, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL,
-            UUID,
+            Attribute, Cardinality, Conditionality, Context as SarzakContext, Object, Reference,
+            Referrer, Relationship, Subtype, Type, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE,
+            STRING, UNCONDITIONAL, UUID,
         },
     },
     VERSION,
@@ -97,16 +101,9 @@ use crate::{
 pub struct DomainBuilder {
     nut_model: Option<FromModel>,
     pre_load: Option<
-        Box<
-            dyn Fn(
-                &FromSarzakObjectStore,
-                &FromDrawingObjectStore,
-                &mut SarzakObjectStore,
-                &mut DrawingObjectStore,
-            ),
-        >,
+        Box<dyn Fn(&FromSarzakStore, &FromDrawingStore, &mut SarzakStore, &mut DrawingStore)>,
     >,
-    post_load: Option<Box<dyn Fn(&mut SarzakObjectStore, &mut DrawingObjectStore)>>,
+    post_load: Option<Box<dyn Fn(&mut SarzakStore, &mut DrawingStore)>>,
 }
 
 impl DomainBuilder {
@@ -141,12 +138,7 @@ impl DomainBuilder {
     /// [✨]: crate::domain::Domain::init_sarzak
     pub fn pre_load<F>(mut self, pre_load: F) -> Self
     where
-        F: Fn(
-                &FromSarzakObjectStore,
-                &FromDrawingObjectStore,
-                &mut SarzakObjectStore,
-                &mut DrawingObjectStore,
-            ) + 'static,
+        F: Fn(&FromSarzakStore, &FromDrawingStore, &mut SarzakStore, &mut DrawingStore) + 'static,
     {
         self.pre_load = Some(Box::new(pre_load));
 
@@ -159,7 +151,7 @@ impl DomainBuilder {
     /// application domain.
     pub fn post_load<F>(mut self, post_load: F) -> Self
     where
-        F: Fn(&mut SarzakObjectStore, &mut DrawingObjectStore) + 'static,
+        F: Fn(&mut SarzakStore, &mut DrawingStore) + 'static,
     {
         self.post_load = Some(Box::new(post_load));
 
@@ -178,8 +170,8 @@ impl DomainBuilder {
         );
         let model = self.nut_model.unwrap();
 
-        let mut sarzak = SarzakObjectStore::new();
-        let mut drawing = DrawingObjectStore::new();
+        let mut sarzak = SarzakStore::new();
+        let mut drawing = DrawingStore::new();
 
         // Run the pre_extrude function, if there is one.
         if let Some(ref func) = self.pre_load {
@@ -211,8 +203,8 @@ pub struct Domain {
     version: String,
     domain: String,
     description: String,
-    sarzak: SarzakObjectStore,
-    drawing: DrawingObjectStore,
+    sarzak: SarzakStore,
+    drawing: DrawingStore,
 }
 
 impl Domain {
@@ -223,8 +215,8 @@ impl Domain {
     pub(crate) fn new(
         domain: String,
         description: String,
-        sarzak: SarzakObjectStore,
-        drawing: DrawingObjectStore,
+        sarzak: SarzakStore,
+        drawing: DrawingStore,
     ) -> Self {
         let domain = Domain {
             version: VERSION.to_owned(),
@@ -253,7 +245,7 @@ impl Domain {
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model instances.
-    pub fn sarzak(&self) -> &SarzakObjectStore {
+    pub fn sarzak(&self) -> &SarzakStore {
         &self.sarzak
     }
 
@@ -261,16 +253,16 @@ impl Domain {
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model UI instances.
-    pub fn drawing(&self) -> &DrawingObjectStore {
+    pub fn drawing(&self) -> &DrawingStore {
         &self.drawing
     }
 }
 
 fn extrude_cuckoo_domain(
-    sarzak_from: &FromSarzakObjectStore,
-    drawing_from: &FromDrawingObjectStore,
-    sarzak_to: &mut SarzakObjectStore,
-    drawing_to: &mut DrawingObjectStore,
+    sarzak_from: &FromSarzakStore,
+    drawing_from: &FromDrawingStore,
+    sarzak_to: &mut SarzakStore,
+    drawing_to: &mut DrawingStore,
 ) {
     // Create instances of primitives missing from nut::sarzak that
     // the extrusion process depends upon.
@@ -292,7 +284,7 @@ fn extrude_cuckoo_domain(
         to: sarzak_to,
     };
 
-    SarzakObjectStore::extrude(sarzak_from.clone(), &mut context);
+    SarzakStore::extrude(sarzak_from.clone(), &mut context);
 
     // More primitives. They also happen to be leaves/roots. Whatever.
     drawing_to.inter_edge(Edge::Top(TOP));
@@ -306,7 +298,7 @@ fn extrude_cuckoo_domain(
         to: drawing_to,
         sarzak: sarzak_to,
     };
-    DrawingObjectStore::extrude(drawing_from.clone(), &mut context);
+    DrawingStore::extrude(drawing_from.clone(), &mut context);
 }
 
 /// Extrude the ObjectStore containing the sarzak domain
@@ -325,8 +317,8 @@ fn extrude_cuckoo_domain(
 /// that they participate in.
 ///
 /// This makes them leaves, without a root. We need to just inter them here.
-impl Extrude<FromSarzakObjectStore, SarzakContext<'_>> for SarzakObjectStore {
-    fn extrude(from: FromSarzakObjectStore, context: &mut SarzakContext) -> Self {
+impl Extrude<FromSarzakStore, SarzakContext<'_>> for SarzakStore {
+    fn extrude(from: FromSarzakStore, context: &mut SarzakContext) -> Self {
         // Iterate over the Attributes and extrude them.
         //
         for (_id, attr) in from.iter_attribute() {
@@ -355,6 +347,42 @@ impl Extrude<FromSarzakObjectStore, SarzakContext<'_>> for SarzakObjectStore {
             context.to.inter_relationship(new);
         }
 
+        // I added a new type, and now we need to create instances of it.
+        // Note that we are doing this all in the context of the new
+        // domain, since it's now complete. This is really a post-extrusing
+        // step, and maybe belongs there. It's here because this is a legit
+        // part of the model, that really could have been done by cuckoo, had
+        // I had the forethought.
+        //
+        // It's pretty neat that I can use all the macro-goodness in the new
+        // version.
+        //
+        // We are doing all the cloning so that we can mutably borrow `context.to`.
+        //
+        let objects: Vec<(Uuid, Object)> = context
+            .to
+            .iter_object()
+            .into_iter()
+            .map(|(u, o)| (*u, o.clone()))
+            .collect();
+        for (_id, obj) in &objects {
+            let referrers: Vec<Referrer> =
+                sarzak_maybe_get_many_r_froms_across_r17!(obj, context.to)
+                    .into_iter()
+                    .cloned()
+                    .collect();
+
+            for referrer in &referrers {
+                let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
+                let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
+                let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
+
+                let reference = Reference::new(context.to, &obj.clone());
+                let ty = Type::Reference(reference.id);
+                context.to.inter_ty(ty);
+            }
+        }
+
         // What's with all this cloning all of a sudden? I'm cloning all over
         // the place...
         context.to.clone()
@@ -370,8 +398,8 @@ impl Extrude<FromSarzakObjectStore, SarzakContext<'_>> for SarzakObjectStore {
 /// means points, and x, and y, and whatnot.
 ///
 /// As above we insert anything that doesn't have an incoming relationship.
-impl Extrude<FromDrawingObjectStore, DrawingContext<'_>> for DrawingObjectStore {
-    fn extrude(from: FromDrawingObjectStore, context: &mut DrawingContext) -> Self {
+impl Extrude<FromDrawingStore, DrawingContext<'_>> for DrawingStore {
+    fn extrude(from: FromDrawingStore, context: &mut DrawingContext) -> Self {
         // Extrude RelationshipUI
         //
         for (_id, rui) in from.iter_relationship_ui() {
@@ -392,19 +420,12 @@ impl Extrude<FromDrawingObjectStore, DrawingContext<'_>> for DrawingObjectStore 
 
 #[cfg(test)]
 mod tests {
-    use std::sync::atomic::{AtomicBool, Ordering};
-
     use super::*;
-    use pretty_env_logger;
-
-    static LOGGER: AtomicBool = AtomicBool::new(false);
+    use env_logger;
 
     #[test]
     fn test_load_sarzak() {
-        if !LOGGER.load(Ordering::Relaxed) {
-            LOGGER.store(true, Ordering::Relaxed);
-            pretty_env_logger::init();
-        }
+        let _ = env_logger::builder().is_test(true).try_init();
 
         let sarzak = DomainBuilder::new()
             .cuckoo_model("models/sarzak.json")
@@ -415,10 +436,7 @@ mod tests {
 
     #[test]
     fn test_builder() {
-        if !LOGGER.load(Ordering::Relaxed) {
-            LOGGER.store(true, Ordering::Relaxed);
-            pretty_env_logger::init();
-        }
+        let _ = env_logger::builder().is_test(true).try_init();
 
         let err = DomainBuilder::new().build();
         assert!(err.is_err());
