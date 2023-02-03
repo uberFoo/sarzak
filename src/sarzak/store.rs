@@ -17,6 +17,7 @@
 //!    * [`Reference`]
 //!    * [`Referrer`]
 //!    * [`Supertype`]
+//!    * [`External`]
 //!    * [`Type`]
 //!    * [`Cardinality`]
 //!    * [`Event`]
@@ -44,8 +45,8 @@ use uuid::Uuid;
 
 use crate::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Cardinality, Conditionality, Event, Isa, Object, Reference, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Type,
+    Cardinality, Conditionality, Event, External, Isa, Object, Reference, Referent, Referrer,
+    Relationship, State, Subtype, Supertype, Type,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -64,6 +65,7 @@ pub struct ObjectStore {
     reference: HashMap<Uuid, Reference>,
     referrer: HashMap<Uuid, Referrer>,
     supertype: HashMap<Uuid, Supertype>,
+    external: HashMap<Uuid, External>,
     ty: HashMap<Uuid, Type>,
     cardinality: HashMap<Uuid, Cardinality>,
     event: HashMap<Uuid, Event>,
@@ -88,6 +90,7 @@ impl ObjectStore {
             reference: HashMap::new(),
             referrer: HashMap::new(),
             supertype: HashMap::new(),
+            external: HashMap::new(),
             ty: HashMap::new(),
             cardinality: HashMap::new(),
             event: HashMap::new(),
@@ -349,6 +352,24 @@ impl ObjectStore {
     ///
     pub fn iter_supertype(&self) -> impl Iterator<Item = (&Uuid, &Supertype)> {
         self.supertype.iter()
+    }
+
+    /// Inter [`External`] into the [`ObjectStore`]
+    ///
+    pub fn inter_external(&mut self, external: External) {
+        self.external.insert(external.id, external);
+    }
+
+    /// Exhume [`External`] from the [`ObjectStore`]
+    ///
+    pub fn exhume_external(&self, id: &Uuid) -> Option<&External> {
+        self.external.get(id)
+    }
+
+    /// Get an iterator over the internal `HashMap<(&Uuid, External)>` in the [`ObjectStore`]
+    ///
+    pub fn iter_external(&self) -> impl Iterator<Item = (&Uuid, &External)> {
+        self.external.iter()
     }
 
     /// Inter [`Type`] into the [`ObjectStore`]

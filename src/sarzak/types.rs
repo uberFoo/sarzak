@@ -20,6 +20,7 @@
 //!    * [`CONDITIONAL`]
 //!    * [`Conditionality`]
 //!    * [`Event`]
+//!    * [`External`]
 //!    * [`FLOAT`]
 //!    * [`INTEGER`]
 //!    * [`Isa`]
@@ -747,6 +748,65 @@ impl Event {
 
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"event-extrude_impl", "is_uber": true}}}
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"event-extrude_impl"}}}
+
+/// External Type
+///
+/// This may literally be anything. It's used during code generation to generate variables names
+/// and type names for things that are outside of a modeled domain. For example, a timer would
+/// be an external type. The specifics of how it is used is up to the model compiler.
+///
+/// In grace, the `name` attribute is used during code generation to create variable names by
+/// converting it to `snake_case`. When used as a type, it is converted to `UpperCamelCase`
+///.
+///
+/// We use `path` as the path is a `use` statement.
+///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"external-struct-definition"}}}
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct External {
+    /// pub id: `Uuid`,
+    ///
+    pub id: Uuid,
+    /// pub name: `std::string::String`,
+    ///
+    pub name: std::string::String,
+    /// pub path: `std::string::String`,
+    ///
+    pub path: std::string::String,
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"external-struct-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"external-new_impl"}}}
+impl External {
+    /// Inter a new External and return it's `id`
+    ///
+    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
+    /// # Example
+    ///
+    ///```
+    /// # use sarzak::sarzak::External;
+    /// # let mut store = sarzak::sarzak::ObjectStore::new();
+    ///
+    /// let dull_respect = "male_structure".to_owned();
+    /// let cloistered_rub = "huge_measure".to_owned();
+    ///
+    /// let external = External::new(&mut store, dull_respect, cloistered_rub);
+    ///```
+    // {"magic":"","kind":"IgnoreBlockEnd"}
+    pub fn new(
+        store: &mut ObjectStore,
+        name: std::string::String,
+        path: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}::{}::", name, path,).as_bytes());
+        let new = Self { id, name, path };
+
+        store.inter_external(new.clone());
+
+        new
+    }
+    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"external-new_impl"}}}
+}
 
 /// The Floating Point Type
 ///
@@ -1519,6 +1579,9 @@ pub enum Type {
     /// `Uuid(Uuid)`,
     ///
     Uuid(Uuid),
+    /// `External(External)`,
+    ///
+    External(Uuid),
     /// `Float(Float)`,
     ///
     Float(Uuid),
@@ -1537,6 +1600,7 @@ impl Type {
             Self::Reference(z) => z,
             Self::String(z) => z,
             Self::Uuid(z) => z,
+            Self::External(z) => z,
             Self::Float(z) => z,
             Self::Integer(z) => z,
         }
