@@ -299,32 +299,31 @@ fn extrude_cuckoo_domain(
     //
     // I'm stealing this loop to also inter a type for owned objects.
     //
-    let objects: Vec<(Uuid, Object)> = context
-        .to
+    let objects: Vec<(Uuid, Object)> = sarzak_to
         .iter_object()
         .into_iter()
         .map(|(u, o)| (*u, o.clone()))
         .collect();
     for (_id, obj) in &objects {
-        let referrers: Vec<Referrer> = sarzak_maybe_get_many_r_froms_across_r17!(obj, context.to)
+        let referrers: Vec<Referrer> = sarzak_maybe_get_many_r_froms_across_r17!(obj, sarzak_to)
             .into_iter()
             .cloned()
             .collect();
 
         // Create on owned type for each object
         let ty = Type::Object(obj.id);
-        context.to.inter_ty(ty);
+        sarzak_to.inter_ty(ty);
 
         // Create a reference type for each object participating as a referent.
         for referrer in &referrers {
-            let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
-            let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
-            let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
+            let binary = sarzak_get_one_r_bin_across_r6!(referrer, sarzak_to);
+            let referent = sarzak_get_one_r_to_across_r5!(binary, sarzak_to);
+            let r_obj = sarzak_get_one_obj_across_r16!(referent, sarzak_to);
 
-            let reference = Reference::new(context.to, &r_obj.clone());
+            let reference = Reference::new(sarzak_to, &r_obj.clone());
             let ty = Type::Reference(reference.id);
 
-            context.to.inter_ty(ty);
+            sarzak_to.inter_ty(ty);
         }
     }
 
