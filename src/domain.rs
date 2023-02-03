@@ -316,16 +316,16 @@ fn extrude_cuckoo_domain(
         context.to.inter_ty(ty);
 
         // Create a reference type for each object participating as a referent.
-        // for referrer in &referrers {
-        //     let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
-        //     let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
-        //     let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
+        for referrer in &referrers {
+            let binary = sarzak_get_one_r_bin_across_r6!(referrer, context.to);
+            let referent = sarzak_get_one_r_to_across_r5!(binary, context.to);
+            let r_obj = sarzak_get_one_obj_across_r16!(referent, context.to);
 
-        let reference = Reference::new(context.to, &obj.clone());
-        let ty = Type::Reference(reference.id);
+            let reference = Reference::new(context.to, &r_obj.clone());
+            let ty = Type::Reference(reference.id);
 
-        context.to.inter_ty(ty);
-        // }
+            context.to.inter_ty(ty);
+        }
     }
 
     // More primitives. They also happen to be leaves/roots. Whatever.
