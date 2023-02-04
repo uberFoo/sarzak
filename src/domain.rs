@@ -18,9 +18,7 @@ use uuid::Uuid;
 use crate::{
     drawing::{
         store::ObjectStore as DrawingStore,
-        types::{
-            Context as DrawingContext, Edge, ObjectUi, RelationshipUi, BOTTOM, LEFT, RIGHT, TOP,
-        },
+        types::{Context as DrawingContext, ObjectUi, RelationshipUi},
     },
     error::{DomainBuilderSnafu, FileOpenSnafu, Result},
     sarzak::{
@@ -30,9 +28,8 @@ use crate::{
         },
         store::ObjectStore as SarzakStore,
         types::{
-            Attribute, Cardinality, Conditionality, Context as SarzakContext, Object, Reference,
-            Referrer, Relationship, Subtype, Type, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE,
-            STRING, UNCONDITIONAL, UUID,
+            Attribute, Context as SarzakContext, Object, Reference, Referrer, Relationship,
+            Subtype, Type,
         },
     },
     VERSION,
@@ -264,19 +261,7 @@ fn extrude_cuckoo_domain(
     sarzak_to: &mut SarzakStore,
     drawing_to: &mut DrawingStore,
 ) {
-    // Create instances of primitives missing from nut::sarzak that
-    // the extrusion process depends upon.
-    sarzak_to.inter_cardinality(Cardinality::One(ONE));
-    sarzak_to.inter_cardinality(Cardinality::Many(MANY));
-
-    sarzak_to.inter_conditionality(Conditionality::Conditional(CONDITIONAL));
-    sarzak_to.inter_conditionality(Conditionality::Unconditional(UNCONDITIONAL));
-
-    sarzak_to.inter_ty(Type::Integer(INTEGER));
-    sarzak_to.inter_ty(Type::Boolean(BOOLEAN));
-    sarzak_to.inter_ty(Type::Float(FLOAT));
-    sarzak_to.inter_ty(Type::String(STRING));
-    sarzak_to.inter_ty(Type::Uuid(UUID));
+    crate::sarzak::init_instances(sarzak_to);
 
     // Extrude the instances in the sarzak domain
     let mut context = SarzakContext {
@@ -327,11 +312,7 @@ fn extrude_cuckoo_domain(
         }
     }
 
-    // More primitives. They also happen to be leaves/roots. Whatever.
-    drawing_to.inter_edge(Edge::Top(TOP));
-    drawing_to.inter_edge(Edge::Left(LEFT));
-    drawing_to.inter_edge(Edge::Right(RIGHT));
-    drawing_to.inter_edge(Edge::Bottom(BOTTOM));
+    crate::drawing::init_instances(drawing_to);
 
     // Extrude the instances in the drawing domain
     let mut context = DrawingContext {

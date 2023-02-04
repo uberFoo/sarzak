@@ -13,3 +13,11 @@ pub use types::*;
 
 // drawing
 pub const UUID_NS: Uuid = uuid!("0d035b17-076b-5848-b20f-ee05ce7738a9");
+
+pub fn init_instances(store: &mut ObjectStore) {
+    // More primitives. They also happen to be leaves/roots. Whatever.
+    store.inter_edge(Edge::Top(TOP));
+    store.inter_edge(Edge::Left(LEFT));
+    store.inter_edge(Edge::Right(RIGHT));
+    store.inter_edge(Edge::Bottom(BOTTOM));
+}

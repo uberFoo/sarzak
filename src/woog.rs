@@ -7,18 +7,19 @@ pub mod macros;
 pub mod store;
 pub mod types;
 
+pub use macros::*;
 pub use store::ObjectStore;
 pub use types::*;
-pub use macros::*;
 
 // woog
 pub const UUID_NS: Uuid = uuid!("288d4258-fdbd-52dd-a38b-976fd132d096");
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn test() {
-    }
+pub fn init_instances(store: &mut ObjectStore) {
+    // Initialize with primitives.
+    store.inter_visibility(Visibility::Public(PUBLIC));
+    store.inter_visibility(Visibility::Private(PRIVATE));
+    store.inter_visibility(Visibility::Crate(CRATE));
+
+    store.inter_mutability(Mutability::Mutable(MUTABLE));
+    store.inter_mutability(Mutability::Borrowed(BORROWED));
 }
