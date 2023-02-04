@@ -7,7 +7,10 @@
 //! # Contents
 //!
 //! The following types are defined herein:
+//!    * [`BORROWED`]
 //!    * [`CRATE`]
+//!    * [`Mutability`]
+//!    * [`MUTABLE`]
 //!    * [`ObjectMethod`]
 //!    * [`Parameter`]
 //!    * [`PRIVATE`]
@@ -41,6 +44,15 @@ use crate::sarzak::types::Object;
 use crate::sarzak::types::Type;
 // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"imported-objects"}}}
 
+/// Borrowed
+///
+/// The type is declared as borrowed.
+///
+/// ❗️{"singleton_object": true}
+///
+//
+pub const BORROWED: Uuid = uuid!["bc521a10-95c0-55b3-9387-5e2691291f9c"];
+
 /// Crate Visibility
 ///
 /// The item is visibile within the crate.
@@ -49,6 +61,54 @@ use crate::sarzak::types::Type;
 ///
 //
 pub const CRATE: Uuid = uuid!["496576fa-9b03-5488-8364-0ec9371a7570"];
+
+/// Type Mutability
+///
+/// This is tied closely with Rust. There are two possible options: mutable and borrowed.
+///
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"mutability-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum Mutability {
+    /// `Borrowed(Borrowed)`,
+    ///
+    Borrowed(Uuid),
+    /// `Mutable(Mutable)`,
+    ///
+    Mutable(Uuid),
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"{}-enum-definition"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"Mutability-enum-get-id-impl"}}}
+impl Mutability {
+    pub fn get_id(&self) -> Uuid {
+        match *self {
+            Self::Borrowed(z) => z,
+            Self::Mutable(z) => z,
+        }
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"Mutability-enum-get-id-impl"}}}
+
+// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"mutability-test_default"}}}
+impl Mutability {
+    pub fn test_default(store: &mut ObjectStore) -> Self {
+        let test = Self::Borrowed(BORROWED);
+
+        store.inter_mutability(test.clone());
+
+        test
+    }
+}
+// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"mutability-test_default"}}}
+
+/// Mutable
+///
+/// The type is declared as `mut`.
+///
+/// ❗️{"singleton_object": true}
+///
+//
+pub const MUTABLE: Uuid = uuid!["5380da57-2761-5f77-864e-2eb366eeb83d"];
 
 /// Method
 ///
@@ -103,29 +163,31 @@ impl ObjectMethod {
     ///```
     /// # use sarzak::sarzak::Type;
     /// # use sarzak::woog::Visibility;
-    /// # use sarzak::woog::ObjectMethod;
+    /// # use sarzak::woog::Mutability;
     /// # use sarzak::woog::Parameter;
+    /// # use sarzak::woog::ObjectMethod;
     /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::woog::ObjectStore::new();
     /// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let type_uep = Type::test_default(&mut sarzak_store);
+    /// let mutability_qxl = Mutability::test_default(&mut store);
+    /// let type_fgd = Type::test_default(&mut sarzak_store);
     ///
-    /// let visibility_umv = Visibility::test_default(&mut store);
-    /// let handsomely_steam = "protective_brain".to_owned();
-    /// let parameter = Parameter::new(&mut store, None, &type_uep, &visibility_umv, handsomely_steam);
-    /// let full_agreement = "unbecoming_songs".to_owned();
-    /// let slippery_polish = "hanging_actor".to_owned();
-    /// let easy_opinion = "homely_memory".to_owned();
-    /// let object_bbl = Object::default();
+    /// let visibility_ssb = Visibility::test_default(&mut store);
+    /// let telling_jellyfish = "condemned_zinc".to_owned();
+    /// let parameter = Parameter::new(&mut store, &mutability_qxl, None, &type_fgd, &visibility_ssb, telling_jellyfish);
+    /// let dispensable_teeth = "thundering_purpose".to_owned();
+    /// let upset_stage = "windy_meal".to_owned();
+    /// let heavy_jam = "dashing_show".to_owned();
+    /// let object_ndm = Object::default();
     ///
-    /// let type_ftz = Type::test_default(&mut sarzak_store);
+    /// let type_qsj = Type::test_default(&mut sarzak_store);
     ///
-    /// let visibility_nbf = Visibility::test_default(&mut store);
-    /// let adhesive_quicksand = "green_snails".to_owned();
-    /// let axiomatic_snake = "future_fan".to_owned();
+    /// let visibility_vmr = Visibility::test_default(&mut store);
+    /// let vigorous_son = "reminiscent_cry".to_owned();
+    /// let messy_destruction = "highfalutin_leg".to_owned();
     ///
-    /// let object_method = ObjectMethod::new(&mut store, Some(&parameter), &object_bbl, &type_ftz, &visibility_nbf, adhesive_quicksand, axiomatic_snake);
+    /// let object_method = ObjectMethod::new(&mut store, Some(&parameter), &object_ndm, &type_qsj, &visibility_vmr, vigorous_son, messy_destruction);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
@@ -177,6 +239,9 @@ pub struct Parameter {
     /// pub name: `std::string::String`,
     ///
     pub name: std::string::String,
+    /// pub mutability: `Mutability`,
+    ///
+    pub mutability: Uuid,
     /// pub next: `Option<Parameter>`,
     ///
     pub next: Option<Uuid>,
@@ -198,23 +263,25 @@ impl Parameter {
     /// # Example
     ///
     ///```
-    /// # use sarzak::woog::Parameter;
     /// # use sarzak::sarzak::Type;
+    /// # use sarzak::woog::Mutability;
+    /// # use sarzak::woog::Parameter;
     /// # use sarzak::woog::Visibility;
     /// # let mut store = sarzak::woog::ObjectStore::new();
     /// # let mut sarzak_store = sarzak::sarzak::ObjectStore::new();
-
     ///
-    /// let type_mmv = Type::test_default(&mut sarzak_store);
+    /// let mutability_qhl = Mutability::test_default(&mut store);
+    /// let type_bgv = Type::test_default(&mut sarzak_store);
     ///
-    /// let visibility_hpe = Visibility::test_default(&mut store);
-    /// let flashy_sense = "last_weight".to_owned();
+    /// let visibility_avh = Visibility::test_default(&mut store);
+    /// let important_trade = "cloudy_stocking".to_owned();
     ///
-    /// let parameter = Parameter::new(&mut store, None, &type_mmv, &visibility_hpe, flashy_sense);
+    /// let parameter = Parameter::new(&mut store, &mutability_qhl, None, &type_bgv, &visibility_avh, important_trade);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
         store: &mut ObjectStore,
+        mutability: &Mutability,
         next: Option<&Parameter>,
         ty: &Type,
         visibility: &Visibility,
@@ -223,10 +290,16 @@ impl Parameter {
         let id = Uuid::new_v5(
             &UUID_NS,
             //             format!("{:?}::{:?}::{}::", next, ty, name,).as_bytes(), //⚡️
-            format!("{:?}::{:?}::{:?}::{}::", next, ty, visibility, name,).as_bytes(),
+            //             format!("{:?}::{:?}::{:?}::{}::", next, ty, visibility, name,).as_bytes(), //⚡️
+            format!(
+                "{:?}::{:?}::{:?}::{:?}::{}::",
+                mutability, next, ty, visibility, name,
+            )
+            .as_bytes(),
         );
         let new = Self {
             id,
+            mutability: mutability.get_id(),
             next: next.map(|o| o.id),
             ty: ty.get_id(),
             visibility: visibility.get_id(),

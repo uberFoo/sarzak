@@ -3,6 +3,7 @@
 //! An end user should have little need to use this directly.
 //!
 //! This store contains the following instances:
+//!    * [`Mutability`]
 //!    * [`ObjectMethod`]
 //!    * [`Parameter`]
 //!    * [`Visibility`]
@@ -25,10 +26,11 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::woog::types::{ObjectMethod, Parameter, Visibility};
+use crate::woog::types::{Mutability, ObjectMethod, Parameter, Visibility};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
+    mutability: HashMap<Uuid, Mutability>,
     object_method: HashMap<Uuid, ObjectMethod>,
     parameter: HashMap<Uuid, Parameter>,
     visibility: HashMap<Uuid, Visibility>,
@@ -37,10 +39,29 @@ pub struct ObjectStore {
 impl ObjectStore {
     pub fn new() -> Self {
         Self {
+            mutability: HashMap::new(),
             object_method: HashMap::new(),
             parameter: HashMap::new(),
             visibility: HashMap::new(),
         }
+    }
+
+    /// Inter [`Mutability`] into the [`ObjectStore`]
+    ///
+    pub fn inter_mutability(&mut self, mutability: Mutability) {
+        self.mutability.insert(mutability.get_id(), mutability);
+    }
+
+    /// Exhume [`Mutability`] from the [`ObjectStore`]
+    ///
+    pub fn exhume_mutability(&self, id: &Uuid) -> Option<&Mutability> {
+        self.mutability.get(id)
+    }
+
+    /// Get an iterator over the internal `HashMap<(&Uuid, Mutability)>` in the [`ObjectStore`]
+    ///
+    pub fn iter_mutability(&self) -> impl Iterator<Item = (&Uuid, &Mutability)> {
+        self.mutability.iter()
     }
 
     /// Inter [`ObjectMethod`] into the [`ObjectStore`]
