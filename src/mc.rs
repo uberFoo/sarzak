@@ -38,6 +38,7 @@ pub trait SarzakModelCompiler {
     fn compile<P: AsRef<Path>>(
         &self,
         domain: DomainBuilder,
+        package: &str,
         module: &str,
         src_path: P,
         options: Box<&dyn ModelCompilerOptions>,
