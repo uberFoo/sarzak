@@ -22,14 +22,9 @@ use crate::{
     },
     error::{DomainBuilderSnafu, FileOpenSnafu, Result},
     sarzak::{
-        macros::{
-            sarzak_get_one_obj_across_r16, sarzak_get_one_r_bin_across_r6,
-            sarzak_get_one_r_to_across_r5, sarzak_maybe_get_many_r_froms_across_r17,
-        },
         store::ObjectStore as SarzakStore,
         types::{
-            Attribute, Context as SarzakContext, Object, Reference, Referrer, Relationship,
-            Subtype, Type,
+            Attribute, Context as SarzakContext, Object, Reference, Relationship, Subtype, Type,
         },
     },
     VERSION,
@@ -272,7 +267,7 @@ fn extrude_cuckoo_domain(
 
     // I added a new type, and now we need to create instances of it.
     // Note that we are doing this all in the context of the new
-    // domain, since it's now complete. This is really a post-extrusing
+    // domain, since it's now complete. This is really a post-extrusion
     // step, and maybe belongs there. It's here because this is a legit
     // part of the model, that really could have been done by cuckoo, had
     // I had the forethought.
@@ -290,26 +285,15 @@ fn extrude_cuckoo_domain(
         .map(|(u, o)| (*u, o.clone()))
         .collect();
     for (_id, obj) in &objects {
-        let referrers: Vec<Referrer> = sarzak_maybe_get_many_r_froms_across_r17!(obj, sarzak_to)
-            .into_iter()
-            .cloned()
-            .collect();
-
         // Create on owned type for each object
         let ty = Type::Object(obj.id);
         sarzak_to.inter_ty(ty);
 
-        // Create a reference type for each object participating as a referent.
-        for referrer in &referrers {
-            let binary = sarzak_get_one_r_bin_across_r6!(referrer, sarzak_to);
-            let referent = sarzak_get_one_r_to_across_r5!(binary, sarzak_to);
-            let r_obj = sarzak_get_one_obj_across_r16!(referent, sarzak_to);
+        // Create a reference type for each object.
+        let reference = Reference::new(sarzak_to, obj);
+        let ty = Type::Reference(reference.id);
 
-            let reference = Reference::new(sarzak_to, &r_obj.clone());
-            let ty = Type::Reference(reference.id);
-
-            sarzak_to.inter_ty(ty);
-        }
+        sarzak_to.inter_ty(ty);
     }
 
     crate::drawing::init_instances(drawing_to);
