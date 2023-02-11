@@ -761,6 +761,13 @@ impl Event {
 ///
 /// We use `path` as the path is a `use` statement.
 ///
+/// I'm updating this while trying to use it, so this description is going to be rather incoherent
+/// until things settle down.
+///
+/// The way I'm using this, and hopefully the way that will always accommodate, is as a singleton
+/// within a particular function scope. Maybe it's a system-wide singleton? I dunno. But it's
+/// a singleton.
+///
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"external-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct External {
