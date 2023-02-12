@@ -1005,62 +1005,6 @@ impl Extrude<nut::sarzak::Object, Context<'_>> for Object {
 //
 pub const ONE: Uuid = uuid!["bf6924bb-089d-5c1f-bc1f-123ba1fd1ea3"];
 
-/// A Reference Type
-///
-/// This is the type used in relationship formalization. I'm actually not completely buying
-/// into this. I need a reference type, and this does meet that criterion. It's a reference
-/// to [`Object`] though. The things formalizing relationships look like references to the things
-/// on the other side of thet arrow.
-///
-/// Maybe if I take this to mean just a reference type, and don't tie it directly to [`Object
-///`]? I'm going to go that route I think.
-///
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"reference-struct-definition"}}}
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
-pub struct Reference {
-    /// pub id: `Uuid`,
-    ///
-    pub id: Uuid,
-    /// pub object: `Object`,
-    ///
-    pub object: Uuid,
-}
-// {"magic":"","kind":{"CriticalBlockEnd":{"tag":"reference-struct-definition"}}}
-
-// {"magic":"","kind":{"CriticalBlockBegin":{"tag":"reference-new_impl"}}}
-impl Reference {
-    /// Inter a new Reference and return it's `id`
-    ///
-    // {"magic":"","kind":{"IgnoreBlockBegin":{}}}
-    /// # Example
-    ///
-    ///```
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Reference;
-    /// # let mut store = sarzak::sarzak::ObjectStore::new();
-    ///
-    /// let second_hall = "attractive_flight".to_owned();
-    /// let calm_discovery = "warm_glove".to_owned();
-    /// let friendly_giraffe = "stale_hospital".to_owned();
-    /// let object_xes = Object::new(&mut store, second_hall, calm_discovery, friendly_giraffe);
-    ///
-    /// let reference = Reference::new(&mut store, &object_xes);
-    ///```
-    // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, object: &Object) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", object,).as_bytes());
-        let new = Self {
-            id,
-            object: object.id,
-        };
-
-        store.inter_reference(new.clone());
-
-        new
-    }
-    // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"reference-new_impl"}}}
-}
-
 /// This is the side being referred to in a binary relationship. It is the “to” side.
 ///
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"referent-struct-definition"}}}
@@ -1577,9 +1521,6 @@ pub enum Type {
     /// `Object(Object)`,
     ///
     Object(Uuid),
-    /// `Reference(Reference)`,
-    ///
-    Reference(Uuid),
     /// `String(String)`,
     ///
     String(Uuid),
@@ -1604,7 +1545,6 @@ impl Type {
         match *self {
             Self::Boolean(z) => z,
             Self::Object(z) => z,
-            Self::Reference(z) => z,
             Self::String(z) => z,
             Self::Uuid(z) => z,
             Self::External(z) => z,

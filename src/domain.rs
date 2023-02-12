@@ -23,9 +23,7 @@ use crate::{
     error::{DomainBuilderSnafu, FileOpenSnafu, Result},
     sarzak::{
         store::ObjectStore as SarzakStore,
-        types::{
-            Attribute, Context as SarzakContext, Object, Reference, Relationship, Subtype, Type,
-        },
+        types::{Attribute, Context as SarzakContext, Object, Relationship, Subtype, Type},
     },
     VERSION,
 };
@@ -276,9 +274,6 @@ fn extrude_cuckoo_domain(
     // version.
     //
     // We are doing all the cloning so that we can mutably borrow `context.to`.
-    //
-    // I'm stealing this loop to also inter a type for owned objects.
-    //
     let objects: Vec<(Uuid, Object)> = sarzak_to
         .iter_object()
         .into_iter()
@@ -287,12 +282,6 @@ fn extrude_cuckoo_domain(
     for (_id, obj) in &objects {
         // Create on owned type for each object
         let ty = Type::Object(obj.id);
-        sarzak_to.inter_ty(ty);
-
-        // Create a reference type for each object.
-        let reference = Reference::new(sarzak_to, obj);
-        let ty = Type::Reference(reference.id);
-
         sarzak_to.inter_ty(ty);
     }
 
