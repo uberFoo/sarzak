@@ -181,6 +181,7 @@ impl DomainBuilder {
 
         Ok(Domain::new(
             model.domain,
+            model.id,
             model.description,
             sarzak,
             drawing,
@@ -192,6 +193,7 @@ impl DomainBuilder {
 pub struct Domain {
     version: String,
     domain: String,
+    id: Uuid,
     description: String,
     sarzak: SarzakStore,
     drawing: DrawingStore,
@@ -204,16 +206,18 @@ impl Domain {
     /// a generally useful means of creating a domain.
     pub(crate) fn new(
         domain: String,
+        id: Uuid,
         description: String,
         sarzak: SarzakStore,
         drawing: DrawingStore,
     ) -> Self {
         let domain = Domain {
             version: VERSION.to_owned(),
-            domain: domain,
-            description: description,
-            sarzak: sarzak,
-            drawing: drawing,
+            domain,
+            id,
+            description,
+            sarzak,
+            drawing,
         };
 
         domain
@@ -223,6 +227,12 @@ impl Domain {
     ///
     pub fn domain(&self) -> &str {
         &self.domain
+    }
+
+    /// Return the UUID of the domain.
+    ///
+    pub fn id(&self) -> &Uuid {
+        &self.id
     }
 
     /// Return the domain description
