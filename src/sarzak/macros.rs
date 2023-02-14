@@ -2379,7 +2379,7 @@ macro_rules! sarzak_get_one_r_assoc_across_r23 {
             .iter_associative()
             .find(|z| z.1.one == $input.id)
             .map(|z| z.1)
-            .unwrap()
+        // Note that I removed the `unwrap()` here, because the model is wrong.
         // {"magic":"","kind":{"CriticalBlockEnd":{"tag":"associative_referent-associative-emit_one_unconditional_lookup"}}}
     }};
 }
