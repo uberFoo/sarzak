@@ -27,7 +27,6 @@
 //!    * [`MANY`]
 //!    * [`Object`]
 //!    * [`ONE`]
-//!    * [`Reference`]
 //!    * [`Referent`]
 //!    * [`Referrer`]
 //!    * [`Relationship`]
@@ -168,30 +167,40 @@ impl Associative {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::AssociativeReferent;
-    /// # use sarzak::sarzak::Object;
-    /// # use sarzak::sarzak::Associative;
+    /// # use sarzak::sarzak::Conditionality;
+    /// # use sarzak::sarzak::Cardinality;
     /// # use sarzak::sarzak::AssociativeReferrer;
+    /// # use sarzak::sarzak::AssociativeReferent;
+    /// # use sarzak::sarzak::Associative;
+    /// # use sarzak::sarzak::Object;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let mundane_bed = "oval_meal".to_owned();
-    /// let helpful_answer = "valuable_window".to_owned();
-    /// let married_lamp = "tasteful_zebra".to_owned();
-    /// let object_lpx = Object::new(&mut store, mundane_bed, helpful_answer, married_lamp);
-    /// let associative_referent_tun = AssociativeReferent::new(&mut store, &object_lpx);
-    /// let sophisticated_increase = "next_orange".to_owned();
-    /// let trashy_tray = "itchy_sneeze".to_owned();
-    /// let repulsive_curtain = "cumbersome_dog".to_owned();
-    /// let object_dde = Object::new(&mut store, sophisticated_increase, trashy_tray, repulsive_curtain);
-    /// let associative_referent_etw = AssociativeReferent::new(&mut store, &object_dde);
-    /// let lazy_tomatoes = "moldy_request".to_owned();
-    /// let deeply_fold = "annoyed_toothbrush".to_owned();
-    /// let tough_hammer = "fluttering_pies".to_owned();
-    /// let object_zuc = Object::new(&mut store, lazy_tomatoes, deeply_fold, tough_hammer);
-    /// let associative_referrer_ekw = AssociativeReferrer::new(&mut store, &object_zuc);
+    /// let conditionality_xmj = Conditionality::test_default(&mut store);
+    /// let charming_disease = "uneven_bubble".to_owned();
+    /// let gainful_flower = "graceful_mist".to_owned();
+    /// let observant_breakfast = "necessary_coach".to_owned();
+    /// let object_azc = Object::new(&mut store, charming_disease, gainful_flower, observant_breakfast);
+    /// let cardinality_mqd = Cardinality::test_default(&mut store);
+    /// let silky_coat = "guiltless_property".to_owned();
+    /// let associative_referent_hbg = AssociativeReferent::new(&mut store, &conditionality_xmj, &object_azc, &cardinality_mqd, silky_coat);
+    /// let conditionality_bif = Conditionality::test_default(&mut store);
+    /// let frightening_sofa = "halting_ship".to_owned();
+    /// let uncovered_army = "therapeutic_rat".to_owned();
+    /// let false_haircut = "unarmed_pot".to_owned();
+    /// let object_xrv = Object::new(&mut store, frightening_sofa, uncovered_army, false_haircut);
+    /// let cardinality_aiu = Cardinality::test_default(&mut store);
+    /// let next_thunder = "knowing_pet".to_owned();
+    /// let associative_referent_hrb = AssociativeReferent::new(&mut store, &conditionality_bif, &object_xrv, &cardinality_aiu, next_thunder);
+    /// let determined_event = "careless_drawer".to_owned();
+    /// let fluttering_talk = "boorish_needle".to_owned();
+    /// let labored_knee = "bright_hose".to_owned();
+    /// let object_see = Object::new(&mut store, determined_event, fluttering_talk, labored_knee);
+    /// let cardinality_wrk = Cardinality::test_default(&mut store);
+    /// let pushy_lace = "addicted_rings".to_owned();
+    /// let uttermost_seat = "flowery_stitch".to_owned();
+    /// let associative_referrer_qgt = AssociativeReferrer::new(&mut store, &object_see, &cardinality_wrk, pushy_lace, uttermost_seat);
     ///
-    /// let associative = Associative::new(&mut store, &associative_referent_tun, &associative_referent_etw, &associative_referrer_ekw, 42);
-    ///```
+    /// let associative = Associative::new(&mut store, &associative_referent_hbg, &associative_referent_hrb, &associative_referrer_qgt, 42);
     // {"magic":"","kind":"IgnoreBlockEnd"}
     pub fn new(
         store: &mut ObjectStore,
@@ -259,9 +268,18 @@ impl Extrude<nut::sarzak::Associative, Context<'_>> for Associative {
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"associative_referent-struct-definition"}}}
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AssociativeReferent {
+    /// pub description: `std::string::String`,
+    ///
+    pub description: std::string::String,
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
+    /// pub cardinality: `Cardinality`,
+    ///
+    pub cardinality: Uuid,
+    /// pub conditionality: `Conditionality`,
+    ///
+    pub conditionality: Uuid,
     /// pub obj_id: `Object`,
     ///
     pub obj_id: Uuid,
@@ -277,22 +295,43 @@ impl AssociativeReferent {
     ///
     ///```
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::Conditionality;
     /// # use sarzak::sarzak::AssociativeReferent;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let innocent_crowd = "nine_observation".to_owned();
-    /// let decisive_sleep = "internal_yak".to_owned();
-    /// let ceaseless_giants = "tan_slave".to_owned();
-    /// let object_rcv = Object::new(&mut store, innocent_crowd, decisive_sleep, ceaseless_giants);
+    /// let conditionality_ehn = Conditionality::test_default(&mut store);
+    /// let easy_offer = "amused_hearing".to_owned();
+    /// let little_flowers = "fascinated_cemetery".to_owned();
+    /// let ahead_cake = "ludicrous_coil".to_owned();
+    /// let object_wpa = Object::new(&mut store, easy_offer, little_flowers, ahead_cake);
+    /// let cardinality_wlm = Cardinality::test_default(&mut store);
+    /// let thick_expert = "lame_paint".to_owned();
     ///
-    /// let associative_referent = AssociativeReferent::new(&mut store, &object_rcv);
+    /// let associative_referent = AssociativeReferent::new(&mut store, &conditionality_ehn, &object_wpa, &cardinality_wlm, thick_expert);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        conditionality: &Conditionality,
+        obj_id: &Object,
+        cardinality: &Cardinality,
+        description: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!(
+                "{:?}::{:?}::{:?}::{}::",
+                conditionality, obj_id, cardinality, description,
+            )
+            .as_bytes(),
+        );
         let new = Self {
             id,
+            conditionality: conditionality.get_id(),
             obj_id: obj_id.id,
+            cardinality: cardinality.get_id(),
+            description,
         };
 
         store.inter_associative_referent(new.clone());
@@ -307,6 +346,9 @@ impl Extrude<nut::sarzak::AssociativeReferent, Context<'_>> for AssociativeRefer
     fn extrude(orig: nut::sarzak::AssociativeReferent, _context: &mut Context<'_>) -> Self {
         Self {
             id: orig.id,
+            description: orig.description.to_owned(),
+            cardinality: Cardinality::get_cardinality_from_nut(&orig.cardinality),
+            conditionality: Conditionality::get_conditionality_from_nut(&orig.conditionality),
             obj_id: orig.obj_id,
         }
     }
@@ -324,6 +366,15 @@ pub struct AssociativeReferrer {
     /// pub id: `Uuid`,
     ///
     pub id: Uuid,
+    /// pub one_referential_attribute: `std::string::String`,
+    ///
+    pub one_referential_attribute: std::string::String,
+    /// pub other_referential_attribute: `std::string::String`,
+    ///
+    pub other_referential_attribute: std::string::String,
+    /// pub cardinality: `Cardinality`,
+    ///
+    pub cardinality: Uuid,
     /// pub obj_id: `Object`,
     ///
     pub obj_id: Uuid,
@@ -338,23 +389,43 @@ impl AssociativeReferrer {
     /// # Example
     ///
     ///```
-    /// # use sarzak::sarzak::AssociativeReferrer;
     /// # use sarzak::sarzak::Object;
+    /// # use sarzak::sarzak::Cardinality;
+    /// # use sarzak::sarzak::AssociativeReferrer;
     /// # let mut store = sarzak::sarzak::ObjectStore::new();
     ///
-    /// let kaput_fire = "fair_bell".to_owned();
-    /// let direful_society = "lavish_waves".to_owned();
-    /// let boiling_joke = "swanky_chickens".to_owned();
-    /// let object_lpu = Object::new(&mut store, kaput_fire, direful_society, boiling_joke);
+    /// let versed_cloud = "efficacious_visitor".to_owned();
+    /// let acrid_circle = "different_chance".to_owned();
+    /// let exuberant_game = "willing_desire".to_owned();
+    /// let object_wux = Object::new(&mut store, versed_cloud, acrid_circle, exuberant_game);
+    /// let cardinality_tyt = Cardinality::test_default(&mut store);
+    /// let high_pitched_song = "good_tent".to_owned();
+    /// let insidious_insurance = "callous_science".to_owned();
     ///
-    /// let associative_referrer = AssociativeReferrer::new(&mut store, &object_lpu);
+    /// let associative_referrer = AssociativeReferrer::new(&mut store, &object_wux, &cardinality_tyt, high_pitched_song, insidious_insurance);
     ///```
     // {"magic":"","kind":"IgnoreBlockEnd"}
-    pub fn new(store: &mut ObjectStore, obj_id: &Object) -> Self {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}::", obj_id,).as_bytes());
+    pub fn new(
+        store: &mut ObjectStore,
+        obj_id: &Object,
+        cardinality: &Cardinality,
+        other_referential_attribute: std::string::String,
+        one_referential_attribute: std::string::String,
+    ) -> Self {
+        let id = Uuid::new_v5(
+            &UUID_NS,
+            format!(
+                "{:?}::{:?}::{}::{}::",
+                obj_id, cardinality, other_referential_attribute, one_referential_attribute,
+            )
+            .as_bytes(),
+        );
         let new = Self {
             id,
             obj_id: obj_id.id,
+            cardinality: cardinality.get_id(),
+            other_referential_attribute,
+            one_referential_attribute,
         };
 
         store.inter_associative_referrer(new.clone());
@@ -369,7 +440,10 @@ impl Extrude<nut::sarzak::AssociativeReferrer, Context<'_>> for AssociativeRefer
     fn extrude(orig: nut::sarzak::AssociativeReferrer, _context: &mut Context<'_>) -> Self {
         Self {
             id: orig.id,
+            cardinality: Cardinality::get_cardinality_from_nut(&orig.cardinality),
             obj_id: orig.obj_id,
+            one_referential_attribute: orig.one_referential_attribute.inner().clone(),
+            other_referential_attribute: orig.other_referential_attribute.inner().clone(),
         }
     }
 }

@@ -1372,6 +1372,11 @@
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
                         "name": "id",
                         "type": "Uuid"
+                    },
+                    "2a13abe6-c6de-5de5-9c2c-8f99f544fafe": {
+                        "id": "2a13abe6-c6de-5de5-9c2c-8f99f544fafe",
+                        "name": "description",
+                        "type": "String"
                     }
                 }
             },
@@ -1385,6 +1390,16 @@
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
                         "name": "id",
                         "type": "Uuid"
+                    },
+                    "81721fb2-d4e6-5b63-8f64-a05519af7096": {
+                        "id": "81721fb2-d4e6-5b63-8f64-a05519af7096",
+                        "name": "one_referential_attribute",
+                        "type": "String"
+                    },
+                    "d0f908ef-8422-5192-b6f6-8af3cfdf0311": {
+                        "id": "d0f908ef-8422-5192-b6f6-8af3cfdf0311",
+                        "name": "other_referential_attribute",
+                        "type": "String"
                     }
                 }
             },
@@ -1440,9 +1455,69 @@
             "5b472eef-f651-57b7-8934-e542b4ed68fd",
             "8505c124-7598-5d3c-9bb9-5d02f5d78d49",
             "7fb627b6-22eb-59c8-b0ed-cdc293d5f416",
-            "f753e661-bc9a-55d5-940f-50eed71955b8"
+            "f753e661-bc9a-55d5-940f-50eed71955b8",
+            "3a0223c5-1e22-575a-8b8a-2096b588697d",
+            "830d56f8-77bb-5376-8b35-89e6b69fb0fe",
+            "55173f91-0d27-521a-becd-b1fbf310ec0e"
         ],
         "entities": {
+            "55173f91-0d27-521a-becd-b1fbf310ec0e": {
+                "Binary": {
+                    "id": "55173f91-0d27-521a-becd-b1fbf310ec0e",
+                    "number": 77,
+                    "from": {
+                        "obj_id": "e38511e6-1f25-503c-bf93-508885852440",
+                        "description": "applies to",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "conditionality"
+                    },
+                    "to": {
+                        "obj_id": "438b6783-15d1-5767-af60-900b3738fc9e",
+                        "description": "has",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "830d56f8-77bb-5376-8b35-89e6b69fb0fe": {
+                "Binary": {
+                    "id": "830d56f8-77bb-5376-8b35-89e6b69fb0fe",
+                    "number": 89,
+                    "from": {
+                        "obj_id": "faa5a05c-7252-5b3d-b415-ad3884269154",
+                        "description": "applies to",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "cardinality"
+                    },
+                    "to": {
+                        "obj_id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                        "description": "has",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "3a0223c5-1e22-575a-8b8a-2096b588697d": {
+                "Binary": {
+                    "id": "3a0223c5-1e22-575a-8b8a-2096b588697d",
+                    "number": 88,
+                    "from": {
+                        "obj_id": "e38511e6-1f25-503c-bf93-508885852440",
+                        "description": "applies to",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "cardinality"
+                    },
+                    "to": {
+                        "obj_id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                        "description": "has",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
             "cb3430e7-8df8-5def-8c1d-b796939045e4": {
                 "Binary": {
                     "id": "cb3430e7-8df8-5def-8c1d-b796939045e4",
