@@ -997,7 +997,7 @@ pub const MANY: Uuid = uuid!["0614a507-4422-5994-a59d-68dc57d2c328"];
 /// version 5 UUID.
 ///
 // {"magic":"","kind":{"CriticalBlockBegin":{"tag":"object-struct-definition"}}}
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Object {
     /// pub description: `std::string::String`,
     ///
