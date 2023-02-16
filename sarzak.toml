@@ -1,14 +1,29 @@
-[domains]
-sarzak = { path = "models/sarzak.json", module = "sarzak", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = false } }
-drawing = { path = "models/drawing.json", module = "drawing", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = false } }
+[modules.sarzak]
+domain = "models/sarzak_✨.json"
 
-[domains.woog]
-path = "models/woog.json"
-module = "woog"
+[modules.sarzak.compiler]
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+use_paths = ["serde::{Deserializa, Serialize}"]
+imported_objects = false
+target = "Domain"
 
-[domains.woog.sarzak]
-new = true
-meta = true
-doc_tests = true
-extrude = false
-ignore_ignore = false
+[modules.drawing]
+domain = "models/drawing.json"
+
+[modules.drawing.compiler]
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+use_paths = ["serde::{Deserializa, Serialize}"]
+imported_objects = false
+target = "Domain"
+
+[modules.woog]
+domain = "models/woog.json"
+
+[modules.woog.compiler]
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+use_paths = ["serde::{Deserializa, Serialize}"]
+imported_objects = false
+target = "Domain"
