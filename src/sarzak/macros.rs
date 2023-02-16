@@ -2366,7 +2366,7 @@ pub use sarzak_get_one_ass_to_across_r23;
 /// let associative = Associative::new(&mut store, &associative_referent_aqv, &associative_referent_ibk, &associative_referrer_bad, 42);
 /// let associative_kzw = sarzak_get_one_r_assoc_across_r23!(associative_referent_aqv, store);
 ///
-/// assert_eq!(&associative, associative_kzw);
+/// assert_eq!(Some(&associative), associative_kzw);
 ///```
 // {"magic":"","kind":"IgnoreBlockEnd"}
 #[macro_export]
