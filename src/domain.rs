@@ -16,12 +16,12 @@ use snafu::prelude::*;
 use uuid::Uuid;
 
 use crate::{
-    drawing::{
+    drawing_v1::{
         store::ObjectStore as DrawingStore,
         types::{Context as DrawingContext, ObjectUi, RelationshipUi},
     },
     error::{DomainBuilderSnafu, FileOpenSnafu, Result},
-    sarzak::{
+    sarzak_v1::{
         store::ObjectStore as SarzakStore,
         types::{Attribute, Context as SarzakContext, Object, Relationship, Subtype, Type},
     },
@@ -51,7 +51,7 @@ use crate::{
 /// extrusion.
 ///
 /// ```
-/// # use sarzak::sarzak::{Cardinality, ONE, MANY};
+/// # use sarzak::sarzak_v1::{Cardinality, ONE, MANY};
 /// # use sarzak::domain::DomainBuilder;
 /// # const SARZAK_MODEL:&str = "models/sarzak.json";
 /// let sarzak = DomainBuilder::new()
@@ -264,7 +264,7 @@ fn extrude_cuckoo_domain(
     sarzak_to: &mut SarzakStore,
     drawing_to: &mut DrawingStore,
 ) {
-    crate::sarzak::init_instances(sarzak_to);
+    crate::sarzak_v1::init_instances(sarzak_to);
 
     // Extrude the instances in the sarzak domain
     let mut context = SarzakContext {
@@ -295,7 +295,7 @@ fn extrude_cuckoo_domain(
         sarzak_to.inter_ty(ty);
     }
 
-    crate::drawing::init_instances(drawing_to);
+    crate::drawing_v1::init_instances(drawing_to);
 
     // Extrude the instances in the drawing domain
     let mut context = DrawingContext {

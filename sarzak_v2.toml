@@ -18,12 +18,12 @@ use_paths = ["serde::{Deserialize, Serialize}"]
 imported_objects = false
 target = "Domain"
 
-[modules.woog_v2]
-domain = "models/woog.json"
+# [modules.woog]
+# domain = "models/woog.json"
 
-[modules.woog_v2.compiler]
-compiler = "grace"
-derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-use_paths = ["serde::{Deserialize, Serialize}"]
-imported_objects = false
-target = "Domain"
+# [modules.woog.compiler]
+# compiler = "grace"
+# derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+# use_paths = ["serde::{Deserialize, Serialize}"]
+# imported_objects = false
+# target = "Domain"
