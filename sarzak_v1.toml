@@ -1,3 +1,3 @@
 [domains]
-sarzak = { path = "models/sarzak.json", module = "sarzak_v1", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = true } }
-drawing = { path = "models/drawing.json", module = "drawing_v1", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = true } }
+sarzak = { path = "models/sarzak.json", module = "v1::sarzak", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = true } }
+drawing = { path = "models/drawing.json", module = "v1::drawing", sarzak = { new = true, meta = true, doc_tests = true, extrude = false, ignore_ignore = true } }

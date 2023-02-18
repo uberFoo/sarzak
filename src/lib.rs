@@ -1,15 +1,11 @@
-pub mod domain;
-pub mod drawing_v1;
-pub mod drawing_v2;
 pub mod error;
 pub mod mc;
-pub mod sarzak_v1;
-pub mod sarzak_v2;
-pub mod woog_v1;
-pub mod woog_v2;
+pub mod v1;
+pub mod v2;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub use drawing_v1 as drawing;
-pub use sarzak_v1 as sarzak;
-pub use woog_v1 as woog;
+pub use v1::domain;
+pub use v1::drawing;
+pub use v1::sarzak;
+pub use v1::woog;
