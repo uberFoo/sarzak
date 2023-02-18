@@ -169,7 +169,7 @@ impl DomainBuilder {
             func(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
         }
 
-        log::debug!("loading and converting doamin");
+        log::debug!("loading and converting domain: {}", model.domain);
         // This is where the real work happens.
         extrude_cuckoo_domain(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
 
@@ -189,7 +189,7 @@ impl DomainBuilder {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Domain {
     version: String,
     domain: String,
@@ -233,6 +233,14 @@ impl Domain {
     ///
     pub fn id(&self) -> &Uuid {
         &self.id
+    }
+
+    /// Return the name of the domain
+    ///
+    /// This is an alias for [`Domain::domain`]. I should pick one probably.
+    ///
+    pub fn name(&self) -> &str {
+        &self.domain
     }
 
     /// Return the domain description

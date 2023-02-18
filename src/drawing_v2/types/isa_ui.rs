@@ -1,0 +1,74 @@
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"isa_ui-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-use-statements"}}}
+use uuid::Uuid;
+
+use serde::{Deserialize, Serialize};
+
+use crate::drawing_v2::UUID_NS;
+
+// Referrer imports
+use crate::drawing_v2::types::anchor::Anchor;
+use crate::drawing_v2::types::subtype_anchors::SubtypeAnchors;
+use crate::sarzak_v2::types::isa::Isa;
+
+use crate::drawing_v2::store::ObjectStore as DrawingV2Store;
+use crate::sarzak_v2::store::ObjectStore as SarzakV2Store;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-documentation"}}}
+/// This represents additional data necessary to render an `Isa` relationship in the user interface
+///.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct IsaUi {
+    pub id: Uuid,
+    /// R9: [`IsaUi`] 'is drawn from' [`Anchor`]
+    pub from: Uuid,
+    /// R11: [`IsaUi`] 'contains additional attributes to render' [`Isa`]
+    pub isa: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-implementation"}}}
+impl IsaUi {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-new"}}}
+    /// Inter a new IsaUi in the store, and return it's `id`.
+    pub fn new(from: &Anchor, isa: &Isa, store: &mut DrawingV2Store) -> IsaUi {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", from, isa).as_bytes());
+        let new = IsaUi {
+            from: from.id,
+            isa: isa.id,
+            id,
+        };
+        store.inter_isa_ui(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-from"}}}
+    /// Navigate to [`Anchor`] across R9(1-?)
+    pub fn r9_anchor<'a>(&'a self, store: &'a DrawingV2Store) -> Vec<&Anchor> {
+        vec![store.exhume_anchor(&self.from).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-isa"}}}
+    /// Navigate to [`Isa`] across R11(1-?)
+    pub fn r11_isa<'a>(&'a self, store: &'a SarzakV2Store) -> Vec<&Isa> {
+        vec![store.exhume_isa(&self.isa).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-backward-assoc-one-cond-to-subtype_anchors"}}}
+    /// Navigate to [`SubtypeAnchors`] across R10(1-1c)
+    pub fn r10_subtype_anchors<'a>(&'a self, store: &'a DrawingV2Store) -> Vec<&SubtypeAnchors> {
+        let subtype_anchors = store
+            .iter_subtype_anchors()
+            .find(|subtype_anchors| subtype_anchors.1.isaui_id == self.id);
+        match subtype_anchors {
+            Some(ref subtype_anchors) => vec![subtype_anchors.1],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

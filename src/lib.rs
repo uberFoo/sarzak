@@ -1,9 +1,12 @@
 pub mod domain;
 pub mod drawing_v1;
+pub mod drawing_v2;
 pub mod error;
 pub mod mc;
 pub mod sarzak_v1;
+pub mod sarzak_v2;
 pub mod woog_v1;
+pub mod woog_v2;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
