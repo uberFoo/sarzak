@@ -1,28 +1,38 @@
 [modules."v2/sarzak"]
-domain = "models/sarzak_✨.json"
+model = "models/sarzak_✨.json"
 
 [modules."v2/sarzak".compiler]
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-target = "Domain"
+
+[modules."v2/sarzak".compiler.target]
+target = "domain"
+from_module = "v1::sarzak"
+from_path = "models/sarzak.json"
 
 [modules."v2/drawing"]
-domain = "models/drawing_✨.json"
+model = "models/drawing_✨.json"
 
 [modules."v2/drawing".compiler]
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-target = "Domain"
+
+[modules."v2/drawing".compiler.target]
+target = "domain"
+from_module = "v1::drawing"
+from_path = "models/drawing.json"
 
 [modules."v2/woog"]
-domain = "models/woog_✨.json"
+model = "models/woog_✨.json"
 
 [modules."v2/woog".compiler]
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 imported_domains = ["v2/sarzak"]
-target = "Domain"
+
+[modules."v2/woog".compiler.target]
+target = "domain"

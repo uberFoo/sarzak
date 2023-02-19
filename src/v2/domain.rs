@@ -1,9 +1,10 @@
-//! Version 1 Sarzak Domain
+//! Version 2 Sarzak Domain
 //!
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::v1::{
+use crate::v1::domain::Domain as DomainV1;
+use crate::v2::{
     drawing::store::ObjectStore as DrawingStore, sarzak::store::ObjectStore as SarzakStore,
 };
 use crate::VERSION;
@@ -82,5 +83,20 @@ impl Domain {
     /// model UI instances.
     pub fn drawing(&self) -> &DrawingStore {
         &self.drawing
+    }
+}
+
+impl From<DomainV1> for Domain {
+    fn from(domain: DomainV1) -> Self {
+        let domain = Domain {
+            version: VERSION.to_owned(),
+            domain: domain.domain().to_owned(),
+            id: domain.id().to_owned(),
+            description: domain.description().to_owned(),
+            sarzak: domain.sarzak().into(),
+            drawing: domain.drawing().into(),
+        };
+
+        domain
     }
 }
