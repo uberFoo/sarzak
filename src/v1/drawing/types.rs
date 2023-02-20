@@ -775,7 +775,7 @@ impl Extrude<nut::drawing::Point, Context<'_>> for Point {
         Self {
             id: orig.id,
             x: orig.x,
-            y: orig.x,
+            y: orig.y,
         }
     }
 }
