@@ -8,17 +8,18 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-from-impl-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-from-impl-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::drawing::types::{
-    Anchor, AssociativeUi, BinaryUi, IsaUi, ObjectEdge, ObjectUi, Point, SubtypeAnchors,
+    Anchor, AssociativeUi, BinaryUi, Edge, IsaUi, ObjectEdge, ObjectUi, Point, RelationshipUi,
+    SubtypeAnchors,
 };
 use crate::v2::drawing::ObjectStore;
 
 use crate::v1::drawing::types::{
     Anchor as FromAnchor, AssociativeUi as FromAssociativeUi, BinaryUi as FromBinaryUi,
-    IsaUi as FromIsaUi, ObjectEdge as FromObjectEdge, ObjectUi as FromObjectUi, Point as FromPoint,
-    SubtypeAnchors as FromSubtypeAnchors,
+    Edge as FromEdge, IsaUi as FromIsaUi, ObjectEdge as FromObjectEdge, ObjectUi as FromObjectUi,
+    Point as FromPoint, RelationshipUi as FromRelationshipUi, SubtypeAnchors as FromSubtypeAnchors,
 };
 use crate::v1::drawing::ObjectStore as DrawingStore;
 
@@ -41,6 +42,12 @@ impl From<&DrawingStore> for ObjectStore {
             to.inter_binary_ui(instance);
         }
 
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_edge() {
+            let instance = to.exhume_edge(&id).unwrap();
+            to.inter_edge(instance.clone());
+        }
+
         for (_, instance) in from.iter_isa_ui() {
             let instance = IsaUi::from(instance);
             to.inter_isa_ui(instance);
@@ -59,6 +66,12 @@ impl From<&DrawingStore> for ObjectStore {
         for (_, instance) in from.iter_point() {
             let instance = Point::from(instance);
             to.inter_point(instance);
+        }
+
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_relationship_ui() {
+            let instance = to.exhume_relationship_ui(&id).unwrap();
+            to.inter_relationship_ui(instance.clone());
         }
 
         for (_, instance) in from.iter_subtype_anchors() {
@@ -85,8 +98,8 @@ impl From<&FromAssociativeUi> for AssociativeUi {
     fn from(src: &FromAssociativeUi) -> Self {
         Self {
             id: src.id,
-            other: src.other,
             middle: src.middle,
+            other: src.other,
             one: src.one,
             associative_id: src.associative_id,
             from: src.from,
@@ -157,5 +170,5 @@ impl From<&FromSubtypeAnchors> for SubtypeAnchors {
     }
 }
 
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}

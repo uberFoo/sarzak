@@ -8,20 +8,23 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::sarzak-from-impl-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::sarzak-from-impl-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-definition"}}}
 use crate::v2::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Event, External, Isa, Object, Referent, Referrer, State, Subtype, Supertype,
+    Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
+    State, Subtype, Supertype, Ty,
 };
 use crate::v2::sarzak::ObjectStore;
 
 use crate::v1::sarzak::types::{
     AcknowledgedEvent as FromAcknowledgedEvent, Associative as FromAssociative,
     AssociativeReferent as FromAssociativeReferent, AssociativeReferrer as FromAssociativeReferrer,
-    Attribute as FromAttribute, Binary as FromBinary, Event as FromEvent, External as FromExternal,
+    Attribute as FromAttribute, Binary as FromBinary, Cardinality as FromCardinality,
+    Conditionality as FromConditionality, Event as FromEvent, External as FromExternal,
     Isa as FromIsa, Object as FromObject, Referent as FromReferent, Referrer as FromReferrer,
-    State as FromState, Subtype as FromSubtype, Supertype as FromSupertype,
+    Relationship as FromRelationship, State as FromState, Subtype as FromSubtype,
+    Supertype as FromSupertype, Type as FromTy,
 };
 use crate::v1::sarzak::ObjectStore as SarzakStore;
 
@@ -59,6 +62,18 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_binary(instance);
         }
 
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_cardinality() {
+            let instance = to.exhume_cardinality(&id).unwrap();
+            to.inter_cardinality(instance.clone());
+        }
+
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_conditionality() {
+            let instance = to.exhume_conditionality(&id).unwrap();
+            to.inter_conditionality(instance.clone());
+        }
+
         for (_, instance) in from.iter_event() {
             let instance = Event::from(instance);
             to.inter_event(instance);
@@ -89,6 +104,12 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_referrer(instance);
         }
 
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_relationship() {
+            let instance = to.exhume_relationship(&id).unwrap();
+            to.inter_relationship(instance.clone());
+        }
+
         for (_, instance) in from.iter_state() {
             let instance = State::from(instance);
             to.inter_state(instance);
@@ -102,6 +123,12 @@ impl From<&SarzakStore> for ObjectStore {
         for (_, instance) in from.iter_supertype() {
             let instance = Supertype::from(instance);
             to.inter_supertype(instance);
+        }
+
+        // These are just UUID's that are preserved across domains.
+        for (id, _) in from.iter_ty() {
+            let instance = to.exhume_ty(&id).unwrap();
+            to.inter_ty(instance.clone());
         }
 
         to
@@ -123,8 +150,8 @@ impl From<&FromAssociative> for Associative {
         Self {
             id: src.id,
             number: src.number,
-            one: src.one,
             other: src.other,
+            one: src.one,
             from: src.from,
         }
     }
@@ -265,5 +292,5 @@ impl From<&FromSupertype> for Supertype {
     }
 }
 
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
