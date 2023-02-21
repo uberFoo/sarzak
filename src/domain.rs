@@ -27,10 +27,7 @@ use crate::{
             types::{Attribute, Context as SarzakContext, Object, Relationship, Subtype, Type},
         },
     },
-    v2::{
-        domain::Domain as DomainV2, drawing::store::ObjectStore as DrawingV2Store,
-        sarzak::store::ObjectStore as SarzakV2Store,
-    },
+    v2::domain::Domain as DomainV2,
 };
 
 /// Domain Builder

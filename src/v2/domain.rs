@@ -24,6 +24,7 @@ impl Domain {
     ///
     /// This is used by the [`DomainBuilder`] to initialize a domain. It's not
     /// a generally useful means of creating a domain.
+    #[allow(dead_code)]
     pub(crate) fn new(
         domain: String,
         id: Uuid,
