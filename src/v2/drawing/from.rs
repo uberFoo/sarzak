@@ -42,10 +42,9 @@ impl From<&DrawingStore> for ObjectStore {
             to.inter_binary_ui(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_edge() {
-            let instance = to.exhume_edge(&id).unwrap();
-            to.inter_edge(instance.clone());
+        for (_, instance) in from.iter_edge() {
+            let instance = Edge::from(instance);
+            to.inter_edge(instance);
         }
 
         for (_, instance) in from.iter_isa_ui() {
@@ -68,10 +67,9 @@ impl From<&DrawingStore> for ObjectStore {
             to.inter_point(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_relationship_ui() {
-            let instance = to.exhume_relationship_ui(&id).unwrap();
-            to.inter_relationship_ui(instance.clone());
+        for (_, instance) in from.iter_relationship_ui() {
+            let instance = RelationshipUi::from(instance);
+            to.inter_relationship_ui(instance);
         }
 
         for (_, instance) in from.iter_subtype_anchors() {
@@ -88,8 +86,8 @@ impl From<&FromAnchor> for Anchor {
         Self {
             id: src.id,
             edge: src.edge,
-            location: src.location,
             offset: src.offset,
+            location: src.location,
         }
     }
 }
@@ -98,8 +96,8 @@ impl From<&FromAssociativeUi> for AssociativeUi {
     fn from(src: &FromAssociativeUi) -> Self {
         Self {
             id: src.id,
-            middle: src.middle,
             other: src.other,
+            middle: src.middle,
             one: src.one,
             associative_id: src.associative_id,
             from: src.from,
@@ -118,6 +116,16 @@ impl From<&FromBinaryUi> for BinaryUi {
     }
 }
 
+impl From<&FromEdge> for Edge {
+    fn from(src: &FromEdge) -> Self {
+        match src {
+            FromEdge::Bottom(src) => Edge::Bottom(src.clone()),
+            FromEdge::Left(src) => Edge::Left(src.clone()),
+            FromEdge::Right(src) => Edge::Right(src.clone()),
+            FromEdge::Top(src) => Edge::Top(src.clone()),
+        }
+    }
+}
 impl From<&FromIsaUi> for IsaUi {
     fn from(src: &FromIsaUi) -> Self {
         Self {
@@ -160,6 +168,15 @@ impl From<&FromPoint> for Point {
     }
 }
 
+impl From<&FromRelationshipUi> for RelationshipUi {
+    fn from(src: &FromRelationshipUi) -> Self {
+        match src {
+            FromRelationshipUi::AssociativeUi(src) => RelationshipUi::AssociativeUi(src.clone()),
+            FromRelationshipUi::BinaryUi(src) => RelationshipUi::BinaryUi(src.clone()),
+            FromRelationshipUi::IsaUi(src) => RelationshipUi::IsaUi(src.clone()),
+        }
+    }
+}
 impl From<&FromSubtypeAnchors> for SubtypeAnchors {
     fn from(src: &FromSubtypeAnchors) -> Self {
         Self {

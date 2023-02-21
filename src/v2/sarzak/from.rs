@@ -62,16 +62,14 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_binary(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_cardinality() {
-            let instance = to.exhume_cardinality(&id).unwrap();
-            to.inter_cardinality(instance.clone());
+        for (_, instance) in from.iter_cardinality() {
+            let instance = Cardinality::from(instance);
+            to.inter_cardinality(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_conditionality() {
-            let instance = to.exhume_conditionality(&id).unwrap();
-            to.inter_conditionality(instance.clone());
+        for (_, instance) in from.iter_conditionality() {
+            let instance = Conditionality::from(instance);
+            to.inter_conditionality(instance);
         }
 
         for (_, instance) in from.iter_event() {
@@ -104,10 +102,9 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_referrer(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_relationship() {
-            let instance = to.exhume_relationship(&id).unwrap();
-            to.inter_relationship(instance.clone());
+        for (_, instance) in from.iter_relationship() {
+            let instance = Relationship::from(instance);
+            to.inter_relationship(instance);
         }
 
         for (_, instance) in from.iter_state() {
@@ -125,10 +122,9 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_supertype(instance);
         }
 
-        // These are just UUID's that are preserved across domains.
-        for (id, _) in from.iter_ty() {
-            let instance = to.exhume_ty(&id).unwrap();
-            to.inter_ty(instance.clone());
+        for (_, instance) in from.iter_ty() {
+            let instance = Ty::from(instance);
+            to.inter_ty(instance);
         }
 
         to
@@ -197,6 +193,23 @@ impl From<&FromBinary> for Binary {
     }
 }
 
+impl From<&FromCardinality> for Cardinality {
+    fn from(src: &FromCardinality) -> Self {
+        match src {
+            FromCardinality::Many(src) => Cardinality::Many(src.clone()),
+            FromCardinality::One(src) => Cardinality::One(src.clone()),
+        }
+    }
+}
+
+impl From<&FromConditionality> for Conditionality {
+    fn from(src: &FromConditionality) -> Self {
+        match src {
+            FromConditionality::Conditional(src) => Conditionality::Conditional(src.clone()),
+            FromConditionality::Unconditional(src) => Conditionality::Unconditional(src.clone()),
+        }
+    }
+}
 impl From<&FromEvent> for Event {
     fn from(src: &FromEvent) -> Self {
         Self {
@@ -263,6 +276,15 @@ impl From<&FromReferrer> for Referrer {
     }
 }
 
+impl From<&FromRelationship> for Relationship {
+    fn from(src: &FromRelationship) -> Self {
+        match src {
+            FromRelationship::Associative(src) => Relationship::Associative(src.clone()),
+            FromRelationship::Binary(src) => Relationship::Binary(src.clone()),
+            FromRelationship::Isa(src) => Relationship::Isa(src.clone()),
+        }
+    }
+}
 impl From<&FromState> for State {
     fn from(src: &FromState) -> Self {
         Self {
@@ -292,5 +314,18 @@ impl From<&FromSupertype> for Supertype {
     }
 }
 
+impl From<&FromTy> for Ty {
+    fn from(src: &FromTy) -> Self {
+        match src {
+            FromTy::Boolean(src) => Ty::Boolean(src.clone()),
+            FromTy::External(src) => Ty::External(src.clone()),
+            FromTy::Float(src) => Ty::Float(src.clone()),
+            FromTy::Integer(src) => Ty::Integer(src.clone()),
+            FromTy::Object(src) => Ty::Object(src.clone()),
+            FromTy::String(src) => Ty::String(src.clone()),
+            FromTy::Uuid(src) => Ty::Uuid(src.clone()),
+        }
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}

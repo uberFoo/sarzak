@@ -154,16 +154,7 @@ impl DomainBuilder {
         self
     }
 
-    /// The final step
-    ///
-    /// Return the newly packaged domain
-    pub fn build_v1(self) -> Result<DomainV1> {
-        ensure!(
-            self.nut_model.is_some(),
-            DomainBuilderSnafu {
-                message: "you must specify a cucko model using `DomainBuilder::cuckoo_model`"
-            }
-        );
+    fn _build_v1(self) -> DomainV1 {
         let model = self.nut_model.unwrap();
 
         let mut sarzak = SarzakV1Store::new();
@@ -185,13 +176,21 @@ impl DomainBuilder {
             func(&mut sarzak, &mut drawing);
         }
 
-        Ok(DomainV1::new(
-            model.domain,
-            model.id,
-            model.description,
-            sarzak,
-            drawing,
-        ))
+        DomainV1::new(model.domain, model.id, model.description, sarzak, drawing)
+    }
+
+    /// The final step
+    ///
+    /// Return the newly packaged domain
+    pub fn build_v1(self) -> Result<DomainV1> {
+        ensure!(
+            self.nut_model.is_some(),
+            DomainBuilderSnafu {
+                message: "you must specify a cuckoo model using `DomainBuilder::cuckoo_model`"
+            }
+        );
+
+        Ok(self._build_v1())
     }
 
     /// The final step
@@ -201,31 +200,11 @@ impl DomainBuilder {
         ensure!(
             self.nut_model.is_some(),
             DomainBuilderSnafu {
-                message: "you must specify a cucko model using `DomainBuilder::cuckoo_model`"
+                message: "you must specify a cuckoo model using `DomainBuilder::cuckoo_model`"
             }
         );
-        let model = self.nut_model.unwrap();
 
-        let mut sarzak = SarzakV1Store::new();
-        let mut drawing = DrawingV1Store::new();
-
-        // Run the pre_extrude function, if there is one.
-        if let Some(ref func) = self.pre_load {
-            log::debug!("executing preload function");
-            func(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
-        }
-
-        log::debug!("loading and converting domain: {}", model.domain);
-        // This is where the real work happens.
-        extrude_cuckoo_domain(&model.sarzak, &model.drawing, &mut sarzak, &mut drawing);
-
-        // Run the post_extrude function, if it exists.
-        if let Some(ref func) = self.post_load {
-            log::debug!("executing postload function");
-            func(&mut sarzak, &mut drawing);
-        }
-
-        Ok(DomainV1::new(model.domain, model.id, model.description, sarzak, drawing).into())
+        Ok(self._build_v1().into())
     }
 }
 
