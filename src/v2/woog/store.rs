@@ -48,8 +48,13 @@ impl ObjectStore {
     pub fn exhume_mutability(&self, id: &Uuid) -> Option<&Mutability> {
         self.mutability.get(id)
     }
+    /// Exhume [`Mutability`] from the store — mutably.
+    ///
+    pub fn exhume_mutability_mut(&mut self, id: &Uuid) -> Option<&mut Mutability> {
+        self.mutability.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Mutability>`.
-    //
+    ///
     pub fn iter_mutability(&self) -> impl Iterator<Item = (&Uuid, &Mutability)> {
         self.mutability.iter()
     }
@@ -64,8 +69,13 @@ impl ObjectStore {
     pub fn exhume_object_method(&self, id: &Uuid) -> Option<&ObjectMethod> {
         self.object_method.get(id)
     }
+    /// Exhume [`ObjectMethod`] from the store — mutably.
+    ///
+    pub fn exhume_object_method_mut(&mut self, id: &Uuid) -> Option<&mut ObjectMethod> {
+        self.object_method.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectMethod>`.
-    //
+    ///
     pub fn iter_object_method(&self) -> impl Iterator<Item = (&Uuid, &ObjectMethod)> {
         self.object_method.iter()
     }
@@ -80,8 +90,13 @@ impl ObjectStore {
     pub fn exhume_parameter(&self, id: &Uuid) -> Option<&Parameter> {
         self.parameter.get(id)
     }
+    /// Exhume [`Parameter`] from the store — mutably.
+    ///
+    pub fn exhume_parameter_mut(&mut self, id: &Uuid) -> Option<&mut Parameter> {
+        self.parameter.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
-    //
+    ///
     pub fn iter_parameter(&self) -> impl Iterator<Item = (&Uuid, &Parameter)> {
         self.parameter.iter()
     }
@@ -96,8 +111,13 @@ impl ObjectStore {
     pub fn exhume_visibility(&self, id: &Uuid) -> Option<&Visibility> {
         self.visibility.get(id)
     }
+    /// Exhume [`Visibility`] from the store — mutably.
+    ///
+    pub fn exhume_visibility_mut(&mut self, id: &Uuid) -> Option<&mut Visibility> {
+        self.visibility.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Visibility>`.
-    //
+    ///
     pub fn iter_visibility(&self) -> impl Iterator<Item = (&Uuid, &Visibility)> {
         self.visibility.iter()
     }

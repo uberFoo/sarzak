@@ -77,12 +77,28 @@ impl Domain {
         &self.sarzak
     }
 
+    /// Return a mutable reference to the sarzak store
+    ///
+    /// This returns a reference to the [`ObjectStore`] that contains the domain
+    /// model instances.
+    pub fn sarzak_mut(&mut self) -> &mut SarzakStore {
+        &mut self.sarzak
+    }
+
     /// Return a reference to the drawing store
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model UI instances.
     pub fn drawing(&self) -> &DrawingStore {
         &self.drawing
+    }
+
+    /// Return a mutable reference to the drawing store
+    ///
+    /// This returns a reference to the [`ObjectStore`] that contains the domain
+    /// model UI instances.
+    pub fn drawing_mut(&mut self) -> &mut DrawingStore {
+        &mut self.drawing
     }
 }
 

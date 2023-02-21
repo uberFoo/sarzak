@@ -38,11 +38,11 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R4(1-1c)
-    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+    /// Navigate to [`Anchor`] across R5(1-1c)
+    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         let anchor = store
             .iter_anchor()
-            .find(|anchor| anchor.1.location == self.id);
+            .find(|anchor| anchor.1.offset == self.id);
         match anchor {
             Some(ref anchor) => vec![anchor.1],
             None => Vec::new(),
@@ -50,11 +50,11 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R5(1-1c)
-    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+    /// Navigate to [`Anchor`] across R4(1-1c)
+    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         let anchor = store
             .iter_anchor()
-            .find(|anchor| anchor.1.offset == self.id);
+            .find(|anchor| anchor.1.location == self.id);
         match anchor {
             Some(ref anchor) => vec![anchor.1],
             None => Vec::new(),

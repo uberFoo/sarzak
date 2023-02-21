@@ -69,8 +69,13 @@ impl ObjectStore {
     pub fn exhume_anchor(&self, id: &Uuid) -> Option<&Anchor> {
         self.anchor.get(id)
     }
+    /// Exhume [`Anchor`] from the store — mutably.
+    ///
+    pub fn exhume_anchor_mut(&mut self, id: &Uuid) -> Option<&mut Anchor> {
+        self.anchor.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
-    //
+    ///
     pub fn iter_anchor(&self) -> impl Iterator<Item = (&Uuid, &Anchor)> {
         self.anchor.iter()
     }
@@ -86,8 +91,13 @@ impl ObjectStore {
     pub fn exhume_associative_ui(&self, id: &Uuid) -> Option<&AssociativeUi> {
         self.associative_ui.get(id)
     }
+    /// Exhume [`AssociativeUi`] from the store — mutably.
+    ///
+    pub fn exhume_associative_ui_mut(&mut self, id: &Uuid) -> Option<&mut AssociativeUi> {
+        self.associative_ui.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeUi>`.
-    //
+    ///
     pub fn iter_associative_ui(&self) -> impl Iterator<Item = (&Uuid, &AssociativeUi)> {
         self.associative_ui.iter()
     }
@@ -102,8 +112,13 @@ impl ObjectStore {
     pub fn exhume_binary_ui(&self, id: &Uuid) -> Option<&BinaryUi> {
         self.binary_ui.get(id)
     }
+    /// Exhume [`BinaryUi`] from the store — mutably.
+    ///
+    pub fn exhume_binary_ui_mut(&mut self, id: &Uuid) -> Option<&mut BinaryUi> {
+        self.binary_ui.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, BinaryUi>`.
-    //
+    ///
     pub fn iter_binary_ui(&self) -> impl Iterator<Item = (&Uuid, &BinaryUi)> {
         self.binary_ui.iter()
     }
@@ -118,8 +133,13 @@ impl ObjectStore {
     pub fn exhume_edge(&self, id: &Uuid) -> Option<&Edge> {
         self.edge.get(id)
     }
+    /// Exhume [`Edge`] from the store — mutably.
+    ///
+    pub fn exhume_edge_mut(&mut self, id: &Uuid) -> Option<&mut Edge> {
+        self.edge.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
-    //
+    ///
     pub fn iter_edge(&self) -> impl Iterator<Item = (&Uuid, &Edge)> {
         self.edge.iter()
     }
@@ -134,8 +154,13 @@ impl ObjectStore {
     pub fn exhume_isa_ui(&self, id: &Uuid) -> Option<&IsaUi> {
         self.isa_ui.get(id)
     }
+    /// Exhume [`IsaUi`] from the store — mutably.
+    ///
+    pub fn exhume_isa_ui_mut(&mut self, id: &Uuid) -> Option<&mut IsaUi> {
+        self.isa_ui.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, IsaUi>`.
-    //
+    ///
     pub fn iter_isa_ui(&self) -> impl Iterator<Item = (&Uuid, &IsaUi)> {
         self.isa_ui.iter()
     }
@@ -150,8 +175,13 @@ impl ObjectStore {
     pub fn exhume_object_edge(&self, id: &Uuid) -> Option<&ObjectEdge> {
         self.object_edge.get(id)
     }
+    /// Exhume [`ObjectEdge`] from the store — mutably.
+    ///
+    pub fn exhume_object_edge_mut(&mut self, id: &Uuid) -> Option<&mut ObjectEdge> {
+        self.object_edge.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectEdge>`.
-    //
+    ///
     pub fn iter_object_edge(&self) -> impl Iterator<Item = (&Uuid, &ObjectEdge)> {
         self.object_edge.iter()
     }
@@ -166,8 +196,13 @@ impl ObjectStore {
     pub fn exhume_object_ui(&self, id: &Uuid) -> Option<&ObjectUi> {
         self.object_ui.get(id)
     }
+    /// Exhume [`ObjectUi`] from the store — mutably.
+    ///
+    pub fn exhume_object_ui_mut(&mut self, id: &Uuid) -> Option<&mut ObjectUi> {
+        self.object_ui.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectUi>`.
-    //
+    ///
     pub fn iter_object_ui(&self) -> impl Iterator<Item = (&Uuid, &ObjectUi)> {
         self.object_ui.iter()
     }
@@ -182,8 +217,13 @@ impl ObjectStore {
     pub fn exhume_point(&self, id: &Uuid) -> Option<&Point> {
         self.point.get(id)
     }
+    /// Exhume [`Point`] from the store — mutably.
+    ///
+    pub fn exhume_point_mut(&mut self, id: &Uuid) -> Option<&mut Point> {
+        self.point.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
-    //
+    ///
     pub fn iter_point(&self) -> impl Iterator<Item = (&Uuid, &Point)> {
         self.point.iter()
     }
@@ -199,8 +239,13 @@ impl ObjectStore {
     pub fn exhume_relationship_ui(&self, id: &Uuid) -> Option<&RelationshipUi> {
         self.relationship_ui.get(id)
     }
+    /// Exhume [`RelationshipUi`] from the store — mutably.
+    ///
+    pub fn exhume_relationship_ui_mut(&mut self, id: &Uuid) -> Option<&mut RelationshipUi> {
+        self.relationship_ui.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipUi>`.
-    //
+    ///
     pub fn iter_relationship_ui(&self) -> impl Iterator<Item = (&Uuid, &RelationshipUi)> {
         self.relationship_ui.iter()
     }
@@ -216,8 +261,13 @@ impl ObjectStore {
     pub fn exhume_subtype_anchors(&self, id: &Uuid) -> Option<&SubtypeAnchors> {
         self.subtype_anchors.get(id)
     }
+    /// Exhume [`SubtypeAnchors`] from the store — mutably.
+    ///
+    pub fn exhume_subtype_anchors_mut(&mut self, id: &Uuid) -> Option<&mut SubtypeAnchors> {
+        self.subtype_anchors.get_mut(id)
+    }
     /// Get an iterator over the internal `HashMap<&Uuid, SubtypeAnchors>`.
-    //
+    ///
     pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = (&Uuid, &SubtypeAnchors)> {
         self.subtype_anchors.iter()
     }
