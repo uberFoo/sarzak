@@ -103,9 +103,9 @@ impl ObjectMethod {
     pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
         let parameter = store
             .iter_parameter()
-            .find(|parameter| parameter.1.method == self.id);
+            .find(|parameter| parameter.method == self.id);
         match parameter {
-            Some(ref parameter) => vec![parameter.1],
+            Some(ref parameter) => vec![parameter],
             None => Vec::new(),
         }
     }

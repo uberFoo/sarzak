@@ -22,7 +22,7 @@ pub struct Associative {
     pub one: Uuid,
     /// R22: [`Associative`] 'is formalized by' [`AssociativeReferent`]
     pub other: Uuid,
-    /// R21: [`Associative`] 'is formaized by' [`AssociativeReferrer`]
+    /// R21: [`Associative`] 'is formalized by' [`AssociativeReferrer`]
     pub from: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

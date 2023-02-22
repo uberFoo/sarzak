@@ -5,6 +5,11 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+use crate::v2::drawing::store::ObjectStore as DrawingStore;
+use crate::v2::drawing::types::bottom::BOTTOM;
+use crate::v2::drawing::types::left::LEFT;
+use crate::v2::drawing::types::right::RIGHT;
+use crate::v2::drawing::types::top::TOP;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-enum-documentation"}}}
 /// An attachment point for an [Anchor]
@@ -37,6 +42,32 @@ pub enum Edge {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-implementation"}}}
 impl Edge {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
+    /// Create a new instance of Edge::Bottom
+    pub fn new_bottom(_store: &mut DrawingStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Bottom(BOTTOM)
+    }
+
+    /// Create a new instance of Edge::Left
+    pub fn new_left(_store: &mut DrawingStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Left(LEFT)
+    }
+
+    /// Create a new instance of Edge::Right
+    pub fn new_right(_store: &mut DrawingStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Right(RIGHT)
+    }
+
+    /// Create a new instance of Edge::Top
+    pub fn new_top(_store: &mut DrawingStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Top(TOP)
+    }
+
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {

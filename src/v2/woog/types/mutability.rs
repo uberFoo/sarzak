@@ -5,6 +5,9 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+use crate::v2::woog::store::ObjectStore as WoogStore;
+use crate::v2::woog::types::borrowed::BORROWED;
+use crate::v2::woog::types::mutable::MUTABLE;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"mutability-enum-documentation"}}}
 /// Type Mutability
@@ -21,6 +24,20 @@ pub enum Mutability {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"mutability-implementation"}}}
 impl Mutability {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"mutability-new-impl"}}}
+    /// Create a new instance of Mutability::Borrowed
+    pub fn new_borrowed(_store: &mut WoogStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Borrowed(BORROWED)
+    }
+
+    /// Create a new instance of Mutability::Mutable
+    pub fn new_mutable(_store: &mut WoogStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Mutable(MUTABLE)
+    }
+
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"mutability-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {

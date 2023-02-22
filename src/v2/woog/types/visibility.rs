@@ -5,6 +5,10 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+use crate::v2::woog::store::ObjectStore as WoogStore;
+use crate::v2::woog::types::krate::KRATE;
+use crate::v2::woog::types::private::PRIVATE;
+use crate::v2::woog::types::public::PUBLIC;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-documentation"}}}
 /// Item Visibility
@@ -27,6 +31,26 @@ pub enum Visibility {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-implementation"}}}
 impl Visibility {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-new-impl"}}}
+    /// Create a new instance of Visibility::Krate
+    pub fn new_krate(_store: &mut WoogStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Krate(KRATE)
+    }
+
+    /// Create a new instance of Visibility::Private
+    pub fn new_private(_store: &mut WoogStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Private(PRIVATE)
+    }
+
+    /// Create a new instance of Visibility::Public
+    pub fn new_public(_store: &mut WoogStore) -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Public(PUBLIC)
+    }
+
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {

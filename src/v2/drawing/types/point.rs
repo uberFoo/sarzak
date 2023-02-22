@@ -38,25 +38,23 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R5(1-1c)
-    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+    /// Navigate to [`Anchor`] across R4(1-1c)
+    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         let anchor = store
             .iter_anchor()
-            .find(|anchor| anchor.1.offset == self.id);
+            .find(|anchor| anchor.location == self.id);
         match anchor {
-            Some(ref anchor) => vec![anchor.1],
+            Some(ref anchor) => vec![anchor],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R4(1-1c)
-    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        let anchor = store
-            .iter_anchor()
-            .find(|anchor| anchor.1.location == self.id);
+    /// Navigate to [`Anchor`] across R5(1-1c)
+    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
         match anchor {
-            Some(ref anchor) => vec![anchor.1],
+            Some(ref anchor) => vec![anchor],
             None => Vec::new(),
         }
     }
@@ -66,9 +64,9 @@ impl Point {
     pub fn r17c_associative_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&AssociativeUi> {
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.1.from == self.id);
+            .find(|associative_ui| associative_ui.from == self.id);
         match associative_ui {
-            Some(ref associative_ui) => vec![associative_ui.1],
+            Some(ref associative_ui) => vec![associative_ui],
             None => Vec::new(),
         }
     }
@@ -78,9 +76,9 @@ impl Point {
     pub fn r13c_object_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&ObjectUi> {
         let object_ui = store
             .iter_object_ui()
-            .find(|object_ui| object_ui.1.origin == self.id);
+            .find(|object_ui| object_ui.origin == self.id);
         match object_ui {
-            Some(ref object_ui) => vec![object_ui.1],
+            Some(ref object_ui) => vec![object_ui],
             None => Vec::new(),
         }
     }

@@ -62,9 +62,9 @@ impl IsaUi {
     pub fn r10_subtype_anchors<'a>(&'a self, store: &'a DrawingStore) -> Vec<&SubtypeAnchors> {
         let subtype_anchors = store
             .iter_subtype_anchors()
-            .find(|subtype_anchors| subtype_anchors.1.isaui_id == self.id);
+            .find(|subtype_anchors| subtype_anchors.isaui_id == self.id);
         match subtype_anchors {
-            Some(ref subtype_anchors) => vec![subtype_anchors.1],
+            Some(ref subtype_anchors) => vec![subtype_anchors],
             None => Vec::new(),
         }
     }

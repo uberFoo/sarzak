@@ -19,13 +19,14 @@
 //! * [`SubtypeAnchors`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-definition"}}}
 use std::collections::HashMap;
+use std::{fs, io, path::Path};
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::drawing::types::{
     Anchor, AssociativeUi, BinaryUi, Edge, IsaUi, ObjectEdge, ObjectUi, Point, RelationshipUi,
-    SubtypeAnchors,
+    SubtypeAnchors, BOTTOM, LEFT, RIGHT, TOP,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -44,7 +45,7 @@ pub struct ObjectStore {
 
 impl ObjectStore {
     pub fn new() -> Self {
-        Self {
+        let mut store = Self {
             anchor: HashMap::new(),
             associative_ui: HashMap::new(),
             binary_ui: HashMap::new(),
@@ -55,9 +56,18 @@ impl ObjectStore {
             point: HashMap::new(),
             relationship_ui: HashMap::new(),
             subtype_anchors: HashMap::new(),
-        }
+        };
+
+        // Initialize Singleton Subtypes
+        store.inter_edge(Edge::Bottom(BOTTOM));
+        store.inter_edge(Edge::Left(LEFT));
+        store.inter_edge(Edge::Right(RIGHT));
+        store.inter_edge(Edge::Top(TOP));
+
+        store
     }
 
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-methods"}}}
     /// Inter [`Anchor`] into the store.
     ///
     pub fn inter_anchor(&mut self, anchor: Anchor) {
@@ -76,8 +86,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
-    pub fn iter_anchor(&self) -> impl Iterator<Item = (&Uuid, &Anchor)> {
-        self.anchor.iter()
+    pub fn iter_anchor(&self) -> impl Iterator<Item = &Anchor> {
+        self.anchor.values()
     }
     /// Inter [`AssociativeUi`] into the store.
     ///
@@ -98,8 +108,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeUi>`.
     ///
-    pub fn iter_associative_ui(&self) -> impl Iterator<Item = (&Uuid, &AssociativeUi)> {
-        self.associative_ui.iter()
+    pub fn iter_associative_ui(&self) -> impl Iterator<Item = &AssociativeUi> {
+        self.associative_ui.values()
     }
     /// Inter [`BinaryUi`] into the store.
     ///
@@ -119,8 +129,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, BinaryUi>`.
     ///
-    pub fn iter_binary_ui(&self) -> impl Iterator<Item = (&Uuid, &BinaryUi)> {
-        self.binary_ui.iter()
+    pub fn iter_binary_ui(&self) -> impl Iterator<Item = &BinaryUi> {
+        self.binary_ui.values()
     }
     /// Inter [`Edge`] into the store.
     ///
@@ -140,8 +150,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
-    pub fn iter_edge(&self) -> impl Iterator<Item = (&Uuid, &Edge)> {
-        self.edge.iter()
+    pub fn iter_edge(&self) -> impl Iterator<Item = &Edge> {
+        self.edge.values()
     }
     /// Inter [`IsaUi`] into the store.
     ///
@@ -161,8 +171,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, IsaUi>`.
     ///
-    pub fn iter_isa_ui(&self) -> impl Iterator<Item = (&Uuid, &IsaUi)> {
-        self.isa_ui.iter()
+    pub fn iter_isa_ui(&self) -> impl Iterator<Item = &IsaUi> {
+        self.isa_ui.values()
     }
     /// Inter [`ObjectEdge`] into the store.
     ///
@@ -182,8 +192,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectEdge>`.
     ///
-    pub fn iter_object_edge(&self) -> impl Iterator<Item = (&Uuid, &ObjectEdge)> {
-        self.object_edge.iter()
+    pub fn iter_object_edge(&self) -> impl Iterator<Item = &ObjectEdge> {
+        self.object_edge.values()
     }
     /// Inter [`ObjectUi`] into the store.
     ///
@@ -203,8 +213,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectUi>`.
     ///
-    pub fn iter_object_ui(&self) -> impl Iterator<Item = (&Uuid, &ObjectUi)> {
-        self.object_ui.iter()
+    pub fn iter_object_ui(&self) -> impl Iterator<Item = &ObjectUi> {
+        self.object_ui.values()
     }
     /// Inter [`Point`] into the store.
     ///
@@ -224,8 +234,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
     ///
-    pub fn iter_point(&self) -> impl Iterator<Item = (&Uuid, &Point)> {
-        self.point.iter()
+    pub fn iter_point(&self) -> impl Iterator<Item = &Point> {
+        self.point.values()
     }
     /// Inter [`RelationshipUi`] into the store.
     ///
@@ -246,8 +256,8 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipUi>`.
     ///
-    pub fn iter_relationship_ui(&self) -> impl Iterator<Item = (&Uuid, &RelationshipUi)> {
-        self.relationship_ui.iter()
+    pub fn iter_relationship_ui(&self) -> impl Iterator<Item = &RelationshipUi> {
+        self.relationship_ui.values()
     }
     /// Inter [`SubtypeAnchors`] into the store.
     ///
@@ -268,9 +278,223 @@ impl ObjectStore {
     }
     /// Get an iterator over the internal `HashMap<&Uuid, SubtypeAnchors>`.
     ///
-    pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = (&Uuid, &SubtypeAnchors)> {
-        self.subtype_anchors.iter()
+    pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = &SubtypeAnchors> {
+        self.subtype_anchors.values()
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-persistence"}}}
+    /// Persist the store.
+    ///
+    /// The store is persisted as a directory of JSON files. The intention
+    /// is that this directory can be checked into version control.
+    /// In fact, I intend to add automaagic git integration as an option.
+    pub fn persist<P: AsRef<Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
+        let path = path.as_ref();
+        let path = path.join("drawing.json");
+        fs::create_dir_all(&path)?;
+
+        // Persist anchor.
+        {
+            let path = path.join("anchor.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.anchor.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist associative_ui.
+        {
+            let path = path.join("associative_ui.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.associative_ui.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist binary_ui.
+        {
+            let path = path.join("binary_ui.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.binary_ui.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist edge.
+        {
+            let path = path.join("edge.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.edge.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist isa_ui.
+        {
+            let path = path.join("isa_ui.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.isa_ui.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist object_edge.
+        {
+            let path = path.join("object_edge.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.object_edge.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist object_ui.
+        {
+            let path = path.join("object_ui.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.object_ui.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist point.
+        {
+            let path = path.join("point.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.point.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist relationship_ui.
+        {
+            let path = path.join("relationship_ui.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.relationship_ui.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist subtype_anchors.
+        {
+            let path = path.join("subtype_anchors.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.subtype_anchors.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        Ok(())
+    }
+
+    /// Load the store.
+    ///
+    /// The store is persisted as a directory of JSON files. The intention
+    /// is that this directory can be checked into version control.
+    /// In fact, I intend to add automaagic git integration as an option.
+    pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path = path.as_ref();
+        let path = path.join("drawing.json");
+
+        let mut store = Self::new();
+
+        // Load anchor.
+        {
+            let path = path.join("anchor.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let anchor: Vec<Anchor> = serde_json::from_reader(reader)?;
+            store.anchor = anchor.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load associative_ui.
+        {
+            let path = path.join("associative_ui.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let associative_ui: Vec<AssociativeUi> = serde_json::from_reader(reader)?;
+            store.associative_ui = associative_ui.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load binary_ui.
+        {
+            let path = path.join("binary_ui.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let binary_ui: Vec<BinaryUi> = serde_json::from_reader(reader)?;
+            store.binary_ui = binary_ui.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load edge.
+        {
+            let path = path.join("edge.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let edge: Vec<Edge> = serde_json::from_reader(reader)?;
+            store.edge = edge.into_iter().map(|道| (道.id(), 道)).collect();
+        }
+        // Load isa_ui.
+        {
+            let path = path.join("isa_ui.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let isa_ui: Vec<IsaUi> = serde_json::from_reader(reader)?;
+            store.isa_ui = isa_ui.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load object_edge.
+        {
+            let path = path.join("object_edge.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let object_edge: Vec<ObjectEdge> = serde_json::from_reader(reader)?;
+            store.object_edge = object_edge.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load object_ui.
+        {
+            let path = path.join("object_ui.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let object_ui: Vec<ObjectUi> = serde_json::from_reader(reader)?;
+            store.object_ui = object_ui.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load point.
+        {
+            let path = path.join("point.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let point: Vec<Point> = serde_json::from_reader(reader)?;
+            store.point = point.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load relationship_ui.
+        {
+            let path = path.join("relationship_ui.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let relationship_ui: Vec<RelationshipUi> = serde_json::from_reader(reader)?;
+            store.relationship_ui = relationship_ui
+                .into_iter()
+                .map(|道| (道.id(), 道))
+                .collect();
+        }
+        // Load subtype_anchors.
+        {
+            let path = path.join("subtype_anchors.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let subtype_anchors: Vec<SubtypeAnchors> = serde_json::from_reader(reader)?;
+            store.subtype_anchors = subtype_anchors.into_iter().map(|道| (道.id, 道)).collect();
+        }
+
+        Ok(store)
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

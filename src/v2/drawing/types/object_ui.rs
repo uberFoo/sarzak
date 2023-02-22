@@ -95,8 +95,8 @@ impl ObjectUi {
         store
             .iter_object_edge()
             .filter_map(|object_edge| {
-                if object_edge.1.oui_id == self.id {
-                    Some(object_edge.1)
+                if object_edge.oui_id == self.id {
+                    Some(object_edge)
                 } else {
                     None
                 }
