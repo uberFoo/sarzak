@@ -85,11 +85,11 @@ impl Anchor {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-location"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-associative_ui"}}}
-    /// Navigate to [`AssociativeUi`] across R15(1-1c)
-    pub fn r15c_associative_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&AssociativeUi> {
+    /// Navigate to [`AssociativeUi`] across R14(1-1c)
+    pub fn r14c_associative_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&AssociativeUi> {
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.other == self.id);
+            .find(|associative_ui| associative_ui.one == self.id);
         match associative_ui {
             Some(ref associative_ui) => vec![associative_ui],
             None => Vec::new(),
@@ -109,25 +109,13 @@ impl Anchor {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-associative_ui"}}}
-    /// Navigate to [`AssociativeUi`] across R14(1-1c)
-    pub fn r14c_associative_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&AssociativeUi> {
+    /// Navigate to [`AssociativeUi`] across R15(1-1c)
+    pub fn r15c_associative_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&AssociativeUi> {
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.one == self.id);
+            .find(|associative_ui| associative_ui.other == self.id);
         match associative_ui {
             Some(ref associative_ui) => vec![associative_ui],
-            None => Vec::new(),
-        }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-binary_ui"}}}
-    /// Navigate to [`BinaryUi`] across R7(1-1c)
-    pub fn r7c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&BinaryUi> {
-        let binary_ui = store
-            .iter_binary_ui()
-            .find(|binary_ui| binary_ui.from == self.id);
-        match binary_ui {
-            Some(ref binary_ui) => vec![binary_ui],
             None => Vec::new(),
         }
     }
@@ -138,6 +126,18 @@ impl Anchor {
         let binary_ui = store
             .iter_binary_ui()
             .find(|binary_ui| binary_ui.to == self.id);
+        match binary_ui {
+            Some(ref binary_ui) => vec![binary_ui],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-binary_ui"}}}
+    /// Navigate to [`BinaryUi`] across R7(1-1c)
+    pub fn r7c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&BinaryUi> {
+        let binary_ui = store
+            .iter_binary_ui()
+            .find(|binary_ui| binary_ui.from == self.id);
         match binary_ui {
             Some(ref binary_ui) => vec![binary_ui],
             None => Vec::new(),

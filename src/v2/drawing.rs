@@ -10,13 +10,6 @@ pub mod types;
 pub use store::ObjectStore;
 pub use types::*;
 
-// drawing
-pub const UUID_NS: Uuid = uuid!("0d035b17-076b-5848-b20f-ee05ce7738a9");
-
-pub fn init_instances(store: &mut ObjectStore) {
-    // More primitives. They also happen to be leaves/roots. Whatever.
-    store.inter_edge(Edge::Top(TOP));
-    store.inter_edge(Edge::Left(LEFT));
-    store.inter_edge(Edge::Right(RIGHT));
-    store.inter_edge(Edge::Bottom(BOTTOM));
-}
+// Pulled this from sarzak.rs in nut. I'm not sure where it came from, but it's
+// what is being used for generating the consts.
+pub const UUID_NS: Uuid = uuid!("daccabb9-eb3a-5cde-ba7c-19a3f22ab649");

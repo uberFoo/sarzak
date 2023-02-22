@@ -53,7 +53,6 @@ impl Associative {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-one"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-other"}}}
     /// Navigate to [`AssociativeReferent`] across R23(1-?)
     pub fn r23_associative_referent<'a>(
         &'a self,
@@ -63,7 +62,6 @@ impl Associative {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-other"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-one"}}}
     /// Navigate to [`AssociativeReferent`] across R22(1-?)
     pub fn r22_associative_referent<'a>(
         &'a self,

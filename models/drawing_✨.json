@@ -1,14 +1,14 @@
 {
     "paper": {
         "ids": [
-            "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb"
+            "daccabb9-eb3a-5cde-ba7c-19a3f22ab649"
         ],
         "entities": {
-            "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb": {
-                "id": "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb",
+            "daccabb9-eb3a-5cde-ba7c-19a3f22ab649": {
+                "id": "daccabb9-eb3a-5cde-ba7c-19a3f22ab649",
                 "description": "Domain for drawing boxen and lines.",
                 "domain_name": "drawing",
-                "domain_ns": "b49d6fe1-e5e9-5896-bd42-b72012429e52",
+                "domain_ns": "daccabb9-eb3a-5cde-ba7c-19a3f22ab649",
                 "width": 4000,
                 "height": 3200,
                 "offset": {

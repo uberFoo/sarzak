@@ -1,5 +1,7 @@
 //! Version 2 Sarzak Domain
 //!
+use std::{fs, path::Path};
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -100,6 +102,22 @@ impl Domain {
     /// model UI instances.
     pub fn drawing_mut(&mut self) -> &mut DrawingStore {
         &mut self.drawing
+    }
+
+    pub fn persist<P: AsRef<Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
+        let path = path.as_ref();
+        let path = path.join(format!("{}.json", self.domain));
+        fs::create_dir_all(path.parent().unwrap())?;
+
+        self.sarzak.persist(&path)?;
+        self.drawing.persist(&path)?;
+
+        // let path = path.join("metadata.json");
+        // let file = fs::File::create(path)?;
+        // let writer = io::BufWriter::new(file);
+        // serde_json::to_writer_pretty(writer, &self)?;
+
+        Ok(())
     }
 }
 
