@@ -156,7 +156,10 @@ impl From<&FromAssociative> for Associative {
 impl From<&FromAssociativeReferent> for AssociativeReferent {
     fn from(src: &FromAssociativeReferent) -> Self {
         Self {
+            description: src.description.clone(),
             id: src.id,
+            cardinality: src.cardinality,
+            conditionality: src.conditionality,
             obj_id: src.obj_id,
         }
     }
@@ -166,6 +169,9 @@ impl From<&FromAssociativeReferrer> for AssociativeReferrer {
     fn from(src: &FromAssociativeReferrer) -> Self {
         Self {
             id: src.id,
+            one_referential_attribute: src.one_referential_attribute.clone(),
+            other_referential_attribute: src.other_referential_attribute.clone(),
+            cardinality: src.cardinality,
             obj_id: src.obj_id,
         }
     }
