@@ -13,7 +13,7 @@
 use crate::v2::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
     Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty,
+    State, Subtype, Supertype, Ty, BOOLEAN, FLOAT, INTEGER, STRING, UUID,
 };
 use crate::v2::sarzak::ObjectStore;
 
@@ -156,11 +156,11 @@ impl From<&FromAssociative> for Associative {
 impl From<&FromAssociativeReferent> for AssociativeReferent {
     fn from(src: &FromAssociativeReferent) -> Self {
         Self {
-            description: src.description.clone(),
             id: src.id,
+            obj_id: src.obj_id,
             cardinality: src.cardinality,
             conditionality: src.conditionality,
-            obj_id: src.obj_id,
+            description: src.description.clone(),
         }
     }
 }
@@ -169,10 +169,10 @@ impl From<&FromAssociativeReferrer> for AssociativeReferrer {
     fn from(src: &FromAssociativeReferrer) -> Self {
         Self {
             id: src.id,
+            obj_id: src.obj_id,
+            cardinality: src.cardinality,
             one_referential_attribute: src.one_referential_attribute.clone(),
             other_referential_attribute: src.other_referential_attribute.clone(),
-            cardinality: src.cardinality,
-            obj_id: src.obj_id,
         }
     }
 }
@@ -323,13 +323,13 @@ impl From<&FromSupertype> for Supertype {
 impl From<&FromTy> for Ty {
     fn from(src: &FromTy) -> Self {
         match src {
-            FromTy::Boolean(src) => Ty::Boolean(src.clone()),
+            FromTy::Boolean(_) => Ty::Boolean(BOOLEAN),
             FromTy::External(src) => Ty::External(src.clone()),
-            FromTy::Float(src) => Ty::Float(src.clone()),
-            FromTy::Integer(src) => Ty::Integer(src.clone()),
+            FromTy::Float(_) => Ty::Float(FLOAT),
+            FromTy::Integer(_) => Ty::Integer(INTEGER),
             FromTy::Object(src) => Ty::Object(src.clone()),
-            FromTy::String(src) => Ty::String(src.clone()),
-            FromTy::Uuid(src) => Ty::Uuid(src.clone()),
+            FromTy::String(_) => Ty::String(STRING),
+            FromTy::Uuid(_) => Ty::Uuid(UUID),
         }
     }
 }

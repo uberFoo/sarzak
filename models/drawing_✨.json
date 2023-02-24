@@ -4,11 +4,11 @@
             "daccabb9-eb3a-5cde-ba7c-19a3f22ab649"
         ],
         "entities": {
-            "daccabb9-eb3a-5cde-ba7c-19a3f22ab649": {
-                "id": "daccabb9-eb3a-5cde-ba7c-19a3f22ab649",
+            "0d035b17-076b-5848-b20f-ee05ce7738a9": {
+                "id": "0d035b17-076b-5848-b20f-ee05ce7738a9",
                 "description": "Domain for drawing boxen and lines.",
                 "domain_name": "drawing",
-                "domain_ns": "daccabb9-eb3a-5cde-ba7c-19a3f22ab649",
+                "domain_ns": "0d035b17-076b-5848-b20f-ee05ce7738a9",
                 "width": 4000,
                 "height": 3200,
                 "offset": {

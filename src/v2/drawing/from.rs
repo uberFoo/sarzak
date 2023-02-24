@@ -12,7 +12,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::drawing::types::{
     Anchor, AssociativeUi, BinaryUi, Edge, IsaUi, ObjectEdge, ObjectUi, Point, RelationshipUi,
-    SubtypeAnchors,
+    SubtypeAnchors, BOTTOM, LEFT, RIGHT, TOP,
 };
 use crate::v2::drawing::ObjectStore;
 
@@ -119,10 +119,10 @@ impl From<&FromBinaryUi> for BinaryUi {
 impl From<&FromEdge> for Edge {
     fn from(src: &FromEdge) -> Self {
         match src {
-            FromEdge::Bottom(src) => Edge::Bottom(src.clone()),
-            FromEdge::Left(src) => Edge::Left(src.clone()),
-            FromEdge::Right(src) => Edge::Right(src.clone()),
-            FromEdge::Top(src) => Edge::Top(src.clone()),
+            FromEdge::Bottom(_) => Edge::Bottom(BOTTOM),
+            FromEdge::Left(_) => Edge::Left(LEFT),
+            FromEdge::Right(_) => Edge::Right(RIGHT),
+            FromEdge::Top(_) => Edge::Top(TOP),
         }
     }
 }

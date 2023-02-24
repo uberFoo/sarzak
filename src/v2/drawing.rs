@@ -10,6 +10,5 @@ pub mod types;
 pub use store::ObjectStore;
 pub use types::*;
 
-// Pulled this from sarzak.rs in nut. I'm not sure where it came from, but it's
-// what is being used for generating the consts.
-pub const UUID_NS: Uuid = uuid!("daccabb9-eb3a-5cde-ba7c-19a3f22ab649");
+// drawing
+pub const UUID_NS: Uuid = uuid!("0d035b17-076b-5848-b20f-ee05ce7738a9");
