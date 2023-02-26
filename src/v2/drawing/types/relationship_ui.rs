@@ -9,6 +9,7 @@ use crate::v2::drawing::store::ObjectStore as DrawingStore;
 use crate::v2::drawing::types::associative_ui::AssociativeUi;
 use crate::v2::drawing::types::binary_ui::BinaryUi;
 use crate::v2::drawing::types::isa_ui::IsaUi;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_ui-enum-documentation"}}}
 /// Additional information necessary to render relationships in the user interface.

@@ -78,13 +78,13 @@ impl ObjectUi {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-object_id"}}}
-    /// Navigate to [`Object`] across R1(1-?)
+    /// Navigate to [`Object`] across R1(1-*)
     pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.object_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-origin"}}}
-    /// Navigate to [`Point`] across R13(1-?)
+    /// Navigate to [`Point`] across R13(1-*)
     pub fn r13_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Point> {
         vec![store.exhume_point(&self.origin).unwrap()]
     }

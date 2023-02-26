@@ -45,13 +45,13 @@ impl ObjectEdge {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-struct-impl-nav-forward-to-edge"}}}
-    /// Navigate to [`Edge`] across R19(1-?)
+    /// Navigate to [`Edge`] across R19(1-*)
     pub fn r19_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Edge> {
         vec![store.exhume_edge(&self.edge).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-struct-impl-nav-forward-to-oui_id"}}}
-    /// Navigate to [`ObjectUi`] across R18(1-?)
+    /// Navigate to [`ObjectUi`] across R18(1-*)
     pub fn r18_object_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&ObjectUi> {
         vec![store.exhume_object_ui(&self.oui_id).unwrap()]
     }

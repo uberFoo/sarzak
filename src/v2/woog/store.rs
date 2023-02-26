@@ -19,7 +19,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::woog::types::{
-    Mutability, ObjectMethod, Parameter, Visibility, BORROWED, KRATE, MUTABLE, PRIVATE, PUBLIC,
+    Mutability, ObjectMethod, Parameter, Visibility, BORROWED, KRATE, MUTABLE, OWNED, PRIVATE,
+    PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -42,6 +43,7 @@ impl ObjectStore {
         // Initialize Singleton Subtypes
         store.inter_mutability(Mutability::Borrowed(BORROWED));
         store.inter_mutability(Mutability::Mutable(MUTABLE));
+        store.inter_mutability(Mutability::Owned(OWNED));
         store.inter_visibility(Visibility::Krate(KRATE));
         store.inter_visibility(Visibility::Private(PRIVATE));
         store.inter_visibility(Visibility::Public(PUBLIC));

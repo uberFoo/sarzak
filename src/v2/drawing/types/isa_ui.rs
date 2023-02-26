@@ -46,13 +46,13 @@ impl IsaUi {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-from"}}}
-    /// Navigate to [`Anchor`] across R9(1-?)
+    /// Navigate to [`Anchor`] across R9(1-*)
     pub fn r9_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         vec![store.exhume_anchor(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-isa"}}}
-    /// Navigate to [`Isa`] across R11(1-?)
+    /// Navigate to [`Isa`] across R11(1-*)
     pub fn r11_isa<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Isa> {
         vec![store.exhume_isa(&self.isa).unwrap()]
     }

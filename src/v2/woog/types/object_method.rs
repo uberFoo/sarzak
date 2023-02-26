@@ -81,19 +81,19 @@ impl ObjectMethod {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-object"}}}
-    /// Navigate to [`Object`] across R4(1-?)
+    /// Navigate to [`Object`] across R4(1-*)
     pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-ty"}}}
-    /// Navigate to [`Ty`] across R3(1-?)
+    /// Navigate to [`Ty`] across R3(1-*)
     pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-visibility"}}}
-    /// Navigate to [`Visibility`] across R7(1-?)
+    /// Navigate to [`Visibility`] across R7(1-*)
     pub fn r7_visibility<'a>(&'a self, store: &'a WoogStore) -> Vec<&Visibility> {
         vec![store.exhume_visibility(&self.visibility).unwrap()]
     }

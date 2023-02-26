@@ -4,11 +4,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 use crate::v2::sarzak::types::associative::Associative;
 use crate::v2::sarzak::types::binary::Binary;
 use crate::v2::sarzak::types::isa::Isa;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship-enum-documentation"}}}
 /// A `Relationship` indicates that a set of objects are connected to each other in some manner

@@ -74,19 +74,19 @@ impl Parameter {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-mutability"}}}
-    /// Navigate to [`Mutability`] across R10(1-?)
+    /// Navigate to [`Mutability`] across R10(1-*)
     pub fn r10_mutability<'a>(&'a self, store: &'a WoogStore) -> Vec<&Mutability> {
         vec![store.exhume_mutability(&self.mutability).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-method"}}}
-    /// Navigate to [`ObjectMethod`] across R5(1-?)
+    /// Navigate to [`ObjectMethod`] across R5(1-*)
     pub fn r5_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
         vec![store.exhume_object_method(&self.method).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
-    /// Navigate to [`Parameter`] across R1(1-?c)
+    /// Navigate to [`Parameter`] across R1(1-*c)
     pub fn r1_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(next).unwrap()],
@@ -95,13 +95,13 @@ impl Parameter {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-ty"}}}
-    /// Navigate to [`Ty`] across R2(1-?)
+    /// Navigate to [`Ty`] across R2(1-*)
     pub fn r2_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-visibility"}}}
-    /// Navigate to [`Visibility`] across R8(1-?)
+    /// Navigate to [`Visibility`] across R8(1-*)
     pub fn r8_visibility<'a>(&'a self, store: &'a WoogStore) -> Vec<&Visibility> {
         vec![store.exhume_visibility(&self.visibility).unwrap()]
     }

@@ -10,10 +10,13 @@
 //! the generated code will need to be manually edited.
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-definition"}}}
+use uuid::Uuid;
+
 use crate::v2::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
     Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty, BOOLEAN, FLOAT, INTEGER, STRING, UUID,
+    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
+    UNCONDITIONAL, UUID,
 };
 use crate::v2::sarzak::ObjectStore;
 
@@ -24,7 +27,10 @@ use crate::v1::sarzak::types::{
     Conditionality as FromConditionality, Event as FromEvent, External as FromExternal,
     Isa as FromIsa, Object as FromObject, Referent as FromReferent, Referrer as FromReferrer,
     Relationship as FromRelationship, State as FromState, Subtype as FromSubtype,
-    Supertype as FromSupertype, Type as FromTy,
+    Supertype as FromSupertype, Type as FromTy, BOOLEAN as FROM_BOOLEAN,
+    CONDITIONAL as FROM_CONDITIONAL, FLOAT as FROM_FLOAT, INTEGER as FROM_INTEGER,
+    MANY as FROM_MANY, ONE as FROM_ONE, STRING as FROM_STRING, UNCONDITIONAL as FROM_UNCONDITIONAL,
+    UUID as FROM_UUID,
 };
 use crate::v1::sarzak::ObjectStore as SarzakStore;
 
@@ -158,8 +164,8 @@ impl From<&FromAssociativeReferent> for AssociativeReferent {
         Self {
             id: src.id,
             obj_id: src.obj_id,
-            cardinality: src.cardinality,
-            conditionality: src.conditionality,
+            cardinality: from_const(&src.cardinality),
+            conditionality: from_const(&src.conditionality),
             description: src.description.clone(),
         }
     }
@@ -170,7 +176,7 @@ impl From<&FromAssociativeReferrer> for AssociativeReferrer {
         Self {
             id: src.id,
             obj_id: src.obj_id,
-            cardinality: src.cardinality,
+            cardinality: from_const(&src.cardinality),
             one_referential_attribute: src.one_referential_attribute.clone(),
             other_referential_attribute: src.other_referential_attribute.clone(),
         }
@@ -183,7 +189,7 @@ impl From<&FromAttribute> for Attribute {
             id: src.id,
             name: src.name.clone(),
             obj_id: src.obj_id,
-            ty: src.ty,
+            ty: from_const(&src.ty),
         }
     }
 }
@@ -202,8 +208,8 @@ impl From<&FromBinary> for Binary {
 impl From<&FromCardinality> for Cardinality {
     fn from(src: &FromCardinality) -> Self {
         match src {
-            FromCardinality::Many(src) => Cardinality::Many(src.clone()),
-            FromCardinality::One(src) => Cardinality::One(src.clone()),
+            FromCardinality::Many(_) => Cardinality::Many(MANY),
+            FromCardinality::One(_) => Cardinality::One(ONE),
         }
     }
 }
@@ -211,8 +217,8 @@ impl From<&FromCardinality> for Cardinality {
 impl From<&FromConditionality> for Conditionality {
     fn from(src: &FromConditionality) -> Self {
         match src {
-            FromConditionality::Conditional(src) => Conditionality::Conditional(src.clone()),
-            FromConditionality::Unconditional(src) => Conditionality::Unconditional(src.clone()),
+            FromConditionality::Conditional(_) => Conditionality::Conditional(CONDITIONAL),
+            FromConditionality::Unconditional(_) => Conditionality::Unconditional(UNCONDITIONAL),
         }
     }
 }
@@ -262,8 +268,8 @@ impl From<&FromReferent> for Referent {
         Self {
             description: src.description.clone(),
             id: src.id,
-            cardinality: src.cardinality,
-            conditionality: src.conditionality,
+            cardinality: from_const(&src.cardinality),
+            conditionality: from_const(&src.conditionality),
             obj_id: src.obj_id,
         }
     }
@@ -275,8 +281,8 @@ impl From<&FromReferrer> for Referrer {
             description: src.description.clone(),
             id: src.id,
             referential_attribute: src.referential_attribute.clone(),
-            cardinality: src.cardinality,
-            conditionality: src.conditionality,
+            cardinality: from_const(&src.cardinality),
+            conditionality: from_const(&src.conditionality),
             obj_id: src.obj_id,
         }
     }
@@ -331,6 +337,21 @@ impl From<&FromTy> for Ty {
             FromTy::String(_) => Ty::String(STRING),
             FromTy::Uuid(_) => Ty::Uuid(UUID),
         }
+    }
+}
+
+fn from_const(from: &Uuid) -> Uuid {
+    match *from {
+        FROM_BOOLEAN => BOOLEAN,
+        FROM_FLOAT => FLOAT,
+        FROM_INTEGER => INTEGER,
+        FROM_STRING => STRING,
+        FROM_UUID => UUID,
+        FROM_CONDITIONAL => CONDITIONAL,
+        FROM_UNCONDITIONAL => UNCONDITIONAL,
+        FROM_MANY => MANY,
+        FROM_ONE => ONE,
+        huh => panic!("from_const: unexpected value {}", huh),
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
