@@ -26,7 +26,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 pub struct XLet {
     pub id: Uuid,
     pub value: String,
-    /// R16: [`XLet`] 'to a variable assigns' [`Expression`]
+    /// R18: [`XLet`] 'to a variable assigns' [`Expression`]
     pub expression: Uuid,
     /// R17: [`XLet`] 'gives value to a' [`Variable`]
     pub variable: Uuid,
@@ -57,8 +57,8 @@ impl XLet {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-expression"}}}
-    /// Navigate to [`Expression`] across R16(1-*)
-    pub fn r16_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
+    /// Navigate to [`Expression`] across R18(1-*)
+    pub fn r18_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

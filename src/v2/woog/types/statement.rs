@@ -26,13 +26,6 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum StatementEnum {
-    ExpressionStatement(Uuid),
-    Item(Uuid),
-    XLet(Uuid),
-    XMacro(Uuid),
-}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -42,6 +35,15 @@ pub struct Statement {
     pub value: String,
     /// R12: [`Statement`] 'belongs to a' [`Block`]
     pub block: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum StatementEnum {
+    ExpressionStatement(Uuid),
+    Item(Uuid),
+    XLet(Uuid),
+    XMacro(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-implementation"}}}

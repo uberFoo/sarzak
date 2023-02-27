@@ -4,10 +4,12 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::sarzak::store::ObjectStore as SarzakStore;
+// Subtype imports
 use crate::v2::sarzak::types::associative::Associative;
 use crate::v2::sarzak::types::binary::Binary;
 use crate::v2::sarzak::types::isa::Isa;
+
+use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship-enum-documentation"}}}

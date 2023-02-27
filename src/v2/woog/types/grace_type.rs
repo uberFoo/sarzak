@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 // Subtype imports
 use crate::v2::sarzak::types::ty::Ty;
 use crate::v2::woog::types::reference::Reference;
+use crate::v2::woog::types::woog_option::WoogOption;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -24,6 +25,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum GraceType {
+    WoogOption(Uuid),
     Reference(Uuid),
     Ty(Uuid),
 }
@@ -31,6 +33,13 @@ pub enum GraceType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-implementation"}}}
 impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-new-impl"}}}
+    /// Create a new instance of GraceType::WoogOption
+    pub fn new_woog_option(woog_option: &WoogOption, store: &mut WoogStore) -> Self {
+        let new = Self::WoogOption(woog_option.id);
+        store.inter_grace_type(new.clone());
+        new
+    }
+
     /// Create a new instance of GraceType::Reference
     pub fn new_reference(reference: &Reference, store: &mut WoogStore) -> Self {
         let new = Self::Reference(reference.id);
@@ -49,6 +58,7 @@ impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            GraceType::WoogOption(id) => *id,
             GraceType::Reference(id) => *id,
             GraceType::Ty(id) => *id,
         }
@@ -56,4 +66,17 @@ impl GraceType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+impl From<Ty> for GraceType {
+    fn from(ty: Ty) -> Self {
+        GraceType::Ty(ty.id())
+    }
+}
+
+impl From<&Ty> for GraceType {
+    fn from(ty: &Ty) -> Self {
+        GraceType::Ty(ty.id())
+    }
+}
+
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
+// Subtype imports
 use crate::v2::drawing::types::bottom::BOTTOM;
 use crate::v2::drawing::types::left::LEFT;
 use crate::v2::drawing::types::right::RIGHT;

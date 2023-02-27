@@ -32,6 +32,17 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// and [`Visibility`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Value {
+    pub subtype: ValueEnum,
+    pub id: Uuid,
+    /// R16: [`Value`] 'is granted utility by' [`Access`]
+    pub access: Uuid,
+    /// R3: [`Value`] 'is given meaning by a' [`GraceType`]
+    pub ty: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueEnum {
@@ -39,37 +50,23 @@ pub enum ValueEnum {
     Variable(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct Value {
-    pub subtype: ValueEnum,
-    pub id: Uuid,
-    pub value: String,
-    /// R16: [`Value`] 'is granted utility by' [`Access`]
-    pub access: Uuid,
-    /// R3: [`Value`] 'is given meaning by a' [`GraceType`]
-    pub ty: Option<Uuid>,
-}
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-implementation"}}}
 impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
-        value: String,
         access: &Access,
-        ty: Option<&GraceType>,
+        ty: &GraceType,
         subtype: &Expression,
         store: &mut WoogStore,
     ) -> Value {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{:?}:{:?}:{:?}", value, access, ty, subtype).as_bytes(),
+            format!("{:?}:{:?}:{:?}", access, ty, subtype).as_bytes(),
         );
         let new = Value {
-            value: value,
             access: access.id,
-            ty: ty.map(|grace_type| grace_type.id()),
+            ty: ty.id(),
             subtype: ValueEnum::Expression(subtype.id()),
             id,
         };
@@ -80,20 +77,18 @@ impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
-        value: String,
         access: &Access,
-        ty: Option<&GraceType>,
+        ty: &GraceType,
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{:?}:{:?}:{:?}", value, access, ty, subtype).as_bytes(),
+            format!("{:?}:{:?}:{:?}", access, ty, subtype).as_bytes(),
         );
         let new = Value {
-            value: value,
             access: access.id,
-            ty: ty.map(|grace_type| grace_type.id()),
+            ty: ty.id(),
             subtype: ValueEnum::Variable(subtype.id()),
             id,
         };
@@ -107,13 +102,10 @@ impl Value {
         vec![store.exhume_access(&self.access).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-cond-to-ty"}}}
-    /// Navigate to [`GraceType`] across R3(1-*c)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-ty"}}}
+    /// Navigate to [`GraceType`] across R3(1-*)
     pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
-        match self.ty {
-            Some(ref ty) => vec![store.exhume_grace_type(ty).unwrap()],
-            None => Vec::new(),
-        }
+        vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

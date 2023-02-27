@@ -10,6 +10,7 @@ use crate::v2::woog::UUID_NS;
 use crate::v2::sarzak::types::object::Object;
 
 // Referent imports
+use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::parameter::Parameter;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
@@ -70,6 +71,21 @@ impl ObjectMethod {
     /// Navigate to [`Object`] across R4(1-*)
     pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.object).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-1_M-to-call"}}}
+    /// Navigate to [`Call`] across R19(1-M)
+    pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<&Call> {
+        store
+            .iter_call()
+            .filter_map(|call| {
+                if call.method == self.id {
+                    Some(call)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}

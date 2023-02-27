@@ -294,7 +294,7 @@ impl ObjectStore {
         let path = path.join("drawing.json");
         fs::create_dir_all(&path)?;
 
-        // Persist anchor.
+        // Persist Anchor.
         {
             let path = path.join("anchor.json");
             let file = fs::File::create(path)?;
@@ -304,7 +304,7 @@ impl ObjectStore {
                 &self.anchor.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist associative_ui.
+        // Persist AssociativeUI.
         {
             let path = path.join("associative_ui.json");
             let file = fs::File::create(path)?;
@@ -314,7 +314,7 @@ impl ObjectStore {
                 &self.associative_ui.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist binary_ui.
+        // Persist BinaryUI.
         {
             let path = path.join("binary_ui.json");
             let file = fs::File::create(path)?;
@@ -324,7 +324,7 @@ impl ObjectStore {
                 &self.binary_ui.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist edge.
+        // Persist Edge.
         {
             let path = path.join("edge.json");
             let file = fs::File::create(path)?;
@@ -334,7 +334,7 @@ impl ObjectStore {
                 &self.edge.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist isa_ui.
+        // Persist IsaUI.
         {
             let path = path.join("isa_ui.json");
             let file = fs::File::create(path)?;
@@ -344,7 +344,7 @@ impl ObjectStore {
                 &self.isa_ui.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist object_edge.
+        // Persist Object Edge.
         {
             let path = path.join("object_edge.json");
             let file = fs::File::create(path)?;
@@ -354,7 +354,7 @@ impl ObjectStore {
                 &self.object_edge.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist object_ui.
+        // Persist ObjectUI.
         {
             let path = path.join("object_ui.json");
             let file = fs::File::create(path)?;
@@ -364,7 +364,7 @@ impl ObjectStore {
                 &self.object_ui.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist point.
+        // Persist Point.
         {
             let path = path.join("point.json");
             let file = fs::File::create(path)?;
@@ -374,7 +374,7 @@ impl ObjectStore {
                 &self.point.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist relationship_ui.
+        // Persist RelationshipUI.
         {
             let path = path.join("relationship_ui.json");
             let file = fs::File::create(path)?;
@@ -384,7 +384,7 @@ impl ObjectStore {
                 &self.relationship_ui.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
-        // Persist subtype_anchors.
+        // Persist Subtype Anchors.
         {
             let path = path.join("subtype_anchors.json");
             let file = fs::File::create(path)?;
@@ -408,7 +408,7 @@ impl ObjectStore {
 
         let mut store = Self::new();
 
-        // Load anchor.
+        // Load Anchor.
         {
             let path = path.join("anchor.json");
             let file = fs::File::open(path)?;
@@ -416,7 +416,7 @@ impl ObjectStore {
             let anchor: Vec<Anchor> = serde_json::from_reader(reader)?;
             store.anchor = anchor.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load associative_ui.
+        // Load AssociativeUI.
         {
             let path = path.join("associative_ui.json");
             let file = fs::File::open(path)?;
@@ -424,7 +424,7 @@ impl ObjectStore {
             let associative_ui: Vec<AssociativeUi> = serde_json::from_reader(reader)?;
             store.associative_ui = associative_ui.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load binary_ui.
+        // Load BinaryUI.
         {
             let path = path.join("binary_ui.json");
             let file = fs::File::open(path)?;
@@ -432,7 +432,7 @@ impl ObjectStore {
             let binary_ui: Vec<BinaryUi> = serde_json::from_reader(reader)?;
             store.binary_ui = binary_ui.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load edge.
+        // Load Edge.
         {
             let path = path.join("edge.json");
             let file = fs::File::open(path)?;
@@ -440,7 +440,7 @@ impl ObjectStore {
             let edge: Vec<Edge> = serde_json::from_reader(reader)?;
             store.edge = edge.into_iter().map(|道| (道.id(), 道)).collect();
         }
-        // Load isa_ui.
+        // Load IsaUI.
         {
             let path = path.join("isa_ui.json");
             let file = fs::File::open(path)?;
@@ -448,7 +448,7 @@ impl ObjectStore {
             let isa_ui: Vec<IsaUi> = serde_json::from_reader(reader)?;
             store.isa_ui = isa_ui.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load object_edge.
+        // Load Object Edge.
         {
             let path = path.join("object_edge.json");
             let file = fs::File::open(path)?;
@@ -456,7 +456,7 @@ impl ObjectStore {
             let object_edge: Vec<ObjectEdge> = serde_json::from_reader(reader)?;
             store.object_edge = object_edge.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load object_ui.
+        // Load ObjectUI.
         {
             let path = path.join("object_ui.json");
             let file = fs::File::open(path)?;
@@ -464,7 +464,7 @@ impl ObjectStore {
             let object_ui: Vec<ObjectUi> = serde_json::from_reader(reader)?;
             store.object_ui = object_ui.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load point.
+        // Load Point.
         {
             let path = path.join("point.json");
             let file = fs::File::open(path)?;
@@ -472,7 +472,7 @@ impl ObjectStore {
             let point: Vec<Point> = serde_json::from_reader(reader)?;
             store.point = point.into_iter().map(|道| (道.id, 道)).collect();
         }
-        // Load relationship_ui.
+        // Load RelationshipUI.
         {
             let path = path.join("relationship_ui.json");
             let file = fs::File::open(path)?;
@@ -483,7 +483,7 @@ impl ObjectStore {
                 .map(|道| (道.id(), 道))
                 .collect();
         }
-        // Load subtype_anchors.
+        // Load Subtype Anchors.
         {
             let path = path.join("subtype_anchors.json");
             let file = fs::File::open(path)?;

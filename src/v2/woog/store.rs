@@ -10,11 +10,13 @@
 //!
 //! * [`Access`]
 //! * [`Block`]
+//! * [`Call`]
 //! * [`Expression`]
 //! * [`GraceType`]
 //! * [`XLet`]
 //! * [`Local`]
 //! * [`ObjectMethod`]
+//! * [`WoogOption`]
 //! * [`Ownership`]
 //! * [`Parameter`]
 //! * [`Reference`]
@@ -31,20 +33,22 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::woog::types::{
-    Access, Block, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter, Reference,
-    Statement, Value, Variable, Visibility, XLet, BORROWED, CALL, KRATE, LITERAL, MUTABLE, OWNED,
-    PRIVATE, PUBLIC,
+    Access, Block, Call, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter,
+    Reference, Statement, Value, Variable, Visibility, WoogOption, XLet, BORROWED, KRATE, LITERAL,
+    MUTABLE, OWNED, PRIVATE, PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     access: HashMap<Uuid, Access>,
     block: HashMap<Uuid, Block>,
+    call: HashMap<Uuid, Call>,
     expression: HashMap<Uuid, Expression>,
     grace_type: HashMap<Uuid, GraceType>,
     x_let: HashMap<Uuid, XLet>,
     local: HashMap<Uuid, Local>,
     object_method: HashMap<Uuid, ObjectMethod>,
+    woog_option: HashMap<Uuid, WoogOption>,
     ownership: HashMap<Uuid, Ownership>,
     parameter: HashMap<Uuid, Parameter>,
     reference: HashMap<Uuid, Reference>,
@@ -59,11 +63,13 @@ impl ObjectStore {
         let mut store = Self {
             access: HashMap::new(),
             block: HashMap::new(),
+            call: HashMap::new(),
             expression: HashMap::new(),
             grace_type: HashMap::new(),
             x_let: HashMap::new(),
             local: HashMap::new(),
             object_method: HashMap::new(),
+            woog_option: HashMap::new(),
             ownership: HashMap::new(),
             parameter: HashMap::new(),
             reference: HashMap::new(),
@@ -74,7 +80,6 @@ impl ObjectStore {
         };
 
         // Initialize Singleton Subtypes
-        store.inter_expression(Expression::Call(CALL));
         store.inter_expression(Expression::Literal(LITERAL));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));
@@ -129,6 +134,27 @@ impl ObjectStore {
     ///
     pub fn iter_block(&self) -> impl Iterator<Item = &Block> {
         self.block.values()
+    }
+    /// Inter [`Call`] into the store.
+    ///
+    pub fn inter_call(&mut self, call: Call) {
+        self.call.insert(call.id, call);
+    }
+
+    /// Exhume [`Call`] from the store.
+    ///
+    pub fn exhume_call(&self, id: &Uuid) -> Option<&Call> {
+        self.call.get(id)
+    }
+    /// Exhume [`Call`] from the store — mutably.
+    ///
+    pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
+        self.call.get_mut(id)
+    }
+    /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
+    ///
+    pub fn iter_call(&self) -> impl Iterator<Item = &Call> {
+        self.call.values()
     }
     /// Inter [`Expression`] into the store.
     ///
@@ -234,6 +260,27 @@ impl ObjectStore {
     ///
     pub fn iter_object_method(&self) -> impl Iterator<Item = &ObjectMethod> {
         self.object_method.values()
+    }
+    /// Inter [`WoogOption`] into the store.
+    ///
+    pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
+        self.woog_option.insert(woog_option.id, woog_option);
+    }
+
+    /// Exhume [`WoogOption`] from the store.
+    ///
+    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<&WoogOption> {
+        self.woog_option.get(id)
+    }
+    /// Exhume [`WoogOption`] from the store — mutably.
+    ///
+    pub fn exhume_woog_option_mut(&mut self, id: &Uuid) -> Option<&mut WoogOption> {
+        self.woog_option.get_mut(id)
+    }
+    /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
+    ///
+    pub fn iter_woog_option(&self) -> impl Iterator<Item = &WoogOption> {
+        self.woog_option.values()
     }
     /// Inter [`Ownership`] into the store.
     ///
@@ -416,6 +463,16 @@ impl ObjectStore {
                 &self.block.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
+        // Persist Call.
+        {
+            let path = path.join("call.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.call.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
         // Persist Expression.
         {
             let path = path.join("expression.json");
@@ -464,6 +521,16 @@ impl ObjectStore {
             serde_json::to_writer_pretty(
                 &mut writer,
                 &self.object_method.values().map(|x| x).collect::<Vec<_>>(),
+            )?;
+        }
+        // Persist Option.
+        {
+            let path = path.join("woog_option.json");
+            let file = fs::File::create(path)?;
+            let mut writer = io::BufWriter::new(file);
+            serde_json::to_writer_pretty(
+                &mut writer,
+                &self.woog_option.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
         // Persist Ownership.
@@ -566,6 +633,14 @@ impl ObjectStore {
             let block: Vec<Block> = serde_json::from_reader(reader)?;
             store.block = block.into_iter().map(|道| (道.id, 道)).collect();
         }
+        // Load Call.
+        {
+            let path = path.join("call.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let call: Vec<Call> = serde_json::from_reader(reader)?;
+            store.call = call.into_iter().map(|道| (道.id, 道)).collect();
+        }
         // Load Expression.
         {
             let path = path.join("expression.json");
@@ -605,6 +680,14 @@ impl ObjectStore {
             let reader = io::BufReader::new(file);
             let object_method: Vec<ObjectMethod> = serde_json::from_reader(reader)?;
             store.object_method = object_method.into_iter().map(|道| (道.id, 道)).collect();
+        }
+        // Load Option.
+        {
+            let path = path.join("woog_option.json");
+            let file = fs::File::open(path)?;
+            let reader = io::BufReader::new(file);
+            let woog_option: Vec<WoogOption> = serde_json::from_reader(reader)?;
+            store.woog_option = woog_option.into_iter().map(|道| (道.id, 道)).collect();
         }
         // Load Ownership.
         {

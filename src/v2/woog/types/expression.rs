@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 // Subtype imports
 use crate::v2::woog::types::block::Block;
-use crate::v2::woog::types::call::CALL;
+use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
@@ -41,9 +41,10 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::Call
-    pub fn new_call() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Call(CALL)
+    pub fn new_call(call: &Call, store: &mut WoogStore) -> Self {
+        let new = Self::Call(call.id);
+        store.inter_expression(new.clone());
+        new
     }
 
     /// Create a new instance of Expression::Literal

@@ -26,13 +26,14 @@ pub mod statement;
 pub mod value;
 pub mod variable;
 pub mod visibility;
+pub mod woog_option;
 pub mod x_let;
 pub mod x_macro;
 
 pub use crate::v2::woog::access::Access;
 pub use crate::v2::woog::block::Block;
 pub use crate::v2::woog::borrowed::BORROWED;
-pub use crate::v2::woog::call::CALL;
+pub use crate::v2::woog::call::Call;
 pub use crate::v2::woog::expression::Expression;
 pub use crate::v2::woog::expression_statement::EXPRESSION_STATEMENT;
 pub use crate::v2::woog::grace_type::GraceType;
@@ -52,6 +53,7 @@ pub use crate::v2::woog::statement::Statement;
 pub use crate::v2::woog::value::Value;
 pub use crate::v2::woog::variable::Variable;
 pub use crate::v2::woog::visibility::Visibility;
+pub use crate::v2::woog::woog_option::WoogOption;
 pub use crate::v2::woog::x_let::XLet;
 pub use crate::v2::woog::x_macro::X_MACRO;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
