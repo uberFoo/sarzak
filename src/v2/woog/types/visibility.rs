@@ -5,9 +5,9 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog::types::krate::KRATE;
 use crate::v2::woog::types::private::PRIVATE;
 use crate::v2::woog::types::public::PUBLIC;
+use crate::v2::woog::types::woog_crate::WOOG_CRATE;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-documentation"}}}
@@ -24,7 +24,7 @@ use crate::v2::woog::types::public::PUBLIC;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Visibility {
-    Krate(Uuid),
+    WoogCrate(Uuid),
     Private(Uuid),
     Public(Uuid),
 }
@@ -32,10 +32,10 @@ pub enum Visibility {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-implementation"}}}
 impl Visibility {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-new-impl"}}}
-    /// Create a new instance of Visibility::Krate
-    pub fn new_krate() -> Self {
+    /// Create a new instance of Visibility::WoogCrate
+    pub fn new_woog_crate() -> Self {
         // This is already in the store, see associated function `new` above.
-        Self::Krate(KRATE)
+        Self::WoogCrate(WOOG_CRATE)
     }
 
     /// Create a new instance of Visibility::Private
@@ -54,7 +54,7 @@ impl Visibility {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Visibility::Krate(id) => *id,
+            Visibility::WoogCrate(id) => *id,
             Visibility::Private(id) => *id,
             Visibility::Public(id) => *id,
         }

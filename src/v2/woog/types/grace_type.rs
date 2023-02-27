@@ -5,7 +5,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::sarzak::types::ty::Ty;
+use crate::v2::sarzak::types::s_type::SType;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::woog_option::WoogOption;
 
@@ -27,7 +27,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 pub enum GraceType {
     WoogOption(Uuid),
     Reference(Uuid),
-    Ty(Uuid),
+    SType(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-implementation"}}}
@@ -47,9 +47,9 @@ impl GraceType {
         new
     }
 
-    /// Create a new instance of GraceType::Ty
-    pub fn new_ty(ty: &Ty, store: &mut WoogStore) -> Self {
-        let new = Self::Ty(ty.id());
+    /// Create a new instance of GraceType::SType
+    pub fn new_s_type(s_type: &SType, store: &mut WoogStore) -> Self {
+        let new = Self::SType(s_type.id());
         store.inter_grace_type(new.clone());
         new
     }
@@ -60,22 +60,22 @@ impl GraceType {
         match self {
             GraceType::WoogOption(id) => *id,
             GraceType::Reference(id) => *id,
-            GraceType::Ty(id) => *id,
+            GraceType::SType(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-impl From<Ty> for GraceType {
-    fn from(ty: Ty) -> Self {
-        GraceType::Ty(ty.id())
+impl From<SType> for GraceType {
+    fn from(ty: SType) -> Self {
+        GraceType::SType(ty.id())
     }
 }
 
-impl From<&Ty> for GraceType {
-    fn from(ty: &Ty) -> Self {
-        GraceType::Ty(ty.id())
+impl From<&SType> for GraceType {
+    fn from(ty: &SType) -> Self {
+        GraceType::SType(ty.id())
     }
 }
 

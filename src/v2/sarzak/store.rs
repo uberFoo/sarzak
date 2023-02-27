@@ -25,7 +25,7 @@
 //! * [`State`]
 //! * [`Subtype`]
 //! * [`Supertype`]
-//! * [`Ty`]
+//! * [`SType`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::sarzak-object-store-definition"}}}
 use std::collections::HashMap;
 use std::{fs, io, path::Path};
@@ -36,7 +36,7 @@ use uuid::Uuid;
 use crate::v2::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
     Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
+    SType, State, Subtype, Supertype, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
     UNCONDITIONAL, UUID,
 };
 
@@ -60,7 +60,7 @@ pub struct ObjectStore {
     state: HashMap<Uuid, State>,
     subtype: HashMap<Uuid, Subtype>,
     supertype: HashMap<Uuid, Supertype>,
-    ty: HashMap<Uuid, Ty>,
+    s_type: HashMap<Uuid, SType>,
 }
 
 impl ObjectStore {
@@ -84,7 +84,7 @@ impl ObjectStore {
             state: HashMap::new(),
             subtype: HashMap::new(),
             supertype: HashMap::new(),
-            ty: HashMap::new(),
+            s_type: HashMap::new(),
         };
 
         // Initialize Singleton Subtypes
@@ -92,11 +92,11 @@ impl ObjectStore {
         store.inter_cardinality(Cardinality::One(ONE));
         store.inter_conditionality(Conditionality::Conditional(CONDITIONAL));
         store.inter_conditionality(Conditionality::Unconditional(UNCONDITIONAL));
-        store.inter_ty(Ty::Boolean(BOOLEAN));
-        store.inter_ty(Ty::Float(FLOAT));
-        store.inter_ty(Ty::Integer(INTEGER));
-        store.inter_ty(Ty::String(STRING));
-        store.inter_ty(Ty::Uuid(UUID));
+        store.inter_s_type(SType::Boolean(BOOLEAN));
+        store.inter_s_type(SType::Float(FLOAT));
+        store.inter_s_type(SType::Integer(INTEGER));
+        store.inter_s_type(SType::String(STRING));
+        store.inter_s_type(SType::Uuid(UUID));
 
         store
     }
@@ -490,26 +490,26 @@ impl ObjectStore {
     pub fn iter_supertype(&self) -> impl Iterator<Item = &Supertype> {
         self.supertype.values()
     }
-    /// Inter [`Ty`] into the store.
+    /// Inter [`SType`] into the store.
     ///
-    pub fn inter_ty(&mut self, ty: Ty) {
-        self.ty.insert(ty.id(), ty);
+    pub fn inter_s_type(&mut self, s_type: SType) {
+        self.s_type.insert(s_type.id(), s_type);
     }
 
-    /// Exhume [`Ty`] from the store.
+    /// Exhume [`SType`] from the store.
     ///
-    pub fn exhume_ty(&self, id: &Uuid) -> Option<&Ty> {
-        self.ty.get(id)
+    pub fn exhume_s_type(&self, id: &Uuid) -> Option<&SType> {
+        self.s_type.get(id)
     }
-    /// Exhume [`Ty`] from the store — mutably.
+    /// Exhume [`SType`] from the store — mutably.
     ///
-    pub fn exhume_ty_mut(&mut self, id: &Uuid) -> Option<&mut Ty> {
-        self.ty.get_mut(id)
+    pub fn exhume_s_type_mut(&mut self, id: &Uuid) -> Option<&mut SType> {
+        self.s_type.get_mut(id)
     }
-    /// Get an iterator over the internal `HashMap<&Uuid, Ty>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, SType>`.
     ///
-    pub fn iter_ty(&self) -> impl Iterator<Item = &Ty> {
-        self.ty.values()
+    pub fn iter_s_type(&self) -> impl Iterator<Item = &SType> {
+        self.s_type.values()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -718,12 +718,12 @@ impl ObjectStore {
         }
         // Persist Type.
         {
-            let path = path.join("ty.json");
+            let path = path.join("s_type.json");
             let file = fs::File::create(path)?;
             let mut writer = io::BufWriter::new(file);
             serde_json::to_writer_pretty(
                 &mut writer,
-                &self.ty.values().map(|x| x).collect::<Vec<_>>(),
+                &self.s_type.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
         Ok(())
@@ -895,11 +895,11 @@ impl ObjectStore {
         }
         // Load Type.
         {
-            let path = path.join("ty.json");
+            let path = path.join("s_type.json");
             let file = fs::File::open(path)?;
             let reader = io::BufReader::new(file);
-            let ty: Vec<Ty> = serde_json::from_reader(reader)?;
-            store.ty = ty.into_iter().map(|道| (道.id(), 道)).collect();
+            let s_type: Vec<SType> = serde_json::from_reader(reader)?;
+            store.s_type = s_type.into_iter().map(|道| (道.id(), 道)).collect();
         }
 
         Ok(store)

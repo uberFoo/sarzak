@@ -13,7 +13,7 @@
 //! * [`Call`]
 //! * [`Expression`]
 //! * [`GraceType`]
-//! * [`XLet`]
+//! * [`WoogLet`]
 //! * [`Local`]
 //! * [`ObjectMethod`]
 //! * [`WoogOption`]
@@ -34,8 +34,8 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::{
     Access, Block, Call, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter,
-    Reference, Statement, Value, Variable, Visibility, WoogOption, XLet, BORROWED, KRATE, LITERAL,
-    MUTABLE, OWNED, PRIVATE, PUBLIC,
+    Reference, Statement, Value, Variable, Visibility, WoogLet, WoogOption, BORROWED, LITERAL,
+    MUTABLE, OWNED, PRIVATE, PUBLIC, WOOG_CRATE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -45,7 +45,7 @@ pub struct ObjectStore {
     call: HashMap<Uuid, Call>,
     expression: HashMap<Uuid, Expression>,
     grace_type: HashMap<Uuid, GraceType>,
-    x_let: HashMap<Uuid, XLet>,
+    woog_let: HashMap<Uuid, WoogLet>,
     local: HashMap<Uuid, Local>,
     object_method: HashMap<Uuid, ObjectMethod>,
     woog_option: HashMap<Uuid, WoogOption>,
@@ -66,7 +66,7 @@ impl ObjectStore {
             call: HashMap::new(),
             expression: HashMap::new(),
             grace_type: HashMap::new(),
-            x_let: HashMap::new(),
+            woog_let: HashMap::new(),
             local: HashMap::new(),
             object_method: HashMap::new(),
             woog_option: HashMap::new(),
@@ -84,7 +84,7 @@ impl ObjectStore {
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));
         store.inter_ownership(Ownership::Owned(OWNED));
-        store.inter_visibility(Visibility::Krate(KRATE));
+        store.inter_visibility(Visibility::WoogCrate(WOOG_CRATE));
         store.inter_visibility(Visibility::Private(PRIVATE));
         store.inter_visibility(Visibility::Public(PUBLIC));
 
@@ -198,26 +198,26 @@ impl ObjectStore {
     pub fn iter_grace_type(&self) -> impl Iterator<Item = &GraceType> {
         self.grace_type.values()
     }
-    /// Inter [`XLet`] into the store.
+    /// Inter [`WoogLet`] into the store.
     ///
-    pub fn inter_x_let(&mut self, x_let: XLet) {
-        self.x_let.insert(x_let.id, x_let);
+    pub fn inter_woog_let(&mut self, woog_let: WoogLet) {
+        self.woog_let.insert(woog_let.id, woog_let);
     }
 
-    /// Exhume [`XLet`] from the store.
+    /// Exhume [`WoogLet`] from the store.
     ///
-    pub fn exhume_x_let(&self, id: &Uuid) -> Option<&XLet> {
-        self.x_let.get(id)
+    pub fn exhume_woog_let(&self, id: &Uuid) -> Option<&WoogLet> {
+        self.woog_let.get(id)
     }
-    /// Exhume [`XLet`] from the store — mutably.
+    /// Exhume [`WoogLet`] from the store — mutably.
     ///
-    pub fn exhume_x_let_mut(&mut self, id: &Uuid) -> Option<&mut XLet> {
-        self.x_let.get_mut(id)
+    pub fn exhume_woog_let_mut(&mut self, id: &Uuid) -> Option<&mut WoogLet> {
+        self.woog_let.get_mut(id)
     }
-    /// Get an iterator over the internal `HashMap<&Uuid, XLet>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, WoogLet>`.
     ///
-    pub fn iter_x_let(&self) -> impl Iterator<Item = &XLet> {
-        self.x_let.values()
+    pub fn iter_woog_let(&self) -> impl Iterator<Item = &WoogLet> {
+        self.woog_let.values()
     }
     /// Inter [`Local`] into the store.
     ///
@@ -495,12 +495,12 @@ impl ObjectStore {
         }
         // Persist Let.
         {
-            let path = path.join("x_let.json");
+            let path = path.join("woog_let.json");
             let file = fs::File::create(path)?;
             let mut writer = io::BufWriter::new(file);
             serde_json::to_writer_pretty(
                 &mut writer,
-                &self.x_let.values().map(|x| x).collect::<Vec<_>>(),
+                &self.woog_let.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
         // Persist Local.
@@ -659,11 +659,11 @@ impl ObjectStore {
         }
         // Load Let.
         {
-            let path = path.join("x_let.json");
+            let path = path.join("woog_let.json");
             let file = fs::File::open(path)?;
             let reader = io::BufReader::new(file);
-            let x_let: Vec<XLet> = serde_json::from_reader(reader)?;
-            store.x_let = x_let.into_iter().map(|道| (道.id, 道)).collect();
+            let woog_let: Vec<WoogLet> = serde_json::from_reader(reader)?;
+            store.woog_let = woog_let.into_iter().map(|道| (道.id, 道)).collect();
         }
         // Load Local.
         {

@@ -23,24 +23,28 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 pub struct WoogOption {
     pub id: Uuid,
     /// R20: [`WoogOption`] 'contains' [`GraceType`]
-    pub ty: Uuid,
+    pub s_type: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-implementation"}}}
 impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
-    pub fn new(ty: &GraceType, store: &mut WoogStore) -> WoogOption {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", ty).as_bytes());
-        let new = WoogOption { ty: ty.id(), id };
+    pub fn new(s_type: &GraceType, store: &mut WoogStore) -> WoogOption {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", s_type).as_bytes());
+        let new = WoogOption {
+            s_type: s_type.id(),
+            id,
+        };
         store.inter_woog_option(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-ty"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-s_type"}}}
     /// Navigate to [`GraceType`] across R20(1-*)
     pub fn r20_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
-        vec![store.exhume_grace_type(&self.ty).unwrap()]
+        vec![store.exhume_grace_type(&self.s_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
