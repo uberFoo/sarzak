@@ -4,8 +4,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-use crate::v2::drawing::store::ObjectStore as DrawingStore;
 use crate::v2::drawing::types::bottom::BOTTOM;
 use crate::v2::drawing::types::left::LEFT;
 use crate::v2::drawing::types::right::RIGHT;

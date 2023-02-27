@@ -11,13 +11,3 @@ pub use types::*;
 
 // woog
 pub const UUID_NS: Uuid = uuid!("288d4258-fdbd-52dd-a38b-976fd132d096");
-
-pub fn init_instances(store: &mut ObjectStore) {
-    // Initialize with primitives.
-    store.inter_visibility(Visibility::Public(PUBLIC));
-    store.inter_visibility(Visibility::Private(PRIVATE));
-    store.inter_visibility(Visibility::Krate(KRATE));
-
-    store.inter_mutability(Mutability::Mutable(MUTABLE));
-    store.inter_mutability(Mutability::Borrowed(BORROWED));
-}

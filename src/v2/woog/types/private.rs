@@ -10,6 +10,6 @@ use uuid::{uuid, Uuid};
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"private-const-definition"}}}
-pub const PRIVATE: Uuid = uuid!["bcceb9e7-080a-5abc-918a-932905a4c8c3"];
+pub const PRIVATE: Uuid = uuid!["bb92c265-039b-5f30-94d8-a1367ac0f895"];
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

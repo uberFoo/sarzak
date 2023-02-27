@@ -12,6 +12,6 @@ use uuid::{uuid, Uuid};
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"borrowed-const-definition"}}}
-pub const BORROWED: Uuid = uuid!["967c2e10-5c4f-50ec-b130-2d2125aaea82"];
+pub const BORROWED: Uuid = uuid!["4ccd6011-dbef-5503-9015-e5c139895e54"];
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

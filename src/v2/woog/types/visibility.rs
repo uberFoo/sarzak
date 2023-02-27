@@ -4,9 +4,10 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog::types::krate::KRATE;
-use crate::v2::woog::types::private::PRIVATE;
-use crate::v2::woog::types::public::PUBLIC;
+// Subtype imports
+use crate::v2::woog_2::types::krate::KRATE;
+use crate::v2::woog_2::types::private::PRIVATE;
+use crate::v2::woog_2::types::public::PUBLIC;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-documentation"}}}

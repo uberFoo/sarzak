@@ -4,10 +4,12 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"owned-const-documentation"}}}
-/// An Owned Value
+/// An owned value
+///
+/// Someone has to be responsible for it, right?
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"owned-const-definition"}}}
-pub const OWNED: Uuid = uuid!["ede3b535-50dd-5e79-8ac9-30b49d9a2953"];
+pub const OWNED: Uuid = uuid!["81f5c36f-be98-5d4e-9896-26a8b13653cd"];
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

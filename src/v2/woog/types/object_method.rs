@@ -4,18 +4,16 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog::UUID_NS;
+use crate::v2::woog_2::UUID_NS;
 
 // Referrer imports
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::sarzak::types::ty::Ty;
-use crate::v2::woog::types::visibility::Visibility;
 
 // Referent imports
-use crate::v2::woog::types::parameter::Parameter;
+use crate::v2::woog_2::types::parameter::Parameter;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
-use crate::v2::woog::store::ObjectStore as WoogStore;
+use crate::v2::woog_2::store::ObjectStore as Woog2Store;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-documentation"}}}
@@ -42,10 +40,6 @@ pub struct ObjectMethod {
     pub name: String,
     /// R4: [`ObjectMethod`] 'is scoped to an' [`Object`]
     pub object: Uuid,
-    /// R3: [`ObjectMethod`] 'returns a' [`Ty`]
-    pub ty: Uuid,
-    /// R7: [`ObjectMethod`] 'has a' [`Visibility`]
-    pub visibility: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-implementation"}}}
@@ -56,24 +50,16 @@ impl ObjectMethod {
         description: String,
         name: String,
         object: &Object,
-        ty: &Ty,
-        visibility: &Visibility,
-        store: &mut WoogStore,
+        store: &mut Woog2Store,
     ) -> ObjectMethod {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!(
-                "{}:{}:{:?}:{:?}:{:?}",
-                description, name, object, ty, visibility
-            )
-            .as_bytes(),
+            format!("{}:{}:{:?}", description, name, object).as_bytes(),
         );
         let new = ObjectMethod {
             description: description,
             name: name,
             object: object.id,
-            ty: ty.id(),
-            visibility: visibility.id(),
             id,
         };
         store.inter_object_method(new.clone());
@@ -86,21 +72,9 @@ impl ObjectMethod {
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-ty"}}}
-    /// Navigate to [`Ty`] across R3(1-*)
-    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
-        vec![store.exhume_ty(&self.ty).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-visibility"}}}
-    /// Navigate to [`Visibility`] across R7(1-*)
-    pub fn r7_visibility<'a>(&'a self, store: &'a WoogStore) -> Vec<&Visibility> {
-        vec![store.exhume_visibility(&self.visibility).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R5(1-1c)
-    pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
+    pub fn r5c_parameter<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Parameter> {
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.method == self.id);
