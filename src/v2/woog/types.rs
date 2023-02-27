@@ -1,6 +1,8 @@
 //! Domain for generating code.
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::woog_2-module-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-module-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::woog-module-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-module-definition"}}}
 pub mod access;
 pub mod block;
 pub mod borrowed;
@@ -27,30 +29,30 @@ pub mod visibility;
 pub mod x_let;
 pub mod x_macro;
 
-pub use crate::v2::woog_2::access::Access;
-pub use crate::v2::woog_2::block::Block;
-pub use crate::v2::woog_2::borrowed::BORROWED;
-pub use crate::v2::woog_2::call::CALL;
-pub use crate::v2::woog_2::expression::Expression;
-pub use crate::v2::woog_2::expression_statement::EXPRESSION_STATEMENT;
-pub use crate::v2::woog_2::grace_type::GraceType;
-pub use crate::v2::woog_2::item::ITEM;
-pub use crate::v2::woog_2::krate::KRATE;
-pub use crate::v2::woog_2::literal::LITERAL;
-pub use crate::v2::woog_2::local::Local;
-pub use crate::v2::woog_2::mutable::MUTABLE;
-pub use crate::v2::woog_2::object_method::ObjectMethod;
-pub use crate::v2::woog_2::owned::OWNED;
-pub use crate::v2::woog_2::ownership::Ownership;
-pub use crate::v2::woog_2::parameter::Parameter;
-pub use crate::v2::woog_2::private::PRIVATE;
-pub use crate::v2::woog_2::public::PUBLIC;
-pub use crate::v2::woog_2::reference::Reference;
-pub use crate::v2::woog_2::statement::Statement;
-pub use crate::v2::woog_2::value::Value;
-pub use crate::v2::woog_2::variable::Variable;
-pub use crate::v2::woog_2::visibility::Visibility;
-pub use crate::v2::woog_2::x_let::XLet;
-pub use crate::v2::woog_2::x_macro::X_MACRO;
+pub use crate::v2::woog::access::Access;
+pub use crate::v2::woog::block::Block;
+pub use crate::v2::woog::borrowed::BORROWED;
+pub use crate::v2::woog::call::CALL;
+pub use crate::v2::woog::expression::Expression;
+pub use crate::v2::woog::expression_statement::EXPRESSION_STATEMENT;
+pub use crate::v2::woog::grace_type::GraceType;
+pub use crate::v2::woog::item::ITEM;
+pub use crate::v2::woog::krate::KRATE;
+pub use crate::v2::woog::literal::LITERAL;
+pub use crate::v2::woog::local::Local;
+pub use crate::v2::woog::mutable::MUTABLE;
+pub use crate::v2::woog::object_method::ObjectMethod;
+pub use crate::v2::woog::owned::OWNED;
+pub use crate::v2::woog::ownership::Ownership;
+pub use crate::v2::woog::parameter::Parameter;
+pub use crate::v2::woog::private::PRIVATE;
+pub use crate::v2::woog::public::PUBLIC;
+pub use crate::v2::woog::reference::Reference;
+pub use crate::v2::woog::statement::Statement;
+pub use crate::v2::woog::value::Value;
+pub use crate::v2::woog::variable::Variable;
+pub use crate::v2::woog::visibility::Visibility;
+pub use crate::v2::woog::x_let::XLet;
+pub use crate::v2::woog::x_macro::X_MACRO;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

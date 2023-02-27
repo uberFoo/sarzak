@@ -4,16 +4,16 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 // Referrer imports
 use crate::v2::sarzak::types::object::Object;
 
 // Referent imports
-use crate::v2::woog_2::types::parameter::Parameter;
+use crate::v2::woog::types::parameter::Parameter;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-documentation"}}}
@@ -50,7 +50,7 @@ impl ObjectMethod {
         description: String,
         name: String,
         object: &Object,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> ObjectMethod {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -74,7 +74,7 @@ impl ObjectMethod {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R5(1-1c)
-    pub fn r5c_parameter<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Parameter> {
+    pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.method == self.id);

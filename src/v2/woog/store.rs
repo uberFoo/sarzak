@@ -1,9 +1,10 @@
-//! v2::woog_2 Object Store
+//! v2::woog Object Store
 //!
 //! The ObjectStore contains instances of objects in the domain.
 //! The instances are stored in a hash map, keyed by the object's UUID.
 //! This is used during code generation, and probably not useful elsewhere.
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-file"}}}
 //!
 //! # Contents:
 //!
@@ -22,13 +23,14 @@
 //! * [`Variable`]
 //! * [`Visibility`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-definition"}}}
 use std::collections::HashMap;
 use std::{fs, io, path::Path};
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::v2::woog_2::types::{
+use crate::v2::woog::types::{
     Access, Block, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter, Reference,
     Statement, Value, Variable, Visibility, XLet, BORROWED, CALL, KRATE, LITERAL, MUTABLE, OWNED,
     PRIVATE, PUBLIC,
@@ -85,6 +87,7 @@ impl ObjectStore {
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-methods"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-methods"}}}
     /// Inter [`Access`] into the store.
     ///
     pub fn inter_access(&mut self, access: Access) {
@@ -382,6 +385,7 @@ impl ObjectStore {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-persistence"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-persistence"}}}
     /// Persist the store.
     ///
     /// The store is persisted as a directory of JSON files. The intention

@@ -5,10 +5,10 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog_2::types::local::Local;
-use crate::v2::woog_2::types::parameter::Parameter;
+use crate::v2::woog::types::local::Local;
+use crate::v2::woog::types::parameter::Parameter;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-enum-documentation"}}}
@@ -28,14 +28,14 @@ pub enum Variable {
 impl Variable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-new-impl"}}}
     /// Create a new instance of Variable::Local
-    pub fn new_local(local: &Local, store: &mut Woog2Store) -> Self {
+    pub fn new_local(local: &Local, store: &mut WoogStore) -> Self {
         let new = Self::Local(local.id);
         store.inter_variable(new.clone());
         new
     }
 
     /// Create a new instance of Variable::Parameter
-    pub fn new_parameter(parameter: &Parameter, store: &mut Woog2Store) -> Self {
+    pub fn new_parameter(parameter: &Parameter, store: &mut WoogStore) -> Self {
         let new = Self::Parameter(parameter.id);
         store.inter_variable(new.clone());
         new

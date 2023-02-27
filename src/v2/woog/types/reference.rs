@@ -4,13 +4,13 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 // Referrer imports
 use crate::v2::sarzak::types::object::Object;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-documentation"}}}
@@ -33,7 +33,7 @@ pub struct Reference {
 impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new Reference in the store, and return it's `id`.
-    pub fn new(object: &Object, store: &mut Woog2Store) -> Reference {
+    pub fn new(object: &Object, store: &mut WoogStore) -> Reference {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", object).as_bytes());
         let new = Reference {
             object: object.id,

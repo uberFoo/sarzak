@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 
 // Subtype imports
 use crate::v2::sarzak::types::ty::Ty;
-use crate::v2::woog_2::types::reference::Reference;
+use crate::v2::woog::types::reference::Reference;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-enum-documentation"}}}
@@ -32,14 +32,14 @@ pub enum GraceType {
 impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-new-impl"}}}
     /// Create a new instance of GraceType::Reference
-    pub fn new_reference(reference: &Reference, store: &mut Woog2Store) -> Self {
+    pub fn new_reference(reference: &Reference, store: &mut WoogStore) -> Self {
         let new = Self::Reference(reference.id);
         store.inter_grace_type(new.clone());
         new
     }
 
     /// Create a new instance of GraceType::Ty
-    pub fn new_ty(ty: &Ty, store: &mut Woog2Store) -> Self {
+    pub fn new_ty(ty: &Ty, store: &mut WoogStore) -> Self {
         let new = Self::Ty(ty.id());
         store.inter_grace_type(new.clone());
         new

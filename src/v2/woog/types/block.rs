@@ -4,12 +4,12 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 // Referent imports
-use crate::v2::woog_2::types::statement::Statement;
+use crate::v2::woog::types::statement::Statement;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-const-documentation"}}}
@@ -32,7 +32,7 @@ pub struct Block {
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new Block in the store, and return it's `id`.
-    pub fn new(instance: Uuid, store: &mut Woog2Store) -> Block {
+    pub fn new(instance: Uuid, store: &mut WoogStore) -> Block {
         let id = Uuid::new_v5(&UUID_NS, format!("{}", instance).as_bytes());
         let new = Block {
             instance: instance,
@@ -44,7 +44,7 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R12(1-M)
-    pub fn r12_statement<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Statement> {
+    pub fn r12_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
         store
             .iter_statement()
             .filter_map(|statement| {

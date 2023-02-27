@@ -5,11 +5,11 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog_2::types::block::Block;
-use crate::v2::woog_2::types::call::CALL;
-use crate::v2::woog_2::types::literal::LITERAL;
+use crate::v2::woog::types::block::Block;
+use crate::v2::woog::types::call::CALL;
+use crate::v2::woog::types::literal::LITERAL;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-documentation"}}}
@@ -34,7 +34,7 @@ pub enum Expression {
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
-    pub fn new_block(block: &Block, store: &mut Woog2Store) -> Self {
+    pub fn new_block(block: &Block, store: &mut WoogStore) -> Self {
         let new = Self::Block(block.id);
         store.inter_expression(new.clone());
         new

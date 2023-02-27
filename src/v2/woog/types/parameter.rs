@@ -4,12 +4,12 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 // Referrer imports
-use crate::v2::woog_2::types::object_method::ObjectMethod;
+use crate::v2::woog::types::object_method::ObjectMethod;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-documentation"}}}
@@ -37,7 +37,7 @@ impl Parameter {
         name: String,
         method: &ObjectMethod,
         next: Option<&Parameter>,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> Parameter {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -55,13 +55,13 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-method"}}}
     /// Navigate to [`ObjectMethod`] across R5(1-*)
-    pub fn r5_object_method<'a>(&'a self, store: &'a Woog2Store) -> Vec<&ObjectMethod> {
+    pub fn r5_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
         vec![store.exhume_object_method(&self.method).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Parameter`] across R1(1-*c)
-    pub fn r1_parameter<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Parameter> {
+    pub fn r1_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(next).unwrap()],
             None => Vec::new(),
@@ -70,7 +70,7 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R1(1c-1c)
-    pub fn r1c_parameter<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Parameter> {
+    pub fn r1c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.next == Some(self.id));

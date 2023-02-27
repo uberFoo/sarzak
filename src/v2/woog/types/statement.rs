@@ -2,20 +2,20 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog_2::types::expression_statement::EXPRESSION_STATEMENT;
-use crate::v2::woog_2::types::item::ITEM;
-use crate::v2::woog_2::types::x_let::XLet;
-use crate::v2::woog_2::types::x_macro::X_MACRO;
+use crate::v2::woog::types::expression_statement::EXPRESSION_STATEMENT;
+use crate::v2::woog::types::item::ITEM;
+use crate::v2::woog::types::x_let::XLet;
+use crate::v2::woog::types::x_macro::X_MACRO;
 
 // Referrer imports
-use crate::v2::woog_2::types::block::Block;
+use crate::v2::woog::types::block::Block;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-documentation"}}}
@@ -51,7 +51,7 @@ impl Statement {
     pub fn new_expression_statement(
         value: String,
         block: &Block,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> Statement {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -69,7 +69,7 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_item(value: String, block: &Block, store: &mut Woog2Store) -> Statement {
+    pub fn new_item(value: String, block: &Block, store: &mut WoogStore) -> Statement {
         let id = Uuid::new_v5(
             &UUID_NS,
             format!("{}:{:?}:{}", value, block, ITEM).as_bytes(),
@@ -90,7 +90,7 @@ impl Statement {
         value: String,
         block: &Block,
         subtype: &XLet,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> Statement {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -108,7 +108,7 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_x_macro(value: String, block: &Block, store: &mut Woog2Store) -> Statement {
+    pub fn new_x_macro(value: String, block: &Block, store: &mut WoogStore) -> Statement {
         let id = Uuid::new_v5(
             &UUID_NS,
             format!("{}:{:?}:{}", value, block, X_MACRO).as_bytes(),
@@ -125,7 +125,7 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R12(1-*)
-    pub fn r12_block<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Block> {
+    pub fn r12_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -5,9 +5,9 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog_2::types::borrowed::BORROWED;
-use crate::v2::woog_2::types::mutable::MUTABLE;
-use crate::v2::woog_2::types::owned::OWNED;
+use crate::v2::woog::types::borrowed::BORROWED;
+use crate::v2::woog::types::mutable::MUTABLE;
+use crate::v2::woog::types::owned::OWNED;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-enum-documentation"}}}

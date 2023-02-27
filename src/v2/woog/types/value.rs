@@ -2,19 +2,19 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
-use crate::v2::woog_2::types::expression::Expression;
-use crate::v2::woog_2::types::variable::Variable;
+use crate::v2::woog::types::expression::Expression;
+use crate::v2::woog::types::variable::Variable;
 
 // Referrer imports
-use crate::v2::woog_2::types::access::Access;
-use crate::v2::woog_2::types::grace_type::GraceType;
+use crate::v2::woog::types::access::Access;
+use crate::v2::woog::types::grace_type::GraceType;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-documentation"}}}
@@ -60,7 +60,7 @@ impl Value {
         access: &Access,
         ty: Option<&GraceType>,
         subtype: &Expression,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> Value {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -84,7 +84,7 @@ impl Value {
         access: &Access,
         ty: Option<&GraceType>,
         subtype: &Variable,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> Value {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -103,13 +103,13 @@ impl Value {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-access"}}}
     /// Navigate to [`Access`] across R16(1-*)
-    pub fn r16_access<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Access> {
+    pub fn r16_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
         vec![store.exhume_access(&self.access).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-cond-to-ty"}}}
     /// Navigate to [`GraceType`] across R3(1-*c)
-    pub fn r3_grace_type<'a>(&'a self, store: &'a Woog2Store) -> Vec<&GraceType> {
+    pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
         match self.ty {
             Some(ref ty) => vec![store.exhume_grace_type(ty).unwrap()],
             None => Vec::new(),

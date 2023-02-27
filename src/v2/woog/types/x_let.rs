@@ -4,13 +4,13 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
 // Referrer imports
-use crate::v2::woog_2::types::expression::Expression;
-use crate::v2::woog_2::types::variable::Variable;
+use crate::v2::woog::types::expression::Expression;
+use crate::v2::woog::types::variable::Variable;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-documentation"}}}
@@ -40,7 +40,7 @@ impl XLet {
         value: String,
         expression: &Expression,
         variable: &Variable,
-        store: &mut Woog2Store,
+        store: &mut WoogStore,
     ) -> XLet {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -58,13 +58,13 @@ impl XLet {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R16(1-*)
-    pub fn r16_expression<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Expression> {
+    pub fn r16_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-variable"}}}
     /// Navigate to [`Variable`] across R17(1-*)
-    pub fn r17_variable<'a>(&'a self, store: &'a Woog2Store) -> Vec<&Variable> {
+    pub fn r17_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
         vec![store.exhume_variable(&self.variable).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

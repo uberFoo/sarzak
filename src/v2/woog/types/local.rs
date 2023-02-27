@@ -4,9 +4,9 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::v2::woog_2::UUID_NS;
+use crate::v2::woog::UUID_NS;
 
-use crate::v2::woog_2::store::ObjectStore as Woog2Store;
+use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-documentation"}}}
@@ -29,7 +29,7 @@ pub struct Local {
 impl Local {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new"}}}
     /// Inter a new Local in the store, and return it's `id`.
-    pub fn new(name: String, value: String, store: &mut Woog2Store) -> Local {
+    pub fn new(name: String, value: String, store: &mut WoogStore) -> Local {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{}", name, value).as_bytes());
         let new = Local {
             name: name,
