@@ -11,6 +11,8 @@ use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::subtype_anchors::SubtypeAnchors;
 use crate::v2::sarzak::types::isa::Isa;
 
+use crate::v2::drawing::types::relationship_ui::RelationshipUi;
+
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -33,7 +35,7 @@ pub struct IsaUi {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-implementation"}}}
 impl IsaUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-new"}}}
-    /// Inter a new IsaUi in the store, and return it's `id`.
+    /// Inter a new 'IsaUI' in the store, and return it's `id`.
     pub fn new(from: &Anchor, isa: &Isa, store: &mut DrawingStore) -> IsaUi {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", from, isa).as_bytes());
         let new = IsaUi {
@@ -67,6 +69,12 @@ impl IsaUi {
             Some(ref subtype_anchors) => vec![subtype_anchors],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-impl-nav-subtype-to-supertype-relationship_ui"}}}
+    // Navigate to [`RelationshipUi`] across R6(isa)
+    pub fn r6_relationship_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&RelationshipUi> {
+        vec![store.exhume_relationship_ui(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

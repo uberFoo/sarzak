@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::UUID_NS;
 
+use crate::v2::sarzak::types::ty::Ty;
+
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -41,7 +43,7 @@ pub struct External {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-implementation"}}}
 impl External {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-impl-new"}}}
-    /// Inter a new External in the store, and return it's `id`.
+    /// Inter a new 'External' in the store, and return it's `id`.
     pub fn new(name: String, path: String, store: &mut SarzakStore) -> External {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{}", name, path).as_bytes());
         let new = External {
@@ -51,6 +53,12 @@ impl External {
         };
         store.inter_external(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-impl-nav-subtype-to-supertype-ty"}}}
+    // Navigate to [`Ty`] across R3(isa)
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
+        vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

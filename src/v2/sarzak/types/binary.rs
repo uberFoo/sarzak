@@ -10,6 +10,8 @@ use crate::v2::sarzak::UUID_NS;
 use crate::v2::sarzak::types::referent::Referent;
 use crate::v2::sarzak::types::referrer::Referrer;
 
+use crate::v2::sarzak::types::relationship::Relationship;
+
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -40,7 +42,7 @@ pub struct Binary {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-implementation"}}}
 impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new"}}}
-    /// Inter a new Binary in the store, and return it's `id`.
+    /// Inter a new 'Binary' in the store, and return it's `id`.
     pub fn new(number: i64, to: &Referent, from: &Referrer, store: &mut SarzakStore) -> Binary {
         let id = Uuid::new_v5(
             &UUID_NS,
@@ -66,6 +68,12 @@ impl Binary {
     /// Navigate to [`Referrer`] across R6(1-*)
     pub fn r6_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referrer> {
         vec![store.exhume_referrer(&self.from).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-impl-nav-subtype-to-supertype-relationship"}}}
+    // Navigate to [`Relationship`] across R4(isa)
+    pub fn r4_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Relationship> {
+        vec![store.exhume_relationship(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

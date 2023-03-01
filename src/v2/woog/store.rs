@@ -3,7 +3,6 @@
 //! The ObjectStore contains instances of objects in the domain.
 //! The instances are stored in a hash map, keyed by the object's UUID.
 //! This is used during code generation, and probably not useful elsewhere.
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-file"}}}
 //!
 //! # Contents:
@@ -13,7 +12,7 @@
 //! * [`Call`]
 //! * [`Expression`]
 //! * [`GraceType`]
-//! * [`WoogLet`]
+//! * [`XLet`]
 //! * [`Local`]
 //! * [`ObjectMethod`]
 //! * [`WoogOption`]
@@ -24,7 +23,6 @@
 //! * [`Value`]
 //! * [`Variable`]
 //! * [`Visibility`]
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-definition"}}}
 use std::collections::HashMap;
 use std::{fs, io, path::Path};
@@ -34,8 +32,8 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::{
     Access, Block, Call, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter,
-    Reference, Statement, Value, Variable, Visibility, WoogLet, WoogOption, BORROWED, LITERAL,
-    MUTABLE, OWNED, PRIVATE, PUBLIC, WOOG_CRATE,
+    Reference, Statement, Value, Variable, Visibility, WoogOption, XLet, BORROWED, KRATE, LITERAL,
+    MUTABLE, OWNED, PRIVATE, PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -45,7 +43,7 @@ pub struct ObjectStore {
     call: HashMap<Uuid, Call>,
     expression: HashMap<Uuid, Expression>,
     grace_type: HashMap<Uuid, GraceType>,
-    woog_let: HashMap<Uuid, WoogLet>,
+    x_let: HashMap<Uuid, XLet>,
     local: HashMap<Uuid, Local>,
     object_method: HashMap<Uuid, ObjectMethod>,
     woog_option: HashMap<Uuid, WoogOption>,
@@ -66,7 +64,7 @@ impl ObjectStore {
             call: HashMap::new(),
             expression: HashMap::new(),
             grace_type: HashMap::new(),
-            woog_let: HashMap::new(),
+            x_let: HashMap::new(),
             local: HashMap::new(),
             object_method: HashMap::new(),
             woog_option: HashMap::new(),
@@ -84,14 +82,13 @@ impl ObjectStore {
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));
         store.inter_ownership(Ownership::Owned(OWNED));
-        store.inter_visibility(Visibility::WoogCrate(WOOG_CRATE));
+        store.inter_visibility(Visibility::Krate(KRATE));
         store.inter_visibility(Visibility::Private(PRIVATE));
         store.inter_visibility(Visibility::Public(PUBLIC));
 
         store
     }
 
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-methods"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-methods"}}}
     /// Inter [`Access`] into the store.
     ///
@@ -104,16 +101,19 @@ impl ObjectStore {
     pub fn exhume_access(&self, id: &Uuid) -> Option<&Access> {
         self.access.get(id)
     }
+
     /// Exhume [`Access`] from the store — mutably.
     ///
     pub fn exhume_access_mut(&mut self, id: &Uuid) -> Option<&mut Access> {
         self.access.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Access>`.
     ///
     pub fn iter_access(&self) -> impl Iterator<Item = &Access> {
         self.access.values()
     }
+
     /// Inter [`Block`] into the store.
     ///
     pub fn inter_block(&mut self, block: Block) {
@@ -125,16 +125,19 @@ impl ObjectStore {
     pub fn exhume_block(&self, id: &Uuid) -> Option<&Block> {
         self.block.get(id)
     }
+
     /// Exhume [`Block`] from the store — mutably.
     ///
     pub fn exhume_block_mut(&mut self, id: &Uuid) -> Option<&mut Block> {
         self.block.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
     pub fn iter_block(&self) -> impl Iterator<Item = &Block> {
         self.block.values()
     }
+
     /// Inter [`Call`] into the store.
     ///
     pub fn inter_call(&mut self, call: Call) {
@@ -146,16 +149,19 @@ impl ObjectStore {
     pub fn exhume_call(&self, id: &Uuid) -> Option<&Call> {
         self.call.get(id)
     }
+
     /// Exhume [`Call`] from the store — mutably.
     ///
     pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
         self.call.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
     pub fn iter_call(&self) -> impl Iterator<Item = &Call> {
         self.call.values()
     }
+
     /// Inter [`Expression`] into the store.
     ///
     pub fn inter_expression(&mut self, expression: Expression) {
@@ -167,16 +173,19 @@ impl ObjectStore {
     pub fn exhume_expression(&self, id: &Uuid) -> Option<&Expression> {
         self.expression.get(id)
     }
+
     /// Exhume [`Expression`] from the store — mutably.
     ///
     pub fn exhume_expression_mut(&mut self, id: &Uuid) -> Option<&mut Expression> {
         self.expression.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
     pub fn iter_expression(&self) -> impl Iterator<Item = &Expression> {
         self.expression.values()
     }
+
     /// Inter [`GraceType`] into the store.
     ///
     pub fn inter_grace_type(&mut self, grace_type: GraceType) {
@@ -188,37 +197,43 @@ impl ObjectStore {
     pub fn exhume_grace_type(&self, id: &Uuid) -> Option<&GraceType> {
         self.grace_type.get(id)
     }
+
     /// Exhume [`GraceType`] from the store — mutably.
     ///
     pub fn exhume_grace_type_mut(&mut self, id: &Uuid) -> Option<&mut GraceType> {
         self.grace_type.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, GraceType>`.
     ///
     pub fn iter_grace_type(&self) -> impl Iterator<Item = &GraceType> {
         self.grace_type.values()
     }
-    /// Inter [`WoogLet`] into the store.
+
+    /// Inter [`XLet`] into the store.
     ///
-    pub fn inter_woog_let(&mut self, woog_let: WoogLet) {
-        self.woog_let.insert(woog_let.id, woog_let);
+    pub fn inter_x_let(&mut self, x_let: XLet) {
+        self.x_let.insert(x_let.id, x_let);
     }
 
-    /// Exhume [`WoogLet`] from the store.
+    /// Exhume [`XLet`] from the store.
     ///
-    pub fn exhume_woog_let(&self, id: &Uuid) -> Option<&WoogLet> {
-        self.woog_let.get(id)
+    pub fn exhume_x_let(&self, id: &Uuid) -> Option<&XLet> {
+        self.x_let.get(id)
     }
-    /// Exhume [`WoogLet`] from the store — mutably.
+
+    /// Exhume [`XLet`] from the store — mutably.
     ///
-    pub fn exhume_woog_let_mut(&mut self, id: &Uuid) -> Option<&mut WoogLet> {
-        self.woog_let.get_mut(id)
+    pub fn exhume_x_let_mut(&mut self, id: &Uuid) -> Option<&mut XLet> {
+        self.x_let.get_mut(id)
     }
-    /// Get an iterator over the internal `HashMap<&Uuid, WoogLet>`.
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XLet>`.
     ///
-    pub fn iter_woog_let(&self) -> impl Iterator<Item = &WoogLet> {
-        self.woog_let.values()
+    pub fn iter_x_let(&self) -> impl Iterator<Item = &XLet> {
+        self.x_let.values()
     }
+
     /// Inter [`Local`] into the store.
     ///
     pub fn inter_local(&mut self, local: Local) {
@@ -230,16 +245,19 @@ impl ObjectStore {
     pub fn exhume_local(&self, id: &Uuid) -> Option<&Local> {
         self.local.get(id)
     }
+
     /// Exhume [`Local`] from the store — mutably.
     ///
     pub fn exhume_local_mut(&mut self, id: &Uuid) -> Option<&mut Local> {
         self.local.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Local>`.
     ///
     pub fn iter_local(&self) -> impl Iterator<Item = &Local> {
         self.local.values()
     }
+
     /// Inter [`ObjectMethod`] into the store.
     ///
     pub fn inter_object_method(&mut self, object_method: ObjectMethod) {
@@ -251,16 +269,19 @@ impl ObjectStore {
     pub fn exhume_object_method(&self, id: &Uuid) -> Option<&ObjectMethod> {
         self.object_method.get(id)
     }
+
     /// Exhume [`ObjectMethod`] from the store — mutably.
     ///
     pub fn exhume_object_method_mut(&mut self, id: &Uuid) -> Option<&mut ObjectMethod> {
         self.object_method.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectMethod>`.
     ///
     pub fn iter_object_method(&self) -> impl Iterator<Item = &ObjectMethod> {
         self.object_method.values()
     }
+
     /// Inter [`WoogOption`] into the store.
     ///
     pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
@@ -272,16 +293,19 @@ impl ObjectStore {
     pub fn exhume_woog_option(&self, id: &Uuid) -> Option<&WoogOption> {
         self.woog_option.get(id)
     }
+
     /// Exhume [`WoogOption`] from the store — mutably.
     ///
     pub fn exhume_woog_option_mut(&mut self, id: &Uuid) -> Option<&mut WoogOption> {
         self.woog_option.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
     ///
     pub fn iter_woog_option(&self) -> impl Iterator<Item = &WoogOption> {
         self.woog_option.values()
     }
+
     /// Inter [`Ownership`] into the store.
     ///
     pub fn inter_ownership(&mut self, ownership: Ownership) {
@@ -293,16 +317,19 @@ impl ObjectStore {
     pub fn exhume_ownership(&self, id: &Uuid) -> Option<&Ownership> {
         self.ownership.get(id)
     }
+
     /// Exhume [`Ownership`] from the store — mutably.
     ///
     pub fn exhume_ownership_mut(&mut self, id: &Uuid) -> Option<&mut Ownership> {
         self.ownership.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Ownership>`.
     ///
     pub fn iter_ownership(&self) -> impl Iterator<Item = &Ownership> {
         self.ownership.values()
     }
+
     /// Inter [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Parameter) {
@@ -314,16 +341,19 @@ impl ObjectStore {
     pub fn exhume_parameter(&self, id: &Uuid) -> Option<&Parameter> {
         self.parameter.get(id)
     }
+
     /// Exhume [`Parameter`] from the store — mutably.
     ///
     pub fn exhume_parameter_mut(&mut self, id: &Uuid) -> Option<&mut Parameter> {
         self.parameter.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
     pub fn iter_parameter(&self) -> impl Iterator<Item = &Parameter> {
         self.parameter.values()
     }
+
     /// Inter [`Reference`] into the store.
     ///
     pub fn inter_reference(&mut self, reference: Reference) {
@@ -335,16 +365,19 @@ impl ObjectStore {
     pub fn exhume_reference(&self, id: &Uuid) -> Option<&Reference> {
         self.reference.get(id)
     }
+
     /// Exhume [`Reference`] from the store — mutably.
     ///
     pub fn exhume_reference_mut(&mut self, id: &Uuid) -> Option<&mut Reference> {
         self.reference.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
     ///
     pub fn iter_reference(&self) -> impl Iterator<Item = &Reference> {
         self.reference.values()
     }
+
     /// Inter [`Statement`] into the store.
     ///
     pub fn inter_statement(&mut self, statement: Statement) {
@@ -356,16 +389,19 @@ impl ObjectStore {
     pub fn exhume_statement(&self, id: &Uuid) -> Option<&Statement> {
         self.statement.get(id)
     }
+
     /// Exhume [`Statement`] from the store — mutably.
     ///
     pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
         self.statement.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
     pub fn iter_statement(&self) -> impl Iterator<Item = &Statement> {
         self.statement.values()
     }
+
     /// Inter [`Value`] into the store.
     ///
     pub fn inter_value(&mut self, value: Value) {
@@ -377,16 +413,19 @@ impl ObjectStore {
     pub fn exhume_value(&self, id: &Uuid) -> Option<&Value> {
         self.value.get(id)
     }
+
     /// Exhume [`Value`] from the store — mutably.
     ///
     pub fn exhume_value_mut(&mut self, id: &Uuid) -> Option<&mut Value> {
         self.value.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Value>`.
     ///
     pub fn iter_value(&self) -> impl Iterator<Item = &Value> {
         self.value.values()
     }
+
     /// Inter [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
@@ -398,16 +437,19 @@ impl ObjectStore {
     pub fn exhume_variable(&self, id: &Uuid) -> Option<&Variable> {
         self.variable.get(id)
     }
+
     /// Exhume [`Variable`] from the store — mutably.
     ///
     pub fn exhume_variable_mut(&mut self, id: &Uuid) -> Option<&mut Variable> {
         self.variable.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
     ///
     pub fn iter_variable(&self) -> impl Iterator<Item = &Variable> {
         self.variable.values()
     }
+
     /// Inter [`Visibility`] into the store.
     ///
     pub fn inter_visibility(&mut self, visibility: Visibility) {
@@ -419,19 +461,21 @@ impl ObjectStore {
     pub fn exhume_visibility(&self, id: &Uuid) -> Option<&Visibility> {
         self.visibility.get(id)
     }
+
     /// Exhume [`Visibility`] from the store — mutably.
     ///
     pub fn exhume_visibility_mut(&mut self, id: &Uuid) -> Option<&mut Visibility> {
         self.visibility.get_mut(id)
     }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Visibility>`.
     ///
     pub fn iter_visibility(&self) -> impl Iterator<Item = &Visibility> {
         self.visibility.values()
     }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-object-store-persistence"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-persistence"}}}
     /// Persist the store.
     ///
@@ -495,12 +539,12 @@ impl ObjectStore {
         }
         // Persist Let.
         {
-            let path = path.join("woog_let.json");
+            let path = path.join("x_let.json");
             let file = fs::File::create(path)?;
             let mut writer = io::BufWriter::new(file);
             serde_json::to_writer_pretty(
                 &mut writer,
-                &self.woog_let.values().map(|x| x).collect::<Vec<_>>(),
+                &self.x_let.values().map(|x| x).collect::<Vec<_>>(),
             )?;
         }
         // Persist Local.
@@ -659,11 +703,11 @@ impl ObjectStore {
         }
         // Load Let.
         {
-            let path = path.join("woog_let.json");
+            let path = path.join("x_let.json");
             let file = fs::File::open(path)?;
             let reader = io::BufReader::new(file);
-            let woog_let: Vec<WoogLet> = serde_json::from_reader(reader)?;
-            store.woog_let = woog_let.into_iter().map(|道| (道.id, 道)).collect();
+            let x_let: Vec<XLet> = serde_json::from_reader(reader)?;
+            store.x_let = x_let.into_iter().map(|道| (道.id, 道)).collect();
         }
         // Load Local.
         {

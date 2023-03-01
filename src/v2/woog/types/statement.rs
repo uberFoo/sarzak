@@ -2,15 +2,13 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::woog::UUID_NS;
-
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
 use crate::v2::woog::types::expression_statement::EXPRESSION_STATEMENT;
 use crate::v2::woog::types::item::ITEM;
-use crate::v2::woog::types::woog_let::WoogLet;
-use crate::v2::woog::types::woog_macro::WOOG_MACRO;
+use crate::v2::woog::types::x_let::XLet;
+use crate::v2::woog::types::x_macro::X_MACRO;
 
 // Referrer imports
 use crate::v2::woog::types::block::Block;
@@ -42,8 +40,8 @@ pub struct Statement {
 pub enum StatementEnum {
     ExpressionStatement(Uuid),
     Item(Uuid),
-    WoogLet(Uuid),
-    WoogMacro(Uuid),
+    XLet(Uuid),
+    XMacro(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-implementation"}}}
@@ -55,10 +53,7 @@ impl Statement {
         block: &Block,
         store: &mut WoogStore,
     ) -> Statement {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{}", value, block, EXPRESSION_STATEMENT).as_bytes(),
-        );
+        let id = EXPRESSION_STATEMENT;
         let new = Statement {
             value: value,
             block: block.id,
@@ -72,10 +67,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item(value: String, block: &Block, store: &mut WoogStore) -> Statement {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{}", value, block, ITEM).as_bytes(),
-        );
+        let id = ITEM;
         let new = Statement {
             value: value,
             block: block.id,
@@ -88,20 +80,17 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_woog_let(
+    pub fn new_x_let(
         value: String,
         block: &Block,
-        subtype: &WoogLet,
+        subtype: &XLet,
         store: &mut WoogStore,
     ) -> Statement {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{:?}", value, block, subtype).as_bytes(),
-        );
+        let id = subtype.id;
         let new = Statement {
             value: value,
             block: block.id,
-            subtype: StatementEnum::WoogLet(subtype.id),
+            subtype: StatementEnum::XLet(subtype.id),
             id,
         };
         store.inter_statement(new.clone());
@@ -110,15 +99,12 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_woog_macro(value: String, block: &Block, store: &mut WoogStore) -> Statement {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{}", value, block, WOOG_MACRO).as_bytes(),
-        );
+    pub fn new_x_macro(value: String, block: &Block, store: &mut WoogStore) -> Statement {
+        let id = X_MACRO;
         let new = Statement {
             value: value,
             block: block.id,
-            subtype: StatementEnum::WoogMacro(WOOG_MACRO),
+            subtype: StatementEnum::XMacro(X_MACRO),
             id,
         };
         store.inter_statement(new.clone());

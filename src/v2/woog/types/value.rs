@@ -2,8 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::woog::UUID_NS;
-
 use serde::{Deserialize, Serialize};
 
 // Subtype imports
@@ -32,6 +30,8 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// and [`Visibility`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Value {
@@ -40,7 +40,7 @@ pub struct Value {
     /// R16: [`Value`] 'is granted utility by' [`Access`]
     pub access: Uuid,
     /// R3: [`Value`] 'is given meaning by a' [`GraceType`]
-    pub s_type: Uuid,
+    pub ty: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
@@ -56,17 +56,14 @@ impl Value {
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
         access: &Access,
-        s_type: &GraceType,
+        ty: &GraceType,
         subtype: &Expression,
         store: &mut WoogStore,
     ) -> Value {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}:{:?}", access, s_type, subtype).as_bytes(),
-        );
+        let id = subtype.id();
         let new = Value {
             access: access.id,
-            s_type: s_type.id(),
+            ty: ty.id(),
             subtype: ValueEnum::Expression(subtype.id()),
             id,
         };
@@ -78,17 +75,14 @@ impl Value {
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
         access: &Access,
-        s_type: &GraceType,
+        ty: &GraceType,
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}:{:?}", access, s_type, subtype).as_bytes(),
-        );
+        let id = subtype.id();
         let new = Value {
             access: access.id,
-            s_type: s_type.id(),
+            ty: ty.id(),
             subtype: ValueEnum::Variable(subtype.id()),
             id,
         };
@@ -103,10 +97,9 @@ impl Value {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-ty"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-s_type"}}}
     /// Navigate to [`GraceType`] across R3(1-*)
     pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
-        vec![store.exhume_grace_type(&self.s_type).unwrap()]
+        vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

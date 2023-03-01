@@ -24,11 +24,11 @@ pub mod one;
 pub mod referent;
 pub mod referrer;
 pub mod relationship;
-pub mod s_type;
 pub mod state;
 pub mod string;
 pub mod subtype;
 pub mod supertype;
+pub mod ty;
 pub mod unconditional;
 pub mod uuid;
 
@@ -53,11 +53,11 @@ pub use crate::v2::sarzak::one::ONE;
 pub use crate::v2::sarzak::referent::Referent;
 pub use crate::v2::sarzak::referrer::Referrer;
 pub use crate::v2::sarzak::relationship::Relationship;
-pub use crate::v2::sarzak::s_type::SType;
 pub use crate::v2::sarzak::state::State;
 pub use crate::v2::sarzak::string::STRING;
 pub use crate::v2::sarzak::subtype::Subtype;
 pub use crate::v2::sarzak::supertype::Supertype;
+pub use crate::v2::sarzak::ty::Ty;
 pub use crate::v2::sarzak::unconditional::UNCONDITIONAL;
 pub use crate::v2::sarzak::uuid::UUID;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

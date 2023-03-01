@@ -17,6 +17,8 @@ use crate::v2::sarzak::types::state::State;
 use crate::v2::sarzak::types::subtype::Subtype;
 use crate::v2::sarzak::types::supertype::Supertype;
 
+use crate::v2::sarzak::types::ty::Ty;
+
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -46,7 +48,7 @@ pub struct Object {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-implementation"}}}
 impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-new"}}}
-    /// Inter a new Object in the store, and return it's `id`.
+    /// Inter a new 'Object' in the store, and return it's `id`.
     pub fn new(
         description: String,
         key_letters: String,
@@ -203,6 +205,12 @@ impl Object {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-impl-nav-subtype-to-supertype-ty"}}}
+    // Navigate to [`Ty`] across R3(isa)
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
+        vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

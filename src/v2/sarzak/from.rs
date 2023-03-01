@@ -15,7 +15,7 @@ use uuid::Uuid;
 use crate::v2::sarzak::types::{
     AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
     Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    SType, State, Subtype, Supertype, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
+    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
     UNCONDITIONAL, UUID,
 };
 use crate::v2::sarzak::ObjectStore;
@@ -129,8 +129,8 @@ impl From<&SarzakStore> for ObjectStore {
         }
 
         for (_, instance) in from.iter_ty() {
-            let instance = SType::from(instance);
-            to.inter_s_type(instance);
+            let instance = Ty::from(instance);
+            to.inter_ty(instance);
         }
 
         to
@@ -189,7 +189,7 @@ impl From<&FromAttribute> for Attribute {
             id: src.id,
             name: src.name.clone(),
             obj_id: src.obj_id,
-            s_type: from_const(&src.ty),
+            ty: from_const(&src.ty),
         }
     }
 }
@@ -326,16 +326,16 @@ impl From<&FromSupertype> for Supertype {
     }
 }
 
-impl From<&FromTy> for SType {
+impl From<&FromTy> for Ty {
     fn from(src: &FromTy) -> Self {
         match src {
-            FromTy::Boolean(_) => SType::Boolean(BOOLEAN),
-            FromTy::External(src) => SType::External(src.clone()),
-            FromTy::Float(_) => SType::Float(FLOAT),
-            FromTy::Integer(_) => SType::Integer(INTEGER),
-            FromTy::Object(src) => SType::Object(src.clone()),
-            FromTy::String(_) => SType::String(STRING),
-            FromTy::Uuid(_) => SType::Uuid(UUID),
+            FromTy::Boolean(_) => Ty::Boolean(BOOLEAN),
+            FromTy::External(src) => Ty::External(src.clone()),
+            FromTy::Float(_) => Ty::Float(FLOAT),
+            FromTy::Integer(_) => Ty::Integer(INTEGER),
+            FromTy::Object(src) => Ty::Object(src.clone()),
+            FromTy::String(_) => Ty::String(STRING),
+            FromTy::Uuid(_) => Ty::Uuid(UUID),
         }
     }
 }

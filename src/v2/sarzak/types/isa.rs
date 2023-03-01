@@ -12,6 +12,8 @@ use crate::v2::sarzak::types::supertype::Supertype;
 // Referent imports
 use crate::v2::sarzak::types::subtype::Subtype;
 
+use crate::v2::sarzak::types::relationship::Relationship;
+
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -27,7 +29,7 @@ pub struct Isa {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa-implementation"}}}
 impl Isa {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa-struct-impl-new"}}}
-    /// Inter a new Isa in the store, and return it's `id`.
+    /// Inter a new 'Isa' in the store, and return it's `id`.
     pub fn new(number: i64, supertype: &Supertype, store: &mut SarzakStore) -> Isa {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{:?}", number, supertype).as_bytes());
         let new = Isa {
@@ -58,6 +60,12 @@ impl Isa {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa-impl-nav-subtype-to-supertype-relationship"}}}
+    // Navigate to [`Relationship`] across R4(isa)
+    pub fn r4_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Relationship> {
+        vec![store.exhume_relationship(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -46,7 +46,7 @@ pub struct ObjectMethod {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-implementation"}}}
 impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new"}}}
-    /// Inter a new ObjectMethod in the store, and return it's `id`.
+    /// Inter a new 'Object Method' in the store, and return it's `id`.
     pub fn new(
         description: String,
         name: String,

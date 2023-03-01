@@ -9,6 +9,8 @@ use crate::v2::woog::UUID_NS;
 // Referrer imports
 use crate::v2::woog::types::object_method::ObjectMethod;
 
+use crate::v2::woog::types::variable::Variable;
+
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -32,7 +34,7 @@ pub struct Parameter {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-implementation"}}}
 impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
-    /// Inter a new Parameter in the store, and return it's `id`.
+    /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
         name: String,
         method: &ObjectMethod,
@@ -78,6 +80,12 @@ impl Parameter {
             Some(ref parameter) => vec![parameter],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}
+    // Navigate to [`Variable`] across R8(isa)
+    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
+        vec![store.exhume_variable(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

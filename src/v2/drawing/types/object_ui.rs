@@ -54,7 +54,7 @@ pub struct ObjectUi {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-implementation"}}}
 impl ObjectUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-new"}}}
-    /// Inter a new ObjectUi in the store, and return it's `id`.
+    /// Inter a new 'ObjectUI' in the store, and return it's `id`.
     pub fn new(
         height: i64,
         width: i64,

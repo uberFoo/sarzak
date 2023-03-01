@@ -8,7 +8,7 @@ use crate::v2::sarzak::UUID_NS;
 
 // Referrer imports
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::sarzak::types::s_type::SType;
+use crate::v2::sarzak::types::ty::Ty;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -26,28 +26,28 @@ pub struct Attribute {
     pub name: String,
     /// R1: [`Attribute`] 'lives in an' [`Object`]
     pub obj_id: Option<Uuid>,
-    /// R2: [`Attribute`] 'has a' [`SType`]
-    pub s_type: Uuid,
+    /// R2: [`Attribute`] 'has a' [`Ty`]
+    pub ty: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-implementation"}}}
 impl Attribute {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-new"}}}
-    /// Inter a new Attribute in the store, and return it's `id`.
+    /// Inter a new 'Attribute' in the store, and return it's `id`.
     pub fn new(
         name: String,
         obj_id: Option<&Object>,
-        s_type: &SType,
+        ty: &Ty,
         store: &mut SarzakStore,
     ) -> Attribute {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{:?}:{:?}", name, obj_id, s_type).as_bytes(),
+            format!("{}:{:?}:{:?}", name, obj_id, ty).as_bytes(),
         );
         let new = Attribute {
             name: name,
             obj_id: obj_id.map(|object| object.id),
-            s_type: s_type.id(),
+            ty: ty.id(),
             id,
         };
         store.inter_attribute(new.clone());
@@ -65,9 +65,9 @@ impl Attribute {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-ty"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-s_type"}}}
-    /// Navigate to [`SType`] across R2(1-*)
-    pub fn r2_s_type<'a>(&'a self, store: &'a SarzakStore) -> Vec<&SType> {
-        vec![store.exhume_s_type(&self.s_type).unwrap()]
+    /// Navigate to [`Ty`] across R2(1-*)
+    pub fn r2_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
+        vec![store.exhume_ty(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

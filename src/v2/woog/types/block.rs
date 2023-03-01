@@ -9,6 +9,8 @@ use crate::v2::woog::UUID_NS;
 // Referent imports
 use crate::v2::woog::types::statement::Statement;
 
+use crate::v2::woog::types::expression::Expression;
+
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -29,7 +31,7 @@ pub struct Block {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-implementation"}}}
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
-    /// Inter a new Block in the store, and return it's `id`.
+    /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(instance: Uuid, store: &mut WoogStore) -> Block {
         let id = Uuid::new_v5(&UUID_NS, format!("{}", instance).as_bytes());
         let new = Block {
@@ -53,6 +55,12 @@ impl Block {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
+    // Navigate to [`Expression`] across R10(isa)
+    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
+        vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

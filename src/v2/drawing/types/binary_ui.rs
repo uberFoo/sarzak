@@ -10,6 +10,8 @@ use crate::v2::drawing::UUID_NS;
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::sarzak::types::binary::Binary;
 
+use crate::v2::drawing::types::relationship_ui::RelationshipUi;
+
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -34,7 +36,7 @@ pub struct BinaryUi {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-implementation"}}}
 impl BinaryUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-new"}}}
-    /// Inter a new BinaryUi in the store, and return it's `id`.
+    /// Inter a new 'BinaryUI' in the store, and return it's `id`.
     pub fn new(
         from: &Anchor,
         to: &Anchor,
@@ -83,12 +85,24 @@ impl BinaryUi {
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-binary_id"}}}
     /// Navigate to [`Binary`] across R12(1-*)
     pub fn r12_binary<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Binary> {
         vec![store.exhume_binary(&self.binary_id).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-impl-nav-subtype-to-supertype-relationship_ui"}}}
+    // Navigate to [`RelationshipUi`] across R6(isa)
+    pub fn r6_relationship_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&RelationshipUi> {
+        vec![store.exhume_relationship_ui(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

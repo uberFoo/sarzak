@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
+use crate::v2::woog::types::value::Value;
 // Subtype imports
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
@@ -61,6 +62,12 @@ impl Expression {
             Expression::Call(id) => *id,
             Expression::Literal(id) => *id,
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
+    // Navigate to [`Value`] across R7(isa)
+    pub fn r7_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+        vec![store.exhume_value(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
