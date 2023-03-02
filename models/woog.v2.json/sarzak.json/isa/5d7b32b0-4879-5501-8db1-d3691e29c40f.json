@@ -1,5 +1,11 @@
-{
-  "id": "5d7b32b0-4879-5501-8db1-d3691e29c40f",
-  "number": 8,
-  "supertype": "8e7a5716-4c52-56cd-b857-14d96f873002"
-}
+[
+  {
+    "id": "5d7b32b0-4879-5501-8db1-d3691e29c40f",
+    "number": 8,
+    "supertype": "8e7a5716-4c52-56cd-b857-14d96f873002"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959475000
+  }
+]

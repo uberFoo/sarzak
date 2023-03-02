@@ -1,5 +1,11 @@
-{
-  "id": "acff06b8-d7cd-5f1e-b7bd-cfdf4a09a8ce",
-  "x": 2873,
-  "y": 1670
-}
+[
+  {
+    "id": "acff06b8-d7cd-5f1e-b7bd-cfdf4a09a8ce",
+    "x": 2873,
+    "y": 1670
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959879000
+  }
+]

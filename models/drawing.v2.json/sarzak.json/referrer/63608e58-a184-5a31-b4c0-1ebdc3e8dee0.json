@@ -1,8 +1,14 @@
-{
-  "description": "has an",
-  "id": "63608e58-a184-5a31-b4c0-1ebdc3e8dee0",
-  "referential_attribute": "edge",
-  "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
-}
+[
+  {
+    "description": "has an",
+    "id": "63608e58-a184-5a31-b4c0-1ebdc3e8dee0",
+    "referential_attribute": "edge",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853896000
+  }
+]

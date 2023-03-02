@@ -1,6 +1,12 @@
-{
-  "description": "Mutable\n\nThe type is declared as `mut`.\n\n❗️{\"singleton_object\": true}",
-  "id": "608ed052-4176-5ec1-b467-09562104ac60",
-  "key_letters": "M_MUT",
-  "name": "Mutable"
-}
+[
+  {
+    "description": "Mutable\n\nThe type is declared as `mut`.\n\n❗️{\"singleton_object\": true}",
+    "id": "608ed052-4176-5ec1-b467-09562104ac60",
+    "key_letters": "M_MUT",
+    "name": "Mutable"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959503000
+  }
+]

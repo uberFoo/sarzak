@@ -1,6 +1,12 @@
-{
-  "description": "A point is a two-tuple that represents a location on the drawing canvas.",
-  "id": "423935ca-86d2-5d0a-ad35-8e7f00663448",
-  "key_letters": "PNT",
-  "name": "Point"
-}
+[
+  {
+    "description": "A point is a two-tuple that represents a location on the drawing canvas.",
+    "id": "423935ca-86d2-5d0a-ad35-8e7f00663448",
+    "key_letters": "PNT",
+    "name": "Point"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853850000
+  }
+]

@@ -1,3 +1,9 @@
-{
-  "Binary": "d511956a-a621-5d68-b9f1-f0d1eede3cae"
-}
+[
+  {
+    "Binary": "d511956a-a621-5d68-b9f1-f0d1eede3cae"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959537000
+  }
+]

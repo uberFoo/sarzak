@@ -1,6 +1,12 @@
-{
-  "description": "Item Visibility\n\nThis is a _very_ Rust-centric type. It represents the visibility levels that Rust surfaces.\n\nPrivate is the default, and requires no modifiers. Public is the most open, and indicated by prefixing the item with \"pub\". In the middle is \"pub(crate)\", which makes the item public within the crate.",
-  "id": "f1aba8e3-f2cb-53de-8ded-8a2dbd94a468",
-  "key_letters": "VIZ",
-  "name": "Visibility"
-}
+[
+  {
+    "description": "Item Visibility\n\nThis is a _very_ Rust-centric type. It represents the visibility levels that Rust surfaces.\n\nPrivate is the default, and requires no modifiers. Public is the most open, and indicated by prefixing the item with \"pub\". In the middle is \"pub(crate)\", which makes the item public within the crate.",
+    "id": "f1aba8e3-f2cb-53de-8ded-8a2dbd94a468",
+    "key_letters": "VIZ",
+    "name": "Visibility"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959481000
+  }
+]

@@ -1,6 +1,12 @@
-{
-  "description": "Type Ownership\n\nThis is tied closely with Rust. There are tthree possible options: owned, mutable and borrowed.",
-  "id": "0ad03d1f-4171-57c9-8c36-2c369e2e5819",
-  "key_letters": "OWN",
-  "name": "Ownership"
-}
+[
+  {
+    "description": "Type Ownership\n\nThis is tied closely with Rust. There are tthree possible options: owned, mutable and borrowed.",
+    "id": "0ad03d1f-4171-57c9-8c36-2c369e2e5819",
+    "key_letters": "OWN",
+    "name": "Ownership"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959482000
+  }
+]

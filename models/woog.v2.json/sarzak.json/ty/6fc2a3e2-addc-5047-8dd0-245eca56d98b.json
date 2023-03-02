@@ -1,3 +1,9 @@
-{
-  "Object": "6fc2a3e2-addc-5047-8dd0-245eca56d98b"
-}
+[
+  {
+    "Object": "6fc2a3e2-addc-5047-8dd0-245eca56d98b"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959612000
+  }
+]

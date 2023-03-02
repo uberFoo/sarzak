@@ -1,8 +1,14 @@
-{
-  "description": "has an origin represented by a",
-  "id": "146bb4e6-38ba-57f8-80fd-e0ebd20eebb0",
-  "referential_attribute": "origin",
-  "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "9a9dcaea-a969-54ba-90ce-fad03cec83d8"
-}
+[
+  {
+    "description": "has an origin represented by a",
+    "id": "146bb4e6-38ba-57f8-80fd-e0ebd20eebb0",
+    "referential_attribute": "origin",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "9a9dcaea-a969-54ba-90ce-fad03cec83d8"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853892000
+  }
+]

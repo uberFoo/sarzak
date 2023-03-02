@@ -1,6 +1,12 @@
-{
-  "description": "The imported R_ISA object from the sarzak domain.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"0cbeeb50-21ce-5e83-9f2e-65d1410d553f\" }}",
-  "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
-  "key_letters": "R_ISA",
-  "name": "Isa"
-}
+[
+  {
+    "description": "The imported R_ISA object from the sarzak domain.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"0cbeeb50-21ce-5e83-9f2e-65d1410d553f\" }}",
+    "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+    "key_letters": "R_ISA",
+    "name": "Isa"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853837000
+  }
+]

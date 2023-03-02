@@ -19,10 +19,10 @@ pub struct AssociativeUi {
     pub id: Uuid,
     /// R16: [`AssociativeUi`] 'is drawn from' [`Anchor`]
     pub middle: Uuid,
-    /// R15: [`AssociativeUi`] 'is drawn from' [`Anchor`]
-    pub other: Uuid,
     /// R14: [`AssociativeUi`] 'is drawn from' [`Anchor`]
     pub one: Uuid,
+    /// R15: [`AssociativeUi`] 'is drawn from' [`Anchor`]
+    pub other: Uuid,
     /// R20: [`AssociativeUi`] 'contains additional attributes to render' [`Associative`]
     pub associative_id: Uuid,
     /// R17: [`AssociativeUi`] 'is drawn from' [`Point`]
@@ -35,8 +35,8 @@ impl AssociativeUi {
     /// Inter a new 'AssociativeUI' in the store, and return it's `id`.
     pub fn new(
         middle: &Anchor,
-        other: &Anchor,
         one: &Anchor,
+        other: &Anchor,
         associative_id: &Associative,
         from: &Point,
         store: &mut DrawingStore,
@@ -45,14 +45,14 @@ impl AssociativeUi {
             &UUID_NS,
             format!(
                 "{:?}:{:?}:{:?}:{:?}:{:?}",
-                middle, other, one, associative_id, from
+                middle, one, other, associative_id, from
             )
             .as_bytes(),
         );
         let new = AssociativeUi {
             middle: middle.id,
-            other: other.id,
             one: one.id,
+            other: other.id,
             associative_id: associative_id.id,
             from: from.id,
             id,
@@ -69,6 +69,10 @@ impl AssociativeUi {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
+    /// Navigate to [`Anchor`] across R14(1-*)
+    pub fn r14_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        vec![store.exhume_anchor(&self.one).unwrap()]
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -81,12 +85,8 @@ impl AssociativeUi {
     /// Navigate to [`Anchor`] across R15(1-*)
     pub fn r15_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         vec![store.exhume_anchor(&self.other).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
-    /// Navigate to [`Anchor`] across R14(1-*)
-    pub fn r14_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        vec![store.exhume_anchor(&self.one).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-associative_id"}}}

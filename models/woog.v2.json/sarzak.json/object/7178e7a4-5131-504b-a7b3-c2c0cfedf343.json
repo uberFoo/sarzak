@@ -1,6 +1,12 @@
-{
-  "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [Attribute]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}",
-  "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
-  "key_letters": "OBJ",
-  "name": "Object"
-}
+[
+  {
+    "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [Attribute]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}",
+    "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+    "key_letters": "OBJ",
+    "name": "Object"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959508000
+  }
+]

@@ -1,8 +1,14 @@
-{
-  "description": "contains",
-  "id": "15f1e633-b810-5f31-b437-82878e53727f",
-  "referential_attribute": "type",
-  "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "d511530a-0b5a-5dcf-b5ba-50149db0444a"
-}
+[
+  {
+    "description": "contains",
+    "id": "15f1e633-b810-5f31-b437-82878e53727f",
+    "referential_attribute": "type",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "d511530a-0b5a-5dcf-b5ba-50149db0444a"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959525000
+  }
+]

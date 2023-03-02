@@ -1,4 +1,10 @@
-{
-  "id": "3d210263-5522-5205-bcbd-44a2210a0051",
-  "obj_id": "fac06cd5-a23e-568a-bc0d-912ff2e6faac"
-}
+[
+  {
+    "id": "3d210263-5522-5205-bcbd-44a2210a0051",
+    "obj_id": "fac06cd5-a23e-568a-bc0d-912ff2e6faac"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959578000
+  }
+]

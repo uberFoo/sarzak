@@ -1,3 +1,9 @@
-{
-  "BinaryUi": "504574bb-9d04-5998-8bd7-03b34ecb30b1"
-}
+[
+  {
+    "BinaryUi": "504574bb-9d04-5998-8bd7-03b34ecb30b1"
+  },
+  {
+    "secs_since_epoch": 1677786200,
+    "nanos_since_epoch": 624767000
+  }
+]

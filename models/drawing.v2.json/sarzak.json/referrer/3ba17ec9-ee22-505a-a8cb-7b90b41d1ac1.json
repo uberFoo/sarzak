@@ -1,8 +1,14 @@
-{
-  "description": "is drawn from",
-  "id": "3ba17ec9-ee22-505a-a8cb-7b90b41d1ac1",
-  "referential_attribute": "from",
-  "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "2b428772-1c21-56f3-ab6f-04a5c798e08a"
-}
+[
+  {
+    "description": "is drawn from",
+    "id": "3ba17ec9-ee22-505a-a8cb-7b90b41d1ac1",
+    "referential_attribute": "from",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "2b428772-1c21-56f3-ab6f-04a5c798e08a"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853892000
+  }
+]

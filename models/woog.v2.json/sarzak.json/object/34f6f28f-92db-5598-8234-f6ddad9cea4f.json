@@ -1,6 +1,12 @@
-{
-  "description": "A Local Variable\n\nA plain old variable. It's got a name.\n\nAt some point I'm going to have to start thinking about scopes. 🤔",
-  "id": "34f6f28f-92db-5598-8234-f6ddad9cea4f",
-  "key_letters": "VAR_L",
-  "name": "Local"
-}
+[
+  {
+    "description": "A Local Variable\n\nA plain old variable. It's got a name.\n\nAt some point I'm going to have to start thinking about scopes. 🤔",
+    "id": "34f6f28f-92db-5598-8234-f6ddad9cea4f",
+    "key_letters": "VAR_L",
+    "name": "Local"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959500000
+  }
+]

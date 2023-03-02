@@ -1,3 +1,9 @@
-{
-  "Object": "8b225ee5-831b-5cbc-a664-92a4478c429f"
-}
+[
+  {
+    "Object": "8b225ee5-831b-5cbc-a664-92a4478c429f"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959611000
+  }
+]

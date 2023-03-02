@@ -1,7 +1,13 @@
-{
-  "description": "contains, and is defined by it's",
-  "id": "ed57e7f2-5e57-5d8c-bd05-f808140810e0",
-  "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343"
-}
+[
+  {
+    "description": "contains, and is defined by it's",
+    "id": "ed57e7f2-5e57-5d8c-bd05-f808140810e0",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343"
+  },
+  {
+    "secs_since_epoch": 1677786200,
+    "nanos_since_epoch": 624279000
+  }
+]

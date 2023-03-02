@@ -1,5 +1,11 @@
-{
-  "id": "30cf12a2-0289-5237-b7fc-12325ed2ee55",
-  "edge": "8125ae7e-9edb-5e9c-be33-643f1277e0e0",
-  "oui_id": "264ec9a5-baa4-5954-ad45-4a43b938a3d6"
-}
+[
+  {
+    "id": "30cf12a2-0289-5237-b7fc-12325ed2ee55",
+    "edge": "8125ae7e-9edb-5e9c-be33-643f1277e0e0",
+    "oui_id": "264ec9a5-baa4-5954-ad45-4a43b938a3d6"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 854047000
+  }
+]

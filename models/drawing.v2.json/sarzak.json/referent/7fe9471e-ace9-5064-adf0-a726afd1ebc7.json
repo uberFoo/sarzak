@@ -1,7 +1,13 @@
-{
-  "description": "describes the location of an",
-  "id": "7fe9471e-ace9-5064-adf0-a726afd1ebc7",
-  "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
-  "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
-  "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
-}
+[
+  {
+    "description": "describes the location of an",
+    "id": "7fe9471e-ace9-5064-adf0-a726afd1ebc7",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853865000
+  }
+]

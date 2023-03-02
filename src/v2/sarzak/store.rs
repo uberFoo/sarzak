@@ -28,7 +28,7 @@
 //! * [`Ty`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::sarzak-object-store-definition"}}}
 use std::collections::HashMap;
-use std::{fs, io, path::Path};
+use std::{fs, io, path::Path, time::SystemTime};
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -42,25 +42,25 @@ use crate::v2::sarzak::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    acknowledged_event: HashMap<Uuid, AcknowledgedEvent>,
-    associative: HashMap<Uuid, Associative>,
-    associative_referent: HashMap<Uuid, AssociativeReferent>,
-    associative_referrer: HashMap<Uuid, AssociativeReferrer>,
-    attribute: HashMap<Uuid, Attribute>,
-    binary: HashMap<Uuid, Binary>,
-    cardinality: HashMap<Uuid, Cardinality>,
-    conditionality: HashMap<Uuid, Conditionality>,
-    event: HashMap<Uuid, Event>,
-    external: HashMap<Uuid, External>,
-    isa: HashMap<Uuid, Isa>,
-    object: HashMap<Uuid, Object>,
-    referent: HashMap<Uuid, Referent>,
-    referrer: HashMap<Uuid, Referrer>,
-    relationship: HashMap<Uuid, Relationship>,
-    state: HashMap<Uuid, State>,
-    subtype: HashMap<Uuid, Subtype>,
-    supertype: HashMap<Uuid, Supertype>,
-    ty: HashMap<Uuid, Ty>,
+    acknowledged_event: HashMap<Uuid, (AcknowledgedEvent, SystemTime)>,
+    associative: HashMap<Uuid, (Associative, SystemTime)>,
+    associative_referent: HashMap<Uuid, (AssociativeReferent, SystemTime)>,
+    associative_referrer: HashMap<Uuid, (AssociativeReferrer, SystemTime)>,
+    attribute: HashMap<Uuid, (Attribute, SystemTime)>,
+    binary: HashMap<Uuid, (Binary, SystemTime)>,
+    cardinality: HashMap<Uuid, (Cardinality, SystemTime)>,
+    conditionality: HashMap<Uuid, (Conditionality, SystemTime)>,
+    event: HashMap<Uuid, (Event, SystemTime)>,
+    external: HashMap<Uuid, (External, SystemTime)>,
+    isa: HashMap<Uuid, (Isa, SystemTime)>,
+    object: HashMap<Uuid, (Object, SystemTime)>,
+    referent: HashMap<Uuid, (Referent, SystemTime)>,
+    referrer: HashMap<Uuid, (Referrer, SystemTime)>,
+    relationship: HashMap<Uuid, (Relationship, SystemTime)>,
+    state: HashMap<Uuid, (State, SystemTime)>,
+    subtype: HashMap<Uuid, (Subtype, SystemTime)>,
+    supertype: HashMap<Uuid, (Supertype, SystemTime)>,
+    ty: HashMap<Uuid, (Ty, SystemTime)>,
 }
 
 impl ObjectStore {
@@ -105,63 +105,99 @@ impl ObjectStore {
     /// Inter [`AcknowledgedEvent`] into the store.
     ///
     pub fn inter_acknowledged_event(&mut self, acknowledged_event: AcknowledgedEvent) {
-        self.acknowledged_event
-            .insert(acknowledged_event.id, acknowledged_event);
+        self.acknowledged_event.insert(
+            acknowledged_event.id,
+            (acknowledged_event, SystemTime::now()),
+        );
     }
 
     /// Exhume [`AcknowledgedEvent`] from the store.
     ///
     pub fn exhume_acknowledged_event(&self, id: &Uuid) -> Option<&AcknowledgedEvent> {
-        self.acknowledged_event.get(id)
+        self.acknowledged_event
+            .get(id)
+            .map(|acknowledged_event| &acknowledged_event.0)
     }
 
     /// Exhume [`AcknowledgedEvent`] from the store — mutably.
     ///
     pub fn exhume_acknowledged_event_mut(&mut self, id: &Uuid) -> Option<&mut AcknowledgedEvent> {
-        self.acknowledged_event.get_mut(id)
+        self.acknowledged_event
+            .get_mut(id)
+            .map(|acknowledged_event| &mut acknowledged_event.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, AcknowledgedEvent>`.
     ///
     pub fn iter_acknowledged_event(&self) -> impl Iterator<Item = &AcknowledgedEvent> {
-        self.acknowledged_event.values()
+        self.acknowledged_event
+            .values()
+            .map(|acknowledged_event| &acknowledged_event.0)
+    }
+
+    /// Get the timestamp for AcknowledgedEvent.
+    ///
+    pub fn acknowledged_event_timestamp(
+        &mut self,
+        acknowledged_event: AcknowledgedEvent,
+    ) -> SystemTime {
+        self.acknowledged_event
+            .get(&acknowledged_event.id)
+            .map(|acknowledged_event| acknowledged_event.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Associative`] into the store.
     ///
     pub fn inter_associative(&mut self, associative: Associative) {
-        self.associative.insert(associative.id, associative);
+        self.associative
+            .insert(associative.id, (associative, SystemTime::now()));
     }
 
     /// Exhume [`Associative`] from the store.
     ///
     pub fn exhume_associative(&self, id: &Uuid) -> Option<&Associative> {
-        self.associative.get(id)
+        self.associative.get(id).map(|associative| &associative.0)
     }
 
     /// Exhume [`Associative`] from the store — mutably.
     ///
     pub fn exhume_associative_mut(&mut self, id: &Uuid) -> Option<&mut Associative> {
-        self.associative.get_mut(id)
+        self.associative
+            .get_mut(id)
+            .map(|associative| &mut associative.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Associative>`.
     ///
     pub fn iter_associative(&self) -> impl Iterator<Item = &Associative> {
-        self.associative.values()
+        self.associative.values().map(|associative| &associative.0)
+    }
+
+    /// Get the timestamp for Associative.
+    ///
+    pub fn associative_timestamp(&mut self, associative: Associative) -> SystemTime {
+        self.associative
+            .get(&associative.id)
+            .map(|associative| associative.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`AssociativeReferent`] into the store.
     ///
     pub fn inter_associative_referent(&mut self, associative_referent: AssociativeReferent) {
-        self.associative_referent
-            .insert(associative_referent.id, associative_referent);
+        self.associative_referent.insert(
+            associative_referent.id,
+            (associative_referent, SystemTime::now()),
+        );
     }
 
     /// Exhume [`AssociativeReferent`] from the store.
     ///
     pub fn exhume_associative_referent(&self, id: &Uuid) -> Option<&AssociativeReferent> {
-        self.associative_referent.get(id)
+        self.associative_referent
+            .get(id)
+            .map(|associative_referent| &associative_referent.0)
     }
 
     /// Exhume [`AssociativeReferent`] from the store — mutably.
@@ -170,26 +206,46 @@ impl ObjectStore {
         &mut self,
         id: &Uuid,
     ) -> Option<&mut AssociativeReferent> {
-        self.associative_referent.get_mut(id)
+        self.associative_referent
+            .get_mut(id)
+            .map(|associative_referent| &mut associative_referent.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeReferent>`.
     ///
     pub fn iter_associative_referent(&self) -> impl Iterator<Item = &AssociativeReferent> {
-        self.associative_referent.values()
+        self.associative_referent
+            .values()
+            .map(|associative_referent| &associative_referent.0)
+    }
+
+    /// Get the timestamp for AssociativeReferent.
+    ///
+    pub fn associative_referent_timestamp(
+        &mut self,
+        associative_referent: AssociativeReferent,
+    ) -> SystemTime {
+        self.associative_referent
+            .get(&associative_referent.id)
+            .map(|associative_referent| associative_referent.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`AssociativeReferrer`] into the store.
     ///
     pub fn inter_associative_referrer(&mut self, associative_referrer: AssociativeReferrer) {
-        self.associative_referrer
-            .insert(associative_referrer.id, associative_referrer);
+        self.associative_referrer.insert(
+            associative_referrer.id,
+            (associative_referrer, SystemTime::now()),
+        );
     }
 
     /// Exhume [`AssociativeReferrer`] from the store.
     ///
     pub fn exhume_associative_referrer(&self, id: &Uuid) -> Option<&AssociativeReferrer> {
-        self.associative_referrer.get(id)
+        self.associative_referrer
+            .get(id)
+            .map(|associative_referrer| &associative_referrer.0)
     }
 
     /// Exhume [`AssociativeReferrer`] from the store — mutably.
@@ -198,374 +254,547 @@ impl ObjectStore {
         &mut self,
         id: &Uuid,
     ) -> Option<&mut AssociativeReferrer> {
-        self.associative_referrer.get_mut(id)
+        self.associative_referrer
+            .get_mut(id)
+            .map(|associative_referrer| &mut associative_referrer.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeReferrer>`.
     ///
     pub fn iter_associative_referrer(&self) -> impl Iterator<Item = &AssociativeReferrer> {
-        self.associative_referrer.values()
+        self.associative_referrer
+            .values()
+            .map(|associative_referrer| &associative_referrer.0)
+    }
+
+    /// Get the timestamp for AssociativeReferrer.
+    ///
+    pub fn associative_referrer_timestamp(
+        &mut self,
+        associative_referrer: AssociativeReferrer,
+    ) -> SystemTime {
+        self.associative_referrer
+            .get(&associative_referrer.id)
+            .map(|associative_referrer| associative_referrer.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Attribute`] into the store.
     ///
     pub fn inter_attribute(&mut self, attribute: Attribute) {
-        self.attribute.insert(attribute.id, attribute);
+        self.attribute
+            .insert(attribute.id, (attribute, SystemTime::now()));
     }
 
     /// Exhume [`Attribute`] from the store.
     ///
     pub fn exhume_attribute(&self, id: &Uuid) -> Option<&Attribute> {
-        self.attribute.get(id)
+        self.attribute.get(id).map(|attribute| &attribute.0)
     }
 
     /// Exhume [`Attribute`] from the store — mutably.
     ///
     pub fn exhume_attribute_mut(&mut self, id: &Uuid) -> Option<&mut Attribute> {
-        self.attribute.get_mut(id)
+        self.attribute.get_mut(id).map(|attribute| &mut attribute.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Attribute>`.
     ///
     pub fn iter_attribute(&self) -> impl Iterator<Item = &Attribute> {
-        self.attribute.values()
+        self.attribute.values().map(|attribute| &attribute.0)
+    }
+
+    /// Get the timestamp for Attribute.
+    ///
+    pub fn attribute_timestamp(&mut self, attribute: Attribute) -> SystemTime {
+        self.attribute
+            .get(&attribute.id)
+            .map(|attribute| attribute.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Binary`] into the store.
     ///
     pub fn inter_binary(&mut self, binary: Binary) {
-        self.binary.insert(binary.id, binary);
+        self.binary.insert(binary.id, (binary, SystemTime::now()));
     }
 
     /// Exhume [`Binary`] from the store.
     ///
     pub fn exhume_binary(&self, id: &Uuid) -> Option<&Binary> {
-        self.binary.get(id)
+        self.binary.get(id).map(|binary| &binary.0)
     }
 
     /// Exhume [`Binary`] from the store — mutably.
     ///
     pub fn exhume_binary_mut(&mut self, id: &Uuid) -> Option<&mut Binary> {
-        self.binary.get_mut(id)
+        self.binary.get_mut(id).map(|binary| &mut binary.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
     pub fn iter_binary(&self) -> impl Iterator<Item = &Binary> {
-        self.binary.values()
+        self.binary.values().map(|binary| &binary.0)
+    }
+
+    /// Get the timestamp for Binary.
+    ///
+    pub fn binary_timestamp(&mut self, binary: Binary) -> SystemTime {
+        self.binary
+            .get(&binary.id)
+            .map(|binary| binary.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Cardinality`] into the store.
     ///
     pub fn inter_cardinality(&mut self, cardinality: Cardinality) {
-        self.cardinality.insert(cardinality.id(), cardinality);
+        self.cardinality
+            .insert(cardinality.id(), (cardinality, SystemTime::now()));
     }
 
     /// Exhume [`Cardinality`] from the store.
     ///
     pub fn exhume_cardinality(&self, id: &Uuid) -> Option<&Cardinality> {
-        self.cardinality.get(id)
+        self.cardinality.get(id).map(|cardinality| &cardinality.0)
     }
 
     /// Exhume [`Cardinality`] from the store — mutably.
     ///
     pub fn exhume_cardinality_mut(&mut self, id: &Uuid) -> Option<&mut Cardinality> {
-        self.cardinality.get_mut(id)
+        self.cardinality
+            .get_mut(id)
+            .map(|cardinality| &mut cardinality.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Cardinality>`.
     ///
     pub fn iter_cardinality(&self) -> impl Iterator<Item = &Cardinality> {
-        self.cardinality.values()
+        self.cardinality.values().map(|cardinality| &cardinality.0)
+    }
+
+    /// Get the timestamp for Cardinality.
+    ///
+    pub fn cardinality_timestamp(&mut self, cardinality: Cardinality) -> SystemTime {
+        self.cardinality
+            .get(&cardinality.id())
+            .map(|cardinality| cardinality.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Conditionality`] into the store.
     ///
     pub fn inter_conditionality(&mut self, conditionality: Conditionality) {
         self.conditionality
-            .insert(conditionality.id(), conditionality);
+            .insert(conditionality.id(), (conditionality, SystemTime::now()));
     }
 
     /// Exhume [`Conditionality`] from the store.
     ///
     pub fn exhume_conditionality(&self, id: &Uuid) -> Option<&Conditionality> {
-        self.conditionality.get(id)
+        self.conditionality
+            .get(id)
+            .map(|conditionality| &conditionality.0)
     }
 
     /// Exhume [`Conditionality`] from the store — mutably.
     ///
     pub fn exhume_conditionality_mut(&mut self, id: &Uuid) -> Option<&mut Conditionality> {
-        self.conditionality.get_mut(id)
+        self.conditionality
+            .get_mut(id)
+            .map(|conditionality| &mut conditionality.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Conditionality>`.
     ///
     pub fn iter_conditionality(&self) -> impl Iterator<Item = &Conditionality> {
-        self.conditionality.values()
+        self.conditionality
+            .values()
+            .map(|conditionality| &conditionality.0)
+    }
+
+    /// Get the timestamp for Conditionality.
+    ///
+    pub fn conditionality_timestamp(&mut self, conditionality: Conditionality) -> SystemTime {
+        self.conditionality
+            .get(&conditionality.id())
+            .map(|conditionality| conditionality.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Event`] into the store.
     ///
     pub fn inter_event(&mut self, event: Event) {
-        self.event.insert(event.id, event);
+        self.event.insert(event.id, (event, SystemTime::now()));
     }
 
     /// Exhume [`Event`] from the store.
     ///
     pub fn exhume_event(&self, id: &Uuid) -> Option<&Event> {
-        self.event.get(id)
+        self.event.get(id).map(|event| &event.0)
     }
 
     /// Exhume [`Event`] from the store — mutably.
     ///
     pub fn exhume_event_mut(&mut self, id: &Uuid) -> Option<&mut Event> {
-        self.event.get_mut(id)
+        self.event.get_mut(id).map(|event| &mut event.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Event>`.
     ///
     pub fn iter_event(&self) -> impl Iterator<Item = &Event> {
-        self.event.values()
+        self.event.values().map(|event| &event.0)
+    }
+
+    /// Get the timestamp for Event.
+    ///
+    pub fn event_timestamp(&mut self, event: Event) -> SystemTime {
+        self.event
+            .get(&event.id)
+            .map(|event| event.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`External`] into the store.
     ///
     pub fn inter_external(&mut self, external: External) {
-        self.external.insert(external.id, external);
+        self.external
+            .insert(external.id, (external, SystemTime::now()));
     }
 
     /// Exhume [`External`] from the store.
     ///
     pub fn exhume_external(&self, id: &Uuid) -> Option<&External> {
-        self.external.get(id)
+        self.external.get(id).map(|external| &external.0)
     }
 
     /// Exhume [`External`] from the store — mutably.
     ///
     pub fn exhume_external_mut(&mut self, id: &Uuid) -> Option<&mut External> {
-        self.external.get_mut(id)
+        self.external.get_mut(id).map(|external| &mut external.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, External>`.
     ///
     pub fn iter_external(&self) -> impl Iterator<Item = &External> {
-        self.external.values()
+        self.external.values().map(|external| &external.0)
+    }
+
+    /// Get the timestamp for External.
+    ///
+    pub fn external_timestamp(&mut self, external: External) -> SystemTime {
+        self.external
+            .get(&external.id)
+            .map(|external| external.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Isa`] into the store.
     ///
     pub fn inter_isa(&mut self, isa: Isa) {
-        self.isa.insert(isa.id, isa);
+        self.isa.insert(isa.id, (isa, SystemTime::now()));
     }
 
     /// Exhume [`Isa`] from the store.
     ///
     pub fn exhume_isa(&self, id: &Uuid) -> Option<&Isa> {
-        self.isa.get(id)
+        self.isa.get(id).map(|isa| &isa.0)
     }
 
     /// Exhume [`Isa`] from the store — mutably.
     ///
     pub fn exhume_isa_mut(&mut self, id: &Uuid) -> Option<&mut Isa> {
-        self.isa.get_mut(id)
+        self.isa.get_mut(id).map(|isa| &mut isa.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Isa>`.
     ///
     pub fn iter_isa(&self) -> impl Iterator<Item = &Isa> {
-        self.isa.values()
+        self.isa.values().map(|isa| &isa.0)
+    }
+
+    /// Get the timestamp for Isa.
+    ///
+    pub fn isa_timestamp(&mut self, isa: Isa) -> SystemTime {
+        self.isa
+            .get(&isa.id)
+            .map(|isa| isa.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Object`] into the store.
     ///
     pub fn inter_object(&mut self, object: Object) {
-        self.object.insert(object.id, object);
+        self.object.insert(object.id, (object, SystemTime::now()));
     }
 
     /// Exhume [`Object`] from the store.
     ///
     pub fn exhume_object(&self, id: &Uuid) -> Option<&Object> {
-        self.object.get(id)
+        self.object.get(id).map(|object| &object.0)
     }
 
     /// Exhume [`Object`] from the store — mutably.
     ///
     pub fn exhume_object_mut(&mut self, id: &Uuid) -> Option<&mut Object> {
-        self.object.get_mut(id)
+        self.object.get_mut(id).map(|object| &mut object.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Object>`.
     ///
     pub fn iter_object(&self) -> impl Iterator<Item = &Object> {
-        self.object.values()
+        self.object.values().map(|object| &object.0)
+    }
+
+    /// Get the timestamp for Object.
+    ///
+    pub fn object_timestamp(&mut self, object: Object) -> SystemTime {
+        self.object
+            .get(&object.id)
+            .map(|object| object.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Referent`] into the store.
     ///
     pub fn inter_referent(&mut self, referent: Referent) {
-        self.referent.insert(referent.id, referent);
+        self.referent
+            .insert(referent.id, (referent, SystemTime::now()));
     }
 
     /// Exhume [`Referent`] from the store.
     ///
     pub fn exhume_referent(&self, id: &Uuid) -> Option<&Referent> {
-        self.referent.get(id)
+        self.referent.get(id).map(|referent| &referent.0)
     }
 
     /// Exhume [`Referent`] from the store — mutably.
     ///
     pub fn exhume_referent_mut(&mut self, id: &Uuid) -> Option<&mut Referent> {
-        self.referent.get_mut(id)
+        self.referent.get_mut(id).map(|referent| &mut referent.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Referent>`.
     ///
     pub fn iter_referent(&self) -> impl Iterator<Item = &Referent> {
-        self.referent.values()
+        self.referent.values().map(|referent| &referent.0)
+    }
+
+    /// Get the timestamp for Referent.
+    ///
+    pub fn referent_timestamp(&mut self, referent: Referent) -> SystemTime {
+        self.referent
+            .get(&referent.id)
+            .map(|referent| referent.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Referrer`] into the store.
     ///
     pub fn inter_referrer(&mut self, referrer: Referrer) {
-        self.referrer.insert(referrer.id, referrer);
+        self.referrer
+            .insert(referrer.id, (referrer, SystemTime::now()));
     }
 
     /// Exhume [`Referrer`] from the store.
     ///
     pub fn exhume_referrer(&self, id: &Uuid) -> Option<&Referrer> {
-        self.referrer.get(id)
+        self.referrer.get(id).map(|referrer| &referrer.0)
     }
 
     /// Exhume [`Referrer`] from the store — mutably.
     ///
     pub fn exhume_referrer_mut(&mut self, id: &Uuid) -> Option<&mut Referrer> {
-        self.referrer.get_mut(id)
+        self.referrer.get_mut(id).map(|referrer| &mut referrer.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Referrer>`.
     ///
     pub fn iter_referrer(&self) -> impl Iterator<Item = &Referrer> {
-        self.referrer.values()
+        self.referrer.values().map(|referrer| &referrer.0)
+    }
+
+    /// Get the timestamp for Referrer.
+    ///
+    pub fn referrer_timestamp(&mut self, referrer: Referrer) -> SystemTime {
+        self.referrer
+            .get(&referrer.id)
+            .map(|referrer| referrer.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Relationship`] into the store.
     ///
     pub fn inter_relationship(&mut self, relationship: Relationship) {
-        self.relationship.insert(relationship.id(), relationship);
+        self.relationship
+            .insert(relationship.id(), (relationship, SystemTime::now()));
     }
 
     /// Exhume [`Relationship`] from the store.
     ///
     pub fn exhume_relationship(&self, id: &Uuid) -> Option<&Relationship> {
-        self.relationship.get(id)
+        self.relationship
+            .get(id)
+            .map(|relationship| &relationship.0)
     }
 
     /// Exhume [`Relationship`] from the store — mutably.
     ///
     pub fn exhume_relationship_mut(&mut self, id: &Uuid) -> Option<&mut Relationship> {
-        self.relationship.get_mut(id)
+        self.relationship
+            .get_mut(id)
+            .map(|relationship| &mut relationship.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Relationship>`.
     ///
     pub fn iter_relationship(&self) -> impl Iterator<Item = &Relationship> {
-        self.relationship.values()
+        self.relationship
+            .values()
+            .map(|relationship| &relationship.0)
+    }
+
+    /// Get the timestamp for Relationship.
+    ///
+    pub fn relationship_timestamp(&mut self, relationship: Relationship) -> SystemTime {
+        self.relationship
+            .get(&relationship.id())
+            .map(|relationship| relationship.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`State`] into the store.
     ///
     pub fn inter_state(&mut self, state: State) {
-        self.state.insert(state.id, state);
+        self.state.insert(state.id, (state, SystemTime::now()));
     }
 
     /// Exhume [`State`] from the store.
     ///
     pub fn exhume_state(&self, id: &Uuid) -> Option<&State> {
-        self.state.get(id)
+        self.state.get(id).map(|state| &state.0)
     }
 
     /// Exhume [`State`] from the store — mutably.
     ///
     pub fn exhume_state_mut(&mut self, id: &Uuid) -> Option<&mut State> {
-        self.state.get_mut(id)
+        self.state.get_mut(id).map(|state| &mut state.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, State>`.
     ///
     pub fn iter_state(&self) -> impl Iterator<Item = &State> {
-        self.state.values()
+        self.state.values().map(|state| &state.0)
+    }
+
+    /// Get the timestamp for State.
+    ///
+    pub fn state_timestamp(&mut self, state: State) -> SystemTime {
+        self.state
+            .get(&state.id)
+            .map(|state| state.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Subtype`] into the store.
     ///
     pub fn inter_subtype(&mut self, subtype: Subtype) {
-        self.subtype.insert(subtype.id, subtype);
+        self.subtype
+            .insert(subtype.id, (subtype, SystemTime::now()));
     }
 
     /// Exhume [`Subtype`] from the store.
     ///
     pub fn exhume_subtype(&self, id: &Uuid) -> Option<&Subtype> {
-        self.subtype.get(id)
+        self.subtype.get(id).map(|subtype| &subtype.0)
     }
 
     /// Exhume [`Subtype`] from the store — mutably.
     ///
     pub fn exhume_subtype_mut(&mut self, id: &Uuid) -> Option<&mut Subtype> {
-        self.subtype.get_mut(id)
+        self.subtype.get_mut(id).map(|subtype| &mut subtype.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Subtype>`.
     ///
     pub fn iter_subtype(&self) -> impl Iterator<Item = &Subtype> {
-        self.subtype.values()
+        self.subtype.values().map(|subtype| &subtype.0)
+    }
+
+    /// Get the timestamp for Subtype.
+    ///
+    pub fn subtype_timestamp(&mut self, subtype: Subtype) -> SystemTime {
+        self.subtype
+            .get(&subtype.id)
+            .map(|subtype| subtype.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Supertype`] into the store.
     ///
     pub fn inter_supertype(&mut self, supertype: Supertype) {
-        self.supertype.insert(supertype.id, supertype);
+        self.supertype
+            .insert(supertype.id, (supertype, SystemTime::now()));
     }
 
     /// Exhume [`Supertype`] from the store.
     ///
     pub fn exhume_supertype(&self, id: &Uuid) -> Option<&Supertype> {
-        self.supertype.get(id)
+        self.supertype.get(id).map(|supertype| &supertype.0)
     }
 
     /// Exhume [`Supertype`] from the store — mutably.
     ///
     pub fn exhume_supertype_mut(&mut self, id: &Uuid) -> Option<&mut Supertype> {
-        self.supertype.get_mut(id)
+        self.supertype.get_mut(id).map(|supertype| &mut supertype.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Supertype>`.
     ///
     pub fn iter_supertype(&self) -> impl Iterator<Item = &Supertype> {
-        self.supertype.values()
+        self.supertype.values().map(|supertype| &supertype.0)
+    }
+
+    /// Get the timestamp for Supertype.
+    ///
+    pub fn supertype_timestamp(&mut self, supertype: Supertype) -> SystemTime {
+        self.supertype
+            .get(&supertype.id)
+            .map(|supertype| supertype.1)
+            .unwrap_or(SystemTime::now())
     }
 
     /// Inter [`Ty`] into the store.
     ///
     pub fn inter_ty(&mut self, ty: Ty) {
-        self.ty.insert(ty.id(), ty);
+        self.ty.insert(ty.id(), (ty, SystemTime::now()));
     }
 
     /// Exhume [`Ty`] from the store.
     ///
     pub fn exhume_ty(&self, id: &Uuid) -> Option<&Ty> {
-        self.ty.get(id)
+        self.ty.get(id).map(|ty| &ty.0)
     }
 
     /// Exhume [`Ty`] from the store — mutably.
     ///
     pub fn exhume_ty_mut(&mut self, id: &Uuid) -> Option<&mut Ty> {
-        self.ty.get_mut(id)
+        self.ty.get_mut(id).map(|ty| &mut ty.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Ty>`.
     ///
     pub fn iter_ty(&self) -> impl Iterator<Item = &Ty> {
-        self.ty.values()
+        self.ty.values().map(|ty| &ty.0)
+    }
+
+    /// Get the timestamp for Ty.
+    ///
+    pub fn ty_timestamp(&mut self, ty: Ty) -> SystemTime {
+        self.ty
+            .get(&ty.id())
+            .map(|ty| ty.1)
+            .unwrap_or(SystemTime::now())
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -585,11 +814,22 @@ impl ObjectStore {
         {
             let path = path.join("acknowledged_event");
             fs::create_dir_all(&path)?;
-            for acknowledged_event in self.acknowledged_event.values() {
-                let path = path.join(format!("{}.json", acknowledged_event.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &acknowledged_event)?;
+            for acknowledged_event_tuple in self.acknowledged_event.values() {
+                let path = path.join(format!("{}.json", acknowledged_event_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (AcknowledgedEvent, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != acknowledged_event_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &acknowledged_event_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &acknowledged_event_tuple)?;
+                }
             }
         }
 
@@ -597,11 +837,22 @@ impl ObjectStore {
         {
             let path = path.join("associative");
             fs::create_dir_all(&path)?;
-            for associative in self.associative.values() {
-                let path = path.join(format!("{}.json", associative.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &associative)?;
+            for associative_tuple in self.associative.values() {
+                let path = path.join(format!("{}.json", associative_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Associative, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != associative_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &associative_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &associative_tuple)?;
+                }
             }
         }
 
@@ -609,11 +860,23 @@ impl ObjectStore {
         {
             let path = path.join("associative_referent");
             fs::create_dir_all(&path)?;
-            for associative_referent in self.associative_referent.values() {
-                let path = path.join(format!("{}.json", associative_referent.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &associative_referent)?;
+            for associative_referent_tuple in self.associative_referent.values() {
+                let path = path.join(format!("{}.json", associative_referent_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (AssociativeReferent, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != associative_referent_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &associative_referent_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &associative_referent_tuple)?;
+                }
             }
         }
 
@@ -621,11 +884,23 @@ impl ObjectStore {
         {
             let path = path.join("associative_referrer");
             fs::create_dir_all(&path)?;
-            for associative_referrer in self.associative_referrer.values() {
-                let path = path.join(format!("{}.json", associative_referrer.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &associative_referrer)?;
+            for associative_referrer_tuple in self.associative_referrer.values() {
+                let path = path.join(format!("{}.json", associative_referrer_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (AssociativeReferrer, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != associative_referrer_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &associative_referrer_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &associative_referrer_tuple)?;
+                }
             }
         }
 
@@ -633,11 +908,22 @@ impl ObjectStore {
         {
             let path = path.join("attribute");
             fs::create_dir_all(&path)?;
-            for attribute in self.attribute.values() {
-                let path = path.join(format!("{}.json", attribute.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &attribute)?;
+            for attribute_tuple in self.attribute.values() {
+                let path = path.join(format!("{}.json", attribute_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Attribute, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != attribute_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &attribute_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &attribute_tuple)?;
+                }
             }
         }
 
@@ -645,11 +931,22 @@ impl ObjectStore {
         {
             let path = path.join("binary");
             fs::create_dir_all(&path)?;
-            for binary in self.binary.values() {
-                let path = path.join(format!("{}.json", binary.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &binary)?;
+            for binary_tuple in self.binary.values() {
+                let path = path.join(format!("{}.json", binary_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Binary, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != binary_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
+                }
             }
         }
 
@@ -657,11 +954,22 @@ impl ObjectStore {
         {
             let path = path.join("cardinality");
             fs::create_dir_all(&path)?;
-            for cardinality in self.cardinality.values() {
-                let path = path.join(format!("{}.json", cardinality.id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &cardinality)?;
+            for cardinality_tuple in self.cardinality.values() {
+                let path = path.join(format!("{}.json", cardinality_tuple.0.id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Cardinality, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != cardinality_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &cardinality_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &cardinality_tuple)?;
+                }
             }
         }
 
@@ -669,11 +977,22 @@ impl ObjectStore {
         {
             let path = path.join("conditionality");
             fs::create_dir_all(&path)?;
-            for conditionality in self.conditionality.values() {
-                let path = path.join(format!("{}.json", conditionality.id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &conditionality)?;
+            for conditionality_tuple in self.conditionality.values() {
+                let path = path.join(format!("{}.json", conditionality_tuple.0.id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Conditionality, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != conditionality_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &conditionality_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &conditionality_tuple)?;
+                }
             }
         }
 
@@ -681,11 +1000,22 @@ impl ObjectStore {
         {
             let path = path.join("event");
             fs::create_dir_all(&path)?;
-            for event in self.event.values() {
-                let path = path.join(format!("{}.json", event.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &event)?;
+            for event_tuple in self.event.values() {
+                let path = path.join(format!("{}.json", event_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Event, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != event_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &event_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &event_tuple)?;
+                }
             }
         }
 
@@ -693,11 +1023,22 @@ impl ObjectStore {
         {
             let path = path.join("external");
             fs::create_dir_all(&path)?;
-            for external in self.external.values() {
-                let path = path.join(format!("{}.json", external.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &external)?;
+            for external_tuple in self.external.values() {
+                let path = path.join(format!("{}.json", external_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (External, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != external_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &external_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &external_tuple)?;
+                }
             }
         }
 
@@ -705,11 +1046,22 @@ impl ObjectStore {
         {
             let path = path.join("isa");
             fs::create_dir_all(&path)?;
-            for isa in self.isa.values() {
-                let path = path.join(format!("{}.json", isa.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &isa)?;
+            for isa_tuple in self.isa.values() {
+                let path = path.join(format!("{}.json", isa_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Isa, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != isa_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &isa_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &isa_tuple)?;
+                }
             }
         }
 
@@ -717,11 +1069,22 @@ impl ObjectStore {
         {
             let path = path.join("object");
             fs::create_dir_all(&path)?;
-            for object in self.object.values() {
-                let path = path.join(format!("{}.json", object.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &object)?;
+            for object_tuple in self.object.values() {
+                let path = path.join(format!("{}.json", object_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Object, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != object_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &object_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &object_tuple)?;
+                }
             }
         }
 
@@ -729,11 +1092,22 @@ impl ObjectStore {
         {
             let path = path.join("referent");
             fs::create_dir_all(&path)?;
-            for referent in self.referent.values() {
-                let path = path.join(format!("{}.json", referent.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &referent)?;
+            for referent_tuple in self.referent.values() {
+                let path = path.join(format!("{}.json", referent_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Referent, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != referent_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &referent_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &referent_tuple)?;
+                }
             }
         }
 
@@ -741,11 +1115,22 @@ impl ObjectStore {
         {
             let path = path.join("referrer");
             fs::create_dir_all(&path)?;
-            for referrer in self.referrer.values() {
-                let path = path.join(format!("{}.json", referrer.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &referrer)?;
+            for referrer_tuple in self.referrer.values() {
+                let path = path.join(format!("{}.json", referrer_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Referrer, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != referrer_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &referrer_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &referrer_tuple)?;
+                }
             }
         }
 
@@ -753,11 +1138,22 @@ impl ObjectStore {
         {
             let path = path.join("relationship");
             fs::create_dir_all(&path)?;
-            for relationship in self.relationship.values() {
-                let path = path.join(format!("{}.json", relationship.id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &relationship)?;
+            for relationship_tuple in self.relationship.values() {
+                let path = path.join(format!("{}.json", relationship_tuple.0.id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Relationship, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != relationship_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &relationship_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &relationship_tuple)?;
+                }
             }
         }
 
@@ -765,11 +1161,22 @@ impl ObjectStore {
         {
             let path = path.join("state");
             fs::create_dir_all(&path)?;
-            for state in self.state.values() {
-                let path = path.join(format!("{}.json", state.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &state)?;
+            for state_tuple in self.state.values() {
+                let path = path.join(format!("{}.json", state_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (State, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != state_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &state_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &state_tuple)?;
+                }
             }
         }
 
@@ -777,11 +1184,22 @@ impl ObjectStore {
         {
             let path = path.join("subtype");
             fs::create_dir_all(&path)?;
-            for subtype in self.subtype.values() {
-                let path = path.join(format!("{}.json", subtype.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &subtype)?;
+            for subtype_tuple in self.subtype.values() {
+                let path = path.join(format!("{}.json", subtype_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Subtype, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != subtype_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &subtype_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &subtype_tuple)?;
+                }
             }
         }
 
@@ -789,11 +1207,22 @@ impl ObjectStore {
         {
             let path = path.join("supertype");
             fs::create_dir_all(&path)?;
-            for supertype in self.supertype.values() {
-                let path = path.join(format!("{}.json", supertype.id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &supertype)?;
+            for supertype_tuple in self.supertype.values() {
+                let path = path.join(format!("{}.json", supertype_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Supertype, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != supertype_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &supertype_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &supertype_tuple)?;
+                }
             }
         }
 
@@ -801,11 +1230,22 @@ impl ObjectStore {
         {
             let path = path.join("ty");
             fs::create_dir_all(&path)?;
-            for ty in self.ty.values() {
-                let path = path.join(format!("{}.json", ty.id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &ty)?;
+            for ty_tuple in self.ty.values() {
+                let path = path.join(format!("{}.json", ty_tuple.0.id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Ty, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != ty_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &ty_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &ty_tuple)?;
+                }
             }
         }
 
@@ -832,10 +1272,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let acknowledged_event: AcknowledgedEvent = serde_json::from_reader(reader)?;
+                let acknowledged_event: (AcknowledgedEvent, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .acknowledged_event
-                    .insert(acknowledged_event.id, acknowledged_event);
+                    .insert(acknowledged_event.0.id, acknowledged_event);
             }
         }
 
@@ -848,8 +1289,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let associative: Associative = serde_json::from_reader(reader)?;
-                store.associative.insert(associative.id, associative);
+                let associative: (Associative, SystemTime) = serde_json::from_reader(reader)?;
+                store.associative.insert(associative.0.id, associative);
             }
         }
 
@@ -862,10 +1303,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let associative_referent: AssociativeReferent = serde_json::from_reader(reader)?;
+                let associative_referent: (AssociativeReferent, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .associative_referent
-                    .insert(associative_referent.id, associative_referent);
+                    .insert(associative_referent.0.id, associative_referent);
             }
         }
 
@@ -878,10 +1320,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let associative_referrer: AssociativeReferrer = serde_json::from_reader(reader)?;
+                let associative_referrer: (AssociativeReferrer, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .associative_referrer
-                    .insert(associative_referrer.id, associative_referrer);
+                    .insert(associative_referrer.0.id, associative_referrer);
             }
         }
 
@@ -894,8 +1337,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let attribute: Attribute = serde_json::from_reader(reader)?;
-                store.attribute.insert(attribute.id, attribute);
+                let attribute: (Attribute, SystemTime) = serde_json::from_reader(reader)?;
+                store.attribute.insert(attribute.0.id, attribute);
             }
         }
 
@@ -908,8 +1351,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let binary: Binary = serde_json::from_reader(reader)?;
-                store.binary.insert(binary.id, binary);
+                let binary: (Binary, SystemTime) = serde_json::from_reader(reader)?;
+                store.binary.insert(binary.0.id, binary);
             }
         }
 
@@ -922,8 +1365,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let cardinality: Cardinality = serde_json::from_reader(reader)?;
-                store.cardinality.insert(cardinality.id(), cardinality);
+                let cardinality: (Cardinality, SystemTime) = serde_json::from_reader(reader)?;
+                store.cardinality.insert(cardinality.0.id(), cardinality);
             }
         }
 
@@ -936,10 +1379,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let conditionality: Conditionality = serde_json::from_reader(reader)?;
+                let conditionality: (Conditionality, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .conditionality
-                    .insert(conditionality.id(), conditionality);
+                    .insert(conditionality.0.id(), conditionality);
             }
         }
 
@@ -952,8 +1395,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let event: Event = serde_json::from_reader(reader)?;
-                store.event.insert(event.id, event);
+                let event: (Event, SystemTime) = serde_json::from_reader(reader)?;
+                store.event.insert(event.0.id, event);
             }
         }
 
@@ -966,8 +1409,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let external: External = serde_json::from_reader(reader)?;
-                store.external.insert(external.id, external);
+                let external: (External, SystemTime) = serde_json::from_reader(reader)?;
+                store.external.insert(external.0.id, external);
             }
         }
 
@@ -980,8 +1423,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let isa: Isa = serde_json::from_reader(reader)?;
-                store.isa.insert(isa.id, isa);
+                let isa: (Isa, SystemTime) = serde_json::from_reader(reader)?;
+                store.isa.insert(isa.0.id, isa);
             }
         }
 
@@ -994,8 +1437,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let object: Object = serde_json::from_reader(reader)?;
-                store.object.insert(object.id, object);
+                let object: (Object, SystemTime) = serde_json::from_reader(reader)?;
+                store.object.insert(object.0.id, object);
             }
         }
 
@@ -1008,8 +1451,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let referent: Referent = serde_json::from_reader(reader)?;
-                store.referent.insert(referent.id, referent);
+                let referent: (Referent, SystemTime) = serde_json::from_reader(reader)?;
+                store.referent.insert(referent.0.id, referent);
             }
         }
 
@@ -1022,8 +1465,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let referrer: Referrer = serde_json::from_reader(reader)?;
-                store.referrer.insert(referrer.id, referrer);
+                let referrer: (Referrer, SystemTime) = serde_json::from_reader(reader)?;
+                store.referrer.insert(referrer.0.id, referrer);
             }
         }
 
@@ -1036,8 +1479,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship: Relationship = serde_json::from_reader(reader)?;
-                store.relationship.insert(relationship.id(), relationship);
+                let relationship: (Relationship, SystemTime) = serde_json::from_reader(reader)?;
+                store.relationship.insert(relationship.0.id(), relationship);
             }
         }
 
@@ -1050,8 +1493,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let state: State = serde_json::from_reader(reader)?;
-                store.state.insert(state.id, state);
+                let state: (State, SystemTime) = serde_json::from_reader(reader)?;
+                store.state.insert(state.0.id, state);
             }
         }
 
@@ -1064,8 +1507,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let subtype: Subtype = serde_json::from_reader(reader)?;
-                store.subtype.insert(subtype.id, subtype);
+                let subtype: (Subtype, SystemTime) = serde_json::from_reader(reader)?;
+                store.subtype.insert(subtype.0.id, subtype);
             }
         }
 
@@ -1078,8 +1521,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let supertype: Supertype = serde_json::from_reader(reader)?;
-                store.supertype.insert(supertype.id, supertype);
+                let supertype: (Supertype, SystemTime) = serde_json::from_reader(reader)?;
+                store.supertype.insert(supertype.0.id, supertype);
             }
         }
 
@@ -1092,8 +1535,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let ty: Ty = serde_json::from_reader(reader)?;
-                store.ty.insert(ty.id(), ty);
+                let ty: (Ty, SystemTime) = serde_json::from_reader(reader)?;
+                store.ty.insert(ty.0.id(), ty);
             }
         }
 

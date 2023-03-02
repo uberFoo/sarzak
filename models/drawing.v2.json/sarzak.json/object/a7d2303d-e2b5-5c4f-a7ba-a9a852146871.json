@@ -1,6 +1,12 @@
-{
-  "description": "This represents additional data necessary to render an `Isa` relationship in the user interface.",
-  "id": "a7d2303d-e2b5-5c4f-a7ba-a9a852146871",
-  "key_letters": "IUI",
-  "name": "IsaUI"
-}
+[
+  {
+    "description": "This represents additional data necessary to render an `Isa` relationship in the user interface.",
+    "id": "a7d2303d-e2b5-5c4f-a7ba-a9a852146871",
+    "key_letters": "IUI",
+    "name": "IsaUI"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853856000
+  }
+]

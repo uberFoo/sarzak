@@ -1,3 +1,9 @@
-{
-  "Integer": "045f5d22-f71b-5845-9113-b8b859d1dbac"
-}
+[
+  {
+    "Integer": "045f5d22-f71b-5845-9113-b8b859d1dbac"
+  },
+  {
+    "secs_since_epoch": 1677786208,
+    "nanos_since_epoch": 853951000
+  }
+]

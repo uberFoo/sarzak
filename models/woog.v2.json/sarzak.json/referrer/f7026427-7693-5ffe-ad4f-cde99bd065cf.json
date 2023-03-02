@@ -1,8 +1,14 @@
-{
-  "description": "is granted utility by",
-  "id": "f7026427-7693-5ffe-ad4f-cde99bd065cf",
-  "referential_attribute": "access",
-  "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
-  "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
-  "obj_id": "fac06cd5-a23e-568a-bc0d-912ff2e6faac"
-}
+[
+  {
+    "description": "is granted utility by",
+    "id": "f7026427-7693-5ffe-ad4f-cde99bd065cf",
+    "referential_attribute": "access",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "fac06cd5-a23e-568a-bc0d-912ff2e6faac"
+  },
+  {
+    "secs_since_epoch": 1677786204,
+    "nanos_since_epoch": 959535000
+  }
+]
