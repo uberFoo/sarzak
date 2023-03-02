@@ -1,0 +1,6 @@
+{
+  "description": "An optional Type\n\nIn rust this is wrapped in an [`Option<T>`].",
+  "id": "d511530a-0b5a-5dcf-b5ba-50149db0444a",
+  "key_letters": "GT_OPT",
+  "name": "Option"
+}

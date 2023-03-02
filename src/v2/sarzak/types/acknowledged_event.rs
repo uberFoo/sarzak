@@ -1,10 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"acknowledged_event-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"acknowledged_event-use-statements"}}}
+use uuid::Uuid;
+
 use crate::v2::sarzak::types::event::Event;
 use crate::v2::sarzak::types::state::State;
 use crate::v2::sarzak::UUID_NS;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

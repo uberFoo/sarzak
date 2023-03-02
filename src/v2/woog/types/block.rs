@@ -1,10 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"block-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
+use uuid::Uuid;
+
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::statement::Statement;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

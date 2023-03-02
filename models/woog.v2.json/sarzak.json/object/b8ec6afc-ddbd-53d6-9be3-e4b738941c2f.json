@@ -1,0 +1,6 @@
+{
+  "description": "The type of a value\n\nThere are several values available: [Integer], [Boolean], [Float], [String], and [UUID].\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f\"}}\n",
+  "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+  "key_letters": "T",
+  "name": "Type"
+}

@@ -1,11 +1,12 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"point-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-use-statements"}}}
+use uuid::Uuid;
+
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::associative_ui::AssociativeUi;
 use crate::v2::drawing::types::object_ui::ObjectUi;
 use crate::v2::drawing::UUID_NS;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -34,9 +35,11 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R5(1-1c)
-    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
+    /// Navigate to [`Anchor`] across R4(1-1c)
+    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        let anchor = store
+            .iter_anchor()
+            .find(|anchor| anchor.location == self.id);
         match anchor {
             Some(ref anchor) => vec![anchor],
             None => Vec::new(),
@@ -44,11 +47,9 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R4(1-1c)
-    pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        let anchor = store
-            .iter_anchor()
-            .find(|anchor| anchor.location == self.id);
+    /// Navigate to [`Anchor`] across R5(1-1c)
+    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
         match anchor {
             Some(ref anchor) => vec![anchor],
             None => Vec::new(),

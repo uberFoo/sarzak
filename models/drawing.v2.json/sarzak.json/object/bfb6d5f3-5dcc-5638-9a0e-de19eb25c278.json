@@ -1,0 +1,6 @@
+{
+  "description": "Subtype Anchors\n\nJust as it sounds, these are [`Anchor`]s used by [`Subtype`]s in an [`Isa`] relationship.",
+  "id": "bfb6d5f3-5dcc-5638-9a0e-de19eb25c278",
+  "key_letters": "SUB_A",
+  "name": "Subtype Anchors"
+}

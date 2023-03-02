@@ -2,15 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-use-statements"}}}
 use uuid::Uuid;
 
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
-use crate::v2::woog::types::expression::Expression;
-use crate::v2::woog::types::variable::Variable;
-
-// Referrer imports
 use crate::v2::woog::types::access::Access;
+use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::grace_type::GraceType;
+use crate::v2::woog::types::variable::Variable;
+use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

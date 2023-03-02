@@ -1,10 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"attribute-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-use-statements"}}}
+use uuid::Uuid;
+
 use crate::v2::sarzak::types::object::Object;
 use crate::v2::sarzak::types::ty::Ty;
 use crate::v2::sarzak::UUID_NS;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -489,164 +489,196 @@ impl ObjectStore {
 
         // Persist Access.
         {
-            let path = path.join("access.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.access.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("access");
+            fs::create_dir_all(&path)?;
+            for access in self.access.values() {
+                let path = path.join(format!("{}.json", access.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &access)?;
+            }
         }
+
         // Persist Block.
         {
-            let path = path.join("block.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.block.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("block");
+            fs::create_dir_all(&path)?;
+            for block in self.block.values() {
+                let path = path.join(format!("{}.json", block.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &block)?;
+            }
         }
+
         // Persist Call.
         {
-            let path = path.join("call.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.call.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("call");
+            fs::create_dir_all(&path)?;
+            for call in self.call.values() {
+                let path = path.join(format!("{}.json", call.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &call)?;
+            }
         }
+
         // Persist Expression.
         {
-            let path = path.join("expression.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.expression.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("expression");
+            fs::create_dir_all(&path)?;
+            for expression in self.expression.values() {
+                let path = path.join(format!("{}.json", expression.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &expression)?;
+            }
         }
+
         // Persist Grace Type.
         {
-            let path = path.join("grace_type.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.grace_type.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("grace_type");
+            fs::create_dir_all(&path)?;
+            for grace_type in self.grace_type.values() {
+                let path = path.join(format!("{}.json", grace_type.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &grace_type)?;
+            }
         }
+
         // Persist Let.
         {
-            let path = path.join("x_let.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.x_let.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("x_let");
+            fs::create_dir_all(&path)?;
+            for x_let in self.x_let.values() {
+                let path = path.join(format!("{}.json", x_let.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_let)?;
+            }
         }
+
         // Persist Local.
         {
-            let path = path.join("local.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.local.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("local");
+            fs::create_dir_all(&path)?;
+            for local in self.local.values() {
+                let path = path.join(format!("{}.json", local.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &local)?;
+            }
         }
+
         // Persist Object Method.
         {
-            let path = path.join("object_method.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.object_method.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("object_method");
+            fs::create_dir_all(&path)?;
+            for object_method in self.object_method.values() {
+                let path = path.join(format!("{}.json", object_method.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &object_method)?;
+            }
         }
+
         // Persist Option.
         {
-            let path = path.join("woog_option.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.woog_option.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("woog_option");
+            fs::create_dir_all(&path)?;
+            for woog_option in self.woog_option.values() {
+                let path = path.join(format!("{}.json", woog_option.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &woog_option)?;
+            }
         }
+
         // Persist Ownership.
         {
-            let path = path.join("ownership.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.ownership.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("ownership");
+            fs::create_dir_all(&path)?;
+            for ownership in self.ownership.values() {
+                let path = path.join(format!("{}.json", ownership.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &ownership)?;
+            }
         }
+
         // Persist Parameter.
         {
-            let path = path.join("parameter.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.parameter.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("parameter");
+            fs::create_dir_all(&path)?;
+            for parameter in self.parameter.values() {
+                let path = path.join(format!("{}.json", parameter.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &parameter)?;
+            }
         }
+
         // Persist Reference.
         {
-            let path = path.join("reference.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.reference.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("reference");
+            fs::create_dir_all(&path)?;
+            for reference in self.reference.values() {
+                let path = path.join(format!("{}.json", reference.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &reference)?;
+            }
         }
+
         // Persist Statement.
         {
-            let path = path.join("statement.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.statement.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("statement");
+            fs::create_dir_all(&path)?;
+            for statement in self.statement.values() {
+                let path = path.join(format!("{}.json", statement.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &statement)?;
+            }
         }
+
         // Persist Value.
         {
-            let path = path.join("value.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.value.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("value");
+            fs::create_dir_all(&path)?;
+            for value in self.value.values() {
+                let path = path.join(format!("{}.json", value.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &value)?;
+            }
         }
+
         // Persist Variable.
         {
-            let path = path.join("variable.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.variable.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("variable");
+            fs::create_dir_all(&path)?;
+            for variable in self.variable.values() {
+                let path = path.join(format!("{}.json", variable.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &variable)?;
+            }
         }
+
         // Persist Visibility.
         {
-            let path = path.join("visibility.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.visibility.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("visibility");
+            fs::create_dir_all(&path)?;
+            for visibility in self.visibility.values() {
+                let path = path.join(format!("{}.json", visibility.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &visibility)?;
+            }
         }
+
         Ok(())
     }
 
@@ -663,131 +695,226 @@ impl ObjectStore {
 
         // Load Access.
         {
-            let path = path.join("access.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let access: Vec<Access> = serde_json::from_reader(reader)?;
-            store.access = access.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("access");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let access: Access = serde_json::from_reader(reader)?;
+                store.access.insert(access.id, access);
+            }
         }
+
         // Load Block.
         {
-            let path = path.join("block.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let block: Vec<Block> = serde_json::from_reader(reader)?;
-            store.block = block.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("block");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let block: Block = serde_json::from_reader(reader)?;
+                store.block.insert(block.id, block);
+            }
         }
+
         // Load Call.
         {
-            let path = path.join("call.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let call: Vec<Call> = serde_json::from_reader(reader)?;
-            store.call = call.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("call");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let call: Call = serde_json::from_reader(reader)?;
+                store.call.insert(call.id, call);
+            }
         }
+
         // Load Expression.
         {
-            let path = path.join("expression.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let expression: Vec<Expression> = serde_json::from_reader(reader)?;
-            store.expression = expression.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("expression");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let expression: Expression = serde_json::from_reader(reader)?;
+                store.expression.insert(expression.id(), expression);
+            }
         }
+
         // Load Grace Type.
         {
-            let path = path.join("grace_type.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let grace_type: Vec<GraceType> = serde_json::from_reader(reader)?;
-            store.grace_type = grace_type.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("grace_type");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let grace_type: GraceType = serde_json::from_reader(reader)?;
+                store.grace_type.insert(grace_type.id(), grace_type);
+            }
         }
+
         // Load Let.
         {
-            let path = path.join("x_let.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let x_let: Vec<XLet> = serde_json::from_reader(reader)?;
-            store.x_let = x_let.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("x_let");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_let: XLet = serde_json::from_reader(reader)?;
+                store.x_let.insert(x_let.id, x_let);
+            }
         }
+
         // Load Local.
         {
-            let path = path.join("local.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let local: Vec<Local> = serde_json::from_reader(reader)?;
-            store.local = local.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("local");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let local: Local = serde_json::from_reader(reader)?;
+                store.local.insert(local.id, local);
+            }
         }
+
         // Load Object Method.
         {
-            let path = path.join("object_method.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let object_method: Vec<ObjectMethod> = serde_json::from_reader(reader)?;
-            store.object_method = object_method.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("object_method");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let object_method: ObjectMethod = serde_json::from_reader(reader)?;
+                store.object_method.insert(object_method.id, object_method);
+            }
         }
+
         // Load Option.
         {
-            let path = path.join("woog_option.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let woog_option: Vec<WoogOption> = serde_json::from_reader(reader)?;
-            store.woog_option = woog_option.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("woog_option");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let woog_option: WoogOption = serde_json::from_reader(reader)?;
+                store.woog_option.insert(woog_option.id, woog_option);
+            }
         }
+
         // Load Ownership.
         {
-            let path = path.join("ownership.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let ownership: Vec<Ownership> = serde_json::from_reader(reader)?;
-            store.ownership = ownership.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("ownership");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let ownership: Ownership = serde_json::from_reader(reader)?;
+                store.ownership.insert(ownership.id(), ownership);
+            }
         }
+
         // Load Parameter.
         {
-            let path = path.join("parameter.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let parameter: Vec<Parameter> = serde_json::from_reader(reader)?;
-            store.parameter = parameter.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("parameter");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let parameter: Parameter = serde_json::from_reader(reader)?;
+                store.parameter.insert(parameter.id, parameter);
+            }
         }
+
         // Load Reference.
         {
-            let path = path.join("reference.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let reference: Vec<Reference> = serde_json::from_reader(reader)?;
-            store.reference = reference.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("reference");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let reference: Reference = serde_json::from_reader(reader)?;
+                store.reference.insert(reference.id, reference);
+            }
         }
+
         // Load Statement.
         {
-            let path = path.join("statement.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let statement: Vec<Statement> = serde_json::from_reader(reader)?;
-            store.statement = statement.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("statement");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let statement: Statement = serde_json::from_reader(reader)?;
+                store.statement.insert(statement.id, statement);
+            }
         }
+
         // Load Value.
         {
-            let path = path.join("value.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let value: Vec<Value> = serde_json::from_reader(reader)?;
-            store.value = value.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("value");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let value: Value = serde_json::from_reader(reader)?;
+                store.value.insert(value.id, value);
+            }
         }
+
         // Load Variable.
         {
-            let path = path.join("variable.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let variable: Vec<Variable> = serde_json::from_reader(reader)?;
-            store.variable = variable.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("variable");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let variable: Variable = serde_json::from_reader(reader)?;
+                store.variable.insert(variable.id(), variable);
+            }
         }
+
         // Load Visibility.
         {
-            let path = path.join("visibility.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let visibility: Vec<Visibility> = serde_json::from_reader(reader)?;
-            store.visibility = visibility.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("visibility");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let visibility: Visibility = serde_json::from_reader(reader)?;
+                store.visibility.insert(visibility.id(), visibility);
+            }
         }
 
         Ok(store)

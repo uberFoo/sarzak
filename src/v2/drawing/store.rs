@@ -326,104 +326,124 @@ impl ObjectStore {
 
         // Persist Anchor.
         {
-            let path = path.join("anchor.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.anchor.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("anchor");
+            fs::create_dir_all(&path)?;
+            for anchor in self.anchor.values() {
+                let path = path.join(format!("{}.json", anchor.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &anchor)?;
+            }
         }
+
         // Persist AssociativeUI.
         {
-            let path = path.join("associative_ui.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.associative_ui.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("associative_ui");
+            fs::create_dir_all(&path)?;
+            for associative_ui in self.associative_ui.values() {
+                let path = path.join(format!("{}.json", associative_ui.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &associative_ui)?;
+            }
         }
+
         // Persist BinaryUI.
         {
-            let path = path.join("binary_ui.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.binary_ui.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("binary_ui");
+            fs::create_dir_all(&path)?;
+            for binary_ui in self.binary_ui.values() {
+                let path = path.join(format!("{}.json", binary_ui.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &binary_ui)?;
+            }
         }
+
         // Persist Edge.
         {
-            let path = path.join("edge.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.edge.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("edge");
+            fs::create_dir_all(&path)?;
+            for edge in self.edge.values() {
+                let path = path.join(format!("{}.json", edge.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &edge)?;
+            }
         }
+
         // Persist IsaUI.
         {
-            let path = path.join("isa_ui.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.isa_ui.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("isa_ui");
+            fs::create_dir_all(&path)?;
+            for isa_ui in self.isa_ui.values() {
+                let path = path.join(format!("{}.json", isa_ui.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &isa_ui)?;
+            }
         }
+
         // Persist Object Edge.
         {
-            let path = path.join("object_edge.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.object_edge.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("object_edge");
+            fs::create_dir_all(&path)?;
+            for object_edge in self.object_edge.values() {
+                let path = path.join(format!("{}.json", object_edge.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &object_edge)?;
+            }
         }
+
         // Persist ObjectUI.
         {
-            let path = path.join("object_ui.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.object_ui.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("object_ui");
+            fs::create_dir_all(&path)?;
+            for object_ui in self.object_ui.values() {
+                let path = path.join(format!("{}.json", object_ui.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &object_ui)?;
+            }
         }
+
         // Persist Point.
         {
-            let path = path.join("point.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.point.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("point");
+            fs::create_dir_all(&path)?;
+            for point in self.point.values() {
+                let path = path.join(format!("{}.json", point.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &point)?;
+            }
         }
+
         // Persist RelationshipUI.
         {
-            let path = path.join("relationship_ui.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.relationship_ui.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("relationship_ui");
+            fs::create_dir_all(&path)?;
+            for relationship_ui in self.relationship_ui.values() {
+                let path = path.join(format!("{}.json", relationship_ui.id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &relationship_ui)?;
+            }
         }
+
         // Persist Subtype Anchors.
         {
-            let path = path.join("subtype_anchors.json");
-            let file = fs::File::create(path)?;
-            let mut writer = io::BufWriter::new(file);
-            serde_json::to_writer_pretty(
-                &mut writer,
-                &self.subtype_anchors.values().map(|x| x).collect::<Vec<_>>(),
-            )?;
+            let path = path.join("subtype_anchors");
+            fs::create_dir_all(&path)?;
+            for subtype_anchors in self.subtype_anchors.values() {
+                let path = path.join(format!("{}.json", subtype_anchors.id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &subtype_anchors)?;
+            }
         }
+
         Ok(())
     }
 
@@ -440,86 +460,148 @@ impl ObjectStore {
 
         // Load Anchor.
         {
-            let path = path.join("anchor.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let anchor: Vec<Anchor> = serde_json::from_reader(reader)?;
-            store.anchor = anchor.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("anchor");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let anchor: Anchor = serde_json::from_reader(reader)?;
+                store.anchor.insert(anchor.id, anchor);
+            }
         }
+
         // Load AssociativeUI.
         {
-            let path = path.join("associative_ui.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let associative_ui: Vec<AssociativeUi> = serde_json::from_reader(reader)?;
-            store.associative_ui = associative_ui.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("associative_ui");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let associative_ui: AssociativeUi = serde_json::from_reader(reader)?;
+                store
+                    .associative_ui
+                    .insert(associative_ui.id, associative_ui);
+            }
         }
+
         // Load BinaryUI.
         {
-            let path = path.join("binary_ui.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let binary_ui: Vec<BinaryUi> = serde_json::from_reader(reader)?;
-            store.binary_ui = binary_ui.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("binary_ui");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let binary_ui: BinaryUi = serde_json::from_reader(reader)?;
+                store.binary_ui.insert(binary_ui.id, binary_ui);
+            }
         }
+
         // Load Edge.
         {
-            let path = path.join("edge.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let edge: Vec<Edge> = serde_json::from_reader(reader)?;
-            store.edge = edge.into_iter().map(|道| (道.id(), 道)).collect();
+            let path = path.join("edge");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let edge: Edge = serde_json::from_reader(reader)?;
+                store.edge.insert(edge.id(), edge);
+            }
         }
+
         // Load IsaUI.
         {
-            let path = path.join("isa_ui.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let isa_ui: Vec<IsaUi> = serde_json::from_reader(reader)?;
-            store.isa_ui = isa_ui.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("isa_ui");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let isa_ui: IsaUi = serde_json::from_reader(reader)?;
+                store.isa_ui.insert(isa_ui.id, isa_ui);
+            }
         }
+
         // Load Object Edge.
         {
-            let path = path.join("object_edge.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let object_edge: Vec<ObjectEdge> = serde_json::from_reader(reader)?;
-            store.object_edge = object_edge.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("object_edge");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let object_edge: ObjectEdge = serde_json::from_reader(reader)?;
+                store.object_edge.insert(object_edge.id, object_edge);
+            }
         }
+
         // Load ObjectUI.
         {
-            let path = path.join("object_ui.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let object_ui: Vec<ObjectUi> = serde_json::from_reader(reader)?;
-            store.object_ui = object_ui.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("object_ui");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let object_ui: ObjectUi = serde_json::from_reader(reader)?;
+                store.object_ui.insert(object_ui.id, object_ui);
+            }
         }
+
         // Load Point.
         {
-            let path = path.join("point.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let point: Vec<Point> = serde_json::from_reader(reader)?;
-            store.point = point.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("point");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let point: Point = serde_json::from_reader(reader)?;
+                store.point.insert(point.id, point);
+            }
         }
+
         // Load RelationshipUI.
         {
-            let path = path.join("relationship_ui.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let relationship_ui: Vec<RelationshipUi> = serde_json::from_reader(reader)?;
-            store.relationship_ui = relationship_ui
-                .into_iter()
-                .map(|道| (道.id(), 道))
-                .collect();
+            let path = path.join("relationship_ui");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let relationship_ui: RelationshipUi = serde_json::from_reader(reader)?;
+                store
+                    .relationship_ui
+                    .insert(relationship_ui.id(), relationship_ui);
+            }
         }
+
         // Load Subtype Anchors.
         {
-            let path = path.join("subtype_anchors.json");
-            let file = fs::File::open(path)?;
-            let reader = io::BufReader::new(file);
-            let subtype_anchors: Vec<SubtypeAnchors> = serde_json::from_reader(reader)?;
-            store.subtype_anchors = subtype_anchors.into_iter().map(|道| (道.id, 道)).collect();
+            let path = path.join("subtype_anchors");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let subtype_anchors: SubtypeAnchors = serde_json::from_reader(reader)?;
+                store
+                    .subtype_anchors
+                    .insert(subtype_anchors.id, subtype_anchors);
+            }
         }
 
         Ok(store)

@@ -1,10 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"object_edge-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-use-statements"}}}
+use uuid::Uuid;
+
 use crate::v2::drawing::types::edge::Edge;
 use crate::v2::drawing::types::object_ui::ObjectUi;
 use crate::v2::drawing::UUID_NS;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
