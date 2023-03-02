@@ -1,17 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"associative_referrer-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::sarzak::UUID_NS;
-
-// Referrer imports
+use crate::v2::sarzak::types::associative::Associative;
 use crate::v2::sarzak::types::cardinality::Cardinality;
 use crate::v2::sarzak::types::object::Object;
-
-// Referent imports
-use crate::v2::sarzak::types::associative::Associative;
+use crate::v2::sarzak::UUID_NS;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

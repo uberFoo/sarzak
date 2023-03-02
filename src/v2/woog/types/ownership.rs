@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"ownership-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::woog::types::borrowed::BORROWED;
 use crate::v2::woog::types::mutable::MUTABLE;
 use crate::v2::woog::types::owned::OWNED;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-enum-documentation"}}}

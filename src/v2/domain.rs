@@ -1,6 +1,6 @@
 //! Version 2 Sarzak Domain
 //!
-use std::{fs, path::Path};
+use std::{fs, io, path::Path};
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -12,11 +12,16 @@ use crate::v2::{
 use crate::VERSION;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Domain {
+struct MetaData {
     version: String,
     domain: String,
     id: Uuid,
     description: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Domain {
+    meta: MetaData,
     sarzak: SarzakStore,
     drawing: DrawingStore,
 }
@@ -34,28 +39,30 @@ impl Domain {
         sarzak: SarzakStore,
         drawing: DrawingStore,
     ) -> Self {
-        let domain = Domain {
+        let meta = MetaData {
             version: VERSION.to_owned(),
             domain,
             id,
             description,
-            sarzak,
-            drawing,
         };
 
-        domain
+        Domain {
+            meta,
+            sarzak,
+            drawing,
+        }
     }
 
     /// Return the name of the domain
     ///
     pub fn domain(&self) -> &str {
-        &self.domain
+        &self.meta.domain
     }
 
     /// Return the UUID of the domain.
     ///
     pub fn id(&self) -> &Uuid {
-        &self.id
+        &self.meta.id
     }
 
     /// Return the name of the domain
@@ -63,13 +70,13 @@ impl Domain {
     /// This is an alias for [`Domain::domain`]. I should pick one probably.
     ///
     pub fn name(&self) -> &str {
-        &self.domain
+        &self.meta.domain
     }
 
     /// Return the domain description
     ///
     pub fn description(&self) -> &str {
-        &self.description
+        &self.meta.description
     }
 
     /// Return a reference to the sarzak store
@@ -104,18 +111,36 @@ impl Domain {
         &mut self.drawing
     }
 
-    pub fn persist<P: AsRef<Path>>(&self, path: P) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
-        let path = path.join(format!("{}.json", self.domain));
+
+        let sarzak = SarzakStore::load(&path)?;
+        let drawing = DrawingStore::load(&path)?;
+
+        let file = fs::File::open(path.join("metadata.json"))?;
+        let reader = io::BufReader::new(file);
+        let meta: MetaData = serde_json::from_reader(reader)?;
+
+        let domain = Domain {
+            meta,
+            sarzak,
+            drawing,
+        };
+
+        Ok(domain)
+    }
+
+    pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
         fs::create_dir_all(path.parent().unwrap())?;
 
         self.sarzak.persist(&path)?;
         self.drawing.persist(&path)?;
 
-        // let path = path.join("metadata.json");
-        // let file = fs::File::create(path)?;
-        // let writer = io::BufWriter::new(file);
-        // serde_json::to_writer_pretty(writer, &self)?;
+        let path = path.join("metadata.json");
+        let file = fs::File::create(path)?;
+        let writer = io::BufWriter::new(file);
+        serde_json::to_writer_pretty(writer, &self.meta)?;
 
         Ok(())
     }
@@ -124,10 +149,12 @@ impl Domain {
 impl From<DomainV1> for Domain {
     fn from(domain: DomainV1) -> Self {
         let domain = Domain {
-            version: VERSION.to_owned(),
-            domain: domain.domain().to_owned(),
-            id: domain.id().to_owned(),
-            description: domain.description().to_owned(),
+            meta: MetaData {
+                version: VERSION.to_owned(),
+                domain: domain.domain().to_owned(),
+                id: domain.id().to_owned(),
+                description: domain.description().to_owned(),
+            },
             sarzak: domain.sarzak().into(),
             drawing: domain.drawing().into(),
         };

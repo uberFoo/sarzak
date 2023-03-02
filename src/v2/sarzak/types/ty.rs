@@ -1,10 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"ty-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::sarzak::types::boolean::BOOLEAN;
 use crate::v2::sarzak::types::external::External;
 use crate::v2::sarzak::types::float::FLOAT;
@@ -12,6 +7,8 @@ use crate::v2::sarzak::types::integer::INTEGER;
 use crate::v2::sarzak::types::object::Object;
 use crate::v2::sarzak::types::string::STRING;
 use crate::v2::sarzak::types::uuid::UUID;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

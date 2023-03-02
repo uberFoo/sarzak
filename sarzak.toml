@@ -1,5 +1,5 @@
 [modules."v2/sarzak"]
-model = "models/sarzak_✨.json"
+model = "models/sarzak.json"
 
 [modules."v2/sarzak".compiler]
 compiler = "grace"
@@ -13,7 +13,7 @@ from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
 
 [modules."v2/drawing"]
-model = "models/drawing_✨.json"
+model = "models/drawing.json"
 
 [modules."v2/drawing".compiler]
 compiler = "grace"
@@ -28,7 +28,7 @@ from_module = "v1::drawing"
 from_path = "models/drawing.json"
 
 [modules."v2/woog"]
-model = "models/woog_✨.json"
+model = "models/woog.json"
 
 [modules."v2/woog".compiler]
 compiler = "grace"

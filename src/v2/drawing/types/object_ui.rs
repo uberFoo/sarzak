@@ -1,17 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"object_ui-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::drawing::UUID_NS;
-
-// Referrer imports
-use crate::v2::drawing::types::point::Point;
-use crate::v2::sarzak::types::object::Object;
-
-// Referent imports
 use crate::v2::drawing::types::object_edge::ObjectEdge;
+use crate::v2::drawing::types::point::Point;
+use crate::v2::drawing::UUID_NS;
+use crate::v2::sarzak::types::object::Object;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;

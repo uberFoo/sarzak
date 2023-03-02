@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"relationship-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::sarzak::types::associative::Associative;
 use crate::v2::sarzak::types::binary::Binary;
 use crate::v2::sarzak::types::isa::Isa;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

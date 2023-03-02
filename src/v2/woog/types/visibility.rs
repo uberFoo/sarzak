@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"visibility-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::woog::types::krate::KRATE;
 use crate::v2::woog::types::private::PRIVATE;
 use crate::v2::woog::types::public::PUBLIC;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-documentation"}}}

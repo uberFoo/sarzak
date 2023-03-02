@@ -1,14 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"attribute-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::sarzak::UUID_NS;
-
-// Referrer imports
 use crate::v2::sarzak::types::object::Object;
 use crate::v2::sarzak::types::ty::Ty;
+use crate::v2::sarzak::UUID_NS;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -64,7 +60,6 @@ impl Attribute {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-ty"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-s_type"}}}
     /// Navigate to [`Ty`] across R2(1-*)
     pub fn r2_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.ty).unwrap()]

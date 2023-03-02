@@ -1,14 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"edge-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::drawing::types::bottom::BOTTOM;
 use crate::v2::drawing::types::left::LEFT;
 use crate::v2::drawing::types::right::RIGHT;
 use crate::v2::drawing::types::top::TOP;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-enum-documentation"}}}

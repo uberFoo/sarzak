@@ -1,14 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::woog::types::value::Value;
-// Subtype imports
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
+use crate::v2::woog::types::value::Value;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

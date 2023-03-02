@@ -1,0 +1,121 @@
+[
+  {
+    "description": "describes the location of an",
+    "id": "7fe9471e-ace9-5064-adf0-a726afd1ebc7",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
+  },
+  {
+    "description": "anchors",
+    "id": "331e6b9c-8fb5-5aec-8e0e-ea7efc8ffcc8",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "is drawn to",
+    "id": "fa545dc7-543c-50fe-bd30-fa11aaa87c14",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
+  },
+  {
+    "description": "is an aspect of",
+    "id": "e77e2f92-cc6c-5e50-9011-4f43a9053790",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "83049490-b61e-55c4-a90f-afb3361e0661"
+  },
+  {
+    "description": "is comprised of four",
+    "id": "b446e7fb-75f7-5b68-8517-bc0489093407",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "9a9dcaea-a969-54ba-90ce-fad03cec83d8"
+  },
+  {
+    "description": "is represented in the UI by",
+    "id": "92833704-4b57-5e94-b2cb-1857a45cb106",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343"
+  },
+  {
+    "description": "anchors the to side",
+    "id": "ddc43e60-5465-5b25-a1a7-cdccbdee2c93",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "anchors",
+    "id": "d679e94e-0625-5426-b38f-37cf8c3553a1",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "anchors",
+    "id": "1e550e7a-61c6-5782-b86c-ad1bc8544bc7",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "describes the orientation of an",
+    "id": "87465ced-b823-5a36-958e-2de621e75921",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "83049490-b61e-55c4-a90f-afb3361e0661"
+  },
+  {
+    "description": "is represented in the UI by",
+    "id": "0e354214-350d-501d-8ae3-38c80bfe19fd",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f"
+  },
+  {
+    "description": "describes an offset for an",
+    "id": "0333fbe2-239f-513f-9516-ba0ee8a1ef97",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
+  },
+  {
+    "description": "is represented in the UI by",
+    "id": "a0fc4734-a089-58c7-a1bd-85439cca1207",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"
+  },
+  {
+    "description": "anchors",
+    "id": "ee80dbe9-ad22-58fe-a280-324c15cc9947",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "describes the origin of an",
+    "id": "7c97a7ba-1261-5657-b3c3-f425916b3184",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "423935ca-86d2-5d0a-ad35-8e7f00663448"
+  },
+  {
+    "description": "anchors",
+    "id": "adc44e1b-b3e3-53ad-ad9b-9bc982d09bae",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
+  },
+  {
+    "description": "is represented in the UI by",
+    "id": "9f1b0843-1856-53eb-8469-ec84b1b5992f",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "56c5ed80-25e7-592e-ab36-a306c78ac58b"
+  }
+]

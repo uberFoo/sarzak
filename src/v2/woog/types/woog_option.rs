@@ -1,13 +1,9 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_option-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::woog::UUID_NS;
-
-// Referrer imports
 use crate::v2::woog::types::grace_type::GraceType;
+use crate::v2::woog::UUID_NS;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

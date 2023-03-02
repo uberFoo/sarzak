@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"relationship_ui-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_ui-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::drawing::types::associative_ui::AssociativeUi;
 use crate::v2::drawing::types::binary_ui::BinaryUi;
 use crate::v2::drawing::types::isa_ui::IsaUi;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

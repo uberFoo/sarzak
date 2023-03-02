@@ -8,7 +8,7 @@ use std::{
 
 use snafu::prelude::*;
 
-use crate::domain::DomainBuilder;
+use crate::v2::domain::Domain;
 
 pub type Result<T, E = ModelCompilerError> = std::result::Result<T, E>;
 
@@ -37,7 +37,7 @@ pub trait ModelCompilerOptions: std::fmt::Debug {
 pub trait SarzakModelCompiler {
     fn compile<P: AsRef<Path>>(
         &self,
-        domain: DomainBuilder,
+        domain: Domain,
         package: &str,
         module: &str,
         src_path: P,

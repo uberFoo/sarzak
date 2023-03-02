@@ -1,14 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"subtype_anchors-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::drawing::UUID_NS;
-
-// Referent imports
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::isa_ui::IsaUi;
+use crate::v2::drawing::UUID_NS;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

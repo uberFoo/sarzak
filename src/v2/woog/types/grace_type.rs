@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"grace_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-// Subtype imports
 use crate::v2::sarzak::types::ty::Ty;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::woog_option::WoogOption;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

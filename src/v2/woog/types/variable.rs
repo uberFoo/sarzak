@@ -1,13 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
-use uuid::Uuid;
-
-use serde::{Deserialize, Serialize};
-
-use crate::v2::woog::types::value::Value;
-// Subtype imports
 use crate::v2::woog::types::local::Local;
 use crate::v2::woog::types::parameter::Parameter;
+use crate::v2::woog::types::value::Value;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
