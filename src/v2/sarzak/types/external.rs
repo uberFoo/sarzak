@@ -33,8 +33,8 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct External {
-    pub id: Uuid,
     pub ctor: String,
+    pub id: Uuid,
     pub name: String,
     pub path: String,
 }
@@ -46,9 +46,9 @@ impl External {
     pub fn new(ctor: String, name: String, path: String, store: &mut SarzakStore) -> External {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{}:{}", ctor, name, path).as_bytes());
         let new = External {
+            ctor: ctor,
             name: name,
             path: path,
-            ctor: ctor,
             id,
         };
         store.inter_external(new.clone());

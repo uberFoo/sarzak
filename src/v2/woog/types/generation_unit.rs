@@ -36,7 +36,7 @@ impl GenerationUnit {
         );
         let new = GenerationUnit {
             object: object.id,
-            creation_time: Uuid::new_v4(),
+            creation_time: creation_time.id,
             id,
         };
         store.inter_generation_unit(new.clone());
@@ -50,7 +50,10 @@ impl GenerationUnit {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}
-
+    /// Navigate to [`TimeStamp`] across R21(1-*)
+    pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<&TimeStamp> {
+        vec![store.exhume_time_stamp(&self.creation_time).unwrap()]
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

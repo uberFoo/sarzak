@@ -22,6 +22,7 @@
 //! * [`Reference`]
 //! * [`Statement`]
 //! * [`SymbolTable`]
+//! * [`TimeStamp`]
 //! * [`Value`]
 //! * [`Variable`]
 //! * [`Visibility`]
@@ -34,8 +35,8 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::{
     Access, Block, Call, Expression, GenerationUnit, GraceType, Local, ObjectMethod, Ownership,
-    Parameter, Reference, Statement, SymbolTable, Value, Variable, Visibility, WoogOption, XLet,
-    BORROWED, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC, TIME_STAMP,
+    Parameter, Reference, Statement, SymbolTable, TimeStamp, Value, Variable, Visibility,
+    WoogOption, XLet, BORROWED, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -55,6 +56,7 @@ pub struct ObjectStore {
     reference: HashMap<Uuid, (Reference, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
+    time_stamp: HashMap<Uuid, (TimeStamp, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
     visibility: HashMap<Uuid, (Visibility, SystemTime)>,
@@ -78,6 +80,7 @@ impl ObjectStore {
             reference: HashMap::new(),
             statement: HashMap::new(),
             symbol_table: HashMap::new(),
+            time_stamp: HashMap::new(),
             value: HashMap::new(),
             variable: HashMap::new(),
             visibility: HashMap::new(),
@@ -85,7 +88,6 @@ impl ObjectStore {
 
         // Initialize Singleton Subtypes
         store.inter_expression(Expression::Literal(LITERAL));
-        store.inter_grace_type(GraceType::TimeStamp(TIME_STAMP));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));
         store.inter_ownership(Ownership::Owned(OWNED));
@@ -626,6 +628,42 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`TimeStamp`] into the store.
+    ///
+    pub fn inter_time_stamp(&mut self, time_stamp: TimeStamp) {
+        self.time_stamp
+            .insert(time_stamp.id, (time_stamp, SystemTime::now()));
+    }
+
+    /// Exhume [`TimeStamp`] from the store.
+    ///
+    pub fn exhume_time_stamp(&self, id: &Uuid) -> Option<&TimeStamp> {
+        self.time_stamp.get(id).map(|time_stamp| &time_stamp.0)
+    }
+
+    /// Exhume [`TimeStamp`] from the store — mutably.
+    ///
+    pub fn exhume_time_stamp_mut(&mut self, id: &Uuid) -> Option<&mut TimeStamp> {
+        self.time_stamp
+            .get_mut(id)
+            .map(|time_stamp| &mut time_stamp.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, TimeStamp>`.
+    ///
+    pub fn iter_time_stamp(&self) -> impl Iterator<Item = &TimeStamp> {
+        self.time_stamp.values().map(|time_stamp| &time_stamp.0)
+    }
+
+    /// Get the timestamp for TimeStamp.
+    ///
+    pub fn time_stamp_timestamp(&self, time_stamp: &TimeStamp) -> SystemTime {
+        self.time_stamp
+            .get(&time_stamp.id)
+            .map(|time_stamp| time_stamp.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Value`] into the store.
     ///
     pub fn inter_value(&mut self, value: Value) {
@@ -1087,6 +1125,29 @@ impl ObjectStore {
             }
         }
 
+        // Persist Time Stamp.
+        {
+            let path = path.join("time_stamp");
+            fs::create_dir_all(&path)?;
+            for time_stamp_tuple in self.time_stamp.values() {
+                let path = path.join(format!("{}.json", time_stamp_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (TimeStamp, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != time_stamp_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &time_stamp_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &time_stamp_tuple)?;
+                }
+            }
+        }
+
         // Persist Value.
         {
             let path = path.join("value");
@@ -1382,6 +1443,20 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let symbol_table: (SymbolTable, SystemTime) = serde_json::from_reader(reader)?;
                 store.symbol_table.insert(symbol_table.0.id, symbol_table);
+            }
+        }
+
+        // Load Time Stamp.
+        {
+            let path = path.join("time_stamp");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let time_stamp: (TimeStamp, SystemTime) = serde_json::from_reader(reader)?;
+                store.time_stamp.insert(time_stamp.0.id, time_stamp);
             }
         }
 

@@ -56,7 +56,6 @@ pub use crate::v2::woog::reference::Reference;
 pub use crate::v2::woog::statement::Statement;
 pub use crate::v2::woog::symbol_table::SymbolTable;
 pub use crate::v2::woog::time_stamp::TimeStamp;
-pub use crate::v2::woog::time_stamp::TIME_STAMP;
 pub use crate::v2::woog::value::Value;
 pub use crate::v2::woog::variable::Variable;
 pub use crate::v2::woog::visibility::Visibility;
