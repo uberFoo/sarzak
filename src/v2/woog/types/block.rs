@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::statement::Statement;
+use crate::v2::woog::types::symbol_table::SymbolTable;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
@@ -51,6 +52,15 @@ impl Block {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
+    /// Navigate to [`SymbolTable`] across R20(1-1)
+    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
+        vec![store
+            .iter_symbol_table()
+            .find(|symbol_table| symbol_table.block == self.id)
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}

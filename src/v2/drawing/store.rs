@@ -94,7 +94,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Anchor.
     ///
-    pub fn anchor_timestamp(&mut self, anchor: Anchor) -> SystemTime {
+    pub fn anchor_timestamp(&self, anchor: &Anchor) -> SystemTime {
         self.anchor
             .get(&anchor.id)
             .map(|anchor| anchor.1)
@@ -134,7 +134,7 @@ impl ObjectStore {
 
     /// Get the timestamp for AssociativeUi.
     ///
-    pub fn associative_ui_timestamp(&mut self, associative_ui: AssociativeUi) -> SystemTime {
+    pub fn associative_ui_timestamp(&self, associative_ui: &AssociativeUi) -> SystemTime {
         self.associative_ui
             .get(&associative_ui.id)
             .map(|associative_ui| associative_ui.1)
@@ -168,7 +168,7 @@ impl ObjectStore {
 
     /// Get the timestamp for BinaryUi.
     ///
-    pub fn binary_ui_timestamp(&mut self, binary_ui: BinaryUi) -> SystemTime {
+    pub fn binary_ui_timestamp(&self, binary_ui: &BinaryUi) -> SystemTime {
         self.binary_ui
             .get(&binary_ui.id)
             .map(|binary_ui| binary_ui.1)
@@ -201,7 +201,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Edge.
     ///
-    pub fn edge_timestamp(&mut self, edge: Edge) -> SystemTime {
+    pub fn edge_timestamp(&self, edge: &Edge) -> SystemTime {
         self.edge
             .get(&edge.id())
             .map(|edge| edge.1)
@@ -234,7 +234,7 @@ impl ObjectStore {
 
     /// Get the timestamp for IsaUi.
     ///
-    pub fn isa_ui_timestamp(&mut self, isa_ui: IsaUi) -> SystemTime {
+    pub fn isa_ui_timestamp(&self, isa_ui: &IsaUi) -> SystemTime {
         self.isa_ui
             .get(&isa_ui.id)
             .map(|isa_ui| isa_ui.1)
@@ -270,7 +270,7 @@ impl ObjectStore {
 
     /// Get the timestamp for ObjectEdge.
     ///
-    pub fn object_edge_timestamp(&mut self, object_edge: ObjectEdge) -> SystemTime {
+    pub fn object_edge_timestamp(&self, object_edge: &ObjectEdge) -> SystemTime {
         self.object_edge
             .get(&object_edge.id)
             .map(|object_edge| object_edge.1)
@@ -304,7 +304,7 @@ impl ObjectStore {
 
     /// Get the timestamp for ObjectUi.
     ///
-    pub fn object_ui_timestamp(&mut self, object_ui: ObjectUi) -> SystemTime {
+    pub fn object_ui_timestamp(&self, object_ui: &ObjectUi) -> SystemTime {
         self.object_ui
             .get(&object_ui.id)
             .map(|object_ui| object_ui.1)
@@ -337,7 +337,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Point.
     ///
-    pub fn point_timestamp(&mut self, point: Point) -> SystemTime {
+    pub fn point_timestamp(&self, point: &Point) -> SystemTime {
         self.point
             .get(&point.id)
             .map(|point| point.1)
@@ -377,7 +377,7 @@ impl ObjectStore {
 
     /// Get the timestamp for RelationshipUi.
     ///
-    pub fn relationship_ui_timestamp(&mut self, relationship_ui: RelationshipUi) -> SystemTime {
+    pub fn relationship_ui_timestamp(&self, relationship_ui: &RelationshipUi) -> SystemTime {
         self.relationship_ui
             .get(&relationship_ui.id())
             .map(|relationship_ui| relationship_ui.1)
@@ -417,7 +417,7 @@ impl ObjectStore {
 
     /// Get the timestamp for SubtypeAnchors.
     ///
-    pub fn subtype_anchors_timestamp(&mut self, subtype_anchors: SubtypeAnchors) -> SystemTime {
+    pub fn subtype_anchors_timestamp(&self, subtype_anchors: &SubtypeAnchors) -> SystemTime {
         self.subtype_anchors
             .get(&subtype_anchors.id)
             .map(|subtype_anchors| subtype_anchors.1)

@@ -9,6 +9,7 @@ use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/sarzak".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true
 from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
 
@@ -24,6 +25,7 @@ use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/drawing".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true
 from_module = "v1::drawing"
 from_path = "models/drawing.json"
 
@@ -39,3 +41,4 @@ imported_domains = ["v2/sarzak"]
 [modules."v2/woog".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true

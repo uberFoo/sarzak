@@ -11,6 +11,7 @@
 //! * [`Block`]
 //! * [`Call`]
 //! * [`Expression`]
+//! * [`GenerationUnit`]
 //! * [`GraceType`]
 //! * [`XLet`]
 //! * [`Local`]
@@ -20,6 +21,7 @@
 //! * [`Parameter`]
 //! * [`Reference`]
 //! * [`Statement`]
+//! * [`SymbolTable`]
 //! * [`Value`]
 //! * [`Variable`]
 //! * [`Visibility`]
@@ -31,9 +33,9 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::woog::types::{
-    Access, Block, Call, Expression, GraceType, Local, ObjectMethod, Ownership, Parameter,
-    Reference, Statement, Value, Variable, Visibility, WoogOption, XLet, BORROWED, KRATE, LITERAL,
-    MUTABLE, OWNED, PRIVATE, PUBLIC,
+    Access, Block, Call, Expression, GenerationUnit, GraceType, Local, ObjectMethod, Ownership,
+    Parameter, Reference, Statement, SymbolTable, Value, Variable, Visibility, WoogOption, XLet,
+    BORROWED, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC, TIME_STAMP,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -42,6 +44,7 @@ pub struct ObjectStore {
     block: HashMap<Uuid, (Block, SystemTime)>,
     call: HashMap<Uuid, (Call, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
+    generation_unit: HashMap<Uuid, (GenerationUnit, SystemTime)>,
     grace_type: HashMap<Uuid, (GraceType, SystemTime)>,
     x_let: HashMap<Uuid, (XLet, SystemTime)>,
     local: HashMap<Uuid, (Local, SystemTime)>,
@@ -51,6 +54,7 @@ pub struct ObjectStore {
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     reference: HashMap<Uuid, (Reference, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
+    symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
     visibility: HashMap<Uuid, (Visibility, SystemTime)>,
@@ -63,6 +67,7 @@ impl ObjectStore {
             block: HashMap::new(),
             call: HashMap::new(),
             expression: HashMap::new(),
+            generation_unit: HashMap::new(),
             grace_type: HashMap::new(),
             x_let: HashMap::new(),
             local: HashMap::new(),
@@ -72,6 +77,7 @@ impl ObjectStore {
             parameter: HashMap::new(),
             reference: HashMap::new(),
             statement: HashMap::new(),
+            symbol_table: HashMap::new(),
             value: HashMap::new(),
             variable: HashMap::new(),
             visibility: HashMap::new(),
@@ -79,6 +85,7 @@ impl ObjectStore {
 
         // Initialize Singleton Subtypes
         store.inter_expression(Expression::Literal(LITERAL));
+        store.inter_grace_type(GraceType::TimeStamp(TIME_STAMP));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));
         store.inter_ownership(Ownership::Owned(OWNED));
@@ -116,7 +123,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Access.
     ///
-    pub fn access_timestamp(&mut self, access: Access) -> SystemTime {
+    pub fn access_timestamp(&self, access: &Access) -> SystemTime {
         self.access
             .get(&access.id)
             .map(|access| access.1)
@@ -149,7 +156,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Block.
     ///
-    pub fn block_timestamp(&mut self, block: Block) -> SystemTime {
+    pub fn block_timestamp(&self, block: &Block) -> SystemTime {
         self.block
             .get(&block.id)
             .map(|block| block.1)
@@ -182,7 +189,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Call.
     ///
-    pub fn call_timestamp(&mut self, call: Call) -> SystemTime {
+    pub fn call_timestamp(&self, call: &Call) -> SystemTime {
         self.call
             .get(&call.id)
             .map(|call| call.1)
@@ -218,10 +225,50 @@ impl ObjectStore {
 
     /// Get the timestamp for Expression.
     ///
-    pub fn expression_timestamp(&mut self, expression: Expression) -> SystemTime {
+    pub fn expression_timestamp(&self, expression: &Expression) -> SystemTime {
         self.expression
             .get(&expression.id())
             .map(|expression| expression.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`GenerationUnit`] into the store.
+    ///
+    pub fn inter_generation_unit(&mut self, generation_unit: GenerationUnit) {
+        self.generation_unit
+            .insert(generation_unit.id, (generation_unit, SystemTime::now()));
+    }
+
+    /// Exhume [`GenerationUnit`] from the store.
+    ///
+    pub fn exhume_generation_unit(&self, id: &Uuid) -> Option<&GenerationUnit> {
+        self.generation_unit
+            .get(id)
+            .map(|generation_unit| &generation_unit.0)
+    }
+
+    /// Exhume [`GenerationUnit`] from the store — mutably.
+    ///
+    pub fn exhume_generation_unit_mut(&mut self, id: &Uuid) -> Option<&mut GenerationUnit> {
+        self.generation_unit
+            .get_mut(id)
+            .map(|generation_unit| &mut generation_unit.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, GenerationUnit>`.
+    ///
+    pub fn iter_generation_unit(&self) -> impl Iterator<Item = &GenerationUnit> {
+        self.generation_unit
+            .values()
+            .map(|generation_unit| &generation_unit.0)
+    }
+
+    /// Get the timestamp for GenerationUnit.
+    ///
+    pub fn generation_unit_timestamp(&self, generation_unit: &GenerationUnit) -> SystemTime {
+        self.generation_unit
+            .get(&generation_unit.id)
+            .map(|generation_unit| generation_unit.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -254,7 +301,7 @@ impl ObjectStore {
 
     /// Get the timestamp for GraceType.
     ///
-    pub fn grace_type_timestamp(&mut self, grace_type: GraceType) -> SystemTime {
+    pub fn grace_type_timestamp(&self, grace_type: &GraceType) -> SystemTime {
         self.grace_type
             .get(&grace_type.id())
             .map(|grace_type| grace_type.1)
@@ -287,7 +334,7 @@ impl ObjectStore {
 
     /// Get the timestamp for XLet.
     ///
-    pub fn x_let_timestamp(&mut self, x_let: XLet) -> SystemTime {
+    pub fn x_let_timestamp(&self, x_let: &XLet) -> SystemTime {
         self.x_let
             .get(&x_let.id)
             .map(|x_let| x_let.1)
@@ -320,7 +367,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Local.
     ///
-    pub fn local_timestamp(&mut self, local: Local) -> SystemTime {
+    pub fn local_timestamp(&self, local: &Local) -> SystemTime {
         self.local
             .get(&local.id)
             .map(|local| local.1)
@@ -360,7 +407,7 @@ impl ObjectStore {
 
     /// Get the timestamp for ObjectMethod.
     ///
-    pub fn object_method_timestamp(&mut self, object_method: ObjectMethod) -> SystemTime {
+    pub fn object_method_timestamp(&self, object_method: &ObjectMethod) -> SystemTime {
         self.object_method
             .get(&object_method.id)
             .map(|object_method| object_method.1)
@@ -396,7 +443,7 @@ impl ObjectStore {
 
     /// Get the timestamp for WoogOption.
     ///
-    pub fn woog_option_timestamp(&mut self, woog_option: WoogOption) -> SystemTime {
+    pub fn woog_option_timestamp(&self, woog_option: &WoogOption) -> SystemTime {
         self.woog_option
             .get(&woog_option.id)
             .map(|woog_option| woog_option.1)
@@ -430,7 +477,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Ownership.
     ///
-    pub fn ownership_timestamp(&mut self, ownership: Ownership) -> SystemTime {
+    pub fn ownership_timestamp(&self, ownership: &Ownership) -> SystemTime {
         self.ownership
             .get(&ownership.id())
             .map(|ownership| ownership.1)
@@ -464,7 +511,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Parameter.
     ///
-    pub fn parameter_timestamp(&mut self, parameter: Parameter) -> SystemTime {
+    pub fn parameter_timestamp(&self, parameter: &Parameter) -> SystemTime {
         self.parameter
             .get(&parameter.id)
             .map(|parameter| parameter.1)
@@ -498,7 +545,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Reference.
     ///
-    pub fn reference_timestamp(&mut self, reference: Reference) -> SystemTime {
+    pub fn reference_timestamp(&self, reference: &Reference) -> SystemTime {
         self.reference
             .get(&reference.id)
             .map(|reference| reference.1)
@@ -532,10 +579,50 @@ impl ObjectStore {
 
     /// Get the timestamp for Statement.
     ///
-    pub fn statement_timestamp(&mut self, statement: Statement) -> SystemTime {
+    pub fn statement_timestamp(&self, statement: &Statement) -> SystemTime {
         self.statement
             .get(&statement.id)
             .map(|statement| statement.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`SymbolTable`] into the store.
+    ///
+    pub fn inter_symbol_table(&mut self, symbol_table: SymbolTable) {
+        self.symbol_table
+            .insert(symbol_table.id, (symbol_table, SystemTime::now()));
+    }
+
+    /// Exhume [`SymbolTable`] from the store.
+    ///
+    pub fn exhume_symbol_table(&self, id: &Uuid) -> Option<&SymbolTable> {
+        self.symbol_table
+            .get(id)
+            .map(|symbol_table| &symbol_table.0)
+    }
+
+    /// Exhume [`SymbolTable`] from the store — mutably.
+    ///
+    pub fn exhume_symbol_table_mut(&mut self, id: &Uuid) -> Option<&mut SymbolTable> {
+        self.symbol_table
+            .get_mut(id)
+            .map(|symbol_table| &mut symbol_table.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, SymbolTable>`.
+    ///
+    pub fn iter_symbol_table(&self) -> impl Iterator<Item = &SymbolTable> {
+        self.symbol_table
+            .values()
+            .map(|symbol_table| &symbol_table.0)
+    }
+
+    /// Get the timestamp for SymbolTable.
+    ///
+    pub fn symbol_table_timestamp(&self, symbol_table: &SymbolTable) -> SystemTime {
+        self.symbol_table
+            .get(&symbol_table.id)
+            .map(|symbol_table| symbol_table.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -565,7 +652,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Value.
     ///
-    pub fn value_timestamp(&mut self, value: Value) -> SystemTime {
+    pub fn value_timestamp(&self, value: &Value) -> SystemTime {
         self.value
             .get(&value.id)
             .map(|value| value.1)
@@ -576,7 +663,7 @@ impl ObjectStore {
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
         self.variable
-            .insert(variable.id(), (variable, SystemTime::now()));
+            .insert(variable.id, (variable, SystemTime::now()));
     }
 
     /// Exhume [`Variable`] from the store.
@@ -599,9 +686,9 @@ impl ObjectStore {
 
     /// Get the timestamp for Variable.
     ///
-    pub fn variable_timestamp(&mut self, variable: Variable) -> SystemTime {
+    pub fn variable_timestamp(&self, variable: &Variable) -> SystemTime {
         self.variable
-            .get(&variable.id())
+            .get(&variable.id)
             .map(|variable| variable.1)
             .unwrap_or(SystemTime::now())
     }
@@ -635,7 +722,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Visibility.
     ///
-    pub fn visibility_timestamp(&mut self, visibility: Visibility) -> SystemTime {
+    pub fn visibility_timestamp(&self, visibility: &Visibility) -> SystemTime {
         self.visibility
             .get(&visibility.id())
             .map(|visibility| visibility.1)
@@ -743,6 +830,29 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
+                }
+            }
+        }
+
+        // Persist Generation Unit.
+        {
+            let path = path.join("generation_unit");
+            fs::create_dir_all(&path)?;
+            for generation_unit_tuple in self.generation_unit.values() {
+                let path = path.join(format!("{}.json", generation_unit_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (GenerationUnit, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != generation_unit_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &generation_unit_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &generation_unit_tuple)?;
                 }
             }
         }
@@ -954,6 +1064,29 @@ impl ObjectStore {
             }
         }
 
+        // Persist Symbol Table.
+        {
+            let path = path.join("symbol_table");
+            fs::create_dir_all(&path)?;
+            for symbol_table_tuple in self.symbol_table.values() {
+                let path = path.join(format!("{}.json", symbol_table_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (SymbolTable, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != symbol_table_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &symbol_table_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &symbol_table_tuple)?;
+                }
+            }
+        }
+
         // Persist Value.
         {
             let path = path.join("value");
@@ -982,7 +1115,7 @@ impl ObjectStore {
             let path = path.join("variable");
             fs::create_dir_all(&path)?;
             for variable_tuple in self.variable.values() {
-                let path = path.join(format!("{}.json", variable_tuple.0.id()));
+                let path = path.join(format!("{}.json", variable_tuple.0.id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
@@ -1090,6 +1223,23 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let expression: (Expression, SystemTime) = serde_json::from_reader(reader)?;
                 store.expression.insert(expression.0.id(), expression);
+            }
+        }
+
+        // Load Generation Unit.
+        {
+            let path = path.join("generation_unit");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let generation_unit: (GenerationUnit, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .generation_unit
+                    .insert(generation_unit.0.id, generation_unit);
             }
         }
 
@@ -1221,6 +1371,20 @@ impl ObjectStore {
             }
         }
 
+        // Load Symbol Table.
+        {
+            let path = path.join("symbol_table");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let symbol_table: (SymbolTable, SystemTime) = serde_json::from_reader(reader)?;
+                store.symbol_table.insert(symbol_table.0.id, symbol_table);
+            }
+        }
+
         // Load Value.
         {
             let path = path.join("value");
@@ -1245,7 +1409,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
-                store.variable.insert(variable.0.id(), variable);
+                store.variable.insert(variable.0.id, variable);
             }
         }
 

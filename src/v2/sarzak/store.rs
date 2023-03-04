@@ -138,8 +138,8 @@ impl ObjectStore {
     /// Get the timestamp for AcknowledgedEvent.
     ///
     pub fn acknowledged_event_timestamp(
-        &mut self,
-        acknowledged_event: AcknowledgedEvent,
+        &self,
+        acknowledged_event: &AcknowledgedEvent,
     ) -> SystemTime {
         self.acknowledged_event
             .get(&acknowledged_event.id)
@@ -176,7 +176,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Associative.
     ///
-    pub fn associative_timestamp(&mut self, associative: Associative) -> SystemTime {
+    pub fn associative_timestamp(&self, associative: &Associative) -> SystemTime {
         self.associative
             .get(&associative.id)
             .map(|associative| associative.1)
@@ -222,8 +222,8 @@ impl ObjectStore {
     /// Get the timestamp for AssociativeReferent.
     ///
     pub fn associative_referent_timestamp(
-        &mut self,
-        associative_referent: AssociativeReferent,
+        &self,
+        associative_referent: &AssociativeReferent,
     ) -> SystemTime {
         self.associative_referent
             .get(&associative_referent.id)
@@ -270,8 +270,8 @@ impl ObjectStore {
     /// Get the timestamp for AssociativeReferrer.
     ///
     pub fn associative_referrer_timestamp(
-        &mut self,
-        associative_referrer: AssociativeReferrer,
+        &self,
+        associative_referrer: &AssociativeReferrer,
     ) -> SystemTime {
         self.associative_referrer
             .get(&associative_referrer.id)
@@ -306,7 +306,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Attribute.
     ///
-    pub fn attribute_timestamp(&mut self, attribute: Attribute) -> SystemTime {
+    pub fn attribute_timestamp(&self, attribute: &Attribute) -> SystemTime {
         self.attribute
             .get(&attribute.id)
             .map(|attribute| attribute.1)
@@ -339,7 +339,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Binary.
     ///
-    pub fn binary_timestamp(&mut self, binary: Binary) -> SystemTime {
+    pub fn binary_timestamp(&self, binary: &Binary) -> SystemTime {
         self.binary
             .get(&binary.id)
             .map(|binary| binary.1)
@@ -375,7 +375,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Cardinality.
     ///
-    pub fn cardinality_timestamp(&mut self, cardinality: Cardinality) -> SystemTime {
+    pub fn cardinality_timestamp(&self, cardinality: &Cardinality) -> SystemTime {
         self.cardinality
             .get(&cardinality.id())
             .map(|cardinality| cardinality.1)
@@ -415,7 +415,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Conditionality.
     ///
-    pub fn conditionality_timestamp(&mut self, conditionality: Conditionality) -> SystemTime {
+    pub fn conditionality_timestamp(&self, conditionality: &Conditionality) -> SystemTime {
         self.conditionality
             .get(&conditionality.id())
             .map(|conditionality| conditionality.1)
@@ -448,7 +448,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Event.
     ///
-    pub fn event_timestamp(&mut self, event: Event) -> SystemTime {
+    pub fn event_timestamp(&self, event: &Event) -> SystemTime {
         self.event
             .get(&event.id)
             .map(|event| event.1)
@@ -482,7 +482,7 @@ impl ObjectStore {
 
     /// Get the timestamp for External.
     ///
-    pub fn external_timestamp(&mut self, external: External) -> SystemTime {
+    pub fn external_timestamp(&self, external: &External) -> SystemTime {
         self.external
             .get(&external.id)
             .map(|external| external.1)
@@ -515,7 +515,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Isa.
     ///
-    pub fn isa_timestamp(&mut self, isa: Isa) -> SystemTime {
+    pub fn isa_timestamp(&self, isa: &Isa) -> SystemTime {
         self.isa
             .get(&isa.id)
             .map(|isa| isa.1)
@@ -548,7 +548,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Object.
     ///
-    pub fn object_timestamp(&mut self, object: Object) -> SystemTime {
+    pub fn object_timestamp(&self, object: &Object) -> SystemTime {
         self.object
             .get(&object.id)
             .map(|object| object.1)
@@ -582,7 +582,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Referent.
     ///
-    pub fn referent_timestamp(&mut self, referent: Referent) -> SystemTime {
+    pub fn referent_timestamp(&self, referent: &Referent) -> SystemTime {
         self.referent
             .get(&referent.id)
             .map(|referent| referent.1)
@@ -616,7 +616,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Referrer.
     ///
-    pub fn referrer_timestamp(&mut self, referrer: Referrer) -> SystemTime {
+    pub fn referrer_timestamp(&self, referrer: &Referrer) -> SystemTime {
         self.referrer
             .get(&referrer.id)
             .map(|referrer| referrer.1)
@@ -656,7 +656,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Relationship.
     ///
-    pub fn relationship_timestamp(&mut self, relationship: Relationship) -> SystemTime {
+    pub fn relationship_timestamp(&self, relationship: &Relationship) -> SystemTime {
         self.relationship
             .get(&relationship.id())
             .map(|relationship| relationship.1)
@@ -689,7 +689,7 @@ impl ObjectStore {
 
     /// Get the timestamp for State.
     ///
-    pub fn state_timestamp(&mut self, state: State) -> SystemTime {
+    pub fn state_timestamp(&self, state: &State) -> SystemTime {
         self.state
             .get(&state.id)
             .map(|state| state.1)
@@ -723,7 +723,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Subtype.
     ///
-    pub fn subtype_timestamp(&mut self, subtype: Subtype) -> SystemTime {
+    pub fn subtype_timestamp(&self, subtype: &Subtype) -> SystemTime {
         self.subtype
             .get(&subtype.id)
             .map(|subtype| subtype.1)
@@ -757,7 +757,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Supertype.
     ///
-    pub fn supertype_timestamp(&mut self, supertype: Supertype) -> SystemTime {
+    pub fn supertype_timestamp(&self, supertype: &Supertype) -> SystemTime {
         self.supertype
             .get(&supertype.id)
             .map(|supertype| supertype.1)
@@ -790,7 +790,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Ty.
     ///
-    pub fn ty_timestamp(&mut self, ty: Ty) -> SystemTime {
+    pub fn ty_timestamp(&self, ty: &Ty) -> SystemTime {
         self.ty
             .get(&ty.id())
             .map(|ty| ty.1)

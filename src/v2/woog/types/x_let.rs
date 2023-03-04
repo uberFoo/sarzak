@@ -47,7 +47,7 @@ impl XLet {
         let new = XLet {
             value: value,
             expression: expression.id(),
-            variable: variable.id(),
+            variable: variable.id,
             id,
         };
         store.inter_x_let(new.clone());

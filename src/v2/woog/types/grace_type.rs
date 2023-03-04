@@ -2,6 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-use-statements"}}}
 use crate::v2::sarzak::types::ty::Ty;
 use crate::v2::woog::types::reference::Reference;
+use crate::v2::woog::types::time_stamp::TIME_STAMP;
 use crate::v2::woog::types::woog_option::WoogOption;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -24,6 +25,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 pub enum GraceType {
     WoogOption(Uuid),
     Reference(Uuid),
+    TimeStamp(Uuid),
     Ty(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -44,6 +46,12 @@ impl GraceType {
         new
     }
 
+    /// Create a new instance of GraceType::TimeStamp
+    pub fn new_time_stamp() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::TimeStamp(TIME_STAMP)
+    }
+
     /// Create a new instance of GraceType::Ty
     pub fn new_ty(ty: &Ty, store: &mut WoogStore) -> Self {
         let new = Self::Ty(ty.id());
@@ -57,6 +65,7 @@ impl GraceType {
         match self {
             GraceType::WoogOption(id) => *id,
             GraceType::Reference(id) => *id,
+            GraceType::TimeStamp(id) => *id,
             GraceType::Ty(id) => *id,
         }
     }

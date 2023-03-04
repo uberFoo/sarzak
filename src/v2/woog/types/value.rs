@@ -75,11 +75,11 @@ impl Value {
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
-        let id = subtype.id();
+        let id = subtype.id;
         let new = Value {
             access: access.id,
             ty: ty.id(),
-            subtype: ValueEnum::Variable(subtype.id()),
+            subtype: ValueEnum::Variable(subtype.id),
             id,
         };
         store.inter_value(new.clone());
