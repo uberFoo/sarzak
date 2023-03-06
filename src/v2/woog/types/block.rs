@@ -3,6 +3,7 @@
 use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
+use crate::v2::woog::types::object_method::ObjectMethod;
 use crate::v2::woog::types::statement::Statement;
 use crate::v2::woog::types::symbol_table::SymbolTable;
 use crate::v2::woog::UUID_NS;
@@ -39,6 +40,18 @@ impl Block {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
+    /// Navigate to [`ObjectMethod`] across R23(1-1c)
+    pub fn r23c_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
+        let object_method = store
+            .iter_object_method()
+            .find(|object_method| object_method.block == self.id);
+        match object_method {
+            Some(ref object_method) => vec![object_method],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R12(1-M)
     pub fn r12_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
@@ -52,6 +65,15 @@ impl Block {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
+    /// Navigate to [`SymbolTable`] across R24(1-1)
+    pub fn r24_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
+        vec![store
+            .iter_symbol_table()
+            .find(|symbol_table| symbol_table.block == self.id)
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}

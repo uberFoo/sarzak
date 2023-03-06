@@ -3,6 +3,7 @@
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
+use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::parameter::Parameter;
 use crate::v2::woog::UUID_NS;
@@ -34,6 +35,8 @@ pub struct ObjectMethod {
     pub description: String,
     pub id: Uuid,
     pub name: String,
+    /// R23: [`ObjectMethod`] 'contains a' [`Block`]
+    pub block: Uuid,
     /// R4: [`ObjectMethod`] 'is scoped to an' [`Object`]
     pub object: Uuid,
 }
@@ -45,21 +48,29 @@ impl ObjectMethod {
     pub fn new(
         description: String,
         name: String,
+        block: &Block,
         object: &Object,
         store: &mut WoogStore,
     ) -> ObjectMethod {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{}:{:?}", description, name, object).as_bytes(),
+            format!("{}:{}:{:?}:{:?}", description, name, block, object).as_bytes(),
         );
         let new = ObjectMethod {
             description: description,
             name: name,
+            block: block.id,
             object: object.id,
             id,
         };
         store.inter_object_method(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
+    /// Navigate to [`Block`] across R23(1-*)
+    pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
+        vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-object"}}}

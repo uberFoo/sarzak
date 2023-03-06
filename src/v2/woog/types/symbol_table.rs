@@ -39,6 +39,12 @@ impl SymbolTable {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
+    /// Navigate to [`Block`] across R24(1-*)
+    pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
+        vec![store.exhume_block(&self.block).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R20(1-*)
     pub fn r20_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
         vec![store.exhume_block(&self.block).unwrap()]
