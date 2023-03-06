@@ -77,13 +77,6 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
-    /// Navigate to [`SymbolTable`] across R20(1-1)
-    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
-        vec![store
-            .iter_symbol_table()
-            .find(|symbol_table| symbol_table.block == self.id)
-            .unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R10(isa)

@@ -801,6 +801,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &access_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.access.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Block.
@@ -822,6 +833,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &block_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.block.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -847,6 +869,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.call.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Expression.
@@ -868,6 +901,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.expression.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -893,6 +937,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &generation_unit_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.generation_unit.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Grace Type.
@@ -914,6 +969,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &grace_type_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.grace_type.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -939,6 +1005,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &x_let_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_let.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Local.
@@ -960,6 +1037,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &local_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.local.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -985,6 +1073,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &object_method_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.object_method.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Option.
@@ -1006,6 +1105,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &woog_option_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.woog_option.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -1031,6 +1141,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &ownership_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.ownership.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Parameter.
@@ -1052,6 +1173,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &parameter_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.parameter.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -1077,6 +1209,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.reference.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Statement.
@@ -1098,6 +1241,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.statement.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -1123,6 +1277,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &symbol_table_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.symbol_table.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Time Stamp.
@@ -1144,6 +1309,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &time_stamp_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.time_stamp.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -1169,6 +1345,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.value.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Variable.
@@ -1192,6 +1379,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &variable_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.variable.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Visibility.
@@ -1213,6 +1411,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &visibility_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.visibility.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }

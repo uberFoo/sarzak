@@ -20,7 +20,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct SymbolTable {
     pub id: Uuid,
-    /// R20: [`SymbolTable`] 'co-exists with a' [`Block`]
+    /// R24: [`SymbolTable`] 'co-exists with a' [`Block`]
     pub block: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,12 +41,8 @@ impl SymbolTable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R24(1-*)
     pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
-        vec![store.exhume_block(&self.block).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R20(1-*)
-    pub fn r20_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
