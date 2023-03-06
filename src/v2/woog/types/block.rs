@@ -76,8 +76,6 @@ impl Block {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R10(isa)
     pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
