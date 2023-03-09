@@ -21,16 +21,16 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Local {
     pub id: Uuid,
-    pub name: String,
+    pub seed: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-implementation"}}}
 impl Local {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new"}}}
     /// Inter a new 'Local' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut WoogStore) -> Local {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", name).as_bytes());
-        let new = Local { name: name, id };
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Local {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}", seed).as_bytes());
+        let new = Local { id: id, seed: seed };
         store.inter_local(new.clone());
         new
     }

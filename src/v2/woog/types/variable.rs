@@ -25,6 +25,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 pub struct Variable {
     pub subtype: VariableEnum,
     pub id: Uuid,
+    pub name: String,
     /// R20: [`Variable`] 'exists in a' [`SymbolTable`]
     pub symbol_table: Uuid,
 }
@@ -42,12 +43,16 @@ impl Variable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local(
+        name: String,
         symbol_table: &SymbolTable,
         subtype: &Local,
         store: &mut WoogStore,
     ) -> Variable {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This shoud be fixed in the near future.
         let id = subtype.id;
         let new = Variable {
+            name: name,
             symbol_table: symbol_table.id,
             subtype: VariableEnum::Local(subtype.id),
             id,
@@ -59,12 +64,16 @@ impl Variable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
+        name: String,
         symbol_table: &SymbolTable,
         subtype: &Parameter,
         store: &mut WoogStore,
     ) -> Variable {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This shoud be fixed in the near future.
         let id = subtype.id;
         let new = Variable {
+            name: name,
             symbol_table: symbol_table.id,
             subtype: VariableEnum::Parameter(subtype.id),
             id,

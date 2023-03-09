@@ -35,9 +35,9 @@ impl GenerationUnit {
             format!("{:?}:{:?}", object, creation_time).as_bytes(),
         );
         let new = GenerationUnit {
-            object: object.id,
+            id: id,
             creation_time: creation_time.id,
-            id,
+            object: object.id,
         };
         store.inter_generation_unit(new.clone());
         new

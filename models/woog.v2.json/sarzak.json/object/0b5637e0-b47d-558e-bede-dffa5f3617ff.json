@@ -1,0 +1,12 @@
+[
+  {
+    "description": "An Enumerated Data Type\n\nThis has fields like a structure, but it's only allowed to contain a \nsingle value at a time. This is also refered to as an algebraic\ndata type.",
+    "id": "0b5637e0-b47d-558e-bede-dffa5f3617ff",
+    "key_letters": "ENUM",
+    "name": "Enumeration"
+  },
+  {
+    "secs_since_epoch": 1678209968,
+    "nanos_since_epoch": 646034000
+  }
+]

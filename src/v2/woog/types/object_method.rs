@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::v2::sarzak::types::object::Object;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
-use crate::v2::woog::types::parameter::Parameter;
+use crate::v2::woog::types::function::Function;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
@@ -32,9 +32,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ObjectMethod {
-    pub description: String,
     pub id: Uuid,
-    pub name: String,
     /// R23: [`ObjectMethod`] 'contains a' [`Block`]
     pub block: Uuid,
     /// R4: [`ObjectMethod`] 'is scoped to an' [`Object`]
@@ -45,23 +43,12 @@ pub struct ObjectMethod {
 impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new"}}}
     /// Inter a new 'Object Method' in the store, and return it's `id`.
-    pub fn new(
-        description: String,
-        name: String,
-        block: &Block,
-        object: &Object,
-        store: &mut WoogStore,
-    ) -> ObjectMethod {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{}:{:?}:{:?}", description, name, block, object).as_bytes(),
-        );
+    pub fn new(block: &Block, object: &Object, store: &mut WoogStore) -> ObjectMethod {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", block, object).as_bytes());
         let new = ObjectMethod {
-            description: description,
-            name: name,
-            block: block.id,
+            id: id,
             object: object.id,
-            id,
+            block: block.id,
         };
         store.inter_object_method(new.clone());
         new
@@ -95,15 +82,10 @@ impl ObjectMethod {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
-    /// Navigate to [`Parameter`] across R5(1-1c)
-    pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<&Parameter> {
-        let parameter = store
-            .iter_parameter()
-            .find(|parameter| parameter.method == self.id);
-        match parameter {
-            Some(ref parameter) => vec![parameter],
-            None => Vec::new(),
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}
+    // Navigate to [`Function`] across R25(isa)
+    pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<&Function> {
+        vec![store.exhume_function(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

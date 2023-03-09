@@ -1,0 +1,12 @@
+[
+  {
+    "description": "Dynamic Object Association\n\nThis scopes functions and constants to a [`Structure`] or an [`Enumeration`].",
+    "id": "d9423bdc-1217-5acc-9083-e13adccd9258",
+    "key_letters": "IMPL",
+    "name": "Implementation"
+  },
+  {
+    "secs_since_epoch": 1678209968,
+    "nanos_since_epoch": 646022000
+  }
+]

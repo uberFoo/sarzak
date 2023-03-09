@@ -33,7 +33,7 @@ impl Call {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", method).as_bytes());
         let new = Call {
             method: method.id,
-            id,
+            id: id,
         };
         store.inter_call(new.clone());
         new

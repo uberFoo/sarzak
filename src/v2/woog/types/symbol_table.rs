@@ -31,8 +31,8 @@ impl SymbolTable {
     pub fn new(block: &Block, store: &mut WoogStore) -> SymbolTable {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", block).as_bytes());
         let new = SymbolTable {
+            id: id,
             block: block.id,
-            id,
         };
         store.inter_symbol_table(new.clone());
         new

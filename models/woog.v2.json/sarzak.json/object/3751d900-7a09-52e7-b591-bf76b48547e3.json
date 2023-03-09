@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A function\n\nThis is a plain old function, distinct from an [`Object Method`].",
+    "id": "3751d900-7a09-52e7-b591-bf76b48547e3",
+    "key_letters": "FUN",
+    "name": "Function"
+  },
+  {
+    "secs_since_epoch": 1678209968,
+    "nanos_since_epoch": 646023000
+  }
+]

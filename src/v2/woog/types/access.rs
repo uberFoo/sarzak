@@ -37,9 +37,9 @@ impl Access {
             format!("{:?}:{:?}", ownership, visibility).as_bytes(),
         );
         let new = Access {
+            id: id,
             ownership: ownership.id(),
             visibility: visibility.id(),
-            id,
         };
         store.inter_access(new.clone());
         new

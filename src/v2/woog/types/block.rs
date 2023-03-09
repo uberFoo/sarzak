@@ -23,19 +23,16 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Block {
     pub id: Uuid,
-    pub instance: Uuid,
+    pub seed: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-implementation"}}}
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new(instance: Uuid, store: &mut WoogStore) -> Block {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", instance).as_bytes());
-        let new = Block {
-            instance: instance,
-            id,
-        };
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Block {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}", seed).as_bytes());
+        let new = Block { id: id, seed: seed };
         store.inter_block(new.clone());
         new
     }
