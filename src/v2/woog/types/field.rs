@@ -34,8 +34,8 @@ impl Field {
     pub fn new(name: String, ty: &GraceType, store: &mut WoogStore) -> Field {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{:?}", name, ty).as_bytes());
         let new = Field {
-            name: name,
             id: id,
+            name: name,
             ty: ty.id(),
         };
         store.inter_field(new.clone());
