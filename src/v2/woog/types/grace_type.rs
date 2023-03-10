@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"grace_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-use-statements"}}}
 use crate::v2::sarzak::types::ty::Ty;
+use crate::v2::woog::types::function::Function;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::time_stamp::TimeStamp;
 use crate::v2::woog::types::woog_option::WoogOption;
@@ -23,6 +24,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum GraceType {
+    Function(Uuid),
     WoogOption(Uuid),
     Reference(Uuid),
     TimeStamp(Uuid),
@@ -32,6 +34,13 @@ pub enum GraceType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-implementation"}}}
 impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-new-impl"}}}
+    /// Create a new instance of GraceType::Function
+    pub fn new_function(function: &Function, store: &mut WoogStore) -> Self {
+        let new = Self::Function(function.id);
+        store.inter_grace_type(new.clone());
+        new
+    }
+
     /// Create a new instance of GraceType::WoogOption
     pub fn new_woog_option(woog_option: &WoogOption, store: &mut WoogStore) -> Self {
         let new = Self::WoogOption(woog_option.id);
@@ -64,6 +73,7 @@ impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            GraceType::Function(id) => *id,
             GraceType::WoogOption(id) => *id,
             GraceType::Reference(id) => *id,
             GraceType::TimeStamp(id) => *id,

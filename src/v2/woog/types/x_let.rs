@@ -23,7 +23,6 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct XLet {
     pub id: Uuid,
-    pub value: String,
     /// R18: [`XLet`] 'to a variable assigns' [`Expression`]
     pub expression: Uuid,
     /// R17: [`XLet`] 'gives value to a' [`Variable`]
@@ -34,21 +33,15 @@ pub struct XLet {
 impl XLet {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-new"}}}
     /// Inter a new 'Let' in the store, and return it's `id`.
-    pub fn new(
-        value: String,
-        expression: &Expression,
-        variable: &Variable,
-        store: &mut WoogStore,
-    ) -> XLet {
+    pub fn new(expression: &Expression, variable: &Variable, store: &mut WoogStore) -> XLet {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{:?}:{:?}", value, expression, variable).as_bytes(),
+            format!("{:?}:{:?}", expression, variable).as_bytes(),
         );
         let new = XLet {
-            value: value,
+            id: id,
             expression: expression.id(),
             variable: variable.id,
-            id: id,
         };
         store.inter_x_let(new.clone());
         new

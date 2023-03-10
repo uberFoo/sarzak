@@ -1,0 +1,13 @@
+[
+  {
+    "description": "is invoked by",
+    "id": "1dcb1015-73b1-50e1-9659-7e57f7027f1c",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "3751d900-7a09-52e7-b591-bf76b48547e3"
+  },
+  {
+    "secs_since_epoch": 1678455037,
+    "nanos_since_epoch": 364477000
+  }
+]

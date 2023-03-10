@@ -3,8 +3,6 @@
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::woog::types::block::Block;
-use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::function::Function;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
@@ -33,8 +31,6 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ObjectMethod {
     pub id: Uuid,
-    /// R23: [`ObjectMethod`] 'contains a' [`Block`]
-    pub block: Uuid,
     /// R4: [`ObjectMethod`] 'is scoped to an' [`Object`]
     pub object: Uuid,
 }
@@ -43,22 +39,17 @@ pub struct ObjectMethod {
 impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new"}}}
     /// Inter a new 'Object Method' in the store, and return it's `id`.
-    pub fn new(block: &Block, object: &Object, store: &mut WoogStore) -> ObjectMethod {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", block, object).as_bytes());
+    pub fn new(object: &Object, store: &mut WoogStore) -> ObjectMethod {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", object).as_bytes());
         let new = ObjectMethod {
             id: id,
             object: object.id,
-            block: block.id,
         };
         store.inter_object_method(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R23(1-*)
-    pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
-        vec![store.exhume_block(&self.block).unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*)
@@ -67,19 +58,6 @@ impl ObjectMethod {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-1_M-to-call"}}}
-    /// Navigate to [`Call`] across R19(1-M)
-    pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<&Call> {
-        store
-            .iter_call()
-            .filter_map(|call| {
-                if call.method == self.id {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}

@@ -30,8 +30,8 @@ impl WoogOption {
     pub fn new(ty: &GraceType, store: &mut WoogStore) -> WoogOption {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", ty).as_bytes());
         let new = WoogOption {
-            ty: ty.id(),
             id: id,
+            ty: ty.id(),
         };
         store.inter_woog_option(new.clone());
         new

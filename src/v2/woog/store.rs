@@ -11,10 +11,7 @@
 //! * [`Block`]
 //! * [`Call`]
 //! * [`Constant`]
-//! * [`Enumeration`]
-//! * [`EnumerationField`]
 //! * [`Expression`]
-//! * [`Field`]
 //! * [`Function`]
 //! * [`GenerationUnit`]
 //! * [`GraceType`]
@@ -27,7 +24,7 @@
 //! * [`Parameter`]
 //! * [`Reference`]
 //! * [`Statement`]
-//! * [`Structure`]
+//! * [`StructExpression`]
 //! * [`StructureField`]
 //! * [`SymbolTable`]
 //! * [`TimeStamp`]
@@ -42,10 +39,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::woog::types::{
-    Access, Block, Call, Constant, Enumeration, EnumerationField, Expression, Field, Function,
-    GenerationUnit, GraceType, Item, Local, ObjectMethod, Ownership, Parameter, Reference,
-    Statement, Structure, StructureField, SymbolTable, TimeStamp, Value, Variable, Visibility,
-    WoogOption, XLet, BORROWED, IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
+    Access, Block, Call, Constant, Expression, Function, GenerationUnit, GraceType, Item, Local,
+    ObjectMethod, Ownership, Parameter, Reference, Statement, StructExpression, StructureField,
+    SymbolTable, TimeStamp, Value, Variable, Visibility, WoogOption, XLet, BORROWED,
+    IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -54,10 +51,7 @@ pub struct ObjectStore {
     block: HashMap<Uuid, (Block, SystemTime)>,
     call: HashMap<Uuid, (Call, SystemTime)>,
     constant: HashMap<Uuid, (Constant, SystemTime)>,
-    enumeration: HashMap<Uuid, (Enumeration, SystemTime)>,
-    enumeration_field: HashMap<Uuid, (EnumerationField, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
-    field: HashMap<Uuid, (Field, SystemTime)>,
     function: HashMap<Uuid, (Function, SystemTime)>,
     generation_unit: HashMap<Uuid, (GenerationUnit, SystemTime)>,
     grace_type: HashMap<Uuid, (GraceType, SystemTime)>,
@@ -70,7 +64,7 @@ pub struct ObjectStore {
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     reference: HashMap<Uuid, (Reference, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
-    structure: HashMap<Uuid, (Structure, SystemTime)>,
+    struct_expression: HashMap<Uuid, (StructExpression, SystemTime)>,
     structure_field: HashMap<Uuid, (StructureField, SystemTime)>,
     symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
     time_stamp: HashMap<Uuid, (TimeStamp, SystemTime)>,
@@ -86,10 +80,7 @@ impl ObjectStore {
             block: HashMap::new(),
             call: HashMap::new(),
             constant: HashMap::new(),
-            enumeration: HashMap::new(),
-            enumeration_field: HashMap::new(),
             expression: HashMap::new(),
-            field: HashMap::new(),
             function: HashMap::new(),
             generation_unit: HashMap::new(),
             grace_type: HashMap::new(),
@@ -102,7 +93,7 @@ impl ObjectStore {
             parameter: HashMap::new(),
             reference: HashMap::new(),
             statement: HashMap::new(),
-            structure: HashMap::new(),
+            struct_expression: HashMap::new(),
             structure_field: HashMap::new(),
             symbol_table: HashMap::new(),
             time_stamp: HashMap::new(),
@@ -258,82 +249,6 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Enumeration`] into the store.
-    ///
-    pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
-        self.enumeration
-            .insert(enumeration.id, (enumeration, SystemTime::now()));
-    }
-
-    /// Exhume [`Enumeration`] from the store.
-    ///
-    pub fn exhume_enumeration(&self, id: &Uuid) -> Option<&Enumeration> {
-        self.enumeration.get(id).map(|enumeration| &enumeration.0)
-    }
-
-    /// Exhume [`Enumeration`] from the store — mutably.
-    ///
-    pub fn exhume_enumeration_mut(&mut self, id: &Uuid) -> Option<&mut Enumeration> {
-        self.enumeration
-            .get_mut(id)
-            .map(|enumeration| &mut enumeration.0)
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
-    ///
-    pub fn iter_enumeration(&self) -> impl Iterator<Item = &Enumeration> {
-        self.enumeration.values().map(|enumeration| &enumeration.0)
-    }
-
-    /// Get the timestamp for Enumeration.
-    ///
-    pub fn enumeration_timestamp(&self, enumeration: &Enumeration) -> SystemTime {
-        self.enumeration
-            .get(&enumeration.id)
-            .map(|enumeration| enumeration.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`EnumerationField`] into the store.
-    ///
-    pub fn inter_enumeration_field(&mut self, enumeration_field: EnumerationField) {
-        self.enumeration_field
-            .insert(enumeration_field.id, (enumeration_field, SystemTime::now()));
-    }
-
-    /// Exhume [`EnumerationField`] from the store.
-    ///
-    pub fn exhume_enumeration_field(&self, id: &Uuid) -> Option<&EnumerationField> {
-        self.enumeration_field
-            .get(id)
-            .map(|enumeration_field| &enumeration_field.0)
-    }
-
-    /// Exhume [`EnumerationField`] from the store — mutably.
-    ///
-    pub fn exhume_enumeration_field_mut(&mut self, id: &Uuid) -> Option<&mut EnumerationField> {
-        self.enumeration_field
-            .get_mut(id)
-            .map(|enumeration_field| &mut enumeration_field.0)
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, EnumerationField>`.
-    ///
-    pub fn iter_enumeration_field(&self) -> impl Iterator<Item = &EnumerationField> {
-        self.enumeration_field
-            .values()
-            .map(|enumeration_field| &enumeration_field.0)
-    }
-
-    /// Get the timestamp for EnumerationField.
-    ///
-    pub fn enumeration_field_timestamp(&self, enumeration_field: &EnumerationField) -> SystemTime {
-        self.enumeration_field
-            .get(&enumeration_field.id)
-            .map(|enumeration_field| enumeration_field.1)
-            .unwrap_or(SystemTime::now())
-    }
-
     /// Inter [`Expression`] into the store.
     ///
     pub fn inter_expression(&mut self, expression: Expression) {
@@ -367,39 +282,6 @@ impl ObjectStore {
         self.expression
             .get(&expression.id())
             .map(|expression| expression.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`Field`] into the store.
-    ///
-    pub fn inter_field(&mut self, field: Field) {
-        self.field.insert(field.id, (field, SystemTime::now()));
-    }
-
-    /// Exhume [`Field`] from the store.
-    ///
-    pub fn exhume_field(&self, id: &Uuid) -> Option<&Field> {
-        self.field.get(id).map(|field| &field.0)
-    }
-
-    /// Exhume [`Field`] from the store — mutably.
-    ///
-    pub fn exhume_field_mut(&mut self, id: &Uuid) -> Option<&mut Field> {
-        self.field.get_mut(id).map(|field| &mut field.0)
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
-    ///
-    pub fn iter_field(&self) -> impl Iterator<Item = &Field> {
-        self.field.values().map(|field| &field.0)
-    }
-
-    /// Get the timestamp for Field.
-    ///
-    pub fn field_timestamp(&self, field: &Field) -> SystemTime {
-        self.field
-            .get(&field.id)
-            .map(|field| field.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -824,37 +706,43 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Structure`] into the store.
+    /// Inter [`StructExpression`] into the store.
     ///
-    pub fn inter_structure(&mut self, structure: Structure) {
-        self.structure
-            .insert(structure.id, (structure, SystemTime::now()));
+    pub fn inter_struct_expression(&mut self, struct_expression: StructExpression) {
+        self.struct_expression
+            .insert(struct_expression.id, (struct_expression, SystemTime::now()));
     }
 
-    /// Exhume [`Structure`] from the store.
+    /// Exhume [`StructExpression`] from the store.
     ///
-    pub fn exhume_structure(&self, id: &Uuid) -> Option<&Structure> {
-        self.structure.get(id).map(|structure| &structure.0)
+    pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<&StructExpression> {
+        self.struct_expression
+            .get(id)
+            .map(|struct_expression| &struct_expression.0)
     }
 
-    /// Exhume [`Structure`] from the store — mutably.
+    /// Exhume [`StructExpression`] from the store — mutably.
     ///
-    pub fn exhume_structure_mut(&mut self, id: &Uuid) -> Option<&mut Structure> {
-        self.structure.get_mut(id).map(|structure| &mut structure.0)
+    pub fn exhume_struct_expression_mut(&mut self, id: &Uuid) -> Option<&mut StructExpression> {
+        self.struct_expression
+            .get_mut(id)
+            .map(|struct_expression| &mut struct_expression.0)
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Structure>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
     ///
-    pub fn iter_structure(&self) -> impl Iterator<Item = &Structure> {
-        self.structure.values().map(|structure| &structure.0)
+    pub fn iter_struct_expression(&self) -> impl Iterator<Item = &StructExpression> {
+        self.struct_expression
+            .values()
+            .map(|struct_expression| &struct_expression.0)
     }
 
-    /// Get the timestamp for Structure.
+    /// Get the timestamp for StructExpression.
     ///
-    pub fn structure_timestamp(&self, structure: &Structure) -> SystemTime {
-        self.structure
-            .get(&structure.id)
-            .map(|structure| structure.1)
+    pub fn struct_expression_timestamp(&self, struct_expression: &StructExpression) -> SystemTime {
+        self.struct_expression
+            .get(&struct_expression.id)
+            .map(|struct_expression| struct_expression.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1226,74 +1114,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Enumeration.
-        {
-            let path = path.join("enumeration");
-            fs::create_dir_all(&path)?;
-            for enumeration_tuple in self.enumeration.values() {
-                let path = path.join(format!("{}.json", enumeration_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != enumeration_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &enumeration_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &enumeration_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.enumeration.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
-            }
-        }
-
-        // Persist Enumeration Field.
-        {
-            let path = path.join("enumeration_field");
-            fs::create_dir_all(&path)?;
-            for enumeration_field_tuple in self.enumeration_field.values() {
-                let path = path.join(format!("{}.json", enumeration_field_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (EnumerationField, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != enumeration_field_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &enumeration_field_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &enumeration_field_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.enumeration_field.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
-            }
-        }
-
         // Persist Expression.
         {
             let path = path.join("expression");
@@ -1322,40 +1142,6 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.expression.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
-            }
-        }
-
-        // Persist Field.
-        {
-            let path = path.join("field");
-            fs::create_dir_all(&path)?;
-            for field_tuple in self.field.values() {
-                let path = path.join(format!("{}.json", field_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Field, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != field_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -1770,25 +1556,25 @@ impl ObjectStore {
             }
         }
 
-        // Persist Structure.
+        // Persist Struct Expression.
         {
-            let path = path.join("structure");
+            let path = path.join("struct_expression");
             fs::create_dir_all(&path)?;
-            for structure_tuple in self.structure.values() {
-                let path = path.join(format!("{}.json", structure_tuple.0.id));
+            for struct_expression_tuple in self.struct_expression.values() {
+                let path = path.join(format!("{}.json", struct_expression_tuple.0.id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Structure, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != structure_tuple.0 {
+                    let on_disk: (StructExpression, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != struct_expression_tuple.0 {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &structure_tuple)?;
+                        serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
                     }
                 } else {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &structure_tuple)?;
+                    serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1797,7 +1583,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.structure.contains_key(&id) {
+                    if !self.struct_expression.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -2078,37 +1864,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Enumeration.
-        {
-            let path = path.join("enumeration");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let enumeration: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
-                store.enumeration.insert(enumeration.0.id, enumeration);
-            }
-        }
-
-        // Load Enumeration Field.
-        {
-            let path = path.join("enumeration_field");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let enumeration_field: (EnumerationField, SystemTime) =
-                    serde_json::from_reader(reader)?;
-                store
-                    .enumeration_field
-                    .insert(enumeration_field.0.id, enumeration_field);
-            }
-        }
-
         // Load Expression.
         {
             let path = path.join("expression");
@@ -2120,20 +1875,6 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let expression: (Expression, SystemTime) = serde_json::from_reader(reader)?;
                 store.expression.insert(expression.0.id(), expression);
-            }
-        }
-
-        // Load Field.
-        {
-            let path = path.join("field");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
-                store.field.insert(field.0.id, field);
             }
         }
 
@@ -2310,17 +2051,20 @@ impl ObjectStore {
             }
         }
 
-        // Load Structure.
+        // Load Struct Expression.
         {
-            let path = path.join("structure");
+            let path = path.join("struct_expression");
             let mut entries = fs::read_dir(path)?;
             while let Some(entry) = entries.next() {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let structure: (Structure, SystemTime) = serde_json::from_reader(reader)?;
-                store.structure.insert(structure.0.id, structure);
+                let struct_expression: (StructExpression, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .struct_expression
+                    .insert(struct_expression.0.id, struct_expression);
             }
         }
 

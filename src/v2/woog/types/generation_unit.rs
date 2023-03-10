@@ -36,8 +36,8 @@ impl GenerationUnit {
         );
         let new = GenerationUnit {
             id: id,
-            creation_time: creation_time.id,
             object: object.id,
+            creation_time: creation_time.id,
         };
         store.inter_generation_unit(new.clone());
         new

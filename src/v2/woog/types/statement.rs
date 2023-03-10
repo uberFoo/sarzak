@@ -45,7 +45,7 @@ impl Statement {
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(block: &Block, store: &mut WoogStore) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This shoud be fixed in the near future.
+        // about this local. This should be fixed in the near future.
         let id = EXPRESSION_STATEMENT;
         let new = Statement {
             block: block.id,
@@ -60,7 +60,7 @@ impl Statement {
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item(block: &Block, subtype: &Item, store: &mut WoogStore) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This shoud be fixed in the near future.
+        // about this local. This should be fixed in the near future.
         let id = subtype.id();
         let new = Statement {
             block: block.id,
@@ -75,7 +75,7 @@ impl Statement {
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_x_let(block: &Block, subtype: &XLet, store: &mut WoogStore) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This shoud be fixed in the near future.
+        // about this local. This should be fixed in the near future.
         let id = subtype.id;
         let new = Statement {
             block: block.id,
@@ -90,7 +90,7 @@ impl Statement {
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_x_macro(block: &Block, store: &mut WoogStore) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This shoud be fixed in the near future.
+        // about this local. This should be fixed in the near future.
         let id = X_MACRO;
         let new = Statement {
             block: block.id,

@@ -34,8 +34,8 @@ impl Reference {
     pub fn new(object: &Object, store: &mut WoogStore) -> Reference {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", object).as_bytes());
         let new = Reference {
-            object: object.id,
             id: id,
+            object: object.id,
         };
         store.inter_reference(new.clone());
         new

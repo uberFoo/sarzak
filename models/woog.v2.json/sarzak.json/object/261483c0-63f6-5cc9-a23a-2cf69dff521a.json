@@ -1,12 +1,12 @@
 [
   {
-    "description": "A Data Type\n\nA structure is a chunk of memory with named, and typed fields.",
+    "description": "An instance\n\nA struct expression creates an instance of a structure, e.g.,\n\n``rust\nFoo {\n    bar: 0u8,\n    baz: true\n}\n````",
     "id": "261483c0-63f6-5cc9-a23a-2cf69dff521a",
     "key_letters": "STRUCT",
-    "name": "Structure"
+    "name": "Struct Expression"
   },
   {
-    "secs_since_epoch": 1678209968,
-    "nanos_since_epoch": 646012000
+    "secs_since_epoch": 1678455037,
+    "nanos_since_epoch": 364450000
   }
 ]

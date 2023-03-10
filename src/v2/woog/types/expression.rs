@@ -3,6 +3,7 @@
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
+use crate::v2::woog::types::struct_expression::StructExpression;
 use crate::v2::woog::types::value::Value;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -26,6 +27,7 @@ pub enum Expression {
     Block(Uuid),
     Call(Uuid),
     Literal(Uuid),
+    StructExpression(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
@@ -51,6 +53,16 @@ impl Expression {
         Self::Literal(LITERAL)
     }
 
+    /// Create a new instance of Expression::StructExpression
+    pub fn new_struct_expression(
+        struct_expression: &StructExpression,
+        store: &mut WoogStore,
+    ) -> Self {
+        let new = Self::StructExpression(struct_expression.id);
+        store.inter_expression(new.clone());
+        new
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
@@ -58,6 +70,7 @@ impl Expression {
             Expression::Block(id) => *id,
             Expression::Call(id) => *id,
             Expression::Literal(id) => *id,
+            Expression::StructExpression(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

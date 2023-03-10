@@ -1,11 +1,9 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
 use crate::v2::woog::types::constant::Constant;
-use crate::v2::woog::types::enumeration::Enumeration;
 use crate::v2::woog::types::function::Function;
 use crate::v2::woog::types::implementation::IMPLEMENTATION;
 use crate::v2::woog::types::statement::Statement;
-use crate::v2::woog::types::structure::Structure;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -26,10 +24,8 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Item {
     Constant(Uuid),
-    Enumeration(Uuid),
     Function(Uuid),
     Implementation(Uuid),
-    Structure(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
@@ -38,13 +34,6 @@ impl Item {
     /// Create a new instance of Item::Constant
     pub fn new_constant(constant: &Constant, store: &mut WoogStore) -> Self {
         let new = Self::Constant(constant.id);
-        store.inter_item(new.clone());
-        new
-    }
-
-    /// Create a new instance of Item::Enumeration
-    pub fn new_enumeration(enumeration: &Enumeration, store: &mut WoogStore) -> Self {
-        let new = Self::Enumeration(enumeration.id);
         store.inter_item(new.clone());
         new
     }
@@ -62,22 +51,13 @@ impl Item {
         Self::Implementation(IMPLEMENTATION)
     }
 
-    /// Create a new instance of Item::Structure
-    pub fn new_structure(structure: &Structure, store: &mut WoogStore) -> Self {
-        let new = Self::Structure(structure.id);
-        store.inter_item(new.clone());
-        new
-    }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
             Item::Constant(id) => *id,
-            Item::Enumeration(id) => *id,
             Item::Function(id) => *id,
             Item::Implementation(id) => *id,
-            Item::Structure(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
