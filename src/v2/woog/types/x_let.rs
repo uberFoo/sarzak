@@ -45,10 +45,10 @@ impl XLet {
             format!("{}:{:?}:{:?}", value, expression, variable).as_bytes(),
         );
         let new = XLet {
+            id: id,
             value: value,
             expression: expression.id(),
             variable: variable.id,
-            id: id,
         };
         store.inter_x_let(new.clone());
         new

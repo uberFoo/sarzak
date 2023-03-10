@@ -31,9 +31,9 @@ impl EnumerationField {
     pub fn new(woog_enum: &Field, field: &Enumeration, store: &mut WoogStore) -> EnumerationField {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", woog_enum, field).as_bytes());
         let new = EnumerationField {
+            id: id,
             woog_enum: woog_enum.id,
             field: field.id,
-            id: id,
         };
         store.inter_enumeration_field(new.clone());
         new

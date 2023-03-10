@@ -42,10 +42,10 @@ impl Parameter {
             format!("{}:{:?}:{:?}", seed, function, next).as_bytes(),
         );
         let new = Parameter {
-            seed: seed,
             id: id,
-            next: next.map(|parameter| parameter.id),
+            seed: seed,
             function: function.map(|function| function.id),
+            next: next.map(|parameter| parameter.id),
         };
         store.inter_parameter(new.clone());
         new

@@ -41,9 +41,9 @@ impl StructureField {
             format!("{:?}:{:?}:{:?}", next, woog_struct, field).as_bytes(),
         );
         let new = StructureField {
-            woog_struct: woog_struct.id,
-            next: next.map(|structure_field| structure_field.id),
             id: id,
+            next: next.map(|structure_field| structure_field.id),
+            woog_struct: woog_struct.id,
             field: field.id,
         };
         store.inter_structure_field(new.clone());

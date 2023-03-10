@@ -47,8 +47,8 @@ impl ObjectMethod {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", block, object).as_bytes());
         let new = ObjectMethod {
             id: id,
-            object: object.id,
             block: block.id,
+            object: object.id,
         };
         store.inter_object_method(new.clone());
         new
