@@ -53,11 +53,11 @@ impl Referrer {
         );
         let new = Referrer {
             description: description,
+            id: id,
             referential_attribute: referential_attribute,
             cardinality: cardinality.id(),
             conditionality: conditionality.id(),
             obj_id: obj_id.id,
-            id,
         };
         store.inter_referrer(new.clone());
         new

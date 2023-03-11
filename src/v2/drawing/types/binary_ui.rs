@@ -44,10 +44,10 @@ impl BinaryUi {
             format!("{:?}:{:?}:{:?}", to, from, binary_id).as_bytes(),
         );
         let new = BinaryUi {
+            id: id,
             to: to.id,
             from: from.id,
             binary_id: binary_id.id,
-            id,
         };
         store.inter_binary_ui(new.clone());
         new

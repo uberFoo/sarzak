@@ -57,9 +57,9 @@ impl Object {
         );
         let new = Object {
             description: description,
+            id: id,
             key_letters: key_letters,
             name: name,
-            id,
         };
         store.inter_object(new.clone());
         new
