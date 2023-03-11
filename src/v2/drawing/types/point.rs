@@ -29,9 +29,19 @@ impl Point {
     /// Inter a new 'Point' in the store, and return it's `id`.
     pub fn new(x: i64, y: i64, store: &mut DrawingStore) -> Point {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{}", x, y).as_bytes());
-        let new = Point { x: x, y: y, id };
+        let new = Point { id: id, x: x, y: y };
         store.inter_point(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
+    /// Navigate to [`Anchor`] across R5(1-1c)
+    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
+        match anchor {
+            Some(ref anchor) => vec![anchor],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
@@ -40,16 +50,6 @@ impl Point {
         let anchor = store
             .iter_anchor()
             .find(|anchor| anchor.location == self.id);
-        match anchor {
-            Some(ref anchor) => vec![anchor],
-            None => Vec::new(),
-        }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
-    /// Navigate to [`Anchor`] across R5(1-1c)
-    pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
         match anchor {
             Some(ref anchor) => vec![anchor],
             None => Vec::new(),

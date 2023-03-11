@@ -47,9 +47,9 @@ impl External {
         let id = Uuid::new_v5(&UUID_NS, format!("{}:{}:{}", ctor, name, path).as_bytes());
         let new = External {
             ctor: ctor,
+            id: id,
             name: name,
             path: path,
-            id,
         };
         store.inter_external(new.clone());
         new

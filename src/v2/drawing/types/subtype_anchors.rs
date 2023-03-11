@@ -37,9 +37,9 @@ impl SubtypeAnchors {
             format!("{:?}:{:?}", isaui_id, anchor_id).as_bytes(),
         );
         let new = SubtypeAnchors {
+            id: id,
             isaui_id: isaui_id.id,
             anchor_id: anchor_id.id,
-            id,
         };
         store.inter_subtype_anchors(new.clone());
         new

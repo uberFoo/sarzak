@@ -33,9 +33,9 @@ impl ObjectEdge {
     pub fn new(edge: &Edge, oui_id: &ObjectUi, store: &mut DrawingStore) -> ObjectEdge {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", edge, oui_id).as_bytes());
         let new = ObjectEdge {
+            id: id,
             edge: edge.id(),
             oui_id: oui_id.id,
-            id,
         };
         store.inter_object_edge(new.clone());
         new
