@@ -32,8 +32,8 @@ impl Call {
     pub fn new(method: &ObjectMethod, store: &mut WoogStore) -> Call {
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", method).as_bytes());
         let new = Call {
+            id: id,
             method: method.id,
-            id,
         };
         store.inter_call(new.clone());
         new

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "4fc431e2-3943-58a3-b06a-dff28ece8a93",
+    "edge": "66416a6d-1227-53b5-bb5a-bfd45e0ea72e",
+    "location": "6a91ce2d-4acf-5918-b578-fab94b4fe987",
+    "offset": "6a91ce2d-4acf-5918-b578-fab94b4fe987"
+  },
+  {
+    "secs_since_epoch": 1678209968,
+    "nanos_since_epoch": 646299000
+  }
+]

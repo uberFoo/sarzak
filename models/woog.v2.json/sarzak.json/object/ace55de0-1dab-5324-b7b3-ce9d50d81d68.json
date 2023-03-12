@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Field in an Enumeration",
+    "id": "ace55de0-1dab-5324-b7b3-ce9d50d81d68",
+    "key_letters": "ENUM_F",
+    "name": "Enumeration Field"
+  },
+  {
+    "secs_since_epoch": 1678209968,
+    "nanos_since_epoch": 646054000
+  }
+]

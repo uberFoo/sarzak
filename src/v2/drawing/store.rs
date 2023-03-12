@@ -94,7 +94,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Anchor.
     ///
-    pub fn anchor_timestamp(&mut self, anchor: Anchor) -> SystemTime {
+    pub fn anchor_timestamp(&self, anchor: &Anchor) -> SystemTime {
         self.anchor
             .get(&anchor.id)
             .map(|anchor| anchor.1)
@@ -134,7 +134,7 @@ impl ObjectStore {
 
     /// Get the timestamp for AssociativeUi.
     ///
-    pub fn associative_ui_timestamp(&mut self, associative_ui: AssociativeUi) -> SystemTime {
+    pub fn associative_ui_timestamp(&self, associative_ui: &AssociativeUi) -> SystemTime {
         self.associative_ui
             .get(&associative_ui.id)
             .map(|associative_ui| associative_ui.1)
@@ -168,7 +168,7 @@ impl ObjectStore {
 
     /// Get the timestamp for BinaryUi.
     ///
-    pub fn binary_ui_timestamp(&mut self, binary_ui: BinaryUi) -> SystemTime {
+    pub fn binary_ui_timestamp(&self, binary_ui: &BinaryUi) -> SystemTime {
         self.binary_ui
             .get(&binary_ui.id)
             .map(|binary_ui| binary_ui.1)
@@ -201,7 +201,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Edge.
     ///
-    pub fn edge_timestamp(&mut self, edge: Edge) -> SystemTime {
+    pub fn edge_timestamp(&self, edge: &Edge) -> SystemTime {
         self.edge
             .get(&edge.id())
             .map(|edge| edge.1)
@@ -234,7 +234,7 @@ impl ObjectStore {
 
     /// Get the timestamp for IsaUi.
     ///
-    pub fn isa_ui_timestamp(&mut self, isa_ui: IsaUi) -> SystemTime {
+    pub fn isa_ui_timestamp(&self, isa_ui: &IsaUi) -> SystemTime {
         self.isa_ui
             .get(&isa_ui.id)
             .map(|isa_ui| isa_ui.1)
@@ -270,7 +270,7 @@ impl ObjectStore {
 
     /// Get the timestamp for ObjectEdge.
     ///
-    pub fn object_edge_timestamp(&mut self, object_edge: ObjectEdge) -> SystemTime {
+    pub fn object_edge_timestamp(&self, object_edge: &ObjectEdge) -> SystemTime {
         self.object_edge
             .get(&object_edge.id)
             .map(|object_edge| object_edge.1)
@@ -304,7 +304,7 @@ impl ObjectStore {
 
     /// Get the timestamp for ObjectUi.
     ///
-    pub fn object_ui_timestamp(&mut self, object_ui: ObjectUi) -> SystemTime {
+    pub fn object_ui_timestamp(&self, object_ui: &ObjectUi) -> SystemTime {
         self.object_ui
             .get(&object_ui.id)
             .map(|object_ui| object_ui.1)
@@ -337,7 +337,7 @@ impl ObjectStore {
 
     /// Get the timestamp for Point.
     ///
-    pub fn point_timestamp(&mut self, point: Point) -> SystemTime {
+    pub fn point_timestamp(&self, point: &Point) -> SystemTime {
         self.point
             .get(&point.id)
             .map(|point| point.1)
@@ -377,7 +377,7 @@ impl ObjectStore {
 
     /// Get the timestamp for RelationshipUi.
     ///
-    pub fn relationship_ui_timestamp(&mut self, relationship_ui: RelationshipUi) -> SystemTime {
+    pub fn relationship_ui_timestamp(&self, relationship_ui: &RelationshipUi) -> SystemTime {
         self.relationship_ui
             .get(&relationship_ui.id())
             .map(|relationship_ui| relationship_ui.1)
@@ -417,7 +417,7 @@ impl ObjectStore {
 
     /// Get the timestamp for SubtypeAnchors.
     ///
-    pub fn subtype_anchors_timestamp(&mut self, subtype_anchors: SubtypeAnchors) -> SystemTime {
+    pub fn subtype_anchors_timestamp(&self, subtype_anchors: &SubtypeAnchors) -> SystemTime {
         self.subtype_anchors
             .get(&subtype_anchors.id)
             .map(|subtype_anchors| subtype_anchors.1)
@@ -458,6 +458,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.anchor.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist AssociativeUI.
@@ -479,6 +490,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &associative_ui_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.associative_ui.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -504,6 +526,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &binary_ui_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.binary_ui.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Edge.
@@ -525,6 +558,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.edge.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -550,6 +594,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &isa_ui_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.isa_ui.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Object Edge.
@@ -571,6 +626,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &object_edge_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.object_edge.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -596,6 +662,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &object_ui_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.object_ui.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Point.
@@ -617,6 +694,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.point.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }
@@ -642,6 +730,17 @@ impl ObjectStore {
                     serde_json::to_writer_pretty(&mut writer, &relationship_ui_tuple)?;
                 }
             }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.relationship_ui.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
         }
 
         // Persist Subtype Anchors.
@@ -663,6 +762,17 @@ impl ObjectStore {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &subtype_anchors_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.subtype_anchors.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
                 }
             }
         }

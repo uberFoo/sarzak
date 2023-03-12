@@ -56,6 +56,8 @@ impl Value {
         subtype: &Expression,
         store: &mut WoogStore,
     ) -> Value {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
         let id = subtype.id();
         let new = Value {
             access: access.id,
@@ -75,11 +77,13 @@ impl Value {
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
-        let id = subtype.id();
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = subtype.id;
         let new = Value {
             access: access.id,
             ty: ty.id(),
-            subtype: ValueEnum::Variable(subtype.id()),
+            subtype: ValueEnum::Variable(subtype.id),
             id,
         };
         store.inter_value(new.clone());

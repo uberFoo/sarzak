@@ -1,0 +1,14 @@
+[
+  {
+    "description": "co-exists with a",
+    "id": "f72d0777-596b-52cd-aa92-33cbc9123f7a",
+    "referential_attribute": "block",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "74a87fe5-9fe4-549e-b8df-09b41944736e"
+  },
+  {
+    "secs_since_epoch": 1678093827,
+    "nanos_since_epoch": 99194000
+  }
+]

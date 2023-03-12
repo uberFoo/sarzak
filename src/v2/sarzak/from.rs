@@ -236,6 +236,7 @@ impl From<&FromExternal> for External {
     fn from(src: &FromExternal) -> Self {
         Self {
             id: src.id,
+            ctor: "new".to_owned(),
             name: src.name.clone(),
             path: src.path.clone(),
         }

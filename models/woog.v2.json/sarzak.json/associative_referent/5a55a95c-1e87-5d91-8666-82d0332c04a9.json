@@ -1,0 +1,13 @@
+[
+  {
+    "description": "is comprised of",
+    "id": "5a55a95c-1e87-5d91-8666-82d0332c04a9",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "261483c0-63f6-5cc9-a23a-2cf69dff521a"
+  },
+  {
+    "secs_since_epoch": 1678231798,
+    "nanos_since_epoch": 664866000
+  }
+]

@@ -5,10 +5,12 @@ model = "models/sarzak.json"
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+always_process = true
 
 [modules."v2/sarzak".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true
 from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
 
@@ -20,10 +22,12 @@ compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+always_process = true
 
 [modules."v2/drawing".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true
 from_module = "v1::drawing"
 from_path = "models/drawing.json"
 
@@ -35,7 +39,9 @@ compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 imported_domains = ["v2/sarzak"]
+always_process = true
 
 [modules."v2/woog".compiler.target]
 target = "domain"
 persist = true
+persist_timestamps = true

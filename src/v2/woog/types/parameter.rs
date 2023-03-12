@@ -2,7 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::woog::types::object_method::ObjectMethod;
+use crate::v2::woog::types::function::Function;
 use crate::v2::woog::types::variable::Variable;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
@@ -20,9 +20,9 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Parameter {
     pub id: Uuid,
-    pub name: String,
-    /// R5: [`Parameter`] 'is used by an' [`ObjectMethod`]
-    pub method: Uuid,
+    pub seed: Uuid,
+    /// R5: [`Parameter`] 'is used by a' [`Function`]
+    pub function: Option<Uuid>,
     /// R1: [`Parameter`] 'came before' [`Parameter`]
     pub next: Option<Uuid>,
 }
@@ -32,29 +32,33 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
-        name: String,
-        method: &ObjectMethod,
+        seed: Uuid,
+        function: Option<&Function>,
         next: Option<&Parameter>,
         store: &mut WoogStore,
     ) -> Parameter {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{}:{:?}:{:?}", name, method, next).as_bytes(),
+            format!("{}:{:?}:{:?}", seed, function, next).as_bytes(),
         );
         let new = Parameter {
-            name: name,
-            method: method.id,
+            id: id,
+            seed: seed,
+            function: function.map(|function| function.id),
             next: next.map(|parameter| parameter.id),
-            id,
         };
         store.inter_parameter(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-method"}}}
-    /// Navigate to [`ObjectMethod`] across R5(1-*)
-    pub fn r5_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
-        vec![store.exhume_object_method(&self.method).unwrap()]
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-function"}}}
+    /// Navigate to [`Function`] across R5(1-*c)
+    pub fn r5_function<'a>(&'a self, store: &'a WoogStore) -> Vec<&Function> {
+        match self.function {
+            Some(ref function) => vec![store.exhume_function(function).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}

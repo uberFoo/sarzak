@@ -1,0 +1,13 @@
+[
+  {
+    "id": "69eb5169-34b8-5307-998a-c3231cf1660e",
+    "one_referential_attribute": "enum",
+    "other_referential_attribute": "field",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "obj_id": "ace55de0-1dab-5324-b7b3-ce9d50d81d68"
+  },
+  {
+    "secs_since_epoch": 1678285771,
+    "nanos_since_epoch": 382842000
+  }
+]

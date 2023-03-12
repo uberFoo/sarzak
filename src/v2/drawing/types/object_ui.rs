@@ -63,10 +63,10 @@ impl ObjectUi {
         );
         let new = ObjectUi {
             height: height,
+            id: id,
             width: width,
             object_id: object_id.id,
             origin: origin.id,
-            id,
         };
         store.inter_object_ui(new.clone());
         new

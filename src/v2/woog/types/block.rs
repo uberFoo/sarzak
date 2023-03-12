@@ -3,7 +3,9 @@
 use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
+use crate::v2::woog::types::object_method::ObjectMethod;
 use crate::v2::woog::types::statement::Statement;
+use crate::v2::woog::types::symbol_table::SymbolTable;
 use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
@@ -21,21 +23,30 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Block {
     pub id: Uuid,
-    pub instance: Uuid,
+    pub seed: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-implementation"}}}
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new(instance: Uuid, store: &mut WoogStore) -> Block {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", instance).as_bytes());
-        let new = Block {
-            instance: instance,
-            id,
-        };
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Block {
+        let id = Uuid::new_v5(&UUID_NS, format!("{}", seed).as_bytes());
+        let new = Block { id: id, seed: seed };
         store.inter_block(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
+    /// Navigate to [`ObjectMethod`] across R23(1-1c)
+    pub fn r23c_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
+        let object_method = store
+            .iter_object_method()
+            .find(|object_method| object_method.block == self.id);
+        match object_method {
+            Some(ref object_method) => vec![object_method],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
@@ -51,6 +62,15 @@ impl Block {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
+    /// Navigate to [`SymbolTable`] across R24(1-1)
+    pub fn r24_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
+        vec![store
+            .iter_symbol_table()
+            .find(|symbol_table| symbol_table.block == self.id)
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
