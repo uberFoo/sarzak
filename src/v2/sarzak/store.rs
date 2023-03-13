@@ -30,6 +30,7 @@
 use std::collections::HashMap;
 use std::{fs, io, path::Path, time::SystemTime};
 
+use log;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -105,6 +106,7 @@ impl ObjectStore {
     /// Inter [`AcknowledgedEvent`] into the store.
     ///
     pub fn inter_acknowledged_event(&mut self, acknowledged_event: AcknowledgedEvent) {
+        log::debug!("inter_acknowledged_event: {:?}", acknowledged_event);
         self.acknowledged_event.insert(
             acknowledged_event.id,
             (acknowledged_event, SystemTime::now()),
@@ -150,6 +152,7 @@ impl ObjectStore {
     /// Inter [`Associative`] into the store.
     ///
     pub fn inter_associative(&mut self, associative: Associative) {
+        log::debug!("inter_associative: {:?}", associative);
         self.associative
             .insert(associative.id, (associative, SystemTime::now()));
     }
@@ -186,6 +189,7 @@ impl ObjectStore {
     /// Inter [`AssociativeReferent`] into the store.
     ///
     pub fn inter_associative_referent(&mut self, associative_referent: AssociativeReferent) {
+        log::debug!("inter_associative_referent: {:?}", associative_referent);
         self.associative_referent.insert(
             associative_referent.id,
             (associative_referent, SystemTime::now()),
@@ -234,6 +238,7 @@ impl ObjectStore {
     /// Inter [`AssociativeReferrer`] into the store.
     ///
     pub fn inter_associative_referrer(&mut self, associative_referrer: AssociativeReferrer) {
+        log::debug!("inter_associative_referrer: {:?}", associative_referrer);
         self.associative_referrer.insert(
             associative_referrer.id,
             (associative_referrer, SystemTime::now()),
@@ -282,6 +287,7 @@ impl ObjectStore {
     /// Inter [`Attribute`] into the store.
     ///
     pub fn inter_attribute(&mut self, attribute: Attribute) {
+        log::debug!("inter_attribute: {:?}", attribute);
         self.attribute
             .insert(attribute.id, (attribute, SystemTime::now()));
     }
@@ -316,6 +322,7 @@ impl ObjectStore {
     /// Inter [`Binary`] into the store.
     ///
     pub fn inter_binary(&mut self, binary: Binary) {
+        log::debug!("inter_binary: {:?}", binary);
         self.binary.insert(binary.id, (binary, SystemTime::now()));
     }
 
@@ -349,6 +356,7 @@ impl ObjectStore {
     /// Inter [`Cardinality`] into the store.
     ///
     pub fn inter_cardinality(&mut self, cardinality: Cardinality) {
+        log::debug!("inter_cardinality: {:?}", cardinality);
         self.cardinality
             .insert(cardinality.id(), (cardinality, SystemTime::now()));
     }
@@ -385,6 +393,7 @@ impl ObjectStore {
     /// Inter [`Conditionality`] into the store.
     ///
     pub fn inter_conditionality(&mut self, conditionality: Conditionality) {
+        log::debug!("inter_conditionality: {:?}", conditionality);
         self.conditionality
             .insert(conditionality.id(), (conditionality, SystemTime::now()));
     }
@@ -425,6 +434,7 @@ impl ObjectStore {
     /// Inter [`Event`] into the store.
     ///
     pub fn inter_event(&mut self, event: Event) {
+        log::debug!("inter_event: {:?}", event);
         self.event.insert(event.id, (event, SystemTime::now()));
     }
 
@@ -458,6 +468,7 @@ impl ObjectStore {
     /// Inter [`External`] into the store.
     ///
     pub fn inter_external(&mut self, external: External) {
+        log::debug!("inter_external: {:?}", external);
         self.external
             .insert(external.id, (external, SystemTime::now()));
     }
@@ -492,6 +503,7 @@ impl ObjectStore {
     /// Inter [`Isa`] into the store.
     ///
     pub fn inter_isa(&mut self, isa: Isa) {
+        log::debug!("inter_isa: {:?}", isa);
         self.isa.insert(isa.id, (isa, SystemTime::now()));
     }
 
@@ -525,6 +537,7 @@ impl ObjectStore {
     /// Inter [`Object`] into the store.
     ///
     pub fn inter_object(&mut self, object: Object) {
+        log::debug!("inter_object: {:?}", object);
         self.object.insert(object.id, (object, SystemTime::now()));
     }
 
@@ -558,6 +571,7 @@ impl ObjectStore {
     /// Inter [`Referent`] into the store.
     ///
     pub fn inter_referent(&mut self, referent: Referent) {
+        log::debug!("inter_referent: {:?}", referent);
         self.referent
             .insert(referent.id, (referent, SystemTime::now()));
     }
@@ -592,6 +606,7 @@ impl ObjectStore {
     /// Inter [`Referrer`] into the store.
     ///
     pub fn inter_referrer(&mut self, referrer: Referrer) {
+        log::debug!("inter_referrer: {:?}", referrer);
         self.referrer
             .insert(referrer.id, (referrer, SystemTime::now()));
     }
@@ -626,6 +641,7 @@ impl ObjectStore {
     /// Inter [`Relationship`] into the store.
     ///
     pub fn inter_relationship(&mut self, relationship: Relationship) {
+        log::debug!("inter_relationship: {:?}", relationship);
         self.relationship
             .insert(relationship.id(), (relationship, SystemTime::now()));
     }
@@ -666,6 +682,7 @@ impl ObjectStore {
     /// Inter [`State`] into the store.
     ///
     pub fn inter_state(&mut self, state: State) {
+        log::debug!("inter_state: {:?}", state);
         self.state.insert(state.id, (state, SystemTime::now()));
     }
 
@@ -699,6 +716,7 @@ impl ObjectStore {
     /// Inter [`Subtype`] into the store.
     ///
     pub fn inter_subtype(&mut self, subtype: Subtype) {
+        log::debug!("inter_subtype: {:?}", subtype);
         self.subtype
             .insert(subtype.id, (subtype, SystemTime::now()));
     }
@@ -733,6 +751,7 @@ impl ObjectStore {
     /// Inter [`Supertype`] into the store.
     ///
     pub fn inter_supertype(&mut self, supertype: Supertype) {
+        log::debug!("inter_supertype: {:?}", supertype);
         self.supertype
             .insert(supertype.id, (supertype, SystemTime::now()));
     }
@@ -767,6 +786,7 @@ impl ObjectStore {
     /// Inter [`Ty`] into the store.
     ///
     pub fn inter_ty(&mut self, ty: Ty) {
+        log::debug!("inter_ty: {:?}", ty);
         self.ty.insert(ty.id(), (ty, SystemTime::now()));
     }
 
