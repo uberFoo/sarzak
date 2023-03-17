@@ -35,10 +35,9 @@
 //! * [`Variable`]
 //! * [`Visibility`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-definition"}}}
-use std::collections::HashMap;
+use fnv::FnvHashMap as HashMap;
 use std::{fs, io, path::Path, time::SystemTime};
 
-use log;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -83,33 +82,33 @@ pub struct ObjectStore {
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            access: HashMap::new(),
-            block: HashMap::new(),
-            call: HashMap::new(),
-            constant: HashMap::new(),
-            enumeration: HashMap::new(),
-            enumeration_field: HashMap::new(),
-            expression: HashMap::new(),
-            field: HashMap::new(),
-            function: HashMap::new(),
-            generation_unit: HashMap::new(),
-            grace_type: HashMap::new(),
-            item: HashMap::new(),
-            x_let: HashMap::new(),
-            local: HashMap::new(),
-            object_method: HashMap::new(),
-            woog_option: HashMap::new(),
-            ownership: HashMap::new(),
-            parameter: HashMap::new(),
-            reference: HashMap::new(),
-            statement: HashMap::new(),
-            structure: HashMap::new(),
-            structure_field: HashMap::new(),
-            symbol_table: HashMap::new(),
-            time_stamp: HashMap::new(),
-            value: HashMap::new(),
-            variable: HashMap::new(),
-            visibility: HashMap::new(),
+            access: HashMap::default(),
+            block: HashMap::default(),
+            call: HashMap::default(),
+            constant: HashMap::default(),
+            enumeration: HashMap::default(),
+            enumeration_field: HashMap::default(),
+            expression: HashMap::default(),
+            field: HashMap::default(),
+            function: HashMap::default(),
+            generation_unit: HashMap::default(),
+            grace_type: HashMap::default(),
+            item: HashMap::default(),
+            x_let: HashMap::default(),
+            local: HashMap::default(),
+            object_method: HashMap::default(),
+            woog_option: HashMap::default(),
+            ownership: HashMap::default(),
+            parameter: HashMap::default(),
+            reference: HashMap::default(),
+            statement: HashMap::default(),
+            structure: HashMap::default(),
+            structure_field: HashMap::default(),
+            symbol_table: HashMap::default(),
+            time_stamp: HashMap::default(),
+            value: HashMap::default(),
+            variable: HashMap::default(),
+            visibility: HashMap::default(),
         };
 
         // Initialize Singleton Subtypes
@@ -129,7 +128,6 @@ impl ObjectStore {
     /// Inter [`Access`] into the store.
     ///
     pub fn inter_access(&mut self, access: Access) {
-        log::debug!("inter_access: {:?}", access);
         self.access.insert(access.id, (access, SystemTime::now()));
     }
 
@@ -163,7 +161,6 @@ impl ObjectStore {
     /// Inter [`Block`] into the store.
     ///
     pub fn inter_block(&mut self, block: Block) {
-        log::debug!("inter_block: {:?}", block);
         self.block.insert(block.id, (block, SystemTime::now()));
     }
 
@@ -197,7 +194,6 @@ impl ObjectStore {
     /// Inter [`Call`] into the store.
     ///
     pub fn inter_call(&mut self, call: Call) {
-        log::debug!("inter_call: {:?}", call);
         self.call.insert(call.id, (call, SystemTime::now()));
     }
 
@@ -231,7 +227,6 @@ impl ObjectStore {
     /// Inter [`Constant`] into the store.
     ///
     pub fn inter_constant(&mut self, constant: Constant) {
-        log::debug!("inter_constant: {:?}", constant);
         self.constant
             .insert(constant.id, (constant, SystemTime::now()));
     }
@@ -266,7 +261,6 @@ impl ObjectStore {
     /// Inter [`Enumeration`] into the store.
     ///
     pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
-        log::debug!("inter_enumeration: {:?}", enumeration);
         self.enumeration
             .insert(enumeration.id, (enumeration, SystemTime::now()));
     }
@@ -303,7 +297,6 @@ impl ObjectStore {
     /// Inter [`EnumerationField`] into the store.
     ///
     pub fn inter_enumeration_field(&mut self, enumeration_field: EnumerationField) {
-        log::debug!("inter_enumeration_field: {:?}", enumeration_field);
         self.enumeration_field
             .insert(enumeration_field.id, (enumeration_field, SystemTime::now()));
     }
@@ -344,7 +337,6 @@ impl ObjectStore {
     /// Inter [`Expression`] into the store.
     ///
     pub fn inter_expression(&mut self, expression: Expression) {
-        log::debug!("inter_expression: {:?}", expression);
         self.expression
             .insert(expression.id(), (expression, SystemTime::now()));
     }
@@ -381,7 +373,6 @@ impl ObjectStore {
     /// Inter [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Field) {
-        log::debug!("inter_field: {:?}", field);
         self.field.insert(field.id, (field, SystemTime::now()));
     }
 
@@ -415,7 +406,6 @@ impl ObjectStore {
     /// Inter [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Function) {
-        log::debug!("inter_function: {:?}", function);
         self.function
             .insert(function.id, (function, SystemTime::now()));
     }
@@ -450,7 +440,6 @@ impl ObjectStore {
     /// Inter [`GenerationUnit`] into the store.
     ///
     pub fn inter_generation_unit(&mut self, generation_unit: GenerationUnit) {
-        log::debug!("inter_generation_unit: {:?}", generation_unit);
         self.generation_unit
             .insert(generation_unit.id, (generation_unit, SystemTime::now()));
     }
@@ -491,7 +480,6 @@ impl ObjectStore {
     /// Inter [`GraceType`] into the store.
     ///
     pub fn inter_grace_type(&mut self, grace_type: GraceType) {
-        log::debug!("inter_grace_type: {:?}", grace_type);
         self.grace_type
             .insert(grace_type.id(), (grace_type, SystemTime::now()));
     }
@@ -528,7 +516,6 @@ impl ObjectStore {
     /// Inter [`Item`] into the store.
     ///
     pub fn inter_item(&mut self, item: Item) {
-        log::debug!("inter_item: {:?}", item);
         self.item.insert(item.id(), (item, SystemTime::now()));
     }
 
@@ -562,7 +549,6 @@ impl ObjectStore {
     /// Inter [`XLet`] into the store.
     ///
     pub fn inter_x_let(&mut self, x_let: XLet) {
-        log::debug!("inter_x_let: {:?}", x_let);
         self.x_let.insert(x_let.id, (x_let, SystemTime::now()));
     }
 
@@ -596,7 +582,6 @@ impl ObjectStore {
     /// Inter [`Local`] into the store.
     ///
     pub fn inter_local(&mut self, local: Local) {
-        log::debug!("inter_local: {:?}", local);
         self.local.insert(local.id, (local, SystemTime::now()));
     }
 
@@ -630,7 +615,6 @@ impl ObjectStore {
     /// Inter [`ObjectMethod`] into the store.
     ///
     pub fn inter_object_method(&mut self, object_method: ObjectMethod) {
-        log::debug!("inter_object_method: {:?}", object_method);
         self.object_method
             .insert(object_method.id, (object_method, SystemTime::now()));
     }
@@ -671,7 +655,6 @@ impl ObjectStore {
     /// Inter [`WoogOption`] into the store.
     ///
     pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
-        log::debug!("inter_woog_option: {:?}", woog_option);
         self.woog_option
             .insert(woog_option.id, (woog_option, SystemTime::now()));
     }
@@ -708,7 +691,6 @@ impl ObjectStore {
     /// Inter [`Ownership`] into the store.
     ///
     pub fn inter_ownership(&mut self, ownership: Ownership) {
-        log::debug!("inter_ownership: {:?}", ownership);
         self.ownership
             .insert(ownership.id(), (ownership, SystemTime::now()));
     }
@@ -743,7 +725,6 @@ impl ObjectStore {
     /// Inter [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Parameter) {
-        log::debug!("inter_parameter: {:?}", parameter);
         self.parameter
             .insert(parameter.id, (parameter, SystemTime::now()));
     }
@@ -778,7 +759,6 @@ impl ObjectStore {
     /// Inter [`Reference`] into the store.
     ///
     pub fn inter_reference(&mut self, reference: Reference) {
-        log::debug!("inter_reference: {:?}", reference);
         self.reference
             .insert(reference.id, (reference, SystemTime::now()));
     }
@@ -813,7 +793,6 @@ impl ObjectStore {
     /// Inter [`Statement`] into the store.
     ///
     pub fn inter_statement(&mut self, statement: Statement) {
-        log::debug!("inter_statement: {:?}", statement);
         self.statement
             .insert(statement.id, (statement, SystemTime::now()));
     }
@@ -848,7 +827,6 @@ impl ObjectStore {
     /// Inter [`Structure`] into the store.
     ///
     pub fn inter_structure(&mut self, structure: Structure) {
-        log::debug!("inter_structure: {:?}", structure);
         self.structure
             .insert(structure.id, (structure, SystemTime::now()));
     }
@@ -883,7 +861,6 @@ impl ObjectStore {
     /// Inter [`StructureField`] into the store.
     ///
     pub fn inter_structure_field(&mut self, structure_field: StructureField) {
-        log::debug!("inter_structure_field: {:?}", structure_field);
         self.structure_field
             .insert(structure_field.id, (structure_field, SystemTime::now()));
     }
@@ -924,7 +901,6 @@ impl ObjectStore {
     /// Inter [`SymbolTable`] into the store.
     ///
     pub fn inter_symbol_table(&mut self, symbol_table: SymbolTable) {
-        log::debug!("inter_symbol_table: {:?}", symbol_table);
         self.symbol_table
             .insert(symbol_table.id, (symbol_table, SystemTime::now()));
     }
@@ -965,7 +941,6 @@ impl ObjectStore {
     /// Inter [`TimeStamp`] into the store.
     ///
     pub fn inter_time_stamp(&mut self, time_stamp: TimeStamp) {
-        log::debug!("inter_time_stamp: {:?}", time_stamp);
         self.time_stamp
             .insert(time_stamp.id, (time_stamp, SystemTime::now()));
     }
@@ -1002,7 +977,6 @@ impl ObjectStore {
     /// Inter [`Value`] into the store.
     ///
     pub fn inter_value(&mut self, value: Value) {
-        log::debug!("inter_value: {:?}", value);
         self.value.insert(value.id, (value, SystemTime::now()));
     }
 
@@ -1036,7 +1010,6 @@ impl ObjectStore {
     /// Inter [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
-        log::debug!("inter_variable: {:?}", variable);
         self.variable
             .insert(variable.id, (variable, SystemTime::now()));
     }
@@ -1071,7 +1044,6 @@ impl ObjectStore {
     /// Inter [`Visibility`] into the store.
     ///
     pub fn inter_visibility(&mut self, visibility: Visibility) {
-        log::debug!("inter_visibility: {:?}", visibility);
         self.visibility
             .insert(visibility.id(), (visibility, SystemTime::now()));
     }

@@ -18,10 +18,9 @@
 //! * [`RelationshipUi`]
 //! * [`SubtypeAnchors`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-definition"}}}
-use std::collections::HashMap;
+use fnv::FnvHashMap as HashMap;
 use std::{fs, io, path::Path, time::SystemTime};
 
-use log;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -47,16 +46,16 @@ pub struct ObjectStore {
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            anchor: HashMap::new(),
-            associative_ui: HashMap::new(),
-            binary_ui: HashMap::new(),
-            edge: HashMap::new(),
-            isa_ui: HashMap::new(),
-            object_edge: HashMap::new(),
-            object_ui: HashMap::new(),
-            point: HashMap::new(),
-            relationship_ui: HashMap::new(),
-            subtype_anchors: HashMap::new(),
+            anchor: HashMap::default(),
+            associative_ui: HashMap::default(),
+            binary_ui: HashMap::default(),
+            edge: HashMap::default(),
+            isa_ui: HashMap::default(),
+            object_edge: HashMap::default(),
+            object_ui: HashMap::default(),
+            point: HashMap::default(),
+            relationship_ui: HashMap::default(),
+            subtype_anchors: HashMap::default(),
         };
 
         // Initialize Singleton Subtypes
@@ -72,7 +71,6 @@ impl ObjectStore {
     /// Inter [`Anchor`] into the store.
     ///
     pub fn inter_anchor(&mut self, anchor: Anchor) {
-        log::debug!("inter_anchor: {:?}", anchor);
         self.anchor.insert(anchor.id, (anchor, SystemTime::now()));
     }
 
@@ -106,7 +104,6 @@ impl ObjectStore {
     /// Inter [`AssociativeUi`] into the store.
     ///
     pub fn inter_associative_ui(&mut self, associative_ui: AssociativeUi) {
-        log::debug!("inter_associative_ui: {:?}", associative_ui);
         self.associative_ui
             .insert(associative_ui.id, (associative_ui, SystemTime::now()));
     }
@@ -147,7 +144,6 @@ impl ObjectStore {
     /// Inter [`BinaryUi`] into the store.
     ///
     pub fn inter_binary_ui(&mut self, binary_ui: BinaryUi) {
-        log::debug!("inter_binary_ui: {:?}", binary_ui);
         self.binary_ui
             .insert(binary_ui.id, (binary_ui, SystemTime::now()));
     }
@@ -182,7 +178,6 @@ impl ObjectStore {
     /// Inter [`Edge`] into the store.
     ///
     pub fn inter_edge(&mut self, edge: Edge) {
-        log::debug!("inter_edge: {:?}", edge);
         self.edge.insert(edge.id(), (edge, SystemTime::now()));
     }
 
@@ -216,7 +211,6 @@ impl ObjectStore {
     /// Inter [`IsaUi`] into the store.
     ///
     pub fn inter_isa_ui(&mut self, isa_ui: IsaUi) {
-        log::debug!("inter_isa_ui: {:?}", isa_ui);
         self.isa_ui.insert(isa_ui.id, (isa_ui, SystemTime::now()));
     }
 
@@ -250,7 +244,6 @@ impl ObjectStore {
     /// Inter [`ObjectEdge`] into the store.
     ///
     pub fn inter_object_edge(&mut self, object_edge: ObjectEdge) {
-        log::debug!("inter_object_edge: {:?}", object_edge);
         self.object_edge
             .insert(object_edge.id, (object_edge, SystemTime::now()));
     }
@@ -287,7 +280,6 @@ impl ObjectStore {
     /// Inter [`ObjectUi`] into the store.
     ///
     pub fn inter_object_ui(&mut self, object_ui: ObjectUi) {
-        log::debug!("inter_object_ui: {:?}", object_ui);
         self.object_ui
             .insert(object_ui.id, (object_ui, SystemTime::now()));
     }
@@ -322,7 +314,6 @@ impl ObjectStore {
     /// Inter [`Point`] into the store.
     ///
     pub fn inter_point(&mut self, point: Point) {
-        log::debug!("inter_point: {:?}", point);
         self.point.insert(point.id, (point, SystemTime::now()));
     }
 
@@ -356,7 +347,6 @@ impl ObjectStore {
     /// Inter [`RelationshipUi`] into the store.
     ///
     pub fn inter_relationship_ui(&mut self, relationship_ui: RelationshipUi) {
-        log::debug!("inter_relationship_ui: {:?}", relationship_ui);
         self.relationship_ui
             .insert(relationship_ui.id(), (relationship_ui, SystemTime::now()));
     }
@@ -397,7 +387,6 @@ impl ObjectStore {
     /// Inter [`SubtypeAnchors`] into the store.
     ///
     pub fn inter_subtype_anchors(&mut self, subtype_anchors: SubtypeAnchors) {
-        log::debug!("inter_subtype_anchors: {:?}", subtype_anchors);
         self.subtype_anchors
             .insert(subtype_anchors.id, (subtype_anchors, SystemTime::now()));
     }
