@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use snafu::prelude::*;
+use snafu::{prelude::*, Backtrace};
 
 use crate::v2::domain::Domain;
 
@@ -27,7 +27,10 @@ pub enum ModelCompilerError {
         source: std::io::Error,
     },
     #[snafu(display("Compiler Error: {}", description))]
-    Compiler { description: String },
+    Compiler {
+        backtrace: Backtrace,
+        description: String,
+    },
 }
 
 pub trait ModelCompilerOptions: std::fmt::Debug {
