@@ -10,6 +10,8 @@
 //! the generated code will need to be manually edited.
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
+use uuid::Uuid;
+
 use crate::v2::drawing::types::{
     Anchor, AssociativeUi, BinaryUi, Edge, IsaUi, ObjectEdge, ObjectUi, Point, RelationshipUi,
     SubtypeAnchors, BOTTOM, LEFT, RIGHT, TOP,
@@ -20,6 +22,7 @@ use crate::v1::drawing::types::{
     Anchor as FromAnchor, AssociativeUi as FromAssociativeUi, BinaryUi as FromBinaryUi,
     Edge as FromEdge, IsaUi as FromIsaUi, ObjectEdge as FromObjectEdge, ObjectUi as FromObjectUi,
     Point as FromPoint, RelationshipUi as FromRelationshipUi, SubtypeAnchors as FromSubtypeAnchors,
+    BOTTOM as FROM_BOTTOM, LEFT as FROM_LEFT, RIGHT as FROM_RIGHT, TOP as FROM_TOP,
 };
 use crate::v1::drawing::ObjectStore as DrawingStore;
 
@@ -85,7 +88,7 @@ impl From<&FromAnchor> for Anchor {
     fn from(src: &FromAnchor) -> Self {
         Self {
             id: src.id,
-            edge: src.edge,
+            edge: swizzle_edge(src.edge),
             offset: src.offset,
             location: src.location,
         }
@@ -126,6 +129,17 @@ impl From<&FromEdge> for Edge {
         }
     }
 }
+
+fn swizzle_edge(src: Uuid) -> Uuid {
+    match src {
+        FROM_BOTTOM => BOTTOM,
+        FROM_LEFT => LEFT,
+        FROM_RIGHT => RIGHT,
+        FROM_TOP => TOP,
+        _ => panic!("Unexpected edge: {:?}", src),
+    }
+}
+
 impl From<&FromIsaUi> for IsaUi {
     fn from(src: &FromIsaUi) -> Self {
         Self {
