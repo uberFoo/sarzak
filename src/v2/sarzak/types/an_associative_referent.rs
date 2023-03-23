@@ -14,6 +14,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct AnAssociativeReferent {
     pub id: Uuid,
+    pub referential_attribute: String,
     /// R22: [`Associative`] '🚧 Out of order — see sarzak#14.' [`Associative`]
     pub associative: Uuid,
     /// R22: [`AssociativeReferent`] '🚧 Out of order — see sarzak#14.' [`AssociativeReferent`]
@@ -25,16 +26,18 @@ impl AnAssociativeReferent {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-new"}}}
     /// Inter a new 'An Associative Referent' in the store, and return it's `id`.
     pub fn new(
+        referential_attribute: String,
         associative: &Associative,
         referent: &AssociativeReferent,
         store: &mut SarzakStore,
     ) -> AnAssociativeReferent {
         let id = Uuid::new_v5(
             &UUID_NS,
-            format!("{:?}:{:?}", associative, referent).as_bytes(),
+            format!("{}:{:?}:{:?}", referential_attribute, associative, referent).as_bytes(),
         );
         let new = AnAssociativeReferent {
             id: id,
+            referential_attribute: referential_attribute,
             associative: associative.id,
             referent: referent.id,
         };

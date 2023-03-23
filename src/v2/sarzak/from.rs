@@ -52,7 +52,7 @@ impl From<&SarzakStore> for ObjectStore {
         }
 
         for (_, instance) in from.iter_associative() {
-            let instance = Associative::from((instance, &mut to));
+            let instance = Associative::from((instance, from, &mut to));
             to.inter_associative(instance);
         }
 
@@ -150,13 +150,15 @@ impl From<&FromAcknowledgedEvent> for AcknowledgedEvent {
     }
 }
 
-impl From<(&FromAssociative, &mut ObjectStore)> for Associative {
-    fn from((src, store): (&FromAssociative, &mut ObjectStore)) -> Self {
+impl From<(&FromAssociative, &SarzakStore, &mut ObjectStore)> for Associative {
+    fn from((src, sarzak, store): (&FromAssociative, &SarzakStore, &mut ObjectStore)) -> Self {
         let this = Self {
             id: src.id,
             number: src.number,
             from: src.from,
         };
+
+        let referrer = sarzak.exhume_associative_referrer(&src.from).unwrap();
 
         // Create instances of the associative object
         let one = store.exhume_associative_referent(&src.one).unwrap().clone();
@@ -165,8 +167,18 @@ impl From<(&FromAssociative, &mut ObjectStore)> for Associative {
             .unwrap()
             .clone();
 
-        let _ = AnAssociativeReferent::new(&this, &one, store);
-        let _ = AnAssociativeReferent::new(&this, &other, store);
+        let _ = AnAssociativeReferent::new(
+            referrer.one_referential_attribute.clone(),
+            &this,
+            &one,
+            store,
+        );
+        let _ = AnAssociativeReferent::new(
+            referrer.other_referential_attribute.clone(),
+            &this,
+            &other,
+            store,
+        );
 
         this
     }
@@ -190,8 +202,6 @@ impl From<&FromAssociativeReferrer> for AssociativeReferrer {
             id: src.id,
             obj_id: src.obj_id,
             cardinality: from_const(&src.cardinality),
-            one_referential_attribute: src.one_referential_attribute.clone(),
-            other_referential_attribute: src.other_referential_attribute.clone(),
         }
     }
 }
