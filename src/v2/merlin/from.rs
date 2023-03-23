@@ -11,8 +11,8 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::merlin::types::{
-    Anchor, Bisection, Edge, Glyph, Line, LineSegment, Point, RelationshipName, RelationshipPhrase,
-    XBox, BOTTOM, LEFT, RIGHT, TOP,
+    Anchor, Bisection, Edge, Glyph, Line, LineSegment, LineSegmentPoint, Point, RelationshipName,
+    RelationshipPhrase, XBox, BOTTOM, LEFT, RIGHT, TOP,
 };
 use crate::v2::merlin::ObjectStore;
 
@@ -110,13 +110,16 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 y,
                 &edge.into(),
                 &glyph,
-                &line,
                 &x_box,
+                &line,
                 &mut merlin,
             );
 
             // Create the from point
-            // Point::new_anchor(point.x, point.y, &line_seg, &from_anchor, &mut merlin);
+            let point = Point::new_anchor(point.x, point.y, &from_anchor, &mut merlin);
+
+            // Create the "line segment point"
+            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
 
             let to_anchor = bui.r8_anchor(drawing)[0];
             let referent = binary.r5_referent(sarzak)[0];
@@ -152,13 +155,16 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 y,
                 &edge.into(),
                 &glyph,
-                &line,
                 &x_box,
+                &line,
                 &mut merlin,
             );
 
             // Create the to point
-            // Point::new_anchor(point.x, point.y, &line_seg, &to_anchor, &mut merlin);
+            let point = Point::new_anchor(point.x, point.y, &to_anchor, &mut merlin);
+
+            // Create the "line segment point"
+            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
         }
 
         for instance in drawing.iter_edge() {
