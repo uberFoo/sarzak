@@ -8,6 +8,7 @@
 //! # Contents:
 //!
 //! * [`AcknowledgedEvent`]
+//! * [`AnAssociativeReferent`]
 //! * [`Associative`]
 //! * [`AssociativeReferent`]
 //! * [`AssociativeReferrer`]
@@ -34,15 +35,16 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::{
-    AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
-    UNCONDITIONAL, UUID,
+    AcknowledgedEvent, AnAssociativeReferent, Associative, AssociativeReferent,
+    AssociativeReferrer, Attribute, Binary, Cardinality, Conditionality, Event, External, Isa,
+    Object, Referent, Referrer, Relationship, State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL,
+    FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL, UUID,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     acknowledged_event: HashMap<Uuid, (AcknowledgedEvent, SystemTime)>,
+    an_associative_referent: HashMap<Uuid, (AnAssociativeReferent, SystemTime)>,
     associative: HashMap<Uuid, (Associative, SystemTime)>,
     associative_referent: HashMap<Uuid, (AssociativeReferent, SystemTime)>,
     associative_referrer: HashMap<Uuid, (AssociativeReferrer, SystemTime)>,
@@ -67,6 +69,7 @@ impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
             acknowledged_event: HashMap::default(),
+            an_associative_referent: HashMap::default(),
             associative: HashMap::default(),
             associative_referent: HashMap::default(),
             associative_referrer: HashMap::default(),
@@ -144,6 +147,57 @@ impl ObjectStore {
         self.acknowledged_event
             .get(&acknowledged_event.id)
             .map(|acknowledged_event| acknowledged_event.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`AnAssociativeReferent`] into the store.
+    ///
+    pub fn inter_an_associative_referent(
+        &mut self,
+        an_associative_referent: AnAssociativeReferent,
+    ) {
+        self.an_associative_referent.insert(
+            an_associative_referent.id,
+            (an_associative_referent, SystemTime::now()),
+        );
+    }
+
+    /// Exhume [`AnAssociativeReferent`] from the store.
+    ///
+    pub fn exhume_an_associative_referent(&self, id: &Uuid) -> Option<&AnAssociativeReferent> {
+        self.an_associative_referent
+            .get(id)
+            .map(|an_associative_referent| &an_associative_referent.0)
+    }
+
+    /// Exhume [`AnAssociativeReferent`] from the store — mutably.
+    ///
+    pub fn exhume_an_associative_referent_mut(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<&mut AnAssociativeReferent> {
+        self.an_associative_referent
+            .get_mut(id)
+            .map(|an_associative_referent| &mut an_associative_referent.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, AnAssociativeReferent>`.
+    ///
+    pub fn iter_an_associative_referent(&self) -> impl Iterator<Item = &AnAssociativeReferent> {
+        self.an_associative_referent
+            .values()
+            .map(|an_associative_referent| &an_associative_referent.0)
+    }
+
+    /// Get the timestamp for AnAssociativeReferent.
+    ///
+    pub fn an_associative_referent_timestamp(
+        &self,
+        an_associative_referent: &AnAssociativeReferent,
+    ) -> SystemTime {
+        self.an_associative_referent
+            .get(&an_associative_referent.id)
+            .map(|an_associative_referent| an_associative_referent.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -844,6 +898,41 @@ impl ObjectStore {
             }
         }
 
+        // Persist An Associative Referent.
+        {
+            let path = path.join("an_associative_referent");
+            fs::create_dir_all(&path)?;
+            for an_associative_referent_tuple in self.an_associative_referent.values() {
+                let path = path.join(format!("{}.json", an_associative_referent_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (AnAssociativeReferent, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != an_associative_referent_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &an_associative_referent_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &an_associative_referent_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.an_associative_referent.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Associative.
         {
             let path = path.join("associative");
@@ -1486,6 +1575,23 @@ impl ObjectStore {
                 store
                     .acknowledged_event
                     .insert(acknowledged_event.0.id, acknowledged_event);
+            }
+        }
+
+        // Load An Associative Referent.
+        {
+            let path = path.join("an_associative_referent");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let an_associative_referent: (AnAssociativeReferent, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .an_associative_referent
+                    .insert(an_associative_referent.0.id, an_associative_referent);
             }
         }
 

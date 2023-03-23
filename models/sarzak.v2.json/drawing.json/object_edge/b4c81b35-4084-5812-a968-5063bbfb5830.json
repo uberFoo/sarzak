@@ -1,0 +1,11 @@
+[
+  {
+    "id": "b4c81b35-4084-5812-a968-5063bbfb5830",
+    "edge": "1d99f96f-d110-5adf-a108-9fb0b707dae3",
+    "oui_id": "77a62e24-ea9c-59e2-99b1-d30de1590566"
+  },
+  {
+    "secs_since_epoch": 1679563881,
+    "nanos_since_epoch": 33429000
+  }
+]

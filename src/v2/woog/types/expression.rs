@@ -1,13 +1,13 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-use-statements"}}}
+use crate::v2::woog::store::ObjectStore as WoogStore;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
 use crate::v2::woog::types::value::Value;
+use crate::v2::woog::types::x_let::XLet;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-documentation"}}}
@@ -59,6 +59,21 @@ impl Expression {
             Expression::Call(id) => *id,
             Expression::Literal(id) => *id,
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_let"}}}
+    /// Navigate to [`XLet`] across R18(1-M)
+    pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
+        store
+            .iter_x_let()
+            .filter_map(|x_let| {
+                if x_let.expression == self.id() {
+                    Some(x_let)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}

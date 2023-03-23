@@ -17,10 +17,10 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct AssociativeUi {
     pub id: Uuid,
-    /// R14: [`AssociativeUi`] 'is drawn from' [`Anchor`]
-    pub one: Uuid,
     /// R15: [`AssociativeUi`] 'is drawn from' [`Anchor`]
     pub other: Uuid,
+    /// R14: [`AssociativeUi`] 'is drawn from' [`Anchor`]
+    pub one: Uuid,
     /// R16: [`AssociativeUi`] 'is drawn from' [`Anchor`]
     pub middle: Uuid,
     /// R20: [`AssociativeUi`] 'contains additional attributes to render' [`Associative`]
@@ -34,8 +34,8 @@ impl AssociativeUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-new"}}}
     /// Inter a new 'AssociativeUI' in the store, and return it's `id`.
     pub fn new(
-        one: &Anchor,
         other: &Anchor,
+        one: &Anchor,
         middle: &Anchor,
         associative_id: &Associative,
         from: &Point,
@@ -45,14 +45,14 @@ impl AssociativeUi {
             &UUID_NS,
             format!(
                 "{:?}:{:?}:{:?}:{:?}:{:?}",
-                one, other, middle, associative_id, from
+                other, one, middle, associative_id, from
             )
             .as_bytes(),
         );
         let new = AssociativeUi {
             id: id,
-            one: one.id,
             other: other.id,
+            one: one.id,
             middle: middle.id,
             associative_id: associative_id.id,
             from: from.id,
@@ -63,24 +63,24 @@ impl AssociativeUi {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
+    /// Navigate to [`Anchor`] across R15(1-*)
+    pub fn r15_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        vec![store.exhume_anchor(&self.other).unwrap()]
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
     /// Navigate to [`Anchor`] across R14(1-*)
     pub fn r14_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         vec![store.exhume_anchor(&self.one).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
-    /// Navigate to [`Anchor`] across R15(1-*)
-    pub fn r15_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        vec![store.exhume_anchor(&self.other).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
     }

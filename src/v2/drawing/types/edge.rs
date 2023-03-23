@@ -1,7 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"edge-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-use-statements"}}}
+use crate::v2::drawing::store::ObjectStore as DrawingStore;
+use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::bottom::BOTTOM;
 use crate::v2::drawing::types::left::LEFT;
+use crate::v2::drawing::types::object_edge::ObjectEdge;
 use crate::v2::drawing::types::right::RIGHT;
 use crate::v2::drawing::types::top::TOP;
 use serde::{Deserialize, Serialize};
@@ -72,6 +75,28 @@ impl Edge {
             Edge::Left(id) => *id,
             Edge::Right(id) => *id,
             Edge::Top(id) => *id,
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-anchor"}}}
+    /// Navigate to [`Anchor`] across R3(1-1c)
+    pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
+        let anchor = store.iter_anchor().find(|anchor| anchor.edge == self.id());
+        match anchor {
+            Some(ref anchor) => vec![anchor],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-object_edge"}}}
+    /// Navigate to [`ObjectEdge`] across R19(1-1c)
+    pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&ObjectEdge> {
+        let object_edge = store
+            .iter_object_edge()
+            .find(|object_edge| object_edge.edge == self.id());
+        match object_edge {
+            Some(ref object_edge) => vec![object_edge],
+            None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
