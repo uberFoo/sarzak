@@ -45,3 +45,18 @@ always_process = true
 target = "domain"
 persist = true
 persist_timestamps = true
+
+[modules."v2/merlin"]
+model = "models/merlin.json"
+
+[modules."v2/merlin".compiler]
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+imported_domains = ["v2/sarzak"]
+always_process = true
+
+[modules."v2/merlin".compiler.target]
+target = "domain"
+persist = true
+persist_timestamps = true
