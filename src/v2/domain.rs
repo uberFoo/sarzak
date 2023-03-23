@@ -7,7 +7,8 @@ use uuid::Uuid;
 
 use crate::v1::domain::Domain as DomainV1;
 use crate::v2::{
-    drawing::store::ObjectStore as DrawingStore, sarzak::store::ObjectStore as SarzakStore,
+    drawing::store::ObjectStore as DrawingStore, merlin::store::ObjectStore as MerlinStore,
+    sarzak::store::ObjectStore as SarzakStore,
 };
 use crate::VERSION;
 
@@ -23,36 +24,10 @@ struct MetaData {
 pub struct Domain {
     meta: MetaData,
     sarzak: SarzakStore,
-    drawing: DrawingStore,
+    merlin: MerlinStore,
 }
 
 impl Domain {
-    /// Create a new Domain
-    ///
-    /// This is used by the [`DomainBuilder`] to initialize a domain. It's not
-    /// a generally useful means of creating a domain.
-    #[allow(dead_code)]
-    pub(crate) fn new(
-        domain: String,
-        id: Uuid,
-        description: String,
-        sarzak: SarzakStore,
-        drawing: DrawingStore,
-    ) -> Self {
-        let meta = MetaData {
-            version: VERSION.to_owned(),
-            domain,
-            id,
-            description,
-        };
-
-        Domain {
-            meta,
-            sarzak,
-            drawing,
-        }
-    }
-
     /// Return the name of the domain
     ///
     pub fn domain(&self) -> &str {
@@ -99,23 +74,23 @@ impl Domain {
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model UI instances.
-    pub fn drawing(&self) -> &DrawingStore {
-        &self.drawing
+    pub fn merlin(&self) -> &MerlinStore {
+        &self.merlin
     }
 
     /// Return a mutable reference to the drawing store
     ///
     /// This returns a reference to the [`ObjectStore`] that contains the domain
     /// model UI instances.
-    pub fn drawing_mut(&mut self) -> &mut DrawingStore {
-        &mut self.drawing
+    pub fn merlin_mut(&mut self) -> &mut MerlinStore {
+        &mut self.merlin
     }
 
     pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
 
         let sarzak = SarzakStore::load(&path)?;
-        let drawing = DrawingStore::load(&path)?;
+        let merlin = MerlinStore::load(&path)?;
 
         let file = fs::File::open(path.join("metadata.json"))?;
         let reader = io::BufReader::new(file);
@@ -124,7 +99,7 @@ impl Domain {
         let domain = Domain {
             meta,
             sarzak,
-            drawing,
+            merlin,
         };
 
         Ok(domain)
@@ -135,7 +110,7 @@ impl Domain {
         fs::create_dir_all(path.parent().unwrap())?;
 
         self.sarzak.persist(&path)?;
-        self.drawing.persist(&path)?;
+        self.merlin.persist(&path)?;
 
         let path = path.join("metadata.json");
         let file = fs::File::create(path)?;
@@ -148,6 +123,10 @@ impl Domain {
 
 impl From<DomainV1> for Domain {
     fn from(domain: DomainV1) -> Self {
+        let sarzak = domain.sarzak().into();
+        let drawing: DrawingStore = domain.drawing().into();
+        let merlin = (&drawing, &sarzak).into();
+
         let domain = Domain {
             meta: MetaData {
                 version: VERSION.to_owned(),
@@ -155,8 +134,8 @@ impl From<DomainV1> for Domain {
                 id: domain.id().to_owned(),
                 description: domain.description().to_owned(),
             },
-            sarzak: domain.sarzak().into(),
-            drawing: domain.drawing().into(),
+            sarzak,
+            merlin,
         };
 
         domain
