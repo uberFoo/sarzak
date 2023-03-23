@@ -1,13 +1,11 @@
 [
   {
     "id": "8ebf28dc-e8b3-5c78-850d-2637d18941ff",
-    "one_referential_attribute": "line",
-    "other_referential_attribute": "box",
     "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
     "obj_id": "27edcc78-f257-5a0b-a2e4-c233987e0889"
   },
   {
-    "secs_since_epoch": 1679364476,
-    "nanos_since_epoch": 155930000
+    "secs_since_epoch": 1679582801,
+    "nanos_since_epoch": 721770000
   }
 ]

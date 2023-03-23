@@ -25,10 +25,10 @@ pub struct Anchor {
     pub edge: Uuid,
     /// R10: [`Anchor`] 'is displayed as a' [`Glyph`]
     pub glyph: Uuid,
-    /// R3: [`Line`] '🚧 Out of order — see sarzak#14.' [`Line`]
-    pub line: Uuid,
     /// R3: [`XBox`] '🚧 Out of order — see sarzak#14.' [`XBox`]
     pub x_box: Uuid,
+    /// R3: [`Line`] '🚧 Out of order — see sarzak#14.' [`Line`]
+    pub line: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-implementation"}}}
@@ -41,15 +41,15 @@ impl Anchor {
         y_offset: i64,
         edge: &Edge,
         glyph: &Glyph,
-        line: &Line,
         x_box: &XBox,
+        line: &Line,
         store: &mut MerlinStore,
     ) -> Anchor {
         let id = Uuid::new_v5(
             &UUID_NS,
             format!(
                 "{}:{}:{}:{:?}:{:?}:{:?}:{:?}",
-                offset, x_offset, y_offset, edge, glyph, line, x_box
+                offset, x_offset, y_offset, edge, glyph, x_box, line
             )
             .as_bytes(),
         );
@@ -60,8 +60,8 @@ impl Anchor {
             y_offset: y_offset,
             edge: edge.id(),
             glyph: glyph.id,
-            line: line.id,
             x_box: x_box.id,
+            line: line.id,
         };
         store.inter_anchor(new.clone());
         new
@@ -95,15 +95,17 @@ impl Anchor {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-assoc-to-line"}}}
-    /// Navigate to [`Line`] across R3(1-*)
-    pub fn r3_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
-        vec![store.exhume_line(&self.line).unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-assoc-to-x_box"}}}
     /// Navigate to [`XBox`] across R3(1-*)
     pub fn r3_x_box<'a>(&'a self, store: &'a MerlinStore) -> Vec<&XBox> {
         vec![store.exhume_x_box(&self.x_box).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-assoc-to-line"}}}
+    /// Navigate to [`Line`] across R3(1-*)
+    pub fn r3_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
+        vec![store.exhume_line(&self.line).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-impl-nav-subtype-to-supertype-point"}}}

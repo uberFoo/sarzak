@@ -1,0 +1,12 @@
+[
+  {
+    "id": "1a22d221-2143-529e-abf4-929ef21b7d66",
+    "referential_attribute": "state_id",
+    "associative": "917d584e-1f66-5a90-a3fa-fc6e17dcf25e",
+    "referent": "b4075f46-3d95-5721-81ef-485299d0ed2c"
+  },
+  {
+    "secs_since_epoch": 1679582765,
+    "nanos_since_epoch": 159435000
+  }
+]

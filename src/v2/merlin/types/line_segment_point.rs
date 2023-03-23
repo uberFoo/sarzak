@@ -14,37 +14,39 @@ use crate::v2::merlin::store::ObjectStore as MerlinStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LineSegmentPoint {
     pub id: Uuid,
-    /// R5: [`Point`] '🚧 Out of order — see sarzak#14.' [`Point`]
-    pub point: Uuid,
     /// R5: [`LineSegment`] '🚧 Out of order — see sarzak#14.' [`LineSegment`]
     pub segment: Uuid,
+    /// R5: [`Point`] '🚧 Out of order — see sarzak#14.' [`Point`]
+    pub point: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-implementation"}}}
 impl LineSegmentPoint {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-new"}}}
     /// Inter a new 'Line Segment Point' in the store, and return it's `id`.
-    pub fn new(point: &Point, segment: &LineSegment, store: &mut MerlinStore) -> LineSegmentPoint {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", point, segment).as_bytes());
+    pub fn new(segment: &LineSegment, point: &Point, store: &mut MerlinStore) -> LineSegmentPoint {
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", segment, point).as_bytes());
         let new = LineSegmentPoint {
             id: id,
-            point: point.id,
             segment: segment.id,
+            point: point.id,
         };
         store.inter_line_segment_point(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-nav-forward-assoc-to-point"}}}
-    /// Navigate to [`Point`] across R5(1-*)
-    pub fn r5_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Point> {
-        vec![store.exhume_point(&self.point).unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-nav-forward-assoc-to-segment"}}}
     /// Navigate to [`LineSegment`] across R5(1-*)
     pub fn r5_line_segment<'a>(&'a self, store: &'a MerlinStore) -> Vec<&LineSegment> {
         vec![store.exhume_line_segment(&self.segment).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-nav-forward-assoc-to-point"}}}
+    /// Navigate to [`Point`] across R5(1-*)
+    pub fn r5_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Point> {
+        vec![store.exhume_point(&self.point).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
