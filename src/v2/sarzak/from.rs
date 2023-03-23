@@ -13,10 +13,10 @@
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::{
-    AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
-    UNCONDITIONAL, UUID,
+    AcknowledgedEvent, AnAssociativeReferent, Associative, AssociativeReferent,
+    AssociativeReferrer, Attribute, Binary, Cardinality, Conditionality, Event, External, Isa,
+    Object, Referent, Referrer, Relationship, State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL,
+    FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL, UUID,
 };
 use crate::v2::sarzak::ObjectStore;
 
@@ -43,14 +43,17 @@ impl From<&SarzakStore> for ObjectStore {
             to.inter_acknowledged_event(instance);
         }
 
-        for (_, instance) in from.iter_associative() {
-            let instance = Associative::from(instance);
-            to.inter_associative(instance);
-        }
-
+        // The order of the next two is important. We need the referents in the
+        // store before the associative in order to create the AnAssociativeReferent
+        // instancs.
         for (_, instance) in from.iter_associative_referent() {
             let instance = AssociativeReferent::from(instance);
             to.inter_associative_referent(instance);
+        }
+
+        for (_, instance) in from.iter_associative() {
+            let instance = Associative::from((instance, &mut to));
+            to.inter_associative(instance);
         }
 
         for (_, instance) in from.iter_associative_referrer() {
@@ -147,15 +150,25 @@ impl From<&FromAcknowledgedEvent> for AcknowledgedEvent {
     }
 }
 
-impl From<&FromAssociative> for Associative {
-    fn from(src: &FromAssociative) -> Self {
-        Self {
+impl From<(&FromAssociative, &mut ObjectStore)> for Associative {
+    fn from((src, store): (&FromAssociative, &mut ObjectStore)) -> Self {
+        let this = Self {
             id: src.id,
             number: src.number,
-            other: src.other,
-            one: src.one,
             from: src.from,
-        }
+        };
+
+        // Create instances of the associative object
+        let one = store.exhume_associative_referent(&src.one).unwrap().clone();
+        let other = store
+            .exhume_associative_referent(&src.other)
+            .unwrap()
+            .clone();
+
+        let _ = AnAssociativeReferent::new(&this, &one, store);
+        let _ = AnAssociativeReferent::new(&this, &other, store);
+
+        this
     }
 }
 
