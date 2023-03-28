@@ -20,8 +20,8 @@ model = "models/drawing.json"
 [modules."v2/drawing".compiler]
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+imported_domains = ["v2/sarzak"]
 always_process = true
 
 [modules."v2/drawing".compiler.target]
