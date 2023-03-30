@@ -54,17 +54,22 @@ pub struct ObjectStore {
     associative_referent: HashMap<Uuid, (AssociativeReferent, SystemTime)>,
     associative_referrer: HashMap<Uuid, (AssociativeReferrer, SystemTime)>,
     attribute: HashMap<Uuid, (Attribute, SystemTime)>,
+    attribute_by_name: HashMap<String, (Attribute, SystemTime)>,
     binary: HashMap<Uuid, (Binary, SystemTime)>,
     cardinality: HashMap<Uuid, (Cardinality, SystemTime)>,
     conditionality: HashMap<Uuid, (Conditionality, SystemTime)>,
     event: HashMap<Uuid, (Event, SystemTime)>,
+    event_by_name: HashMap<String, (Event, SystemTime)>,
     external: HashMap<Uuid, (External, SystemTime)>,
+    external_by_name: HashMap<String, (External, SystemTime)>,
     isa: HashMap<Uuid, (Isa, SystemTime)>,
     object: HashMap<Uuid, (Object, SystemTime)>,
+    object_by_name: HashMap<String, (Object, SystemTime)>,
     referent: HashMap<Uuid, (Referent, SystemTime)>,
     referrer: HashMap<Uuid, (Referrer, SystemTime)>,
     relationship: HashMap<Uuid, (Relationship, SystemTime)>,
     state: HashMap<Uuid, (State, SystemTime)>,
+    state_by_name: HashMap<String, (State, SystemTime)>,
     subtype: HashMap<Uuid, (Subtype, SystemTime)>,
     supertype: HashMap<Uuid, (Supertype, SystemTime)>,
     ty: HashMap<Uuid, (Ty, SystemTime)>,
@@ -79,17 +84,22 @@ impl ObjectStore {
             associative_referent: HashMap::default(),
             associative_referrer: HashMap::default(),
             attribute: HashMap::default(),
+            attribute_by_name: HashMap::default(),
             binary: HashMap::default(),
             cardinality: HashMap::default(),
             conditionality: HashMap::default(),
             event: HashMap::default(),
+            event_by_name: HashMap::default(),
             external: HashMap::default(),
+            external_by_name: HashMap::default(),
             isa: HashMap::default(),
             object: HashMap::default(),
+            object_by_name: HashMap::default(),
             referent: HashMap::default(),
             referrer: HashMap::default(),
             relationship: HashMap::default(),
             state: HashMap::default(),
+            state_by_name: HashMap::default(),
             subtype: HashMap::default(),
             supertype: HashMap::default(),
             ty: HashMap::default(),
@@ -341,8 +351,13 @@ impl ObjectStore {
     /// Inter [`Attribute`] into the store.
     ///
     pub fn inter_attribute(&mut self, attribute: Attribute) {
-        self.attribute
-            .insert(attribute.id, (attribute, SystemTime::now()));
+        if let Some(attribute) = self
+            .attribute
+            .insert(attribute.id, (attribute, SystemTime::now()))
+        {
+            self.attribute_by_name
+                .insert(attribute.0.name.clone(), attribute);
+        }
     }
 
     /// Exhume [`Attribute`] from the store.
@@ -355,6 +370,14 @@ impl ObjectStore {
     ///
     pub fn exhume_attribute_mut(&mut self, id: &Uuid) -> Option<&mut Attribute> {
         self.attribute.get_mut(id).map(|attribute| &mut attribute.0)
+    }
+
+    /// Exhume [`Attribute`] from the store by name.
+    ///
+    pub fn exhume_attribute_by_name(&self, name: &str) -> Option<&Attribute> {
+        self.attribute_by_name
+            .get(name)
+            .map(|attribute| &attribute.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Attribute>`.
@@ -484,7 +507,9 @@ impl ObjectStore {
     /// Inter [`Event`] into the store.
     ///
     pub fn inter_event(&mut self, event: Event) {
-        self.event.insert(event.id, (event, SystemTime::now()));
+        if let Some(event) = self.event.insert(event.id, (event, SystemTime::now())) {
+            self.event_by_name.insert(event.0.name.clone(), event);
+        }
     }
 
     /// Exhume [`Event`] from the store.
@@ -497,6 +522,12 @@ impl ObjectStore {
     ///
     pub fn exhume_event_mut(&mut self, id: &Uuid) -> Option<&mut Event> {
         self.event.get_mut(id).map(|event| &mut event.0)
+    }
+
+    /// Exhume [`Event`] from the store by name.
+    ///
+    pub fn exhume_event_by_name(&self, name: &str) -> Option<&Event> {
+        self.event_by_name.get(name).map(|event| &event.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Event>`.
@@ -517,8 +548,13 @@ impl ObjectStore {
     /// Inter [`External`] into the store.
     ///
     pub fn inter_external(&mut self, external: External) {
-        self.external
-            .insert(external.id, (external, SystemTime::now()));
+        if let Some(external) = self
+            .external
+            .insert(external.id, (external, SystemTime::now()))
+        {
+            self.external_by_name
+                .insert(external.0.name.clone(), external);
+        }
     }
 
     /// Exhume [`External`] from the store.
@@ -531,6 +567,12 @@ impl ObjectStore {
     ///
     pub fn exhume_external_mut(&mut self, id: &Uuid) -> Option<&mut External> {
         self.external.get_mut(id).map(|external| &mut external.0)
+    }
+
+    /// Exhume [`External`] from the store by name.
+    ///
+    pub fn exhume_external_by_name(&self, name: &str) -> Option<&External> {
+        self.external_by_name.get(name).map(|external| &external.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, External>`.
@@ -584,7 +626,9 @@ impl ObjectStore {
     /// Inter [`Object`] into the store.
     ///
     pub fn inter_object(&mut self, object: Object) {
-        self.object.insert(object.id, (object, SystemTime::now()));
+        if let Some(object) = self.object.insert(object.id, (object, SystemTime::now())) {
+            self.object_by_name.insert(object.0.name.clone(), object);
+        }
     }
 
     /// Exhume [`Object`] from the store.
@@ -597,6 +641,12 @@ impl ObjectStore {
     ///
     pub fn exhume_object_mut(&mut self, id: &Uuid) -> Option<&mut Object> {
         self.object.get_mut(id).map(|object| &mut object.0)
+    }
+
+    /// Exhume [`Object`] from the store by name.
+    ///
+    pub fn exhume_object_by_name(&self, name: &str) -> Option<&Object> {
+        self.object_by_name.get(name).map(|object| &object.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Object>`.
@@ -725,7 +775,9 @@ impl ObjectStore {
     /// Inter [`State`] into the store.
     ///
     pub fn inter_state(&mut self, state: State) {
-        self.state.insert(state.id, (state, SystemTime::now()));
+        if let Some(state) = self.state.insert(state.id, (state, SystemTime::now())) {
+            self.state_by_name.insert(state.0.name.clone(), state);
+        }
     }
 
     /// Exhume [`State`] from the store.
@@ -738,6 +790,12 @@ impl ObjectStore {
     ///
     pub fn exhume_state_mut(&mut self, id: &Uuid) -> Option<&mut State> {
         self.state.get_mut(id).map(|state| &mut state.0)
+    }
+
+    /// Exhume [`State`] from the store by name.
+    ///
+    pub fn exhume_state_by_name(&self, name: &str) -> Option<&State> {
+        self.state_by_name.get(name).map(|state| &state.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, State>`.
