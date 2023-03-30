@@ -244,13 +244,9 @@ impl ObjectStore {
     /// Inter [`Constant`] into the store.
     ///
     pub fn inter_constant(&mut self, constant: Constant) {
-        if let Some(constant) = self
-            .constant
-            .insert(constant.id, (constant, SystemTime::now()))
-        {
-            self.constant_by_name
-                .insert(constant.0.name.clone(), constant);
-        }
+        let value = (constant, SystemTime::now());
+        self.constant.insert(value.0.id, value.clone());
+        self.constant_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Constant`] from the store.
@@ -289,13 +285,9 @@ impl ObjectStore {
     /// Inter [`Enumeration`] into the store.
     ///
     pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
-        if let Some(enumeration) = self
-            .enumeration
-            .insert(enumeration.id, (enumeration, SystemTime::now()))
-        {
-            self.enumeration_by_name
-                .insert(enumeration.0.name.clone(), enumeration);
-        }
+        let value = (enumeration, SystemTime::now());
+        self.enumeration.insert(value.0.id, value.clone());
+        self.enumeration_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Enumeration`] from the store.
@@ -414,9 +406,9 @@ impl ObjectStore {
     /// Inter [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Field) {
-        if let Some(field) = self.field.insert(field.id, (field, SystemTime::now())) {
-            self.field_by_name.insert(field.0.name.clone(), field);
-        }
+        let value = (field, SystemTime::now());
+        self.field.insert(value.0.id, value.clone());
+        self.field_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Field`] from the store.
@@ -455,13 +447,9 @@ impl ObjectStore {
     /// Inter [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Function) {
-        if let Some(function) = self
-            .function
-            .insert(function.id, (function, SystemTime::now()))
-        {
-            self.function_by_name
-                .insert(function.0.name.clone(), function);
-        }
+        let value = (function, SystemTime::now());
+        self.function.insert(value.0.id, value.clone());
+        self.function_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Function`] from the store.
@@ -887,13 +875,9 @@ impl ObjectStore {
     /// Inter [`Structure`] into the store.
     ///
     pub fn inter_structure(&mut self, structure: Structure) {
-        if let Some(structure) = self
-            .structure
-            .insert(structure.id, (structure, SystemTime::now()))
-        {
-            self.structure_by_name
-                .insert(structure.0.name.clone(), structure);
-        }
+        let value = (structure, SystemTime::now());
+        self.structure.insert(value.0.id, value.clone());
+        self.structure_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Structure`] from the store.
@@ -1083,13 +1067,9 @@ impl ObjectStore {
     /// Inter [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
-        if let Some(variable) = self
-            .variable
-            .insert(variable.id, (variable, SystemTime::now()))
-        {
-            self.variable_by_name
-                .insert(variable.0.name.clone(), variable);
-        }
+        let value = (variable, SystemTime::now());
+        self.variable.insert(value.0.id, value.clone());
+        self.variable_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Variable`] from the store.
