@@ -2165,6 +2165,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let constant: (Constant, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .constant_by_name
+                    .insert(constant.0.name.clone(), constant.clone());
                 store.constant.insert(constant.0.id, constant);
             }
         }
@@ -2179,6 +2182,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .enumeration_by_name
+                    .insert(enumeration.0.name.clone(), enumeration.clone());
                 store.enumeration.insert(enumeration.0.id, enumeration);
             }
         }
@@ -2224,6 +2230,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .field_by_name
+                    .insert(field.0.name.clone(), field.clone());
                 store.field.insert(field.0.id, field);
             }
         }
@@ -2238,6 +2247,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .function_by_name
+                    .insert(function.0.name.clone(), function.clone());
                 store.function.insert(function.0.id, function);
             }
         }
@@ -2411,6 +2423,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let structure: (Structure, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .structure_by_name
+                    .insert(structure.0.name.clone(), structure.clone());
                 store.structure.insert(structure.0.id, structure);
             }
         }
@@ -2484,6 +2499,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .variable_by_name
+                    .insert(variable.0.name.clone(), variable.clone());
                 store.variable.insert(variable.0.id, variable);
             }
         }
