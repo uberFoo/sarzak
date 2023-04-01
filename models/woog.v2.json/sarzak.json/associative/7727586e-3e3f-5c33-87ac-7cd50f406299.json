@@ -2,12 +2,10 @@
   {
     "id": "7727586e-3e3f-5c33-87ac-7cd50f406299",
     "number": 27,
-    "other": "5a55a95c-1e87-5d91-8666-82d0332c04a9",
-    "one": "b2ab9d3c-93c3-5847-8bbd-b1b1562017f5",
     "from": "1ece200e-4ed8-5838-8fa3-1ef8afb18bbc"
   },
   {
-    "secs_since_epoch": 1678209968,
-    "nanos_since_epoch": 645887000
+    "secs_since_epoch": 1679582770,
+    "nanos_since_epoch": 614282000
   }
 ]

@@ -20,18 +20,18 @@ use uuid::Uuid;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct TimeStamp {
     pub id: Uuid,
-    ext_value: SystemTime,
+    inner: SystemTime,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-ee-impl"}}}
 impl TimeStamp {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-struct-impl-new"}}}
-    /// Create a new instance of the external entity,  'SystemTime', wrapped in an Time Stamp.
-    pub fn now(ext_value: SystemTime, store: &mut WoogStore) -> TimeStamp {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", ext_value).as_bytes());
+    pub fn new(store: &mut WoogStore) -> TimeStamp {
+        let inner = SystemTime::now();
+        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", inner).as_bytes());
         let new = TimeStamp {
-            ext_value: ext_value,
             id: id,
+            inner: inner,
         };
         store.inter_time_stamp(new.clone());
         new

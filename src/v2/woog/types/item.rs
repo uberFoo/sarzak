@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
+use crate::v2::woog::store::ObjectStore as WoogStore;
 use crate::v2::woog::types::constant::Constant;
 use crate::v2::woog::types::enumeration::Enumeration;
 use crate::v2::woog::types::function::Function;
@@ -8,8 +9,6 @@ use crate::v2::woog::types::statement::Statement;
 use crate::v2::woog::types::structure::Structure;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-const-documentation"}}}

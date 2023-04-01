@@ -8,6 +8,7 @@
 //! # Contents:
 //!
 //! * [`AcknowledgedEvent`]
+//! * [`AnAssociativeReferent`]
 //! * [`Associative`]
 //! * [`AssociativeReferent`]
 //! * [`AssociativeReferrer`]
@@ -27,37 +28,48 @@
 //! * [`Supertype`]
 //! * [`Ty`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::sarzak-object-store-definition"}}}
-use fnv::FnvHashMap as HashMap;
-use std::{fs, io, path::Path, time::SystemTime};
+use std::{
+    fs,
+    io::{self, prelude::*},
+    path::Path,
+    time::SystemTime,
+};
 
+use fnv::FnvHashMap as HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::{
-    AcknowledgedEvent, Associative, AssociativeReferent, AssociativeReferrer, Attribute, Binary,
-    Cardinality, Conditionality, Event, External, Isa, Object, Referent, Referrer, Relationship,
-    State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL, FLOAT, INTEGER, MANY, ONE, STRING,
-    UNCONDITIONAL, UUID,
+    AcknowledgedEvent, AnAssociativeReferent, Associative, AssociativeReferent,
+    AssociativeReferrer, Attribute, Binary, Cardinality, Conditionality, Event, External, Isa,
+    Object, Referent, Referrer, Relationship, State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL,
+    FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL, UUID,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     acknowledged_event: HashMap<Uuid, (AcknowledgedEvent, SystemTime)>,
+    an_associative_referent: HashMap<Uuid, (AnAssociativeReferent, SystemTime)>,
     associative: HashMap<Uuid, (Associative, SystemTime)>,
     associative_referent: HashMap<Uuid, (AssociativeReferent, SystemTime)>,
     associative_referrer: HashMap<Uuid, (AssociativeReferrer, SystemTime)>,
     attribute: HashMap<Uuid, (Attribute, SystemTime)>,
+    attribute_by_name: HashMap<String, (Attribute, SystemTime)>,
     binary: HashMap<Uuid, (Binary, SystemTime)>,
     cardinality: HashMap<Uuid, (Cardinality, SystemTime)>,
     conditionality: HashMap<Uuid, (Conditionality, SystemTime)>,
     event: HashMap<Uuid, (Event, SystemTime)>,
+    event_by_name: HashMap<String, (Event, SystemTime)>,
     external: HashMap<Uuid, (External, SystemTime)>,
+    external_by_name: HashMap<String, (External, SystemTime)>,
     isa: HashMap<Uuid, (Isa, SystemTime)>,
     object: HashMap<Uuid, (Object, SystemTime)>,
+    object_by_name: HashMap<String, (Object, SystemTime)>,
     referent: HashMap<Uuid, (Referent, SystemTime)>,
     referrer: HashMap<Uuid, (Referrer, SystemTime)>,
     relationship: HashMap<Uuid, (Relationship, SystemTime)>,
     state: HashMap<Uuid, (State, SystemTime)>,
+    state_by_name: HashMap<String, (State, SystemTime)>,
     subtype: HashMap<Uuid, (Subtype, SystemTime)>,
     supertype: HashMap<Uuid, (Supertype, SystemTime)>,
     ty: HashMap<Uuid, (Ty, SystemTime)>,
@@ -67,21 +79,27 @@ impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
             acknowledged_event: HashMap::default(),
+            an_associative_referent: HashMap::default(),
             associative: HashMap::default(),
             associative_referent: HashMap::default(),
             associative_referrer: HashMap::default(),
             attribute: HashMap::default(),
+            attribute_by_name: HashMap::default(),
             binary: HashMap::default(),
             cardinality: HashMap::default(),
             conditionality: HashMap::default(),
             event: HashMap::default(),
+            event_by_name: HashMap::default(),
             external: HashMap::default(),
+            external_by_name: HashMap::default(),
             isa: HashMap::default(),
             object: HashMap::default(),
+            object_by_name: HashMap::default(),
             referent: HashMap::default(),
             referrer: HashMap::default(),
             relationship: HashMap::default(),
             state: HashMap::default(),
+            state_by_name: HashMap::default(),
             subtype: HashMap::default(),
             supertype: HashMap::default(),
             ty: HashMap::default(),
@@ -144,6 +162,57 @@ impl ObjectStore {
         self.acknowledged_event
             .get(&acknowledged_event.id)
             .map(|acknowledged_event| acknowledged_event.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`AnAssociativeReferent`] into the store.
+    ///
+    pub fn inter_an_associative_referent(
+        &mut self,
+        an_associative_referent: AnAssociativeReferent,
+    ) {
+        self.an_associative_referent.insert(
+            an_associative_referent.id,
+            (an_associative_referent, SystemTime::now()),
+        );
+    }
+
+    /// Exhume [`AnAssociativeReferent`] from the store.
+    ///
+    pub fn exhume_an_associative_referent(&self, id: &Uuid) -> Option<&AnAssociativeReferent> {
+        self.an_associative_referent
+            .get(id)
+            .map(|an_associative_referent| &an_associative_referent.0)
+    }
+
+    /// Exhume [`AnAssociativeReferent`] from the store — mutably.
+    ///
+    pub fn exhume_an_associative_referent_mut(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<&mut AnAssociativeReferent> {
+        self.an_associative_referent
+            .get_mut(id)
+            .map(|an_associative_referent| &mut an_associative_referent.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, AnAssociativeReferent>`.
+    ///
+    pub fn iter_an_associative_referent(&self) -> impl Iterator<Item = &AnAssociativeReferent> {
+        self.an_associative_referent
+            .values()
+            .map(|an_associative_referent| &an_associative_referent.0)
+    }
+
+    /// Get the timestamp for AnAssociativeReferent.
+    ///
+    pub fn an_associative_referent_timestamp(
+        &self,
+        an_associative_referent: &AnAssociativeReferent,
+    ) -> SystemTime {
+        self.an_associative_referent
+            .get(&an_associative_referent.id)
+            .map(|an_associative_referent| an_associative_referent.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -282,8 +351,9 @@ impl ObjectStore {
     /// Inter [`Attribute`] into the store.
     ///
     pub fn inter_attribute(&mut self, attribute: Attribute) {
-        self.attribute
-            .insert(attribute.id, (attribute, SystemTime::now()));
+        let value = (attribute, SystemTime::now());
+        self.attribute.insert(value.0.id, value.clone());
+        self.attribute_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Attribute`] from the store.
@@ -296,6 +366,14 @@ impl ObjectStore {
     ///
     pub fn exhume_attribute_mut(&mut self, id: &Uuid) -> Option<&mut Attribute> {
         self.attribute.get_mut(id).map(|attribute| &mut attribute.0)
+    }
+
+    /// Exhume [`Attribute`] from the store by name.
+    ///
+    pub fn exhume_attribute_by_name(&self, name: &str) -> Option<&Attribute> {
+        self.attribute_by_name
+            .get(name)
+            .map(|attribute| &attribute.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Attribute>`.
@@ -425,7 +503,9 @@ impl ObjectStore {
     /// Inter [`Event`] into the store.
     ///
     pub fn inter_event(&mut self, event: Event) {
-        self.event.insert(event.id, (event, SystemTime::now()));
+        let value = (event, SystemTime::now());
+        self.event.insert(value.0.id, value.clone());
+        self.event_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Event`] from the store.
@@ -438,6 +518,12 @@ impl ObjectStore {
     ///
     pub fn exhume_event_mut(&mut self, id: &Uuid) -> Option<&mut Event> {
         self.event.get_mut(id).map(|event| &mut event.0)
+    }
+
+    /// Exhume [`Event`] from the store by name.
+    ///
+    pub fn exhume_event_by_name(&self, name: &str) -> Option<&Event> {
+        self.event_by_name.get(name).map(|event| &event.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Event>`.
@@ -458,8 +544,9 @@ impl ObjectStore {
     /// Inter [`External`] into the store.
     ///
     pub fn inter_external(&mut self, external: External) {
-        self.external
-            .insert(external.id, (external, SystemTime::now()));
+        let value = (external, SystemTime::now());
+        self.external.insert(value.0.id, value.clone());
+        self.external_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`External`] from the store.
@@ -472,6 +559,12 @@ impl ObjectStore {
     ///
     pub fn exhume_external_mut(&mut self, id: &Uuid) -> Option<&mut External> {
         self.external.get_mut(id).map(|external| &mut external.0)
+    }
+
+    /// Exhume [`External`] from the store by name.
+    ///
+    pub fn exhume_external_by_name(&self, name: &str) -> Option<&External> {
+        self.external_by_name.get(name).map(|external| &external.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, External>`.
@@ -525,7 +618,9 @@ impl ObjectStore {
     /// Inter [`Object`] into the store.
     ///
     pub fn inter_object(&mut self, object: Object) {
-        self.object.insert(object.id, (object, SystemTime::now()));
+        let value = (object, SystemTime::now());
+        self.object.insert(value.0.id, value.clone());
+        self.object_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`Object`] from the store.
@@ -538,6 +633,12 @@ impl ObjectStore {
     ///
     pub fn exhume_object_mut(&mut self, id: &Uuid) -> Option<&mut Object> {
         self.object.get_mut(id).map(|object| &mut object.0)
+    }
+
+    /// Exhume [`Object`] from the store by name.
+    ///
+    pub fn exhume_object_by_name(&self, name: &str) -> Option<&Object> {
+        self.object_by_name.get(name).map(|object| &object.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Object>`.
@@ -666,7 +767,9 @@ impl ObjectStore {
     /// Inter [`State`] into the store.
     ///
     pub fn inter_state(&mut self, state: State) {
-        self.state.insert(state.id, (state, SystemTime::now()));
+        let value = (state, SystemTime::now());
+        self.state.insert(value.0.id, value.clone());
+        self.state_by_name.insert(value.0.name.clone(), value);
     }
 
     /// Exhume [`State`] from the store.
@@ -679,6 +782,12 @@ impl ObjectStore {
     ///
     pub fn exhume_state_mut(&mut self, id: &Uuid) -> Option<&mut State> {
         self.state.get_mut(id).map(|state| &mut state.0)
+    }
+
+    /// Exhume [`State`] from the store by name.
+    ///
+    pub fn exhume_state_by_name(&self, name: &str) -> Option<&State> {
+        self.state_by_name.get(name).map(|state| &state.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, State>`.
@@ -807,6 +916,13 @@ impl ObjectStore {
     /// In fact, I intend to add automaagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
+        fs::create_dir_all(&path)?;
+
+        let bin_path = path.clone().join("sarzak.bin");
+        let mut bin_file = fs::File::create(bin_path)?;
+        let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
+        bin_file.write_all(&encoded)?;
+
         let path = path.join("sarzak.json");
         fs::create_dir_all(&path)?;
 
@@ -838,6 +954,41 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.acknowledged_event.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist An Associative Referent.
+        {
+            let path = path.join("an_associative_referent");
+            fs::create_dir_all(&path)?;
+            for an_associative_referent_tuple in self.an_associative_referent.values() {
+                let path = path.join(format!("{}.json", an_associative_referent_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (AnAssociativeReferent, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != an_associative_referent_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &an_associative_referent_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &an_associative_referent_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.an_associative_referent.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -1489,6 +1640,23 @@ impl ObjectStore {
             }
         }
 
+        // Load An Associative Referent.
+        {
+            let path = path.join("an_associative_referent");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let an_associative_referent: (AnAssociativeReferent, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .an_associative_referent
+                    .insert(an_associative_referent.0.id, an_associative_referent);
+            }
+        }
+
         // Load Associative.
         {
             let path = path.join("associative");
@@ -1547,6 +1715,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let attribute: (Attribute, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .attribute_by_name
+                    .insert(attribute.0.name.clone(), attribute.clone());
                 store.attribute.insert(attribute.0.id, attribute);
             }
         }
@@ -1605,6 +1776,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let event: (Event, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .event_by_name
+                    .insert(event.0.name.clone(), event.clone());
                 store.event.insert(event.0.id, event);
             }
         }
@@ -1619,6 +1793,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let external: (External, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .external_by_name
+                    .insert(external.0.name.clone(), external.clone());
                 store.external.insert(external.0.id, external);
             }
         }
@@ -1647,6 +1824,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let object: (Object, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .object_by_name
+                    .insert(object.0.name.clone(), object.clone());
                 store.object.insert(object.0.id, object);
             }
         }
@@ -1703,6 +1883,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let state: (State, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .state_by_name
+                    .insert(state.0.name.clone(), state.clone());
                 store.state.insert(state.0.id, state);
             }
         }

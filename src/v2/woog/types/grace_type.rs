@@ -1,13 +1,14 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"grace_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-use-statements"}}}
 use crate::v2::sarzak::types::ty::Ty;
+use crate::v2::woog::store::ObjectStore as WoogStore;
+use crate::v2::woog::types::field::Field;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::time_stamp::TimeStamp;
+use crate::v2::woog::types::value::Value;
 use crate::v2::woog::types::woog_option::WoogOption;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-enum-documentation"}}}
@@ -71,9 +72,55 @@ impl GraceType {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-field"}}}
+    /// Navigate to [`Field`] across R29(1-M)
+    pub fn r29_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&Field> {
+        store
+            .iter_field()
+            .filter_map(|field| {
+                if field.ty == self.id() {
+                    Some(field)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
+    /// Navigate to [`WoogOption`] across R20(1-M)
+    pub fn r20_woog_option<'a>(&'a self, store: &'a WoogStore) -> Vec<&WoogOption> {
+        store
+            .iter_woog_option()
+            .filter_map(|woog_option| {
+                if woog_option.ty == self.id() {
+                    Some(woog_option)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-value"}}}
+    /// Navigate to [`Value`] across R3(1-M)
+    pub fn r3_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+        store
+            .iter_value()
+            .filter_map(|value| {
+                if value.ty == self.id() {
+                    Some(value)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"uberFoo"}}}
 impl From<Ty> for GraceType {
     fn from(ty: Ty) -> Self {
         GraceType::Ty(ty.id())
@@ -85,5 +132,6 @@ impl From<&Ty> for GraceType {
         GraceType::Ty(ty.id())
     }
 }
+// {"magic":"","directive":{"End":{"directive":"ignore-gen"}}}
 
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

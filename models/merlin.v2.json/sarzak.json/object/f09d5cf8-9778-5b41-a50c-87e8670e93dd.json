@@ -1,0 +1,12 @@
+[
+  {
+    "description": "Part of a Line\n\nA line segment is in fact a straight line. It is used to compose a (poly) [`Line`].",
+    "id": "f09d5cf8-9778-5b41-a50c-87e8670e93dd",
+    "key_letters": "SEG",
+    "name": "Line Segment"
+  },
+  {
+    "secs_since_epoch": 1679582801,
+    "nanos_since_epoch": 721871000
+  }
+]

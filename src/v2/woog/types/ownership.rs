@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"ownership-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-use-statements"}}}
+use crate::v2::woog::store::ObjectStore as WoogStore;
+use crate::v2::woog::types::access::Access;
 use crate::v2::woog::types::borrowed::BORROWED;
 use crate::v2::woog::types::mutable::MUTABLE;
 use crate::v2::woog::types::owned::OWNED;
@@ -51,6 +53,21 @@ impl Ownership {
             Ownership::Mutable(id) => *id,
             Ownership::Owned(id) => *id,
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-struct-impl-nav-backward-1_M-to-access"}}}
+    /// Navigate to [`Access`] across R15(1-M)
+    pub fn r15_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
+        store
+            .iter_access()
+            .filter_map(|access| {
+                if access.ownership == self.id() {
+                    Some(access)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
