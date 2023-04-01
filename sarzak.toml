@@ -13,6 +13,8 @@ persist = true
 persist_timestamps = true
 from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
+is_sarzak = true
+is_meta_model = true
 
 [modules."v2/drawing"]
 model = "models/drawing.json"
@@ -30,6 +32,8 @@ persist = true
 persist_timestamps = true
 from_module = "v1::drawing"
 from_path = "models/drawing.json"
+is_sarzak = false
+is_meta_model = true
 
 [modules."v2/woog"]
 model = "models/woog.json"
@@ -45,6 +49,8 @@ always_process = true
 target = "domain"
 persist = true
 persist_timestamps = true
+is_sarzak = false
+is_meta_model = true
 
 [modules."v2/merlin"]
 model = "models/merlin.json"
@@ -60,3 +66,5 @@ always_process = true
 target = "domain"
 persist = true
 persist_timestamps = true
+is_sarzak = false
+is_meta_model = true
