@@ -6,7 +6,6 @@ use crate::v2::sarzak::types::binary::Binary;
 use crate::v2::sarzak::types::cardinality::Cardinality;
 use crate::v2::sarzak::types::conditionality::Conditionality;
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::sarzak::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;

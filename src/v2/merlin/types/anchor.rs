@@ -8,7 +8,6 @@ use crate::v2::merlin::types::line::Line;
 use crate::v2::merlin::types::point::Point;
 use crate::v2::merlin::types::relationship_phrase::RelationshipPhrase;
 use crate::v2::merlin::types::x_box::XBox;
-use crate::v2::merlin::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::merlin::store::ObjectStore as MerlinStore;

@@ -3,7 +3,6 @@
 use uuid::Uuid;
 
 use crate::v2::woog::types::grace_type::GraceType;
-use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;

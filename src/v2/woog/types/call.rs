@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::object_method::ObjectMethod;
-use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;

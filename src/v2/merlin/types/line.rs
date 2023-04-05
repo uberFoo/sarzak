@@ -7,7 +7,6 @@ use crate::v2::merlin::types::glyph::Glyph;
 use crate::v2::merlin::types::line_segment::LineSegment;
 use crate::v2::merlin::types::relationship_name::RelationshipName;
 use crate::v2::merlin::types::relationship_phrase::RelationshipPhrase;
-use crate::v2::merlin::UUID_NS;
 use crate::v2::sarzak::types::relationship::Relationship;
 use serde::{Deserialize, Serialize};
 

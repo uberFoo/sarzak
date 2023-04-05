@@ -6,7 +6,6 @@ use crate::v2::sarzak::types::object::Object;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::function::Function;
-use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;

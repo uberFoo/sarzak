@@ -6,7 +6,6 @@ use crate::v2::sarzak::types::an_associative_referent::AnAssociativeReferent;
 use crate::v2::sarzak::types::cardinality::Cardinality;
 use crate::v2::sarzak::types::conditionality::Conditionality;
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::sarzak::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;

@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::drawing::types::edge::Edge;
 use crate::v2::drawing::types::object_ui::ObjectUi;
-use crate::v2::drawing::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;

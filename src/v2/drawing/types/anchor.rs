@@ -8,7 +8,6 @@ use crate::v2::drawing::types::edge::Edge;
 use crate::v2::drawing::types::isa_ui::IsaUi;
 use crate::v2::drawing::types::point::Point;
 use crate::v2::drawing::types::subtype_anchors::SubtypeAnchors;
-use crate::v2::drawing::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
