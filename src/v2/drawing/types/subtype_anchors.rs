@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::isa_ui::IsaUi;
-use crate::v2::drawing::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;

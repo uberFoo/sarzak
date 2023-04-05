@@ -5,7 +5,6 @@ use uuid::Uuid;
 use crate::v2::woog::types::ownership::Ownership;
 use crate::v2::woog::types::value::Value;
 use crate::v2::woog::types::visibility::Visibility;
-use crate::v2::woog::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;

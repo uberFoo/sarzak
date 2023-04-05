@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::relationship_ui::RelationshipUi;
-use crate::v2::drawing::UUID_NS;
 use crate::v2::sarzak::types::binary::Binary;
 use serde::{Deserialize, Serialize};
 

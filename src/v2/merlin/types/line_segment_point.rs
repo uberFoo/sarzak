@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::merlin::types::line_segment::LineSegment;
 use crate::v2::merlin::types::point::Point;
-use crate::v2::merlin::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::merlin::store::ObjectStore as MerlinStore;

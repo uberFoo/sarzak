@@ -3,7 +3,6 @@
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
-use crate::v2::merlin::UUID_NS;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
 

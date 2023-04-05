@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use crate::v2::drawing::types::object_edge::ObjectEdge;
 use crate::v2::drawing::types::point::Point;
-use crate::v2::drawing::UUID_NS;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
 

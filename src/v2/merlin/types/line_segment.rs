@@ -5,7 +5,6 @@ use uuid::Uuid;
 use crate::v2::merlin::types::bisection::Bisection;
 use crate::v2::merlin::types::line::Line;
 use crate::v2::merlin::types::line_segment_point::LineSegmentPoint;
-use crate::v2::merlin::UUID_NS;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
