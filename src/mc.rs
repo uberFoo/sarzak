@@ -6,7 +6,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use snafu::{prelude::*, Backtrace};
+use ansi_term::Colour;
+use snafu::{prelude::*, Backtrace, Location};
 
 use crate::v2::domain::Domain;
 
@@ -23,12 +24,19 @@ pub enum ModelCompilerError {
     Format { source: std::fmt::Error },
     #[snafu(display("File Error: {}, caused by {}", path.display(), source))]
     File {
+        backtrace: Backtrace,
+        location: Location,
+        description: String,
         path: PathBuf,
         source: std::io::Error,
     },
-    #[snafu(display("Compiler Error: {}", description))]
+    #[snafu(display(
+        "\n{backtrace}\n{}: {description}\n  --> {}:{}:{}", Colour::Red.bold().paint("error"), location.file, location.line, location.column
+        // "\n{}: {description}\n  --> {}:{}:{}", Colour::Red.bold().paint("error"), location.file, location.line, location.column
+    ))]
     Compiler {
         backtrace: Backtrace,
+        location: Location,
         description: String,
     },
 }
