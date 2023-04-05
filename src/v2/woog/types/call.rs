@@ -30,7 +30,7 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new"}}}
     /// Inter a new 'Call' in the store, and return it's `id`.
     pub fn new(method: &ObjectMethod, store: &mut WoogStore) -> Call {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", method).as_bytes());
+        let id = Uuid::new_v4();
         let new = Call {
             id: id,
             method: method.id,

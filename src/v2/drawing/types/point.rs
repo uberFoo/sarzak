@@ -28,7 +28,7 @@ impl Point {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new"}}}
     /// Inter a new 'Point' in the store, and return it's `id`.
     pub fn new(x: i64, y: i64, store: &mut DrawingStore) -> Point {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}:{}", x, y).as_bytes());
+        let id = Uuid::new_v4();
         let new = Point { id: id, x: x, y: y };
         store.inter_point(new.clone());
         new

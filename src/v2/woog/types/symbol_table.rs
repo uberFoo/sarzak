@@ -29,7 +29,7 @@ impl SymbolTable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-new"}}}
     /// Inter a new 'Symbol Table' in the store, and return it's `id`.
     pub fn new(block: &Block, store: &mut WoogStore) -> SymbolTable {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", block).as_bytes());
+        let id = Uuid::new_v4();
         let new = SymbolTable {
             id: id,
             block: block.id,

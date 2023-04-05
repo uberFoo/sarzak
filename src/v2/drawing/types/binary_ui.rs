@@ -39,10 +39,7 @@ impl BinaryUi {
         binary_id: &Binary,
         store: &mut DrawingStore,
     ) -> BinaryUi {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}:{:?}", to, from, binary_id).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = BinaryUi {
             id: id,
             to: to.id,

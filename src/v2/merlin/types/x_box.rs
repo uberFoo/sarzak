@@ -35,10 +35,7 @@ impl XBox {
         object: &Object,
         store: &mut MerlinStore,
     ) -> XBox {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{}:{}:{}:{:?}", height, width, x, y, object).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = XBox {
             height: height,
             id: id,

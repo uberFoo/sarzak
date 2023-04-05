@@ -30,7 +30,7 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new"}}}
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Enumeration {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", name).as_bytes());
+        let id = Uuid::new_v4();
         let new = Enumeration { id: id, name: name };
         store.inter_enumeration(new.clone());
         new

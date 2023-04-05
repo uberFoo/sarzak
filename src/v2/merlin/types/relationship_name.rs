@@ -35,10 +35,7 @@ impl RelationshipName {
         line: &Line,
         store: &mut MerlinStore,
     ) -> RelationshipName {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{}:{}:{:?}:{:?}", text, x, y, origin, line).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = RelationshipName {
             id: id,
             text: text,

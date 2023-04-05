@@ -45,14 +45,7 @@ impl Anchor {
         line: &Line,
         store: &mut MerlinStore,
     ) -> Anchor {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!(
-                "{}:{}:{}:{:?}:{:?}:{:?}:{:?}",
-                offset, x_offset, y_offset, edge, glyph, x_box, line
-            )
-            .as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = Anchor {
             id: id,
             offset: offset,

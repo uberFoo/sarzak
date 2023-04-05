@@ -45,10 +45,7 @@ impl Anchor {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new"}}}
     /// Inter a new 'Anchor' in the store, and return it's `id`.
     pub fn new(edge: &Edge, location: &Point, offset: &Point, store: &mut DrawingStore) -> Anchor {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}:{:?}", edge, location, offset).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = Anchor {
             id: id,
             edge: edge.id(),

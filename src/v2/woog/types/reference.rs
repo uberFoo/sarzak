@@ -32,7 +32,7 @@ impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
     pub fn new(object: &Object, store: &mut WoogStore) -> Reference {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", object).as_bytes());
+        let id = Uuid::new_v4();
         let new = Reference {
             id: id,
             object: object.id,

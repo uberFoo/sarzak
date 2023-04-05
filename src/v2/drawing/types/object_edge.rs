@@ -31,7 +31,7 @@ impl ObjectEdge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-struct-impl-new"}}}
     /// Inter a new 'Object Edge' in the store, and return it's `id`.
     pub fn new(edge: &Edge, oui_id: &ObjectUi, store: &mut DrawingStore) -> ObjectEdge {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", edge, oui_id).as_bytes());
+        let id = Uuid::new_v4();
         let new = ObjectEdge {
             id: id,
             edge: edge.id(),

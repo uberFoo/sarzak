@@ -44,7 +44,7 @@ impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new"}}}
     /// Inter a new 'Object Method' in the store, and return it's `id`.
     pub fn new(block: &Block, object: &Object, store: &mut WoogStore) -> ObjectMethod {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", block, object).as_bytes());
+        let id = Uuid::new_v4();
         let new = ObjectMethod {
             id: id,
             block: block.id,

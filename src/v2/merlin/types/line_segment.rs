@@ -30,7 +30,7 @@ impl LineSegment {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new"}}}
     /// Inter a new 'Line Segment' in the store, and return it's `id`.
     pub fn new(line: &Line, store: &mut MerlinStore) -> LineSegment {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", line).as_bytes());
+        let id = Uuid::new_v4();
         let new = LineSegment {
             id: id,
             line: line.id,

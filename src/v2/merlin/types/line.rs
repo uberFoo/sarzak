@@ -35,7 +35,7 @@ impl Line {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-new"}}}
     /// Inter a new 'Line' in the store, and return it's `id`.
     pub fn new(relationship: &Relationship, store: &mut MerlinStore) -> Line {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", relationship).as_bytes());
+        let id = Uuid::new_v4();
         let new = Line {
             id: id,
             relationship: relationship.id(),

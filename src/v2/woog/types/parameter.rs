@@ -37,10 +37,7 @@ impl Parameter {
         next: Option<&Parameter>,
         store: &mut WoogStore,
     ) -> Parameter {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{:?}", seed, function, next).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = Parameter {
             id: id,
             seed: seed,

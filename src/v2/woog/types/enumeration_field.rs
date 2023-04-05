@@ -29,7 +29,7 @@ impl EnumerationField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-new"}}}
     /// Inter a new 'Enumeration Field' in the store, and return it's `id`.
     pub fn new(field: &Enumeration, woog_enum: &Field, store: &mut WoogStore) -> EnumerationField {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", field, woog_enum).as_bytes());
+        let id = Uuid::new_v4();
         let new = EnumerationField {
             id: id,
             field: field.id,

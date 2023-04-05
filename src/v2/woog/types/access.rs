@@ -32,10 +32,7 @@ impl Access {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-new"}}}
     /// Inter a new 'Access' in the store, and return it's `id`.
     pub fn new(ownership: &Ownership, visibility: &Visibility, store: &mut WoogStore) -> Access {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}", ownership, visibility).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = Access {
             id: id,
             ownership: ownership.id(),
