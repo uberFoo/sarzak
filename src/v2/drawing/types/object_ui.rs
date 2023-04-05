@@ -57,10 +57,7 @@ impl ObjectUi {
         origin: &Point,
         store: &mut DrawingStore,
     ) -> ObjectUi {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{}:{:?}:{:?}", height, width, object_id, origin).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = ObjectUi {
             height: height,
             id: id,

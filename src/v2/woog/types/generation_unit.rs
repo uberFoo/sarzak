@@ -30,10 +30,7 @@ impl GenerationUnit {
         creation_time: &TimeStamp,
         store: &mut WoogStore,
     ) -> GenerationUnit {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}", object, creation_time).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = GenerationUnit {
             id: id,
             object: object.id,

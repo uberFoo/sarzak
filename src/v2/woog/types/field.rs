@@ -32,7 +32,7 @@ impl Field {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new"}}}
     /// Inter a new 'Field' in the store, and return it's `id`.
     pub fn new(name: String, ty: &GraceType, store: &mut WoogStore) -> Field {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}:{:?}", name, ty).as_bytes());
+        let id = Uuid::new_v4();
         let new = Field {
             id: id,
             name: name,

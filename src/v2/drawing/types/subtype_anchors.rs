@@ -32,10 +32,7 @@ impl SubtypeAnchors {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-new"}}}
     /// Inter a new 'Subtype Anchors' in the store, and return it's `id`.
     pub fn new(anchor_id: &Anchor, isaui_id: &IsaUi, store: &mut DrawingStore) -> SubtypeAnchors {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}", anchor_id, isaui_id).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = SubtypeAnchors {
             id: id,
             anchor_id: anchor_id.id,

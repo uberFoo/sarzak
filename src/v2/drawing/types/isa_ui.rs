@@ -33,7 +33,7 @@ impl IsaUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-new"}}}
     /// Inter a new 'IsaUI' in the store, and return it's `id`.
     pub fn new(from: &Anchor, isa: &Isa, store: &mut DrawingStore) -> IsaUi {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", from, isa).as_bytes());
+        let id = Uuid::new_v4();
         let new = IsaUi {
             id: id,
             from: from.id,

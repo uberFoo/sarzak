@@ -35,10 +35,7 @@ impl RelationshipPhrase {
         line: &Line,
         store: &mut MerlinStore,
     ) -> RelationshipPhrase {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{}:{}:{:?}:{:?}", text, x, y, origin, line).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = RelationshipPhrase {
             id: id,
             text: text,

@@ -36,10 +36,7 @@ impl StructureField {
         field: &Structure,
         store: &mut WoogStore,
     ) -> StructureField {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{:?}:{:?}:{:?}", next, woog_struct, field).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = StructureField {
             id: id,
             next: next.map(|structure_field| structure_field.id),

@@ -25,7 +25,7 @@ impl LineSegmentPoint {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-new"}}}
     /// Inter a new 'Line Segment Point' in the store, and return it's `id`.
     pub fn new(segment: &LineSegment, point: &Point, store: &mut MerlinStore) -> LineSegmentPoint {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}:{:?}", segment, point).as_bytes());
+        let id = Uuid::new_v4();
         let new = LineSegmentPoint {
             id: id,
             segment: segment.id,

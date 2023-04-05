@@ -25,7 +25,7 @@ impl Bisection {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-new"}}}
     /// Inter a new 'Bisection' in the store, and return it's `id`.
     pub fn new(offset: f64, segment: &LineSegment, store: &mut MerlinStore) -> Bisection {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}:{:?}", offset, segment).as_bytes());
+        let id = Uuid::new_v4();
         let new = Bisection {
             id: id,
             offset: offset,

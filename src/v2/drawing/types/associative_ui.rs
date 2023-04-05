@@ -41,14 +41,7 @@ impl AssociativeUi {
         from: &Point,
         store: &mut DrawingStore,
     ) -> AssociativeUi {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!(
-                "{:?}:{:?}:{:?}:{:?}:{:?}",
-                other, one, middle, associative_id, from
-            )
-            .as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = AssociativeUi {
             id: id,
             other: other.id,

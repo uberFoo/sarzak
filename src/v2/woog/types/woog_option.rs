@@ -28,7 +28,7 @@ impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new"}}}
     /// Inter a new 'Option' in the store, and return it's `id`.
     pub fn new(ty: &GraceType, store: &mut WoogStore) -> WoogOption {
-        let id = Uuid::new_v5(&UUID_NS, format!("{:?}", ty).as_bytes());
+        let id = Uuid::new_v4();
         let new = WoogOption {
             id: id,
             ty: ty.id(),

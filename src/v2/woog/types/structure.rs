@@ -28,7 +28,7 @@ impl Structure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-new"}}}
     /// Inter a new 'Structure' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Structure {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", name).as_bytes());
+        let id = Uuid::new_v4();
         let new = Structure { id: id, name: name };
         store.inter_structure(new.clone());
         new

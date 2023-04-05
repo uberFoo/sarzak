@@ -31,7 +31,7 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(seed: Uuid, store: &mut WoogStore) -> Block {
-        let id = Uuid::new_v5(&UUID_NS, format!("{}", seed).as_bytes());
+        let id = Uuid::new_v4();
         let new = Block { id: id, seed: seed };
         store.inter_block(new.clone());
         new

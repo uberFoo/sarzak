@@ -40,10 +40,7 @@ impl XLet {
         variable: &Variable,
         store: &mut WoogStore,
     ) -> XLet {
-        let id = Uuid::new_v5(
-            &UUID_NS,
-            format!("{}:{:?}:{:?}", value, expression, variable).as_bytes(),
-        );
+        let id = Uuid::new_v4();
         let new = XLet {
             id: id,
             value: value,
