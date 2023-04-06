@@ -1,0 +1,131 @@
+{
+    "paper": {
+        "ids": [
+            "3d320f60-bf7c-5f3b-a456-06fa8de4c2ef"
+        ],
+        "entities": {
+            "3d320f60-bf7c-5f3b-a456-06fa8de4c2ef": {
+                "id": "3d320f60-bf7c-5f3b-a456-06fa8de4c2ef",
+                "domain_name": "lu_dog",
+                "description": "A blank domain",
+                "domain_ns": "3d320f60-bf7c-5f3b-a456-06fa8de4c2ef",
+                "width": 8000,
+                "height": 6400,
+                "offset": {
+                    "x": -1179,
+                    "y": -1640
+                },
+                "objects": {
+                    "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
+                        "x": 1484,
+                        "y": 1236,
+                        "width": 232,
+                        "height": 95
+                    },
+                    "7178e7a4-5131-504b-a7b3-c2c0cfedf343": {
+                        "x": 1493,
+                        "y": 1733,
+                        "width": 267,
+                        "height": 142
+                    },
+                    "45644594-b418-5362-9294-a62fe2a0fa8e": {
+                        "x": 2607,
+                        "y": 2049,
+                        "width": 240,
+                        "height": 149,
+                        "id": "45644594-b418-5362-9294-a62fe2a0fa8e"
+                    },
+                    "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0": {
+                        "x": 2323,
+                        "y": 2427,
+                        "width": 236,
+                        "height": 176,
+                        "id": "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0"
+                    }
+                },
+                "relationships": {}
+            }
+        }
+    },
+    "objects": {
+        "ids": [
+            "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+            "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+            "45644594-b418-5362-9294-a62fe2a0fa8e",
+            "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0"
+        ],
+        "entities": {
+            "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
+                "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                "key_letter": "T",
+                "name": "Type",
+                "description": "The type of a value\n\nThere are several values available: [Integer], [Boolean], [Float], [String], and [UUID].\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f\"}}\n",
+                "attributes": {
+                    "52783e59-f28c-5a8b-8947-12d60c2d49d0": {
+                        "id": "52783e59-f28c-5a8b-8947-12d60c2d49d0",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "7178e7a4-5131-504b-a7b3-c2c0cfedf343": {
+                "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                "key_letter": "OBJ",
+                "name": "Object",
+                "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [Attribute]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}",
+                "attributes": {
+                    "a37b26e0-49fb-5be8-95a8-fb563ab81cc4": {
+                        "id": "a37b26e0-49fb-5be8-95a8-fb563ab81cc4",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "d01da69e-bf98-5825-a9f6-9ce0405417f1": {
+                        "id": "d01da69e-bf98-5825-a9f6-9ce0405417f1",
+                        "name": "name",
+                        "type": "String"
+                    },
+                    "a24410b8-5736-5216-b4ca-a4a7c70eb388": {
+                        "id": "a24410b8-5736-5216-b4ca-a4a7c70eb388",
+                        "name": "key letters",
+                        "type": "String"
+                    },
+                    "75f8f112-c966-5cbf-aebe-b377b488905b": {
+                        "id": "75f8f112-c966-5cbf-aebe-b377b488905b",
+                        "name": "description",
+                        "type": "String"
+                    }
+                }
+            },
+            "45644594-b418-5362-9294-a62fe2a0fa8e": {
+                "id": "45644594-b418-5362-9294-a62fe2a0fa8e",
+                "key_letter": "I",
+                "name": "Item",
+                "description": "",
+                "attributes": {
+                    "045ccee5-86de-4081-8d64-613e2e38a993": {
+                        "id": "045ccee5-86de-4081-8d64-613e2e38a993",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0": {
+                "id": "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0",
+                "key_letter": "IT",
+                "name": "Imported Type",
+                "description": "",
+                "attributes": {
+                    "`id`": {
+                        "id": "`id`",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        }
+    },
+    "relationships": {
+        "ids": [],
+        "entities": {}
+    }
+}

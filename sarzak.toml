@@ -1,70 +1,89 @@
-[modules."v2/sarzak"]
-model = "models/sarzak.json"
+[modules."v2/lu_dog"]
+model = "models/lu_dog.json"
 
-[modules."v2/sarzak".compiler]
+[modules."v2/lu_dog".compiler]
+always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+imported_domains = ["v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-always_process = true
 
-[modules."v2/sarzak".compiler.target]
-target = "domain"
+[modules."v2/lu_dog".compiler.target]
+from_module = "v1::drawing"
+from_path = "models/drawing.json"
+is_meta_model = true
+is_sarzak = false
 persist = true
 persist_timestamps = true
-from_module = "v1::sarzak"
-from_path = "models/sarzak.json"
-is_sarzak = true
-is_meta_model = true
+target = "domain"
 
 [modules."v2/drawing"]
 model = "models/drawing.json"
 
 [modules."v2/drawing".compiler]
+always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-use_paths = ["serde::{Deserialize, Serialize}"]
 imported_domains = ["v2/sarzak"]
-always_process = true
+use_paths = ["serde::{Deserialize, Serialize}"]
 
 [modules."v2/drawing".compiler.target]
-target = "domain"
-persist = true
-persist_timestamps = true
 from_module = "v1::drawing"
 from_path = "models/drawing.json"
-is_sarzak = false
 is_meta_model = true
-
-[modules."v2/woog"]
-model = "models/woog.json"
-
-[modules."v2/woog".compiler]
-compiler = "grace"
-derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-use_paths = ["serde::{Deserialize, Serialize}"]
-imported_domains = ["v2/sarzak"]
-always_process = true
-
-[modules."v2/woog".compiler.target]
-target = "domain"
+is_sarzak = false
 persist = true
 persist_timestamps = true
-is_sarzak = false
-is_meta_model = true
+target = "domain"
 
 [modules."v2/merlin"]
 model = "models/merlin.json"
 
 [modules."v2/merlin".compiler]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+imported_domains = ["v2/sarzak"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+
+[modules."v2/merlin".compiler.target]
+is_meta_model = true
+is_sarzak = false
+persist = true
+persist_timestamps = true
+target = "domain"
+
+[modules."v2/sarzak"]
+model = "models/sarzak.json"
+
+[modules."v2/sarzak".compiler]
+always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-imported_domains = ["v2/sarzak"]
-always_process = true
 
-[modules."v2/merlin".compiler.target]
-target = "domain"
+[modules."v2/sarzak".compiler.target]
+from_module = "v1::sarzak"
+from_path = "models/sarzak.json"
+is_meta_model = true
+is_sarzak = true
 persist = true
 persist_timestamps = true
-is_sarzak = false
+target = "domain"
+
+[modules."v2/woog"]
+model = "models/woog.json"
+
+[modules."v2/woog".compiler]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+imported_domains = ["v2/sarzak"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+
+[modules."v2/woog".compiler.target]
 is_meta_model = true
+is_sarzak = false
+persist = true
+persist_timestamps = true
+target = "domain"
