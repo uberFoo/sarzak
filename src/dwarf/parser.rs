@@ -15,6 +15,7 @@ enum Token {
     Punct(char),
     Type(Type),
     Struct,
+    Option,
     Fn,
     Impl,
 }
@@ -28,6 +29,7 @@ impl fmt::Display for Token {
             Token::Punct(punct) => write!(f, "{}", punct),
             Token::Type(type_) => write!(f, "{}", type_),
             Token::Struct => write!(f, "type"),
+            Token::Option => write!(f, "Option"),
             Token::Fn => write!(f, "fn"),
             Token::Impl => write!(f, "impl"),
         }
@@ -41,6 +43,7 @@ pub enum Type {
     Integer,
     String,
     Uuid,
+    Option(Box<Type>),
 }
 
 impl fmt::Display for Type {
@@ -51,6 +54,7 @@ impl fmt::Display for Type {
             Type::Integer => write!(f, "int"),
             Type::String => write!(f, "string"),
             Type::Uuid => write!(f, "uuid"),
+            Type::Option(type_) => write!(f, "option<{}>", type_),
         }
     }
 }
@@ -77,7 +81,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
     //     .map(Token::Op);
 
     // A parser for punctuation (delimiters, semicolons, etc.)
-    let punct = one_of("()[]{}:;,").map(|c| Token::Punct(c));
+    let punct = one_of("()[]{}:;,<>").map(|c| Token::Punct(c));
 
     // A parser for identifiers and keywords
     let ident = text::ident().map(|ident: String| match ident.as_str() {
@@ -96,6 +100,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "bool" => Token::Type(Type::Boolean),
         "float" => Token::Type(Type::Float),
         "uuid" => Token::Type(Type::Uuid),
+        "Option" => Token::Option,
         _ => Token::Ident(ident),
     });
 
@@ -125,16 +130,32 @@ pub enum Item {
     Implementation,
 }
 
+fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
+    let type_ = recursive(|type_| {
+        let type_ = filter_map(|span: Span, tok| match tok {
+            Token::Type(type_) => Ok(type_.clone()),
+            _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
+        });
+
+        let option = just(Token::Option)
+            .ignore_then(just(Token::Punct('<')))
+            .ignore_then(type_.clone())
+            .then_ignore(just(Token::Punct('>')))
+            .map(|type_| Type::Option(Box::new(type_)));
+
+        option.or(type_)
+    });
+
+    type_
+}
+
 fn structs_parser() -> impl Parser<Token, HashMap<String, Item>, Error = Simple<Token>> + Clone {
     let ident = filter_map(|span: Span, tok| match tok {
         Token::Ident(ident) => Ok(ident.clone()),
         _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
     });
 
-    let type_ = filter_map(|span: Span, tok| match tok {
-        Token::Type(type_) => Ok(type_.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
+    let type_ = type_parser();
 
     let field = ident
         .clone()
@@ -315,7 +336,7 @@ mod tests {
     fn test_struct() {
         let src = r#"
             type Foo {
-                bar: int,
+                bar: Option<int>,
                 baz: string,
             }
 
