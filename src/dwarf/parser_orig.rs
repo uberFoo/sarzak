@@ -19,7 +19,7 @@ enum Token {
     Op(String),
     Ctrl(char),
     Ident(String),
-    Fn,p
+    Fn,
     Let,
     Print,
     If,
@@ -645,8 +645,8 @@ mod tests {
             let (ast, parse_errs) =
                 funcs_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
 
-            dbg!(&ast);
-            dbg!(&parse_errs);
+            // dbg!(&ast);
+            // dbg!(&parse_errs);
             parse_errs
         } else {
             Vec::new()
