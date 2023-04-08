@@ -1,0 +1,17 @@
+[book]
+authors = ["Keith T. Star"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Sarzak Design and Implementation"
+
+[preprocessor.bib]
+bibliography = "sarzak.bib"
+render-bib = "all"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+
+[output.html]
+mathjax-support = true
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
