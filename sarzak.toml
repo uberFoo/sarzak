@@ -9,8 +9,6 @@ imported_domains = ["v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 
 [modules."v2/lu_dog".compiler.target]
-from_module = "v1::drawing"
-from_path = "models/drawing.json"
 is_meta_model = true
 is_sarzak = false
 persist = true

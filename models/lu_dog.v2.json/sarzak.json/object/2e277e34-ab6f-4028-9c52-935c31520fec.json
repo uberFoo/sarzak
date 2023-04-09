@@ -1,0 +1,12 @@
+[
+  {
+    "description": "Value Type\n\nThis is the main type abstraction used in Lu Dog. We mostly rely on what is available in Sarzak, with two additions: ...\n\nTwo? I know that I need an Option<>. I'm not so sure about a & though. Everything from the store is going to be by UUID, so all of my references are really \"pointers\" underneath. I want them to be typed in the code though.\n\nSo how will the code work? We could store the type next to the pointer: (type, uuid). Huh. This is the eventual output domain. How does that affect my thinking?\n\nThis should end up looking like woog, but simpler. Woog was for generating rust. I want to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually? \n\nOption for now. We'll see later...",
+    "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+    "key_letters": "TYP",
+    "name": "Value Type"
+  },
+  {
+    "secs_since_epoch": 1681046390,
+    "nanos_since_epoch": 155073000
+  }
+]

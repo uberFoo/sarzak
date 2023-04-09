@@ -12,38 +12,285 @@
                 "width": 8000,
                 "height": 6400,
                 "offset": {
-                    "x": -1179,
-                    "y": -1640
+                    "x": -972,
+                    "y": -1568
                 },
                 "objects": {
                     "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
-                        "x": 1484,
-                        "y": 1236,
+                        "x": 2185,
+                        "y": 2132,
                         "width": 232,
                         "height": 95
                     },
                     "7178e7a4-5131-504b-a7b3-c2c0cfedf343": {
-                        "x": 1493,
-                        "y": 1733,
-                        "width": 267,
+                        "x": 2669,
+                        "y": 2269,
+                        "width": 252,
                         "height": 142
                     },
                     "45644594-b418-5362-9294-a62fe2a0fa8e": {
-                        "x": 2607,
-                        "y": 2049,
+                        "x": 3379,
+                        "y": 1881,
                         "width": 240,
                         "height": 149,
                         "id": "45644594-b418-5362-9294-a62fe2a0fa8e"
                     },
-                    "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0": {
-                        "x": 2323,
-                        "y": 2427,
-                        "width": 236,
-                        "height": 176,
-                        "id": "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0"
+                    "2e277e34-ab6f-4028-9c52-935c31520fec": {
+                        "x": 2668,
+                        "y": 2461,
+                        "width": 252,
+                        "height": 126,
+                        "id": "2e277e34-ab6f-4028-9c52-935c31520fec"
+                    },
+                    "95562975-d3d3-47ba-b9cc-168d3cdc2054": {
+                        "x": 2186,
+                        "y": 2250,
+                        "width": 232,
+                        "height": 98,
+                        "id": "95562975-d3d3-47ba-b9cc-168d3cdc2054"
+                    },
+                    "f18096c5-d401-46bf-be75-02bbe67f87c1": {
+                        "x": 1913,
+                        "y": 2477,
+                        "width": 201,
+                        "height": 120,
+                        "id": "f18096c5-d401-46bf-be75-02bbe67f87c1"
+                    },
+                    "fa561e81-c4f0-4224-b7bb-4592ef9cf787": {
+                        "x": 2141,
+                        "y": 2478,
+                        "width": 279,
+                        "height": 120,
+                        "id": "fa561e81-c4f0-4224-b7bb-4592ef9cf787"
+                    },
+                    "e68f8912-9897-4cbd-b363-cb4203a726a9": {
+                        "x": 3162,
+                        "y": 2270,
+                        "width": 245,
+                        "height": 145,
+                        "id": "e68f8912-9897-4cbd-b363-cb4203a726a9"
+                    },
+                    "141350e6-b62d-4a6d-9ea2-47333e51e3ea": {
+                        "x": 3163,
+                        "y": 2461,
+                        "width": 246,
+                        "height": 133,
+                        "id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea"
+                    },
+                    "88687f76-5d9e-404e-a801-f6f57f9b30ca": {
+                        "x": 3657,
+                        "y": 2278,
+                        "width": 238,
+                        "height": 155,
+                        "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca"
                     }
                 },
-                "relationships": {}
+                "relationships": {
+                    "21f08565-d913-4302-a853-e5f688ec1bc1": {
+                        "IsaUI": {
+                            "from": {
+                                "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                                "x": 2668,
+                                "y": 2495,
+                                "offset": {
+                                    "x": 20,
+                                    "y": 20
+                                },
+                                "dir": "West"
+                            },
+                            "to": [
+                                {
+                                    "id": "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+                                    "x": 2418,
+                                    "y": 2290,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "East"
+                                },
+                                {
+                                    "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                                    "x": 2417,
+                                    "y": 2184,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "East"
+                                }
+                            ]
+                        }
+                    },
+                    "88a16d6d-1c47-4390-bf98-e5c67b82715e": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+                                "x": 2420,
+                                "y": 2555,
+                                "offset": {
+                                    "x": 23,
+                                    "y": -33
+                                },
+                                "dir": "East"
+                            },
+                            "to": {
+                                "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                                "x": 2668,
+                                "y": 2554,
+                                "offset": {
+                                    "x": -89,
+                                    "y": 37
+                                },
+                                "dir": "West"
+                            }
+                        }
+                    },
+                    "0c9eeeaf-fb55-4c75-94f2-dcb6a49ab6ca": {
+                        "IsaUI": {
+                            "from": {
+                                "id": "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+                                "x": 2300,
+                                "y": 2348,
+                                "offset": {
+                                    "x": 20,
+                                    "y": 20
+                                },
+                                "dir": "South"
+                            },
+                            "to": [
+                                {
+                                    "id": "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+                                    "x": 2280,
+                                    "y": 2478,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                },
+                                {
+                                    "id": "f18096c5-d401-46bf-be75-02bbe67f87c1",
+                                    "x": 2026,
+                                    "y": 2477,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                }
+                            ]
+                        }
+                    },
+                    "e1f18f02-e977-4e70-97d0-24b98425193b": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                                "x": 3162,
+                                "y": 2348,
+                                "offset": {
+                                    "x": -148,
+                                    "y": 42
+                                },
+                                "dir": "West"
+                            },
+                            "to": {
+                                "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                                "x": 2921,
+                                "y": 2348,
+                                "offset": {
+                                    "x": 18,
+                                    "y": -27
+                                },
+                                "dir": "East"
+                            }
+                        }
+                    },
+                    "4b7360ba-8de3-4c93-bc90-22478c128a75": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+                                "x": 3163,
+                                "y": 2543,
+                                "offset": {
+                                    "x": -92,
+                                    "y": 30
+                                },
+                                "dir": "West"
+                            },
+                            "to": {
+                                "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                                "x": 2920,
+                                "y": 2542,
+                                "offset": {
+                                    "x": 24,
+                                    "y": -21
+                                },
+                                "dir": "East"
+                            }
+                        }
+                    },
+                    "3746c64a-c63d-424d-afb2-c253470b6d7b": {
+                        "IsaUI": {
+                            "from": {
+                                "id": "45644594-b418-5362-9294-a62fe2a0fa8e",
+                                "x": 3496,
+                                "y": 2030,
+                                "offset": {
+                                    "x": 20,
+                                    "y": 20
+                                },
+                                "dir": "South"
+                            },
+                            "to": [
+                                {
+                                    "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                                    "x": 3254,
+                                    "y": 2270,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                },
+                                {
+                                    "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                                    "x": 3748,
+                                    "y": 2278,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                }
+                            ]
+                        }
+                    },
+                    "02892323-60e9-470b-b162-b2bc8d9ef1cd": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+                                "x": 3409,
+                                "y": 2523,
+                                "offset": {
+                                    "x": 19,
+                                    "y": 33
+                                },
+                                "dir": "East"
+                            },
+                            "to": {
+                                "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                                "x": 3407,
+                                "y": 2353,
+                                "offset": {
+                                    "x": 35,
+                                    "y": -33
+                                },
+                                "dir": "East"
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -52,7 +299,13 @@
             "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
             "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
             "45644594-b418-5362-9294-a62fe2a0fa8e",
-            "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0"
+            "2e277e34-ab6f-4028-9c52-935c31520fec",
+            "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+            "f18096c5-d401-46bf-be75-02bbe67f87c1",
+            "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+            "e68f8912-9897-4cbd-b363-cb4203a726a9",
+            "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+            "88687f76-5d9e-404e-a801-f6f57f9b30ca"
         ],
         "entities": {
             "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
@@ -109,14 +362,97 @@
                     }
                 }
             },
-            "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0": {
-                "id": "1f93cbdf-554d-496d-9404-a4c4fd5ef0c0",
-                "key_letter": "IT",
-                "name": "Imported Type",
+            "2e277e34-ab6f-4028-9c52-935c31520fec": {
+                "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                "key_letter": "TYP",
+                "name": "Value Type",
+                "description": "Value Type\n\nThis is the main type abstraction used in Lu Dog. We mostly rely on what is available in Sarzak, with two additions: ...\n\nTwo? I know that I need an Option<>. I'm not so sure about a & though. Everything from the store is going to be by UUID, so all of my references are really \"pointers\" underneath. I want them to be typed in the code though.\n\nSo how will the code work? We could store the type next to the pointer: (type, uuid). Huh. This is the eventual output domain. How does that affect my thinking?\n\nThis should end up looking like woog, but simpler. Woog was for generating rust. I want to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually? \n\nOption for now. We'll see later...",
+                "attributes": {
+                    "2b4f587e-1528-5813-b970-9560d145f091": {
+                        "id": "2b4f587e-1528-5813-b970-9560d145f091",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "95562975-d3d3-47ba-b9cc-168d3cdc2054": {
+                "id": "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+                "key_letter": "T_OPT",
+                "name": "Option",
+                "description": "An Optional Type\n\nThis type is either `None` or `Some(`[Type]`)`.",
+                "attributes": {
+                    "3c06dc30-ab96-56a0-abab-50d47abb07ba": {
+                        "id": "3c06dc30-ab96-56a0-abab-50d47abb07ba",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "f18096c5-d401-46bf-be75-02bbe67f87c1": {
+                "id": "f18096c5-d401-46bf-be75-02bbe67f87c1",
+                "key_letter": "O_NO",
+                "name": "None",
+                "description": "The only purpose of this type is to represent _no_ type.",
+                "attributes": {
+                    "d72e8863-8b4d-5d2a-9d22-dea7e65e6407": {
+                        "id": "d72e8863-8b4d-5d2a-9d22-dea7e65e6407",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "fa561e81-c4f0-4224-b7bb-4592ef9cf787": {
+                "id": "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+                "key_letter": "O_SO",
+                "name": "Some",
+                "description": "Some Type\n\nThis type wraps another. It's used by the supertype, `[Option]`, to represent a type that may or may not exist.",
+                "attributes": {
+                    "eb306e24-59ac-573c-8e01-2cf6847fee21": {
+                        "id": "eb306e24-59ac-573c-8e01-2cf6847fee21",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "e68f8912-9897-4cbd-b363-cb4203a726a9": {
+                "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                "key_letter": "MT",
+                "name": "Model Type",
+                "description": "A Type from the Model\n\nThis is really just an alias for `[Object]`.",
+                "attributes": {
+                    "e12db790-b02b-500e-9a6f-742378146a45": {
+                        "id": "e12db790-b02b-500e-9a6f-742378146a45",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "141350e6-b62d-4a6d-9ea2-47333e51e3ea": {
+                "id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+                "key_letter": "F",
+                "name": "Field",
+                "description": "A Field in a data structure\n\nA field has a name, and a type.",
+                "attributes": {
+                    "add99bda-d83f-558e-b54e-6373a658d0b6": {
+                        "id": "add99bda-d83f-558e-b54e-6373a658d0b6",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "3f2dcff1-5f2e-4279-8d54-537cbb477874": {
+                        "id": "3f2dcff1-5f2e-4279-8d54-537cbb477874",
+                        "name": "name",
+                        "type": "String"
+                    }
+                }
+            },
+            "88687f76-5d9e-404e-a801-f6f57f9b30ca": {
+                "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                "key_letter": "TO",
+                "name": "Test Object",
                 "description": "",
                 "attributes": {
-                    "`id`": {
-                        "id": "`id`",
+                    "69046536-f9f1-4c70-99c8-bf778c90cdea": {
+                        "id": "69046536-f9f1-4c70-99c8-bf778c90cdea",
                         "name": "id",
                         "type": "Uuid"
                     }
@@ -125,7 +461,125 @@
         }
     },
     "relationships": {
-        "ids": [],
-        "entities": {}
+        "ids": [
+            "21f08565-d913-4302-a853-e5f688ec1bc1",
+            "88a16d6d-1c47-4390-bf98-e5c67b82715e",
+            "0c9eeeaf-fb55-4c75-94f2-dcb6a49ab6ca",
+            "e1f18f02-e977-4e70-97d0-24b98425193b",
+            "4b7360ba-8de3-4c93-bc90-22478c128a75",
+            "3746c64a-c63d-424d-afb2-c253470b6d7b",
+            "02892323-60e9-470b-b162-b2bc8d9ef1cd"
+        ],
+        "entities": {
+            "21f08565-d913-4302-a853-e5f688ec1bc1": {
+                "Isa": {
+                    "id": "21f08565-d913-4302-a853-e5f688ec1bc1",
+                    "number": 1,
+                    "obj_id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                    "subtypes": [
+                        "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+                        "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f"
+                    ]
+                }
+            },
+            "88a16d6d-1c47-4390-bf98-e5c67b82715e": {
+                "Binary": {
+                    "id": "88a16d6d-1c47-4390-bf98-e5c67b82715e",
+                    "number": 2,
+                    "from": {
+                        "obj_id": "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+                        "description": "contains",
+                        "cardinality": "Many",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "inner type"
+                    },
+                    "to": {
+                        "obj_id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                        "description": "is contained in",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            },
+            "0c9eeeaf-fb55-4c75-94f2-dcb6a49ab6ca": {
+                "Isa": {
+                    "id": "0c9eeeaf-fb55-4c75-94f2-dcb6a49ab6ca",
+                    "number": 3,
+                    "obj_id": "95562975-d3d3-47ba-b9cc-168d3cdc2054",
+                    "subtypes": [
+                        "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
+                        "f18096c5-d401-46bf-be75-02bbe67f87c1"
+                    ]
+                }
+            },
+            "e1f18f02-e977-4e70-97d0-24b98425193b": {
+                "Binary": {
+                    "id": "e1f18f02-e977-4e70-97d0-24b98425193b",
+                    "number": 4,
+                    "from": {
+                        "obj_id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                        "description": "represents an",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "object"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "is represented as a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "4b7360ba-8de3-4c93-bc90-22478c128a75": {
+                "Binary": {
+                    "id": "4b7360ba-8de3-4c93-bc90-22478c128a75",
+                    "number": 5,
+                    "from": {
+                        "obj_id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+                        "description": "has a",
+                        "cardinality": "Many",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "type"
+                    },
+                    "to": {
+                        "obj_id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                        "description": "describes a",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            },
+            "3746c64a-c63d-424d-afb2-c253470b6d7b": {
+                "Isa": {
+                    "id": "3746c64a-c63d-424d-afb2-c253470b6d7b",
+                    "number": 6,
+                    "obj_id": "45644594-b418-5362-9294-a62fe2a0fa8e",
+                    "subtypes": [
+                        "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                        "88687f76-5d9e-404e-a801-f6f57f9b30ca"
+                    ]
+                }
+            },
+            "02892323-60e9-470b-b162-b2bc8d9ef1cd": {
+                "Binary": {
+                    "id": "02892323-60e9-470b-b162-b2bc8d9ef1cd",
+                    "number": 7,
+                    "from": {
+                        "obj_id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
+                        "description": "comprises a",
+                        "cardinality": "Many",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "model"
+                    },
+                    "to": {
+                        "obj_id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                        "description": "is comprised of",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            }
+        }
     }
 }
