@@ -18,6 +18,8 @@ struct MetaData {
     domain: String,
     id: Uuid,
     description: String,
+    extents: [u16; 2],
+    view: [i32; 2],
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -52,6 +54,10 @@ impl Domain {
     ///
     pub fn description(&self) -> &str {
         &self.meta.description
+    }
+
+    pub fn extents(&self) -> &[u16; 2] {
+        &self.meta.extents
     }
 
     /// Return a reference to the sarzak store
@@ -133,6 +139,8 @@ impl From<DomainV1> for Domain {
                 domain: domain.domain().to_owned(),
                 id: domain.id().to_owned(),
                 description: domain.description().to_owned(),
+                extents: domain.extents().to_owned(),
+                view: domain.view().to_owned(),
             },
             sarzak,
             merlin,
