@@ -46,6 +46,23 @@ impl StructureField {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-new_"}}}
+    /// Inter a new 'Structure Field' in the store, and return it's `id`.
+    pub fn new_(
+        next: Option<&StructureField>,
+        woog_struct: &Field,
+        field: &Structure,
+    ) -> StructureField {
+        let id = Uuid::new_v4();
+        let new = StructureField {
+            id: id,
+            next: next.map(|structure_field| structure_field.id),
+            woog_struct: woog_struct.id,
+            field: field.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`StructureField`] across R30(1-*c)
     pub fn r30_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {

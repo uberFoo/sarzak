@@ -47,6 +47,21 @@ impl XBox {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
+    /// Inter a new 'Box' in the store, and return it's `id`.
+    pub fn new_(height: i64, width: i64, x: i64, y: i64, object: &Object) -> XBox {
+        let id = Uuid::new_v4();
+        let new = XBox {
+            height: height,
+            id: id,
+            width: width,
+            x: x,
+            y: y,
+            object: object.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R1(1-*)
     pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {

@@ -40,10 +40,20 @@ impl GraceType {
         new
     }
 
+    pub fn new_woog_option_(woog_option: &WoogOption) -> Self {
+        let new = Self::WoogOption(woog_option.id);
+        new
+    }
+
     /// Create a new instance of GraceType::Reference
     pub fn new_reference(reference: &Reference, store: &mut WoogStore) -> Self {
         let new = Self::Reference(reference.id);
         store.inter_grace_type(new.clone());
+        new
+    }
+
+    pub fn new_reference_(reference: &Reference) -> Self {
+        let new = Self::Reference(reference.id);
         new
     }
 
@@ -54,10 +64,20 @@ impl GraceType {
         new
     }
 
+    pub fn new_time_stamp_(time_stamp: &TimeStamp) -> Self {
+        let new = Self::TimeStamp(time_stamp.id);
+        new
+    }
+
     /// Create a new instance of GraceType::Ty
     pub fn new_ty(ty: &Ty, store: &mut WoogStore) -> Self {
         let new = Self::Ty(ty.id());
         store.inter_grace_type(new.clone());
+        new
+    }
+
+    pub fn new_ty_(ty: &Ty) -> Self {
+        let new = Self::Ty(ty.id());
         new
     }
 

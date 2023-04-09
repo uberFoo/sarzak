@@ -41,6 +41,11 @@ impl Item {
         new
     }
 
+    pub fn new_constant_(constant: &Constant) -> Self {
+        let new = Self::Constant(constant.id);
+        new
+    }
+
     /// Create a new instance of Item::Enumeration
     pub fn new_enumeration(enumeration: &Enumeration, store: &mut WoogStore) -> Self {
         let new = Self::Enumeration(enumeration.id);
@@ -48,10 +53,20 @@ impl Item {
         new
     }
 
+    pub fn new_enumeration_(enumeration: &Enumeration) -> Self {
+        let new = Self::Enumeration(enumeration.id);
+        new
+    }
+
     /// Create a new instance of Item::Function
     pub fn new_function(function: &Function, store: &mut WoogStore) -> Self {
         let new = Self::Function(function.id);
         store.inter_item(new.clone());
+        new
+    }
+
+    pub fn new_function_(function: &Function) -> Self {
+        let new = Self::Function(function.id);
         new
     }
 
@@ -65,6 +80,11 @@ impl Item {
     pub fn new_structure(structure: &Structure, store: &mut WoogStore) -> Self {
         let new = Self::Structure(structure.id);
         store.inter_item(new.clone());
+        new
+    }
+
+    pub fn new_structure_(structure: &Structure) -> Self {
+        let new = Self::Structure(structure.id);
         new
     }
 

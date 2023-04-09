@@ -43,6 +43,17 @@ impl Line {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-new_"}}}
+    /// Inter a new 'Line' in the store, and return it's `id`.
+    pub fn new_(relationship: &Relationship) -> Line {
+        let id = Uuid::new_v4();
+        let new = Line {
+            id: id,
+            relationship: relationship.id(),
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-nav-forward-to-relationship"}}}
     /// Navigate to [`Relationship`] across R2(1-*)
     pub fn r2_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Relationship> {

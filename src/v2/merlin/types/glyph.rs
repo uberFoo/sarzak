@@ -34,6 +34,7 @@ pub enum GlyphEnum {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-implementation"}}}
 impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_many"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_many(line: &Line, store: &mut MerlinStore) -> Glyph {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -49,6 +50,21 @@ impl Glyph {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_many_"}}}
+    /// Inter a new Glyph in the store, and return it's `id`.
+    pub fn new_many_(line: &Line) -> Glyph {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = MANY;
+        let new = Glyph {
+            line: line.id,
+            subtype: GlyphEnum::Many(MANY),
+            id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_one"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_one(line: &Line, store: &mut MerlinStore) -> Glyph {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -64,6 +80,21 @@ impl Glyph {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_one_"}}}
+    /// Inter a new Glyph in the store, and return it's `id`.
+    pub fn new_one_(line: &Line) -> Glyph {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = ONE;
+        let new = Glyph {
+            line: line.id,
+            subtype: GlyphEnum::One(ONE),
+            id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_sub"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_sub(line: &Line, store: &mut MerlinStore) -> Glyph {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -79,6 +110,21 @@ impl Glyph {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_sub_"}}}
+    /// Inter a new Glyph in the store, and return it's `id`.
+    pub fn new_sub_(line: &Line) -> Glyph {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = SUB;
+        let new = Glyph {
+            line: line.id,
+            subtype: GlyphEnum::Sub(SUB),
+            id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_x_super"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_x_super(line: &Line, store: &mut MerlinStore) -> Glyph {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -90,6 +136,20 @@ impl Glyph {
             id,
         };
         store.inter_glyph(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_x_super_"}}}
+    /// Inter a new Glyph in the store, and return it's `id`.
+    pub fn new_x_super_(line: &Line) -> Glyph {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = X_SUPER;
+        let new = Glyph {
+            line: line.id,
+            subtype: GlyphEnum::XSuper(X_SUPER),
+            id,
+        };
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

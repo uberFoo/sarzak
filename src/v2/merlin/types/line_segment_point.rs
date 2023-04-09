@@ -35,6 +35,17 @@ impl LineSegmentPoint {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-nav-forward-assoc-to-point"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-new_"}}}
+    /// Inter a new 'Line Segment Point' in the store, and return it's `id`.
+    pub fn new_(segment: &LineSegment, point: &Point) -> LineSegmentPoint {
+        let id = Uuid::new_v4();
+        let new = LineSegmentPoint {
+            id: id,
+            segment: segment.id,
+            point: point.id,
+        };
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-nav-forward-assoc-to-segment"}}}
     /// Navigate to [`LineSegment`] across R5(1-*)

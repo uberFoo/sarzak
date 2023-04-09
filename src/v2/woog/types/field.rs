@@ -41,6 +41,18 @@ impl Field {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new_"}}}
+    /// Inter a new 'Field' in the store, and return it's `id`.
+    pub fn new_(name: String, ty: &GraceType) -> Field {
+        let id = Uuid::new_v4();
+        let new = Field {
+            id: id,
+            name: name,
+            ty: ty.id(),
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R29(1-*)
     pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {

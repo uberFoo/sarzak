@@ -34,6 +34,14 @@ impl Structure {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-new_"}}}
+    /// Inter a new 'Structure' in the store, and return it's `id`.
+    pub fn new_(name: String) -> Structure {
+        let id = Uuid::new_v4();
+        let new = Structure { id: id, name: name };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc_many-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-M)
     pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {

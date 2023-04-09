@@ -40,6 +40,17 @@ impl EnumerationField {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-woog_enum"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-new_"}}}
+    /// Inter a new 'Enumeration Field' in the store, and return it's `id`.
+    pub fn new_(field: &Enumeration, woog_enum: &Field) -> EnumerationField {
+        let id = Uuid::new_v4();
+        let new = EnumerationField {
+            id: id,
+            field: field.id,
+            woog_enum: woog_enum.id,
+        };
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-woog_enum"}}}

@@ -53,6 +53,27 @@ impl AssociativeUi {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-new_"}}}
+    /// Inter a new 'AssociativeUI' in the store, and return it's `id`.
+    pub fn new_(
+        other: &Anchor,
+        one: &Anchor,
+        middle: &Anchor,
+        associative_id: &Associative,
+        from: &Point,
+    ) -> AssociativeUi {
+        let id = Uuid::new_v4();
+        let new = AssociativeUi {
+            id: id,
+            other: other.id,
+            one: one.id,
+            middle: middle.id,
+            associative_id: associative_id.id,
+            from: from.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
     /// Navigate to [`Anchor`] across R15(1-*)

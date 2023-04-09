@@ -1,0 +1,14 @@
+[
+  {
+    "id": "27e0e9a2-d06e-4c4c-bf5d-cc4aebf04ff3",
+    "text": "R12",
+    "x": 0,
+    "y": 0,
+    "origin": "71401793-2907-4293-918f-faecc54e37cb",
+    "line": "a1c9094f-27b8-455f-8ac8-9d6224671ebe"
+  },
+  {
+    "secs_since_epoch": 1681047106,
+    "nanos_since_epoch": 354707000
+  }
+]

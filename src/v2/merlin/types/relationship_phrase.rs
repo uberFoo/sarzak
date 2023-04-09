@@ -47,6 +47,21 @@ impl RelationshipPhrase {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-new_"}}}
+    /// Inter a new 'Relationship Phrase' in the store, and return it's `id`.
+    pub fn new_(text: String, x: i64, y: i64, origin: &Anchor, line: &Line) -> RelationshipPhrase {
+        let id = Uuid::new_v4();
+        let new = RelationshipPhrase {
+            id: id,
+            text: text,
+            x: x,
+            y: y,
+            origin: origin.id,
+            line: line.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Anchor`] across R13(1-*)
     pub fn r13_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {

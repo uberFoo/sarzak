@@ -68,6 +68,20 @@ impl ObjectUi {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-new_"}}}
+    /// Inter a new 'ObjectUI' in the store, and return it's `id`.
+    pub fn new_(height: i64, width: i64, object_id: &Object, origin: &Point) -> ObjectUi {
+        let id = Uuid::new_v4();
+        let new = ObjectUi {
+            height: height,
+            id: id,
+            width: width,
+            object_id: object_id.id,
+            origin: origin.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-object_id"}}}
     /// Navigate to [`Object`] across R1(1-*)
     pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {

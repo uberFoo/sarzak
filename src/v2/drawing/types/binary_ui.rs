@@ -50,6 +50,18 @@ impl BinaryUi {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-new_"}}}
+    /// Inter a new 'BinaryUI' in the store, and return it's `id`.
+    pub fn new_(to: &Anchor, from: &Anchor, binary_id: &Binary) -> BinaryUi {
+        let id = Uuid::new_v4();
+        let new = BinaryUi {
+            id: id,
+            to: to.id,
+            from: from.id,
+            binary_id: binary_id.id,
+        };
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-to"}}}
     /// Navigate to [`Anchor`] across R8(1-*)

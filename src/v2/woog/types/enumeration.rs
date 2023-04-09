@@ -35,6 +35,14 @@ impl Enumeration {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_"}}}
+    /// Inter a new 'Enumeration' in the store, and return it's `id`.
+    pub fn new_(name: String) -> Enumeration {
+        let id = Uuid::new_v4();
+        let new = Enumeration { id: id, name: name };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc_many-to-enumeration_field"}}}
     /// Navigate to [`EnumerationField`] across R28(1-M)
     pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {

@@ -338,6 +338,7 @@ mod tests {
             type Foo {
                 bar: Option<int>,
                 baz: string,
+                uber: uuid
             }
 
             type Bar {}

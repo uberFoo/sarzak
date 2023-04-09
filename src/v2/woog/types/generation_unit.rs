@@ -39,6 +39,18 @@ impl GenerationUnit {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-new_"}}}
+    /// Inter a new 'Generation Unit' in the store, and return it's `id`.
+    pub fn new_(object: &Object, creation_time: &TimeStamp) -> GenerationUnit {
+        let id = Uuid::new_v4();
+        let new = GenerationUnit {
+            id: id,
+            object: object.id,
+            creation_time: creation_time.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R22(1-*)
     pub fn r22_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {

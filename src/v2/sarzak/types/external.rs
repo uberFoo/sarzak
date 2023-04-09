@@ -54,6 +54,19 @@ impl External {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-impl-new_"}}}
+    /// Inter a new 'External' in the store, and return it's `id`.
+    pub fn new_(ctor: String, name: String, path: String) -> External {
+        let id = Uuid::new_v4();
+        let new = External {
+            ctor: ctor,
+            id: id,
+            name: name,
+            path: path,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
     pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {

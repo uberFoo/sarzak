@@ -59,6 +59,31 @@ impl Anchor {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new_"}}}
+    /// Inter a new 'Anchor' in the store, and return it's `id`.
+    pub fn new_(
+        offset: f64,
+        x_offset: i64,
+        y_offset: i64,
+        edge: &Edge,
+        glyph: &Glyph,
+        x_box: &XBox,
+        line: &Line,
+    ) -> Anchor {
+        let id = Uuid::new_v4();
+        let new = Anchor {
+            id: id,
+            offset: offset,
+            x_offset: x_offset,
+            y_offset: y_offset,
+            edge: edge.id(),
+            glyph: glyph.id,
+            x_box: x_box.id,
+            line: line.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R9(1-*)
     pub fn r9_edge<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Edge> {

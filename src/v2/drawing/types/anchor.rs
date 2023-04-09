@@ -55,6 +55,19 @@ impl Anchor {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new_"}}}
+    /// Inter a new 'Anchor' in the store, and return it's `id`.
+    pub fn new_(edge: &Edge, location: &Point, offset: &Point) -> Anchor {
+        let id = Uuid::new_v4();
+        let new = Anchor {
+            id: id,
+            edge: edge.id(),
+            location: location.id,
+            offset: offset.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R3(1-*)
     pub fn r3_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Edge> {

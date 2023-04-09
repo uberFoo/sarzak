@@ -42,6 +42,18 @@ impl IsaUi {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-new_"}}}
+    /// Inter a new 'IsaUI' in the store, and return it's `id`.
+    pub fn new_(from: &Anchor, isa: &Isa) -> IsaUi {
+        let id = Uuid::new_v4();
+        let new = IsaUi {
+            id: id,
+            from: from.id,
+            isa: isa.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-from"}}}
     /// Navigate to [`Anchor`] across R9(1-*)
     pub fn r9_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {

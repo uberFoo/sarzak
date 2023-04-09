@@ -38,6 +38,18 @@ impl Event {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-impl-new_"}}}
+    /// Inter a new 'Event' in the store, and return it's `id`.
+    pub fn new_(name: String, obj_id: &Object) -> Event {
+        let id = Uuid::new_v4();
+        let new = Event {
+            id: id,
+            name: name,
+            obj_id: obj_id.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R19(1-*)
     pub fn r19_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {

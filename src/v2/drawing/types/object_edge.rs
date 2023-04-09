@@ -40,6 +40,18 @@ impl ObjectEdge {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-struct-impl-new_"}}}
+    /// Inter a new 'Object Edge' in the store, and return it's `id`.
+    pub fn new_(edge: &Edge, oui_id: &ObjectUi) -> ObjectEdge {
+        let id = Uuid::new_v4();
+        let new = ObjectEdge {
+            id: id,
+            edge: edge.id(),
+            oui_id: oui_id.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_edge-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R19(1-*)
     pub fn r19_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Edge> {

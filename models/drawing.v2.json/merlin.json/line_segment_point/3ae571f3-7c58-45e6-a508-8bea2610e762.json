@@ -1,0 +1,11 @@
+[
+  {
+    "id": "3ae571f3-7c58-45e6-a508-8bea2610e762",
+    "segment": "5a4cabb4-32b1-457d-9d65-21b86bcb99f5",
+    "point": "89f97e60-b9fb-4977-b856-4190bfb4b42d"
+  },
+  {
+    "secs_since_epoch": 1681047103,
+    "nanos_since_epoch": 406499000
+  }
+]

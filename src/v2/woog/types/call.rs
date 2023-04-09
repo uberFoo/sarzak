@@ -38,6 +38,17 @@ impl Call {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_"}}}
+    /// Inter a new 'Call' in the store, and return it's `id`.
+    pub fn new_(method: &ObjectMethod) -> Call {
+        let id = Uuid::new_v4();
+        let new = Call {
+            id: id,
+            method: method.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-method"}}}
     /// Navigate to [`ObjectMethod`] across R19(1-*)
     pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {

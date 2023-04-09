@@ -38,10 +38,20 @@ impl Expression {
         new
     }
 
+    pub fn new_block_(block: &Block) -> Self {
+        let new = Self::Block(block.id);
+        new
+    }
+
     /// Create a new instance of Expression::Call
     pub fn new_call(call: &Call, store: &mut WoogStore) -> Self {
         let new = Self::Call(call.id);
         store.inter_expression(new.clone());
+        new
+    }
+
+    pub fn new_call_(call: &Call) -> Self {
+        let new = Self::Call(call.id);
         new
     }
 

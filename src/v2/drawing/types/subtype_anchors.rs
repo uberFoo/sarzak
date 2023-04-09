@@ -42,6 +42,17 @@ impl SubtypeAnchors {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-nav-forward-assoc-to-isaui_id"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-new_"}}}
+    /// Inter a new 'Subtype Anchors' in the store, and return it's `id`.
+    pub fn new_(anchor_id: &Anchor, isaui_id: &IsaUi) -> SubtypeAnchors {
+        let id = Uuid::new_v4();
+        let new = SubtypeAnchors {
+            id: id,
+            anchor_id: anchor_id.id,
+            isaui_id: isaui_id.id,
+        };
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-nav-forward-assoc-to-anchor_id"}}}
     /// Navigate to [`Anchor`] across R10(1-*)

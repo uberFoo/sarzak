@@ -40,6 +40,17 @@ impl Reference {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new_"}}}
+    /// Inter a new 'Reference' in the store, and return it's `id`.
+    pub fn new_(object: &Object) -> Reference {
+        let id = Uuid::new_v4();
+        let new = Reference {
+            id: id,
+            object: object.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R13(1-*)
     pub fn r13_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {

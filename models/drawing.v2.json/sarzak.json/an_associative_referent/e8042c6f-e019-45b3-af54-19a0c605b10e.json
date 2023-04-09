@@ -1,0 +1,12 @@
+[
+  {
+    "id": "e8042c6f-e019-45b3-af54-19a0c605b10e",
+    "referential_attribute": "isaui_id",
+    "associative": "593ddc5f-5efd-5a7e-a07b-4efa70c5dbe2",
+    "referent": "3818418b-14d3-5cdc-8514-f3849f349abb"
+  },
+  {
+    "secs_since_epoch": 1681047103,
+    "nanos_since_epoch": 406257000
+  }
+]

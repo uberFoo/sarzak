@@ -36,6 +36,14 @@ impl Block {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new_"}}}
+    /// Inter a new 'Block' in the store, and return it's `id`.
+    pub fn new_(seed: Uuid) -> Block {
+        let id = Uuid::new_v4();
+        let new = Block { id: id, seed: seed };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
     /// Navigate to [`ObjectMethod`] across R23(1-1c)
     pub fn r23c_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {

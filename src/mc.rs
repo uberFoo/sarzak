@@ -22,7 +22,7 @@ pub enum ModelCompilerError {
     IO { source: std::io::Error },
     #[snafu(display("Format Error caused by {}", source))]
     Format { source: std::fmt::Error },
-    #[snafu(display("File Error: {}, caused by {}", path.display(), source))]
+    #[snafu(display("\n{backtrace}\n{}: {description}\n  --> {source} ({})", Colour::Red.bold().paint("error"), path.display()))]
     File {
         backtrace: Backtrace,
         location: Location,

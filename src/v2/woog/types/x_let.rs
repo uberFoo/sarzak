@@ -50,6 +50,19 @@ impl XLet {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-new_"}}}
+    /// Inter a new 'Let' in the store, and return it's `id`.
+    pub fn new_(value: String, expression: &Expression, variable: &Variable) -> XLet {
+        let id = Uuid::new_v4();
+        let new = XLet {
+            id: id,
+            value: value,
+            expression: expression.id(),
+            variable: variable.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R18(1-*)
     pub fn r18_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {

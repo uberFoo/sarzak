@@ -53,6 +53,18 @@ impl ObjectMethod {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new_"}}}
+    /// Inter a new 'Object Method' in the store, and return it's `id`.
+    pub fn new_(block: &Block, object: &Object) -> ObjectMethod {
+        let id = Uuid::new_v4();
+        let new = ObjectMethod {
+            id: id,
+            block: block.id,
+            object: object.id,
+        };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R23(1-*)
     pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
