@@ -173,7 +173,7 @@ impl DomainBuilder {
             func(&mut sarzak, &mut drawing);
         }
 
-        DomainV1::new(model.domain, model.id, model.description, sarzak, drawing)
+        DomainV1::new(model, sarzak, drawing)
     }
 
     /// The final step

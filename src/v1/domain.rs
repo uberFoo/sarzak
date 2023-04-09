@@ -7,6 +7,7 @@ use crate::v1::{
     drawing::store::ObjectStore as DrawingStore, sarzak::store::ObjectStore as SarzakStore,
 };
 use crate::VERSION;
+use nut::sarzak::SarzakModel;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Domain {
@@ -16,6 +17,8 @@ pub struct Domain {
     description: String,
     sarzak: SarzakStore,
     drawing: DrawingStore,
+    extents: [u16; 2],
+    view: [i32; 2],
 }
 
 impl Domain {
@@ -23,20 +26,16 @@ impl Domain {
     ///
     /// This is used by the [`DomainBuilder`] to initialize a domain. It's not
     /// a generally useful means of creating a domain.
-    pub(crate) fn new(
-        domain: String,
-        id: Uuid,
-        description: String,
-        sarzak: SarzakStore,
-        drawing: DrawingStore,
-    ) -> Self {
+    pub(crate) fn new(model: SarzakModel, sarzak: SarzakStore, drawing: DrawingStore) -> Self {
         let domain = Domain {
             version: VERSION.to_owned(),
-            domain,
-            id,
-            description,
+            domain: model.domain,
+            id: model.id,
+            description: model.description,
             sarzak,
             drawing,
+            extents: model.extents,
+            view: model.view,
         };
 
         domain
@@ -82,5 +81,17 @@ impl Domain {
     /// model UI instances.
     pub fn drawing(&self) -> &DrawingStore {
         &self.drawing
+    }
+
+    /// Return the domain extents
+    ///
+    pub fn extents(&self) -> &[u16; 2] {
+        &self.extents
+    }
+
+    /// Return the domain view
+    ///
+    pub fn view(&self) -> &[i32; 2] {
+        &self.view
     }
 }
