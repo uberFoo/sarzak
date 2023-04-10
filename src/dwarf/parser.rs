@@ -148,7 +148,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 
     let double_colon = just::<char, char, Simple<char>>(':')
         .ignore_then(just(':'))
-        .map(|_| Token::Punct('⊥'));
+        .map(|_| Token::Punct('∷'));
 
     // A parser for operators
     let op = one_of("+-*/!=")
@@ -338,7 +338,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             let static_method_call = object
                 .map_with_span(|obj, span| (obj, span))
-                .then_ignore(just(Token::Punct('⊥')))
+                .then_ignore(just(Token::Punct('∷')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
                 .then(
                     items
