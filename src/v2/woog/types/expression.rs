@@ -79,6 +79,8 @@ impl Expression {
             .filter_map(|x_let| {
                 if x_let.expression == self.id() {
                     Some(x_let)
+                // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+                // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-struct_expression_field"}}}
                 } else {
                     None
                 }

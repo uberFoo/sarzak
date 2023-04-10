@@ -9,5 +9,4 @@ fn main() {
         .expect("Failed to read file");
 
     let ast = parse(&src).expect("Failed to parse file");
-    dbg!(ast);
 }

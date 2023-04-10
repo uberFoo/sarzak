@@ -45,6 +45,7 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
     /// Navigate to [`ObjectMethod`] across R23(1-1c)
     pub fn r23c_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
         let object_method = store

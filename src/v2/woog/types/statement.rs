@@ -165,6 +165,10 @@ impl Statement {
     /// Navigate to [`Block`] across R12(1-*)
     pub fn r12_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
         vec![store.exhume_block(&self.block).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-cond-to-next"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

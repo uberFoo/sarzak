@@ -12,16 +12,14 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::merlin::types::{
     Anchor, Bisection, Edge, Glyph, Line, LineSegment, LineSegmentPoint, Point, RelationshipName,
-    RelationshipPhrase, XBox, BOTTOM, LEFT, RIGHT, TOP,
+    XBox, BOTTOM, LEFT, RIGHT, TOP,
 };
 use crate::v2::merlin::ObjectStore;
 
-use crate::v2::drawing::types::{
-    Anchor as FromAnchor, BinaryUi, Edge as FromEdge, ObjectUi, Point as FromPoint,
-};
+use crate::v2::drawing::types::{Edge as FromEdge, ObjectUi, Point as FromPoint};
 use crate::v2::drawing::ObjectStore as DrawingStore;
 
-use crate::v2::sarzak::types::{Cardinality, Object};
+use crate::v2::sarzak::types::Cardinality;
 use crate::v2::sarzak::ObjectStore as SarzakStore;
 
 /// Convert a v1 Drawing format into a v2 Drawing format

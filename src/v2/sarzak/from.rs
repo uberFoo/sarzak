@@ -211,7 +211,7 @@ impl From<&FromAttribute> for Attribute {
         Self {
             id: src.id,
             name: src.name.clone(),
-            obj_id: src.obj_id,
+            obj_id: src.obj_id.unwrap(),
             ty: from_const(&src.ty),
         }
     }

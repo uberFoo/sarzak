@@ -107,6 +107,8 @@ impl GraceType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-function"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
     /// Navigate to [`WoogOption`] across R20(1-M)
     pub fn r20_woog_option<'a>(&'a self, store: &'a WoogStore) -> Vec<&WoogOption> {

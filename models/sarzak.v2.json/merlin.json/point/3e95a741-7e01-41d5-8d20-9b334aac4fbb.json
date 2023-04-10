@@ -1,0 +1,14 @@
+[
+  {
+    "subtype": {
+      "Anchor": "3e95a741-7e01-41d5-8d20-9b334aac4fbb"
+    },
+    "id": "3e95a741-7e01-41d5-8d20-9b334aac4fbb",
+    "x": 2955,
+    "y": 1471
+  },
+  {
+    "secs_since_epoch": 1681127545,
+    "nanos_since_epoch": 111222000
+  }
+]

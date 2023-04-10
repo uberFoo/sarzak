@@ -10,6 +10,8 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-documentation"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct GenerationUnit {

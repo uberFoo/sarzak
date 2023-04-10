@@ -1,0 +1,12 @@
+[
+  {
+    "id": "f4c2f58b-9f4c-44fa-a047-24efbaac67c1",
+    "referential_attribute": "field",
+    "associative": "7727586e-3e3f-5c33-87ac-7cd50f406299",
+    "referent": "5a55a95c-1e87-5d91-8666-82d0332c04a9"
+  },
+  {
+    "secs_since_epoch": 1681127774,
+    "nanos_since_epoch": 680204000
+  }
+]

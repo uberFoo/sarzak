@@ -38,6 +38,8 @@ impl Constant {
         let id = Uuid::new_v4();
         let new = Constant { id: id, name: name };
         new
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-struct-impl-nav-forward-to-object"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-impl-nav-subtype-to-supertype-item"}}}

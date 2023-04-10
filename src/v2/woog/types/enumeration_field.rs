@@ -60,6 +60,9 @@ impl EnumerationField {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-woog_enum"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-field"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-impl-nav-subtype-to-supertype-reference_type"}}}
     /// Navigate to [`Field`] across R28(1-*)
     pub fn r28_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&Field> {
         vec![store.exhume_field(&self.woog_enum).unwrap()]

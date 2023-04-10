@@ -50,6 +50,7 @@ impl Call {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-method"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`ObjectMethod`] across R19(1-*)
     pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
         vec![store.exhume_object_method(&self.method).unwrap()]

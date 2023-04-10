@@ -1,0 +1,8 @@
+// Domain for generating code.
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::woog-dwarf-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-dwarf-output"}}}
+type Access {
+    id: uuid,
+    ownership: Ownership,
+    visibility: Visibility,
+}
