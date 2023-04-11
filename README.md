@@ -13,3 +13,4 @@ Here is a list of "stuff":
  * no enums
  * no traits
  * any identifier beginning with a capital letter is an "object"
+ * struct expression fields don't support shorthand

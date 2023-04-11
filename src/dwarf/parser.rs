@@ -45,7 +45,7 @@ impl fmt::Display for Token {
             Self::Punct(punct) => write!(f, "{}", punct),
             Self::Self_ => write!(f, "Self"),
             Self::Str(str_) => write!(f, "{}", str_),
-            Self::Struct => write!(f, "type"),
+            Self::Struct => write!(f, "struct"),
             Self::Type(type_) => write!(f, "{}", type_),
         }
     }
@@ -103,9 +103,9 @@ pub enum Expression {
     StaticMethodCall(Spanned<Token>, Spanned<String>, Vec<Spanned<Self>>),
     StringLiteral(String),
     // Where the fuck did this come from? Copilot insert it when I wasn't watching?
-    // Maybe I did it. It's starting to look familiar. It's describing a list of
+    // Maybe I did it. It's staritng to look familiar. It's describing a list of
     // field assignments, e.g., `foo: 42`.
-    Struct(Vec<(Spanned<String>, Self)>),
+    Struct(Spanned<Token>, Vec<(Spanned<String>, Spanned<Self>)>),
 }
 
 #[derive(Debug, Eq, Hash, PartialEq)]
@@ -176,7 +176,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         // "else" => Token::Else,
         "true" => Token::Bool(true),
         "false" => Token::Bool(false),
-        "type" => Token::Struct,
+        "struct" => Token::Struct,
         "impl" => Token::Impl,
         "int" => Token::Type(Type::Integer),
         "string" => Token::Type(Type::String),
@@ -225,10 +225,9 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
             .then_ignore(just(Token::Punct('>')))
             .map(|type_| Type::Option(Box::new(type_)));
 
-        // let self_ = just(Token::Self_).map(|_| Type::Self_(Box::new(Token::Self_)));
+        let self_ = just(Token::Self_).map(|_| Type::Self_(Box::new(Token::Self_)));
 
-        // self_.or(option).or(type_)
-        option.or(type_)
+        self_.or(option).or(type_)
     })
 }
 
@@ -337,6 +336,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .map(|(expr, _)| expr);
 
             let static_method_call = object
+                .clone()
                 .map_with_span(|obj, span| (obj, span))
                 .then_ignore(just(Token::Punct('∷')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
@@ -369,23 +369,42 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                     (Expression::FunctionCall(Box::new(f), args.0), span)
                 });
 
-            static_method_call.or(method_call).or(field_access).or(call)
-            // field_access.or(call)
+            let field = ident
+                .map_with_span(|type_, span| (type_, span))
+                .labelled("field name")
+                .then_ignore(just(Token::Punct(':')))
+                .then(
+                    expr.clone()
+                        // .map_with_span(|name, span| (name, span))
+                        .labelled("field value"),
+                )
+                .map(|(name, expr)| (name, expr));
 
-            // // Function calls have very high precedence so we prioritise them
-            // let call = atom
-            //     .then(
-            //         items
-            //             .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
-            //             .map_with_span(|args, span: Span| (args, span))
-            //             .repeated(),
-            //     )
-            //     .foldl(|f, args| {
-            //         let span = f.1.start..args.1.end;
-            //         (Expression::FunctionCall(Box::new(f), args.0), span)
-            //     });
+            let fields = field
+                .separated_by(just(Token::Punct(',')))
+                .allow_trailing()
+                .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
+                .map(|fields| fields.into_iter().collect::<Vec<_>>());
 
-            // call
+            let struct_expression = object
+                .map_with_span(|obj, span| (obj, span))
+                .labelled("struct type")
+                .then(fields)
+                .map(|(name, fields)| {
+                    if fields.is_empty() {
+                        let span = name.1.clone();
+                        (Expression::Struct(name, fields), span)
+                    } else {
+                        let span = name.1.start..(fields.last().unwrap().1).1.end;
+                        (Expression::Struct(name, fields), span)
+                    }
+                });
+
+            static_method_call
+                .or(method_call)
+                .or(field_access)
+                .or(call)
+                .or(struct_expression)
 
             // // Product ops (multiply and divide) have equal precedence
             // let op = just(Token::Op("*".to_string()))
@@ -612,12 +631,12 @@ fn struct_parser(
 
     let field = ident
         .map_with_span(|type_, span| (type_, span))
-        .labelled("field type")
+        .labelled("field name")
         .then_ignore(just(Token::Punct(':')))
         .then(
             type_parser()
                 .map_with_span(|name, span| (name, span))
-                .labelled("field name"),
+                .labelled("field type"),
         )
         .map(|(name, type_)| (name, type_));
 
@@ -775,13 +794,13 @@ mod tests {
     #[test]
     fn test_struct() {
         let src = r#"
-            type Foo {
+            struct Foo {
                 bar: Option<int>,
                 baz: string,
                 uber: Uuid
             }
 
-            type Bar {}
+            struct Bar {}
         "#;
 
         let ast = parse(src);
@@ -795,6 +814,28 @@ mod tests {
     fn test_impl() {
         let src = r#"
             impl Foo {
+                fn new() -> Self {
+                    let empty = Self {};
+                    Self {
+                        bar: 42,
+                        pi: 3.14,
+                        baz: "Hello, World!",
+                        uber: Uuid::new(),
+                        foo: true
+                    }
+                }
+
+                fn foo() -> Foo {
+                    let empty = Foo {};
+                    Foo {
+                        bar: 42,
+                        pi: 3.14,
+                        baz: "Hello, World!",
+                        uber: Uuid::new(),
+                        foo: false,
+                    }
+                }
+
                 fn bar(baz: Bar, id: Uuid) -> int {
                     let a = 1;
                     let b = true;
@@ -809,7 +850,6 @@ mod tests {
                     let bar = id.func();
                     let id = Uuid::new();
                     let hello = Bar::new(42, 3.14, "Hello, World!", true, bar, id, func());
-                    // Bar {}
                 }
             }
         "#;
