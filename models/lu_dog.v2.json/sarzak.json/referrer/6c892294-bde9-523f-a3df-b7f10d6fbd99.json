@@ -1,0 +1,14 @@
+[
+  {
+    "description": "may be contained in an",
+    "id": "6c892294-bde9-523f-a3df-b7f10d6fbd99",
+    "referential_attribute": "impl_block",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
+  },
+  {
+    "secs_since_epoch": 1681224386,
+    "nanos_since_epoch": 745726000
+  }
+]

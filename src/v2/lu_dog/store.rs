@@ -8,6 +8,8 @@
 //! # Contents:
 //!
 //! * [`Field`]
+//! * [`Function`]
+//! * [`Implementation`]
 //! * [`Item`]
 //! * [`ModelType`]
 //! * [`WoogOption`]
@@ -22,17 +24,21 @@ use std::{
 };
 
 use fnv::FnvHashMap as HashMap;
+use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Field, Item, ModelType, Some, ValueType, WoogOption, NONE, TEST_OBJECT,
+    Field, Function, Implementation, Item, ModelType, Some, ValueType, WoogOption, NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     field: HashMap<Uuid, (Field, SystemTime)>,
     field_by_name: HashMap<String, (Field, SystemTime)>,
+    function: HashMap<Uuid, (Function, SystemTime)>,
+    function_by_name: HashMap<String, (Function, SystemTime)>,
+    implementation: HashMap<Uuid, (Implementation, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
     model_type: HashMap<Uuid, (ModelType, SystemTime)>,
     woog_option: HashMap<Uuid, (WoogOption, SystemTime)>,
@@ -45,6 +51,9 @@ impl ObjectStore {
         let mut store = Self {
             field: HashMap::default(),
             field_by_name: HashMap::default(),
+            function: HashMap::default(),
+            function_by_name: HashMap::default(),
+            implementation: HashMap::default(),
             item: HashMap::default(),
             model_type: HashMap::default(),
             woog_option: HashMap::default(),
@@ -53,7 +62,6 @@ impl ObjectStore {
         };
 
         // Initialize Singleton Subtypes
-        store.inter_item(Item::TestObject(TEST_OBJECT));
         store.inter_woog_option(WoogOption::None(NONE));
         store.inter_value_type(ValueType::WoogOption(WoogOption::None(NONE).id()));
 
@@ -66,7 +74,8 @@ impl ObjectStore {
     pub fn inter_field(&mut self, field: Field) {
         let value = (field, SystemTime::now());
         self.field.insert(value.0.id, value.clone());
-        self.field_by_name.insert(value.0.name.clone(), value);
+        self.field_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Field`] from the store.
@@ -99,6 +108,88 @@ impl ObjectStore {
         self.field
             .get(&field.id)
             .map(|field| field.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Function`] into the store.
+    ///
+    pub fn inter_function(&mut self, function: Function) {
+        let value = (function, SystemTime::now());
+        self.function.insert(value.0.id, value.clone());
+        self.function_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
+    }
+
+    /// Exhume [`Function`] from the store.
+    ///
+    pub fn exhume_function(&self, id: &Uuid) -> Option<&Function> {
+        self.function.get(id).map(|function| &function.0)
+    }
+
+    /// Exhume [`Function`] from the store — mutably.
+    ///
+    pub fn exhume_function_mut(&mut self, id: &Uuid) -> Option<&mut Function> {
+        self.function.get_mut(id).map(|function| &mut function.0)
+    }
+
+    /// Exhume [`Function`] from the store by name.
+    ///
+    pub fn exhume_function_by_name(&self, name: &str) -> Option<&Function> {
+        self.function_by_name.get(name).map(|function| &function.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
+    ///
+    pub fn iter_function(&self) -> impl Iterator<Item = &Function> {
+        self.function.values().map(|function| &function.0)
+    }
+
+    /// Get the timestamp for Function.
+    ///
+    pub fn function_timestamp(&self, function: &Function) -> SystemTime {
+        self.function
+            .get(&function.id)
+            .map(|function| function.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Implementation`] into the store.
+    ///
+    pub fn inter_implementation(&mut self, implementation: Implementation) {
+        self.implementation
+            .insert(implementation.id, (implementation, SystemTime::now()));
+    }
+
+    /// Exhume [`Implementation`] from the store.
+    ///
+    pub fn exhume_implementation(&self, id: &Uuid) -> Option<&Implementation> {
+        self.implementation
+            .get(id)
+            .map(|implementation| &implementation.0)
+    }
+
+    /// Exhume [`Implementation`] from the store — mutably.
+    ///
+    pub fn exhume_implementation_mut(&mut self, id: &Uuid) -> Option<&mut Implementation> {
+        self.implementation
+            .get_mut(id)
+            .map(|implementation| &mut implementation.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
+    ///
+    pub fn iter_implementation(&self) -> impl Iterator<Item = &Implementation> {
+        self.implementation
+            .values()
+            .map(|implementation| &implementation.0)
+    }
+
+    /// Get the timestamp for Implementation.
+    ///
+    pub fn implementation_timestamp(&self, implementation: &Implementation) -> SystemTime {
+        self.implementation
+            .get(&implementation.id)
+            .map(|implementation| implementation.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -283,7 +374,7 @@ impl ObjectStore {
     ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automagic git integration as an option.
+    /// In fact, I intend to add automaagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
         fs::create_dir_all(&path)?;
@@ -324,6 +415,74 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.field.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Function.
+        {
+            let path = path.join("function");
+            fs::create_dir_all(&path)?;
+            for function_tuple in self.function.values() {
+                let path = path.join(format!("{}.json", function_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Function, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != function_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.function.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Implementation.
+        {
+            let path = path.join("implementation");
+            fs::create_dir_all(&path)?;
+            for implementation_tuple in self.implementation.values() {
+                let path = path.join(format!("{}.json", implementation_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Implementation, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != implementation_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.implementation.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -526,8 +685,41 @@ impl ObjectStore {
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .field_by_name
-                    .insert(field.0.name.clone(), field.clone());
+                    .insert(field.0.name.to_upper_camel_case(), field.clone());
                 store.field.insert(field.0.id, field);
+            }
+        }
+
+        // Load Function.
+        {
+            let path = path.join("function");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .function_by_name
+                    .insert(function.0.name.to_upper_camel_case(), function.clone());
+                store.function.insert(function.0.id, function);
+            }
+        }
+
+        // Load Implementation.
+        {
+            let path = path.join("implementation");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let implementation: (Implementation, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .implementation
+                    .insert(implementation.0.id, implementation);
             }
         }
 

@@ -1,130 +1,10 @@
-use std::fmt;
+use std::path::Path;
 
-use ariadne::{Color, Fmt, Label, Report, ReportKind, Source};
+use ariadne::{sources, Color, Fmt, Label, Report, ReportKind, Source};
 use chumsky::{prelude::*, stream::Stream};
 use fnv::FnvHashMap as HashMap;
 
-pub type Span = std::ops::Range<usize>;
-pub type Spanned<T> = (T, Span);
-
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub enum Token {
-    Bool(bool),
-    Float(String),
-    Fn,
-    Ident(String),
-    Impl,
-    Integer(String),
-    Let,
-    // This is a type that starts with a capital letter. It's special. 💩
-    Object(String),
-    Op(String),
-    Option,
-    Print,
-    Punct(char),
-    Self_,
-    Str(String),
-    Struct,
-    Type(Type),
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Bool(bool_) => write!(f, "{}", bool_),
-            Self::Float(num) => write!(f, "{}", num),
-            Self::Fn => write!(f, "fn"),
-            Self::Ident(ident) => write!(f, "{}", ident),
-            Self::Impl => write!(f, "impl"),
-            Self::Integer(num) => write!(f, "{}", num),
-            Self::Let => write!(f, "let"),
-            Self::Object(object) => write!(f, "{}", object),
-            Self::Op(op) => write!(f, "{}", op),
-            Self::Option => write!(f, "Option"),
-            Self::Print => write!(f, "print"),
-            Self::Punct(punct) => write!(f, "{}", punct),
-            Self::Self_ => write!(f, "Self"),
-            Self::Str(str_) => write!(f, "{}", str_),
-            Self::Struct => write!(f, "struct"),
-            Self::Type(type_) => write!(f, "{}", type_),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub enum Type {
-    Boolean,
-    Float,
-    Integer,
-    Option(Box<Self>),
-    Self_(Box<Token>),
-    String,
-    UserType(Box<Token>),
-    Uuid,
-}
-
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Boolean => write!(f, "bool"),
-            Self::Float => write!(f, "float"),
-            Self::Integer => write!(f, "int"),
-            Self::Option(type_) => write!(f, "Option<{}>", type_),
-            Self::Self_(type_) => write!(f, "{}", type_),
-            Self::String => write!(f, "string"),
-            Self::UserType(type_) => write!(f, "{}", type_),
-            Self::Uuid => write!(f, "Uuid"),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum Statement {
-    Expression(Spanned<Expression>),
-    Item(Item),
-    Let(Spanned<String>, Spanned<Expression>),
-    Result(Spanned<Expression>),
-}
-
-#[derive(Clone, Debug)]
-pub enum Expression {
-    Block(Vec<Statement>),
-    BooleanLiteral(bool),
-    Error,
-    FieldAccess(Box<Spanned<Self>>, Spanned<String>),
-    FloatLiteral(f64),
-    // The first element is the function being called, the second is the list of
-    // arguments.
-    FunctionCall(Box<Spanned<Self>>, Vec<Spanned<Self>>),
-    IntegerLiteral(i64),
-    LocalVariable(String),
-    MethodCall(Box<Spanned<Self>>, Spanned<String>, Vec<Spanned<Self>>),
-    Print(Box<Spanned<Self>>),
-    StaticMethodCall(Spanned<Token>, Spanned<String>, Vec<Spanned<Self>>),
-    StringLiteral(String),
-    // Where the fuck did this come from? Copilot insert it when I wasn't watching?
-    // Maybe I did it. It's staritng to look familiar. It's describing a list of
-    // field assignments, e.g., `foo: 42`.
-    Struct(Spanned<Token>, Vec<(Spanned<String>, Spanned<Self>)>),
-}
-
-#[derive(Debug, Eq, Hash, PartialEq)]
-pub enum ItemKind {
-    Function,
-    Implementation,
-    Struct,
-}
-
-#[derive(Clone, Debug)]
-pub enum Item {
-    Function {
-        params: Vec<(Spanned<String>, Spanned<Type>)>,
-        return_type: Spanned<Type>,
-        body: Vec<Spanned<Statement>>,
-    },
-    Implementation(Vec<(Spanned<String>, Box<Item>)>),
-    Struct(Vec<(Spanned<String>, Spanned<Type>)>),
-}
+use crate::dwarf::{Expression, Item, ItemKind, Span, Spanned, Statement, Token, Type};
 
 fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
     // A parser for numbers
@@ -606,11 +486,7 @@ fn fun_parser(
             |(((((name, params), _span_2), return_type), span_3), body)| {
                 (
                     (name, ItemKind::Function),
-                    Item::Function {
-                        params,
-                        return_type: (return_type, span_3),
-                        body,
-                    },
+                    Item::Function(params, (return_type, span_3), body),
                 )
             },
         )
@@ -681,6 +557,10 @@ fn item_parser(
 // msg: String,
 // }
 
+// pub fn parse<P: AsRef<Path>>(
+//     src: &str,
+//     source: Option<P>,
+// ) -> Option<HashMap<(String, ItemKind), Item>> {
 pub fn parse(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
     let (tokens, errs) = lexer().parse_recovery(src);
     let (ast, parse_errs) = if let Some(tokens) = tokens {
@@ -693,7 +573,7 @@ pub fn parse(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
         (None, Vec::new())
     };
 
-    dbg!(&ast, &errs, &parse_errs);
+    // dbg!(&ast, &errs, &parse_errs);
     errs.into_iter()
         .map(|e| e.map(|c| c.to_string()))
         .chain(parse_errs.into_iter().map(|e| e.map(|tok| tok.to_string())))
@@ -785,8 +665,6 @@ mod tests {
 
         let (tokens, errs) = lexer().parse_recovery(src);
 
-        // dbg!(&tokens, &errs);
-
         assert!(tokens.is_some());
         assert!(errs.is_empty());
     }
@@ -804,8 +682,6 @@ mod tests {
         "#;
 
         let ast = parse(src);
-
-        dbg!(&ast);
 
         assert!(ast.is_some());
     }
@@ -855,8 +731,6 @@ mod tests {
         "#;
 
         let ast = parse(src);
-
-        dbg!(&ast);
 
         assert!(ast.is_some());
     }

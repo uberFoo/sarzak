@@ -3,6 +3,7 @@
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::field::Field;
+use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
@@ -69,6 +70,18 @@ impl ModelType {
                 }
             })
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"model_type-struct-impl-nav-backward-cond-to-implementation"}}}
+    /// Navigate to [`Implementation`] across R8(1-1c)
+    pub fn r8c_implementation<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Implementation> {
+        let implementation = store
+            .iter_implementation()
+            .find(|implementation| implementation.model_type == self.id);
+        match implementation {
+            Some(ref implementation) => vec![implementation],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"model_type-impl-nav-subtype-to-supertype-item"}}}

@@ -43,6 +43,7 @@ use std::{
 };
 
 use fnv::FnvHashMap as HashMap;
+use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -246,7 +247,8 @@ impl ObjectStore {
     pub fn inter_constant(&mut self, constant: Constant) {
         let value = (constant, SystemTime::now());
         self.constant.insert(value.0.id, value.clone());
-        self.constant_by_name.insert(value.0.name.clone(), value);
+        self.constant_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Constant`] from the store.
@@ -287,7 +289,8 @@ impl ObjectStore {
     pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
         let value = (enumeration, SystemTime::now());
         self.enumeration.insert(value.0.id, value.clone());
-        self.enumeration_by_name.insert(value.0.name.clone(), value);
+        self.enumeration_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Enumeration`] from the store.
@@ -408,7 +411,8 @@ impl ObjectStore {
     pub fn inter_field(&mut self, field: Field) {
         let value = (field, SystemTime::now());
         self.field.insert(value.0.id, value.clone());
-        self.field_by_name.insert(value.0.name.clone(), value);
+        self.field_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Field`] from the store.
@@ -449,7 +453,8 @@ impl ObjectStore {
     pub fn inter_function(&mut self, function: Function) {
         let value = (function, SystemTime::now());
         self.function.insert(value.0.id, value.clone());
-        self.function_by_name.insert(value.0.name.clone(), value);
+        self.function_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Function`] from the store.
@@ -877,7 +882,8 @@ impl ObjectStore {
     pub fn inter_structure(&mut self, structure: Structure) {
         let value = (structure, SystemTime::now());
         self.structure.insert(value.0.id, value.clone());
-        self.structure_by_name.insert(value.0.name.clone(), value);
+        self.structure_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Structure`] from the store.
@@ -1069,7 +1075,8 @@ impl ObjectStore {
     pub fn inter_variable(&mut self, variable: Variable) {
         let value = (variable, SystemTime::now());
         self.variable.insert(value.0.id, value.clone());
-        self.variable_by_name.insert(value.0.name.clone(), value);
+        self.variable_by_name
+            .insert(value.0.name.to_upper_camel_case(), value);
     }
 
     /// Exhume [`Variable`] from the store.
@@ -1148,7 +1155,7 @@ impl ObjectStore {
     ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automagic git integration as an option.
+    /// In fact, I intend to add automaagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
         fs::create_dir_all(&path)?;
@@ -2147,7 +2154,7 @@ impl ObjectStore {
                 let constant: (Constant, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .constant_by_name
-                    .insert(constant.0.name.clone(), constant.clone());
+                    .insert(constant.0.name.to_upper_camel_case(), constant.clone());
                 store.constant.insert(constant.0.id, constant);
             }
         }
@@ -2162,9 +2169,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .enumeration_by_name
-                    .insert(enumeration.0.name.clone(), enumeration.clone());
+                store.enumeration_by_name.insert(
+                    enumeration.0.name.to_upper_camel_case(),
+                    enumeration.clone(),
+                );
                 store.enumeration.insert(enumeration.0.id, enumeration);
             }
         }
@@ -2212,7 +2220,7 @@ impl ObjectStore {
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .field_by_name
-                    .insert(field.0.name.clone(), field.clone());
+                    .insert(field.0.name.to_upper_camel_case(), field.clone());
                 store.field.insert(field.0.id, field);
             }
         }
@@ -2229,7 +2237,7 @@ impl ObjectStore {
                 let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .function_by_name
-                    .insert(function.0.name.clone(), function.clone());
+                    .insert(function.0.name.to_upper_camel_case(), function.clone());
                 store.function.insert(function.0.id, function);
             }
         }
@@ -2405,7 +2413,7 @@ impl ObjectStore {
                 let structure: (Structure, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .structure_by_name
-                    .insert(structure.0.name.clone(), structure.clone());
+                    .insert(structure.0.name.to_upper_camel_case(), structure.clone());
                 store.structure.insert(structure.0.id, structure);
             }
         }
@@ -2481,7 +2489,7 @@ impl ObjectStore {
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .variable_by_name
-                    .insert(variable.0.name.clone(), variable.clone());
+                    .insert(variable.0.name.to_upper_camel_case(), variable.clone());
                 store.variable.insert(variable.0.id, variable);
             }
         }

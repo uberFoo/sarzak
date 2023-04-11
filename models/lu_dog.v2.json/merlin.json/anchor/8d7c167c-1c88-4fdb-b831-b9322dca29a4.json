@@ -1,0 +1,16 @@
+[
+  {
+    "id": "8d7c167c-1c88-4fdb-b831-b9322dca29a4",
+    "offset": 0.6425339366515838,
+    "x_offset": 2961,
+    "y_offset": 2348,
+    "edge": "586d17c1-97c4-594b-b757-e83396caaf73",
+    "glyph": "dae5aac2-064e-5166-96dd-ead71f2c1b4f",
+    "x_box": "b1a46559-161c-5f67-8639-ad67b46847b0",
+    "line": "73cee251-4115-4a8a-a0cc-47b676bcef1a"
+  },
+  {
+    "secs_since_epoch": 1681224386,
+    "nanos_since_epoch": 745815000
+  }
+]

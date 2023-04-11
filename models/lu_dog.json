@@ -12,8 +12,8 @@
                 "width": 8000,
                 "height": 6400,
                 "offset": {
-                    "x": -972,
-                    "y": -1568
+                    "x": -1619,
+                    "y": -1489
                 },
                 "objects": {
                     "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
@@ -29,8 +29,8 @@
                         "height": 142
                     },
                     "45644594-b418-5362-9294-a62fe2a0fa8e": {
-                        "x": 3379,
-                        "y": 1881,
+                        "x": 3672,
+                        "y": 1874,
                         "width": 240,
                         "height": 149,
                         "id": "45644594-b418-5362-9294-a62fe2a0fa8e"
@@ -78,11 +78,18 @@
                         "id": "141350e6-b62d-4a6d-9ea2-47333e51e3ea"
                     },
                     "88687f76-5d9e-404e-a801-f6f57f9b30ca": {
-                        "x": 3657,
-                        "y": 2278,
-                        "width": 238,
-                        "height": 155,
+                        "x": 3656,
+                        "y": 2269,
+                        "width": 285,
+                        "height": 148,
                         "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca"
+                    },
+                    "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5": {
+                        "x": 4157,
+                        "y": 2269,
+                        "width": 320,
+                        "height": 154,
+                        "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
                     }
                 },
                 "relationships": {
@@ -234,8 +241,8 @@
                         "IsaUI": {
                             "from": {
                                 "id": "45644594-b418-5362-9294-a62fe2a0fa8e",
-                                "x": 3496,
-                                "y": 2030,
+                                "x": 3790,
+                                "y": 2023,
                                 "offset": {
                                     "x": 20,
                                     "y": 20
@@ -245,7 +252,7 @@
                             "to": [
                                 {
                                     "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
-                                    "x": 3254,
+                                    "x": 3285,
                                     "y": 2270,
                                     "offset": {
                                         "x": 20,
@@ -255,8 +262,18 @@
                                 },
                                 {
                                     "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
-                                    "x": 3748,
-                                    "y": 2278,
+                                    "x": 3789,
+                                    "y": 2269,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                },
+                                {
+                                    "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                                    "x": 4308,
+                                    "y": 2269,
                                     "offset": {
                                         "x": 20,
                                         "y": 20
@@ -281,10 +298,58 @@
                             "to": {
                                 "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
                                 "x": 3407,
-                                "y": 2353,
+                                "y": 2390,
                                 "offset": {
-                                    "x": 35,
-                                    "y": -33
+                                    "x": 61,
+                                    "y": 35
+                                },
+                                "dir": "East"
+                            }
+                        }
+                    },
+                    "98c79b91-da7b-443a-b1fb-18596cd6b4bc": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                                "x": 3656,
+                                "y": 2322,
+                                "offset": {
+                                    "x": -128,
+                                    "y": -40
+                                },
+                                "dir": "West"
+                            },
+                            "to": {
+                                "id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                                "x": 3407,
+                                "y": 2323,
+                                "offset": {
+                                    "x": 15,
+                                    "y": 34
+                                },
+                                "dir": "East"
+                            }
+                        }
+                    },
+                    "7993e2c7-7efa-4346-b50e-bc02d55e1ca7": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                                "x": 4157,
+                                "y": 2355,
+                                "offset": {
+                                    "x": -101,
+                                    "y": -48
+                                },
+                                "dir": "West"
+                            },
+                            "to": {
+                                "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                                "x": 3941,
+                                "y": 2355,
+                                "offset": {
+                                    "x": 12,
+                                    "y": 52
                                 },
                                 "dir": "East"
                             }
@@ -305,7 +370,8 @@
             "fa561e81-c4f0-4224-b7bb-4592ef9cf787",
             "e68f8912-9897-4cbd-b363-cb4203a726a9",
             "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
-            "88687f76-5d9e-404e-a801-f6f57f9b30ca"
+            "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+            "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
         ],
         "entities": {
             "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
@@ -447,14 +513,32 @@
             },
             "88687f76-5d9e-404e-a801-f6f57f9b30ca": {
                 "id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
-                "key_letter": "TO",
-                "name": "Test Object",
-                "description": "",
+                "key_letter": "IMPL",
+                "name": "Implementation",
+                "description": "An Implementation Block\n\nInside this block functions are defined on a [`ModellType`].",
                 "attributes": {
                     "69046536-f9f1-4c70-99c8-bf778c90cdea": {
                         "id": "69046536-f9f1-4c70-99c8-bf778c90cdea",
                         "name": "id",
                         "type": "Uuid"
+                    }
+                }
+            },
+            "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5": {
+                "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                "key_letter": "FUNC",
+                "name": "Function",
+                "description": "A Function\n\nInputs, outputs. Stuff happens.",
+                "attributes": {
+                    "fda10b16-e061-4547-9ef1-0ab085270b88": {
+                        "id": "fda10b16-e061-4547-9ef1-0ab085270b88",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "96a8868d-e8e7-4788-a81e-cc4b1210c85b": {
+                        "id": "96a8868d-e8e7-4788-a81e-cc4b1210c85b",
+                        "name": "name",
+                        "type": "String"
                     }
                 }
             }
@@ -468,7 +552,9 @@
             "e1f18f02-e977-4e70-97d0-24b98425193b",
             "4b7360ba-8de3-4c93-bc90-22478c128a75",
             "3746c64a-c63d-424d-afb2-c253470b6d7b",
-            "02892323-60e9-470b-b162-b2bc8d9ef1cd"
+            "02892323-60e9-470b-b162-b2bc8d9ef1cd",
+            "98c79b91-da7b-443a-b1fb-18596cd6b4bc",
+            "7993e2c7-7efa-4346-b50e-bc02d55e1ca7"
         ],
         "entities": {
             "21f08565-d913-4302-a853-e5f688ec1bc1": {
@@ -557,7 +643,8 @@
                     "obj_id": "45644594-b418-5362-9294-a62fe2a0fa8e",
                     "subtypes": [
                         "e68f8912-9897-4cbd-b363-cb4203a726a9",
-                        "88687f76-5d9e-404e-a801-f6f57f9b30ca"
+                        "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                        "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
                     ]
                 }
             },
@@ -575,6 +662,44 @@
                     "to": {
                         "obj_id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
                         "description": "is comprised of",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            },
+            "98c79b91-da7b-443a-b1fb-18596cd6b4bc": {
+                "Binary": {
+                    "id": "98c79b91-da7b-443a-b1fb-18596cd6b4bc",
+                    "number": 8,
+                    "from": {
+                        "obj_id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                        "description": "adds functions to a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "model_type"
+                    },
+                    "to": {
+                        "obj_id": "e68f8912-9897-4cbd-b363-cb4203a726a9",
+                        "description": "may have an",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            },
+            "7993e2c7-7efa-4346-b50e-bc02d55e1ca7": {
+                "Binary": {
+                    "id": "7993e2c7-7efa-4346-b50e-bc02d55e1ca7",
+                    "number": 9,
+                    "from": {
+                        "obj_id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                        "description": "may be contained in an",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "impl_block"
+                    },
+                    "to": {
+                        "obj_id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
+                        "description": "may contain",
                         "cardinality": "One",
                         "conditionality": "Conditional"
                     }
