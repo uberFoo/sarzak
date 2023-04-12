@@ -10,6 +10,7 @@
 //! * [`Field`]
 //! * [`Function`]
 //! * [`Implementation`]
+//! * [`Import`]
 //! * [`Item`]
 //! * [`ModelType`]
 //! * [`WoogOption`]
@@ -29,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Field, Function, Implementation, Item, ModelType, Some, ValueType, WoogOption, NONE,
+    Field, Function, Implementation, Import, Item, ModelType, Some, ValueType, WoogOption, NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -39,6 +40,7 @@ pub struct ObjectStore {
     function: HashMap<Uuid, (Function, SystemTime)>,
     function_by_name: HashMap<String, (Function, SystemTime)>,
     implementation: HashMap<Uuid, (Implementation, SystemTime)>,
+    import: HashMap<Uuid, (Import, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
     model_type: HashMap<Uuid, (ModelType, SystemTime)>,
     woog_option: HashMap<Uuid, (WoogOption, SystemTime)>,
@@ -54,6 +56,7 @@ impl ObjectStore {
             function: HashMap::default(),
             function_by_name: HashMap::default(),
             implementation: HashMap::default(),
+            import: HashMap::default(),
             item: HashMap::default(),
             model_type: HashMap::default(),
             woog_option: HashMap::default(),
@@ -190,6 +193,39 @@ impl ObjectStore {
         self.implementation
             .get(&implementation.id)
             .map(|implementation| implementation.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Import`] into the store.
+    ///
+    pub fn inter_import(&mut self, import: Import) {
+        self.import.insert(import.id, (import, SystemTime::now()));
+    }
+
+    /// Exhume [`Import`] from the store.
+    ///
+    pub fn exhume_import(&self, id: &Uuid) -> Option<&Import> {
+        self.import.get(id).map(|import| &import.0)
+    }
+
+    /// Exhume [`Import`] from the store — mutably.
+    ///
+    pub fn exhume_import_mut(&mut self, id: &Uuid) -> Option<&mut Import> {
+        self.import.get_mut(id).map(|import| &mut import.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
+    ///
+    pub fn iter_import(&self) -> impl Iterator<Item = &Import> {
+        self.import.values().map(|import| &import.0)
+    }
+
+    /// Get the timestamp for Import.
+    ///
+    pub fn import_timestamp(&self, import: &Import) -> SystemTime {
+        self.import
+            .get(&import.id)
+            .map(|import| import.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -374,7 +410,7 @@ impl ObjectStore {
     ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automaagic git integration as an option.
+    /// In fact, I intend to add automagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
         fs::create_dir_all(&path)?;
@@ -483,6 +519,40 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.implementation.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Import.
+        {
+            let path = path.join("import");
+            fs::create_dir_all(&path)?;
+            for import_tuple in self.import.values() {
+                let path = path.join(format!("{}.json", import_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Import, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != import_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.import.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -720,6 +790,20 @@ impl ObjectStore {
                 store
                     .implementation
                     .insert(implementation.0.id, implementation);
+            }
+        }
+
+        // Load Import.
+        {
+            let path = path.join("import");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let import: (Import, SystemTime) = serde_json::from_reader(reader)?;
+                store.import.insert(import.0.id, import);
             }
         }
 

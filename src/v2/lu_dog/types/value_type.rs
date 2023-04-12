@@ -2,6 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::field::Field;
+use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::some::Some;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::sarzak::types::ty::Ty;
@@ -80,6 +81,21 @@ impl ValueType {
             .filter_map(|field| {
                 if field.ty == self.id() {
                     Some(field)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-function"}}}
+    /// Navigate to [`Function`] across R10(1-Mc)
+    pub fn r10_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Function> {
+        store
+            .iter_function()
+            .filter_map(|function| {
+                if function.return_type == Some(self.id()) {
+                    Some(function)
                 } else {
                     None
                 }

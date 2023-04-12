@@ -90,6 +90,13 @@
                         "width": 320,
                         "height": 154,
                         "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
+                    },
+                    "c89e362d-7905-4226-8713-97d3d6f05037": {
+                        "x": 4527,
+                        "y": 2267,
+                        "width": 283,
+                        "height": 156,
+                        "id": "c89e362d-7905-4226-8713-97d3d6f05037"
                     }
                 },
                 "relationships": {
@@ -279,6 +286,16 @@
                                         "y": 20
                                     },
                                     "dir": "North"
+                                },
+                                {
+                                    "id": "c89e362d-7905-4226-8713-97d3d6f05037",
+                                    "x": 4649,
+                                    "y": 2267,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
                                 }
                             ]
                         }
@@ -354,6 +371,30 @@
                                 "dir": "East"
                             }
                         }
+                    },
+                    "fdb49afe-13fb-4c79-99d1-92728d8652c7": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                                "x": 4294,
+                                "y": 2423,
+                                "offset": {
+                                    "x": 20,
+                                    "y": 45
+                                },
+                                "dir": "South"
+                            },
+                            "to": {
+                                "id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                                "x": 2849,
+                                "y": 2587,
+                                "offset": {
+                                    "x": -84,
+                                    "y": 37
+                                },
+                                "dir": "South"
+                            }
+                        }
                     }
                 }
             }
@@ -371,7 +412,8 @@
             "e68f8912-9897-4cbd-b363-cb4203a726a9",
             "141350e6-b62d-4a6d-9ea2-47333e51e3ea",
             "88687f76-5d9e-404e-a801-f6f57f9b30ca",
-            "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
+            "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+            "c89e362d-7905-4226-8713-97d3d6f05037"
         ],
         "entities": {
             "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
@@ -541,6 +583,24 @@
                         "type": "String"
                     }
                 }
+            },
+            "c89e362d-7905-4226-8713-97d3d6f05037": {
+                "id": "c89e362d-7905-4226-8713-97d3d6f05037",
+                "key_letter": "IMP",
+                "name": "Import",
+                "description": "An Import of a foreign ObjectStore\n\nThis indicates to the downstream model compiler that it needs to emit code to load the imported ObjectStore.",
+                "attributes": {
+                    "8f8af328-cd2f-435d-8d29-b7bce353a0c7": {
+                        "id": "8f8af328-cd2f-435d-8d29-b7bce353a0c7",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "7e6b9c84-ae9e-46d6-a5d6-5899e57c4687": {
+                        "id": "7e6b9c84-ae9e-46d6-a5d6-5899e57c4687",
+                        "name": "path",
+                        "type": "String"
+                    }
+                }
             }
         }
     },
@@ -554,7 +614,8 @@
             "3746c64a-c63d-424d-afb2-c253470b6d7b",
             "02892323-60e9-470b-b162-b2bc8d9ef1cd",
             "98c79b91-da7b-443a-b1fb-18596cd6b4bc",
-            "7993e2c7-7efa-4346-b50e-bc02d55e1ca7"
+            "7993e2c7-7efa-4346-b50e-bc02d55e1ca7",
+            "fdb49afe-13fb-4c79-99d1-92728d8652c7"
         ],
         "entities": {
             "21f08565-d913-4302-a853-e5f688ec1bc1": {
@@ -644,7 +705,8 @@
                     "subtypes": [
                         "e68f8912-9897-4cbd-b363-cb4203a726a9",
                         "88687f76-5d9e-404e-a801-f6f57f9b30ca",
-                        "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5"
+                        "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                        "c89e362d-7905-4226-8713-97d3d6f05037"
                     ]
                 }
             },
@@ -700,6 +762,25 @@
                     "to": {
                         "obj_id": "88687f76-5d9e-404e-a801-f6f57f9b30ca",
                         "description": "may contain",
+                        "cardinality": "One",
+                        "conditionality": "Conditional"
+                    }
+                }
+            },
+            "fdb49afe-13fb-4c79-99d1-92728d8652c7": {
+                "Binary": {
+                    "id": "fdb49afe-13fb-4c79-99d1-92728d8652c7",
+                    "number": 10,
+                    "from": {
+                        "obj_id": "d8dbc4ff-77d0-470c-a8c9-5c700376fdd5",
+                        "description": "returns",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "return_type"
+                    },
+                    "to": {
+                        "obj_id": "2e277e34-ab6f-4028-9c52-935c31520fec",
+                        "description": "is returned by",
                         "cardinality": "One",
                         "conditionality": "Conditional"
                     }

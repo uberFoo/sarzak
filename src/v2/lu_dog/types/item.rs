@@ -3,6 +3,7 @@
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::implementation::Implementation;
+use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::model_type::ModelType;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -13,6 +14,7 @@ use uuid::Uuid;
 pub enum Item {
     Function(Uuid),
     Implementation(Uuid),
+    Import(Uuid),
     ModelType(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -43,6 +45,18 @@ impl Item {
         new
     }
 
+    /// Create a new instance of Item::Import
+    pub fn new_import(import: &Import, store: &mut LuDogStore) -> Self {
+        let new = Self::Import(import.id);
+        store.inter_item(new.clone());
+        new
+    }
+
+    pub fn new_import_(import: &Import) -> Self {
+        let new = Self::Import(import.id);
+        new
+    }
+
     /// Create a new instance of Item::ModelType
     pub fn new_model_type(model_type: &ModelType, store: &mut LuDogStore) -> Self {
         let new = Self::ModelType(model_type.id);
@@ -61,6 +75,7 @@ impl Item {
         match self {
             Item::Function(id) => *id,
             Item::Implementation(id) => *id,
+            Item::Import(id) => *id,
             Item::ModelType(id) => *id,
         }
     }

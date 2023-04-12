@@ -29,6 +29,7 @@ pub enum Token {
     Fn,
     Ident(String),
     Impl,
+    Import,
     Integer(String),
     Let,
     // This is a type that starts with a capital letter. It's special. 💩
@@ -38,7 +39,7 @@ pub enum Token {
     Print,
     Punct(char),
     Self_,
-    Str(String),
+    String(String),
     Struct,
     Type(Type),
 }
@@ -51,6 +52,7 @@ impl fmt::Display for Token {
             Self::Fn => write!(f, "fn"),
             Self::Ident(ident) => write!(f, "{}", ident),
             Self::Impl => write!(f, "impl"),
+            Self::Import => write!(f, "import"),
             Self::Integer(num) => write!(f, "{}", num),
             Self::Let => write!(f, "let"),
             Self::Object(object) => write!(f, "{}", object),
@@ -59,7 +61,7 @@ impl fmt::Display for Token {
             Self::Print => write!(f, "print"),
             Self::Punct(punct) => write!(f, "{}", punct),
             Self::Self_ => write!(f, "Self"),
-            Self::Str(str_) => write!(f, "{}", str_),
+            Self::String(str_) => write!(f, "{}", str_),
             Self::Struct => write!(f, "struct"),
             Self::Type(type_) => write!(f, "{}", type_),
         }
@@ -137,6 +139,7 @@ pub enum Expression {
 pub enum ItemKind {
     Function,
     Implementation,
+    Import,
     Struct,
 }
 
@@ -152,6 +155,7 @@ pub enum Item {
     ),
     /// Vec<(Function Name, Function)>
     Implementation(Vec<(Spanned<String>, Box<Item>)>),
+    Import(Spanned<String>),
     /// Vec<(Field Name, Field Type)>
     Struct(Vec<(Spanned<String>, Spanned<Type>)>),
 }

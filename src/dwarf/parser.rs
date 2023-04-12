@@ -20,7 +20,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .ignore_then(filter(|c| *c != '"').repeated())
         .then_ignore(just('"'))
         .collect::<String>()
-        .map(Token::Str);
+        .map(Token::String);
 
     let dagger = just::<char, char, Simple<char>>('-')
         .ignore_then(just('>'))
@@ -43,29 +43,76 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
     // A "Object type" parser. Basically I'm asserting that if an identifier starts
     // with a capital letter, then it's an object.
     let object = filter::<_, _, Simple<char>>(|c: &char| c.is_uppercase())
-        .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric() || *c == '_').repeated())
+        .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric()).repeated())
         .collect::<String>()
         .map(Token::Object);
 
     // A parser for identifiers and keywords
     let ident = text::ident().map(|ident: String| match ident.as_str() {
+        "bool" => Token::Type(Type::Boolean),
+        // "else" => Token::Else,
+        "false" => Token::Bool(false),
+        "float" => Token::Type(Type::Float),
         "fn" => Token::Fn,
+        // "if" => Token::If,
+        "impl" => Token::Impl,
+        "import" => Token::Import,
+        "int" => Token::Type(Type::Integer),
         "let" => Token::Let,
         "print" => Token::Print,
-        // "if" => Token::If,
-        // "else" => Token::Else,
-        "true" => Token::Bool(true),
-        "false" => Token::Bool(false),
-        "struct" => Token::Struct,
-        "impl" => Token::Impl,
-        "int" => Token::Type(Type::Integer),
-        "string" => Token::Type(Type::String),
-        "bool" => Token::Type(Type::Boolean),
-        "float" => Token::Type(Type::Float),
-        "Uuid" => Token::Type(Type::Uuid),
         "Self" => Token::Self_,
+        "string" => Token::Type(Type::String),
+        "struct" => Token::Struct,
+        "true" => Token::Bool(true),
+        "Uuid" => Token::Type(Type::Uuid),
         _ => Token::Ident(ident),
     });
+
+    // let path = text::ident::<char, Simple<char>>()
+    //     .then(just(':').then(just(':')).or_not())
+    //     .repeated()
+    //     .map(|mut path| {
+    //         dbg!(&path);
+    //         path.into_iter().map(|(mut path, sep)| {
+    //             match sep {
+    //                 Some((sep, _)) => {
+    //                     path.extend([sep, sep].iter());
+    //                     dbg!(&path);
+    //                 }
+    //                 None => (),
+    //             }
+    //             path
+    //         })
+    //     })
+    //     .collect::<String>()
+    //     .map(|path| Token::Path(path));
+
+    // let path = filter::<_, _, Simple<char>>(|c: &char| c.is_alphanumeric())
+    //     // .repeated()
+    //     // This isn't quite right either -- it's up to the user not to fuck it up, I guess.
+    //     .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric() || *c == '/').repeated())
+    //     .collect::<String>()
+    //     .map(Token::Path);
+
+    // let path = path_segment
+    //     .repeated()
+    //     .at_least(1)
+    //     // .collect::<String>()
+    //     .map(|segments| {
+    //         let mut path = String::new();
+    //         for segment in segments {
+    //             eprintln!("{:?}", segment);
+    //             path.extend([segment]);
+    //         }
+    //         path
+    //     })
+    //     .map(Token::Path);
+
+    // let path = filter_map(|span: Span, tok| match tok {
+    //     Token::Ident(string) => Ok(string.clone()),
+    //     Token::Punct('∷') => Ok("::".to_string()),
+    //     _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
+    // });
 
     let option = just("Option").map(|_| Token::Option);
 
@@ -80,6 +127,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .or(option)
         .or(object)
         .or(ident)
+        // .or(path)
         .recover_with(skip_then_retry_until([]));
 
     let comment = just("//").then(take_until(just('\n'))).padded();
@@ -144,7 +192,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 Token::Bool(x) => Expression::BooleanLiteral(x),
                 Token::Integer(n) => Expression::IntegerLiteral(n.parse().unwrap()),
                 Token::Float(n) => Expression::FloatLiteral(n.parse().unwrap()),
-                Token::Str(s) => Expression::StringLiteral(s),
+                Token::String(s) => Expression::StringLiteral(s),
             }
             .labelled("literal");
 
@@ -532,9 +580,30 @@ fn struct_parser(
         .labelled("struct")
 }
 
+fn import_parser(
+) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
+    let ident = filter_map(|span: Span, tok| match tok {
+        Token::Ident(string) => Ok(string.clone()),
+        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
+    });
+
+    let path = ident
+        .separated_by(just(Token::Punct('∷')))
+        .map(|path| path.join("::"));
+
+    just(Token::Import)
+        .ignore_then(
+            path.map_with_span(|name, span| (name, span))
+                .labelled("import path"),
+        )
+        .then_ignore(just(Token::Punct(';')))
+        .map(|name| ((name.clone(), ItemKind::Import), Item::Import(name)))
+        .labelled("import")
+}
+
 fn item_parser(
 ) -> impl Parser<Token, HashMap<(String, ItemKind), Item>, Error = Simple<Token>> + Clone {
-    let item = struct_parser().or(impl_block_parser());
+    let item = struct_parser().or(impl_block_parser()).or(import_parser());
 
     item.repeated()
         .try_map(|items, _| {
@@ -679,6 +748,18 @@ mod tests {
             }
 
             struct Bar {}
+        "#;
+
+        let ast = parse(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_import() {
+        let src = r#"
+            import foo;
+            import foo::bar::baz;
         "#;
 
         let ast = parse(src);

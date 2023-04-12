@@ -4,6 +4,7 @@
 pub mod field;
 pub mod function;
 pub mod implementation;
+pub mod import;
 pub mod item;
 pub mod model_type;
 pub mod none;
@@ -14,6 +15,7 @@ pub mod woog_option;
 pub use crate::v2::lu_dog::field::Field;
 pub use crate::v2::lu_dog::function::Function;
 pub use crate::v2::lu_dog::implementation::Implementation;
+pub use crate::v2::lu_dog::import::Import;
 pub use crate::v2::lu_dog::item::Item;
 pub use crate::v2::lu_dog::model_type::ModelType;
 pub use crate::v2::lu_dog::none::NONE;
