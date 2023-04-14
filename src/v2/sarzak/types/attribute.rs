@@ -30,7 +30,12 @@ pub struct Attribute {
 impl Attribute {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-new"}}}
     /// Inter a new 'Attribute' in the store, and return it's `id`.
-    pub fn new(name: String, obj_id: &Object, ty: &Ty, store: &mut SarzakStore) -> Attribute {
+    pub fn new(
+        name: String,
+        obj_id: Option<&Object>,
+        ty: &Ty,
+        store: &mut SarzakStore,
+    ) -> Attribute {
         let id = Uuid::new_v4();
         let new = Attribute {
             id: id,
