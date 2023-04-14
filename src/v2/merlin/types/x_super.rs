@@ -5,5 +5,17 @@ use uuid::{uuid, Uuid};
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_super-const-definition"}}}
 pub const X_SUPER: Uuid = uuid!["4552a55e-dcda-5ed0-9aca-328afab813df"];
+
+pub struct XSuper;
+
+impl XSuper {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        X_SUPER
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

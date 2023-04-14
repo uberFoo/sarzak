@@ -11,5 +11,17 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-const-definition"}}}
 pub const IMPLEMENTATION: Uuid = uuid!["d9423bdc-1217-5acc-9083-e13adccd9258"];
+
+pub struct Implementation;
+
+impl Implementation {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        IMPLEMENTATION
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

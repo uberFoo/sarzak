@@ -26,25 +26,34 @@ pub mod x_super;
 
 pub use crate::v2::merlin::anchor::Anchor;
 pub use crate::v2::merlin::bisection::Bisection;
+pub use crate::v2::merlin::bottom::Bottom;
 pub use crate::v2::merlin::bottom::BOTTOM;
 pub use crate::v2::merlin::edge::Edge;
 pub use crate::v2::merlin::glyph::Glyph;
 pub use crate::v2::merlin::glyph::GlyphEnum;
+pub use crate::v2::merlin::inflection::Inflection;
 pub use crate::v2::merlin::inflection::INFLECTION;
+pub use crate::v2::merlin::left::Left;
 pub use crate::v2::merlin::left::LEFT;
 pub use crate::v2::merlin::line::Line;
 pub use crate::v2::merlin::line_segment::LineSegment;
 pub use crate::v2::merlin::line_segment_point::LineSegmentPoint;
+pub use crate::v2::merlin::many::Many;
 pub use crate::v2::merlin::many::MANY;
+pub use crate::v2::merlin::one::One;
 pub use crate::v2::merlin::one::ONE;
 pub use crate::v2::merlin::point::Point;
 pub use crate::v2::merlin::point::PointEnum;
 pub use crate::v2::merlin::relationship_name::RelationshipName;
 pub use crate::v2::merlin::relationship_phrase::RelationshipPhrase;
+pub use crate::v2::merlin::right::Right;
 pub use crate::v2::merlin::right::RIGHT;
+pub use crate::v2::merlin::sub::Sub;
 pub use crate::v2::merlin::sub::SUB;
+pub use crate::v2::merlin::top::Top;
 pub use crate::v2::merlin::top::TOP;
 pub use crate::v2::merlin::x_box::XBox;
+pub use crate::v2::merlin::x_super::XSuper;
 pub use crate::v2::merlin::x_super::X_SUPER;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

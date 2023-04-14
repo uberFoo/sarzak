@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::item::Item;
-use crate::v2::lu_dog::types::model_type::ModelType;
+use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -20,7 +20,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Implementation {
     pub id: Uuid,
-    /// R8: [`Implementation`] 'adds functions to a' [`ModelType`]
+    /// R8: [`Implementation`] 'adds functions to a' [`WoogStruct`]
     pub model_type: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -28,7 +28,7 @@ pub struct Implementation {
 impl Implementation {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-new"}}}
     /// Inter a new 'Implementation' in the store, and return it's `id`.
-    pub fn new(model_type: &ModelType, store: &mut LuDogStore) -> Implementation {
+    pub fn new(model_type: &WoogStruct, store: &mut LuDogStore) -> Implementation {
         let id = Uuid::new_v4();
         let new = Implementation {
             id: id,
@@ -40,7 +40,7 @@ impl Implementation {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-new_"}}}
     /// Inter a new 'Implementation' in the store, and return it's `id`.
-    pub fn new_(model_type: &ModelType) -> Implementation {
+    pub fn new_(model_type: &WoogStruct) -> Implementation {
         let id = Uuid::new_v4();
         let new = Implementation {
             id: id,
@@ -50,9 +50,9 @@ impl Implementation {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-nav-forward-to-model_type"}}}
-    /// Navigate to [`ModelType`] across R8(1-*)
-    pub fn r8_model_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ModelType> {
-        vec![store.exhume_model_type(&self.model_type).unwrap()]
+    /// Navigate to [`WoogStruct`] across R8(1-*)
+    pub fn r8_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogStruct> {
+        vec![store.exhume_woog_struct(&self.model_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-nav-backward-1_Mc-to-function"}}}

@@ -2,8 +2,8 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::model_type::ModelType;
 use crate::v2::lu_dog::types::value_type::ValueType;
+use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -20,7 +20,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct Field {
     pub id: Uuid,
     pub name: String,
-    /// R7: [`Field`] 'comprises a' [`ModelType`]
+    /// R7: [`Field`] 'comprises a' [`WoogStruct`]
     pub model: Uuid,
     /// R5: [`Field`] 'has a' [`ValueType`]
     pub ty: Uuid,
@@ -30,7 +30,7 @@ pub struct Field {
 impl Field {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new"}}}
     /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new(name: String, model: &ModelType, ty: &ValueType, store: &mut LuDogStore) -> Field {
+    pub fn new(name: String, model: &WoogStruct, ty: &ValueType, store: &mut LuDogStore) -> Field {
         let id = Uuid::new_v4();
         let new = Field {
             id: id,
@@ -44,7 +44,7 @@ impl Field {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new_"}}}
     /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new_(name: String, model: &ModelType, ty: &ValueType) -> Field {
+    pub fn new_(name: String, model: &WoogStruct, ty: &ValueType) -> Field {
         let id = Uuid::new_v4();
         let new = Field {
             id: id,
@@ -56,9 +56,9 @@ impl Field {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-model"}}}
-    /// Navigate to [`ModelType`] across R7(1-*)
-    pub fn r7_model_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ModelType> {
-        vec![store.exhume_model_type(&self.model).unwrap()]
+    /// Navigate to [`WoogStruct`] across R7(1-*)
+    pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogStruct> {
+        vec![store.exhume_woog_struct(&self.model).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}

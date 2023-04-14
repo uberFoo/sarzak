@@ -5,5 +5,17 @@ use uuid::{uuid, Uuid};
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"top-const-definition"}}}
 pub const TOP: Uuid = uuid!["a6f42b8c-0532-568c-a739-87612433af1d"];
+
+pub struct Top;
+
+impl Top {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        TOP
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

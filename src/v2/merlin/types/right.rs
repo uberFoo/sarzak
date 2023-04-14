@@ -5,5 +5,17 @@ use uuid::{uuid, Uuid};
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"right-const-definition"}}}
 pub const RIGHT: Uuid = uuid!["586d17c1-97c4-594b-b757-e83396caaf73"];
+
+pub struct Right;
+
+impl Right {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        RIGHT
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

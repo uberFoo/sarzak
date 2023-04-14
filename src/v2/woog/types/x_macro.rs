@@ -12,5 +12,17 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_macro-const-definition"}}}
 pub const X_MACRO: Uuid = uuid!["bb49a0cc-8490-5129-bec2-d536b43ba6a1"];
+
+pub struct XMacro;
+
+impl XMacro {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        X_MACRO
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

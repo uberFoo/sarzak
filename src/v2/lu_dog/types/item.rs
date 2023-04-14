@@ -4,7 +4,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::import::Import;
-use crate::v2::lu_dog::types::model_type::ModelType;
+use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -15,7 +15,7 @@ pub enum Item {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
-    ModelType(Uuid),
+    WoogStruct(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
@@ -57,15 +57,15 @@ impl Item {
         new
     }
 
-    /// Create a new instance of Item::ModelType
-    pub fn new_model_type(model_type: &ModelType, store: &mut LuDogStore) -> Self {
-        let new = Self::ModelType(model_type.id);
+    /// Create a new instance of Item::WoogStruct
+    pub fn new_woog_struct(woog_struct: &WoogStruct, store: &mut LuDogStore) -> Self {
+        let new = Self::WoogStruct(woog_struct.id);
         store.inter_item(new.clone());
         new
     }
 
-    pub fn new_model_type_(model_type: &ModelType) -> Self {
-        let new = Self::ModelType(model_type.id);
+    pub fn new_woog_struct_(woog_struct: &WoogStruct) -> Self {
+        let new = Self::WoogStruct(woog_struct.id);
         new
     }
 
@@ -76,7 +76,7 @@ impl Item {
             Item::Function(id) => *id,
             Item::Implementation(id) => *id,
             Item::Import(id) => *id,
-            Item::ModelType(id) => *id,
+            Item::WoogStruct(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

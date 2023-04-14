@@ -1,9 +1,10 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"value_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
-use crate::v2::lu_dog::types::some::Some;
+use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
@@ -33,6 +34,7 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueType {
+    Empty(Uuid),
     WoogOption(Uuid),
     Ty(Uuid),
 }
@@ -40,15 +42,21 @@ pub enum ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
+    /// Create a new instance of ValueType::Empty
+    pub fn new_empty() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Empty(EMPTY)
+    }
+
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(woog_option: &WoogOption, store: &mut LuDogStore) -> Self {
-        let new = Self::WoogOption(woog_option.id());
+        let new = Self::WoogOption(woog_option.id);
         store.inter_value_type(new.clone());
         new
     }
 
     pub fn new_woog_option_(woog_option: &WoogOption) -> Self {
-        let new = Self::WoogOption(woog_option.id());
+        let new = Self::WoogOption(woog_option.id);
         new
     }
 
@@ -68,6 +76,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            ValueType::Empty(id) => *id,
             ValueType::WoogOption(id) => *id,
             ValueType::Ty(id) => *id,
         }
@@ -89,12 +98,13 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-function"}}}
-    /// Navigate to [`Function`] across R10(1-Mc)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-function"}}}
+    /// Navigate to [`Function`] across R10(1-M)
     pub fn r10_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Function> {
         store
             .iter_function()
             .filter_map(|function| {
-                if function.return_type == Some(self.id()) {
+                if function.return_type == self.id() {
                     Some(function)
                 } else {
                     None
@@ -104,13 +114,29 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-some"}}}
-    /// Navigate to [`Some`] across R2(1-M)
-    pub fn r2_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Some> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
+    /// Navigate to [`WoogOption`] across R2(1-M)
+    pub fn r2_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogOption> {
         store
-            .iter_some()
-            .filter_map(|some| {
-                if some.inner_type == self.id() {
-                    Some(some)
+            .iter_woog_option()
+            .filter_map(|woog_option| {
+                if woog_option.ty == self.id() {
+                    Some(woog_option)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-value"}}}
+    /// Navigate to [`Value`] across R24(1-M)
+    pub fn r24_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {
+        store
+            .iter_value()
+            .filter_map(|value| {
+                if value.ty == self.id() {
+                    Some(value)
                 } else {
                     None
                 }

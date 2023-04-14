@@ -4,6 +4,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-const-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-struct-documentation"}}}
 /// The UUID Type
 ///
 /// I feel like there are too many implementation details here.
@@ -19,6 +20,15 @@ use uuid::{uuid, Uuid};
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-const-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-struct-definition"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-implementation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-struct-impl-new"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-struct-impl-new_"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"uuid-impl-nav-subtype-to-supertype-ty"}}}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 pub const UUID: Uuid = uuid!["8d63fc44-28ea-599b-8654-877b133f0640"];
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

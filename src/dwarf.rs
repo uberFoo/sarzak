@@ -1,4 +1,4 @@
-use std::{fmt, ops};
+use std::{fmt, ops, path::PathBuf};
 
 use ansi_term::Colour;
 use snafu::prelude::*;
@@ -20,6 +20,22 @@ pub type Spanned<T> = (T, Span);
 pub enum DwarfError {
     #[snafu(display("\n{}: {description}\n  --> {}..{}", Colour::Red.bold().paint("error"), span.start, span.end))]
     Parse { description: String, span: Span },
+}
+
+pub struct DwarfOptions {
+    /// Dwarf Source File
+    ///
+    /// Path to the source file to compile.
+    source: PathBuf,
+    /// Model File
+    ///
+    /// Path to the model, corresponding to the source file, to build the
+    /// Lu-Dog domain.
+    model: PathBuf,
+    /// Meta-Model File
+    ///
+    /// Path to the meta-model, sarzak.
+    sarzak: PathBuf,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]

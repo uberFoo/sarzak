@@ -13,5 +13,17 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"mutable-const-definition"}}}
 pub const MUTABLE: Uuid = uuid!["1a837379-51fe-51a5-baf1-e7bd8c22ef7a"];
+
+pub struct Mutable;
+
+impl Mutable {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        MUTABLE
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

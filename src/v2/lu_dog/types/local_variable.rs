@@ -1,0 +1,61 @@
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"local_variable-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-use-statements"}}}
+use uuid::Uuid;
+
+use crate::v2::lu_dog::types::let_statement::LetStatement;
+use crate::v2::lu_dog::types::variable::Variable;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-documentation"}}}
+/// A Local Variable in a Block
+///
+/// Note that a variable is an "l-value", so it represents a specific memory location.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct LocalVariable {
+    pub bug: Uuid,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-implementation"}}}
+impl LocalVariable {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-new"}}}
+    /// Inter a new 'Local Variable' in the store, and return it's `id`.
+    pub fn new(bug: Uuid, store: &mut LuDogStore) -> LocalVariable {
+        let id = Uuid::new_v4();
+        let new = LocalVariable { bug: bug, id: id };
+        store.inter_local_variable(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-new_"}}}
+    /// Inter a new 'Local Variable' in the store, and return it's `id`.
+    pub fn new_(bug: Uuid) -> LocalVariable {
+        let id = Uuid::new_v4();
+        let new = LocalVariable { bug: bug, id: id };
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-nav-backward-one-to-let_statement"}}}
+    /// Navigate to [`LetStatement`] across R21(1-1)
+    pub fn r21_let_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&LetStatement> {
+        vec![store
+            .iter_let_statement()
+            .find(|let_statement| let_statement.variable == self.id)
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-impl-nav-subtype-to-supertype-variable"}}}
+    // Navigate to [`Variable`] across R12(isa)
+    pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Variable> {
+        vec![store.exhume_variable(&self.id).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

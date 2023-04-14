@@ -30,7 +30,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
 pub struct External {
     pub ctor: String,
     pub id: Uuid,

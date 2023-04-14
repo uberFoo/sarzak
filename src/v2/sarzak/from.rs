@@ -16,7 +16,7 @@ use crate::v2::sarzak::types::{
     AcknowledgedEvent, AnAssociativeReferent, Associative, AssociativeReferent,
     AssociativeReferrer, Attribute, Binary, Cardinality, Conditionality, Event, External, Isa,
     Object, Referent, Referrer, Relationship, State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL,
-    FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL, UUID,
+    FLOAT, INTEGER, MANY, ONE, S_STRING, S_UUID, UNCONDITIONAL,
 };
 use crate::v2::sarzak::ObjectStore;
 
@@ -358,8 +358,8 @@ impl From<&FromTy> for Ty {
             FromTy::Float(_) => Ty::Float(FLOAT),
             FromTy::Integer(_) => Ty::Integer(INTEGER),
             FromTy::Object(src) => Ty::Object(src.clone()),
-            FromTy::String(_) => Ty::String(STRING),
-            FromTy::Uuid(_) => Ty::Uuid(UUID),
+            FromTy::String(_) => Ty::SString(S_STRING),
+            FromTy::Uuid(_) => Ty::SUuid(S_UUID),
         }
     }
 }
@@ -369,8 +369,8 @@ fn from_const(from: &Uuid) -> Uuid {
         FROM_BOOLEAN => BOOLEAN,
         FROM_FLOAT => FLOAT,
         FROM_INTEGER => INTEGER,
-        FROM_STRING => STRING,
-        FROM_UUID => UUID,
+        FROM_STRING => S_STRING,
+        FROM_UUID => S_UUID,
         FROM_CONDITIONAL => CONDITIONAL,
         FROM_UNCONDITIONAL => UNCONDITIONAL,
         FROM_MANY => MANY,

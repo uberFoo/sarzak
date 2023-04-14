@@ -60,15 +60,11 @@ pub struct ObjectStore {
     block: HashMap<Uuid, (Block, SystemTime)>,
     call: HashMap<Uuid, (Call, SystemTime)>,
     constant: HashMap<Uuid, (Constant, SystemTime)>,
-    constant_by_name: HashMap<String, (Constant, SystemTime)>,
     enumeration: HashMap<Uuid, (Enumeration, SystemTime)>,
-    enumeration_by_name: HashMap<String, (Enumeration, SystemTime)>,
     enumeration_field: HashMap<Uuid, (EnumerationField, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
     field: HashMap<Uuid, (Field, SystemTime)>,
-    field_by_name: HashMap<String, (Field, SystemTime)>,
     function: HashMap<Uuid, (Function, SystemTime)>,
-    function_by_name: HashMap<String, (Function, SystemTime)>,
     generation_unit: HashMap<Uuid, (GenerationUnit, SystemTime)>,
     grace_type: HashMap<Uuid, (GraceType, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
@@ -81,13 +77,11 @@ pub struct ObjectStore {
     reference: HashMap<Uuid, (Reference, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     structure: HashMap<Uuid, (Structure, SystemTime)>,
-    structure_by_name: HashMap<String, (Structure, SystemTime)>,
     structure_field: HashMap<Uuid, (StructureField, SystemTime)>,
     symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
     time_stamp: HashMap<Uuid, (TimeStamp, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
-    variable_by_name: HashMap<String, (Variable, SystemTime)>,
     visibility: HashMap<Uuid, (Visibility, SystemTime)>,
 }
 
@@ -98,15 +92,11 @@ impl ObjectStore {
             block: HashMap::default(),
             call: HashMap::default(),
             constant: HashMap::default(),
-            constant_by_name: HashMap::default(),
             enumeration: HashMap::default(),
-            enumeration_by_name: HashMap::default(),
             enumeration_field: HashMap::default(),
             expression: HashMap::default(),
             field: HashMap::default(),
-            field_by_name: HashMap::default(),
             function: HashMap::default(),
-            function_by_name: HashMap::default(),
             generation_unit: HashMap::default(),
             grace_type: HashMap::default(),
             item: HashMap::default(),
@@ -119,17 +109,18 @@ impl ObjectStore {
             reference: HashMap::default(),
             statement: HashMap::default(),
             structure: HashMap::default(),
-            structure_by_name: HashMap::default(),
             structure_field: HashMap::default(),
             symbol_table: HashMap::default(),
             time_stamp: HashMap::default(),
             value: HashMap::default(),
             variable: HashMap::default(),
-            variable_by_name: HashMap::default(),
             visibility: HashMap::default(),
         };
 
         // Initialize Singleton Subtypes
+        // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
+        // I remember having a bit of a struggle making it work. It's recursive, with
+        // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_expression(Expression::Literal(LITERAL));
         store.inter_item(Item::Implementation(IMPLEMENTATION));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
@@ -245,10 +236,8 @@ impl ObjectStore {
     /// Inter [`Constant`] into the store.
     ///
     pub fn inter_constant(&mut self, constant: Constant) {
-        let value = (constant, SystemTime::now());
-        self.constant.insert(value.0.id, value.clone());
-        self.constant_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.constant
+            .insert(constant.id, (constant, SystemTime::now()));
     }
 
     /// Exhume [`Constant`] from the store.
@@ -261,12 +250,6 @@ impl ObjectStore {
     ///
     pub fn exhume_constant_mut(&mut self, id: &Uuid) -> Option<&mut Constant> {
         self.constant.get_mut(id).map(|constant| &mut constant.0)
-    }
-
-    /// Exhume [`Constant`] from the store by name.
-    ///
-    pub fn exhume_constant_by_name(&self, name: &str) -> Option<&Constant> {
-        self.constant_by_name.get(name).map(|constant| &constant.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Constant>`.
@@ -287,10 +270,8 @@ impl ObjectStore {
     /// Inter [`Enumeration`] into the store.
     ///
     pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
-        let value = (enumeration, SystemTime::now());
-        self.enumeration.insert(value.0.id, value.clone());
-        self.enumeration_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.enumeration
+            .insert(enumeration.id, (enumeration, SystemTime::now()));
     }
 
     /// Exhume [`Enumeration`] from the store.
@@ -305,14 +286,6 @@ impl ObjectStore {
         self.enumeration
             .get_mut(id)
             .map(|enumeration| &mut enumeration.0)
-    }
-
-    /// Exhume [`Enumeration`] from the store by name.
-    ///
-    pub fn exhume_enumeration_by_name(&self, name: &str) -> Option<&Enumeration> {
-        self.enumeration_by_name
-            .get(name)
-            .map(|enumeration| &enumeration.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
@@ -409,10 +382,7 @@ impl ObjectStore {
     /// Inter [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Field) {
-        let value = (field, SystemTime::now());
-        self.field.insert(value.0.id, value.clone());
-        self.field_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.field.insert(field.id, (field, SystemTime::now()));
     }
 
     /// Exhume [`Field`] from the store.
@@ -425,12 +395,6 @@ impl ObjectStore {
     ///
     pub fn exhume_field_mut(&mut self, id: &Uuid) -> Option<&mut Field> {
         self.field.get_mut(id).map(|field| &mut field.0)
-    }
-
-    /// Exhume [`Field`] from the store by name.
-    ///
-    pub fn exhume_field_by_name(&self, name: &str) -> Option<&Field> {
-        self.field_by_name.get(name).map(|field| &field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
@@ -451,10 +415,8 @@ impl ObjectStore {
     /// Inter [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Function) {
-        let value = (function, SystemTime::now());
-        self.function.insert(value.0.id, value.clone());
-        self.function_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.function
+            .insert(function.id, (function, SystemTime::now()));
     }
 
     /// Exhume [`Function`] from the store.
@@ -467,12 +429,6 @@ impl ObjectStore {
     ///
     pub fn exhume_function_mut(&mut self, id: &Uuid) -> Option<&mut Function> {
         self.function.get_mut(id).map(|function| &mut function.0)
-    }
-
-    /// Exhume [`Function`] from the store by name.
-    ///
-    pub fn exhume_function_by_name(&self, name: &str) -> Option<&Function> {
-        self.function_by_name.get(name).map(|function| &function.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
@@ -880,10 +836,8 @@ impl ObjectStore {
     /// Inter [`Structure`] into the store.
     ///
     pub fn inter_structure(&mut self, structure: Structure) {
-        let value = (structure, SystemTime::now());
-        self.structure.insert(value.0.id, value.clone());
-        self.structure_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.structure
+            .insert(structure.id, (structure, SystemTime::now()));
     }
 
     /// Exhume [`Structure`] from the store.
@@ -896,14 +850,6 @@ impl ObjectStore {
     ///
     pub fn exhume_structure_mut(&mut self, id: &Uuid) -> Option<&mut Structure> {
         self.structure.get_mut(id).map(|structure| &mut structure.0)
-    }
-
-    /// Exhume [`Structure`] from the store by name.
-    ///
-    pub fn exhume_structure_by_name(&self, name: &str) -> Option<&Structure> {
-        self.structure_by_name
-            .get(name)
-            .map(|structure| &structure.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Structure>`.
@@ -1073,10 +1019,8 @@ impl ObjectStore {
     /// Inter [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
-        let value = (variable, SystemTime::now());
-        self.variable.insert(value.0.id, value.clone());
-        self.variable_by_name
-            .insert(value.0.name.to_upper_camel_case(), value);
+        self.variable
+            .insert(variable.id, (variable, SystemTime::now()));
     }
 
     /// Exhume [`Variable`] from the store.
@@ -1089,12 +1033,6 @@ impl ObjectStore {
     ///
     pub fn exhume_variable_mut(&mut self, id: &Uuid) -> Option<&mut Variable> {
         self.variable.get_mut(id).map(|variable| &mut variable.0)
-    }
-
-    /// Exhume [`Variable`] from the store by name.
-    ///
-    pub fn exhume_variable_by_name(&self, name: &str) -> Option<&Variable> {
-        self.variable_by_name.get(name).map(|variable| &variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -2152,9 +2090,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let constant: (Constant, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .constant_by_name
-                    .insert(constant.0.name.to_upper_camel_case(), constant.clone());
                 store.constant.insert(constant.0.id, constant);
             }
         }
@@ -2169,10 +2104,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
-                store.enumeration_by_name.insert(
-                    enumeration.0.name.to_upper_camel_case(),
-                    enumeration.clone(),
-                );
                 store.enumeration.insert(enumeration.0.id, enumeration);
             }
         }
@@ -2218,9 +2149,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .field_by_name
-                    .insert(field.0.name.to_upper_camel_case(), field.clone());
                 store.field.insert(field.0.id, field);
             }
         }
@@ -2235,9 +2163,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .function_by_name
-                    .insert(function.0.name.to_upper_camel_case(), function.clone());
                 store.function.insert(function.0.id, function);
             }
         }
@@ -2411,9 +2336,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let structure: (Structure, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .structure_by_name
-                    .insert(structure.0.name.to_upper_camel_case(), structure.clone());
                 store.structure.insert(structure.0.id, structure);
             }
         }
@@ -2487,9 +2409,6 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .variable_by_name
-                    .insert(variable.0.name.to_upper_camel_case(), variable.clone());
                 store.variable.insert(variable.0.id, variable);
             }
         }

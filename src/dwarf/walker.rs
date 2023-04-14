@@ -251,8 +251,12 @@ fn inter_implementation(
         sarzak,
     );
 
+    let obj_id = model
+        .exhume_object_id_by_name(name)
+        .expect(&format!("Object {} not found", name));
+
     let obj = model
-        .exhume_object_by_name(name)
+        .exhume_object(obj_id)
         .expect(&format!("Object {} not found", name));
 
     let mt = lu_dog
@@ -285,8 +289,12 @@ fn inter_struct(
         name
     };
 
+    let obj_id = model
+        .exhume_object_id_by_name(name)
+        .expect(&format!("Object {} not found", name));
+
     let obj = model
-        .exhume_object_by_name(name)
+        .exhume_object(obj_id)
         .expect(&format!("Object {} not found", name));
 
     let mt = WoogStruct::new(&obj, lu_dog);
@@ -324,7 +332,7 @@ fn get_value_type(
             ValueType::new_ty(&ty, lu_dog)
         }
         Type::String => {
-            let ty = Ty::new_string();
+            let ty = Ty::new_s_string();
             ValueType::new_ty(&ty, lu_dog)
         }
         Type::UserType(tok) => {

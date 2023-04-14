@@ -65,6 +65,9 @@ impl ObjectStore {
         };
 
         // Initialize Singleton Subtypes
+        // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
+        // I remember having a bit of a struggle making it work. It's recursive, with
+        // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_edge(Edge::Bottom(BOTTOM));
         store.inter_edge(Edge::Left(LEFT));
         store.inter_edge(Edge::Right(RIGHT));

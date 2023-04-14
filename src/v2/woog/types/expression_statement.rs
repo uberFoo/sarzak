@@ -15,5 +15,17 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-const-definition"}}}
 pub const EXPRESSION_STATEMENT: Uuid = uuid!["7cb01522-5a5c-5eff-9904-590a57d7b8c5"];
+
+pub struct ExpressionStatement;
+
+impl ExpressionStatement {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        EXPRESSION_STATEMENT
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -21,5 +21,17 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 pub const LITERAL: Uuid = uuid!["791d5acd-5374-5fde-b181-dd1e0c005a02"];
+
+pub struct Literal;
+
+impl Literal {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn id(&self) -> Uuid {
+        LITERAL
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

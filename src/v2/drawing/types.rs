@@ -19,16 +19,20 @@ pub mod top;
 pub use crate::v2::drawing::anchor::Anchor;
 pub use crate::v2::drawing::associative_ui::AssociativeUi;
 pub use crate::v2::drawing::binary_ui::BinaryUi;
+pub use crate::v2::drawing::bottom::Bottom;
 pub use crate::v2::drawing::bottom::BOTTOM;
 pub use crate::v2::drawing::edge::Edge;
 pub use crate::v2::drawing::isa_ui::IsaUi;
+pub use crate::v2::drawing::left::Left;
 pub use crate::v2::drawing::left::LEFT;
 pub use crate::v2::drawing::object_edge::ObjectEdge;
 pub use crate::v2::drawing::object_ui::ObjectUi;
 pub use crate::v2::drawing::point::Point;
 pub use crate::v2::drawing::relationship_ui::RelationshipUi;
+pub use crate::v2::drawing::right::Right;
 pub use crate::v2::drawing::right::RIGHT;
 pub use crate::v2::drawing::subtype_anchors::SubtypeAnchors;
+pub use crate::v2::drawing::top::Top;
 pub use crate::v2::drawing::top::TOP;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}
