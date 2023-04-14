@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Structure Expression\n\nThis is how we create instances in dwarf.",
+    "id": "d546feef-91df-49ea-ac61-430bdcf9832c",
+    "key_letters": "ST_E",
+    "name": "Struct Expression"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334672000
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Variable\n\nA variable in a function. It may be either a local variable or a parameter.\n\nA variable has a name, and and indirectly, via [`Value`], a type.",
+    "id": "954b354f-3a90-440b-ab0f-43efc00d275e",
+    "key_letters": "VAR",
+    "name": "Variable"
+  },
+  {
+    "secs_since_epoch": 1681297720,
+    "nanos_since_epoch": 731703000
+  }
+]

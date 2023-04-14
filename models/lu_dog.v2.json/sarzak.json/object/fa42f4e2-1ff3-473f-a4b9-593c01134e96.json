@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Floating Point Literal\n\nNothing fancy. No scientific notation.",
+    "id": "fa42f4e2-1ff3-473f-a4b9-593c01134e96",
+    "key_letters": "FLOT_L",
+    "name": "Float Literal"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334656000
+  }
+]

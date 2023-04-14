@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Local Variable in a Block\n\nNote that a variable is an \"l-value\", so it represents a specific memory location.",
+    "id": "0365b40c-c40a-4653-84ab-44d1c12d294f",
+    "key_letters": "L_VAR",
+    "name": "Local Variable"
+  },
+  {
+    "secs_since_epoch": 1681299526,
+    "nanos_since_epoch": 800541000
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "description": "The Empty Type\n\nThis type represents the lack of a type. It's actually sort of a werid construct, because it also implies the lack of a value. How can you have a value without a type?",
+    "id": "a8b86e41-5b04-4469-8a10-91bd89603e27",
+    "key_letters": "EMPT",
+    "name": "Empty"
+  },
+  {
+    "secs_since_epoch": 1681299049,
+    "nanos_since_epoch": 313989000
+  }
+]

@@ -18,8 +18,11 @@ pub type Result<T, E = ModelCompilerError> = std::result::Result<T, E>;
 pub enum ModelCompilerError {
     #[snafu(display("ModelError: {}", description))]
     Model { description: String },
-    #[snafu(display("I/O Error caused by {}", source))]
-    IO { source: std::io::Error },
+    #[snafu(display("\n{}: {description}\n  --> {source}"))]
+    IO {
+        source: std::io::Error,
+        description: String,
+    },
     #[snafu(display("Format Error caused by {}", source))]
     Format { source: std::fmt::Error },
     #[snafu(display("\n{backtrace}\n{}: {description}\n  --> {source} ({})", Colour::Red.bold().paint("error"), path.display()))]

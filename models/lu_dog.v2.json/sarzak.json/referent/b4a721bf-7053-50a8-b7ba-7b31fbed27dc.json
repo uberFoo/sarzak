@@ -1,0 +1,13 @@
+[
+  {
+    "description": "is contained within",
+    "id": "b4a721bf-7053-50a8-b7ba-7b31fbed27dc",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "94fc0044-4b88-4f5c-ac60-3a44262ade10"
+  },
+  {
+    "secs_since_epoch": 1681299049,
+    "nanos_since_epoch": 314006000
+  }
+]

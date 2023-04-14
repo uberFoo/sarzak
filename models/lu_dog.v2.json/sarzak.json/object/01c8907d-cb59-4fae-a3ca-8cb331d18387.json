@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Static Method Call\n\nThis is when you call a function on the type (struct) itself. There is no instance involved in this, although it may return an instance.\n\nThe name attribute is the name of the static method.",
+    "id": "01c8907d-cb59-4fae-a3ca-8cb331d18387",
+    "key_letters": "S_METH_C",
+    "name": "Static Method Call"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334657000
+  }
+]

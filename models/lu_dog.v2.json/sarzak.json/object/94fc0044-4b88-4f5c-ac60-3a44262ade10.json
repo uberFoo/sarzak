@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Value\n\nA value has a Type.",
+    "id": "94fc0044-4b88-4f5c-ac60-3a44262ade10",
+    "key_letters": "VAL",
+    "name": "Value"
+  },
+  {
+    "secs_since_epoch": 1681294857,
+    "nanos_since_epoch": 72392000
+  }
+]

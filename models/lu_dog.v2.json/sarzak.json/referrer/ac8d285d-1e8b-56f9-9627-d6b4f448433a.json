@@ -1,0 +1,14 @@
+[
+  {
+    "description": "is decoded by a",
+    "id": "ac8d285d-1e8b-56f9-9627-d6b4f448433a",
+    "referential_attribute": "type",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "94fc0044-4b88-4f5c-ac60-3a44262ade10"
+  },
+  {
+    "secs_since_epoch": 1681305444,
+    "nanos_since_epoch": 755538000
+  }
+]

@@ -105,7 +105,7 @@ pub enum Statement {
 
 #[derive(Clone, Debug)]
 pub enum Expression {
-    Block(Vec<Statement>),
+    Block(Vec<Spanned<Statement>>),
     BooleanLiteral(bool),
     Error,
     FieldAccess(Box<Spanned<Self>>, Spanned<String>),

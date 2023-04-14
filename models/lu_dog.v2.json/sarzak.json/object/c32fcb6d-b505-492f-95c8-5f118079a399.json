@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Let Statement\n\nThis statement assigns a value from an expression to a local variable.",
+    "id": "c32fcb6d-b505-492f-95c8-5f118079a399",
+    "key_letters": "LET_S",
+    "name": "Let Statement"
+  },
+  {
+    "secs_since_epoch": 1681299049,
+    "nanos_since_epoch": 313987000
+  }
+]

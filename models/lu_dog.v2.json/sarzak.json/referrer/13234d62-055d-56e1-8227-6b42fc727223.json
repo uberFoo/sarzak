@@ -1,0 +1,14 @@
+[
+  {
+    "description": "may be an",
+    "id": "13234d62-055d-56e1-8227-6b42fc727223",
+    "referential_attribute": "expression",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "1ef6f1f8-de66-552b-8d4a-a04215c37c1e",
+    "obj_id": "26dba2c5-a7e9-4556-a9c2-79091a97b941"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334702000
+  }
+]

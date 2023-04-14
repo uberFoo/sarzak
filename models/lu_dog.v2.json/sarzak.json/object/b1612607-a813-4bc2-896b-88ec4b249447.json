@@ -1,0 +1,12 @@
+[
+  {
+    "description": "An Integer\n\nI'm not sure what to do about width. I think I coded it as an i64 in the parser.",
+    "id": "b1612607-a813-4bc2-896b-88ec4b249447",
+    "key_letters": "INT_L",
+    "name": "Integer Literal"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334650000
+  }
+]

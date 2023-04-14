@@ -1,0 +1,14 @@
+[
+  {
+    "description": "assigns the value of an",
+    "id": "51a23af3-5e85-5957-9e17-28d106c5310e",
+    "referential_attribute": "expression",
+    "cardinality": "84d60cb6-04cf-5c82-9e38-79d3999b5d5c",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "c32fcb6d-b505-492f-95c8-5f118079a399"
+  },
+  {
+    "secs_since_epoch": 1681297720,
+    "nanos_since_epoch": 731719000
+  }
+]

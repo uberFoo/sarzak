@@ -1,0 +1,14 @@
+[
+  {
+    "description": "is part of a",
+    "id": "62654139-33a7-5e0c-b980-1ff919ebb178",
+    "referential_attribute": "function",
+    "cardinality": "481a6ff0-caee-5817-8812-857f58f7c215",
+    "conditionality": "17ee33a9-33bb-5998-ba89-7a9f2fe12080",
+    "obj_id": "846aa191-7b0c-4325-8c21-09fa5edf7c78"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334701000
+  }
+]

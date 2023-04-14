@@ -1,0 +1,12 @@
+[
+  {
+    "description": "A Literal Expression\n\nThis is any literal value in the program.",
+    "id": "dbbb7d46-4072-49a6-b483-cc8b25cbb4ea",
+    "key_letters": "LIT_E",
+    "name": "Literal"
+  },
+  {
+    "secs_since_epoch": 1681391558,
+    "nanos_since_epoch": 334669000
+  }
+]
