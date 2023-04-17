@@ -49,7 +49,6 @@ impl Some {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"some-struct-impl-nav-forward-to-inner_type"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"some-struct-impl-nav-forward-to-inner"}}}
     /// Navigate to [`Value`] across R23(1-*)
     pub fn r23_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {

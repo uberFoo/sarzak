@@ -3,7 +3,7 @@
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
-use crate::v2::lu_dog::types::expression_statement::EXPRESSION_STATEMENT;
+use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::item_statement::ITEM_STATEMENT;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::result_statement::RESULT_STATEMENT;
@@ -45,15 +45,16 @@ impl Statement {
     pub fn new_expression_statement(
         block: &Block,
         next: Option<&Statement>,
+        subtype: &ExpressionStatement,
         store: &mut LuDogStore,
     ) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = EXPRESSION_STATEMENT;
+        let id = subtype.id;
         let new = Statement {
             block: block.id,
             next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ExpressionStatement(EXPRESSION_STATEMENT),
+            subtype: StatementEnum::ExpressionStatement(subtype.id),
             id,
         };
         store.inter_statement(new.clone());
@@ -62,14 +63,18 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement_"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_expression_statement_(block: &Block, next: Option<&Statement>) -> Statement {
+    pub fn new_expression_statement_(
+        block: &Block,
+        next: Option<&Statement>,
+        subtype: &ExpressionStatement,
+    ) -> Statement {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = EXPRESSION_STATEMENT;
+        let id = subtype.id;
         let new = Statement {
             block: block.id,
             next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ExpressionStatement(EXPRESSION_STATEMENT),
+            subtype: StatementEnum::ExpressionStatement(subtype.id),
             id,
         };
         new

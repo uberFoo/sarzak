@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::statement::Statement;
+use crate::v2::lu_dog::types::value::Value;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -71,6 +72,21 @@ impl Block {
             .filter_map(|statement| {
                 if statement.block == self.id {
                     Some(statement)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-value"}}}
+    /// Navigate to [`Value`] across R33(1-M)
+    pub fn r33_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {
+        store
+            .iter_value()
+            .filter_map(|value| {
+                if value.block == self.id {
+                    Some(value)
                 } else {
                     None
                 }

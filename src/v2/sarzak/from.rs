@@ -45,7 +45,7 @@ impl From<&SarzakStore> for ObjectStore {
 
         // The order of the next two is important. We need the referents in the
         // store before the associative in order to create the AnAssociativeReferent
-        // instancs.
+        // instances.
         for (_, instance) in from.iter_associative_referent() {
             let instance = AssociativeReferent::from(instance);
             to.inter_associative_referent(instance);

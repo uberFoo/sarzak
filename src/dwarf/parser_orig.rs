@@ -540,7 +540,7 @@ fn eval_expr(
 }
 
 pub fn parse(src: &str) -> Option<HashMap<String, Func>> {
-    let (tokens, mut errs) = lexer().parse_recovery(src);
+    let (tokens, errs) = lexer().parse_recovery(src);
     let (ast, parse_errs) = if let Some(tokens) = tokens {
         let len = src.chars().count();
         let (ast, parse_errs) =

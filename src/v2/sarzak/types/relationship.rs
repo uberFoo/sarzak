@@ -20,7 +20,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship-enum-definition"}}}
-#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Relationship {
     Associative(Uuid),
     Binary(Uuid),

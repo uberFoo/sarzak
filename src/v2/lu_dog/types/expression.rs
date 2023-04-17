@@ -3,15 +3,16 @@
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::argument::Argument;
 use crate::v2::lu_dog::types::block::Block;
-use crate::v2::lu_dog::types::error::Error;
+use crate::v2::lu_dog::types::call::Call;
+use crate::v2::lu_dog::types::error_expression::ErrorExpression;
+use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
-use crate::v2::lu_dog::types::function_call::FunctionCall;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::literal::Literal;
-use crate::v2::lu_dog::types::print::PRINT;
+use crate::v2::lu_dog::types::print::Print;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value::Value;
-use crate::v2::lu_dog::types::variable_expression::VARIABLE_EXPRESSION;
+use crate::v2::lu_dog::types::variable_expression::VariableExpression;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -27,9 +28,9 @@ use uuid::Uuid;
 pub enum Expression {
     Argument(Uuid),
     Block(Uuid),
-    Error(Uuid),
+    Call(Uuid),
+    ErrorExpression(Uuid),
     FieldAccess(Uuid),
-    FunctionCall(Uuid),
     Literal(Uuid),
     Print(Uuid),
     StructExpression(Uuid),
@@ -63,15 +64,30 @@ impl Expression {
         new
     }
 
-    /// Create a new instance of Expression::Error
-    pub fn new_error(error: &Error, store: &mut LuDogStore) -> Self {
-        let new = Self::Error(error.id);
+    /// Create a new instance of Expression::Call
+    pub fn new_call(call: &Call, store: &mut LuDogStore) -> Self {
+        let new = Self::Call(call.id);
         store.inter_expression(new.clone());
         new
     }
 
-    pub fn new_error_(error: &Error) -> Self {
-        let new = Self::Error(error.id);
+    pub fn new_call_(call: &Call) -> Self {
+        let new = Self::Call(call.id);
+        new
+    }
+
+    /// Create a new instance of Expression::ErrorExpression
+    pub fn new_error_expression(
+        error_expression: &ErrorExpression,
+        store: &mut LuDogStore,
+    ) -> Self {
+        let new = Self::ErrorExpression(error_expression.id);
+        store.inter_expression(new.clone());
+        new
+    }
+
+    pub fn new_error_expression_(error_expression: &ErrorExpression) -> Self {
+        let new = Self::ErrorExpression(error_expression.id);
         new
     }
 
@@ -84,18 +100,6 @@ impl Expression {
 
     pub fn new_field_access_(field_access: &FieldAccess) -> Self {
         let new = Self::FieldAccess(field_access.id);
-        new
-    }
-
-    /// Create a new instance of Expression::FunctionCall
-    pub fn new_function_call(function_call: &FunctionCall, store: &mut LuDogStore) -> Self {
-        let new = Self::FunctionCall(function_call.id);
-        store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_function_call_(function_call: &FunctionCall) -> Self {
-        let new = Self::FunctionCall(function_call.id);
         new
     }
 
@@ -112,9 +116,15 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::Print
-    pub fn new_print() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Print(PRINT)
+    pub fn new_print(print: &Print, store: &mut LuDogStore) -> Self {
+        let new = Self::Print(print.id);
+        store.inter_expression(new.clone());
+        new
+    }
+
+    pub fn new_print_(print: &Print) -> Self {
+        let new = Self::Print(print.id);
+        new
     }
 
     /// Create a new instance of Expression::StructExpression
@@ -133,9 +143,18 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::VariableExpression
-    pub fn new_variable_expression() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::VariableExpression(VARIABLE_EXPRESSION)
+    pub fn new_variable_expression(
+        variable_expression: &VariableExpression,
+        store: &mut LuDogStore,
+    ) -> Self {
+        let new = Self::VariableExpression(variable_expression.id);
+        store.inter_expression(new.clone());
+        new
+    }
+
+    pub fn new_variable_expression_(variable_expression: &VariableExpression) -> Self {
+        let new = Self::VariableExpression(variable_expression.id);
+        new
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -144,14 +163,47 @@ impl Expression {
         match self {
             Expression::Argument(id) => *id,
             Expression::Block(id) => *id,
-            Expression::Error(id) => *id,
+            Expression::Call(id) => *id,
+            Expression::ErrorExpression(id) => *id,
             Expression::FieldAccess(id) => *id,
-            Expression::FunctionCall(id) => *id,
             Expression::Literal(id) => *id,
             Expression::Print(id) => *id,
             Expression::StructExpression(id) => *id,
             Expression::VariableExpression(id) => *id,
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
+    /// Navigate to [`Call`] across R29(1-Mc)
+    pub fn r29_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+        store
+            .iter_call()
+            .filter_map(|call| {
+                if call.expression == Some(self.id()) {
+                    Some(call)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-expression_statement"}}}
+    /// Navigate to [`ExpressionStatement`] across R31(1-M)
+    pub fn r31_expression_statement<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<&ExpressionStatement> {
+        store
+            .iter_expression_statement()
+            .filter_map(|expression_statement| {
+                if expression_statement.expression == self.id() {
+                    Some(expression_statement)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-field_access"}}}
@@ -162,21 +214,8 @@ impl Expression {
             .filter_map(|field_access| {
                 if field_access.expression == self.id() {
                     Some(field_access)
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-function_call"}}}
-    /// Navigate to [`FunctionCall`] across R29(1-Mc)
-    pub fn r29_function_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FunctionCall> {
-        store
-            .iter_function_call()
-            .filter_map(|function_call| {
-                if function_call.expression == Some(self.id()) {
-                    Some(function_call)
+                // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+                // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-function_call"}}}
                 } else {
                     None
                 }
@@ -194,6 +233,21 @@ impl Expression {
             Some(ref let_statement) => vec![let_statement],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
+    /// Navigate to [`Print`] across R32(1-M)
+    pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Print> {
+        store
+            .iter_print()
+            .filter_map(|print| {
+                if print.expression == self.id() {
+                    Some(print)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}

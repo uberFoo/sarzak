@@ -7,9 +7,7 @@ use snafu::prelude::*;
 
 use sarzak::{
     domain::DomainBuilder,
-    dwarf::{parse, populate_lu_dog},
-    sarzak::store::ObjectStore as SarzakStore,
-    v2::domain::Domain,
+    dwarf::{parse_dwarf, populate_lu_dog},
 };
 
 const TARGET_DIR: &str = "target";
@@ -110,7 +108,7 @@ fn main() -> Result<()> {
 
     let src = fs::read_to_string(&args.source).expect("Failed to read file");
 
-    let ast = parse(&src).expect("Failed to parse file");
+    let ast = parse_dwarf(&src).expect("Failed to parse file");
 
     let lu_dog =
         populate_lu_dog(&ast, model.sarzak(), sarzak.sarzak()).expect("Failed to populate lu_dog");

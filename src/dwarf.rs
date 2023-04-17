@@ -1,14 +1,19 @@
 use std::{fmt, ops, path::PathBuf};
 
 use ansi_term::Colour;
+use clap::Args;
+use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
+// use uuid::Uuid;
+
+use crate::lu_dog::types::Function;
 
 pub mod parser;
 pub mod parser_orig;
 pub mod walker;
 
-pub use parser::parse;
-pub use walker::populate_lu_dog;
+pub use parser::{parse_dwarf, parse_line};
+pub use walker::{inter_statement, populate_lu_dog};
 
 pub type Result<T, E = DwarfError> = std::result::Result<T, E>;
 
@@ -22,6 +27,7 @@ pub enum DwarfError {
     Parse { description: String, span: Span },
 }
 
+#[derive(Args, Clone, Debug, Deserialize, Serialize)]
 pub struct DwarfOptions {
     /// Dwarf Source File
     ///
@@ -87,6 +93,7 @@ impl fmt::Display for Token {
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Type {
     Boolean,
+    Empty,
     Float,
     Integer,
     Option(Box<Self>),
@@ -100,6 +107,7 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Boolean => write!(f, "bool"),
+            Self::Empty => write!(f, "()"),
             Self::Float => write!(f, "float"),
             Self::Integer => write!(f, "int"),
             Self::Option(type_) => write!(f, "Option<{}>", type_),
@@ -107,6 +115,43 @@ impl fmt::Display for Type {
             Self::String => write!(f, "string"),
             Self::UserType(type_) => write!(f, "{}", type_),
             Self::Uuid => write!(f, "Uuid"),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Value {
+    Boolean(bool),
+    Empty,
+    Float(f64),
+    Function(Function),
+    Integer(i64),
+    Option(Option<Box<Self>>),
+    // That means Self. Or, maybe self?
+    Reflexive,
+    String(String),
+    // Feels like we'll need to generate some code to make this work.
+    UserType,
+    Uuid(uuid::Uuid),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Boolean(bool_) => write!(f, "{}", bool_),
+            Self::Empty => write!(f, "()"),
+            Self::Float(num) => write!(f, "{}", num),
+            Self::Function(_) => write!(f, "<function>"),
+            Self::Integer(num) => write!(f, "{}", num),
+            Self::Option(option) => match option {
+                Some(value) => write!(f, "Some({})", value),
+                None => write!(f, "None"),
+            },
+            Self::Reflexive => write!(f, "self"),
+            Self::String(str_) => write!(f, "{}", str_),
+            // Self::String(str_) => write!(f, "\"{}\"", str_),
+            Self::UserType => write!(f, "UserType"),
+            Self::Uuid(uuid) => write!(f, "{}", uuid),
         }
     }
 }

@@ -28,6 +28,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 
     let double_colon = just::<char, char, Simple<char>>(':')
         .ignore_then(just(':'))
+        .padded_by(filter(|c: &char| c.is_whitespace()).repeated())
         .map(|_| Token::Punct('∷'));
 
     // A parser for operators
@@ -68,52 +69,6 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         _ => Token::Ident(ident),
     });
 
-    // let path = text::ident::<char, Simple<char>>()
-    //     .then(just(':').then(just(':')).or_not())
-    //     .repeated()
-    //     .map(|mut path| {
-    //         dbg!(&path);
-    //         path.into_iter().map(|(mut path, sep)| {
-    //             match sep {
-    //                 Some((sep, _)) => {
-    //                     path.extend([sep, sep].iter());
-    //                     dbg!(&path);
-    //                 }
-    //                 None => (),
-    //             }
-    //             path
-    //         })
-    //     })
-    //     .collect::<String>()
-    //     .map(|path| Token::Path(path));
-
-    // let path = filter::<_, _, Simple<char>>(|c: &char| c.is_alphanumeric())
-    //     // .repeated()
-    //     // This isn't quite right either -- it's up to the user not to fuck it up, I guess.
-    //     .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric() || *c == '/').repeated())
-    //     .collect::<String>()
-    //     .map(Token::Path);
-
-    // let path = path_segment
-    //     .repeated()
-    //     .at_least(1)
-    //     // .collect::<String>()
-    //     .map(|segments| {
-    //         let mut path = String::new();
-    //         for segment in segments {
-    //             eprintln!("{:?}", segment);
-    //             path.extend([segment]);
-    //         }
-    //         path
-    //     })
-    //     .map(Token::Path);
-
-    // let path = filter_map(|span: Span, tok| match tok {
-    //     Token::Ident(string) => Ok(string.clone()),
-    //     Token::Punct('∷') => Ok("::".to_string()),
-    //     _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    // });
-
     let option = just("Option").map(|_| Token::Option);
 
     // A single token can be one of the above
@@ -127,7 +82,6 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .or(option)
         .or(object)
         .or(ident)
-        // .or(path)
         .recover_with(skip_then_retry_until([]));
 
     let comment = just("//").then(take_until(just('\n'))).padded();
@@ -155,7 +109,11 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
 
         let self_ = just(Token::Self_).map(|_| Type::Self_(Box::new(Token::Self_)));
 
-        self_.or(option).or(type_)
+        let empty = just(Token::Punct('('))
+            .ignore_then(just(Token::Punct(')')))
+            .map(|_| Type::Empty);
+
+        self_.or(empty).or(option).or(type_)
     })
 }
 
@@ -457,7 +415,7 @@ fn impl_block_parser(
         _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
     });
 
-    let functions = fun_parser()
+    let functions = func_parser()
         .map_with_span(|name, span| (name, span))
         .repeated()
         .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
@@ -483,7 +441,7 @@ fn impl_block_parser(
         .labelled("implementation block")
 }
 
-fn fun_parser(
+fn func_parser(
 ) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
     let ident = filter_map(|span: Span, tok| match tok {
         Token::Ident(ident) => Ok(ident.clone()),
@@ -601,9 +559,12 @@ fn import_parser(
         .labelled("import")
 }
 
-fn item_parser(
+fn items_parser(
 ) -> impl Parser<Token, HashMap<(String, ItemKind), Item>, Error = Simple<Token>> + Clone {
-    let item = struct_parser().or(impl_block_parser()).or(import_parser());
+    let item = struct_parser()
+        .or(impl_block_parser())
+        .or(import_parser())
+        .or((func_parser()));
 
     item.repeated()
         .try_map(|items, _| {
@@ -621,6 +582,91 @@ fn item_parser(
         .then_ignore(end())
 }
 
+pub fn parse_line(src: &str) -> Option<Statement> {
+    let (tokens, errs) = lexer().parse_recovery(src);
+    let (ast, parse_errs) = if let Some(tokens) = tokens {
+        let len = src.chars().count();
+        let (ast, parse_errs) =
+            stmt_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+
+        (ast, parse_errs)
+    } else {
+        (None, Vec::new())
+    };
+
+    errs.into_iter()
+        .map(|e| e.map(|c| c.to_string()))
+        .chain(parse_errs.into_iter().map(|e| e.map(|tok| tok.to_string())))
+        .for_each(|e| {
+            let report = Report::build(ReportKind::Error, (), e.span().start);
+
+            let report = match e.reason() {
+                chumsky::error::SimpleReason::Unclosed { span, delimiter } => report
+                    .with_message(format!(
+                        "Unclosed delimiter {}",
+                        delimiter.fg(Color::Yellow)
+                    ))
+                    .with_label(
+                        Label::new(span.clone())
+                            .with_message(format!(
+                                "Unclosed delimiter {}",
+                                delimiter.fg(Color::Yellow)
+                            ))
+                            .with_color(Color::Yellow),
+                    )
+                    .with_label(
+                        Label::new(e.span())
+                            .with_message(format!(
+                                "Must be closed before this {}",
+                                e.found()
+                                    .unwrap_or(&"end of file".to_string())
+                                    .fg(Color::Red)
+                            ))
+                            .with_color(Color::Red),
+                    ),
+                chumsky::error::SimpleReason::Unexpected => report
+                    .with_message(format!(
+                        "{}, expected {}",
+                        if e.found().is_some() {
+                            "Unexpected token in input"
+                        } else {
+                            "Unexpected end of input"
+                        },
+                        if e.expected().len() == 0 {
+                            "something else".to_string()
+                        } else {
+                            e.expected()
+                                .map(|expected| match expected {
+                                    Some(expected) => expected.to_string(),
+                                    None => "end of input".to_string(),
+                                })
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        }
+                    ))
+                    .with_label(
+                        Label::new(e.span())
+                            .with_message(format!(
+                                "Unexpected token {}",
+                                e.found()
+                                    .unwrap_or(&"end of file".to_string())
+                                    .fg(Color::Red)
+                            ))
+                            .with_color(Color::Red),
+                    ),
+                chumsky::error::SimpleReason::Custom(msg) => report.with_message(msg).with_label(
+                    Label::new(e.span())
+                        .with_message(format!("{}", msg.fg(Color::Red)))
+                        .with_color(Color::Red),
+                ),
+            };
+
+            report.finish().print(Source::from(&src)).unwrap();
+        });
+
+    ast
+}
+
 // pub struct Error {
 // span: Span,
 // msg: String,
@@ -630,12 +676,12 @@ fn item_parser(
 //     src: &str,
 //     source: Option<P>,
 // ) -> Option<HashMap<(String, ItemKind), Item>> {
-pub fn parse(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
+pub fn parse_dwarf(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
     let (tokens, errs) = lexer().parse_recovery(src);
     let (ast, parse_errs) = if let Some(tokens) = tokens {
         let len = src.chars().count();
         let (ast, parse_errs) =
-            item_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+            items_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
 
         (ast, parse_errs)
     } else {
@@ -750,7 +796,7 @@ mod tests {
             struct Bar {}
         "#;
 
-        let ast = parse(src);
+        let ast = parse_dwarf(src);
 
         assert!(ast.is_some());
     }
@@ -762,7 +808,7 @@ mod tests {
             import foo::bar::baz;
         "#;
 
-        let ast = parse(src);
+        let ast = parse_dwarf(src);
 
         assert!(ast.is_some());
     }
@@ -811,7 +857,28 @@ mod tests {
             }
         "#;
 
-        let ast = parse(src);
+        let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_item_fn() {
+        let src = r#"
+            fn foo() -> int {
+                let a = 1;
+                let b = true;
+                let c = "Hello, World!";
+                let d = 3.14;
+                true
+            }
+
+            fn bar() -> () {
+                print("Hello World");
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
 
         assert!(ast.is_some());
     }

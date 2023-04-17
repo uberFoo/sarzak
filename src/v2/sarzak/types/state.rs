@@ -14,7 +14,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-definition"}}}
-#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct State {
     pub id: Uuid,
     pub name: String,

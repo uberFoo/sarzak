@@ -17,7 +17,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referrer-struct-definition"}}}
-#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Referrer {
     pub description: String,
     pub id: Uuid,

@@ -2,6 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-use-statements"}}}
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::some::Some;
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -22,6 +23,8 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct Value {
     pub subtype: ValueEnum,
     pub id: Uuid,
+    /// R33: [`Value`] '' [`Block`]
+    pub block: Uuid,
     /// R24: [`Value`] 'is decoded by a' [`ValueType`]
     pub ty: Uuid,
 }
@@ -37,11 +40,17 @@ pub enum ValueEnum {
 impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression"}}}
     /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_expression(ty: &ValueType, subtype: &Expression, store: &mut LuDogStore) -> Value {
+    pub fn new_expression(
+        block: &Block,
+        ty: &ValueType,
+        subtype: &Expression,
+        store: &mut LuDogStore,
+    ) -> Value {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id();
         let new = Value {
+            block: block.id,
             ty: ty.id(),
             subtype: ValueEnum::Expression(subtype.id()),
             id,
@@ -52,11 +61,12 @@ impl Value {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression_"}}}
     /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_expression_(ty: &ValueType, subtype: &Expression) -> Value {
+    pub fn new_expression_(block: &Block, ty: &ValueType, subtype: &Expression) -> Value {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id();
         let new = Value {
+            block: block.id,
             ty: ty.id(),
             subtype: ValueEnum::Expression(subtype.id()),
             id,
@@ -66,11 +76,17 @@ impl Value {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_variable(ty: &ValueType, subtype: &Variable, store: &mut LuDogStore) -> Value {
+    pub fn new_variable(
+        block: &Block,
+        ty: &ValueType,
+        subtype: &Variable,
+        store: &mut LuDogStore,
+    ) -> Value {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id;
         let new = Value {
+            block: block.id,
             ty: ty.id(),
             subtype: ValueEnum::Variable(subtype.id),
             id,
@@ -81,16 +97,23 @@ impl Value {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
     /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_variable_(ty: &ValueType, subtype: &Variable) -> Value {
+    pub fn new_variable_(block: &Block, ty: &ValueType, subtype: &Variable) -> Value {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id;
         let new = Value {
+            block: block.id,
             ty: ty.id(),
             subtype: ValueEnum::Variable(subtype.id),
             id,
         };
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-block"}}}
+    /// Navigate to [`Block`] across R33(1-*)
+    pub fn r33_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Block> {
+        vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-ty"}}}

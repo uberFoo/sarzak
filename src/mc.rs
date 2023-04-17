@@ -18,14 +18,15 @@ pub type Result<T, E = ModelCompilerError> = std::result::Result<T, E>;
 pub enum ModelCompilerError {
     #[snafu(display("ModelError: {}", description))]
     Model { description: String },
-    #[snafu(display("\n{}: {description}\n  --> {source}"))]
+    #[snafu(display("\n{}: {description}: {}:{}:{}\n  --> {source}", Colour::Red.bold().paint("error"), location.file, location.line, location.column))]
     IO {
         source: std::io::Error,
         description: String,
+        location: Location,
     },
     #[snafu(display("Format Error caused by {}", source))]
     Format { source: std::fmt::Error },
-    #[snafu(display("\n{backtrace}\n{}: {description}\n  --> {source} ({})", Colour::Red.bold().paint("error"), path.display()))]
+    #[snafu(display("\n{backtrace}\n{}: {description}: {}:{}:{}\n  --> {source} ({})", Colour::Red.bold().paint("error"), location.file, location.line, location.column, path.display()))]
     File {
         backtrace: Backtrace,
         location: Location,

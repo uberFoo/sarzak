@@ -2,6 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::empty::EMPTY;
+use crate::v2::lu_dog::types::error::Error;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::value::Value;
@@ -35,6 +36,8 @@ use uuid::Uuid;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueType {
     Empty(Uuid),
+    Error(Uuid),
+    Function(Uuid),
     WoogOption(Uuid),
     Ty(Uuid),
 }
@@ -46,6 +49,30 @@ impl ValueType {
     pub fn new_empty() -> Self {
         // This is already in the store, see associated function `new` above.
         Self::Empty(EMPTY)
+    }
+
+    /// Create a new instance of ValueType::Error
+    pub fn new_error(error: &Error, store: &mut LuDogStore) -> Self {
+        let new = Self::Error(error.id());
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_error_(error: &Error) -> Self {
+        let new = Self::Error(error.id());
+        new
+    }
+
+    /// Create a new instance of ValueType::Function
+    pub fn new_function(function: &Function, store: &mut LuDogStore) -> Self {
+        let new = Self::Function(function.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_function_(function: &Function) -> Self {
+        let new = Self::Function(function.id);
+        new
     }
 
     /// Create a new instance of ValueType::WoogOption
@@ -77,6 +104,8 @@ impl ValueType {
     pub fn id(&self) -> Uuid {
         match self {
             ValueType::Empty(id) => *id,
+            ValueType::Error(id) => *id,
+            ValueType::Function(id) => *id,
             ValueType::WoogOption(id) => *id,
             ValueType::Ty(id) => *id,
         }

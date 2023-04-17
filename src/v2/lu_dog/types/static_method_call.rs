@@ -2,7 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::function_call::FunctionCall;
+use crate::v2::lu_dog::types::call::Call;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -44,9 +44,10 @@ impl StaticMethodCall {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-impl-nav-subtype-to-supertype-function_call"}}}
-    // Navigate to [`FunctionCall`] across R30(isa)
-    pub fn r30_function_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FunctionCall> {
-        vec![store.exhume_function_call(&self.id).unwrap()]
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-impl-nav-subtype-to-supertype-call"}}}
+    // Navigate to [`Call`] across R30(isa)
+    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+        vec![store.exhume_call(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

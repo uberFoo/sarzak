@@ -4,8 +4,8 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::float_literal::FLOAT_LITERAL;
-use crate::v2::lu_dog::types::integer_literal::INTEGER_LITERAL;
-use crate::v2::lu_dog::types::string_literal::STRING_LITERAL;
+use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
+use crate::v2::lu_dog::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -47,15 +47,27 @@ impl Literal {
     }
 
     /// Create a new instance of Literal::IntegerLiteral
-    pub fn new_integer_literal() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::IntegerLiteral(INTEGER_LITERAL)
+    pub fn new_integer_literal(integer_literal: &IntegerLiteral, store: &mut LuDogStore) -> Self {
+        let new = Self::IntegerLiteral(integer_literal.id);
+        store.inter_literal(new.clone());
+        new
+    }
+
+    pub fn new_integer_literal_(integer_literal: &IntegerLiteral) -> Self {
+        let new = Self::IntegerLiteral(integer_literal.id);
+        new
     }
 
     /// Create a new instance of Literal::StringLiteral
-    pub fn new_string_literal() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::StringLiteral(STRING_LITERAL)
+    pub fn new_string_literal(string_literal: &StringLiteral, store: &mut LuDogStore) -> Self {
+        let new = Self::StringLiteral(string_literal.id);
+        store.inter_literal(new.clone());
+        new
+    }
+
+    pub fn new_string_literal_(string_literal: &StringLiteral) -> Self {
+        let new = Self::StringLiteral(string_literal.id);
+        new
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

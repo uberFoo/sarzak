@@ -2,8 +2,8 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-use-statements"}}}
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::call::Call;
 use crate::v2::lu_dog::types::expression::Expression;
-use crate::v2::lu_dog::types::function_call::FunctionCall;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -19,7 +19,7 @@ pub struct Argument {
     pub id: Uuid,
     /// R27: [`Argument`] 'follows' [`Argument`]
     pub next: Option<Uuid>,
-    /// R28: [`Argument`] 'is part of a' [`FunctionCall`]
+    /// R28: [`Argument`] 'is part of a' [`Call`]
     pub function: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -27,11 +27,7 @@ pub struct Argument {
 impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
-    pub fn new(
-        next: Option<&Argument>,
-        function: &FunctionCall,
-        store: &mut LuDogStore,
-    ) -> Argument {
+    pub fn new(next: Option<&Argument>, function: &Call, store: &mut LuDogStore) -> Argument {
         let id = Uuid::new_v4();
         let new = Argument {
             id: id,
@@ -44,7 +40,7 @@ impl Argument {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new_"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
-    pub fn new_(next: Option<&Argument>, function: &FunctionCall) -> Argument {
+    pub fn new_(next: Option<&Argument>, function: &Call) -> Argument {
         let id = Uuid::new_v4();
         let new = Argument {
             id: id,
@@ -64,9 +60,9 @@ impl Argument {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-function"}}}
-    /// Navigate to [`FunctionCall`] across R28(1-*)
-    pub fn r28_function_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FunctionCall> {
-        vec![store.exhume_function_call(&self.function).unwrap()]
+    /// Navigate to [`Call`] across R28(1-*)
+    pub fn r28_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+        vec![store.exhume_call(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-argument"}}}

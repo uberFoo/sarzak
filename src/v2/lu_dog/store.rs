@@ -10,15 +10,18 @@
 //! * [`Argument`]
 //! * [`Block`]
 //! * [`BooleanLiteral`]
+//! * [`Call`]
 //! * [`Error`]
+//! * [`ErrorExpression`]
 //! * [`Expression`]
+//! * [`ExpressionStatement`]
 //! * [`Field`]
 //! * [`FieldAccess`]
 //! * [`FieldExpression`]
 //! * [`Function`]
-//! * [`FunctionCall`]
 //! * [`Implementation`]
 //! * [`Import`]
+//! * [`IntegerLiteral`]
 //! * [`Item`]
 //! * [`LetStatement`]
 //! * [`Literal`]
@@ -26,14 +29,17 @@
 //! * [`MethodCall`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`Print`]
 //! * [`Some`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
+//! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
 //! * [`Value`]
 //! * [`ValueType`]
 //! * [`Variable`]
+//! * [`VariableExpression`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-definition"}}}
 use std::{
     fs,
@@ -48,11 +54,12 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Argument, Block, BooleanLiteral, Error, Expression, Field, FieldAccess, FieldExpression,
-    Function, FunctionCall, Implementation, Import, Item, LetStatement, Literal, LocalVariable,
-    MethodCall, Parameter, Some, Statement, StaticMethodCall, StructExpression, Value, ValueType,
-    Variable, WoogOption, WoogStruct, EMPTY, FALSE_LITERAL, FLOAT_LITERAL, INTEGER_LITERAL, PRINT,
-    STRING_LITERAL, TRUE_LITERAL, VARIABLE_EXPRESSION,
+    Argument, Block, BooleanLiteral, Call, Error, ErrorExpression, Expression, ExpressionStatement,
+    Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
+    LetStatement, Literal, LocalVariable, MethodCall, Parameter, Print, Some, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
+    VariableExpression, WoogOption, WoogStruct, EMPTY, FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL,
+    UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -60,15 +67,18 @@ pub struct ObjectStore {
     argument: HashMap<Uuid, (Argument, SystemTime)>,
     block: HashMap<Uuid, (Block, SystemTime)>,
     boolean_literal: HashMap<Uuid, (BooleanLiteral, SystemTime)>,
+    call: HashMap<Uuid, (Call, SystemTime)>,
     error: HashMap<Uuid, (Error, SystemTime)>,
+    error_expression: HashMap<Uuid, (ErrorExpression, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
+    expression_statement: HashMap<Uuid, (ExpressionStatement, SystemTime)>,
     field: HashMap<Uuid, (Field, SystemTime)>,
     field_access: HashMap<Uuid, (FieldAccess, SystemTime)>,
     field_expression: HashMap<Uuid, (FieldExpression, SystemTime)>,
     function: HashMap<Uuid, (Function, SystemTime)>,
-    function_call: HashMap<Uuid, (FunctionCall, SystemTime)>,
     implementation: HashMap<Uuid, (Implementation, SystemTime)>,
     import: HashMap<Uuid, (Import, SystemTime)>,
+    integer_literal: HashMap<Uuid, (IntegerLiteral, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
     let_statement: HashMap<Uuid, (LetStatement, SystemTime)>,
     literal: HashMap<Uuid, (Literal, SystemTime)>,
@@ -76,14 +86,17 @@ pub struct ObjectStore {
     method_call: HashMap<Uuid, (MethodCall, SystemTime)>,
     woog_option: HashMap<Uuid, (WoogOption, SystemTime)>,
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
+    print: HashMap<Uuid, (Print, SystemTime)>,
     some: HashMap<Uuid, (Some, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     static_method_call: HashMap<Uuid, (StaticMethodCall, SystemTime)>,
+    string_literal: HashMap<Uuid, (StringLiteral, SystemTime)>,
     woog_struct: HashMap<Uuid, (WoogStruct, SystemTime)>,
     struct_expression: HashMap<Uuid, (StructExpression, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     value_type: HashMap<Uuid, (ValueType, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
+    variable_expression: HashMap<Uuid, (VariableExpression, SystemTime)>,
 }
 
 impl ObjectStore {
@@ -92,15 +105,18 @@ impl ObjectStore {
             argument: HashMap::default(),
             block: HashMap::default(),
             boolean_literal: HashMap::default(),
+            call: HashMap::default(),
             error: HashMap::default(),
+            error_expression: HashMap::default(),
             expression: HashMap::default(),
+            expression_statement: HashMap::default(),
             field: HashMap::default(),
             field_access: HashMap::default(),
             field_expression: HashMap::default(),
             function: HashMap::default(),
-            function_call: HashMap::default(),
             implementation: HashMap::default(),
             import: HashMap::default(),
+            integer_literal: HashMap::default(),
             item: HashMap::default(),
             let_statement: HashMap::default(),
             literal: HashMap::default(),
@@ -108,14 +124,17 @@ impl ObjectStore {
             method_call: HashMap::default(),
             woog_option: HashMap::default(),
             parameter: HashMap::default(),
+            print: HashMap::default(),
             some: HashMap::default(),
             statement: HashMap::default(),
             static_method_call: HashMap::default(),
+            string_literal: HashMap::default(),
             woog_struct: HashMap::default(),
             struct_expression: HashMap::default(),
             value: HashMap::default(),
             value_type: HashMap::default(),
             variable: HashMap::default(),
+            variable_expression: HashMap::default(),
         };
 
         // Initialize Singleton Subtypes
@@ -124,6 +143,7 @@ impl ObjectStore {
         // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_boolean_literal(BooleanLiteral::FalseLiteral(FALSE_LITERAL));
         store.inter_boolean_literal(BooleanLiteral::TrueLiteral(TRUE_LITERAL));
+        store.inter_error(Error::UnknownVariable(UNKNOWN_VARIABLE));
         store.inter_expression(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
         ));
@@ -133,14 +153,6 @@ impl ObjectStore {
         store.inter_expression(Expression::Literal(
             Literal::FloatLiteral(FLOAT_LITERAL).id(),
         ));
-        store.inter_expression(Expression::Literal(
-            Literal::IntegerLiteral(INTEGER_LITERAL).id(),
-        ));
-        store.inter_expression(Expression::Literal(
-            Literal::StringLiteral(STRING_LITERAL).id(),
-        ));
-        store.inter_expression(Expression::Print(PRINT));
-        store.inter_expression(Expression::VariableExpression(VARIABLE_EXPRESSION));
         store.inter_literal(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ));
@@ -148,9 +160,10 @@ impl ObjectStore {
             BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
         ));
         store.inter_literal(Literal::FloatLiteral(FLOAT_LITERAL));
-        store.inter_literal(Literal::IntegerLiteral(INTEGER_LITERAL));
-        store.inter_literal(Literal::StringLiteral(STRING_LITERAL));
         store.inter_value_type(ValueType::Empty(EMPTY));
+        store.inter_value_type(ValueType::Error(
+            Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
+        ));
 
         store
     }
@@ -263,10 +276,43 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`Call`] into the store.
+    ///
+    pub fn inter_call(&mut self, call: Call) {
+        self.call.insert(call.id, (call, SystemTime::now()));
+    }
+
+    /// Exhume [`Call`] from the store.
+    ///
+    pub fn exhume_call(&self, id: &Uuid) -> Option<&Call> {
+        self.call.get(id).map(|call| &call.0)
+    }
+
+    /// Exhume [`Call`] from the store — mutably.
+    ///
+    pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
+        self.call.get_mut(id).map(|call| &mut call.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
+    ///
+    pub fn iter_call(&self) -> impl Iterator<Item = &Call> {
+        self.call.values().map(|call| &call.0)
+    }
+
+    /// Get the timestamp for Call.
+    ///
+    pub fn call_timestamp(&self, call: &Call) -> SystemTime {
+        self.call
+            .get(&call.id)
+            .map(|call| call.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Error`] into the store.
     ///
     pub fn inter_error(&mut self, error: Error) {
-        self.error.insert(error.id, (error, SystemTime::now()));
+        self.error.insert(error.id(), (error, SystemTime::now()));
     }
 
     /// Exhume [`Error`] from the store.
@@ -291,8 +337,48 @@ impl ObjectStore {
     ///
     pub fn error_timestamp(&self, error: &Error) -> SystemTime {
         self.error
-            .get(&error.id)
+            .get(&error.id())
             .map(|error| error.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`ErrorExpression`] into the store.
+    ///
+    pub fn inter_error_expression(&mut self, error_expression: ErrorExpression) {
+        self.error_expression
+            .insert(error_expression.id, (error_expression, SystemTime::now()));
+    }
+
+    /// Exhume [`ErrorExpression`] from the store.
+    ///
+    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<&ErrorExpression> {
+        self.error_expression
+            .get(id)
+            .map(|error_expression| &error_expression.0)
+    }
+
+    /// Exhume [`ErrorExpression`] from the store — mutably.
+    ///
+    pub fn exhume_error_expression_mut(&mut self, id: &Uuid) -> Option<&mut ErrorExpression> {
+        self.error_expression
+            .get_mut(id)
+            .map(|error_expression| &mut error_expression.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
+    ///
+    pub fn iter_error_expression(&self) -> impl Iterator<Item = &ErrorExpression> {
+        self.error_expression
+            .values()
+            .map(|error_expression| &error_expression.0)
+    }
+
+    /// Get the timestamp for ErrorExpression.
+    ///
+    pub fn error_expression_timestamp(&self, error_expression: &ErrorExpression) -> SystemTime {
+        self.error_expression
+            .get(&error_expression.id)
+            .map(|error_expression| error_expression.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -329,6 +415,54 @@ impl ObjectStore {
         self.expression
             .get(&expression.id())
             .map(|expression| expression.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`ExpressionStatement`] into the store.
+    ///
+    pub fn inter_expression_statement(&mut self, expression_statement: ExpressionStatement) {
+        self.expression_statement.insert(
+            expression_statement.id,
+            (expression_statement, SystemTime::now()),
+        );
+    }
+
+    /// Exhume [`ExpressionStatement`] from the store.
+    ///
+    pub fn exhume_expression_statement(&self, id: &Uuid) -> Option<&ExpressionStatement> {
+        self.expression_statement
+            .get(id)
+            .map(|expression_statement| &expression_statement.0)
+    }
+
+    /// Exhume [`ExpressionStatement`] from the store — mutably.
+    ///
+    pub fn exhume_expression_statement_mut(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<&mut ExpressionStatement> {
+        self.expression_statement
+            .get_mut(id)
+            .map(|expression_statement| &mut expression_statement.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
+    ///
+    pub fn iter_expression_statement(&self) -> impl Iterator<Item = &ExpressionStatement> {
+        self.expression_statement
+            .values()
+            .map(|expression_statement| &expression_statement.0)
+    }
+
+    /// Get the timestamp for ExpressionStatement.
+    ///
+    pub fn expression_statement_timestamp(
+        &self,
+        expression_statement: &ExpressionStatement,
+    ) -> SystemTime {
+        self.expression_statement
+            .get(&expression_statement.id)
+            .map(|expression_statement| expression_statement.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -479,46 +613,6 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`FunctionCall`] into the store.
-    ///
-    pub fn inter_function_call(&mut self, function_call: FunctionCall) {
-        self.function_call
-            .insert(function_call.id, (function_call, SystemTime::now()));
-    }
-
-    /// Exhume [`FunctionCall`] from the store.
-    ///
-    pub fn exhume_function_call(&self, id: &Uuid) -> Option<&FunctionCall> {
-        self.function_call
-            .get(id)
-            .map(|function_call| &function_call.0)
-    }
-
-    /// Exhume [`FunctionCall`] from the store — mutably.
-    ///
-    pub fn exhume_function_call_mut(&mut self, id: &Uuid) -> Option<&mut FunctionCall> {
-        self.function_call
-            .get_mut(id)
-            .map(|function_call| &mut function_call.0)
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, FunctionCall>`.
-    ///
-    pub fn iter_function_call(&self) -> impl Iterator<Item = &FunctionCall> {
-        self.function_call
-            .values()
-            .map(|function_call| &function_call.0)
-    }
-
-    /// Get the timestamp for FunctionCall.
-    ///
-    pub fn function_call_timestamp(&self, function_call: &FunctionCall) -> SystemTime {
-        self.function_call
-            .get(&function_call.id)
-            .map(|function_call| function_call.1)
-            .unwrap_or(SystemTime::now())
-    }
-
     /// Inter [`Implementation`] into the store.
     ///
     pub fn inter_implementation(&mut self, implementation: Implementation) {
@@ -589,6 +683,46 @@ impl ObjectStore {
         self.import
             .get(&import.id)
             .map(|import| import.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`IntegerLiteral`] into the store.
+    ///
+    pub fn inter_integer_literal(&mut self, integer_literal: IntegerLiteral) {
+        self.integer_literal
+            .insert(integer_literal.id, (integer_literal, SystemTime::now()));
+    }
+
+    /// Exhume [`IntegerLiteral`] from the store.
+    ///
+    pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<&IntegerLiteral> {
+        self.integer_literal
+            .get(id)
+            .map(|integer_literal| &integer_literal.0)
+    }
+
+    /// Exhume [`IntegerLiteral`] from the store — mutably.
+    ///
+    pub fn exhume_integer_literal_mut(&mut self, id: &Uuid) -> Option<&mut IntegerLiteral> {
+        self.integer_literal
+            .get_mut(id)
+            .map(|integer_literal| &mut integer_literal.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
+    ///
+    pub fn iter_integer_literal(&self) -> impl Iterator<Item = &IntegerLiteral> {
+        self.integer_literal
+            .values()
+            .map(|integer_literal| &integer_literal.0)
+    }
+
+    /// Get the timestamp for IntegerLiteral.
+    ///
+    pub fn integer_literal_timestamp(&self, integer_literal: &IntegerLiteral) -> SystemTime {
+        self.integer_literal
+            .get(&integer_literal.id)
+            .map(|integer_literal| integer_literal.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -845,6 +979,39 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`Print`] into the store.
+    ///
+    pub fn inter_print(&mut self, print: Print) {
+        self.print.insert(print.id, (print, SystemTime::now()));
+    }
+
+    /// Exhume [`Print`] from the store.
+    ///
+    pub fn exhume_print(&self, id: &Uuid) -> Option<&Print> {
+        self.print.get(id).map(|print| &print.0)
+    }
+
+    /// Exhume [`Print`] from the store — mutably.
+    ///
+    pub fn exhume_print_mut(&mut self, id: &Uuid) -> Option<&mut Print> {
+        self.print.get_mut(id).map(|print| &mut print.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
+    ///
+    pub fn iter_print(&self) -> impl Iterator<Item = &Print> {
+        self.print.values().map(|print| &print.0)
+    }
+
+    /// Get the timestamp for Print.
+    ///
+    pub fn print_timestamp(&self, print: &Print) -> SystemTime {
+        self.print
+            .get(&print.id)
+            .map(|print| print.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Some`] into the store.
     ///
     pub fn inter_some(&mut self, some: Some) {
@@ -954,6 +1121,46 @@ impl ObjectStore {
         self.static_method_call
             .get(&static_method_call.id)
             .map(|static_method_call| static_method_call.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`StringLiteral`] into the store.
+    ///
+    pub fn inter_string_literal(&mut self, string_literal: StringLiteral) {
+        self.string_literal
+            .insert(string_literal.id, (string_literal, SystemTime::now()));
+    }
+
+    /// Exhume [`StringLiteral`] from the store.
+    ///
+    pub fn exhume_string_literal(&self, id: &Uuid) -> Option<&StringLiteral> {
+        self.string_literal
+            .get(id)
+            .map(|string_literal| &string_literal.0)
+    }
+
+    /// Exhume [`StringLiteral`] from the store — mutably.
+    ///
+    pub fn exhume_string_literal_mut(&mut self, id: &Uuid) -> Option<&mut StringLiteral> {
+        self.string_literal
+            .get_mut(id)
+            .map(|string_literal| &mut string_literal.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
+    ///
+    pub fn iter_string_literal(&self) -> impl Iterator<Item = &StringLiteral> {
+        self.string_literal
+            .values()
+            .map(|string_literal| &string_literal.0)
+    }
+
+    /// Get the timestamp for StringLiteral.
+    ///
+    pub fn string_literal_timestamp(&self, string_literal: &StringLiteral) -> SystemTime {
+        self.string_literal
+            .get(&string_literal.id)
+            .map(|string_literal| string_literal.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1136,6 +1343,51 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`VariableExpression`] into the store.
+    ///
+    pub fn inter_variable_expression(&mut self, variable_expression: VariableExpression) {
+        self.variable_expression.insert(
+            variable_expression.id,
+            (variable_expression, SystemTime::now()),
+        );
+    }
+
+    /// Exhume [`VariableExpression`] from the store.
+    ///
+    pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<&VariableExpression> {
+        self.variable_expression
+            .get(id)
+            .map(|variable_expression| &variable_expression.0)
+    }
+
+    /// Exhume [`VariableExpression`] from the store — mutably.
+    ///
+    pub fn exhume_variable_expression_mut(&mut self, id: &Uuid) -> Option<&mut VariableExpression> {
+        self.variable_expression
+            .get_mut(id)
+            .map(|variable_expression| &mut variable_expression.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
+    ///
+    pub fn iter_variable_expression(&self) -> impl Iterator<Item = &VariableExpression> {
+        self.variable_expression
+            .values()
+            .map(|variable_expression| &variable_expression.0)
+    }
+
+    /// Get the timestamp for VariableExpression.
+    ///
+    pub fn variable_expression_timestamp(
+        &self,
+        variable_expression: &VariableExpression,
+    ) -> SystemTime {
+        self.variable_expression
+            .get(&variable_expression.id)
+            .map(|variable_expression| variable_expression.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-persistence"}}}
@@ -1258,12 +1510,46 @@ impl ObjectStore {
             }
         }
 
+        // Persist Call.
+        {
+            let path = path.join("call");
+            fs::create_dir_all(&path)?;
+            for call_tuple in self.call.values() {
+                let path = path.join(format!("{}.json", call_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Call, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != call_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.call.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Error.
         {
             let path = path.join("error");
             fs::create_dir_all(&path)?;
             for error_tuple in self.error.values() {
-                let path = path.join(format!("{}.json", error_tuple.0.id));
+                let path = path.join(format!("{}.json", error_tuple.0.id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
@@ -1286,6 +1572,40 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.error.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Error Expression.
+        {
+            let path = path.join("error_expression");
+            fs::create_dir_all(&path)?;
+            for error_expression_tuple in self.error_expression.values() {
+                let path = path.join(format!("{}.json", error_expression_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (ErrorExpression, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != error_expression_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.error_expression.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -1320,6 +1640,41 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.expression.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Expression Statement.
+        {
+            let path = path.join("expression_statement");
+            fs::create_dir_all(&path)?;
+            for expression_statement_tuple in self.expression_statement.values() {
+                let path = path.join(format!("{}.json", expression_statement_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (ExpressionStatement, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != expression_statement_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &expression_statement_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &expression_statement_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.expression_statement.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -1462,40 +1817,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Function Call.
-        {
-            let path = path.join("function_call");
-            fs::create_dir_all(&path)?;
-            for function_call_tuple in self.function_call.values() {
-                let path = path.join(format!("{}.json", function_call_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (FunctionCall, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != function_call_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &function_call_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &function_call_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.function_call.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
-            }
-        }
-
         // Persist Implementation.
         {
             let path = path.join("implementation");
@@ -1558,6 +1879,40 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.import.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Integer Literal.
+        {
+            let path = path.join("integer_literal");
+            fs::create_dir_all(&path)?;
+            for integer_literal_tuple in self.integer_literal.values() {
+                let path = path.join(format!("{}.json", integer_literal_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (IntegerLiteral, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != integer_literal_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.integer_literal.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -1802,6 +2157,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist Print.
+        {
+            let path = path.join("print");
+            fs::create_dir_all(&path)?;
+            for print_tuple in self.print.values() {
+                let path = path.join(format!("{}.json", print_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Print, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != print_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.print.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Some.
         {
             let path = path.join("some");
@@ -1898,6 +2287,40 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.static_method_call.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist String Literal.
+        {
+            let path = path.join("string_literal");
+            fs::create_dir_all(&path)?;
+            for string_literal_tuple in self.string_literal.values() {
+                let path = path.join(format!("{}.json", string_literal_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (StringLiteral, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != string_literal_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.string_literal.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -2074,6 +2497,41 @@ impl ObjectStore {
             }
         }
 
+        // Persist Variable Expression.
+        {
+            let path = path.join("variable_expression");
+            fs::create_dir_all(&path)?;
+            for variable_expression_tuple in self.variable_expression.values() {
+                let path = path.join(format!("{}.json", variable_expression_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (VariableExpression, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0 != variable_expression_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &variable_expression_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &variable_expression_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.variable_expression.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         Ok(())
     }
 
@@ -2133,6 +2591,20 @@ impl ObjectStore {
             }
         }
 
+        // Load Call.
+        {
+            let path = path.join("call");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let call: (Call, SystemTime) = serde_json::from_reader(reader)?;
+                store.call.insert(call.0.id, call);
+            }
+        }
+
         // Load Error.
         {
             let path = path.join("error");
@@ -2143,7 +2615,24 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let error: (Error, SystemTime) = serde_json::from_reader(reader)?;
-                store.error.insert(error.0.id, error);
+                store.error.insert(error.0.id(), error);
+            }
+        }
+
+        // Load Error Expression.
+        {
+            let path = path.join("error_expression");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let error_expression: (ErrorExpression, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .error_expression
+                    .insert(error_expression.0.id, error_expression);
             }
         }
 
@@ -2158,6 +2647,23 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let expression: (Expression, SystemTime) = serde_json::from_reader(reader)?;
                 store.expression.insert(expression.0.id(), expression);
+            }
+        }
+
+        // Load Expression Statement.
+        {
+            let path = path.join("expression_statement");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let expression_statement: (ExpressionStatement, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .expression_statement
+                    .insert(expression_statement.0.id, expression_statement);
             }
         }
 
@@ -2220,22 +2726,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Function Call.
-        {
-            let path = path.join("function_call");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let function_call: (FunctionCall, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .function_call
-                    .insert(function_call.0.id, function_call);
-            }
-        }
-
         // Load Implementation.
         {
             let path = path.join("implementation");
@@ -2263,6 +2753,23 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let import: (Import, SystemTime) = serde_json::from_reader(reader)?;
                 store.import.insert(import.0.id, import);
+            }
+        }
+
+        // Load Integer Literal.
+        {
+            let path = path.join("integer_literal");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let integer_literal: (IntegerLiteral, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .integer_literal
+                    .insert(integer_literal.0.id, integer_literal);
             }
         }
 
@@ -2368,6 +2875,20 @@ impl ObjectStore {
             }
         }
 
+        // Load Print.
+        {
+            let path = path.join("print");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let print: (Print, SystemTime) = serde_json::from_reader(reader)?;
+                store.print.insert(print.0.id, print);
+            }
+        }
+
         // Load Some.
         {
             let path = path.join("some");
@@ -2410,6 +2931,22 @@ impl ObjectStore {
                 store
                     .static_method_call
                     .insert(static_method_call.0.id, static_method_call);
+            }
+        }
+
+        // Load String Literal.
+        {
+            let path = path.join("string_literal");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let string_literal: (StringLiteral, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .string_literal
+                    .insert(string_literal.0.id, string_literal);
             }
         }
 
@@ -2483,6 +3020,23 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
                 store.variable.insert(variable.0.id, variable);
+            }
+        }
+
+        // Load Variable Expression.
+        {
+            let path = path.join("variable_expression");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let variable_expression: (VariableExpression, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .variable_expression
+                    .insert(variable_expression.0.id, variable_expression);
             }
         }
 
