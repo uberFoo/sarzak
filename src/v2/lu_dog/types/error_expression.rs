@@ -12,7 +12,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// An Error...
 ///
 /// I'm not sure what to do with this.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

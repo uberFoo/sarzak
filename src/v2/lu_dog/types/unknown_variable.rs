@@ -7,7 +7,6 @@ use uuid::{uuid, Uuid};
 /// Unknown Variable
 ///
 /// A variable was (de)referenced, and it was not found.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unknown_variable-const-definition"}}}
 pub const UNKNOWN_VARIABLE: Uuid = uuid!["e8216f8f-db62-541a-89fc-a4fdc4434e96"];

@@ -10,7 +10,6 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-struct-documentation"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-enum-documentation"}}}
 /// A type to signify an Error condition
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-struct-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-enum-definition"}}}

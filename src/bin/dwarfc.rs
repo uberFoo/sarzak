@@ -80,6 +80,8 @@ fn find_package_dir(start_dir: &Option<PathBuf>) -> Result<PathBuf> {
 }
 
 fn main() -> Result<()> {
+    pretty_env_logger::init();
+
     let args = Args::parse();
 
     let model = DomainBuilder::new()

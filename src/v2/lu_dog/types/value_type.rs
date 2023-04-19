@@ -5,6 +5,9 @@ use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::error::Error;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
+use crate::v2::lu_dog::types::list::List;
+use crate::v2::lu_dog::types::reference::Reference;
+use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::sarzak::types::ty::Ty;
@@ -16,21 +19,20 @@ use uuid::Uuid;
 /// Value Type
 ///
 /// This is the main type abstraction used in Lu Dog. We mostly rely on what is available in
-/// Sarzak, with two additions: ...
+///  Sarzak, with two additions: ...
 ///
 /// Two? I know that I need an Option<>. I'm not so sure about a & though. Everything from the
-/// store is going to be by UUID, so all of my references are really "pointers" underneath.
-/// I want them to be typed in the code though.
+///  store is going to be by UUID, so all of my references are really "pointers" underneath.
+///  I want them to be typed in the code though.
 ///
 /// So how will the code work? We could store the type next to the pointer: (type, uuid). Huh
-///. This is the eventual output domain. How does that affect my thinking?
+/// . This is the eventual output domain. How does that affect my thinking?
 ///
 /// This should end up looking like woog, but simpler. Woog was for generating rust. I want
-/// to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually
-///?
+///  to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually
+/// ?
 ///
 /// Option for now. We'll see later...
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -38,8 +40,11 @@ pub enum ValueType {
     Empty(Uuid),
     Error(Uuid),
     Function(Uuid),
+    List(Uuid),
     WoogOption(Uuid),
+    Reference(Uuid),
     Ty(Uuid),
+    Unknown(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
@@ -75,6 +80,18 @@ impl ValueType {
         new
     }
 
+    /// Create a new instance of ValueType::List
+    pub fn new_list(list: &List, store: &mut LuDogStore) -> Self {
+        let new = Self::List(list.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_list_(list: &List) -> Self {
+        let new = Self::List(list.id);
+        new
+    }
+
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(woog_option: &WoogOption, store: &mut LuDogStore) -> Self {
         let new = Self::WoogOption(woog_option.id);
@@ -84,6 +101,18 @@ impl ValueType {
 
     pub fn new_woog_option_(woog_option: &WoogOption) -> Self {
         let new = Self::WoogOption(woog_option.id);
+        new
+    }
+
+    /// Create a new instance of ValueType::Reference
+    pub fn new_reference(reference: &Reference, store: &mut LuDogStore) -> Self {
+        let new = Self::Reference(reference.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_reference_(reference: &Reference) -> Self {
+        let new = Self::Reference(reference.id);
         new
     }
 
@@ -99,6 +128,12 @@ impl ValueType {
         new
     }
 
+    /// Create a new instance of ValueType::Unknown
+    pub fn new_unknown() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Unknown(UNKNOWN)
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
@@ -106,8 +141,11 @@ impl ValueType {
             ValueType::Empty(id) => *id,
             ValueType::Error(id) => *id,
             ValueType::Function(id) => *id,
+            ValueType::List(id) => *id,
             ValueType::WoogOption(id) => *id,
+            ValueType::Reference(id) => *id,
             ValueType::Ty(id) => *id,
+            ValueType::Unknown(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -143,6 +181,21 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-some"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-list"}}}
+    /// Navigate to [`List`] across R36(1-M)
+    pub fn r36_list<'a>(&'a self, store: &'a LuDogStore) -> Vec<&List> {
+        store
+            .iter_list()
+            .filter_map(|list| {
+                if list.ty == self.id() {
+                    Some(list)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
     /// Navigate to [`WoogOption`] across R2(1-M)
     pub fn r2_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogOption> {
@@ -151,6 +204,21 @@ impl ValueType {
             .filter_map(|woog_option| {
                 if woog_option.ty == self.id() {
                     Some(woog_option)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
+    /// Navigate to [`Reference`] across R35(1-M)
+    pub fn r35_reference<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Reference> {
+        store
+            .iter_reference()
+            .filter_map(|reference| {
+                if reference.ty == self.id() {
+                    Some(reference)
                 } else {
                     None
                 }

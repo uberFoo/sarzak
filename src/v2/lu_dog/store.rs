@@ -24,12 +24,15 @@
 //! * [`IntegerLiteral`]
 //! * [`Item`]
 //! * [`LetStatement`]
+//! * [`List`]
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`MethodCall`]
+//! * [`ObjectStore`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
 //! * [`Print`]
+//! * [`Reference`]
 //! * [`Some`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -49,17 +52,16 @@ use std::{
 };
 
 use fnv::FnvHashMap as HashMap;
-use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
     Argument, Block, BooleanLiteral, Call, Error, ErrorExpression, Expression, ExpressionStatement,
     Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
-    LetStatement, Literal, LocalVariable, MethodCall, Parameter, Print, Some, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
+    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference, Some,
+    Statement, StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
     VariableExpression, WoogOption, WoogStruct, EMPTY, FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL,
-    UNKNOWN_VARIABLE,
+    UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -81,12 +83,14 @@ pub struct ObjectStore {
     integer_literal: HashMap<Uuid, (IntegerLiteral, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
     let_statement: HashMap<Uuid, (LetStatement, SystemTime)>,
+    list: HashMap<Uuid, (List, SystemTime)>,
     literal: HashMap<Uuid, (Literal, SystemTime)>,
     local_variable: HashMap<Uuid, (LocalVariable, SystemTime)>,
     method_call: HashMap<Uuid, (MethodCall, SystemTime)>,
     woog_option: HashMap<Uuid, (WoogOption, SystemTime)>,
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     print: HashMap<Uuid, (Print, SystemTime)>,
+    reference: HashMap<Uuid, (Reference, SystemTime)>,
     some: HashMap<Uuid, (Some, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     static_method_call: HashMap<Uuid, (StaticMethodCall, SystemTime)>,
@@ -119,12 +123,14 @@ impl ObjectStore {
             integer_literal: HashMap::default(),
             item: HashMap::default(),
             let_statement: HashMap::default(),
+            list: HashMap::default(),
             literal: HashMap::default(),
             local_variable: HashMap::default(),
             method_call: HashMap::default(),
             woog_option: HashMap::default(),
             parameter: HashMap::default(),
             print: HashMap::default(),
+            reference: HashMap::default(),
             some: HashMap::default(),
             statement: HashMap::default(),
             static_method_call: HashMap::default(),
@@ -164,6 +170,7 @@ impl ObjectStore {
         store.inter_value_type(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
         ));
+        store.inter_value_type(ValueType::Unknown(UNKNOWN));
 
         store
     }
@@ -799,6 +806,39 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`List`] into the store.
+    ///
+    pub fn inter_list(&mut self, list: List) {
+        self.list.insert(list.id, (list, SystemTime::now()));
+    }
+
+    /// Exhume [`List`] from the store.
+    ///
+    pub fn exhume_list(&self, id: &Uuid) -> Option<&List> {
+        self.list.get(id).map(|list| &list.0)
+    }
+
+    /// Exhume [`List`] from the store — mutably.
+    ///
+    pub fn exhume_list_mut(&mut self, id: &Uuid) -> Option<&mut List> {
+        self.list.get_mut(id).map(|list| &mut list.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, List>`.
+    ///
+    pub fn iter_list(&self) -> impl Iterator<Item = &List> {
+        self.list.values().map(|list| &list.0)
+    }
+
+    /// Get the timestamp for List.
+    ///
+    pub fn list_timestamp(&self, list: &List) -> SystemTime {
+        self.list
+            .get(&list.id)
+            .map(|list| list.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Literal`] into the store.
     ///
     pub fn inter_literal(&mut self, literal: Literal) {
@@ -909,8 +949,6 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`WoogOption`] into the store.
-    ///
     pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
         self.woog_option
             .insert(woog_option.id, (woog_option, SystemTime::now()));
@@ -1009,6 +1047,40 @@ impl ObjectStore {
         self.print
             .get(&print.id)
             .map(|print| print.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Reference`] into the store.
+    ///
+    pub fn inter_reference(&mut self, reference: Reference) {
+        self.reference
+            .insert(reference.id, (reference, SystemTime::now()));
+    }
+
+    /// Exhume [`Reference`] from the store.
+    ///
+    pub fn exhume_reference(&self, id: &Uuid) -> Option<&Reference> {
+        self.reference.get(id).map(|reference| &reference.0)
+    }
+
+    /// Exhume [`Reference`] from the store — mutably.
+    ///
+    pub fn exhume_reference_mut(&mut self, id: &Uuid) -> Option<&mut Reference> {
+        self.reference.get_mut(id).map(|reference| &mut reference.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
+    ///
+    pub fn iter_reference(&self) -> impl Iterator<Item = &Reference> {
+        self.reference.values().map(|reference| &reference.0)
+    }
+
+    /// Get the timestamp for Reference.
+    ///
+    pub fn reference_timestamp(&self, reference: &Reference) -> SystemTime {
+        self.reference
+            .get(&reference.id)
+            .map(|reference| reference.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1987,6 +2059,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist List.
+        {
+            let path = path.join("list");
+            fs::create_dir_all(&path)?;
+            for list_tuple in self.list.values() {
+                let path = path.join(format!("{}.json", list_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (List, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != list_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.list.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Literal.
         {
             let path = path.join("literal");
@@ -2185,6 +2291,40 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.print.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Reference.
+        {
+            let path = path.join("reference");
+            fs::create_dir_all(&path)?;
+            for reference_tuple in self.reference.values() {
+                let path = path.join(format!("{}.json", reference_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Reference, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != reference_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.reference.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -2803,6 +2943,20 @@ impl ObjectStore {
             }
         }
 
+        // Load List.
+        {
+            let path = path.join("list");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let list: (List, SystemTime) = serde_json::from_reader(reader)?;
+                store.list.insert(list.0.id, list);
+            }
+        }
+
         // Load Literal.
         {
             let path = path.join("literal");
@@ -2886,6 +3040,20 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let print: (Print, SystemTime) = serde_json::from_reader(reader)?;
                 store.print.insert(print.0.id, print);
+            }
+        }
+
+        // Load Reference.
+        {
+            let path = path.join("reference");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let reference: (Reference, SystemTime) = serde_json::from_reader(reader)?;
+                store.reference.insert(reference.0.id, reference);
             }
         }
 

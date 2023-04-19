@@ -12,8 +12,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// An Import of a foreign ObjectStore
 ///
 /// This indicates to the downstream model compiler that it needs to emit code to load the imported
-/// ObjectStore.
-///
+///  ObjectStore.
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

@@ -15,7 +15,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// An Optional Type
 ///
 /// This type is either `None` or `Some(`[Type]`)`.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-enum-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-hybrid-struct-definition"}}}

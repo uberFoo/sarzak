@@ -16,7 +16,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Value
 ///
 /// A value has a Type.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

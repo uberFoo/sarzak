@@ -12,7 +12,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Struct Field Access
 ///
 /// Think dotted notation.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

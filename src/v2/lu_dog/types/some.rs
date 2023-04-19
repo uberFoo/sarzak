@@ -13,8 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// Some Type
 ///
 /// This type wraps another. It's used by the supertype, `[Option]`, to represent a type that
-/// may or may not exist.
-///
+///  may or may not exist.
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"some-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

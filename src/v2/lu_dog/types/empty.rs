@@ -7,8 +7,7 @@ use uuid::{uuid, Uuid};
 /// The Empty Type
 ///
 /// This type represents the lack of a type. It's actually sort of a werid construct, because
-/// it also implies the lack of a value. How can you have a value without a type?
-///
+///  it also implies the lack of a value. How can you have a value without a type?
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"empty-const-definition"}}}
 pub const EMPTY: Uuid = uuid!["ea81f072-96fe-5426-9bc3-c0419e448fe5"];

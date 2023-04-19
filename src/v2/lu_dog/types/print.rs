@@ -13,7 +13,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Print Expression?
 ///
 /// Shold this be a statement?
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-struct-definition"}}}

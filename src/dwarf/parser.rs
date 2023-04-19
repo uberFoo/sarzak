@@ -1,6 +1,6 @@
-use std::path::Path;
+use core::ops::Range;
 
-use ariadne::{sources, Color, Fmt, Label, Report, ReportKind, Source};
+use ariadne::{Color, Fmt, Label, Report, ReportKind, Source};
 use chumsky::{prelude::*, stream::Stream};
 use fnv::FnvHashMap as HashMap;
 
@@ -39,7 +39,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .map(Token::Op);
 
     // A parser for punctuation (delimiters, semicolons, etc.)
-    let punct = one_of("()[]{}:;,.<>").map(|c| Token::Punct(c));
+    let punct = one_of("()[]{}:;,.&<>").map(|c| Token::Punct(c));
 
     // A "Object type" parser. Basically I'm asserting that if an identifier starts
     // with a capital letter, then it's an object.
@@ -57,11 +57,12 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "fn" => Token::Fn,
         // "if" => Token::If,
         "impl" => Token::Impl,
-        "import" => Token::Import,
+        "use" => Token::Import,
         "int" => Token::Type(Type::Integer),
         "let" => Token::Let,
         "print" => Token::Print,
         "Self" => Token::Self_,
+        "self" => Token::SmallSelf,
         "string" => Token::Type(Type::String),
         "struct" => Token::Struct,
         "true" => Token::Bool(true),
@@ -95,11 +96,17 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 
 fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
     recursive(|type_| {
-        let type_ = filter_map(|span: Span, tok| match tok {
+        let basic_type = filter_map(|span: Span, tok| match tok {
             Token::Type(type_) => Ok(type_.clone()),
             Token::Object(ident) => Ok(Type::UserType(Box::new(Token::Object(ident.clone())))),
             _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
         });
+
+        let reference = just(Token::Punct('&'))
+            .ignore_then(basic_type.clone())
+            .map(|type_| Type::Reference(Box::new(type_)));
+
+        let type_ = basic_type.or(reference);
 
         let option = just(Token::Option)
             .ignore_then(just(Token::Punct('<')))
@@ -107,13 +114,18 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
             .then_ignore(just(Token::Punct('>')))
             .map(|type_| Type::Option(Box::new(type_)));
 
+        let list = type_
+            .clone()
+            .delimited_by(just(Token::Punct('[')), just(Token::Punct(']')))
+            .map(|type_| Type::List(Box::new(type_)));
+
         let self_ = just(Token::Self_).map(|_| Type::Self_(Box::new(Token::Self_)));
 
         let empty = just(Token::Punct('('))
             .ignore_then(just(Token::Punct(')')))
             .map(|_| Type::Empty);
 
-        self_.or(empty).or(option).or(type_)
+        self_.or(empty).or(option).or(list).or(type_)
     })
 }
 
@@ -129,10 +141,19 @@ fn stmt_parser() -> impl Parser<Token, Statement, Error = Simple<Token>> + Clone
                 .map_with_span(|ident, span| (ident, span))
                 .labelled("variable name"),
         )
+        .then(
+            just(Token::Punct(':'))
+                .ignore_then(
+                    type_parser()
+                        .map_with_span(|name, span| (name, span))
+                        .labelled("param name"),
+                )
+                .or_not(),
+        )
         .then_ignore(just(Token::Op("=".to_string())))
         .then(expr_parser())
         .then_ignore(just(Token::Punct(';')))
-        .map(|(name, expr)| Statement::Let(name, expr));
+        .map(|((name, ty), expr)| Statement::Let(name, ty, expr));
 
     let expr = expr_parser()
         .then_ignore(just(Token::Punct(';')))
@@ -160,19 +181,29 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
             });
 
+            // let reference = just(Token::Punct('&')).ignore_then(expr.clone());
+
             // A list of expressions
             let items = expr
                 .clone()
+                // .or(reference)
                 .separated_by(just(Token::Punct(',')))
                 .allow_trailing();
+
+            let list = items
+                .clone()
+                .delimited_by(just(Token::Punct('[')), just(Token::Punct(']')))
+                .map(Expression::List);
 
             // 'Atoms' are expressions that contain no ambiguity
             let atom = literal
                 .or(ident.map(Expression::LocalVariable))
-                // In Nano Rust, `print` is just a keyword, just like Python 2, for simplicity
+                .or(list)
+                // In dwarf, `print` is just a keyword, just like Python 2, for simplicity
                 .or(just(Token::Print)
                     .ignore_then(
                         expr.clone()
+                            .then_ignore(just(Token::Punct(',')).or_not())
                             .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))),
                     )
                     .map(|expr| Expression::Print(Box::new(expr))))
@@ -190,7 +221,9 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                         (Token::Punct('{'), Token::Punct('}')),
                     ],
                     |span| (Expression::Error, span),
-                ));
+                ))
+                // I tried using reference, and got errors.
+                .or(just(Token::Punct('&')).ignore_then(expr.clone()));
 
             let field_access = atom
                 .clone()
@@ -448,16 +481,28 @@ fn func_parser(
         _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
     });
 
+    let ref_self = just::<_, _, Simple<_>>(Token::Punct('&'))
+        .ignore_then(just(Token::SmallSelf))
+        .map_with_span(|_, span| (Token::SmallSelf.to_string(), span))
+        .map(|name| {
+            (
+                name,
+                (Type::Self_(Box::new(Token::SmallSelf)), Range::default()),
+            )
+        });
+
     let param = ident
         .clone()
-        .map_with_span(|type_, span| (type_, span))
-        .labelled("param type")
+        // .or(ref_self)
+        .map_with_span(|name, span| (name, span))
+        .labelled("param name")
         .then_ignore(just(Token::Punct(':')))
         .then(
             type_parser()
-                .map_with_span(|name, span| (name, span))
-                .labelled("param name"),
+                .map_with_span(|type_, span| (type_, span))
+                .labelled("param type"),
         )
+        .or(ref_self)
         .map(|(name, type_)| (name, type_));
 
     let params = param
@@ -804,8 +849,8 @@ mod tests {
     #[test]
     fn test_import() {
         let src = r#"
-            import foo;
-            import foo::bar::baz;
+            use foo;
+            use foo::bar::baz;
         "#;
 
         let ast = parse_dwarf(src);
@@ -875,6 +920,27 @@ mod tests {
 
             fn bar() -> () {
                 print("Hello World");
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_reference() {
+        let src = r#"
+            fn foo() -> () {
+                let a = &b;
+            }
+
+            fn fun() -> () {}
+
+            fn bar(a: &int) -> [&Bar] {}
+
+            impl Bar {
+                fn baz(&self) -> () {}
             }
         "#;
 

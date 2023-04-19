@@ -12,7 +12,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Struct Field Expression
 ///
 /// This assigns a value to a field in a structure.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

@@ -16,25 +16,26 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 /// A Type from the Model
 ///
 /// This is really just an alias for `[Object]`.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct WoogStruct {
     pub id: Uuid,
+    pub name: String,
     /// R4: [`WoogStruct`] 'represents an' [`Object`]
-    pub object: Uuid,
+    pub object: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-implementation"}}}
 impl WoogStruct {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-new"}}}
     /// Inter a new 'Struct' in the store, and return it's `id`.
-    pub fn new(object: &Object, store: &mut LuDogStore) -> WoogStruct {
+    pub fn new(name: String, object: Option<&Object>, store: &mut LuDogStore) -> WoogStruct {
         let id = Uuid::new_v4();
         let new = WoogStruct {
             id: id,
-            object: object.id,
+            name: name,
+            object: object.map(|object| object.id),
         };
         store.inter_woog_struct(new.clone());
         new
@@ -42,19 +43,24 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-new_"}}}
     /// Inter a new 'Struct' in the store, and return it's `id`.
-    pub fn new_(object: &Object) -> WoogStruct {
+    pub fn new_(name: String, object: Option<&Object>) -> WoogStruct {
         let id = Uuid::new_v4();
         let new = WoogStruct {
             id: id,
-            object: object.id,
+            name: name,
+            object: object.map(|object| object.id),
         };
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-to-object"}}}
-    /// Navigate to [`Object`] across R4(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
+    /// Navigate to [`Object`] across R4(1-*c)
     pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
-        vec![store.exhume_object(&self.object).unwrap()]
+        match self.object {
+            Some(ref object) => vec![store.exhume_object(object).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field"}}}

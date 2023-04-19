@@ -14,7 +14,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Let Statement
 ///
 /// This statement assigns a value from an expression to a local variable.
-///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

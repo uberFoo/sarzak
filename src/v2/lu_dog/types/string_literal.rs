@@ -13,8 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A String
 ///
 /// A string is a set of characters enclosed in double quotes. Strings are unicode strings encoded
-/// as UTF-8.
-///
+///  as UTF-8.
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-struct-definition"}}}
