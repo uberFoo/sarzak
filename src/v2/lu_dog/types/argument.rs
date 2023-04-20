@@ -20,18 +20,26 @@ pub struct Argument {
     pub next: Option<Uuid>,
     /// R28: [`Argument`] 'is part of a' [`Call`]
     pub function: Uuid,
+    /// R37: [`Argument`] '' [`Expression`]
+    pub expression: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-implementation"}}}
 impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
-    pub fn new(next: Option<&Argument>, function: &Call, store: &mut LuDogStore) -> Argument {
+    pub fn new(
+        next: Option<&Argument>,
+        function: &Call,
+        expression: &Expression,
+        store: &mut LuDogStore,
+    ) -> Argument {
         let id = Uuid::new_v4();
         let new = Argument {
             id: id,
             next: next.map(|argument| argument.id),
             function: function.id,
+            expression: expression.id(),
         };
         store.inter_argument(new.clone());
         new
@@ -39,12 +47,13 @@ impl Argument {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new_"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
-    pub fn new_(next: Option<&Argument>, function: &Call) -> Argument {
+    pub fn new_(next: Option<&Argument>, function: &Call, expression: &Expression) -> Argument {
         let id = Uuid::new_v4();
         let new = Argument {
             id: id,
             next: next.map(|argument| argument.id),
             function: function.id,
+            expression: expression.id(),
         };
         new
     }
@@ -64,6 +73,12 @@ impl Argument {
         vec![store.exhume_call(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-expression"}}}
+    /// Navigate to [`Expression`] across R37(1-*)
+    pub fn r37_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+        vec![store.exhume_expression(&self.expression).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R27(1c-1c)
     pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
@@ -74,12 +89,8 @@ impl Argument {
             Some(ref argument) => vec![argument],
             None => Vec::new(),
         }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-impl-nav-subtype-to-supertype-expression"}}}
-    // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-impl-nav-subtype-to-supertype-expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

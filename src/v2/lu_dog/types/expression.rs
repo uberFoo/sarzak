@@ -7,6 +7,7 @@ use crate::v2::lu_dog::types::call::Call;
 use crate::v2::lu_dog::types::error_expression::ErrorExpression;
 use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
+use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::print::Print;
@@ -25,7 +26,6 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
-    Argument(Uuid),
     Block(Uuid),
     Call(Uuid),
     ErrorExpression(Uuid),
@@ -39,18 +39,6 @@ pub enum Expression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
-    /// Create a new instance of Expression::Argument
-    pub fn new_argument(argument: &Argument, store: &mut LuDogStore) -> Self {
-        let new = Self::Argument(argument.id);
-        store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_argument_(argument: &Argument) -> Self {
-        let new = Self::Argument(argument.id);
-        new
-    }
-
     /// Create a new instance of Expression::Block
     pub fn new_block(block: &Block, store: &mut LuDogStore) -> Self {
         let new = Self::Block(block.id);
@@ -160,7 +148,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Expression::Argument(id) => *id,
             Expression::Block(id) => *id,
             Expression::Call(id) => *id,
             Expression::ErrorExpression(id) => *id,
@@ -170,6 +157,21 @@ impl Expression {
             Expression::StructExpression(id) => *id,
             Expression::VariableExpression(id) => *id,
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-argument"}}}
+    /// Navigate to [`Argument`] across R37(1-M)
+    pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
+        store
+            .iter_argument()
+            .filter_map(|argument| {
+                if argument.expression == self.id() {
+                    Some(argument)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
@@ -215,6 +217,21 @@ impl Expression {
                     Some(field_access)
                 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
                 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-function_call"}}}
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-field_expression"}}}
+    /// Navigate to [`FieldExpression`] across R38(1-M)
+    pub fn r38_field_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FieldExpression> {
+        store
+            .iter_field_expression()
+            .filter_map(|field_expression| {
+                if field_expression.expression == self.id() {
+                    Some(field_expression)
                 } else {
                     None
                 }

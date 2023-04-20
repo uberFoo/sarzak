@@ -46,6 +46,7 @@ pub mod variable;
 pub mod variable_expression;
 pub mod woog_option;
 pub mod woog_struct;
+pub mod z_object_store;
 
 pub use crate::v2::lu_dog::argument::Argument;
 pub use crate::v2::lu_dog::block::Block;
@@ -108,4 +109,5 @@ pub use crate::v2::lu_dog::woog_option::WoogOption;
 pub use crate::v2::lu_dog::woog_option::WoogOptionEnum;
 pub use crate::v2::lu_dog::woog_struct::WoogStruct;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+pub use crate::v2::lu_dog::z_object_store::ZObjectStore;
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

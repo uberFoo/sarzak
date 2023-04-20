@@ -18,7 +18,7 @@ use crate::{
             StringLiteral, StructExpression, Value, ValueEnum, ValueType, Variable,
             VariableExpression, WoogOption, WoogStruct,
         },
-        List, MethodCall, Reference,
+        Argument, List, MethodCall, Reference,
     },
     sarzak::{
         store::ObjectStore as SarzakStore,
@@ -32,6 +32,18 @@ macro_rules! link_parameter {
             let mut last = $store.exhume_parameter(&last).unwrap().clone();
             last.next = Some($next.id);
             $store.inter_parameter(last);
+        }
+
+        Some($next.id)
+    }};
+}
+
+macro_rules! link_argument {
+    ($last:expr, $next:expr, $store:expr) => {{
+        if let Some(last) = $last {
+            let mut last = $store.exhume_argument(&last).unwrap().clone();
+            last.next = Some($next.id);
+            $store.inter_argument(last);
         }
 
         Some($next.id)
@@ -236,6 +248,8 @@ fn inter_func(
 
     let mut last_param_uuid: Option<Uuid> = None;
     for ((param_name, _), (param_ty, _)) in params {
+        debug!("inter_func name", param_name);
+        debug!("inter_func ty", param_ty);
         let param = Parameter::new(&func, None, lu_dog);
         let var = Variable::new_parameter(param_name.to_owned(), &param, lu_dog);
         // 🚧 We'll need to do something about this soon. Actually, it never belonged
@@ -357,10 +371,19 @@ fn inter_expression(
             debug!("ParserExpression::FunctionCall", func);
             let func = &func.0;
             let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
+            debug!("ParserExpression::FunctionCall", params);
             let (func_expr, ret_ty) = inter_expression(&func, &block, lu_dog, model, sarzak);
-            let func = FunctionCall::new();
-            let func = Call::new_function_call(Some(&func_expr), lu_dog);
-            let func = Expression::new_call(&func, lu_dog);
+            let func_call = Call::new_function_call(Some(&func_expr), lu_dog);
+            let func = Expression::new_call(&func_call, lu_dog);
+
+            let mut last_arg_uuid: Option<Uuid> = None;
+
+            for param in params {
+                let (arg_expr, ty) = inter_expression(param, &block, lu_dog, model, sarzak);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &func_call, &arg_expr, lu_dog);
+                last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
+            }
 
             (func, ret_ty)
         }
@@ -531,16 +554,19 @@ fn inter_expression(
 
             (expr, ty)
         }
-        ParserExpression::StringLiteral(literal) => (
-            Expression::new_literal(
-                &Literal::new_string_literal(
-                    &StringLiteral::new(literal.to_owned(), lu_dog),
+        ParserExpression::StringLiteral(literal) => {
+            debug!("ParserExpression::StringLiteral", literal);
+            (
+                Expression::new_literal(
+                    &Literal::new_string_literal(
+                        &StringLiteral::new(literal.to_owned(), lu_dog),
+                        lu_dog,
+                    ),
                     lu_dog,
                 ),
-                lu_dog,
-            ),
-            ValueType::new_ty(&Ty::new_s_string(), lu_dog),
-        ),
+                ValueType::new_ty(&Ty::new_s_string(), lu_dog),
+            )
+        }
         ParserExpression::Struct((name, _), fields) => {
             let name = if let Token::Object(name) = name {
                 name.de_sanitize()
@@ -551,10 +577,17 @@ fn inter_expression(
 
             let expr = StructExpression::new(Uuid::new_v4(), lu_dog);
             let mut last_field_uuid: Option<Uuid> = None;
-            fields.iter().map(|((name, _), _)| name).for_each(|name| {
-                let field = FieldExpression::new(name.to_owned(), None, &expr, lu_dog);
-                last_field_uuid = link_field_expr!(last_field_uuid, field, lu_dog);
-            });
+            fields
+                .iter()
+                .map(|((name, _), (field_expr, _))| (name, field_expr))
+                .for_each(|(name, field_expr)| {
+                    // 🚧 Do type checking here? I don't think that I have what I need.
+                    let (field_expr, _) =
+                        inter_expression(field_expr, &block, lu_dog, model, sarzak);
+                    let field =
+                        FieldExpression::new(name.to_owned(), &field_expr, None, &expr, lu_dog);
+                    last_field_uuid = link_field_expr!(last_field_uuid, field, lu_dog);
+                });
 
             // model.iter_object().for_each(|o| debug!("object", o.name));
 
@@ -700,6 +733,8 @@ fn get_value_type(
                 }
             } else if name == "ObjectStore" {
                 ValueType::new_empty()
+            } else if name == "String" {
+                ValueType::new_ty(&Ty::new_s_string(), lu_dog)
             } else
             // Look for the Object in the model domain first.
             if let Some(ty) = model.iter_ty().find(|ty| match ty {

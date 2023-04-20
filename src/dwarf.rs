@@ -62,6 +62,7 @@ pub enum Token {
     Import,
     Integer(String),
     Let,
+    None,
     // This is a type that starts with a capital letter. It's special. 💩
     Object(String),
     Op(String),
@@ -70,6 +71,7 @@ pub enum Token {
     Punct(char),
     Self_,
     SmallSelf,
+    Some,
     String(String),
     Struct,
     Type(Type),
@@ -86,6 +88,7 @@ impl fmt::Display for Token {
             Self::Import => write!(f, "import"),
             Self::Integer(num) => write!(f, "{}", num),
             Self::Let => write!(f, "let"),
+            Self::None => write!(f, "None"),
             Self::Object(object) => write!(f, "{}", object),
             Self::Op(op) => write!(f, "{}", op),
             Self::Option => write!(f, "Option"),
@@ -93,6 +96,7 @@ impl fmt::Display for Token {
             Self::Punct(punct) => write!(f, "{}", punct),
             Self::Self_ => write!(f, "Self"),
             Self::SmallSelf => write!(f, "self"),
+            Self::Some => write!(f, "Some"),
             Self::String(str_) => write!(f, "{}", str_),
             Self::Struct => write!(f, "struct"),
             Self::Type(type_) => write!(f, "{}", type_),
@@ -264,12 +268,12 @@ pub enum Expression {
     List(Vec<Spanned<Self>>),
     LocalVariable(String),
     MethodCall(Box<Spanned<Self>>, Spanned<String>, Vec<Spanned<Self>>),
+    None,
     Print(Box<Spanned<Self>>),
+    Some(Box<Spanned<Self>>),
     /// Static Method Call
     ///
     /// E.g., `Foo::bar()`.
-    ///
-    ///
     StaticMethodCall(Spanned<Token>, Spanned<String>, Vec<Spanned<Self>>),
     /// String Literal
     ///

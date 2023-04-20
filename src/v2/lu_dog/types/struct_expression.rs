@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
+use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -19,25 +20,41 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct StructExpression {
     pub bug: Uuid,
     pub id: Uuid,
+    /// R39: [`StructExpression`] '' [`WoogStruct`]
+    pub woog_struct: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-implementation"}}}
 impl StructExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-new"}}}
     /// Inter a new 'Struct Expression' in the store, and return it's `id`.
-    pub fn new(bug: Uuid, store: &mut LuDogStore) -> StructExpression {
+    pub fn new(bug: Uuid, woog_struct: &WoogStruct, store: &mut LuDogStore) -> StructExpression {
         let id = Uuid::new_v4();
-        let new = StructExpression { bug: bug, id: id };
+        let new = StructExpression {
+            bug: bug,
+            id: id,
+            woog_struct: woog_struct.id,
+        };
         store.inter_struct_expression(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-new_"}}}
     /// Inter a new 'Struct Expression' in the store, and return it's `id`.
-    pub fn new_(bug: Uuid) -> StructExpression {
+    pub fn new_(bug: Uuid, woog_struct: &WoogStruct) -> StructExpression {
         let id = Uuid::new_v4();
-        let new = StructExpression { bug: bug, id: id };
+        let new = StructExpression {
+            bug: bug,
+            id: id,
+            woog_struct: woog_struct.id,
+        };
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-woog_struct"}}}
+    /// Navigate to [`WoogStruct`] across R39(1-*)
+    pub fn r39_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogStruct> {
+        vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-backward-1_M-to-field_expression"}}}

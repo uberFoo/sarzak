@@ -2,6 +2,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-use-statements"}}}
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,8 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct FieldExpression {
     pub id: Uuid,
     pub name: String,
+    /// R38: [`FieldExpression`] '' [`Expression`]
+    pub expression: Uuid,
     /// R25: [`FieldExpression`] 'follows' [`FieldExpression`]
     pub next: Option<Uuid>,
     /// R26: [`FieldExpression`] 'belongs to a' [`StructExpression`]
@@ -30,6 +33,7 @@ impl FieldExpression {
     /// Inter a new 'Field Expression' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        expression: &Expression,
         next: Option<&FieldExpression>,
         woog_struct: &StructExpression,
         store: &mut LuDogStore,
@@ -38,6 +42,7 @@ impl FieldExpression {
         let new = FieldExpression {
             id: id,
             name: name,
+            expression: expression.id(),
             next: next.map(|field_expression| field_expression.id),
             woog_struct: woog_struct.id,
         };
@@ -49,6 +54,7 @@ impl FieldExpression {
     /// Inter a new 'Field Expression' in the store, and return it's `id`.
     pub fn new_(
         name: String,
+        expression: &Expression,
         next: Option<&FieldExpression>,
         woog_struct: &StructExpression,
     ) -> FieldExpression {
@@ -56,10 +62,17 @@ impl FieldExpression {
         let new = FieldExpression {
             id: id,
             name: name,
+            expression: expression.id(),
             next: next.map(|field_expression| field_expression.id),
             woog_struct: woog_struct.id,
         };
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-expression"}}}
+    /// Navigate to [`Expression`] across R38(1-*)
+    pub fn r38_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+        vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-cond-to-next"}}}

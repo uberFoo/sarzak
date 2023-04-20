@@ -28,7 +28,7 @@
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`MethodCall`]
-//! * [`ObjectStore`]
+//! * [`ZObjectStore`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
 //! * [`Print`]
@@ -60,8 +60,8 @@ use crate::v2::lu_dog::types::{
     Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
     LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference, Some,
     Statement, StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
-    VariableExpression, WoogOption, WoogStruct, EMPTY, FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL,
-    UNKNOWN, UNKNOWN_VARIABLE,
+    VariableExpression, WoogOption, WoogStruct, ZObjectStore, EMPTY, FALSE_LITERAL, FLOAT_LITERAL,
+    TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -87,6 +87,7 @@ pub struct ObjectStore {
     literal: HashMap<Uuid, (Literal, SystemTime)>,
     local_variable: HashMap<Uuid, (LocalVariable, SystemTime)>,
     method_call: HashMap<Uuid, (MethodCall, SystemTime)>,
+    z_object_store: HashMap<Uuid, (ZObjectStore, SystemTime)>,
     woog_option: HashMap<Uuid, (WoogOption, SystemTime)>,
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     print: HashMap<Uuid, (Print, SystemTime)>,
@@ -127,6 +128,7 @@ impl ObjectStore {
             literal: HashMap::default(),
             local_variable: HashMap::default(),
             method_call: HashMap::default(),
+            z_object_store: HashMap::default(),
             woog_option: HashMap::default(),
             parameter: HashMap::default(),
             print: HashMap::default(),
@@ -949,6 +951,48 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`ZObjectStore`] into the store.
+    ///
+    pub fn inter_z_object_store(&mut self, z_object_store: ZObjectStore) {
+        self.z_object_store
+            .insert(z_object_store.id, (z_object_store, SystemTime::now()));
+    }
+
+    /// Exhume [`ZObjectStore`] from the store.
+    ///
+    pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<&ZObjectStore> {
+        self.z_object_store
+            .get(id)
+            .map(|z_object_store| &z_object_store.0)
+    }
+
+    /// Exhume [`ZObjectStore`] from the store — mutably.
+    ///
+    pub fn exhume_z_object_store_mut(&mut self, id: &Uuid) -> Option<&mut ZObjectStore> {
+        self.z_object_store
+            .get_mut(id)
+            .map(|z_object_store| &mut z_object_store.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
+    ///
+    pub fn iter_z_object_store(&self) -> impl Iterator<Item = &ZObjectStore> {
+        self.z_object_store
+            .values()
+            .map(|z_object_store| &z_object_store.0)
+    }
+
+    /// Get the timestamp for ZObjectStore.
+    ///
+    pub fn z_object_store_timestamp(&self, z_object_store: &ZObjectStore) -> SystemTime {
+        self.z_object_store
+            .get(&z_object_store.id)
+            .map(|z_object_store| z_object_store.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`WoogOption`] into the store.
+    ///
     pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
         self.woog_option
             .insert(woog_option.id, (woog_option, SystemTime::now()));
@@ -2195,6 +2239,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist Object Store.
+        {
+            let path = path.join("z_object_store");
+            fs::create_dir_all(&path)?;
+            for z_object_store_tuple in self.z_object_store.values() {
+                let path = path.join(format!("{}.json", z_object_store_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (ZObjectStore, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != z_object_store_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.z_object_store.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Option.
         {
             let path = path.join("woog_option");
@@ -2998,6 +3076,22 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let method_call: (MethodCall, SystemTime) = serde_json::from_reader(reader)?;
                 store.method_call.insert(method_call.0.id, method_call);
+            }
+        }
+
+        // Load Object Store.
+        {
+            let path = path.join("z_object_store");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let z_object_store: (ZObjectStore, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .z_object_store
+                    .insert(z_object_store.0.id, z_object_store);
             }
         }
 

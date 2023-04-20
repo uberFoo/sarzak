@@ -48,6 +48,11 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .collect::<String>()
         .map(Token::Object);
 
+    // let some = just::<char, &str, Simple<char>>("Some")
+    //     .then_ignore(just('('))
+    //     .then(filter(|c: &char| *c != ')').repeated().collect::<String>())
+    //     .map(|inner| Token::Some(inner.1));
+
     // A parser for identifiers and keywords
     let ident = text::ident().map(|ident: String| match ident.as_str() {
         "bool" => Token::Type(Type::Boolean),
@@ -57,16 +62,18 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "fn" => Token::Fn,
         // "if" => Token::If,
         "impl" => Token::Impl,
-        "use" => Token::Import,
         "int" => Token::Type(Type::Integer),
         "let" => Token::Let,
+        "None" => Token::None,
         "print" => Token::Print,
         "Self" => Token::Self_,
         "self" => Token::SmallSelf,
+        "Some" => Token::Some,
         "string" => Token::Type(Type::String),
         "struct" => Token::Struct,
         "true" => Token::Bool(true),
         "Uuid" => Token::Type(Type::Uuid),
+        "use" => Token::Import,
         _ => Token::Ident(ident),
     });
 
@@ -82,6 +89,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .or(punct)
         .or(option)
         .or(object)
+        // .or(some)
         .or(ident)
         .recover_with(skip_then_retry_until([]));
 
@@ -175,6 +183,21 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
             }
             .labelled("literal");
 
+            let some = just(Token::Some)
+                .then(
+                    expr.clone()
+                        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))),
+                )
+                .map(|(_tok, expr)| {
+                    dbg!(&expr);
+                    Expression::Some(Box::new(expr))
+                })
+                .labelled("Some");
+
+            let none = just::<_, _, Simple<Token>>(Token::None)
+                .map(|_| Expression::None)
+                .labelled("None");
+
             let ident = select! { Token::Ident(ident) => ident.clone() }.labelled("identifier");
             let object = filter_map(|span: Span, tok| match tok {
                 Token::Object(ident) => Ok(Token::Object(ident.clone())),
@@ -182,6 +205,13 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
             });
 
             // let reference = just(Token::Punct('&')).ignore_then(expr.clone());
+
+            // let none = select! { Token::None => Expression::None }.labelled("none");
+            // let some = select! { Token::Some(inner) => {
+            // let expr = expr_parser(inner);
+            // Expression::Some(Box::new(expr))
+            // }}
+            // .labelled("some");
 
             // A list of expressions
             let items = expr
@@ -197,6 +227,8 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             // 'Atoms' are expressions that contain no ambiguity
             let atom = literal
+                .or(some)
+                .or(none)
                 .or(ident.map(Expression::LocalVariable))
                 .or(list)
                 // In dwarf, `print` is just a keyword, just like Python 2, for simplicity
@@ -267,6 +299,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                         .repeated(),
                 )
                 .map(|((obj, method), args)| {
+                    // dbg!(&obj, &method, &args);
                     let args = &args[0];
                     let span = obj.1.start..args.1.end;
                     (
@@ -609,7 +642,7 @@ fn items_parser(
     let item = struct_parser()
         .or(impl_block_parser())
         .or(import_parser())
-        .or((func_parser()));
+        .or(func_parser());
 
     item.repeated()
         .try_map(|items, _| {
@@ -941,6 +974,35 @@ mod tests {
 
             impl Bar {
                 fn baz(&self) -> () {}
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_list() {
+        let src = r#"
+            fn foo() -> [int] {
+                let a = [1, 2, 3];
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_option() {
+        let src = r#"
+            fn foo() -> [int] {
+                let a = 123;
+                let b = Some (42);
+                let a = None;
+                call(a, b, None, Some(42));
             }
         "#;
 

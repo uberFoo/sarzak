@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
 
@@ -88,6 +89,21 @@ impl WoogStruct {
             Some(ref implementation) => vec![implementation],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
+    /// Navigate to [`StructExpression`] across R39(1-M)
+    pub fn r39_struct_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&StructExpression> {
+        store
+            .iter_struct_expression()
+            .filter_map(|struct_expression| {
+                if struct_expression.woog_struct == self.id {
+                    Some(struct_expression)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

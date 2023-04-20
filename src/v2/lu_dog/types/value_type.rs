@@ -10,6 +10,7 @@ use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
+use crate::v2::lu_dog::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -41,6 +42,7 @@ pub enum ValueType {
     Error(Uuid),
     Function(Uuid),
     List(Uuid),
+    ZObjectStore(Uuid),
     WoogOption(Uuid),
     Reference(Uuid),
     Ty(Uuid),
@@ -89,6 +91,18 @@ impl ValueType {
 
     pub fn new_list_(list: &List) -> Self {
         let new = Self::List(list.id);
+        new
+    }
+
+    /// Create a new instance of ValueType::ZObjectStore
+    pub fn new_z_object_store(z_object_store: &ZObjectStore, store: &mut LuDogStore) -> Self {
+        let new = Self::ZObjectStore(z_object_store.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_z_object_store_(z_object_store: &ZObjectStore) -> Self {
+        let new = Self::ZObjectStore(z_object_store.id);
         new
     }
 
@@ -142,6 +156,7 @@ impl ValueType {
             ValueType::Error(id) => *id,
             ValueType::Function(id) => *id,
             ValueType::List(id) => *id,
+            ValueType::ZObjectStore(id) => *id,
             ValueType::WoogOption(id) => *id,
             ValueType::Reference(id) => *id,
             ValueType::Ty(id) => *id,
