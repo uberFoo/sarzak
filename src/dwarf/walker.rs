@@ -193,6 +193,7 @@ fn walk_tree(
 
     // Put the type information in first.
     for ConveyStruct { name, fields } in structs {
+        debug!("Intering struct {}", name);
         inter_struct(&name, &fields, lu_dog, model, sarzak);
     }
 
@@ -569,13 +570,21 @@ fn inter_expression(
         }
         ParserExpression::Struct((name, _), fields) => {
             let name = if let Token::Object(name) = name {
-                name.de_sanitize()
+                // name.de_sanitize()
+                name
             } else {
                 panic!("I don't think that we should ever see anything other than an object here: {:?}", name);
             };
             debug!("ParserExpression::Struct", name);
 
-            let expr = StructExpression::new(Uuid::new_v4(), lu_dog);
+            // dbg!(&lu_dog.iter_woog_struct().collect::<Vec<_>>());
+
+            // Here we don't de_sanitize the name, and we are looking it up in the
+            // dwarf model.
+            let struct_id = lu_dog.exhume_woog_struct_id_by_name(name).unwrap();
+            let woog_struct = lu_dog.exhume_woog_struct(&struct_id).unwrap().clone();
+
+            let expr = StructExpression::new(Uuid::new_v4(), &woog_struct, lu_dog);
             let mut last_field_uuid: Option<Uuid> = None;
             fields
                 .iter()
@@ -591,7 +600,9 @@ fn inter_expression(
 
             // model.iter_object().for_each(|o| debug!("object", o.name));
 
-            let obj = model.exhume_object_id_by_name(name).unwrap();
+            // Same name, de_sanitized, in a different model. Oh, right, this is
+            // the source model. What's going on above?
+            let obj = model.exhume_object_id_by_name(name.de_sanitize()).unwrap();
             let ty = model.exhume_ty(&obj).unwrap();
 
             (
@@ -667,6 +678,7 @@ fn inter_struct(
         .expect(&format!("Object {} not found", s_name));
 
     let mt = WoogStruct::new(name.to_owned(), Some(&obj), lu_dog);
+    let _ty = ValueType::new_woog_struct(&mt, lu_dog);
     for ((name, _), (type_, _)) in fields {
         let name = name.de_sanitize();
 
@@ -693,6 +705,10 @@ fn get_value_type(
             ValueType::new_ty(&ty, lu_dog)
         }
         Type::Empty => ValueType::new_empty(),
+        Type::Float => {
+            let ty = Ty::new_float();
+            ValueType::new_ty(&ty, lu_dog)
+        }
         Type::Integer => {
             let ty = Ty::new_integer();
             ValueType::new_ty(&ty, lu_dog)
@@ -710,7 +726,7 @@ fn get_value_type(
         Type::Reference(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, model, sarzak);
             // We don't know the address yet -- we'll fix it in the interpreter.
-            let reference = Reference::new(Uuid::new_v4(), &inner_type, lu_dog);
+            let reference = Reference::new(Uuid::new_v4(), false, &inner_type, lu_dog);
             ValueType::new_reference(&reference, lu_dog)
         }
         Type::String => {
@@ -798,6 +814,9 @@ fn de_sanitize(string: &str) -> Option<&str> {
         "FalseLiteral" => Some("False"),
         "True Literal" => Some("True"),
         "TrueLiteral" => Some("True"),
+        "XSuper" => Some("Super"),
+        "XBox" => Some("Box"),
+        "ZObjectStore" => Some("ObjectStore"),
         _ => None,
     }
 }

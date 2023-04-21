@@ -13,6 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Local Variable Expression
 ///
 /// This is what happens when a variable is an r-value.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable_expression-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable_expression-struct-definition"}}}

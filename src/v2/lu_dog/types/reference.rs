@@ -12,12 +12,14 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Reference to a Type
 ///
 /// This type depends on instance pointers being unique.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Reference {
     pub address: Uuid,
     pub id: Uuid,
+    pub is_valid: bool,
     /// R35: [`Reference`] '' [`ValueType`]
     pub ty: Uuid,
 }
@@ -26,11 +28,12 @@ pub struct Reference {
 impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new(address: Uuid, ty: &ValueType, store: &mut LuDogStore) -> Reference {
+    pub fn new(address: Uuid, is_valid: bool, ty: &ValueType, store: &mut LuDogStore) -> Reference {
         let id = Uuid::new_v4();
         let new = Reference {
             address: address,
             id: id,
+            is_valid: is_valid,
             ty: ty.id(),
         };
         store.inter_reference(new.clone());
@@ -39,11 +42,12 @@ impl Reference {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new_"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new_(address: Uuid, ty: &ValueType) -> Reference {
+    pub fn new_(address: Uuid, is_valid: bool, ty: &ValueType) -> Reference {
         let id = Uuid::new_v4();
         let new = Reference {
             address: address,
             id: id,
+            is_valid: is_valid,
             ty: ty.id(),
         };
         new

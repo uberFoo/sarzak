@@ -12,6 +12,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A List
 ///
 /// This is like an array, I guess. It's also like a `Vec<T>`.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

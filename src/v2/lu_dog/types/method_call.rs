@@ -13,6 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 ///
 /// This is when you call a function on an instance of a struct. The name attribute is the name
 ///  of the method.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

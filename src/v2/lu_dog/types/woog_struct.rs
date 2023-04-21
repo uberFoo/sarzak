@@ -6,6 +6,7 @@ use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
+use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
 
@@ -17,6 +18,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 /// A Type from the Model
 ///
 /// This is really just an alias for `[Object]`.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -110,6 +112,12 @@ impl WoogStruct {
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Item> {
         vec![store.exhume_item(&self.id).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+        vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

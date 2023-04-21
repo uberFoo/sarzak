@@ -13,6 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Local Variable in a Block
 ///
 /// Note that a variable is an "l-value", so it represents a specific memory location.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

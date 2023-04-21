@@ -13,6 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// An Integer
 ///
 /// I'm not sure what to do about width. I think I coded it as an i64 in the parser.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-struct-definition"}}}

@@ -16,6 +16,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A variable in a function. It may be either a local variable or a parameter.
 ///
 /// A variable has a name, and and indirectly, via [`Value`], a type.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

@@ -12,6 +12,7 @@ use uuid::Uuid;
 /// A Boolean
 ///
 /// It's either `true` or `false`.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

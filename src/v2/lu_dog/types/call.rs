@@ -15,6 +15,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-documentation"}}}
 /// A Call, of some sort
 ///
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

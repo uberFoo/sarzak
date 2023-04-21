@@ -10,6 +10,7 @@ use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
+use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ use uuid::Uuid;
 /// ?
 ///
 /// Option for now. We'll see later...
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -45,6 +47,7 @@ pub enum ValueType {
     ZObjectStore(Uuid),
     WoogOption(Uuid),
     Reference(Uuid),
+    WoogStruct(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
 }
@@ -130,6 +133,18 @@ impl ValueType {
         new
     }
 
+    /// Create a new instance of ValueType::WoogStruct
+    pub fn new_woog_struct(woog_struct: &WoogStruct, store: &mut LuDogStore) -> Self {
+        let new = Self::WoogStruct(woog_struct.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_woog_struct_(woog_struct: &WoogStruct) -> Self {
+        let new = Self::WoogStruct(woog_struct.id);
+        new
+    }
+
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: &Ty, store: &mut LuDogStore) -> Self {
         let new = Self::Ty(ty.id());
@@ -159,6 +174,7 @@ impl ValueType {
             ValueType::ZObjectStore(id) => *id,
             ValueType::WoogOption(id) => *id,
             ValueType::Reference(id) => *id,
+            ValueType::WoogStruct(id) => *id,
             ValueType::Ty(id) => *id,
             ValueType::Unknown(id) => *id,
         }

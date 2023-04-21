@@ -7,6 +7,7 @@ use uuid::{uuid, Uuid};
 /// True Literal
 ///
 /// The literal `true`.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-const-definition"}}}
 pub const TRUE_LITERAL: Uuid = uuid!["acf0b446-36cc-5862-ba90-bf3fa3e6de05"];

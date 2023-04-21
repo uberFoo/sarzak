@@ -24,6 +24,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// The `bug` attribute is there to force the compiler to generate code. Apparently there's
 ///  some bug in grace that's causing this to be generated as a const. I don't want to get into
 ///  it, and this is the most expedient solution.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

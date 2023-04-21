@@ -13,6 +13,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A Field in a data structure
 ///
 /// A field has a name, and a type.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

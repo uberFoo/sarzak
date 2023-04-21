@@ -52,6 +52,7 @@ use std::{
 };
 
 use fnv::FnvHashMap as HashMap;
+use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -97,6 +98,7 @@ pub struct ObjectStore {
     static_method_call: HashMap<Uuid, (StaticMethodCall, SystemTime)>,
     string_literal: HashMap<Uuid, (StringLiteral, SystemTime)>,
     woog_struct: HashMap<Uuid, (WoogStruct, SystemTime)>,
+    woog_struct_id_by_name: HashMap<String, (Uuid, SystemTime)>,
     struct_expression: HashMap<Uuid, (StructExpression, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     value_type: HashMap<Uuid, (ValueType, SystemTime)>,
@@ -138,6 +140,7 @@ impl ObjectStore {
             static_method_call: HashMap::default(),
             string_literal: HashMap::default(),
             woog_struct: HashMap::default(),
+            woog_struct_id_by_name: HashMap::default(),
             struct_expression: HashMap::default(),
             value: HashMap::default(),
             value_type: HashMap::default(),
@@ -1283,8 +1286,10 @@ impl ObjectStore {
     /// Inter [`WoogStruct`] into the store.
     ///
     pub fn inter_woog_struct(&mut self, woog_struct: WoogStruct) {
-        self.woog_struct
-            .insert(woog_struct.id, (woog_struct, SystemTime::now()));
+        let value = (woog_struct, SystemTime::now());
+        self.woog_struct_id_by_name
+            .insert(value.0.name.to_upper_camel_case(), (value.0.id, value.1));
+        self.woog_struct.insert(value.0.id, value);
     }
 
     /// Exhume [`WoogStruct`] from the store.
@@ -1299,6 +1304,14 @@ impl ObjectStore {
         self.woog_struct
             .get_mut(id)
             .map(|woog_struct| &mut woog_struct.0)
+    }
+
+    /// Exhume [`WoogStruct`] from the store by name.
+    ///
+    pub fn exhume_woog_struct_id_by_name(&self, name: &str) -> Option<&Uuid> {
+        self.woog_struct_id_by_name
+            .get(name)
+            .map(|woog_struct| &woog_struct.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogStruct>`.
@@ -3222,6 +3235,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let woog_struct: (WoogStruct, SystemTime) = serde_json::from_reader(reader)?;
+                store.woog_struct_id_by_name.insert(
+                    woog_struct.0.name.to_upper_camel_case(),
+                    (woog_struct.0.id, woog_struct.1),
+                );
                 store.woog_struct.insert(woog_struct.0.id, woog_struct);
             }
         }

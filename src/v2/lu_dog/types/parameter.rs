@@ -15,6 +15,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// From inside the function it's a parameter, from outside it's an argument. No idea why I
 ///  wrote that — just looking for content...  I mean, what else do you say about a parameter
 /// ?
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

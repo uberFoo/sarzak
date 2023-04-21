@@ -170,7 +170,7 @@ impl Type {
             }
             Type::Reference(type_) => {
                 let ty = type_.into_value_type(store, model, sarzak);
-                let reference = Reference::new(Uuid::new_v4(), &ty, store);
+                let reference = Reference::new(Uuid::new_v4(), false, &ty, store);
                 ValueType::new_reference(&reference, store)
             }
             Type::Self_(type_) => panic!("Self is deprecated."),

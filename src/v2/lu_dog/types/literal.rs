@@ -14,6 +14,7 @@ use uuid::Uuid;
 /// A Literal Expression
 ///
 /// This is any literal value in the program.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

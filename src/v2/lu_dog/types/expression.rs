@@ -22,6 +22,7 @@ use uuid::Uuid;
 /// An Expression
 ///
 /// Expressions are calculations that render values.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]

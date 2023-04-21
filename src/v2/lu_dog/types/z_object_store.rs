@@ -12,6 +12,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 /// A generated ObjectStore
 ///
 /// This is the backing store for the structs.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
