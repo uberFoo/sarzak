@@ -33,7 +33,7 @@
 //! * [`Parameter`]
 //! * [`Print`]
 //! * [`Reference`]
-//! * [`Some`]
+//! * [`ZSome`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
 //! * [`StringLiteral`]
@@ -59,10 +59,10 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::{
     Argument, Block, BooleanLiteral, Call, Error, ErrorExpression, Expression, ExpressionStatement,
     Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
-    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference, Some,
-    Statement, StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
-    VariableExpression, WoogOption, WoogStruct, ZObjectStore, EMPTY, FALSE_LITERAL, FLOAT_LITERAL,
-    TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
+    VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL,
+    FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -93,7 +93,7 @@ pub struct ObjectStore {
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     print: HashMap<Uuid, (Print, SystemTime)>,
     reference: HashMap<Uuid, (Reference, SystemTime)>,
-    some: HashMap<Uuid, (Some, SystemTime)>,
+    z_some: HashMap<Uuid, (ZSome, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     static_method_call: HashMap<Uuid, (StaticMethodCall, SystemTime)>,
     string_literal: HashMap<Uuid, (StringLiteral, SystemTime)>,
@@ -135,7 +135,7 @@ impl ObjectStore {
             parameter: HashMap::default(),
             print: HashMap::default(),
             reference: HashMap::default(),
-            some: HashMap::default(),
+            z_some: HashMap::default(),
             statement: HashMap::default(),
             static_method_call: HashMap::default(),
             string_literal: HashMap::default(),
@@ -1131,36 +1131,36 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Some`] into the store.
+    /// Inter [`ZSome`] into the store.
     ///
-    pub fn inter_some(&mut self, some: Some) {
-        self.some.insert(some.id, (some, SystemTime::now()));
+    pub fn inter_z_some(&mut self, z_some: ZSome) {
+        self.z_some.insert(z_some.id, (z_some, SystemTime::now()));
     }
 
-    /// Exhume [`Some`] from the store.
+    /// Exhume [`ZSome`] from the store.
     ///
-    pub fn exhume_some(&self, id: &Uuid) -> Option<&Some> {
-        self.some.get(id).map(|some| &some.0)
+    pub fn exhume_z_some(&self, id: &Uuid) -> Option<&ZSome> {
+        self.z_some.get(id).map(|z_some| &z_some.0)
     }
 
-    /// Exhume [`Some`] from the store — mutably.
+    /// Exhume [`ZSome`] from the store — mutably.
     ///
-    pub fn exhume_some_mut(&mut self, id: &Uuid) -> Option<&mut Some> {
-        self.some.get_mut(id).map(|some| &mut some.0)
+    pub fn exhume_z_some_mut(&mut self, id: &Uuid) -> Option<&mut ZSome> {
+        self.z_some.get_mut(id).map(|z_some| &mut z_some.0)
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Some>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
     ///
-    pub fn iter_some(&self) -> impl Iterator<Item = &Some> {
-        self.some.values().map(|some| &some.0)
+    pub fn iter_z_some(&self) -> impl Iterator<Item = &ZSome> {
+        self.z_some.values().map(|z_some| &z_some.0)
     }
 
-    /// Get the timestamp for Some.
+    /// Get the timestamp for ZSome.
     ///
-    pub fn some_timestamp(&self, some: &Some) -> SystemTime {
-        self.some
-            .get(&some.id)
-            .map(|some| some.1)
+    pub fn z_some_timestamp(&self, z_some: &ZSome) -> SystemTime {
+        self.z_some
+            .get(&z_some.id)
+            .map(|z_some| z_some.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -2424,23 +2424,23 @@ impl ObjectStore {
 
         // Persist Some.
         {
-            let path = path.join("some");
+            let path = path.join("z_some");
             fs::create_dir_all(&path)?;
-            for some_tuple in self.some.values() {
-                let path = path.join(format!("{}.json", some_tuple.0.id));
+            for z_some_tuple in self.z_some.values() {
+                let path = path.join(format!("{}.json", z_some_tuple.0.id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Some, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != some_tuple.0 {
+                    let on_disk: (ZSome, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != z_some_tuple.0 {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &some_tuple)?;
+                        serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
                     }
                 } else {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &some_tuple)?;
+                    serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2449,7 +2449,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.some.contains_key(&id) {
+                    if !self.z_some.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3166,15 +3166,15 @@ impl ObjectStore {
 
         // Load Some.
         {
-            let path = path.join("some");
+            let path = path.join("z_some");
             let mut entries = fs::read_dir(path)?;
             while let Some(entry) = entries.next() {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let some: (Some, SystemTime) = serde_json::from_reader(reader)?;
-                store.some.insert(some.0.id, some);
+                let z_some: (ZSome, SystemTime) = serde_json::from_reader(reader)?;
+                store.z_some.insert(z_some.0.id, z_some);
             }
         }
 

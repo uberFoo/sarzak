@@ -98,6 +98,9 @@ fn main() -> Result<()> {
 
     let package_dir = find_package_dir(&args.package_dir)?;
 
+    // This is where we output the file. I think this is stupid. We should just write
+    // it to current working directory. We do however want the package_dir, because
+    // we need to feed it to the lu dog populator.
     let mut path = PathBuf::from(package_dir);
     path.push(TARGET_DIR);
     path.push(BUILD_DIR);

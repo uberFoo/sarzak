@@ -4,9 +4,9 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
-use crate::v2::lu_dog::types::some::Some;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
+use crate::v2::lu_dog::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -123,13 +123,14 @@ impl Value {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-some"}}}
-    /// Navigate to [`Some`] across R23(1-M)
-    pub fn r23_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Some> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-z_some"}}}
+    /// Navigate to [`ZSome`] across R23(1-M)
+    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ZSome> {
         store
-            .iter_some()
-            .filter_map(|some| {
-                if some.inner == self.id {
-                    Some(some)
+            .iter_z_some()
+            .filter_map(|z_some| {
+                if z_some.inner == self.id {
+                    Some(z_some)
                 } else {
                     None
                 }

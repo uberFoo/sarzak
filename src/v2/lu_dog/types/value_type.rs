@@ -5,6 +5,7 @@ use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::error::Error;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
+use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::list::List;
 use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
@@ -43,6 +44,7 @@ pub enum ValueType {
     Empty(Uuid),
     Error(Uuid),
     Function(Uuid),
+    Import(Uuid),
     List(Uuid),
     ZObjectStore(Uuid),
     WoogOption(Uuid),
@@ -82,6 +84,18 @@ impl ValueType {
 
     pub fn new_function_(function: &Function) -> Self {
         let new = Self::Function(function.id);
+        new
+    }
+
+    /// Create a new instance of ValueType::Import
+    pub fn new_import(import: &Import, store: &mut LuDogStore) -> Self {
+        let new = Self::Import(import.id);
+        store.inter_value_type(new.clone());
+        new
+    }
+
+    pub fn new_import_(import: &Import) -> Self {
+        let new = Self::Import(import.id);
         new
     }
 
@@ -170,6 +184,7 @@ impl ValueType {
             ValueType::Empty(id) => *id,
             ValueType::Error(id) => *id,
             ValueType::Function(id) => *id,
+            ValueType::Import(id) => *id,
             ValueType::List(id) => *id,
             ValueType::ZObjectStore(id) => *id,
             ValueType::WoogOption(id) => *id,

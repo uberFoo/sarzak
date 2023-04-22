@@ -1,4 +1,6 @@
-use ansi_term::{Colour, Style};
+use std::ops::Range;
+
+use ansi_term::Colour;
 use fnv::FnvHashMap as HashMap;
 use heck::ToUpperCamelCase;
 use log;
@@ -13,17 +15,14 @@ use crate::{
         store::ObjectStore as LuDogStore,
         types::{
             Block, Call, Error, ErrorExpression, Expression, ExpressionStatement, Field,
-            FieldExpression, Function, FunctionCall, Implementation, Import, IntegerLiteral,
-            LetStatement, Literal, LocalVariable, Parameter, Print, Statement, StaticMethodCall,
-            StringLiteral, StructExpression, Value, ValueEnum, ValueType, Variable,
-            VariableExpression, WoogOption, WoogStruct,
+            FieldExpression, Function, Implementation, Import, IntegerLiteral, LetStatement,
+            Literal, LocalVariable, Parameter, Print, Statement, StaticMethodCall, StringLiteral,
+            StructExpression, Value, ValueEnum, ValueType, Variable, VariableExpression,
+            WoogOption, WoogStruct,
         },
         Argument, List, MethodCall, Reference,
     },
-    sarzak::{
-        store::ObjectStore as SarzakStore,
-        types::{Object, Ty},
-    },
+    sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
 
 macro_rules! link_parameter {
@@ -156,6 +155,11 @@ impl<'a> ConveyImpl<'a> {
     }
 }
 
+/// The main entry point
+///
+/// This is where we go to populate the model from the parsed AST.
+///
+/// 🚧 Return a result!
 pub fn populate_lu_dog(
     ast: &HashMap<(String, ItemKind), Item>,
     model: &SarzakStore,
@@ -186,7 +190,7 @@ fn walk_tree(
             }
             Item::Implementation(funcs) => implementations.push(ConveyImpl::new(name, funcs)),
             // Imports can happen any time, I think.
-            Item::Import(path) => inter_import(&path.0, lu_dog),
+            Item::Import(path, alias) => inter_import(&path.0, alias, lu_dog),
             Item::Struct(fields) => structs.push(ConveyStruct::new(name, fields)),
         }
     }
@@ -408,71 +412,72 @@ fn inter_expression(
         ParserExpression::LocalVariable(name) => {
             debug!("ParserExpression::LocalVariable", name);
             // We need to return an expression and a type.
-            // We look for a values matching the in the current block.
-            let expr_ty: Vec<Value> = lu_dog
+            // We look for a values in the current block. We need to clone them
+            // to be able to modify lu_dog below.
+            //
+            // So, multiple let statements will result in multiple values. We only
+            // need one.
+            let expr_ty = lu_dog
                 .iter_value()
-                .filter(|value| value.block == block.id)
-                .cloned()
-                .collect();
+                .find(|value| value.block == block.id)
+                .cloned();
 
-            let expr_ty: Vec<Option<(Expression, ValueType)>> = expr_ty
-                .iter()
-                .map(|value| {
-                    debug!("ParserExpression::LocalVariable: value", value);
+            // Now search for a value that's a Variable, and see if the access matches
+            // the variable.
+            let expr_ty: Option<(Expression, ValueType)> = expr_ty.map(|value| {
+                debug!("ParserExpression::LocalVariable: value", value);
 
-                    match value.subtype {
-                        ValueEnum::Expression(ref expr) => {
-                            let expr = lu_dog.exhume_expression(expr).unwrap();
-                            panic!(
-                                "I don't think that we should ever see an expression here: {:?}",
-                                expr
-                            );
-                        }
-                        ValueEnum::Variable(ref var) => {
-                            let var = lu_dog.exhume_variable(var).unwrap();
-                            debug!("ParserExpression::LocalVariable: var", var);
-                            // Check the name
-                            if var.name == *name {
-                                let value = var.r11_value(lu_dog)[0];
-                                let ty = value.r24_value_type(lu_dog)[0].clone();
+                match value.subtype {
+                    ValueEnum::Expression(ref expr) => {
+                        let expr = lu_dog.exhume_expression(expr).unwrap();
+                        panic!(
+                            "I don't think that we should ever see an expression here: {:?}",
+                            expr
+                        );
+                    }
+                    ValueEnum::Variable(ref var) => {
+                        let var = lu_dog.exhume_variable(var).unwrap();
+                        debug!("ParserExpression::LocalVariable: var", var);
+                        // Check the name
+                        if var.name == *name {
+                            let value = var.r11_value(lu_dog)[0];
+                            let ty = value.r24_value_type(lu_dog)[0].clone();
 
-                                // Ok, so I parsed a local variable expression. We need to create
-                                // a VariableExpression, and it in turn needs an Expression, which
-                                // needs a Value, and finally a ValueType.
-                                // Except that I don't think we want to create values in the walker.
-                                // Doing so wreaks havoc downstream in the interpreter, because
-                                // It sees that value and expects that it's been evaluated.
-                                let expr = VariableExpression::new(name.to_owned(), lu_dog);
-                                debug!("ParserExpression::LocalVariable: created expr", expr);
-                                let expr = Expression::new_variable_expression(&expr, lu_dog);
-                                debug!("ParserExpression::LocalVariable: created expr", expr);
-
-                                // This is the value that we need to give the expression a type when
-                                // we later parse a local variable access in the interpreter.
-                                // let _value = Value::new_expression(&block, &ty, &expr, lu_dog);
-
-                                Some((expr, ty))
+                            // Ok, so I parsed a local variable expression. We need to create
+                            // a VariableExpression, and it in turn needs an Expression, which
+                            // needs a Value, and finally a ValueType.
+                            // Except that I don't think we want to create values in the walker.
+                            // Doing so wreaks havoc downstream in the interpreter, because
+                            // It sees that value and expects that it's been evaluated.
+                            // And we got here by searching for a value anyway.
+                            //
+                            // We don't want to create more than one of these.
+                            let expr = lu_dog
+                                .iter_variable_expression()
+                                .find(|expr| expr.name == *name)
+                                .cloned();
+                            let expr = if let Some(expr) = expr {
+                                expr.r15_expression(lu_dog)[0].clone()
                             } else {
-                                None
-                            }
+                                error!("created a new variable expression");
+                                let expr = VariableExpression::new(name.to_owned(), lu_dog);
+                                Expression::new_variable_expression(&expr, lu_dog)
+                            };
+                            debug!("ParserExpression::LocalVariable: created/found expr", expr);
+
+                            (expr, ty)
+                        } else {
+                            panic!("variable name mismatch: {} != {}", var.name, name);
                         }
                     }
-                })
-                .filter(|value| value.is_some())
-                .collect();
+                }
+            });
 
             debug!("ParserExpression::LocalVariable: expr_ty", expr_ty);
 
-            if expr_ty.len() > 0 {
-                if expr_ty.len() > 1 {
-                    panic!(
-                        "I don't think that we should ever see more than one value here: {:?}",
-                        &expr_ty
-                    );
-                }
-
-                debug!("ParserExpression::LocalVariable: returning", expr_ty[0]);
-                expr_ty[0].clone().unwrap()
+            if let Some(expr_ty) = expr_ty {
+                debug!("ParserExpression::LocalVariable: returning", expr_ty);
+                expr_ty
             } else {
                 // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
                 // As neat as it is that I'm compiling this into the binary, we should actually
@@ -511,7 +516,7 @@ fn inter_expression(
         }
         ParserExpression::StaticMethodCall((obj, _), (method, _), params) => {
             debug!("ParserExpression::StaticMethodCall", obj);
-            let type_name = if let Token::Object(obj) = obj {
+            let type_name = if let Token::Ident(obj) = obj {
                 obj.de_sanitize()
             } else {
                 panic!("I don't think that we should ever see anything other than an object here: {:?}", obj);
@@ -527,7 +532,7 @@ fn inter_expression(
             // then. For now, I'm going to hack something in...
             // We could do something with the imports...
             // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
-            let ty = if type_name == "Uuid" && method == "new_v4" {
+            let ty = if type_name == "Uuid" && method == "new" {
                 ValueType::new_ty(&Ty::new_s_uuid(), lu_dog)
             } else {
                 // How do we look up a type? Oh, duh.
@@ -569,7 +574,7 @@ fn inter_expression(
             )
         }
         ParserExpression::Struct((name, _), fields) => {
-            let name = if let Token::Object(name) = name {
+            let name = if let Token::Ident(name) = name {
                 // name.de_sanitize()
                 name
             } else {
@@ -614,8 +619,26 @@ fn inter_expression(
     }
 }
 
-fn inter_import(path: &String, lu_dog: &mut LuDogStore) {
-    Import::new(path.clone(), lu_dog);
+fn inter_import(path: &String, alias: &Option<(String, Range<usize>)>, lu_dog: &mut LuDogStore) {
+    let mut path_root = path.split("::").collect::<Vec<_>>();
+    path_root.pop().expect("Path root not found");
+    let path_root = path_root.join("::");
+    let obj_name = path.split("::").last().unwrap();
+    let (has_alias, alias) = if let Some((alias, _)) = alias {
+        (true, alias.to_owned())
+    } else {
+        (false, "".to_owned())
+    };
+
+    let import = Import::new(
+        alias,
+        has_alias,
+        obj_name.to_owned(),
+        path_root,
+        None,
+        lu_dog,
+    );
+    debug!("import", import);
 }
 
 fn inter_implementation(
@@ -628,7 +651,7 @@ fn inter_implementation(
     let name = name.de_sanitize();
 
     let impl_ty = get_value_type(
-        &Type::UserType(Box::new(Token::Object(name.to_owned()))),
+        &Type::UserType(Box::new(Token::Ident(name.to_owned()))),
         None,
         lu_dog,
         model,
@@ -692,6 +715,8 @@ fn inter_struct(
 /// Note that the `new_*` methods on `Ty` just return `const`s. Also, the
 /// `ValueType::new_ty` method takes on the id of it's subtype, so neither do
 /// those take much space.
+///
+/// 🚧 This should return a result...
 fn get_value_type(
     type_: &Type,
     enclosing_type: Option<&ValueType>,
@@ -720,7 +745,7 @@ fn get_value_type(
         }
         Type::Option(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, model, sarzak);
-            let option = WoogOption::new_none(&inner_type, lu_dog);
+            let option = WoogOption::new_z_none(&inner_type, lu_dog);
             ValueType::new_woog_option(&option, lu_dog)
         }
         Type::Reference(ref type_) => {
@@ -735,20 +760,36 @@ fn get_value_type(
         }
         Type::UserType(tok) => {
             let name = match **tok {
-                Token::Object(ref name) => name,
+                Token::Ident(ref name) => name,
                 _ => panic!("Expected object, found {:?}", tok),
             };
 
             let name = name.de_sanitize();
 
-            // Need to deal with Self.
-            if name == "Self" {
+            // Deal with imports
+            let import = lu_dog
+                .iter_import()
+                .find(|import| import.name == name || (import.has_alias && import.alias == name))
+                .cloned();
+
+            if let Some(import) = import {
+                // Now what do we do with it? If it's something that we generated,
+                // then we could load up the store, if we knew where it was, and
+                // but we don't.
+                //
+                // I don't think that we can actually connect the dots until we've
+                // generated the imports themselves. So the best we can do is leave
+                // behind a breadcrumb.
+                //
+                // It might be sort of cool to make `Import` a `ValueType`, and then
+                // just return this. `Function` and `Struct`, two out of the other
+                // three `Item`s are already `ValueType`s, so it's not a stretch.
+                ValueType::new_import(&import, lu_dog)
+            } else if name == "Self" {
                 match enclosing_type {
                     Some(ty) => ty.clone(),
                     None => panic!("Self must be used inside an impl block."),
                 }
-            } else if name == "ObjectStore" {
-                ValueType::new_empty()
             } else if name == "String" {
                 ValueType::new_ty(&Ty::new_s_string(), lu_dog)
             } else
@@ -817,6 +858,8 @@ fn de_sanitize(string: &str) -> Option<&str> {
         "XSuper" => Some("Super"),
         "XBox" => Some("Box"),
         "ZObjectStore" => Some("ObjectStore"),
+        "ZSome" => Some("Some"),
+        "ZNone" => Some("None"),
         _ => None,
     }
 }

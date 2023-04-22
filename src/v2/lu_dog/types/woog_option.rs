@@ -2,9 +2,9 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::none::NONE;
-use crate::v2::lu_dog::types::some::Some;
 use crate::v2::lu_dog::types::value_type::ValueType;
+use crate::v2::lu_dog::types::z_none::Z_NONE;
+use crate::v2::lu_dog::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -30,22 +30,23 @@ pub struct WoogOption {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum WoogOptionEnum {
-    None(Uuid),
-    Some(Uuid),
+    ZNone(Uuid),
+    ZSome(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-implementation"}}}
 impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-new-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_none"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_none"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
-    pub fn new_none(ty: &ValueType, store: &mut LuDogStore) -> WoogOption {
+    pub fn new_z_none(ty: &ValueType, store: &mut LuDogStore) -> WoogOption {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = NONE;
+        let id = Z_NONE;
         let new = WoogOption {
             ty: ty.id(),
-            subtype: WoogOptionEnum::None(NONE),
+            subtype: WoogOptionEnum::ZNone(Z_NONE),
             id,
         };
         store.inter_woog_option(new.clone());
@@ -53,28 +54,30 @@ impl WoogOption {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_none_"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_none_"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
-    pub fn new_none_(ty: &ValueType) -> WoogOption {
+    pub fn new_z_none_(ty: &ValueType) -> WoogOption {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = NONE;
+        let id = Z_NONE;
         let new = WoogOption {
             ty: ty.id(),
-            subtype: WoogOptionEnum::None(NONE),
+            subtype: WoogOptionEnum::ZNone(Z_NONE),
             id,
         };
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_some"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_some"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
-    pub fn new_some(ty: &ValueType, subtype: &Some, store: &mut LuDogStore) -> WoogOption {
+    pub fn new_z_some(ty: &ValueType, subtype: &ZSome, store: &mut LuDogStore) -> WoogOption {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id;
         let new = WoogOption {
             ty: ty.id(),
-            subtype: WoogOptionEnum::Some(subtype.id),
+            subtype: WoogOptionEnum::ZSome(subtype.id),
             id,
         };
         store.inter_woog_option(new.clone());
@@ -82,14 +85,15 @@ impl WoogOption {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_some_"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_some_"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
-    pub fn new_some_(ty: &ValueType, subtype: &Some) -> WoogOption {
+    pub fn new_z_some_(ty: &ValueType, subtype: &ZSome) -> WoogOption {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = subtype.id;
         let new = WoogOption {
             ty: ty.id(),
-            subtype: WoogOptionEnum::Some(subtype.id),
+            subtype: WoogOptionEnum::ZSome(subtype.id),
             id,
         };
         new

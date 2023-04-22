@@ -43,10 +43,10 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 
     // A "Object type" parser. Basically I'm asserting that if an identifier starts
     // with a capital letter, then it's an object.
-    let object = filter::<_, _, Simple<char>>(|c: &char| c.is_uppercase())
-        .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric()).repeated())
-        .collect::<String>()
-        .map(Token::Object);
+    // let object = filter::<_, _, Simple<char>>(|c: &char| c.is_uppercase())
+    //     .chain::<char, Vec<_>, _>(filter(|c: &char| c.is_alphanumeric()).repeated())
+    //     .collect::<String>()
+    //     .map(Token::Object);
 
     // let some = just::<char, &str, Simple<char>>("Some")
     //     .then_ignore(just('('))
@@ -55,11 +55,13 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 
     // A parser for identifiers and keywords
     let ident = text::ident().map(|ident: String| match ident.as_str() {
+        "as" => Token::As,
         "bool" => Token::Type(Type::Boolean),
         // "else" => Token::Else,
         "false" => Token::Bool(false),
         "float" => Token::Type(Type::Float),
         "fn" => Token::Fn,
+        // "global" => Token::Global,
         // "if" => Token::If,
         "impl" => Token::Impl,
         "int" => Token::Type(Type::Integer),
@@ -72,7 +74,6 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "string" => Token::Type(Type::String),
         "struct" => Token::Struct,
         "true" => Token::Bool(true),
-        "Uuid" => Token::Type(Type::Uuid),
         "use" => Token::Import,
         _ => Token::Ident(ident),
     });
@@ -88,7 +89,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .or(op)
         .or(punct)
         .or(option)
-        .or(object)
+        // .or(object)
         // .or(some)
         .or(ident)
         .recover_with(skip_then_retry_until([]));
@@ -106,7 +107,7 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
     recursive(|type_| {
         let basic_type = filter_map(|span: Span, tok| match tok {
             Token::Type(type_) => Ok(type_.clone()),
-            Token::Object(ident) => Ok(Type::UserType(Box::new(Token::Object(ident.clone())))),
+            Token::Ident(ident) => Ok(Type::UserType(Box::new(Token::Ident(ident.clone())))),
             _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
         });
 
@@ -134,6 +135,7 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
             .map(|_| Type::Empty);
 
         self_.or(empty).or(option).or(list).or(type_)
+        // empty.or(option).or(list).or(type_)
     })
 }
 
@@ -159,20 +161,25 @@ fn stmt_parser() -> impl Parser<Token, Statement, Error = Simple<Token>> + Clone
                 .or_not(),
         )
         .then_ignore(just(Token::Op("=".to_string())))
+        .debug("let statement")
         .then(expr_parser())
         .then_ignore(just(Token::Punct(';')))
         .map(|((name, ty), expr)| Statement::Let(name, ty, expr));
 
     let expr = expr_parser()
+        .debug("expression statement")
         .then_ignore(just(Token::Punct(';')))
         .map(Statement::Expression);
 
-    let result = expr_parser().map(Statement::Result);
+    let result = expr_parser()
+        .debug("result statement")
+        .map(Statement::Result);
 
     let_.or(expr).or(result)
 }
 
 fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token>> + Clone {
+    dbg!("expr_parser");
     recursive(|expr| {
         let raw_expr = recursive(|raw_expr| {
             let literal = select! {
@@ -199,8 +206,10 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .labelled("None");
 
             let ident = select! { Token::Ident(ident) => ident.clone() }.labelled("identifier");
+
             let object = filter_map(|span: Span, tok| match tok {
-                Token::Object(ident) => Ok(Token::Object(ident.clone())),
+                Token::Ident(ident) => Ok(Token::Ident(ident.clone())),
+                Token::Self_ => Ok(Token::Self_),
                 _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
             });
 
@@ -232,6 +241,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .or(ident.map(Expression::LocalVariable))
                 .or(list)
                 // In dwarf, `print` is just a keyword, just like Python 2, for simplicity
+                .debug("atom")
                 .or(just(Token::Print)
                     .ignore_then(
                         expr.clone()
@@ -287,6 +297,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .map(|(expr, _)| expr);
 
             let static_method_call = object
+                // let static_method_call = atom
                 .clone()
                 .map_with_span(|obj, span| (obj, span))
                 .then_ignore(just(Token::Punct('∷')))
@@ -310,6 +321,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             // Function calls have very high precedence so we prioritise them
             let call = atom
+                .clone()
                 .then(
                     items
                         .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
@@ -322,6 +334,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 });
 
             let field = ident
+                .debug("field")
                 .map_with_span(|type_, span| (type_, span))
                 .labelled("field name")
                 .then_ignore(just(Token::Punct(':')))
@@ -333,12 +346,15 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .map(|(name, expr)| (name, expr));
 
             let fields = field
+                .debug("fields")
                 .separated_by(just(Token::Punct(',')))
                 .allow_trailing()
                 .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
                 .map(|fields| fields.into_iter().collect::<Vec<_>>());
 
             let struct_expression = object
+                .debug("struct_expression")
+                // let struct_expression = atom
                 .map_with_span(|obj, span| (obj, span))
                 .labelled("struct type")
                 .then(fields)
@@ -352,11 +368,23 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                     }
                 });
 
-            static_method_call
-                .or(method_call)
+            // field_access
+            // .or(method_call)
+            method_call
                 .or(field_access)
-                .or(call)
+                .or(static_method_call)
                 .or(struct_expression)
+                .or(call)
+            // struct_expression
+            // .or(static_method_call)
+            // .or(field_access)
+            // .or(call)
+            // .or(atom)
+            //
+            //
+            // .or(method_call)
+            // .or(field_access)
+            // .or(call)
 
             // // Product ops (multiply and divide) have equal precedence
             // let op = just(Token::Op("*".to_string()))
@@ -477,7 +505,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 fn impl_block_parser(
 ) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
     let ident = filter_map(|span: Span, tok| match tok {
-        Token::Object(ident) => Ok(ident.clone()),
+        Token::Ident(ident) => Ok(ident.clone()),
         _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
     });
 
@@ -560,6 +588,7 @@ fn func_parser(
         .labelled("return type")
         .then(
             stmt_parser()
+                .debug("function body")
                 .map_with_span(|stmt, span| (stmt, span))
                 .repeated()
                 .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
@@ -580,7 +609,7 @@ fn func_parser(
 fn struct_parser(
 ) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
     let obj = filter_map(|span: Span, tok| match tok {
-        Token::Object(ident) => Ok(ident.clone()),
+        Token::Ident(ident) => Ok(ident.clone()),
         _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
     });
 
@@ -632,12 +661,21 @@ fn import_parser(
             path.map_with_span(|name, span| (name, span))
                 .labelled("import path"),
         )
+        .then(
+            just(Token::As)
+                .ignore_then(
+                    ident
+                        .map_with_span(|name, span| (name, span))
+                        .labelled("alias"),
+                )
+                .or_not(),
+        )
         .then_ignore(just(Token::Punct(';')))
-        .map(|name| ((name.clone(), ItemKind::Import), Item::Import(name)))
+        .map(|(name, alias)| ((name.clone(), ItemKind::Import), Item::Import(name, alias)))
         .labelled("import")
 }
 
-fn items_parser(
+fn item_parser(
 ) -> impl Parser<Token, HashMap<(String, ItemKind), Item>, Error = Simple<Token>> + Clone {
     let item = struct_parser()
         .or(impl_block_parser())
@@ -755,11 +793,13 @@ pub fn parse_line(src: &str) -> Option<Statement> {
 //     source: Option<P>,
 // ) -> Option<HashMap<(String, ItemKind), Item>> {
 pub fn parse_dwarf(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
+    // let (tokens, errs) = lexer().parse_recovery_verbose(src);
     let (tokens, errs) = lexer().parse_recovery(src);
     let (ast, parse_errs) = if let Some(tokens) = tokens {
         let len = src.chars().count();
-        let (ast, parse_errs) =
-            items_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+        let (ast, parse_errs) = item_parser()
+            // .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
+            .parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
 
         (ast, parse_errs)
     } else {
@@ -883,10 +923,56 @@ mod tests {
     fn test_import() {
         let src = r#"
             use foo;
-            use foo::bar::baz;
+            use foo::bar::baz::Baz;
+            use foo::bar::Xyzzy as Plugh;
         "#;
 
         let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn xyzzy() {
+        let src = r#"
+            fn foo() -> Option<bool> {
+                None
+            }
+
+            fn bar() -> Option<String> {
+                Some("Hello, World!")
+            }
+
+            fn xyzzy() -> Bar {
+                foo();
+                let a = Foo::new();
+                let b = a.b();
+                a.collect
+                Bar {
+                    foo: 42,
+                    bar: 3.14,
+                    baz: "Hello, World!",
+                    uber: Foo::new(),
+                    foo: true
+                }
+            }
+
+            fn yzzyx() -> Self {
+                Uuid::new();
+                Self {
+                    foo: 42,
+                    bar: 3.14,
+                    test: func(),
+                    baz: "Hello, World!",
+                    uber: Foo::new(),
+                    foo: true
+                }
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        // dbg!(&ast);
 
         assert!(ast.is_some());
     }
@@ -896,11 +982,15 @@ mod tests {
         let src = r#"
             impl Foo {
                 fn new() -> Self {
-                    let empty = Self {};
+                    let empty = Self {a: 42,
+                        b: 3.14, c: "Hello, World!"};
+
+                    Uuid::new();
                     Self {
                         bar: 42,
                         pi: 3.14,
                         baz: "Hello, World!",
+                        test: func(),
                         uber: Uuid::new(),
                         foo: true
                     }

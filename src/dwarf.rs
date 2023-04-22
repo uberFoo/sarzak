@@ -5,7 +5,6 @@ use clap::Args;
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 use uuid::Uuid;
-// use uuid::Uuid;
 
 use crate::{
     lu_dog::{
@@ -54,17 +53,17 @@ pub struct DwarfOptions {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Token {
+    As,
     Bool(bool),
     Float(String),
     Fn,
+    // Global,
     Ident(String),
     Impl,
     Import,
     Integer(String),
     Let,
     None,
-    // This is a type that starts with a capital letter. It's special. 💩
-    Object(String),
     Op(String),
     Option,
     Print,
@@ -80,16 +79,17 @@ pub enum Token {
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Self::As => write!(f, "as"),
             Self::Bool(bool_) => write!(f, "{}", bool_),
             Self::Float(num) => write!(f, "{}", num),
             Self::Fn => write!(f, "fn"),
+            // Self::Global => write!(f, "global"),
             Self::Ident(ident) => write!(f, "{}", ident),
             Self::Impl => write!(f, "impl"),
             Self::Import => write!(f, "import"),
             Self::Integer(num) => write!(f, "{}", num),
             Self::Let => write!(f, "let"),
             Self::None => write!(f, "None"),
-            Self::Object(object) => write!(f, "{}", object),
             Self::Op(op) => write!(f, "{}", op),
             Self::Option => write!(f, "Option"),
             Self::Print => write!(f, "print"),
@@ -116,7 +116,6 @@ pub enum Type {
     Self_(Box<Token>),
     String,
     UserType(Box<Token>),
-    Uuid,
 }
 
 impl fmt::Display for Type {
@@ -132,7 +131,6 @@ impl fmt::Display for Type {
             Self::Self_(type_) => write!(f, "{}", type_),
             Self::String => write!(f, "string"),
             Self::UserType(type_) => write!(f, "{}", type_),
-            Self::Uuid => write!(f, "Uuid"),
         }
     }
 }
@@ -165,7 +163,7 @@ impl Type {
             }
             Type::Option(type_) => {
                 let ty = type_.into_value_type(store, model, sarzak);
-                let option = WoogOption::new_none(&ty, store);
+                let option = WoogOption::new_z_none(&ty, store);
                 ValueType::new_woog_option(&option, store)
             }
             Type::Reference(type_) => {
@@ -179,7 +177,7 @@ impl Type {
                 ValueType::new_ty(&ty, store)
             }
             Type::UserType(type_) => {
-                let name = if let Token::Object(name) = &**type_ {
+                let name = if let Token::Ident(name) = &**type_ {
                     name
                 } else {
                     panic!("Expected UserType to be Token::Object.")
@@ -192,10 +190,6 @@ impl Type {
                     sarzak.exhume_ty(obj_id).unwrap()
                 };
 
-                ValueType::new_ty(&ty, store)
-            }
-            Type::Uuid => {
-                let ty = Ty::new_s_uuid();
                 ValueType::new_ty(&ty, store)
             }
         }
@@ -274,6 +268,7 @@ pub enum Expression {
     /// Static Method Call
     ///
     /// E.g., `Foo::bar()`.
+    ///
     StaticMethodCall(Spanned<Token>, Spanned<String>, Vec<Spanned<Self>>),
     /// String Literal
     ///
@@ -307,7 +302,7 @@ pub enum Item {
     ),
     /// Vec<(Function Name, Function)>
     Implementation(Vec<(Spanned<String>, Box<Item>)>),
-    Import(Spanned<String>),
+    Import(Spanned<String>, Option<Spanned<String>>),
     /// Vec<(Field Name, Field Type)>
     Struct(Vec<(Spanned<String>, Spanned<Type>)>),
 }
