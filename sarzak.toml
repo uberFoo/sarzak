@@ -13,6 +13,7 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
+uber_store = true
 target = "domain"
 
 [modules."v2/drawing"]
@@ -32,6 +33,7 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
+uber_store = false
 target = "domain"
 
 [modules."v2/merlin"]
@@ -49,6 +51,7 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
+uber_store = false
 target = "domain"
 
 [modules."v2/sarzak"]
@@ -67,6 +70,7 @@ is_meta_model = true
 is_sarzak = true
 persist = true
 persist_timestamps = true
+uber_store = false
 target = "domain"
 
 [modules."v2/woog"]
@@ -84,4 +88,5 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
+uber_store = false
 target = "domain"
