@@ -1,3 +1,5 @@
+use std::{sync::Arc, sync::RwLock};
+
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"let_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-use-statements"}}}
 use uuid::Uuid;
@@ -71,7 +73,7 @@ impl LetStatement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
-    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Statement> {
+    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
         vec![store.exhume_statement(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

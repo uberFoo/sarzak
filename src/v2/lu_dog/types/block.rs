@@ -1,3 +1,5 @@
+use std::{sync::Arc, sync::RwLock};
+
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"block-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
 use uuid::Uuid;
@@ -66,12 +68,13 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R18(1-M)
-    pub fn r18_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Statement> {
+    pub fn r18_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
         store
             .iter_statement()
             .filter_map(|statement| {
-                if statement.block == self.id {
-                    Some(statement)
+                let reader = statement.read().unwrap();
+                if reader.block == self.id {
+                    Some(statement.clone())
                 } else {
                     None
                 }

@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{ops::Range, sync::Arc, sync::RwLock};
 
 use ansi_term::Colour;
 use fnv::FnvHashMap as HashMap;
@@ -20,7 +20,7 @@ use crate::{
             StructExpression, Value, ValueEnum, ValueType, Variable, VariableExpression,
             WoogOption, WoogStruct,
         },
-        Argument, List, MethodCall, Reference,
+        Argument, List, MethodCall, Reference, ResultStatement,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
@@ -51,25 +51,14 @@ macro_rules! link_argument {
 
 macro_rules! link_statement {
     ($last:expr, $next:expr, $store:expr) => {{
+        let next = $next.read().unwrap();
         if let Some(last) = $last {
-            let mut last = $store.exhume_statement(&last).unwrap().clone();
-            last.next = Some($next.id);
-            $store.inter_statement(last);
+            let last = $store.exhume_statement(&last).unwrap().clone();
+            let mut last = last.write().unwrap();
+            last.next = Some(next.id);
         }
 
-        Some($next.id)
-    }};
-}
-
-macro_rules! link_field_expr {
-    ($last:expr, $next:expr, $store:expr) => {{
-        if let Some(last) = $last {
-            let mut last = $store.exhume_field_expression(&last).unwrap().clone();
-            last.next = Some($next.id);
-            $store.inter_field_expression(last);
-        }
-
-        Some($next.id)
+        Some(next.id)
     }};
 }
 
@@ -279,7 +268,7 @@ pub fn inter_statement(
     lu_dog: &mut LuDogStore,
     model: &SarzakStore,
     sarzak: &SarzakStore,
-) -> (Statement, ValueType) {
+) -> (Arc<RwLock<Statement>>, ValueType) {
     debug!("inter_statement", stmt);
 
     match stmt {
@@ -312,8 +301,8 @@ pub fn inter_statement(
         }
         ParserStatement::Result((ref expr, _)) => {
             let (expr, ty) = inter_expression(expr, &block, lu_dog, model, sarzak);
-            let stmt = ExpressionStatement::new(&expr, lu_dog);
-            let stmt = Statement::new_expression_statement(&block, None, &stmt, lu_dog);
+            let stmt = ResultStatement::new(&expr, lu_dog);
+            let stmt = Statement::new_result_statement(&block, None, &stmt, lu_dog);
 
             (stmt, ty)
         }
@@ -382,7 +371,6 @@ fn inter_expression(
             let func = Expression::new_call(&func_call, lu_dog);
 
             let mut last_arg_uuid: Option<Uuid> = None;
-
             for param in params {
                 let (arg_expr, ty) = inter_expression(param, &block, lu_dog, model, sarzak);
                 let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
@@ -416,66 +404,74 @@ fn inter_expression(
             // to be able to modify lu_dog below.
             //
             // So, multiple let statements will result in multiple values. We only
-            // need one.
+            // need one -- and it needs to be the right one...
             let expr_ty = lu_dog
                 .iter_value()
-                .find(|value| value.block == block.id)
-                .cloned();
+                .filter(|value| value.block == block.id)
+                .cloned()
+                .collect::<Vec<Value>>();
 
             // Now search for a value that's a Variable, and see if the access matches
             // the variable.
-            let expr_ty: Option<(Expression, ValueType)> = expr_ty.map(|value| {
-                debug!("ParserExpression::LocalVariable: value", value);
+            let mut expr_ty = expr_ty
+                .iter()
+                .filter_map(|value| {
+                    debug!("ParserExpression::LocalVariable: value", value);
 
-                match value.subtype {
-                    ValueEnum::Expression(ref expr) => {
-                        let expr = lu_dog.exhume_expression(expr).unwrap();
-                        panic!(
-                            "I don't think that we should ever see an expression here: {:?}",
-                            expr
-                        );
-                    }
-                    ValueEnum::Variable(ref var) => {
-                        let var = lu_dog.exhume_variable(var).unwrap();
-                        debug!("ParserExpression::LocalVariable: var", var);
-                        // Check the name
-                        if var.name == *name {
-                            let value = var.r11_value(lu_dog)[0];
-                            let ty = value.r24_value_type(lu_dog)[0].clone();
+                    match value.subtype {
+                        ValueEnum::Expression(ref expr) => {
+                            let expr = lu_dog.exhume_expression(expr).unwrap();
+                            error!("we don't expect to be here", expr);
+                            // panic!(
+                            // "I don't think that we should ever see an expression here: {:?}",
+                            // expr
+                            // );
+                            None
+                        }
+                        ValueEnum::Variable(ref var) => {
+                            let var = lu_dog.exhume_variable(var).unwrap();
+                            debug!("ParserExpression::LocalVariable: var", var);
+                            // Check the name
+                            if var.name == *name {
+                                let value = var.r11_value(lu_dog)[0];
+                                let ty = value.r24_value_type(lu_dog)[0].clone();
 
-                            // Ok, so I parsed a local variable expression. We need to create
-                            // a VariableExpression, and it in turn needs an Expression, which
-                            // needs a Value, and finally a ValueType.
-                            // Except that I don't think we want to create values in the walker.
-                            // Doing so wreaks havoc downstream in the interpreter, because
-                            // It sees that value and expects that it's been evaluated.
-                            // And we got here by searching for a value anyway.
-                            //
-                            // We don't want to create more than one of these.
-                            let expr = lu_dog
-                                .iter_variable_expression()
-                                .find(|expr| expr.name == *name)
-                                .cloned();
-                            let expr = if let Some(expr) = expr {
-                                expr.r15_expression(lu_dog)[0].clone()
+                                // Ok, so I parsed a local variable expression. We need to create
+                                // a VariableExpression, and it in turn needs an Expression, which
+                                // needs a Value, and finally a ValueType.
+                                // Except that I don't think we want to create values in the walker.
+                                // Doing so wreaks havoc downstream in the interpreter, because
+                                // It sees that value and expects that it's been evaluated.
+                                // And we got here by searching for a value anyway.
+                                //
+                                // We don't want to create more than one of these.
+                                let expr = lu_dog
+                                    .iter_variable_expression()
+                                    .find(|expr| expr.name == *name)
+                                    .cloned();
+                                let expr = if let Some(expr) = expr {
+                                    expr.r15_expression(lu_dog)[0].clone()
+                                } else {
+                                    error!("created a new variable expression");
+                                    let expr = VariableExpression::new(name.to_owned(), lu_dog);
+                                    Expression::new_variable_expression(&expr, lu_dog)
+                                };
+                                debug!("ParserExpression::LocalVariable: created/found expr", expr);
+
+                                Some((expr, ty))
                             } else {
-                                error!("created a new variable expression");
-                                let expr = VariableExpression::new(name.to_owned(), lu_dog);
-                                Expression::new_variable_expression(&expr, lu_dog)
-                            };
-                            debug!("ParserExpression::LocalVariable: created/found expr", expr);
-
-                            (expr, ty)
-                        } else {
-                            panic!("variable name mismatch: {} != {}", var.name, name);
+                                None
+                            }
                         }
                     }
-                }
-            });
+                })
+                .collect::<Vec<(Expression, ValueType)>>();
+            // There should be zero or 1 results.
+            debug_assert!(expr_ty.len() <= 1);
 
             debug!("ParserExpression::LocalVariable: expr_ty", expr_ty);
 
-            if let Some(expr_ty) = expr_ty {
+            if let Some(expr_ty) = expr_ty.pop() {
                 debug!("ParserExpression::LocalVariable: returning", expr_ty);
                 expr_ty
             } else {
@@ -495,7 +491,10 @@ fn inter_expression(
                 (
                     expr,
                     ValueType::new_error(&Error::new_unknown_variable(), lu_dog),
-                )
+                );
+                let expr = VariableExpression::new(name.to_owned(), lu_dog);
+                let expr = Expression::new_variable_expression(&expr, lu_dog);
+                (expr, ValueType::new_unknown())
             }
         }
         ParserExpression::MethodCall(instance, (method, _), params) => {
@@ -505,6 +504,15 @@ fn inter_expression(
             let meth = MethodCall::new(method.to_owned(), lu_dog);
             let call = Call::new_method_call(Some(&instance), &meth, lu_dog);
             let expr = Expression::new_call(&call, lu_dog);
+
+            let mut last_arg_uuid: Option<Uuid> = None;
+            let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
+            for param in params {
+                let (arg_expr, ty) = inter_expression(param, &block, lu_dog, model, sarzak);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &call, &arg_expr, lu_dog);
+                last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
+            }
 
             (expr, instance_ty)
         }
@@ -518,13 +526,18 @@ fn inter_expression(
             debug!("ParserExpression::StaticMethodCall", obj);
             let type_name = if let Token::Ident(obj) = obj {
                 obj.de_sanitize()
+            } else if obj == &Token::Uuid {
+                "Uuid"
             } else {
-                panic!("I don't think that we should ever see anything other than an object here: {:?}", obj);
+                panic!("I don't think that we should ever see anything other than an object or Uuid here: {:?}", obj);
             };
 
             let meth = StaticMethodCall::new(method.to_owned(), type_name.to_owned(), lu_dog);
             let call = Call::new_static_method_call(None, &meth, lu_dog);
             let expr = Expression::new_call(&call, lu_dog);
+
+            debug!("ParserExpression::StaticMethodCall: name", type_name);
+            debug!("ParserExpression::StaticMethodCall: method", method);
 
             // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
             // So we are down to this. I suppose that we can check the obj against
@@ -539,24 +552,16 @@ fn inter_expression(
                 let obj = model.exhume_object_id_by_name(type_name).unwrap();
                 let ty = model.exhume_ty(&obj).unwrap();
                 lu_dog.exhume_value_type(&ty.id()).unwrap().clone()
-
-                // lu_dog
-                //     .iter_woog_struct()
-                //     .find(|woog_struct| {
-                //         let woog_struct = model.exhume_object(&woog_struct.object).unwrap();
-                //         woog_struct.name == type_name
-                //     })
-                //     .map(|woog_struct| {
-                //         let obj = model.exhume_object(&woog_struct.object).unwrap();
-                //         let ty = model.exhume_ty(&obj.id).unwrap();
-                //         // ValueType::new_ty(&ty, lu_dog)
-                //         lu_dog.exhume_value_type(&ty.id()).unwrap().clone()
-                //     })
-                //     .unwrap_or_else(|| {
-                //         error!("Could not find type for", type_name, method);
-                //         ValueType::new_unknown()
-                //     })
             };
+
+            let mut last_arg_uuid: Option<Uuid> = None;
+            let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
+            for param in params {
+                let (arg_expr, ty) = inter_expression(param, &block, lu_dog, model, sarzak);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &call, &arg_expr, lu_dog);
+                last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
+            }
 
             (expr, ty)
         }
@@ -590,7 +595,6 @@ fn inter_expression(
             let woog_struct = lu_dog.exhume_woog_struct(&struct_id).unwrap().clone();
 
             let expr = StructExpression::new(Uuid::new_v4(), &woog_struct, lu_dog);
-            let mut last_field_uuid: Option<Uuid> = None;
             fields
                 .iter()
                 .map(|((name, _), (field_expr, _))| (name, field_expr))
@@ -598,9 +602,7 @@ fn inter_expression(
                     // 🚧 Do type checking here? I don't think that I have what I need.
                     let (field_expr, _) =
                         inter_expression(field_expr, &block, lu_dog, model, sarzak);
-                    let field =
-                        FieldExpression::new(name.to_owned(), &field_expr, None, &expr, lu_dog);
-                    last_field_uuid = link_field_expr!(last_field_uuid, field, lu_dog);
+                    let field = FieldExpression::new(name.to_owned(), &field_expr, &expr, lu_dog);
                 });
 
             // model.iter_object().for_each(|o| debug!("object", o.name));
@@ -817,6 +819,10 @@ fn get_value_type(
                     panic!("Type not found for object {}.", name)
                 }
             }
+        }
+        Type::Uuid => {
+            let ty = Ty::new_s_uuid();
+            ValueType::new_ty(&ty, lu_dog)
         }
         道 => todo!("{:?}", 道),
     }

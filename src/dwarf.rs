@@ -1,4 +1,4 @@
-use std::{fmt, ops, path::PathBuf};
+use std::{fmt, ops, path::PathBuf, rc::Rc};
 
 use ansi_term::Colour;
 use clap::Args;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     lu_dog::{
         store::ObjectStore as LuDogStore,
-        types::{Function, ValueType, WoogOption},
+        types::{ValueType, WoogOption},
         List, Reference,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
@@ -74,6 +74,7 @@ pub enum Token {
     String(String),
     Struct,
     Type(Type),
+    Uuid,
 }
 
 impl fmt::Display for Token {
@@ -100,6 +101,7 @@ impl fmt::Display for Token {
             Self::String(str_) => write!(f, "{}", str_),
             Self::Struct => write!(f, "struct"),
             Self::Type(type_) => write!(f, "{}", type_),
+            Self::Uuid => write!(f, "Uuid"),
         }
     }
 }
@@ -115,7 +117,9 @@ pub enum Type {
     Reference(Box<Self>),
     Self_(Box<Token>),
     String,
+    Unknown,
     UserType(Box<Token>),
+    Uuid,
 }
 
 impl fmt::Display for Type {
@@ -130,7 +134,9 @@ impl fmt::Display for Type {
             Self::Reference(type_) => write!(f, "&{}", type_),
             Self::Self_(type_) => write!(f, "{}", type_),
             Self::String => write!(f, "string"),
+            Self::Unknown => write!(f, "<unknown>"),
             Self::UserType(type_) => write!(f, "{}", type_),
+            Self::Uuid => write!(f, "Uuid"),
         }
     }
 }
@@ -176,6 +182,7 @@ impl Type {
                 let ty = Ty::new_s_string();
                 ValueType::new_ty(&ty, store)
             }
+            Type::Unknown => ValueType::new_unknown(),
             Type::UserType(type_) => {
                 let name = if let Token::Ident(name) = &**type_ {
                     name
@@ -190,6 +197,10 @@ impl Type {
                     sarzak.exhume_ty(obj_id).unwrap()
                 };
 
+                ValueType::new_ty(&ty, store)
+            }
+            Type::Uuid => {
+                let ty = Ty::new_s_uuid();
                 ValueType::new_ty(&ty, store)
             }
         }

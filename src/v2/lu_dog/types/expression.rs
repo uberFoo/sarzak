@@ -11,6 +11,7 @@ use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::print::Print;
+use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::variable_expression::VariableExpression;
@@ -260,6 +261,21 @@ impl Expression {
             .filter_map(|print| {
                 if print.expression == self.id() {
                     Some(print)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-result_statement"}}}
+    /// Navigate to [`ResultStatement`] across R41(1-M)
+    pub fn r41_result_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ResultStatement> {
+        store
+            .iter_result_statement()
+            .filter_map(|result_statement| {
+                if result_statement.expression == self.id() {
+                    Some(result_statement)
                 } else {
                     None
                 }

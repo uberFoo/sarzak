@@ -22,8 +22,6 @@ pub struct FieldExpression {
     pub name: String,
     /// R38: [`FieldExpression`] '' [`Expression`]
     pub expression: Uuid,
-    /// R25: [`FieldExpression`] 'follows' [`FieldExpression`]
-    pub next: Option<Uuid>,
     /// R26: [`FieldExpression`] 'belongs to a' [`StructExpression`]
     pub woog_struct: Uuid,
 }
@@ -35,7 +33,6 @@ impl FieldExpression {
     pub fn new(
         name: String,
         expression: &Expression,
-        next: Option<&FieldExpression>,
         woog_struct: &StructExpression,
         store: &mut LuDogStore,
     ) -> FieldExpression {
@@ -44,7 +41,6 @@ impl FieldExpression {
             id: id,
             name: name,
             expression: expression.id(),
-            next: next.map(|field_expression| field_expression.id),
             woog_struct: woog_struct.id,
         };
         store.inter_field_expression(new.clone());
@@ -56,7 +52,6 @@ impl FieldExpression {
     pub fn new_(
         name: String,
         expression: &Expression,
-        next: Option<&FieldExpression>,
         woog_struct: &StructExpression,
     ) -> FieldExpression {
         let id = Uuid::new_v4();
@@ -64,7 +59,6 @@ impl FieldExpression {
             id: id,
             name: name,
             expression: expression.id(),
-            next: next.map(|field_expression| field_expression.id),
             woog_struct: woog_struct.id,
         };
         new
@@ -77,30 +71,13 @@ impl FieldExpression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-cond-to-next"}}}
-    /// Navigate to [`FieldExpression`] across R25(1-*c)
-    pub fn r25_field_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FieldExpression> {
-        match self.next {
-            Some(ref next) => vec![store.exhume_field_expression(next).unwrap()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-woog_struct"}}}
     /// Navigate to [`StructExpression`] across R26(1-*)
     pub fn r26_struct_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&StructExpression> {
         vec![store.exhume_struct_expression(&self.woog_struct).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-backward-one-bi-cond-to-field_expression"}}}
-    /// Navigate to [`FieldExpression`] across R25(1c-1c)
-    pub fn r25c_field_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FieldExpression> {
-        let field_expression = store
-            .iter_field_expression()
-            .find(|field_expression| field_expression.next == Some(self.id));
-        match field_expression {
-            Some(ref field_expression) => vec![field_expression],
-            None => Vec::new(),
-        }
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-backward-one-bi-cond-to-field_expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

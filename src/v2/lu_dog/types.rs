@@ -84,7 +84,6 @@ pub use crate::v2::lu_dog::parameter::Parameter;
 pub use crate::v2::lu_dog::print::Print;
 pub use crate::v2::lu_dog::reference::Reference;
 pub use crate::v2::lu_dog::result_statement::ResultStatement;
-pub use crate::v2::lu_dog::result_statement::RESULT_STATEMENT;
 pub use crate::v2::lu_dog::statement::Statement;
 pub use crate::v2::lu_dog::statement::StatementEnum;
 pub use crate::v2::lu_dog::static_method_call::StaticMethodCall;

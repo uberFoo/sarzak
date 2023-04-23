@@ -75,6 +75,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "struct" => Token::Struct,
         "true" => Token::Bool(true),
         "use" => Token::Import,
+        "Uuid" => Token::Uuid,
         _ => Token::Ident(ident),
     });
 
@@ -107,6 +108,7 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
     recursive(|type_| {
         let basic_type = filter_map(|span: Span, tok| match tok {
             Token::Type(type_) => Ok(type_.clone()),
+            Token::Uuid => Ok(Type::Uuid),
             Token::Ident(ident) => Ok(Type::UserType(Box::new(Token::Ident(ident.clone())))),
             _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
         });
@@ -134,8 +136,7 @@ fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
             .ignore_then(just(Token::Punct(')')))
             .map(|_| Type::Empty);
 
-        self_.or(empty).or(option).or(list).or(type_)
-        // empty.or(option).or(list).or(type_)
+        self_.or(type_).or(empty).or(option).or(list)
     })
 }
 
@@ -210,6 +211,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
             let object = filter_map(|span: Span, tok| match tok {
                 Token::Ident(ident) => Ok(Token::Ident(ident.clone())),
                 Token::Self_ => Ok(Token::Self_),
+                Token::Uuid => Ok(Token::Uuid),
                 _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
             });
 
@@ -225,12 +227,14 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
             // A list of expressions
             let items = expr
                 .clone()
+                .debug("items")
                 // .or(reference)
                 .separated_by(just(Token::Punct(',')))
                 .allow_trailing();
 
             let list = items
                 .clone()
+                .debug("list")
                 .delimited_by(just(Token::Punct('[')), just(Token::Punct(']')))
                 .map(Expression::List);
 
@@ -269,6 +273,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             let field_access = atom
                 .clone()
+                .debug("field_access")
                 .map_with_span(|expr, span| (expr, span))
                 .then_ignore(just(Token::Punct('.')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
@@ -276,6 +281,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             let method_call = atom
                 .clone()
+                .debug("method_call")
                 .then_ignore(just(Token::Punct('.')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
                 .then(
@@ -297,8 +303,8 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .map(|(expr, _)| expr);
 
             let static_method_call = object
-                // let static_method_call = atom
                 .clone()
+                .debug("static_method_call")
                 .map_with_span(|obj, span| (obj, span))
                 .then_ignore(just(Token::Punct('∷')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
@@ -322,6 +328,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
             // Function calls have very high precedence so we prioritise them
             let call = atom
                 .clone()
+                .debug("call")
                 .then(
                     items
                         .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
@@ -368,23 +375,11 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                     }
                 });
 
-            // field_access
-            // .or(method_call)
             method_call
                 .or(field_access)
                 .or(static_method_call)
                 .or(struct_expression)
                 .or(call)
-            // struct_expression
-            // .or(static_method_call)
-            // .or(field_access)
-            // .or(call)
-            // .or(atom)
-            //
-            //
-            // .or(method_call)
-            // .or(field_access)
-            // .or(call)
 
             // // Product ops (multiply and divide) have equal precedence
             // let op = just(Token::Op("*".to_string()))

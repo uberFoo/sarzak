@@ -33,6 +33,7 @@
 //! * [`Parameter`]
 //! * [`Print`]
 //! * [`Reference`]
+//! * [`ResultStatement`]
 //! * [`ZSome`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -48,6 +49,8 @@ use std::{
     fs,
     io::{self, prelude::*},
     path::Path,
+    sync::Arc,
+    sync::RwLock,
     time::SystemTime,
 };
 
@@ -59,10 +62,10 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::{
     Argument, Block, BooleanLiteral, Call, Error, ErrorExpression, Expression, ExpressionStatement,
     Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
-    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, Value, ValueType, Variable,
-    VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL,
-    FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference,
+    ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression, Value,
+    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome, EMPTY,
+    FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -93,8 +96,9 @@ pub struct ObjectStore {
     parameter: HashMap<Uuid, (Parameter, SystemTime)>,
     print: HashMap<Uuid, (Print, SystemTime)>,
     reference: HashMap<Uuid, (Reference, SystemTime)>,
+    result_statement: HashMap<Uuid, (ResultStatement, SystemTime)>,
     z_some: HashMap<Uuid, (ZSome, SystemTime)>,
-    statement: HashMap<Uuid, (Statement, SystemTime)>,
+    statement: HashMap<Uuid, (Arc<RwLock<Statement>>, SystemTime)>,
     static_method_call: HashMap<Uuid, (StaticMethodCall, SystemTime)>,
     string_literal: HashMap<Uuid, (StringLiteral, SystemTime)>,
     woog_struct: HashMap<Uuid, (WoogStruct, SystemTime)>,
@@ -135,6 +139,7 @@ impl ObjectStore {
             parameter: HashMap::default(),
             print: HashMap::default(),
             reference: HashMap::default(),
+            result_statement: HashMap::default(),
             z_some: HashMap::default(),
             statement: HashMap::default(),
             static_method_call: HashMap::default(),
@@ -1131,6 +1136,46 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`ResultStatement`] into the store.
+    ///
+    pub fn inter_result_statement(&mut self, result_statement: ResultStatement) {
+        self.result_statement
+            .insert(result_statement.id, (result_statement, SystemTime::now()));
+    }
+
+    /// Exhume [`ResultStatement`] from the store.
+    ///
+    pub fn exhume_result_statement(&self, id: &Uuid) -> Option<&ResultStatement> {
+        self.result_statement
+            .get(id)
+            .map(|result_statement| &result_statement.0)
+    }
+
+    /// Exhume [`ResultStatement`] from the store — mutably.
+    ///
+    pub fn exhume_result_statement_mut(&mut self, id: &Uuid) -> Option<&mut ResultStatement> {
+        self.result_statement
+            .get_mut(id)
+            .map(|result_statement| &mut result_statement.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
+    ///
+    pub fn iter_result_statement(&self) -> impl Iterator<Item = &ResultStatement> {
+        self.result_statement
+            .values()
+            .map(|result_statement| &result_statement.0)
+    }
+
+    /// Get the timestamp for ResultStatement.
+    ///
+    pub fn result_statement_timestamp(&self, result_statement: &ResultStatement) -> SystemTime {
+        self.result_statement
+            .get(&result_statement.id)
+            .map(|result_statement| result_statement.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`ZSome`] into the store.
     ///
     pub fn inter_z_some(&mut self, z_some: ZSome) {
@@ -1166,27 +1211,29 @@ impl ObjectStore {
 
     /// Inter [`Statement`] into the store.
     ///
-    pub fn inter_statement(&mut self, statement: Statement) {
-        self.statement
-            .insert(statement.id, (statement, SystemTime::now()));
+    pub fn inter_statement(&mut self, statement: Arc<RwLock<Statement>>) {
+        self.statement.insert(
+            statement.read().unwrap().id,
+            (statement.clone(), SystemTime::now()),
+        );
     }
 
     /// Exhume [`Statement`] from the store.
     ///
-    pub fn exhume_statement(&self, id: &Uuid) -> Option<&Statement> {
-        self.statement.get(id).map(|statement| &statement.0)
+    pub fn exhume_statement(&self, id: &Uuid) -> Option<Arc<RwLock<Statement>>> {
+        self.statement.get(id).map(|statement| statement.0.clone())
     }
 
     /// Exhume [`Statement`] from the store — mutably.
     ///
-    pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
-        self.statement.get_mut(id).map(|statement| &mut statement.0)
-    }
+    // pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
+    //     self.statement.get_mut(id).map(|statement| &mut statement.0)
+    // }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
-    pub fn iter_statement(&self) -> impl Iterator<Item = &Statement> {
-        self.statement.values().map(|statement| &statement.0)
+    pub fn iter_statement(&self) -> impl Iterator<Item = Arc<RwLock<Statement>>> + '_ {
+        self.statement.values().map(|statement| statement.0.clone())
     }
 
     /// Get the timestamp for Statement.
@@ -2422,6 +2469,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist Result Statement.
+        {
+            let path = path.join("result_statement");
+            fs::create_dir_all(&path)?;
+            for result_statement_tuple in self.result_statement.values() {
+                let path = path.join(format!("{}.json", result_statement_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (ResultStatement, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != result_statement_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.result_statement.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Some.
         {
             let path = path.join("z_some");
@@ -2461,12 +2542,19 @@ impl ObjectStore {
             let path = path.join("statement");
             fs::create_dir_all(&path)?;
             for statement_tuple in self.statement.values() {
-                let path = path.join(format!("{}.json", statement_tuple.0.id));
+                let path = path.join(format!("{}.json", statement_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Statement, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != statement_tuple.0 {
+                    let on_disk: (Arc<RwLock<Statement>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    let on_disk = on_disk.0.read().unwrap();
+                    let this = statement_tuple.0.read().unwrap();
+                    if on_disk.id != this.id
+                        || on_disk.subtype != this.subtype
+                        || on_disk.block != this.block
+                        || on_disk.next != this.next
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
@@ -3164,6 +3252,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Result Statement.
+        {
+            let path = path.join("result_statement");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let result_statement: (ResultStatement, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .result_statement
+                    .insert(result_statement.0.id, result_statement);
+            }
+        }
+
         // Load Some.
         {
             let path = path.join("z_some");
@@ -3187,8 +3292,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let statement: (Statement, SystemTime) = serde_json::from_reader(reader)?;
-                store.statement.insert(statement.0.id, statement);
+                let statement: (Arc<RwLock<Statement>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .statement
+                    .insert(statement.0.read().unwrap().id, statement.clone());
             }
         }
 
