@@ -609,10 +609,17 @@ fn inter_expression(
             let ty = if type_name == "Uuid" && method == "new" {
                 ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_uuid())), lu_dog)
             } else {
+                debug!(
+                    "ParserExpression::StaticMethodCall: looking up type",
+                    type_name
+                );
                 // How do we look up a type? Oh, duh.
-                let obj = model.exhume_object_id_by_name(&type_name).unwrap();
-                let ty = model.exhume_ty(&obj).unwrap();
-                lu_dog.exhume_value_type(&ty.id()).unwrap().clone()
+                if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
+                    let ty = model.exhume_ty(&obj).unwrap();
+                    lu_dog.exhume_value_type(&ty.id()).unwrap().clone()
+                } else {
+                    ValueType::new_unknown()
+                }
             };
 
             let mut last_arg_uuid: Option<Uuid> = None;

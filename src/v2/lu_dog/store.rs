@@ -1416,6 +1416,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &argument_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &argument_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1449,6 +1453,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &block_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &block_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1485,6 +1493,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &boolean_literal_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &boolean_literal_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1517,6 +1529,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1550,6 +1566,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &error_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1586,6 +1606,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1619,6 +1643,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1655,6 +1683,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &expression_statement_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &expression_statement_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1688,6 +1720,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1721,6 +1757,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_access_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &field_access_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1757,6 +1797,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_expression_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &field_expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1790,6 +1834,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1826,6 +1874,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1859,6 +1911,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1895,6 +1951,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1927,6 +1987,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &item_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &item_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1960,6 +2024,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &let_statement_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &let_statement_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -1992,6 +2060,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2025,6 +2097,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &literal_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &literal_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2061,6 +2137,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &local_variable_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &local_variable_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2094,6 +2174,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &method_call_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &method_call_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2130,6 +2214,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2163,6 +2251,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_option_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &woog_option_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2196,6 +2288,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &parameter_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &parameter_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2229,6 +2325,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2262,6 +2362,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2298,6 +2402,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2331,6 +2439,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2364,6 +2476,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2400,6 +2516,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &static_method_call_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &static_method_call_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2436,6 +2556,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2469,6 +2593,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_struct_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &woog_struct_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2505,6 +2633,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2538,6 +2670,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2571,6 +2707,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &value_type_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &value_type_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2604,6 +2744,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &variable_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &variable_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2640,6 +2784,10 @@ impl ObjectStore {
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &variable_expression_tuple)?;
                     }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &variable_expression_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
