@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"argument-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::call::Call;
@@ -30,38 +32,27 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
     pub fn new(
-        next: Option<&Argument>,
-        function: &Call,
-        expression: &Expression,
+        next: Option<Arc<RwLock<Argument>>>,
+        function: Arc<RwLock<Call>>,
+        expression: Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
-    ) -> Argument {
+    ) -> Arc<RwLock<Argument>> {
         let id = Uuid::new_v4();
-        let new = Argument {
+        let new = Arc::new(RwLock::new(Argument {
             id: id,
-            next: next.map(|argument| argument.id),
-            function: function.id,
-            expression: expression.id(),
-        };
+            next: next.map(|argument| argument.read().unwrap().id),
+            function: function.read().unwrap().id,
+            expression: expression.read().unwrap().id(),
+        }));
         store.inter_argument(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new_"}}}
-    /// Inter a new 'Argument' in the store, and return it's `id`.
-    pub fn new_(next: Option<&Argument>, function: &Call, expression: &Expression) -> Argument {
-        let id = Uuid::new_v4();
-        let new = Argument {
-            id: id,
-            next: next.map(|argument| argument.id),
-            function: function.id,
-            expression: expression.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Argument`] across R27(1-*c)
-    pub fn r27_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
+    pub fn r27_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         match self.next {
             Some(ref next) => vec![store.exhume_argument(next).unwrap()],
             None => Vec::new(),
@@ -70,24 +61,24 @@ impl Argument {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Call`] across R28(1-*)
-    pub fn r28_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+    pub fn r28_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Call>>> {
         vec![store.exhume_call(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R37(1-*)
-    pub fn r37_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r37_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R27(1c-1c)
-    pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
+    pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         let argument = store
             .iter_argument()
-            .find(|argument| argument.next == Some(self.id));
+            .find(|argument| argument.read().unwrap().next == Some(self.id));
         match argument {
-            Some(ref argument) => vec![argument],
+            Some(ref argument) => vec![argument.clone()],
             None => Vec::new(),
         }
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

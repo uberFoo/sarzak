@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -30,40 +32,34 @@ pub struct Field {
 impl Field {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new"}}}
     /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new(name: String, model: &WoogStruct, ty: &ValueType, store: &mut LuDogStore) -> Field {
+    pub fn new(
+        name: String,
+        model: Arc<RwLock<WoogStruct>>,
+        ty: Arc<RwLock<ValueType>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Field>> {
         let id = Uuid::new_v4();
-        let new = Field {
+        let new = Arc::new(RwLock::new(Field {
             id: id,
             name: name,
-            model: model.id,
-            ty: ty.id(),
-        };
+            model: model.read().unwrap().id,
+            ty: ty.read().unwrap().id(),
+        }));
         store.inter_field(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new_"}}}
-    /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new_(name: String, model: &WoogStruct, ty: &ValueType) -> Field {
-        let id = Uuid::new_v4();
-        let new = Field {
-            id: id,
-            name: name,
-            model: model.id,
-            ty: ty.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-model"}}}
     /// Navigate to [`WoogStruct`] across R7(1-*)
-    pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<&WoogStruct> {
+    pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogStruct>>> {
         vec![store.exhume_woog_struct(&self.model).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R5(1-*)
-    pub fn r5_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r5_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

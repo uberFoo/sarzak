@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"integer_literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::literal::Literal;
@@ -27,30 +29,21 @@ pub struct IntegerLiteral {
 impl IntegerLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-struct-impl-new"}}}
     /// Inter a new 'Integer Literal' in the store, and return it's `id`.
-    pub fn new(value: i64, store: &mut LuDogStore) -> IntegerLiteral {
+    pub fn new(value: i64, store: &mut LuDogStore) -> Arc<RwLock<IntegerLiteral>> {
         let id = Uuid::new_v4();
-        let new = IntegerLiteral {
+        let new = Arc::new(RwLock::new(IntegerLiteral {
             id: id,
             value: value,
-        };
+        }));
         store.inter_integer_literal(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-struct-impl-new_"}}}
-    /// Inter a new 'Integer Literal' in the store, and return it's `id`.
-    pub fn new_(value: i64) -> IntegerLiteral {
-        let id = Uuid::new_v4();
-        let new = IntegerLiteral {
-            id: id,
-            value: value,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-impl-nav-subtype-to-supertype-literal"}}}
     // Navigate to [`Literal`] across R22(isa)
-    pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Literal> {
+    pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Literal>>> {
         vec![store.exhume_literal(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

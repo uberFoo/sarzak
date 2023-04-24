@@ -1,4 +1,9 @@
-use std::{fmt, ops, path::PathBuf, rc::Rc};
+use std::{
+    fmt, ops,
+    path::PathBuf,
+    rc::Rc,
+    sync::{Arc, RwLock},
+};
 
 use ansi_term::Colour;
 use clap::Args;
@@ -15,12 +20,12 @@ use crate::{
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
 
+pub mod compiler;
 pub mod parser;
 pub mod parser_orig;
-pub mod walker;
 
+pub use compiler::{inter_statement, populate_lu_dog};
 pub use parser::{parse_dwarf, parse_line};
-pub use walker::{inter_statement, populate_lu_dog};
 
 pub type Result<T, E = DwarfError> = std::result::Result<T, E>;
 
@@ -147,40 +152,40 @@ impl Type {
         store: &mut LuDogStore,
         model: &SarzakStore,
         sarzak: &SarzakStore,
-    ) -> ValueType {
+    ) -> Arc<RwLock<ValueType>> {
         match self {
             Type::Boolean => {
                 let ty = Ty::new_boolean();
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
             Type::Empty => ValueType::new_empty(),
             Type::Float => {
                 let ty = Ty::new_float();
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
             Type::Integer => {
                 let ty = Ty::new_integer();
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
             Type::List(type_) => {
                 let ty = type_.into_value_type(store, model, sarzak);
-                let list = List::new(&ty, store);
-                ValueType::new_list(&list, store)
+                let list = List::new(ty, store);
+                ValueType::new_list(list, store)
             }
             Type::Option(type_) => {
                 let ty = type_.into_value_type(store, model, sarzak);
-                let option = WoogOption::new_z_none(&ty, store);
-                ValueType::new_woog_option(&option, store)
+                let option = WoogOption::new_z_none(ty, store);
+                ValueType::new_woog_option(option, store)
             }
             Type::Reference(type_) => {
                 let ty = type_.into_value_type(store, model, sarzak);
-                let reference = Reference::new(Uuid::new_v4(), false, &ty, store);
-                ValueType::new_reference(&reference, store)
+                let reference = Reference::new(Uuid::new_v4(), false, ty, store);
+                ValueType::new_reference(reference, store)
             }
             Type::Self_(type_) => panic!("Self is deprecated."),
             Type::String => {
                 let ty = Ty::new_s_string();
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
             Type::Unknown => ValueType::new_unknown(),
             Type::UserType(type_) => {
@@ -197,11 +202,11 @@ impl Type {
                     sarzak.exhume_ty(obj_id).unwrap()
                 };
 
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty.to_owned())), store)
             }
             Type::Uuid => {
                 let ty = Ty::new_s_uuid();
-                ValueType::new_ty(&ty, store)
+                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
         }
     }

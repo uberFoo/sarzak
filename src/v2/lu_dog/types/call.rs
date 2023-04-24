@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::argument::Argument;
@@ -38,105 +40,69 @@ pub enum CallEnum {
 impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_function_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
-    pub fn new_function_call(expression: Option<&Expression>, store: &mut LuDogStore) -> Call {
+    pub fn new_function_call(
+        expression: Option<Arc<RwLock<Expression>>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = FUNCTION_CALL;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
+        let new = Arc::new(RwLock::new(Call {
+            expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
-        };
+        }));
         store.inter_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_function_call_"}}}
-    /// Inter a new Call in the store, and return it's `id`.
-    pub fn new_function_call_(expression: Option<&Expression>) -> Call {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = FUNCTION_CALL;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
-            subtype: CallEnum::FunctionCall(FUNCTION_CALL),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_method_call(
-        expression: Option<&Expression>,
-        subtype: &MethodCall,
+        expression: Option<Arc<RwLock<Expression>>>,
+        subtype: Arc<RwLock<MethodCall>>,
         store: &mut LuDogStore,
-    ) -> Call {
+    ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
-            subtype: CallEnum::MethodCall(subtype.id),
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Call {
+            expression: expression.map(|expression| expression.read().unwrap().id()),
+            subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
             id,
-        };
+        }));
         store.inter_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_method_call_"}}}
-    /// Inter a new Call in the store, and return it's `id`.
-    pub fn new_method_call_(expression: Option<&Expression>, subtype: &MethodCall) -> Call {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
-            subtype: CallEnum::MethodCall(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_static_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_static_method_call(
-        expression: Option<&Expression>,
-        subtype: &StaticMethodCall,
+        expression: Option<Arc<RwLock<Expression>>>,
+        subtype: Arc<RwLock<StaticMethodCall>>,
         store: &mut LuDogStore,
-    ) -> Call {
+    ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
-            subtype: CallEnum::StaticMethodCall(subtype.id),
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Call {
+            expression: expression.map(|expression| expression.read().unwrap().id()),
+            subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
             id,
-        };
+        }));
         store.inter_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_static_method_call_"}}}
-    /// Inter a new Call in the store, and return it's `id`.
-    pub fn new_static_method_call_(
-        expression: Option<&Expression>,
-        subtype: &StaticMethodCall,
-    ) -> Call {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Call {
-            expression: expression.map(|expression| expression.id()),
-            subtype: CallEnum::StaticMethodCall(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
     /// Navigate to [`Expression`] across R29(1-*c)
-    pub fn r29_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r29_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         match self.expression {
             Some(ref expression) => vec![store.exhume_expression(expression).unwrap()],
             None => Vec::new(),
@@ -145,11 +111,11 @@ impl Call {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R28(1-M)
-    pub fn r28_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
+    pub fn r28_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         store
             .iter_argument()
             .filter_map(|argument| {
-                if argument.function == self.id {
+                if argument.read().unwrap().function == self.id {
                     Some(argument)
                 } else {
                     None
@@ -160,7 +126,7 @@ impl Call {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

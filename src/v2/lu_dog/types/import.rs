@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"import-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::item::Item;
@@ -47,42 +49,23 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Object>,
+        object: Option<Object>,
         store: &mut LuDogStore,
-    ) -> Import {
+    ) -> Arc<RwLock<Import>> {
         let id = Uuid::new_v4();
-        let new = Import {
+        let new = Arc::new(RwLock::new(Import {
             alias: alias,
             has_alias: has_alias,
             id: id,
             name: name,
             path: path,
             object: object.map(|object| object.id),
-        };
+        }));
         store.inter_import(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-new_"}}}
-    /// Inter a new 'Import' in the store, and return it's `id`.
-    pub fn new_(
-        alias: String,
-        has_alias: bool,
-        name: String,
-        path: String,
-        object: Option<&Object>,
-    ) -> Import {
-        let id = Uuid::new_v4();
-        let new = Import {
-            alias: alias,
-            has_alias: has_alias,
-            id: id,
-            name: name,
-            path: path,
-            object: object.map(|object| object.id),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-nav-forward-cond-to-object"}}}
@@ -96,13 +79,13 @@ impl Import {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
-    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Item> {
+    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
         vec![store.exhume_item(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

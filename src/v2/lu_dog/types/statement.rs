@@ -1,6 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
-use std::{sync::Arc, sync::RwLock};
+use std::sync::{Arc, RwLock};
 
 use uuid::Uuid;
 
@@ -45,18 +45,18 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &ExpressionStatement,
+        block: Arc<RwLock<Block>>,
+        next: Option<Arc<RwLock<Statement>>>,
+        subtype: Arc<RwLock<ExpressionStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = subtype.read().unwrap().id;
         let new = Arc::new(RwLock::new(Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ExpressionStatement(subtype.id),
+            block: block.read().unwrap().id,
+            next: next.map(|statement| statement.read().unwrap().id),
+            subtype: StatementEnum::ExpressionStatement(subtype.read().unwrap().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -64,37 +64,20 @@ impl Statement {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_expression_statement_(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &ExpressionStatement,
-    ) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ExpressionStatement(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
-        block: &Block,
-        next: Option<&Statement>,
+        block: Arc<RwLock<Block>>,
+        next: Option<Arc<RwLock<Statement>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = ITEM_STATEMENT;
         let new = Arc::new(RwLock::new(Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
+            block: block.read().unwrap().id,
+            next: next.map(|statement| statement.read().unwrap().id),
             subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
             id,
         }));
@@ -103,35 +86,22 @@ impl Statement {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_item_statement_(block: &Block, next: Option<&Statement>) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = ITEM_STATEMENT;
-        let new = Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &LetStatement,
+        block: Arc<RwLock<Block>>,
+        next: Option<Arc<RwLock<Statement>>>,
+        subtype: Arc<RwLock<LetStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = subtype.read().unwrap().id;
         let new = Arc::new(RwLock::new(Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::LetStatement(subtype.id),
+            block: block.read().unwrap().id,
+            next: next.map(|statement| statement.read().unwrap().id),
+            subtype: StatementEnum::LetStatement(subtype.read().unwrap().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -139,39 +109,22 @@ impl Statement {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_let_statement_(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &LetStatement,
-    ) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::LetStatement(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &ResultStatement,
+        block: Arc<RwLock<Block>>,
+        next: Option<Arc<RwLock<Statement>>>,
+        subtype: Arc<RwLock<ResultStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = subtype.read().unwrap().id;
         let new = Arc::new(RwLock::new(Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ResultStatement(subtype.id),
+            block: block.read().unwrap().id,
+            next: next.map(|statement| statement.read().unwrap().id),
+            subtype: StatementEnum::ResultStatement(subtype.read().unwrap().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -179,27 +132,10 @@ impl Statement {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_result_statement_(
-        block: &Block,
-        next: Option<&Statement>,
-        subtype: &ResultStatement,
-    ) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Statement {
-            block: block.id,
-            next: next.map(|statement| statement.id),
-            subtype: StatementEnum::ResultStatement(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
-    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Block> {
+    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -215,12 +151,11 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
     /// Navigate to [`Statement`] across R17(1c-1c)
     pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
-        let statement = store.iter_statement().find(|statement| {
-            let statement = statement.read().unwrap();
-            statement.next == Some(self.id)
-        });
+        let statement = store
+            .iter_statement()
+            .find(|statement| statement.read().unwrap().next == Some(self.id));
         match statement {
-            Some(statement) => vec![statement],
+            Some(ref statement) => vec![statement.clone()],
             None => Vec::new(),
         }
     }

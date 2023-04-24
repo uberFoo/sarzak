@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"z_object_store-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -25,30 +27,21 @@ pub struct ZObjectStore {
 impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-new"}}}
     /// Inter a new 'Object Store' in the store, and return it's `id`.
-    pub fn new(domain: String, store: &mut LuDogStore) -> ZObjectStore {
+    pub fn new(domain: String, store: &mut LuDogStore) -> Arc<RwLock<ZObjectStore>> {
         let id = Uuid::new_v4();
-        let new = ZObjectStore {
+        let new = Arc::new(RwLock::new(ZObjectStore {
             domain: domain,
             id: id,
-        };
+        }));
         store.inter_z_object_store(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-new_"}}}
-    /// Inter a new 'Object Store' in the store, and return it's `id`.
-    pub fn new_(domain: String) -> ZObjectStore {
-        let id = Uuid::new_v4();
-        let new = ZObjectStore {
-            domain: domain,
-            id: id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

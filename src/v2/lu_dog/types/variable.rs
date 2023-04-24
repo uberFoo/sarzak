@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
@@ -39,67 +41,47 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(
         name: String,
-        subtype: &LocalVariable,
+        subtype: Arc<RwLock<LocalVariable>>,
         store: &mut LuDogStore,
-    ) -> Variable {
+    ) -> Arc<RwLock<Variable>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.id),
+            subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
             id,
-        };
+        }));
         store.inter_variable(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local_variable_"}}}
-    /// Inter a new Variable in the store, and return it's `id`.
-    pub fn new_local_variable_(name: String, subtype: &LocalVariable) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
-            name: name,
-            subtype: VariableEnum::LocalVariable(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter"}}}
     /// Inter a new Variable in the store, and return it's `id`.
-    pub fn new_parameter(name: String, subtype: &Parameter, store: &mut LuDogStore) -> Variable {
+    pub fn new_parameter(
+        name: String,
+        subtype: Arc<RwLock<Parameter>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Variable>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.id),
+            subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
             id,
-        };
+        }));
         store.inter_variable(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter_"}}}
-    /// Inter a new Variable in the store, and return it's `id`.
-    pub fn new_parameter_(name: String, subtype: &Parameter) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
-            name: name,
-            subtype: VariableEnum::Parameter(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R11(isa)
-    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {
+    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
         vec![store.exhume_value(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

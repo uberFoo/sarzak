@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
@@ -29,44 +31,44 @@ pub enum Literal {
 impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
     /// Create a new instance of Literal::BooleanLiteral
-    pub fn new_boolean_literal(boolean_literal: &BooleanLiteral, store: &mut LuDogStore) -> Self {
-        let new = Self::BooleanLiteral(boolean_literal.id());
+    pub fn new_boolean_literal(
+        boolean_literal: Arc<RwLock<BooleanLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::BooleanLiteral(
+            boolean_literal.read().unwrap().id(),
+        )));
         store.inter_literal(new.clone());
-        new
-    }
-
-    pub fn new_boolean_literal_(boolean_literal: &BooleanLiteral) -> Self {
-        let new = Self::BooleanLiteral(boolean_literal.id());
         new
     }
 
     /// Create a new instance of Literal::FloatLiteral
-    pub fn new_float_literal() -> Self {
+    pub fn new_float_literal() -> Arc<RwLock<Self>> {
         // This is already in the store, see associated function `new` above.
-        Self::FloatLiteral(FLOAT_LITERAL)
+        Arc::new(RwLock::new(Self::FloatLiteral(FLOAT_LITERAL)))
     }
 
     /// Create a new instance of Literal::IntegerLiteral
-    pub fn new_integer_literal(integer_literal: &IntegerLiteral, store: &mut LuDogStore) -> Self {
-        let new = Self::IntegerLiteral(integer_literal.id);
+    pub fn new_integer_literal(
+        integer_literal: Arc<RwLock<IntegerLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::IntegerLiteral(
+            integer_literal.read().unwrap().id,
+        )));
         store.inter_literal(new.clone());
-        new
-    }
-
-    pub fn new_integer_literal_(integer_literal: &IntegerLiteral) -> Self {
-        let new = Self::IntegerLiteral(integer_literal.id);
         new
     }
 
     /// Create a new instance of Literal::StringLiteral
-    pub fn new_string_literal(string_literal: &StringLiteral, store: &mut LuDogStore) -> Self {
-        let new = Self::StringLiteral(string_literal.id);
+    pub fn new_string_literal(
+        string_literal: Arc<RwLock<StringLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::StringLiteral(
+            string_literal.read().unwrap().id,
+        )));
         store.inter_literal(new.clone());
-        new
-    }
-
-    pub fn new_string_literal_(string_literal: &StringLiteral) -> Self {
-        let new = Self::StringLiteral(string_literal.id);
         new
     }
 
@@ -83,7 +85,7 @@ impl Literal {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

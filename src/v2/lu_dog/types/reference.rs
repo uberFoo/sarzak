@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"reference-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -28,41 +30,35 @@ pub struct Reference {
 impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new(address: Uuid, is_valid: bool, ty: &ValueType, store: &mut LuDogStore) -> Reference {
+    pub fn new(
+        address: Uuid,
+        is_valid: bool,
+        ty: Arc<RwLock<ValueType>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Reference>> {
         let id = Uuid::new_v4();
-        let new = Reference {
+        let new = Arc::new(RwLock::new(Reference {
             address: address,
             id: id,
             is_valid: is_valid,
-            ty: ty.id(),
-        };
+            ty: ty.read().unwrap().id(),
+        }));
         store.inter_reference(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new_"}}}
-    /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new_(address: Uuid, is_valid: bool, ty: &ValueType) -> Reference {
-        let id = Uuid::new_v4();
-        let new = Reference {
-            address: address,
-            id: id,
-            is_valid: is_valid,
-            ty: ty.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R35(1-*)
-    pub fn r35_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r35_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

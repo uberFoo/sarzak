@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"value-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -41,95 +43,69 @@ impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
-        block: &Block,
-        ty: &ValueType,
-        subtype: &Expression,
+        block: Arc<RwLock<Block>>,
+        ty: Arc<RwLock<ValueType>>,
+        subtype: Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
-    ) -> Value {
+    ) -> Arc<RwLock<Value>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id();
-        let new = Value {
-            block: block.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Expression(subtype.id()),
+        let id = subtype.read().unwrap().id();
+        let new = Arc::new(RwLock::new(Value {
+            block: block.read().unwrap().id,
+            ty: ty.read().unwrap().id(),
+            subtype: ValueEnum::Expression(subtype.read().unwrap().id()),
             id,
-        };
+        }));
         store.inter_value(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression_"}}}
-    /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_expression_(block: &Block, ty: &ValueType, subtype: &Expression) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
-        let new = Value {
-            block: block.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Expression(subtype.id()),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
-        block: &Block,
-        ty: &ValueType,
-        subtype: &Variable,
+        block: Arc<RwLock<Block>>,
+        ty: Arc<RwLock<ValueType>>,
+        subtype: Arc<RwLock<Variable>>,
         store: &mut LuDogStore,
-    ) -> Value {
+    ) -> Arc<RwLock<Value>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Value {
-            block: block.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Variable(subtype.id),
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Value {
+            block: block.read().unwrap().id,
+            ty: ty.read().unwrap().id(),
+            subtype: ValueEnum::Variable(subtype.read().unwrap().id),
             id,
-        };
+        }));
         store.inter_value(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
-    /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_variable_(block: &Block, ty: &ValueType, subtype: &Variable) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Value {
-            block: block.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Variable(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R33(1-*)
-    pub fn r33_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Block> {
+    pub fn r33_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R24(1-*)
-    pub fn r24_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ValueType> {
+    pub fn r24_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-some"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-z_some"}}}
     /// Navigate to [`ZSome`] across R23(1-M)
-    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ZSome> {
+    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ZSome>>> {
         store
             .iter_z_some()
             .filter_map(|z_some| {
-                if z_some.inner == self.id {
+                if z_some.read().unwrap().inner == self.id {
                     Some(z_some)
                 } else {
                     None

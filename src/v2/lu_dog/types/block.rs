@@ -1,7 +1,7 @@
-use std::{sync::Arc, sync::RwLock};
-
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"block-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -39,29 +39,23 @@ pub struct Block {
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new(bug: Uuid, store: &mut LuDogStore) -> Block {
+    pub fn new(bug: Uuid, store: &mut LuDogStore) -> Arc<RwLock<Block>> {
         let id = Uuid::new_v4();
-        let new = Block { bug: bug, id: id };
+        let new = Arc::new(RwLock::new(Block { bug: bug, id: id }));
         store.inter_block(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new_"}}}
-    /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new_(bug: Uuid) -> Block {
-        let id = Uuid::new_v4();
-        let new = Block { bug: bug, id: id };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
     /// Navigate to [`Function`] across R19(1-1c)
-    pub fn r19c_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Function> {
+    pub fn r19c_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Function>>> {
         let function = store
             .iter_function()
-            .find(|function| function.block == self.id);
+            .find(|function| function.read().unwrap().block == self.id);
         match function {
-            Some(ref function) => vec![function],
+            Some(ref function) => vec![function.clone()],
             None => Vec::new(),
         }
     }
@@ -72,9 +66,8 @@ impl Block {
         store
             .iter_statement()
             .filter_map(|statement| {
-                let reader = statement.read().unwrap();
-                if reader.block == self.id {
-                    Some(statement.clone())
+                if statement.read().unwrap().block == self.id {
+                    Some(statement)
                 } else {
                     None
                 }
@@ -84,11 +77,11 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-value"}}}
     /// Navigate to [`Value`] across R33(1-M)
-    pub fn r33_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {
+    pub fn r33_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
         store
             .iter_value()
             .filter_map(|value| {
-                if value.block == self.id {
+                if value.read().unwrap().block == self.id {
                     Some(value)
                 } else {
                     None
@@ -99,7 +92,7 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

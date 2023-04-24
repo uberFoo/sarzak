@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::argument::Argument;
 use crate::v2::lu_dog::types::block::Block;
@@ -42,107 +44,78 @@ pub enum Expression {
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
-    pub fn new_block(block: &Block, store: &mut LuDogStore) -> Self {
-        let new = Self::Block(block.id);
+    pub fn new_block(block: Arc<RwLock<Block>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Block(block.read().unwrap().id)));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_block_(block: &Block) -> Self {
-        let new = Self::Block(block.id);
         new
     }
 
     /// Create a new instance of Expression::Call
-    pub fn new_call(call: &Call, store: &mut LuDogStore) -> Self {
-        let new = Self::Call(call.id);
+    pub fn new_call(call: Arc<RwLock<Call>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Call(call.read().unwrap().id)));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_call_(call: &Call) -> Self {
-        let new = Self::Call(call.id);
         new
     }
 
     /// Create a new instance of Expression::ErrorExpression
     pub fn new_error_expression(
-        error_expression: &ErrorExpression,
+        error_expression: Arc<RwLock<ErrorExpression>>,
         store: &mut LuDogStore,
-    ) -> Self {
-        let new = Self::ErrorExpression(error_expression.id);
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::ErrorExpression(
+            error_expression.read().unwrap().id,
+        )));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_error_expression_(error_expression: &ErrorExpression) -> Self {
-        let new = Self::ErrorExpression(error_expression.id);
         new
     }
 
     /// Create a new instance of Expression::FieldAccess
-    pub fn new_field_access(field_access: &FieldAccess, store: &mut LuDogStore) -> Self {
-        let new = Self::FieldAccess(field_access.id);
+    pub fn new_field_access(
+        field_access: Arc<RwLock<FieldAccess>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::FieldAccess(
+            field_access.read().unwrap().id,
+        )));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_field_access_(field_access: &FieldAccess) -> Self {
-        let new = Self::FieldAccess(field_access.id);
         new
     }
 
     /// Create a new instance of Expression::Literal
-    pub fn new_literal(literal: &Literal, store: &mut LuDogStore) -> Self {
-        let new = Self::Literal(literal.id());
+    pub fn new_literal(literal: Arc<RwLock<Literal>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Literal(literal.read().unwrap().id())));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_literal_(literal: &Literal) -> Self {
-        let new = Self::Literal(literal.id());
         new
     }
 
     /// Create a new instance of Expression::Print
-    pub fn new_print(print: &Print, store: &mut LuDogStore) -> Self {
-        let new = Self::Print(print.id);
+    pub fn new_print(print: Arc<RwLock<Print>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Print(print.read().unwrap().id)));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_print_(print: &Print) -> Self {
-        let new = Self::Print(print.id);
         new
     }
 
     /// Create a new instance of Expression::StructExpression
     pub fn new_struct_expression(
-        struct_expression: &StructExpression,
+        struct_expression: Arc<RwLock<StructExpression>>,
         store: &mut LuDogStore,
-    ) -> Self {
-        let new = Self::StructExpression(struct_expression.id);
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::StructExpression(
+            struct_expression.read().unwrap().id,
+        )));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_struct_expression_(struct_expression: &StructExpression) -> Self {
-        let new = Self::StructExpression(struct_expression.id);
         new
     }
 
     /// Create a new instance of Expression::VariableExpression
     pub fn new_variable_expression(
-        variable_expression: &VariableExpression,
+        variable_expression: Arc<RwLock<VariableExpression>>,
         store: &mut LuDogStore,
-    ) -> Self {
-        let new = Self::VariableExpression(variable_expression.id);
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::VariableExpression(
+            variable_expression.read().unwrap().id,
+        )));
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_variable_expression_(variable_expression: &VariableExpression) -> Self {
-        let new = Self::VariableExpression(variable_expression.id);
         new
     }
 
@@ -163,11 +136,11 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R37(1-M)
-    pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Argument> {
+    pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         store
             .iter_argument()
             .filter_map(|argument| {
-                if argument.expression == self.id() {
+                if argument.read().unwrap().expression == self.id() {
                     Some(argument)
                 } else {
                     None
@@ -178,11 +151,11 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
     /// Navigate to [`Call`] across R29(1-Mc)
-    pub fn r29_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+    pub fn r29_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Call>>> {
         store
             .iter_call()
             .filter_map(|call| {
-                if call.expression == Some(self.id()) {
+                if call.read().unwrap().expression == Some(self.id()) {
                     Some(call)
                 } else {
                     None
@@ -196,11 +169,11 @@ impl Expression {
     pub fn r31_expression_statement<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<&ExpressionStatement> {
+    ) -> Vec<Arc<RwLock<ExpressionStatement>>> {
         store
             .iter_expression_statement()
             .filter_map(|expression_statement| {
-                if expression_statement.expression == self.id() {
+                if expression_statement.read().unwrap().expression == self.id() {
                     Some(expression_statement)
                 } else {
                     None
@@ -211,11 +184,11 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-field_access"}}}
     /// Navigate to [`FieldAccess`] across R27(1-M)
-    pub fn r27_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FieldAccess> {
+    pub fn r27_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<FieldAccess>>> {
         store
             .iter_field_access()
             .filter_map(|field_access| {
-                if field_access.expression == self.id() {
+                if field_access.read().unwrap().expression == self.id() {
                     Some(field_access)
                 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
                 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-function_call"}}}
@@ -228,11 +201,14 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-field_expression"}}}
     /// Navigate to [`FieldExpression`] across R38(1-M)
-    pub fn r38_field_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&FieldExpression> {
+    pub fn r38_field_expression<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<FieldExpression>>> {
         store
             .iter_field_expression()
             .filter_map(|field_expression| {
-                if field_expression.expression == self.id() {
+                if field_expression.read().unwrap().expression == self.id() {
                     Some(field_expression)
                 } else {
                     None
@@ -243,23 +219,26 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-let_statement"}}}
     /// Navigate to [`LetStatement`] across R20(1-1c)
-    pub fn r20c_let_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&LetStatement> {
+    pub fn r20c_let_statement<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<LetStatement>>> {
         let let_statement = store
             .iter_let_statement()
-            .find(|let_statement| let_statement.expression == self.id());
+            .find(|let_statement| let_statement.read().unwrap().expression == self.id());
         match let_statement {
-            Some(ref let_statement) => vec![let_statement],
+            Some(ref let_statement) => vec![let_statement.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
     /// Navigate to [`Print`] across R32(1-M)
-    pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Print> {
+    pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Print>>> {
         store
             .iter_print()
             .filter_map(|print| {
-                if print.expression == self.id() {
+                if print.read().unwrap().expression == self.id() {
                     Some(print)
                 } else {
                     None
@@ -270,11 +249,14 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-result_statement"}}}
     /// Navigate to [`ResultStatement`] across R41(1-M)
-    pub fn r41_result_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<&ResultStatement> {
+    pub fn r41_result_statement<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<ResultStatement>>> {
         store
             .iter_result_statement()
             .filter_map(|result_statement| {
-                if result_statement.expression == self.id() {
+                if result_statement.read().unwrap().expression == self.id() {
                     Some(result_statement)
                 } else {
                     None
@@ -285,7 +267,7 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R11(isa)
-    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Value> {
+    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
         vec![store.exhume_value(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

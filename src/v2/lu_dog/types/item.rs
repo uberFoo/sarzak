@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::implementation::Implementation;
@@ -22,50 +24,43 @@ pub enum Item {
 impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-new-impl"}}}
     /// Create a new instance of Item::Function
-    pub fn new_function(function: &Function, store: &mut LuDogStore) -> Self {
-        let new = Self::Function(function.id);
+    pub fn new_function(
+        function: Arc<RwLock<Function>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Function(function.read().unwrap().id)));
         store.inter_item(new.clone());
-        new
-    }
-
-    pub fn new_function_(function: &Function) -> Self {
-        let new = Self::Function(function.id);
         new
     }
 
     /// Create a new instance of Item::Implementation
-    pub fn new_implementation(implementation: &Implementation, store: &mut LuDogStore) -> Self {
-        let new = Self::Implementation(implementation.id);
+    pub fn new_implementation(
+        implementation: Arc<RwLock<Implementation>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Implementation(
+            implementation.read().unwrap().id,
+        )));
         store.inter_item(new.clone());
-        new
-    }
-
-    pub fn new_implementation_(implementation: &Implementation) -> Self {
-        let new = Self::Implementation(implementation.id);
         new
     }
 
     /// Create a new instance of Item::Import
-    pub fn new_import(import: &Import, store: &mut LuDogStore) -> Self {
-        let new = Self::Import(import.id);
+    pub fn new_import(import: Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::Import(import.read().unwrap().id)));
         store.inter_item(new.clone());
-        new
-    }
-
-    pub fn new_import_(import: &Import) -> Self {
-        let new = Self::Import(import.id);
         new
     }
 
     /// Create a new instance of Item::WoogStruct
-    pub fn new_woog_struct(woog_struct: &WoogStruct, store: &mut LuDogStore) -> Self {
-        let new = Self::WoogStruct(woog_struct.id);
+    pub fn new_woog_struct(
+        woog_struct: Arc<RwLock<WoogStruct>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::WoogStruct(
+            woog_struct.read().unwrap().id,
+        )));
         store.inter_item(new.clone());
-        new
-    }
-
-    pub fn new_woog_struct_(woog_struct: &WoogStruct) -> Self {
-        let new = Self::WoogStruct(woog_struct.id);
         new
     }
 

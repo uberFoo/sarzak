@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"method_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::call::Call;
@@ -26,25 +28,19 @@ pub struct MethodCall {
 impl MethodCall {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-struct-impl-new"}}}
     /// Inter a new 'Method Call' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut LuDogStore) -> MethodCall {
+    pub fn new(name: String, store: &mut LuDogStore) -> Arc<RwLock<MethodCall>> {
         let id = Uuid::new_v4();
-        let new = MethodCall { id: id, name: name };
+        let new = Arc::new(RwLock::new(MethodCall { id: id, name: name }));
         store.inter_method_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-struct-impl-new_"}}}
-    /// Inter a new 'Method Call' in the store, and return it's `id`.
-    pub fn new_(name: String) -> MethodCall {
-        let id = Uuid::new_v4();
-        let new = MethodCall { id: id, name: name };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-impl-nav-subtype-to-supertype-function_call"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-impl-nav-subtype-to-supertype-call"}}}
     // Navigate to [`Call`] across R30(isa)
-    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Call> {
+    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Call>>> {
         vec![store.exhume_call(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

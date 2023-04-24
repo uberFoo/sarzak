@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"error_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -25,24 +27,18 @@ pub struct ErrorExpression {
 impl ErrorExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-struct-impl-new"}}}
     /// Inter a new 'Error Expression' in the store, and return it's `id`.
-    pub fn new(span: String, store: &mut LuDogStore) -> ErrorExpression {
+    pub fn new(span: String, store: &mut LuDogStore) -> Arc<RwLock<ErrorExpression>> {
         let id = Uuid::new_v4();
-        let new = ErrorExpression { id: id, span: span };
+        let new = Arc::new(RwLock::new(ErrorExpression { id: id, span: span }));
         store.inter_error_expression(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-struct-impl-new_"}}}
-    /// Inter a new 'Error Expression' in the store, and return it's `id`.
-    pub fn new_(span: String) -> ErrorExpression {
-        let id = Uuid::new_v4();
-        let new = ErrorExpression { id: id, span: span };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

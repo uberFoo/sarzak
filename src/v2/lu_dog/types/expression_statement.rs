@@ -1,7 +1,7 @@
-use std::{sync::Arc, sync::RwLock};
-
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -29,30 +29,24 @@ pub struct ExpressionStatement {
 impl ExpressionStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-new"}}}
     /// Inter a new 'Expression Statement' in the store, and return it's `id`.
-    pub fn new(expression: &Expression, store: &mut LuDogStore) -> ExpressionStatement {
+    pub fn new(
+        expression: Arc<RwLock<Expression>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<ExpressionStatement>> {
         let id = Uuid::new_v4();
-        let new = ExpressionStatement {
+        let new = Arc::new(RwLock::new(ExpressionStatement {
             id: id,
-            expression: expression.id(),
-        };
+            expression: expression.read().unwrap().id(),
+        }));
         store.inter_expression_statement(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-new_"}}}
-    /// Inter a new 'Expression Statement' in the store, and return it's `id`.
-    pub fn new_(expression: &Expression) -> ExpressionStatement {
-        let id = Uuid::new_v4();
-        let new = ExpressionStatement {
-            id: id,
-            expression: expression.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R31(1-*)
-    pub fn r31_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<&Expression> {
+    pub fn r31_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
