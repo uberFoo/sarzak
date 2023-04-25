@@ -180,7 +180,6 @@ fn stmt_parser() -> impl Parser<Token, Statement, Error = Simple<Token>> + Clone
 }
 
 fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token>> + Clone {
-    dbg!("expr_parser");
     recursive(|expr| {
         let raw_expr = recursive(|raw_expr| {
             let literal = select! {
@@ -317,12 +316,17 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 )
                 .map(|((obj, method), args)| {
                     // dbg!(&obj, &method, &args);
-                    let args = &args[0];
-                    let span = obj.1.start..args.1.end;
-                    (
-                        Expression::StaticMethodCall(obj, method, args.0.clone()),
-                        span,
-                    )
+                    if args.len() > 0 {
+                        let args = &args[0];
+                        let span = obj.1.start..args.1.end;
+                        (
+                            Expression::StaticMethodCall(obj, method, args.0.clone()),
+                            span,
+                        )
+                    } else {
+                        let span = obj.1.start..obj.1.end;
+                        (Expression::StaticMethodCall(obj, method, Vec::new()), span)
+                    }
                 });
 
             // Function calls have very high precedence so we prioritise them
