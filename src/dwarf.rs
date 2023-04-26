@@ -181,7 +181,7 @@ impl Type {
                 let reference = Reference::new(Uuid::new_v4(), false, ty, store);
                 ValueType::new_reference(reference, store)
             }
-            Type::Self_(type_) => panic!("Self is deprecated."),
+            Type::Self_(_type_) => panic!("Self is deprecated."),
             Type::String => {
                 let ty = Ty::new_s_string();
                 ValueType::new_ty(Arc::new(RwLock::new(ty)), store)

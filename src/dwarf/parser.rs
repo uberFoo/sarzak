@@ -105,7 +105,7 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
 }
 
 fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
-    recursive(|type_| {
+    recursive(|_type_| {
         let basic_type = filter_map(|span: Span, tok| match tok {
             Token::Type(type_) => Ok(type_.clone()),
             Token::Uuid => Ok(Type::Uuid),
@@ -181,7 +181,7 @@ fn stmt_parser() -> impl Parser<Token, Statement, Error = Simple<Token>> + Clone
 
 fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token>> + Clone {
     recursive(|expr| {
-        let raw_expr = recursive(|raw_expr| {
+        let raw_expr = recursive(|_raw_expr| {
             let literal = select! {
                 Token::Bool(x) => Expression::BooleanLiteral(x),
                 Token::Integer(n) => Expression::IntegerLiteral(n.parse().unwrap()),
