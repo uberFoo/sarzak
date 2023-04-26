@@ -324,8 +324,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                             span,
                         )
                     } else {
-                        let span = obj.1.start..obj.1.end;
-                        (Expression::StaticMethodCall(obj, method, Vec::new()), span)
+                        (Expression::Error, obj.1.start..obj.1.end)
                     }
                 });
 

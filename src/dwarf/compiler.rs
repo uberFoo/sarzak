@@ -392,6 +392,31 @@ fn inter_expression(
                 inter_statements(&stmts, block, lu_dog, model, sarzak),
             )
         }
+        ParserExpression::Error => {
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+            //
+            // This error stuff really needs fleshing out:
+            //
+            //  💥 The parser needs to capture the span of the error, and we need to use it
+            //    to look up the text in the source code. That, or we need to capture the
+            //    source in the error.
+            //  💥 If we look it up in the source, then we need to capture that. I'm part-
+            //    way to having that done, as there is a place to do that in the model now.
+            //  💥 We need to return an `ErrorExpression`. Right now it's got an attribute
+            //     called `span` that's a String. Probably rename that, but leave it otherwise.
+            //  💥 We need to figure out what's up with `ValueType::Error`. I plugged some
+            //     shit in a while back when stubbing something out, but I didn't put much
+            //     thought into it.
+            //
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+            let error = ErrorExpression::new(
+                "🚧 Under Construction 🚧\n💥 Input is fucked up for some reason 💥\n".to_owned(),
+                lu_dog,
+            );
+            let expr = Expression::new_error_expression(error, lu_dog);
+            // Returning an empty, because the error stuff in ValueType is fucked.
+            (expr, ValueType::new_empty())
+        }
         ParserExpression::FunctionCall(func, params) => {
             debug!("ParserExpression::FunctionCall", func);
             let func = &func.0;

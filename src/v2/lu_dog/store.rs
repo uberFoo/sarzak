@@ -11,6 +11,7 @@
 //! * [`Block`]
 //! * [`BooleanLiteral`]
 //! * [`Call`]
+//! * [`DwarfSourceFile`]
 //! * [`Error`]
 //! * [`ErrorExpression`]
 //! * [`Expression`]
@@ -59,12 +60,12 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Argument, Block, BooleanLiteral, Call, Error, ErrorExpression, Expression, ExpressionStatement,
-    Field, FieldAccess, FieldExpression, Function, Implementation, Import, IntegerLiteral, Item,
-    LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print, Reference,
-    ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression, Value,
-    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome, EMPTY,
-    FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Argument, Block, BooleanLiteral, Call, DwarfSourceFile, Error, ErrorExpression, Expression,
+    ExpressionStatement, Field, FieldAccess, FieldExpression, Function, Implementation, Import,
+    IntegerLiteral, Item, LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print,
+    Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression,
+    Value, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome,
+    EMPTY, FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -73,6 +74,7 @@ pub struct ObjectStore {
     block: HashMap<Uuid, (Arc<RwLock<Block>>, SystemTime)>,
     boolean_literal: HashMap<Uuid, (Arc<RwLock<BooleanLiteral>>, SystemTime)>,
     call: HashMap<Uuid, (Arc<RwLock<Call>>, SystemTime)>,
+    dwarf_source_file: HashMap<Uuid, (Arc<RwLock<DwarfSourceFile>>, SystemTime)>,
     error: HashMap<Uuid, (Arc<RwLock<Error>>, SystemTime)>,
     error_expression: HashMap<Uuid, (Arc<RwLock<ErrorExpression>>, SystemTime)>,
     expression: HashMap<Uuid, (Arc<RwLock<Expression>>, SystemTime)>,
@@ -116,6 +118,7 @@ impl ObjectStore {
             block: HashMap::default(),
             boolean_literal: HashMap::default(),
             call: HashMap::default(),
+            dwarf_source_file: HashMap::default(),
             error: HashMap::default(),
             error_expression: HashMap::default(),
             expression: HashMap::default(),
@@ -307,6 +310,41 @@ impl ObjectStore {
         self.call
             .get(&call.id)
             .map(|call| call.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`DwarfSourceFile`] into the store.
+    ///
+    pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<RwLock<DwarfSourceFile>>) {
+        let read = dwarf_source_file.read().unwrap();
+        self.dwarf_source_file
+            .insert(read.id, (dwarf_source_file.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`DwarfSourceFile`] from the store.
+    ///
+    pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Arc<RwLock<DwarfSourceFile>>> {
+        self.dwarf_source_file
+            .get(id)
+            .map(|dwarf_source_file| dwarf_source_file.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
+    ///
+    pub fn iter_dwarf_source_file(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
+        self.dwarf_source_file
+            .values()
+            .map(|dwarf_source_file| dwarf_source_file.0.clone())
+    }
+
+    /// Get the timestamp for DwarfSourceFile.
+    ///
+    pub fn dwarf_source_file_timestamp(&self, dwarf_source_file: &DwarfSourceFile) -> SystemTime {
+        self.dwarf_source_file
+            .get(&dwarf_source_file.id)
+            .map(|dwarf_source_file| dwarf_source_file.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -672,8 +710,7 @@ impl ObjectStore {
     ///
     pub fn inter_item(&mut self, item: Arc<RwLock<Item>>) {
         let read = item.read().unwrap();
-        self.item
-            .insert(read.id(), (item.clone(), SystemTime::now()));
+        self.item.insert(read.id, (item.clone(), SystemTime::now()));
     }
 
     /// Exhume [`Item`] from the store.
@@ -692,7 +729,7 @@ impl ObjectStore {
     ///
     pub fn item_timestamp(&self, item: &Item) -> SystemTime {
         self.item
-            .get(&item.id())
+            .get(&item.id)
             .map(|item| item.1)
             .unwrap_or(SystemTime::now())
     }
@@ -1548,6 +1585,46 @@ impl ObjectStore {
             }
         }
 
+        // Persist Dwarf Source File.
+        {
+            let path = path.join("dwarf_source_file");
+            fs::create_dir_all(&path)?;
+            for dwarf_source_file_tuple in self.dwarf_source_file.values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    dwarf_source_file_tuple.0.read().unwrap().id
+                ));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<DwarfSourceFile>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != dwarf_source_file_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &dwarf_source_file_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &dwarf_source_file_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.dwarf_source_file.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Error.
         {
             let path = path.join("error");
@@ -1975,7 +2052,7 @@ impl ObjectStore {
             let path = path.join("item");
             fs::create_dir_all(&path)?;
             for item_tuple in self.item.values() {
-                let path = path.join(format!("{}.json", item_tuple.0.read().unwrap().id()));
+                let path = path.join(format!("{}.json", item_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
@@ -2882,6 +2959,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Dwarf Source File.
+        {
+            let path = path.join("dwarf_source_file");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let dwarf_source_file: (Arc<RwLock<DwarfSourceFile>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store.dwarf_source_file.insert(
+                    dwarf_source_file.0.read().unwrap().id,
+                    dwarf_source_file.clone(),
+                );
+            }
+        }
+
         // Load Error.
         {
             let path = path.join("error");
@@ -3080,7 +3175,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let item: (Arc<RwLock<Item>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.item.insert(item.0.read().unwrap().id(), item.clone());
+                store.item.insert(item.0.read().unwrap().id, item.clone());
             }
         }
 

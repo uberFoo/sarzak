@@ -1,7 +1,6 @@
 use std::{
     fmt, ops,
     path::PathBuf,
-    rc::Rc,
     sync::{Arc, RwLock},
 };
 

@@ -2,18 +2,31 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
 use std::sync::{Arc, RwLock};
 
-use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use uuid::Uuid;
+
+use crate::v2::lu_dog::types::dwarf_source_file::DwarfSourceFile;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-enum-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Item {
+pub struct Item {
+    pub subtype: ItemEnum,
+    pub id: Uuid,
+    /// R25: [`Item`] '' [`DwarfSourceFile`]
+    pub source: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum ItemEnum {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
@@ -23,56 +36,90 @@ pub enum Item {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
 impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-new-impl"}}}
-    /// Create a new instance of Item::Function
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
+    /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(
-        function: Arc<RwLock<Function>>,
+        source: Arc<RwLock<DwarfSourceFile>>,
+        subtype: Arc<RwLock<Function>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Function(function.read().unwrap().id)));
+    ) -> Arc<RwLock<Item>> {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().unwrap().id,
+            subtype: ItemEnum::Function(subtype.read().unwrap().id),
+            id,
+        }));
         store.inter_item(new.clone());
         new
     }
-
-    /// Create a new instance of Item::Implementation
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
+    /// Inter a new Item in the store, and return it's `id`.
     pub fn new_implementation(
-        implementation: Arc<RwLock<Implementation>>,
+        source: Arc<RwLock<DwarfSourceFile>>,
+        subtype: Arc<RwLock<Implementation>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Implementation(
-            implementation.read().unwrap().id,
-        )));
+    ) -> Arc<RwLock<Item>> {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().unwrap().id,
+            subtype: ItemEnum::Implementation(subtype.read().unwrap().id),
+            id,
+        }));
         store.inter_item(new.clone());
         new
     }
-
-    /// Create a new instance of Item::Import
-    pub fn new_import(import: Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Import(import.read().unwrap().id)));
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_import"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_import(
+        source: Arc<RwLock<DwarfSourceFile>>,
+        subtype: Arc<RwLock<Import>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Item>> {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().unwrap().id,
+            subtype: ItemEnum::Import(subtype.read().unwrap().id),
+            id,
+        }));
         store.inter_item(new.clone());
         new
     }
-
-    /// Create a new instance of Item::WoogStruct
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_woog_struct"}}}
+    /// Inter a new Item in the store, and return it's `id`.
     pub fn new_woog_struct(
-        woog_struct: Arc<RwLock<WoogStruct>>,
+        source: Arc<RwLock<DwarfSourceFile>>,
+        subtype: Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::WoogStruct(
-            woog_struct.read().unwrap().id,
-        )));
+    ) -> Arc<RwLock<Item>> {
+        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
+        // about this local. This should be fixed in the near future.
+        let id = subtype.read().unwrap().id;
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().unwrap().id,
+            subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id),
+            id,
+        }));
         store.inter_item(new.clone());
         new
     }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Item::Function(id) => *id,
-            Item::Implementation(id) => *id,
-            Item::Import(id) => *id,
-            Item::WoogStruct(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-nav-forward-to-source"}}}
+    /// Navigate to [`DwarfSourceFile`] across R25(1-*)
+    pub fn r25_dwarf_source_file<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
+        vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
