@@ -11,7 +11,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-documentation"}}}
 /// An event is sent to an object, and processed by the current state. Assuming it accepts the
-/// event. Otherwise it’s dropped on the floor.
+///  event. Otherwise it’s dropped on the floor.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-definition"}}}
@@ -35,18 +35,8 @@ impl Event {
             obj_id: obj_id.id,
         };
         store.inter_event(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-impl-new_"}}}
-    /// Inter a new 'Event' in the store, and return it's `id`.
-    pub fn new_(name: String, obj_id: &Object) -> Event {
-        let id = Uuid::new_v4();
-        let new = Event {
-            id: id,
-            name: name,
-            obj_id: obj_id.id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"event-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

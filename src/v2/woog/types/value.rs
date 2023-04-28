@@ -15,15 +15,15 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Value
 ///
 /// I consider a value as an abstraction for a chunk of memory. By upgrading some bytes to
-///a `Value` you gain meaning and utility.
+/// a `Value` you gain meaning and utility.
 ///
 /// The meaning comes from assigning type information to the ones and zeros. From a modeling
-/// perspective it is good enough to think in terms of [`Type`], which is just a general hint
-/// about the domain of the value. When we get to generating code we require lower level information
-///, which is why we have [`GraceType`].
+///  perspective it is good enough to think in terms of [`Type`], which is just a general hint
+///  about the domain of the value. When we get to generating code we require lower level information
+/// , which is why we have [`GraceType`].
 ///
 /// The utility are completely compiler/language level constructs. These are [`Mutability`]
-/// and [`Visibility`].
+///  and [`Visibility`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
@@ -72,19 +72,6 @@ impl Value {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression_"}}}
-    /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_expression_(access: &Access, ty: &GraceType, subtype: &Expression) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
-        let new = Value {
-            access: access.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Expression(subtype.id()),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
@@ -104,21 +91,8 @@ impl Value {
             id,
         };
         store.inter_value(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
-    /// Inter a new Value in the store, and return it's `id`.
-    pub fn new_variable_(access: &Access, ty: &GraceType, subtype: &Variable) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Value {
-            access: access.id,
-            ty: ty.id(),
-            subtype: ValueEnum::Variable(subtype.id),
-            id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

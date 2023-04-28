@@ -49,19 +49,6 @@ impl Point {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_anchor_"}}}
-    /// Inter a new Point in the store, and return it's `id`.
-    pub fn new_anchor_(x: i64, y: i64, subtype: &Anchor) -> Point {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Point {
-            x: x,
-            y: y,
-            subtype: PointEnum::Anchor(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_bisection"}}}
     /// Inter a new Point in the store, and return it's `id`.
@@ -81,19 +68,6 @@ impl Point {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_bisection_"}}}
-    /// Inter a new Point in the store, and return it's `id`.
-    pub fn new_bisection_(x: i64, y: i64, subtype: &Bisection) -> Point {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Point {
-            x: x,
-            y: y,
-            subtype: PointEnum::Bisection(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_inflection"}}}
     /// Inter a new Point in the store, and return it's `id`.
@@ -108,22 +82,9 @@ impl Point {
             id,
         };
         store.inter_point(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-forward-to-segment"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_inflection_"}}}
-    /// Inter a new Point in the store, and return it's `id`.
-    pub fn new_inflection_(x: i64, y: i64) -> Point {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = INFLECTION;
-        let new = Point {
-            x: x,
-            y: y,
-            subtype: PointEnum::Inflection(INFLECTION),
-            id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-forward-to-segment"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_inflection_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

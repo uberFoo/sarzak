@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"borrowed-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"borrowed-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -24,6 +25,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 pub const BORROWED: Uuid = uuid!["4ccd6011-dbef-5503-9015-e5c139895e54"];
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Borrowed;
 
 impl Borrowed {

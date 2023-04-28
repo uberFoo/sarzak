@@ -69,7 +69,7 @@ macro_rules! debug {
         $(
             log::debug!(
                 "{} --> {:?}\n  --> {}:{}:{}",
-                Colour::Yellow.paint($msg),
+                Colour::Yellow.underline().paint($msg),
                 $arg,
                 file!(),
                 line!(),

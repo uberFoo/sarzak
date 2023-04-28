@@ -14,8 +14,8 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// Let Statement
 ///
 /// A means of assigning a variable to an expression. I don't think that I'll ever deal with
-/// the pattern stuff [a full implementation](https://doc.rust-lang.org/reference/statements.html
-///#let-statements) would require.
+///  the pattern stuff [a full implementation](https://doc.rust-lang.org/reference/statements.html
+/// #let-statements) would require.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-definition"}}}
@@ -47,19 +47,8 @@ impl XLet {
             variable: variable.id,
         };
         store.inter_x_let(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-new_"}}}
-    /// Inter a new 'Let' in the store, and return it's `id`.
-    pub fn new_(value: String, expression: &Expression, variable: &Variable) -> XLet {
-        let id = Uuid::new_v4();
-        let new = XLet {
-            id: id,
-            value: value,
-            expression: expression.id(),
-            variable: variable.id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

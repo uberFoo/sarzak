@@ -42,21 +42,6 @@ impl AnAssociativeReferent {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-new_"}}}
-    /// Inter a new 'An Associative Referent' in the store, and return it's `id`.
-    pub fn new_(
-        referential_attribute: String,
-        associative: &Associative,
-        referent: &AssociativeReferent,
-    ) -> AnAssociativeReferent {
-        let id = Uuid::new_v4();
-        let new = AnAssociativeReferent {
-            id: id,
-            referential_attribute: referential_attribute,
-            associative: associative.id,
-            referent: referent.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-nav-forward-assoc-to-associative"}}}
     /// Navigate to [`Associative`] across R22(1-*)

@@ -30,11 +30,6 @@ impl RelationshipUi {
         new
     }
 
-    pub fn new_associative_ui_(associative_ui: &AssociativeUi) -> Self {
-        let new = Self::AssociativeUi(associative_ui.id);
-        new
-    }
-
     /// Create a new instance of RelationshipUi::BinaryUi
     pub fn new_binary_ui(binary_ui: &BinaryUi, store: &mut DrawingStore) -> Self {
         let new = Self::BinaryUi(binary_ui.id);
@@ -42,20 +37,10 @@ impl RelationshipUi {
         new
     }
 
-    pub fn new_binary_ui_(binary_ui: &BinaryUi) -> Self {
-        let new = Self::BinaryUi(binary_ui.id);
-        new
-    }
-
     /// Create a new instance of RelationshipUi::IsaUi
     pub fn new_isa_ui(isa_ui: &IsaUi, store: &mut DrawingStore) -> Self {
         let new = Self::IsaUi(isa_ui.id);
         store.inter_relationship_ui(new.clone());
-        new
-    }
-
-    pub fn new_isa_ui_(isa_ui: &IsaUi) -> Self {
-        let new = Self::IsaUi(isa_ui.id);
         new
     }
 

@@ -35,12 +35,6 @@ impl Local {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new_"}}}
-    /// Inter a new 'Local' in the store, and return it's `id`.
-    pub fn new_(seed: Uuid) -> Local {
-        let id = Uuid::new_v4();
-        let new = Local { id: id, seed: seed };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R8(isa)

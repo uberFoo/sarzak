@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"function_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -7,6 +8,7 @@ use uuid::{uuid, Uuid};
 pub const FUNCTION_CALL: Uuid = uuid!["e6133810-843b-5dab-90a4-c424232d5205"];
 
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct FunctionCall;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-hybrid-documentation"}}}

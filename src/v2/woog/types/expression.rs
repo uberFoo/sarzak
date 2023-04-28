@@ -14,10 +14,10 @@ use uuid::Uuid;
 /// An expression
 ///
 /// An expression produces a value. There are all sorts of expressions, and I'm only going to
-/// cover a very few for now.
+///  cover a very few for now.
 ///
 /// The expressions here roughly align with what's found in [rust](https://doc.rust-lang.org
-////reference/expressions.html).
+/// /reference/expressions.html).
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
@@ -38,20 +38,10 @@ impl Expression {
         new
     }
 
-    pub fn new_block_(block: &Block) -> Self {
-        let new = Self::Block(block.id);
-        new
-    }
-
     /// Create a new instance of Expression::Call
     pub fn new_call(call: &Call, store: &mut WoogStore) -> Self {
         let new = Self::Call(call.id);
         store.inter_expression(new.clone());
-        new
-    }
-
-    pub fn new_call_(call: &Call) -> Self {
-        let new = Self::Call(call.id);
         new
     }
 

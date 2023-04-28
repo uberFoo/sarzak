@@ -37,15 +37,6 @@ impl WoogOption {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_"}}}
-    /// Inter a new 'Option' in the store, and return it's `id`.
-    pub fn new_(ty: &GraceType) -> WoogOption {
-        let id = Uuid::new_v4();
-        let new = WoogOption {
-            id: id,
-            ty: ty.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R20(1-*)

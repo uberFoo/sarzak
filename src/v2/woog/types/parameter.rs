@@ -49,17 +49,6 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-method"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new_"}}}
-    /// Inter a new 'Parameter' in the store, and return it's `id`.
-    pub fn new_(seed: Uuid, function: Option<&Function>, next: Option<&Parameter>) -> Parameter {
-        let id = Uuid::new_v4();
-        let new = Parameter {
-            id: id,
-            seed: seed,
-            function: function.map(|function| function.id),
-            next: next.map(|parameter| parameter.id),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-function"}}}
     /// Navigate to [`Function`] across R5(1-*c)

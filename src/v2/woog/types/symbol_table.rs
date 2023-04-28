@@ -38,15 +38,6 @@ impl SymbolTable {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-new_"}}}
-    /// Inter a new 'Symbol Table' in the store, and return it's `id`.
-    pub fn new_(block: &Block) -> SymbolTable {
-        let id = Uuid::new_v4();
-        let new = SymbolTable {
-            id: id,
-            block: block.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R24(1-*)

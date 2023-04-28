@@ -42,12 +42,6 @@ impl Enumeration {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_hybrid_enum_"}}}
-    /// Inter a new 'Enumeration' in the store, and return it's `id`.
-    pub fn new_(name: String) -> Enumeration {
-        let id = Uuid::new_v4();
-        let new = Enumeration { id: id, name: name };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-to-field_zero"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

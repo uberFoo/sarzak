@@ -35,12 +35,6 @@ impl Structure {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-new_"}}}
-    /// Inter a new 'Structure' in the store, and return it's `id`.
-    pub fn new_(name: String) -> Structure {
-        let id = Uuid::new_v4();
-        let new = Structure { id: id, name: name };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-forward-cond-to-field_zero"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

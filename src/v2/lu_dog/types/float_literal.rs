@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"float_literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -12,6 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-const-definition"}}}
 pub const FLOAT_LITERAL: Uuid = uuid!["32cde28d-7552-5fca-bc79-0a9fb105ea77"];
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct FloatLiteral;
 
 impl FloatLiteral {

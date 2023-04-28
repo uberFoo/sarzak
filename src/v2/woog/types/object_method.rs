@@ -16,12 +16,12 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// Method
 ///
 /// This represents a function's signature. We don't (yet) care about the body of the function
-///. We are however very interested in it's type, which implies parameters and their types,
-/// as well as our return type.
+/// . We are however very interested in it's type, which implies parameters and their types,
+///  as well as our return type.
 ///
 /// Looking at this more closely, I think that this should be related to a parameter list, and
-/// the list related to the string of parameters. It may just be a nit, but it does bother me
-/// a bit. I'll come back and fix it once it's less troublesome to generate this domain.
+///  the list related to the string of parameters. It may just be a nit, but it does bother me
+///  a bit. I'll come back and fix it once it's less troublesome to generate this domain.
 ///
 /// The function in question is a method, hanging off of an [`Object`][o].
 ///
@@ -54,16 +54,6 @@ impl ObjectMethod {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new_"}}}
-    /// Inter a new 'Object Method' in the store, and return it's `id`.
-    pub fn new_(block: &Block, object: &Object) -> ObjectMethod {
-        let id = Uuid::new_v4();
-        let new = ObjectMethod {
-            id: id,
-            block: block.id,
-            object: object.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R23(1-*)

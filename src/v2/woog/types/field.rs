@@ -14,7 +14,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Field
 ///
 /// A field is a named part of a data structure (an [`Enumeration`] or a [`Structure`] of a
-/// given [`GraceType`].
+///  given [`GraceType`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-definition"}}}
@@ -42,16 +42,6 @@ impl Field {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new_"}}}
-    /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new_(name: String, ty: &GraceType) -> Field {
-        let id = Uuid::new_v4();
-        let new = Field {
-            id: id,
-            name: name,
-            ty: ty.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-cond-to-next"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

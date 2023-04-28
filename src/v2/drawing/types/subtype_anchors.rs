@@ -13,7 +13,7 @@ use crate::v2::drawing::store::ObjectStore as DrawingStore;
 /// Subtype Anchors
 ///
 /// Just as it sounds, these are [`Anchor`]s used by [`Subtype`]s in an [`Isa`] relationship
-///.
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-definition"}}}
@@ -38,19 +38,9 @@ impl SubtypeAnchors {
             isaui_id: isaui_id.id,
         };
         store.inter_subtype_anchors(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-nav-forward-assoc-to-isaui_id"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-new_"}}}
-    /// Inter a new 'Subtype Anchors' in the store, and return it's `id`.
-    pub fn new_(anchor_id: &Anchor, isaui_id: &IsaUi) -> SubtypeAnchors {
-        let id = Uuid::new_v4();
-        let new = SubtypeAnchors {
-            id: id,
-            anchor_id: anchor_id.id,
-            isaui_id: isaui_id.id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-nav-forward-assoc-to-isaui_id"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype_anchors-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

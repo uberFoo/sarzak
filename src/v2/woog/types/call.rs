@@ -13,7 +13,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Function Call
 ///
 /// This is [formally](https://doc.rust-lang.org/reference/expressions/call-expr.html) a call
-/// expression.
+///  expression.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-definition"}}}
@@ -39,15 +39,6 @@ impl Call {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_"}}}
-    /// Inter a new 'Call' in the store, and return it's `id`.
-    pub fn new_(method: &ObjectMethod) -> Call {
-        let id = Uuid::new_v4();
-        let new = Call {
-            id: id,
-            method: method.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-method"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-function"}}}

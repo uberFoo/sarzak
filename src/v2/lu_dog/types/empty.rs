@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"empty-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"empty-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -13,6 +14,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"empty-const-definition"}}}
 pub const EMPTY: Uuid = uuid!["ea81f072-96fe-5426-9bc3-c0419e448fe5"];
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Empty;
 
 impl Empty {

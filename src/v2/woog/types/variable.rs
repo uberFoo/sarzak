@@ -64,19 +64,6 @@ impl Variable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local_"}}}
-    /// Inter a new Variable in the store, and return it's `id`.
-    pub fn new_local_(name: String, symbol_table: &SymbolTable, subtype: &Local) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
-            name: name,
-            symbol_table: symbol_table.id,
-            subtype: VariableEnum::Local(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter"}}}
     /// Inter a new Variable in the store, and return it's `id`.
@@ -101,23 +88,6 @@ impl Variable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-get-id-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter_"}}}
-    /// Inter a new Variable in the store, and return it's `id`.
-    pub fn new_parameter_(
-        name: String,
-        symbol_table: &SymbolTable,
-        subtype: &Parameter,
-    ) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Variable {
-            name: name,
-            symbol_table: symbol_table.id,
-            subtype: VariableEnum::Parameter(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-forward-to-symbol_table"}}}
     /// Navigate to [`SymbolTable`] across R20(1-*)

@@ -39,15 +39,6 @@ impl LineSegment {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new_"}}}
-    /// Inter a new 'Line Segment' in the store, and return it's `id`.
-    pub fn new_(line: &Line) -> LineSegment {
-        let id = Uuid::new_v4();
-        let new = LineSegment {
-            id: id,
-            line: line.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-forward-to-line"}}}
     /// Navigate to [`Line`] across R4(1-*)

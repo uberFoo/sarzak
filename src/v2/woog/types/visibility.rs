@@ -13,11 +13,11 @@ use uuid::Uuid;
 /// Item Visibility
 ///
 /// This is a _very_ Rust-centric type. It represents the visibility levels that Rust surfaces
-///.
+/// .
 ///
 /// Private is the default, and requires no modifiers. Public is the most open, and indicated
-/// by prefixing the item with "pub". In the middle is "pub(crate)", which makes the item public
-/// within the crate.
+///  by prefixing the item with "pub". In the middle is "pub(crate)", which makes the item public
+///  within the crate.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-enum-definition"}}}

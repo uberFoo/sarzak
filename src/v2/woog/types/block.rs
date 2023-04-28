@@ -15,7 +15,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Block Expression
 ///
 /// This is a block of code, you know, between `{` and `}`. See the [reference](https://doc.rust
-///-lang.org/reference/expressions/block-expr.html).
+/// -lang.org/reference/expressions/block-expr.html).
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-definition"}}}
@@ -37,12 +37,6 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new_"}}}
-    /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new_(seed: Uuid) -> Block {
-        let id = Uuid::new_v4();
-        let new = Block { id: id, seed: seed };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}

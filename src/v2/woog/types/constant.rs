@@ -33,14 +33,8 @@ impl Constant {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-struct-impl-new_"}}}
-    /// Inter a new 'Constant' in the store, and return it's `id`.
-    pub fn new_(name: String) -> Constant {
-        let id = Uuid::new_v4();
-        let new = Constant { id: id, name: name };
-        new
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-struct-impl-nav-forward-to-object"}}}
-    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)

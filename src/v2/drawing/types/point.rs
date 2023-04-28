@@ -34,12 +34,6 @@ impl Point {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_"}}}
-    /// Inter a new 'Point' in the store, and return it's `id`.
-    pub fn new_(x: i64, y: i64) -> Point {
-        let id = Uuid::new_v4();
-        let new = Point { id: id, x: x, y: y };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R5(1-1c)

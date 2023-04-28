@@ -38,18 +38,8 @@ impl GenerationUnit {
             creation_time: creation_time.id,
         };
         store.inter_generation_unit(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-new_"}}}
-    /// Inter a new 'Generation Unit' in the store, and return it's `id`.
-    pub fn new_(object: &Object, creation_time: &TimeStamp) -> GenerationUnit {
-        let id = Uuid::new_v4();
-        let new = GenerationUnit {
-            id: id,
-            object: object.id,
-            creation_time: creation_time.id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

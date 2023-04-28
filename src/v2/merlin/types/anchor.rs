@@ -13,6 +13,18 @@ use serde::{Deserialize, Serialize};
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-documentation"}}}
+/// An Anchor Point for Lines
+///
+/// This represents a point on the periphery of a box to which a relationship attaches.
+///
+/// It's really sort of clever. Once you figure out which edge, you use the `offset` attribute
+///  (a float between 0.0 and 1.0) to calculate how far along that line to draw the line.
+///
+/// 🚧 The offsets are meant to be for the relationship phrase maybe? Drat, I'll have to figure
+///  that out.🚧
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Anchor {
@@ -60,29 +72,6 @@ impl Anchor {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new_"}}}
-    /// Inter a new 'Anchor' in the store, and return it's `id`.
-    pub fn new_(
-        offset: f64,
-        x_offset: i64,
-        y_offset: i64,
-        edge: &Edge,
-        glyph: &Glyph,
-        x_box: &XBox,
-        line: &Line,
-    ) -> Anchor {
-        let id = Uuid::new_v4();
-        let new = Anchor {
-            id: id,
-            offset: offset,
-            x_offset: x_offset,
-            y_offset: y_offset,
-            edge: edge.id(),
-            glyph: glyph.id,
-            x_box: x_box.id,
-            line: line.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R9(1-*)

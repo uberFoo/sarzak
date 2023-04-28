@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"integer-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -8,7 +9,7 @@ use uuid::{uuid, Uuid};
 /// The Integer Type
 ///
 /// This is an interger that can hold positive and negative values. This type is just a placeholder
-///. It's implementation is determined downstream by the code generator.
+/// . It's implementation is determined downstream by the code generator.
 ///
 /// ❗️{"singleton_object": true}
 ///
@@ -37,6 +38,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 pub const INTEGER: Uuid = uuid!["045f5d22-f71b-5845-9113-b8b859d1dbac"];
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Integer;
 
 impl Integer {

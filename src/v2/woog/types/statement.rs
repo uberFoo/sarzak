@@ -16,7 +16,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Statement
 ///
 /// There aren't all that many types of [statement in rust.](https://doc.rust-lang.org/reference
-////statements.html).
+/// /statements.html).
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-enum-definition"}}}
@@ -59,18 +59,6 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_expression_statement_(block: &Block) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = EXPRESSION_STATEMENT;
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::ExpressionStatement(EXPRESSION_STATEMENT),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item"}}}
     /// Inter a new Statement in the store, and return it's `id`.
@@ -89,18 +77,6 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_item_(block: &Block, subtype: &Item) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::Item(subtype.id()),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_let"}}}
     /// Inter a new Statement in the store, and return it's `id`.
@@ -119,18 +95,6 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_let_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_x_let_(block: &Block, subtype: &XLet) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::XLet(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_macro"}}}
     /// Inter a new Statement in the store, and return it's `id`.
@@ -148,18 +112,6 @@ impl Statement {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_macro_"}}}
-    /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_x_macro_(block: &Block) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = X_MACRO;
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::XMacro(X_MACRO),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R12(1-*)

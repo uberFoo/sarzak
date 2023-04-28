@@ -42,16 +42,6 @@ impl Access {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-new_"}}}
-    /// Inter a new 'Access' in the store, and return it's `id`.
-    pub fn new_(ownership: &Ownership, visibility: &Visibility) -> Access {
-        let id = Uuid::new_v4();
-        let new = Access {
-            id: id,
-            ownership: ownership.id(),
-            visibility: visibility.id(),
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-forward-to-ownership"}}}
     /// Navigate to [`Ownership`] across R15(1-*)

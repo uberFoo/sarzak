@@ -11,7 +11,7 @@ use uuid::Uuid;
 /// A timestamp with nanosecond precision
 ///
 /// There are all sorts of caveats about using this in the documentation. I should include
-///a pointer to it here.
+/// a pointer to it here.
 ///
 /// 🐶 {"external_entity": {"name": "SystemTime", "ctor": "now", "path": "std::time"}}
 ///

@@ -60,23 +60,6 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new_object_method_"}}}
-    /// Inter a new Function in the store, and return it's `id`.
-    pub fn new_object_method_(
-        description: String,
-        name: String,
-        subtype: &ObjectMethod,
-    ) -> Function {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
-        let new = Function {
-            description: description,
-            name: name,
-            subtype: FunctionEnum::ObjectMethod(subtype.id),
-            id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new_plain_old_function"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

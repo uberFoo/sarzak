@@ -18,7 +18,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 /// Relationship Line
 ///
 /// A line is how we represent a relationship. A line is composed of many [`Line Segment`]-
-///s.
+/// s.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-definition"}}}
@@ -40,17 +40,8 @@ impl Line {
             relationship: relationship.id(),
         };
         store.inter_line(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-new_"}}}
-    /// Inter a new 'Line' in the store, and return it's `id`.
-    pub fn new_(relationship: &Relationship) -> Line {
-        let id = Uuid::new_v4();
-        let new = Line {
-            id: id,
-            relationship: relationship.id(),
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -35,16 +35,6 @@ impl Bisection {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-new_"}}}
-    /// Inter a new 'Bisection' in the store, and return it's `id`.
-    pub fn new_(offset: f64, segment: &LineSegment) -> Bisection {
-        let id = Uuid::new_v4();
-        let new = Bisection {
-            id: id,
-            offset: offset,
-            segment: segment.id,
-        };
-        new
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-nav-forward-to-segment"}}}
     /// Navigate to [`LineSegment`] across R14(1-*)

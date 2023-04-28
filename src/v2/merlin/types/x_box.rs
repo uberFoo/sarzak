@@ -10,6 +10,15 @@ use crate::v2::merlin::store::ObjectStore as MerlinStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-documentation"}}}
+/// More than a box
+///
+/// This is the primary method of drawing an Object on the screen. I'm sure it'll be used for
+///  State's as well.
+///
+/// It's a rectangle with parameters.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct XBox {
@@ -44,21 +53,8 @@ impl XBox {
             object: object.id,
         };
         store.inter_x_box(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
-    /// Inter a new 'Box' in the store, and return it's `id`.
-    pub fn new_(height: i64, width: i64, x: i64, y: i64, object: &Object) -> XBox {
-        let id = Uuid::new_v4();
-        let new = XBox {
-            height: height,
-            id: id,
-            width: width,
-            x: x,
-            y: y,
-            object: object.id,
-        };
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

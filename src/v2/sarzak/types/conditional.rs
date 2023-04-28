@@ -1,5 +1,6 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"conditional-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"conditional-use-statements"}}}
+use serde::{Deserialize, Serialize};
 use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -34,6 +35,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 pub const CONDITIONAL: Uuid = uuid!["1ef6f1f8-de66-552b-8d4a-a04215c37c1e"];
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Conditional;
 
 impl Conditional {
