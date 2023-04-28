@@ -268,19 +268,19 @@ fn inter_func(
         .iter()
         .map(|stmt| Arc::new(RwLock::new(stmt.0.clone())))
         .collect();
-    inter_statements(&stmts, block, lu_dog, model, sarzak);
+    inter_statements(&stmts, &block, lu_dog, model, sarzak);
 }
 
 pub fn inter_statement(
-    stmt: Arc<RwLock<ParserStatement>>,
-    block: Arc<RwLock<Block>>,
+    stmt: &Arc<RwLock<ParserStatement>>,
+    block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
     model: &SarzakStore,
     sarzak: &SarzakStore,
 ) -> (Arc<RwLock<Statement>>, Arc<RwLock<ValueType>>) {
     debug!("inter_statement", stmt);
 
-    match stmt.read().unwrap().to_owned() {
+    match &*stmt.read().unwrap() {
         ParserStatement::Let((var_name, _), type_, (expr, _)) => {
             // Setup the local variable that is the LHS of the statement.
             let local = LocalVariable::new(Uuid::new_v4(), lu_dog);
@@ -288,8 +288,8 @@ pub fn inter_statement(
 
             // Now parse the RHS, which is an expression.
             let (expr, ty) = inter_expression(
-                Arc::new(RwLock::new(expr.to_owned())),
-                block.clone(),
+                &Arc::new(RwLock::new(expr.to_owned())),
+                block,
                 lu_dog,
                 model,
                 sarzak,
@@ -302,7 +302,7 @@ pub fn inter_statement(
             };
 
             // let ty = ty.read().unwrap().to_owned();
-            if let ValueType::Unknown(_) = ty.read().unwrap().to_owned() {
+            if let ValueType::Unknown(_) = &*ty.read().unwrap() {
                 error!("Unknown type for variable", var_name);
             }
 
@@ -311,33 +311,33 @@ pub fn inter_statement(
 
             // Setup the let statement itself.
             let stmt = LetStatement::new(expr, local, lu_dog);
-            let stmt = Statement::new_let_statement(block, None, stmt, lu_dog);
+            let stmt = Statement::new_let_statement(block.clone(), None, stmt, lu_dog);
 
             (stmt, ValueType::new_empty())
         }
         ParserStatement::Result((ref expr, _)) => {
             let (expr, ty) = inter_expression(
-                Arc::new(RwLock::new(expr.to_owned())),
-                block.clone(),
+                &Arc::new(RwLock::new(expr.to_owned())),
+                block,
                 lu_dog,
                 model,
                 sarzak,
             );
             let stmt = ResultStatement::new(expr, lu_dog);
-            let stmt = Statement::new_result_statement(block, None, stmt, lu_dog);
+            let stmt = Statement::new_result_statement(block.clone(), None, stmt, lu_dog);
 
             (stmt, ty)
         }
         ParserStatement::Expression((expr, _)) => {
             let (expr, _) = inter_expression(
-                Arc::new(RwLock::new(expr)),
-                block.clone(),
+                &Arc::new(RwLock::new(expr.to_owned())),
+                block,
                 lu_dog,
                 model,
                 sarzak,
             );
             let stmt = ExpressionStatement::new(expr, lu_dog);
-            let stmt = Statement::new_expression_statement(block, None, stmt, lu_dog);
+            let stmt = Statement::new_expression_statement(block.clone(), None, stmt, lu_dog);
 
             (stmt, ValueType::new_empty())
         }
@@ -347,7 +347,7 @@ pub fn inter_statement(
 
 fn inter_statements(
     statements: &[Arc<RwLock<ParserStatement>>],
-    block: Arc<RwLock<Block>>,
+    block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
     model: &SarzakStore,
     sarzak: &SarzakStore,
@@ -356,7 +356,7 @@ fn inter_statements(
 
     let mut last_stmt_uuid: Option<Uuid> = None;
     for stmt in statements {
-        let (stmt, ty) = inter_statement(stmt.to_owned(), block.clone(), lu_dog, model, sarzak);
+        let (stmt, ty) = inter_statement(stmt, block, lu_dog, model, sarzak);
         last_stmt_uuid = link_statement!(last_stmt_uuid, stmt, lu_dog);
         value_type = ty;
     }
@@ -371,15 +371,15 @@ fn inter_statements(
 /// to returning the type. Duh. And we should return the expression so that we
 /// can create a value from it.
 fn inter_expression(
-    expr: Arc<RwLock<ParserExpression>>,
-    block: Arc<RwLock<Block>>,
+    expr: &Arc<RwLock<ParserExpression>>,
+    block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
     model: &SarzakStore,
     sarzak: &SarzakStore,
 ) -> (Arc<RwLock<Expression>>, Arc<RwLock<ValueType>>) {
     debug!("inter_expression", expr);
 
-    match expr.read().unwrap().to_owned() {
+    match &*expr.read().unwrap() {
         ParserExpression::Block(ref stmts) => {
             let block = Block::new(Uuid::new_v4(), lu_dog);
             debug!("ParserExpression::Block", block);
@@ -389,7 +389,7 @@ fn inter_expression(
                 .collect();
             (
                 Expression::new_block(block.clone(), lu_dog),
-                inter_statements(&stmts, block, lu_dog, model, sarzak),
+                inter_statements(&stmts, &block, lu_dog, model, sarzak),
             )
         }
         ParserExpression::Error => {
@@ -423,8 +423,8 @@ fn inter_expression(
             let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
             debug!("ParserExpression::FunctionCall", params);
             let (func_expr, ret_ty) = inter_expression(
-                Arc::new(RwLock::new(func.to_owned())),
-                block.clone(),
+                &Arc::new(RwLock::new(func.to_owned())),
+                block,
                 lu_dog,
                 model,
                 sarzak,
@@ -435,8 +435,8 @@ fn inter_expression(
             let mut last_arg_uuid: Option<Uuid> = None;
             for param in params {
                 let (arg_expr, ty) = inter_expression(
-                    Arc::new(RwLock::new(param.to_owned())),
-                    block.clone(),
+                    &Arc::new(RwLock::new(param.to_owned())),
+                    block,
                     lu_dog,
                     model,
                     sarzak,
@@ -450,7 +450,7 @@ fn inter_expression(
         }
         ParserExpression::IntegerLiteral(literal) => (
             Expression::new_literal(
-                Literal::new_integer_literal(IntegerLiteral::new(literal, lu_dog), lu_dog),
+                Literal::new_integer_literal(IntegerLiteral::new(*literal, lu_dog), lu_dog),
                 lu_dog,
             ),
             ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
@@ -468,20 +468,30 @@ fn inter_expression(
         ParserExpression::LocalVariable(name) => {
             debug!("ParserExpression::LocalVariable", name);
             // We need to return an expression and a type.
-            // We look for a values in the current block. We need to clone them
+            // We look for a value in the current block. We need to clone them
             // to be able to modify lu_dog below.
             //
             // So, multiple let statements will result in multiple values. We only
             // need one -- and it needs to be the right one...
-            let expr_ty = lu_dog
+            // To expound, there are likely to be multiple values in this block,
+            // and we need to find the one that matches the variable name.
+            //
+            // ⚡️ Oh shit -- I'm in the compiler!!!
+            //
+            // So what's happening? We hit a local variable node in the ast. We need
+            // to create
+            //
+            let values = lu_dog
                 .iter_value()
                 // This feels like deadlock...
                 .filter(|value| value.read().unwrap().block == block.read().unwrap().id)
                 .collect::<Vec<Arc<RwLock<Value>>>>();
 
+            debug!("ParserExpression::LocalVariable values", values);
+
             // Now search for a value that's a Variable, and see if the access matches
             // the variable.
-            let mut expr_ty = expr_ty
+            let mut expr_type_tuples = values
                 .iter()
                 .filter_map(|value| {
                     debug!("ParserExpression::LocalVariable: value", value);
@@ -489,11 +499,29 @@ fn inter_expression(
                     match value.read().unwrap().subtype {
                         ValueEnum::Expression(ref expr) => {
                             let expr = lu_dog.exhume_expression(expr).unwrap();
-                            error!("we don't expect to be here", expr);
-                            // panic!(
-                            // "I don't think that we should ever see an expression here: {:?}",
-                            // expr
-                            // );
+                            // error!("we don't expect to be here", expr);
+                            // So we get here after all.
+                            // Must. Remember. In. Compiler.
+                            // So we need to create some nodes here. And return an expression
+                            // and a type.
+                            //
+                            // Still wondering how we get here. Debugging is showing that we've
+                            // got a Literal expression. But why's it showing up as a LocalVariable?
+                            // I got here by entering `Point::new(5, a)` in the interpreter. `a` is
+                            // an Inflection instance. I need to turn on logging and sort this out.
+                            //
+                            // Fuck me. I've been debugging something that's completely normal. I'm
+                            // stoned now, so don't blame yourself later for it being that. What's
+                            // going on is that there are a bunch of values in the block --
+                            // especially when running the interpreter. So we are iterating over
+                            // them all, and we are bound to find some that aren't, variable expressions
+                            // even though we are parsing a LocalVariable. Remember these are all of
+                            // the values -- not just the ones that have something to do with finding
+                            // ourselves here.
+                            //
+                            // Hopefully this is concluded.
+                            //
+
                             None
                         }
                         ValueEnum::Variable(ref var) => {
@@ -520,11 +548,10 @@ fn inter_expression(
                                 let expr = if let Some(expr) = expr {
                                     expr.read().unwrap().r15_expression(lu_dog)[0].clone()
                                 } else {
-                                    error!("created a new variable expression");
                                     let expr = VariableExpression::new(name.to_owned(), lu_dog);
+                                    debug!("created a new variable expression", expr);
                                     Expression::new_variable_expression(expr, lu_dog)
                                 };
-                                debug!("ParserExpression::LocalVariable: created/found expr", expr);
 
                                 Some((expr, ty))
                             } else {
@@ -535,13 +562,14 @@ fn inter_expression(
                 })
                 .collect::<Vec<(Arc<RwLock<Expression>>, Arc<RwLock<ValueType>>)>>();
             // There should be zero or 1 results.
-            debug_assert!(expr_ty.len() <= 1);
+            debug_assert!(expr_type_tuples.len() <= 1);
 
-            debug!("ParserExpression::LocalVariable: expr_ty", expr_ty);
+            debug!("ParserExpression::LocalVariable: expr_ty", expr_type_tuples);
 
-            if let Some(expr_ty) = expr_ty.pop() {
-                debug!("ParserExpression::LocalVariable: returning", expr_ty);
-                expr_ty
+            // Why are we taking the last one? -- Oh, read above.
+            if let Some(expr_ty_tuple) = expr_type_tuples.pop() {
+                debug!("ParserExpression::LocalVariable: returning", expr_ty_tuple);
+                expr_ty_tuple
             } else {
                 // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
                 // As neat as it is that I'm compiling this into the binary, we should actually
@@ -551,7 +579,7 @@ fn inter_expression(
                 let expr = ErrorExpression::new(
                     format!(
                         "\n  ──➤  variable: `{}` not found\n",
-                        Colour::Red.paint(&name)
+                        Colour::Red.paint(name.to_owned())
                     ),
                     lu_dog,
                 );
@@ -560,7 +588,7 @@ fn inter_expression(
                     expr,
                     ValueType::new_error(Error::new_unknown_variable(), lu_dog),
                 );
-                let expr = VariableExpression::new(name, lu_dog);
+                let expr = VariableExpression::new(name.to_owned(), lu_dog);
                 let expr = Expression::new_variable_expression(expr, lu_dog);
                 (expr, ValueType::new_unknown())
             }
@@ -569,8 +597,8 @@ fn inter_expression(
             debug!("ParserExpression::MethodCall", instance);
 
             let (instance, instance_ty) = inter_expression(
-                Arc::new(RwLock::new((*instance).0)),
-                block.clone(),
+                &Arc::new(RwLock::new((*instance).0.clone())),
+                block,
                 lu_dog,
                 model,
                 sarzak,
@@ -583,8 +611,8 @@ fn inter_expression(
             let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
             for param in params {
                 let (arg_expr, ty) = inter_expression(
-                    Arc::new(RwLock::new(param.to_owned())),
-                    block.clone(),
+                    &Arc::new(RwLock::new(param.to_owned())),
+                    block,
                     lu_dog,
                     model,
                     sarzak,
@@ -598,7 +626,7 @@ fn inter_expression(
         }
         ParserExpression::Print(expr) => {
             let (expr, ty) = inter_expression(
-                Arc::new(RwLock::new((*expr).0)),
+                &Arc::new(RwLock::new((*expr).0.clone())),
                 block,
                 lu_dog,
                 model,
@@ -612,7 +640,7 @@ fn inter_expression(
             debug!("ParserExpression::StaticMethodCall", obj);
             let type_name = if let Token::Ident(obj) = obj {
                 obj.de_sanitize().to_owned()
-            } else if obj == Token::Uuid {
+            } else if obj == &Token::Uuid {
                 "Uuid".to_owned()
             } else {
                 panic!("I don't think that we should ever see anything other than an object or Uuid here: {:?}", obj);
@@ -651,8 +679,8 @@ fn inter_expression(
             let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
             for param in params {
                 let (arg_expr, ty) = inter_expression(
-                    Arc::new(RwLock::new(param.to_owned())),
-                    block.clone(),
+                    &Arc::new(RwLock::new(param.to_owned())),
+                    block,
                     lu_dog,
                     model,
                     sarzak,
@@ -700,8 +728,8 @@ fn inter_expression(
                 .for_each(|(name, field_expr)| {
                     // 🚧 Do type checking here? I don't think that I have what I need.
                     let (field_expr, _) = inter_expression(
-                        Arc::new(RwLock::new(field_expr.to_owned())),
-                        block.clone(),
+                        &Arc::new(RwLock::new(field_expr.to_owned())),
+                        block,
                         lu_dog,
                         model,
                         sarzak,

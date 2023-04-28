@@ -10,6 +10,17 @@ use serde::{Deserialize, Serialize};
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-documentation"}}}
+/// Bisection Point
+///
+/// I think that this is specifically an implicit point that exists half-way along a line segment
+/// . It’s where a relationship name/number may be anchored.
+///
+/// Frankly it’s been so long since I did this, and sadly I didn’t document it, so the exact
+///  thinking behind this is lost. I’ll make something up, or change the model, or whatever
+/// . No big deal.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Bisection {

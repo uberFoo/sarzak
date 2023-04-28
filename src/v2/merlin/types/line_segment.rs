@@ -13,7 +13,8 @@ use crate::v2::merlin::store::ObjectStore as MerlinStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-documentation"}}}
 /// Part of a Line
 ///
-/// A line segment is in fact a straight line. It is used to compose a (poly) [`Line`].
+/// A line segment is in fact a straight line between two points. It is used to compose a (poly
+/// ) [`Line`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-definition"}}}

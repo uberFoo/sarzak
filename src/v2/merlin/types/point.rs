@@ -11,6 +11,12 @@ use serde::{Deserialize, Serialize};
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-hybrid-documentation"}}}
+/// A two dimensional point
+///
+/// This is a two-tuple consisting of, say `x` and `y`.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Point {
