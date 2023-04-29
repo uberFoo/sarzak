@@ -265,6 +265,13 @@ pub enum Statement {
 
 #[derive(Clone, Debug)]
 pub enum Expression {
+    /// Assignment Expression
+    ///
+    /// E.g.: `a = b`
+    ///
+    /// The first element is the left-hand side expression representing the storage
+    /// and the second is the right-hand side, representing the value to be stored.
+    Assignment(Box<Spanned<Self>>, Box<Spanned<Self>>),
     Block(Vec<Spanned<Statement>>),
     BooleanLiteral(bool),
     Error,

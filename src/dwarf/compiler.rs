@@ -20,7 +20,7 @@ use crate::{
             StructExpression, Value, ValueEnum, ValueType, Variable, VariableExpression,
             WoogOption, WoogStruct,
         },
-        Argument, List, MethodCall, Reference, ResultStatement,
+        Argument, FloatLiteral, List, MethodCall, Reference, ResultStatement,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
@@ -281,6 +281,25 @@ pub fn inter_statement(
     debug!("inter_statement", stmt);
 
     match &*stmt.read().unwrap() {
+        //
+        // Expression
+        //
+        ParserStatement::Expression((expr, _)) => {
+            let (expr, _) = inter_expression(
+                &Arc::new(RwLock::new(expr.to_owned())),
+                block,
+                lu_dog,
+                model,
+                sarzak,
+            );
+            let stmt = ExpressionStatement::new(expr, lu_dog);
+            let stmt = Statement::new_expression_statement(block.clone(), None, stmt, lu_dog);
+
+            (stmt, ValueType::new_empty())
+        }
+        //
+        // Let
+        //
         ParserStatement::Let((var_name, _), type_, (expr, _)) => {
             // Setup the local variable that is the LHS of the statement.
             let local = LocalVariable::new(Uuid::new_v4(), lu_dog);
@@ -315,6 +334,9 @@ pub fn inter_statement(
 
             (stmt, ValueType::new_empty())
         }
+        //
+        // Result
+        //
         ParserStatement::Result((ref expr, _)) => {
             let (expr, ty) = inter_expression(
                 &Arc::new(RwLock::new(expr.to_owned())),
@@ -327,19 +349,6 @@ pub fn inter_statement(
             let stmt = Statement::new_result_statement(block.clone(), None, stmt, lu_dog);
 
             (stmt, ty)
-        }
-        ParserStatement::Expression((expr, _)) => {
-            let (expr, _) = inter_expression(
-                &Arc::new(RwLock::new(expr.to_owned())),
-                block,
-                lu_dog,
-                model,
-                sarzak,
-            );
-            let stmt = ExpressionStatement::new(expr, lu_dog);
-            let stmt = Statement::new_expression_statement(block.clone(), None, stmt, lu_dog);
-
-            (stmt, ValueType::new_empty())
         }
         道 => todo!("{:?}", 道),
     }
@@ -380,6 +389,9 @@ fn inter_expression(
     debug!("inter_expression", expr);
 
     match &*expr.read().unwrap() {
+        //
+        // Block
+        //
         ParserExpression::Block(ref stmts) => {
             let block = Block::new(Uuid::new_v4(), lu_dog);
             debug!("ParserExpression::Block", block);
@@ -392,6 +404,14 @@ fn inter_expression(
                 inter_statements(&stmts, &block, lu_dog, model, sarzak),
             )
         }
+        //
+        // BooleanLiteral
+        //
+        // There is nothing to inter here. The literals are consts.
+        //  ParserExpression::BooleanLiteral(literal) => ValueType::new_empty(),
+        //
+        // Error
+        //
         ParserExpression::Error => {
             // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
             //
@@ -417,6 +437,19 @@ fn inter_expression(
             // Returning an empty, because the error stuff in ValueType is fucked.
             (expr, ValueType::new_empty())
         }
+        //
+        // FloatLiteral
+        //
+        ParserExpression::FloatLiteral(literal) => (
+            Expression::new_literal(
+                Literal::new_float_literal(FloatLiteral::new(*literal, lu_dog), lu_dog),
+                lu_dog,
+            ),
+            ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
+        ),
+        //
+        // FunctionCall
+        //
         ParserExpression::FunctionCall(func, params) => {
             debug!("ParserExpression::FunctionCall", func);
             let func = &func.0;
@@ -448,6 +481,9 @@ fn inter_expression(
 
             (func, ret_ty)
         }
+        //
+        // IntegerLiteral
+        //
         ParserExpression::IntegerLiteral(literal) => (
             Expression::new_literal(
                 Literal::new_integer_literal(IntegerLiteral::new(*literal, lu_dog), lu_dog),
@@ -455,16 +491,9 @@ fn inter_expression(
             ),
             ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
         ),
-        // There is nothing to inter here. The literals are consts.
-        //  ParserExpression::BooleanLiteral(literal) => ValueType::new_empty(),
-        // I literally have no idea what to do with this. I just haven't given
-        // it any thought. IT came from the parser I looked at when building
-        // this one. It (could) contain(s) the span of whatever didn't parse, whilst
-        // parsing an expression. I did wonder about adding an Error object
-        // to the domain. So, maybe this is where that fits in? I just don't
-        // recall what prompted me to consider an Error Object, and just as
-        // important, why I dismissed the notion.
-        //  ParserExpression::Error => ValueType::new_empty(),
+        //
+        // LocalVarialbe
+        //
         ParserExpression::LocalVariable(name) => {
             debug!("ParserExpression::LocalVariable", name);
             // We need to return an expression and a type.
@@ -593,6 +622,9 @@ fn inter_expression(
                 (expr, ValueType::new_unknown())
             }
         }
+        //
+        // MethodCall
+        //
         ParserExpression::MethodCall(instance, (method, _), params) => {
             debug!("ParserExpression::MethodCall", instance);
 
@@ -636,6 +668,9 @@ fn inter_expression(
 
             (Expression::new_print(print, lu_dog), ty)
         }
+        //
+        // StaticMethodCall
+        //
         ParserExpression::StaticMethodCall((obj, _), (method, _), params) => {
             debug!("ParserExpression::StaticMethodCall", obj);
             let type_name = if let Token::Ident(obj) = obj {
@@ -692,6 +727,9 @@ fn inter_expression(
 
             (expr, ty)
         }
+        //
+        // StringLiteral
+        //
         ParserExpression::StringLiteral(literal) => {
             debug!("ParserExpression::StringLiteral", literal);
             (
@@ -705,6 +743,9 @@ fn inter_expression(
                 ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_string())), lu_dog),
             )
         }
+        //
+        // Struct
+        //
         ParserExpression::Struct((name, _), fields) => {
             let name = if let Token::Ident(name) = name {
                 // name.de_sanitize()

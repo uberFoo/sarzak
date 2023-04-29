@@ -67,7 +67,6 @@ pub use crate::v2::lu_dog::field::Field;
 pub use crate::v2::lu_dog::field_access::FieldAccess;
 pub use crate::v2::lu_dog::field_expression::FieldExpression;
 pub use crate::v2::lu_dog::float_literal::FloatLiteral;
-pub use crate::v2::lu_dog::float_literal::FLOAT_LITERAL;
 pub use crate::v2::lu_dog::function::Function;
 pub use crate::v2::lu_dog::function_call::FunctionCall;
 pub use crate::v2::lu_dog::function_call::FUNCTION_CALL;

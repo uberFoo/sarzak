@@ -1,29 +1,50 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"float_literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
+use uuid::Uuid;
+
+use crate::v2::lu_dog::types::literal::Literal;
 use serde::{Deserialize, Serialize};
-use uuid::{uuid, Uuid};
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-const-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-struct-documentation"}}}
 /// A Floating Point Literal
 ///
 /// Nothing fancy. No scientific notation.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-const-definition"}}}
-pub const FLOAT_LITERAL: Uuid = uuid!["32cde28d-7552-5fca-bc79-0a9fb105ea77"];
-
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct FloatLiteral;
-
+pub struct FloatLiteral {
+    pub id: Uuid,
+    pub value: f64,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-implementation"}}}
 impl FloatLiteral {
-    pub fn new() -> Self {
-        Self {}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-struct-impl-new"}}}
+    /// Inter a new 'Float Literal' in the store, and return it's `id`.
+    pub fn new(value: f64, store: &mut LuDogStore) -> Arc<RwLock<FloatLiteral>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(FloatLiteral {
+            id: id,
+            value: value,
+        }));
+        store.inter_float_literal(new.clone());
+        new
     }
-
-    pub fn id(&self) -> Uuid {
-        FLOAT_LITERAL
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-impl-nav-subtype-to-supertype-literal"}}}
+    // Navigate to [`Literal`] across R22(isa)
+    pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Literal>>> {
+        vec![store.exhume_literal(&self.id).unwrap()]
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -19,6 +19,7 @@
 //! * [`Field`]
 //! * [`FieldAccess`]
 //! * [`FieldExpression`]
+//! * [`FloatLiteral`]
 //! * [`Function`]
 //! * [`Implementation`]
 //! * [`Import`]
@@ -61,11 +62,11 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
     Argument, Block, BooleanLiteral, Call, DwarfSourceFile, Error, ErrorExpression, Expression,
-    ExpressionStatement, Field, FieldAccess, FieldExpression, Function, Implementation, Import,
-    IntegerLiteral, Item, LetStatement, List, Literal, LocalVariable, MethodCall, Parameter, Print,
-    Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression,
-    Value, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, ZObjectStore, ZSome,
-    EMPTY, FALSE_LITERAL, FLOAT_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    ExpressionStatement, Field, FieldAccess, FieldExpression, FloatLiteral, Function,
+    Implementation, Import, IntegerLiteral, Item, LetStatement, List, Literal, LocalVariable,
+    MethodCall, Parameter, Print, Reference, ResultStatement, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption,
+    WoogStruct, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -82,6 +83,7 @@ pub struct ObjectStore {
     field: HashMap<Uuid, (Arc<RwLock<Field>>, SystemTime)>,
     field_access: HashMap<Uuid, (Arc<RwLock<FieldAccess>>, SystemTime)>,
     field_expression: HashMap<Uuid, (Arc<RwLock<FieldExpression>>, SystemTime)>,
+    float_literal: HashMap<Uuid, (Arc<RwLock<FloatLiteral>>, SystemTime)>,
     function: HashMap<Uuid, (Arc<RwLock<Function>>, SystemTime)>,
     implementation: HashMap<Uuid, (Arc<RwLock<Implementation>>, SystemTime)>,
     import: HashMap<Uuid, (Arc<RwLock<Import>>, SystemTime)>,
@@ -126,6 +128,7 @@ impl ObjectStore {
             field: HashMap::default(),
             field_access: HashMap::default(),
             field_expression: HashMap::default(),
+            float_literal: HashMap::default(),
             function: HashMap::default(),
             implementation: HashMap::default(),
             import: HashMap::default(),
@@ -174,16 +177,12 @@ impl ObjectStore {
         store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
-            Literal::FloatLiteral(FLOAT_LITERAL).id(),
-        ))));
         store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ))));
         store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
             BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
         ))));
-        store.inter_literal(Arc::new(RwLock::new(Literal::FloatLiteral(FLOAT_LITERAL))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Empty(EMPTY))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
@@ -579,6 +578,39 @@ impl ObjectStore {
         self.field_expression
             .get(&field_expression.id)
             .map(|field_expression| field_expression.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`FloatLiteral`] into the store.
+    ///
+    pub fn inter_float_literal(&mut self, float_literal: Arc<RwLock<FloatLiteral>>) {
+        let read = float_literal.read().unwrap();
+        self.float_literal
+            .insert(read.id, (float_literal.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`FloatLiteral`] from the store.
+    ///
+    pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Arc<RwLock<FloatLiteral>>> {
+        self.float_literal
+            .get(id)
+            .map(|float_literal| float_literal.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
+    ///
+    pub fn iter_float_literal(&self) -> impl Iterator<Item = Arc<RwLock<FloatLiteral>>> + '_ {
+        self.float_literal
+            .values()
+            .map(|float_literal| float_literal.0.clone())
+    }
+
+    /// Get the timestamp for FloatLiteral.
+    ///
+    pub fn float_literal_timestamp(&self, float_literal: &FloatLiteral) -> SystemTime {
+        self.float_literal
+            .get(&float_literal.id)
+            .map(|float_literal| float_literal.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1893,6 +1925,43 @@ impl ObjectStore {
             }
         }
 
+        // Persist Float Literal.
+        {
+            let path = path.join("float_literal");
+            fs::create_dir_all(&path)?;
+            for float_literal_tuple in self.float_literal.values() {
+                let path = path.join(format!("{}.json", float_literal_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<FloatLiteral>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != float_literal_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &float_literal_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &float_literal_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.float_literal.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Function.
         {
             let path = path.join("function");
@@ -3094,6 +3163,23 @@ impl ObjectStore {
                     field_expression.0.read().unwrap().id,
                     field_expression.clone(),
                 );
+            }
+        }
+
+        // Load Float Literal.
+        {
+            let path = path.join("float_literal");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let float_literal: (Arc<RwLock<FloatLiteral>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .float_literal
+                    .insert(float_literal.0.read().unwrap().id, float_literal.clone());
             }
         }
 

@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
-use crate::v2::lu_dog::types::float_literal::FLOAT_LITERAL;
+use crate::v2::lu_dog::types::float_literal::FloatLiteral;
 use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
@@ -43,9 +43,15 @@ impl Literal {
     }
 
     /// Create a new instance of Literal::FloatLiteral
-    pub fn new_float_literal() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::FloatLiteral(FLOAT_LITERAL)))
+    pub fn new_float_literal(
+        float_literal: Arc<RwLock<FloatLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        let new = Arc::new(RwLock::new(Self::FloatLiteral(
+            float_literal.read().unwrap().id,
+        )));
+        store.inter_literal(new.clone());
+        new
     }
 
     /// Create a new instance of Literal::IntegerLiteral
