@@ -154,12 +154,12 @@ impl<'a> ConveyImpl<'a> {
 /// 🚧 Return a result!
 pub fn populate_lu_dog(
     ast: &HashMap<(String, ItemKind), Item>,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Result<LuDogStore> {
     let mut lu_dog = LuDogStore::new();
 
-    walk_tree(ast, &mut lu_dog, model, sarzak)?;
+    walk_tree(ast, &mut lu_dog, models, sarzak)?;
 
     Ok(lu_dog)
 }
@@ -167,7 +167,7 @@ pub fn populate_lu_dog(
 fn walk_tree(
     ast: &HashMap<(String, ItemKind), Item>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Result<()> {
     let mut funcs = Vec::new();
@@ -190,12 +190,12 @@ fn walk_tree(
     // Put the type information in first.
     for ConveyStruct { name, fields } in structs {
         debug!("Intering struct {}", name);
-        inter_struct(&name, &fields, lu_dog, model, sarzak);
+        inter_struct(&name, &fields, lu_dog, models, sarzak);
     }
 
     // Using the type information, and the input, inter the implementation blocks.
     for ConveyImpl { name, funcs } in implementations {
-        inter_implementation(&name, &funcs, lu_dog, model, sarzak);
+        inter_implementation(&name, &funcs, lu_dog, models, sarzak);
     }
 
     // Finally, inter the loose functions.
@@ -214,7 +214,7 @@ fn walk_tree(
             None,
             None,
             lu_dog,
-            model,
+            models,
             sarzak,
         );
     }
@@ -230,7 +230,7 @@ fn inter_func(
     impl_block: Option<Arc<RwLock<Implementation>>>,
     impl_ty: Option<Arc<RwLock<ValueType>>>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) {
     debug!("inter_func", name);
@@ -238,7 +238,7 @@ fn inter_func(
 
     let name = name.de_sanitize();
 
-    let ret_ty = get_value_type(&return_type.0, impl_ty.clone(), lu_dog, model, sarzak);
+    let ret_ty = get_value_type(&return_type.0, impl_ty.clone(), lu_dog, models, sarzak);
     let func = Function::new(name.to_owned(), block.clone(), impl_block, ret_ty, lu_dog);
     // Create a type for our function
     ValueType::new_function(func.clone(), lu_dog);
@@ -258,7 +258,7 @@ fn inter_func(
         // That said, we need to introduce the values into the block, so that we don't
         // error out when parsing the statements.
         //
-        let param_ty = get_value_type(&param_ty, impl_ty.clone(), lu_dog, model, sarzak);
+        let param_ty = get_value_type(&param_ty, impl_ty.clone(), lu_dog, models, sarzak);
         debug!("inter_func param param_ty", param_ty);
         let _value = Value::new_variable(block.clone(), param_ty, var, lu_dog);
         last_param_uuid = link_parameter!(last_param_uuid, param, lu_dog);
@@ -269,14 +269,14 @@ fn inter_func(
         .iter()
         .map(|stmt| Arc::new(RwLock::new(stmt.0.clone())))
         .collect();
-    inter_statements(&stmts, &block, lu_dog, model, sarzak);
+    inter_statements(&stmts, &block, lu_dog, models, sarzak);
 }
 
 pub fn inter_statement(
     stmt: &Arc<RwLock<ParserStatement>>,
     block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> (Arc<RwLock<Statement>>, Arc<RwLock<ValueType>>) {
     debug!("inter_statement", stmt);
@@ -290,7 +290,7 @@ pub fn inter_statement(
                 &Arc::new(RwLock::new(expr.to_owned())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
             let stmt = ExpressionStatement::new(expr, lu_dog);
@@ -311,12 +311,12 @@ pub fn inter_statement(
                 &Arc::new(RwLock::new(expr.to_owned())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
 
             let ty = if let Some((type_, _)) = type_ {
-                type_.into_value_type(lu_dog, model, sarzak)
+                type_.into_value_type(lu_dog, models, sarzak)
             } else {
                 ty
             };
@@ -343,7 +343,7 @@ pub fn inter_statement(
                 &Arc::new(RwLock::new(expr.to_owned())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
             let stmt = ResultStatement::new(expr, lu_dog);
@@ -359,14 +359,14 @@ fn inter_statements(
     statements: &[Arc<RwLock<ParserStatement>>],
     block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Arc<RwLock<ValueType>> {
     let mut value_type = ValueType::new_empty();
 
     let mut last_stmt_uuid: Option<Uuid> = None;
     for stmt in statements {
-        let (stmt, ty) = inter_statement(stmt, block, lu_dog, model, sarzak);
+        let (stmt, ty) = inter_statement(stmt, block, lu_dog, models, sarzak);
         last_stmt_uuid = link_statement!(last_stmt_uuid, stmt, lu_dog);
         value_type = ty;
     }
@@ -384,7 +384,7 @@ fn inter_expression(
     expr: &Arc<RwLock<ParserExpression>>,
     block: &Arc<RwLock<Block>>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> (Arc<RwLock<Expression>>, Arc<RwLock<ValueType>>) {
     debug!("inter_expression", expr);
@@ -402,7 +402,7 @@ fn inter_expression(
                 .collect();
             (
                 Expression::new_block(block.clone(), lu_dog),
-                inter_statements(&stmts, &block, lu_dog, model, sarzak),
+                inter_statements(&stmts, &block, lu_dog, models, sarzak),
             )
         }
         //
@@ -449,32 +449,63 @@ fn inter_expression(
                 &Arc::new(RwLock::new((*instance).0.clone())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
-            let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
-            let expr = Expression::new_field_access(expr, lu_dog);
 
             let id = instance_ty.read().unwrap().id();
-            if let Some(woog_struct) = lu_dog.exhume_woog_struct(&id) {
-                let field = woog_struct.read().unwrap();
-                let field = field.r7_field(lu_dog);
-                let field = field.iter().find(|f| f.read().unwrap().name == *field_name);
+            let ty = lu_dog.exhume_value_type(&id).unwrap();
+            let ty = ty.read().unwrap();
 
-                if let Some(field) = field {
-                    let ty = field.read().unwrap().r5_value_type(lu_dog)[0].clone();
-                    (expr, ty)
-                } else {
-                    let error = ErrorExpression::new("💥 No such field\n".to_owned(), lu_dog);
+            match &*ty {
+                ValueType::Ty(ref id) => {
+                    for model in models {
+                        if let Some(Ty::Object(ref _object)) = model.exhume_ty(id) {
+                            // let object = model.exhume_object(object).unwrap();
+                            let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
+                            let expr = Expression::new_field_access(expr, lu_dog);
+
+                            return (expr, ValueType::new_unknown());
+                        }
+                    }
+
+                    // Return an error (really need to get result in here) if it wasn't
+                    // in one of the models.
+                    let error = ErrorExpression::new(
+                        format!("💥 {:?} is not a proxy object\n", ty),
+                        lu_dog,
+                    );
                     let expr = Expression::new_error_expression(error, lu_dog);
                     // Returning an empty, because the error stuff in ValueType is fucked.
                     (expr, ValueType::new_empty())
                 }
-            } else {
-                let error = ErrorExpression::new("💥 that is not a struct\n".to_owned(), lu_dog);
-                let expr = Expression::new_error_expression(error, lu_dog);
-                // Returning an empty, because the error stuff in ValueType is fucked.
-                (expr, ValueType::new_empty())
+                ValueType::WoogStruct(ref id) => {
+                    let woog_struct = lu_dog.exhume_woog_struct(id).unwrap();
+                    let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
+                    let expr = Expression::new_field_access(expr, lu_dog);
+                    let field = woog_struct.read().unwrap();
+                    let field = field.r7_field(lu_dog);
+                    let field = field.iter().find(|f| f.read().unwrap().name == *field_name);
+
+                    // We need to grab the type from the field: what we have above is the type
+                    // of the struct.
+                    if let Some(field) = field {
+                        let ty = field.read().unwrap().r5_value_type(lu_dog)[0].clone();
+                        (expr, ty)
+                    } else {
+                        let error = ErrorExpression::new("💥 No such field\n".to_owned(), lu_dog);
+                        let expr = Expression::new_error_expression(error, lu_dog);
+                        // Returning an empty, because the error stuff in ValueType is fucked.
+                        (expr, ValueType::new_empty())
+                    }
+                }
+                ty => {
+                    let error =
+                        ErrorExpression::new(format!("💥 {:?} is not a struct\n", ty), lu_dog);
+                    let expr = Expression::new_error_expression(error, lu_dog);
+                    // Returning an empty, because the error stuff in ValueType is fucked.
+                    (expr, ValueType::new_empty())
+                }
             }
         }
         //
@@ -499,7 +530,7 @@ fn inter_expression(
                 &Arc::new(RwLock::new(func.to_owned())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
             let func_call = Call::new_function_call(Some(func_expr), lu_dog);
@@ -511,7 +542,7 @@ fn inter_expression(
                     &Arc::new(RwLock::new(param.to_owned())),
                     block,
                     lu_dog,
-                    model,
+                    models,
                     sarzak,
                 );
                 let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
@@ -658,6 +689,7 @@ fn inter_expression(
                 );
                 let expr = VariableExpression::new(name.to_owned(), lu_dog);
                 let expr = Expression::new_variable_expression(expr, lu_dog);
+
                 (expr, ValueType::new_unknown())
             }
         }
@@ -671,7 +703,7 @@ fn inter_expression(
                 &Arc::new(RwLock::new((*instance).0.clone())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
             let meth = MethodCall::new(method.to_owned(), lu_dog);
@@ -685,7 +717,7 @@ fn inter_expression(
                     &Arc::new(RwLock::new(param.to_owned())),
                     block,
                     lu_dog,
-                    model,
+                    models,
                     sarzak,
                 );
                 let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
@@ -700,7 +732,7 @@ fn inter_expression(
                 &Arc::new(RwLock::new((*expr).0.clone())),
                 block,
                 lu_dog,
-                model,
+                models,
                 sarzak,
             );
             let print = Print::new(expr, lu_dog);
@@ -740,21 +772,24 @@ fn inter_expression(
                     "ParserExpression::StaticMethodCall: looking up type",
                     type_name
                 );
-                // How do we look up a type? Oh, duh.
-                if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
-                    let id = if let Some(s) = lu_dog
-                        .iter_woog_struct()
-                        .find(|s| s.read().unwrap().object == Some(*obj))
-                    {
-                        s.read().unwrap().id
-                    } else {
-                        model.exhume_ty(&obj).unwrap().id()
-                    };
 
-                    lu_dog.exhume_value_type(&id).unwrap().clone()
-                } else {
-                    ValueType::new_unknown()
+                let mut ty = ValueType::new_unknown();
+                for model in models {
+                    if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
+                        let id = if let Some(s) = lu_dog
+                            .iter_woog_struct()
+                            .find(|s| s.read().unwrap().object == Some(*obj))
+                        {
+                            s.read().unwrap().id
+                        } else {
+                            model.exhume_ty(&obj).unwrap().id()
+                        };
+
+                        ty = lu_dog.exhume_value_type(&id).unwrap().clone();
+                        break;
+                    }
                 }
+                ty
             };
 
             let mut last_arg_uuid: Option<Uuid> = None;
@@ -764,7 +799,7 @@ fn inter_expression(
                     &Arc::new(RwLock::new(param.to_owned())),
                     block,
                     lu_dog,
-                    model,
+                    models,
                     sarzak,
                 );
                 let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
@@ -819,24 +854,30 @@ fn inter_expression(
                         &Arc::new(RwLock::new(field_expr.to_owned())),
                         block,
                         lu_dog,
-                        model,
+                        models,
                         sarzak,
                     );
                     let _field =
                         FieldExpression::new(name.to_owned(), field_expr, expr.clone(), lu_dog);
                 });
 
-            // model.iter_object().for_each(|o| debug!("object", o.name));
-
             // Same name, de_sanitized, in a different model. Oh, right, this is
             // the source model. What's going on above?
-            let obj = model.exhume_object_id_by_name(name.de_sanitize()).unwrap();
-            let ty = model.exhume_ty(&obj).unwrap();
+            for model in models {
+                if let Some(obj) = model.exhume_object_id_by_name(name.de_sanitize()) {
+                    let ty = model.exhume_ty(&obj).unwrap().clone();
 
-            (
-                Expression::new_struct_expression(expr, lu_dog),
-                ValueType::new_ty(Arc::new(RwLock::new(ty.clone())), lu_dog),
-            )
+                    // let obj = model.exhume_object_id_by_name(name.de_sanitize()).unwrap();
+                    // let ty = model.exhume_ty(&obj).unwrap();
+
+                    return (
+                        Expression::new_struct_expression(expr, lu_dog),
+                        ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog),
+                    );
+                }
+            }
+
+            panic!("badness happened: {}", name);
         }
         道 => todo!("{:?}", 道),
     }
@@ -868,7 +909,7 @@ fn inter_implementation(
     name: &str,
     funcs: &[(Spanned<String>, Box<Item>)],
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) {
     let name = name.de_sanitize();
@@ -877,31 +918,33 @@ fn inter_implementation(
         &Type::UserType(Box::new(Token::Ident(name.to_owned()))),
         None,
         lu_dog,
-        model,
+        models,
         sarzak,
     );
 
-    let obj_id = model
-        .exhume_object_id_by_name(name)
-        .expect(&format!("Object {} not found", name));
+    for model in models {
+        let obj_id = model
+            .exhume_object_id_by_name(name)
+            .expect(&format!("Object {} not found", name));
 
-    let obj = model
-        .exhume_object(obj_id)
-        .expect(&format!("Object {} not found", name));
+        let obj = model
+            .exhume_object(obj_id)
+            .expect(&format!("Object {} not found", name));
 
-    let mt = lu_dog
-        .iter_woog_struct()
-        .find(|mt| mt.read().unwrap().object == Some(obj.id))
-        .expect(&format!("Struct for {} not found", name))
-        .clone();
-    let implementation = Implementation::new(mt, lu_dog);
+        let mt = lu_dog
+            .iter_woog_struct()
+            .find(|mt| mt.read().unwrap().object == Some(obj.id))
+            .expect(&format!("Struct for {} not found", name))
+            .clone();
+        let implementation = Implementation::new(mt, lu_dog);
 
-    for ((name, _), func) in funcs {
-        match **func {
+        for ((name, _), func) in funcs {
+            match **func {
             Item::Function(ref params, ref return_type, ref stmts) => {
-                inter_func(&name, &params, &return_type, &stmts, Some(implementation.clone()), Some(impl_ty.clone()), lu_dog, model, sarzak)
+                inter_func(&name, &params, &return_type, &stmts, Some(implementation.clone()), Some(impl_ty.clone()), lu_dog, models, sarzak)
             }
             _ => panic!("Implementation can only contain functions -- this is actually wrong, but it's good enough for a temporary failure message"),
+        }
         }
     }
 }
@@ -910,27 +953,29 @@ fn inter_struct(
     name: &str,
     fields: &[(Spanned<String>, Spanned<Type>)],
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) {
     debug!("inter_struct", name);
     let s_name = name.de_sanitize();
 
-    let obj_id = model
-        .exhume_object_id_by_name(s_name)
-        .expect(&format!("Object {} not found", s_name));
+    for model in models {
+        let obj_id = model
+            .exhume_object_id_by_name(s_name)
+            .expect(&format!("Object {} not found", s_name));
 
-    let obj = model
-        .exhume_object(obj_id)
-        .expect(&format!("Object {} not found", s_name));
+        let obj = model
+            .exhume_object(obj_id)
+            .expect(&format!("Object {} not found", s_name));
 
-    let mt = WoogStruct::new(name.to_owned(), Some(obj.clone()), lu_dog);
-    let _ty = ValueType::new_woog_struct(mt.clone(), lu_dog);
-    for ((name, _), (type_, _)) in fields {
-        let name = name.de_sanitize();
+        let mt = WoogStruct::new(name.to_owned(), Some(obj.clone()), lu_dog);
+        let _ty = ValueType::new_woog_struct(mt.clone(), lu_dog);
+        for ((name, _), (type_, _)) in fields {
+            let name = name.de_sanitize();
 
-        let ty = get_value_type(type_, None, lu_dog, model, sarzak);
-        let _field = Field::new(name.to_owned(), mt.clone(), ty, lu_dog);
+            let ty = get_value_type(type_, None, lu_dog, models, sarzak);
+            let _field = Field::new(name.to_owned(), mt.clone(), ty, lu_dog);
+        }
     }
 }
 
@@ -945,7 +990,7 @@ fn get_value_type(
     type_: &Type,
     enclosing_type: Option<Arc<RwLock<ValueType>>>,
     lu_dog: &mut LuDogStore,
-    model: &SarzakStore,
+    models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Arc<RwLock<ValueType>> {
     match type_ {
@@ -963,17 +1008,17 @@ fn get_value_type(
             ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
         }
         Type::List(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, model, sarzak);
+            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             let list = List::new(inner_type, lu_dog);
             ValueType::new_list(list, lu_dog)
         }
         Type::Option(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, model, sarzak);
+            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             let option = WoogOption::new_z_none(inner_type, lu_dog);
             ValueType::new_woog_option(option, lu_dog)
         }
         Type::Reference(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, model, sarzak);
+            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             // We don't know the address yet -- we'll fix it in the interpreter.
             let reference = Reference::new(Uuid::new_v4(), false, inner_type, lu_dog);
             ValueType::new_reference(reference, lu_dog)
@@ -1016,21 +1061,24 @@ fn get_value_type(
                 }
             } else if name == "String" {
                 ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_string())), lu_dog)
-            } else
-            // Look for the Object in the model domain first.
-            if let Some(ty) = model.iter_ty().find(|ty| match ty {
-                Ty::Object(ref obj) => {
-                    let obj = model.exhume_object(obj).unwrap();
-                    // We are going to cheat a little bit here. Say we have an
-                    // object called `Point`. We want to be able to also handle
-                    // proxy objects for `Point`. Those are suffixed with "Proxy".
-                    let obj = obj.name.to_upper_camel_case();
-                    obj == *name || name == format!("{}Proxy", obj)
-                }
-                _ => false,
-            }) {
-                ValueType::new_ty(Arc::new(RwLock::new(ty.clone())), lu_dog)
             } else {
+                for model in models {
+                    // Look for the Object in the model domains first.
+                    if let Some(ty) = model.iter_ty().find(|ty| match ty {
+                        Ty::Object(ref obj) => {
+                            let obj = model.exhume_object(obj).unwrap();
+                            // We are going to cheat a little bit here. Say we have an
+                            // object called `Point`. We want to be able to also handle
+                            // proxy objects for `Point`. Those are suffixed with "Proxy".
+                            let obj = obj.name.to_upper_camel_case();
+                            obj == *name || name == format!("{}Proxy", obj)
+                        }
+                        _ => false,
+                    }) {
+                        return ValueType::new_ty(Arc::new(RwLock::new(ty.clone())), lu_dog);
+                    }
+                }
+
                 // Unlikely to have to reach back this far, except of course for
                 // the Uuid. So, it's not unlikely; it's the least likely.
                 if let Some(ty) = sarzak.iter_ty().find(|ty| match ty {

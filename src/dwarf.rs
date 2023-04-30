@@ -146,10 +146,11 @@ impl fmt::Display for Type {
 }
 
 impl Type {
+    // 🚧 Should probably return a result
     pub fn into_value_type(
         &self,
         store: &mut LuDogStore,
-        model: &SarzakStore,
+        models: &[SarzakStore],
         sarzak: &SarzakStore,
     ) -> Arc<RwLock<ValueType>> {
         match self {
@@ -167,17 +168,17 @@ impl Type {
                 ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
             Type::List(type_) => {
-                let ty = type_.into_value_type(store, model, sarzak);
+                let ty = type_.into_value_type(store, models, sarzak);
                 let list = List::new(ty, store);
                 ValueType::new_list(list, store)
             }
             Type::Option(type_) => {
-                let ty = type_.into_value_type(store, model, sarzak);
+                let ty = type_.into_value_type(store, models, sarzak);
                 let option = WoogOption::new_z_none(ty, store);
                 ValueType::new_woog_option(option, store)
             }
             Type::Reference(type_) => {
-                let ty = type_.into_value_type(store, model, sarzak);
+                let ty = type_.into_value_type(store, models, sarzak);
                 let reference = Reference::new(Uuid::new_v4(), false, ty, store);
                 ValueType::new_reference(reference, store)
             }
@@ -194,12 +195,24 @@ impl Type {
                     panic!("Expected UserType to be Token::Object.")
                 };
 
-                let ty = if let Some(obj_id) = model.exhume_object_id_by_name(&name) {
-                    model.exhume_ty(obj_id).unwrap()
-                } else {
-                    let obj_id = sarzak.exhume_object_id_by_name(&name).unwrap();
-                    sarzak.exhume_ty(obj_id).unwrap()
-                };
+                for model in models {
+                    if let Some(obj_id) = model.exhume_object_id_by_name(&name) {
+                        let woog_struct = store
+                            .iter_woog_struct()
+                            .find(|ws| ws.read().unwrap().object == Some(*obj_id))
+                            .unwrap();
+                        let woog_struct = woog_struct.read().unwrap();
+
+                        return ValueType::new_woog_struct(
+                            Arc::new(RwLock::new(woog_struct.to_owned())),
+                            store,
+                        );
+                    }
+                }
+
+                // If it's not in one of the models, it must be in sarzak.
+                let obj_id = sarzak.exhume_object_id_by_name(&name).unwrap();
+                let ty = sarzak.exhume_ty(obj_id).unwrap();
 
                 ValueType::new_ty(Arc::new(RwLock::new(ty.to_owned())), store)
             }
