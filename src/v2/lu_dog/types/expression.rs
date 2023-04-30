@@ -45,16 +45,24 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
     pub fn new_block(block: Arc<RwLock<Block>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Block(block.read().unwrap().id)));
-        store.inter_expression(new.clone());
-        new
+        if let Some(block) = store.exhume_expression(&block.read().unwrap().id) {
+            block
+        } else {
+            let new = Arc::new(RwLock::new(Self::Block(block.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::Call
     pub fn new_call(call: Arc<RwLock<Call>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Call(call.read().unwrap().id)));
-        store.inter_expression(new.clone());
-        new
+        if let Some(call) = store.exhume_expression(&call.read().unwrap().id) {
+            call
+        } else {
+            let new = Arc::new(RwLock::new(Self::Call(call.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::ErrorExpression
@@ -62,11 +70,17 @@ impl Expression {
         error_expression: Arc<RwLock<ErrorExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::ErrorExpression(
-            error_expression.read().unwrap().id,
-        )));
-        store.inter_expression(new.clone());
-        new
+        if let Some(error_expression) =
+            store.exhume_expression(&error_expression.read().unwrap().id)
+        {
+            error_expression
+        } else {
+            let new = Arc::new(RwLock::new(Self::ErrorExpression(
+                error_expression.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::FieldAccess
@@ -74,25 +88,37 @@ impl Expression {
         field_access: Arc<RwLock<FieldAccess>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::FieldAccess(
-            field_access.read().unwrap().id,
-        )));
-        store.inter_expression(new.clone());
-        new
+        if let Some(field_access) = store.exhume_expression(&field_access.read().unwrap().id) {
+            field_access
+        } else {
+            let new = Arc::new(RwLock::new(Self::FieldAccess(
+                field_access.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::Literal
     pub fn new_literal(literal: Arc<RwLock<Literal>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Literal(literal.read().unwrap().id())));
-        store.inter_expression(new.clone());
-        new
+        if let Some(literal) = store.exhume_expression(&literal.read().unwrap().id()) {
+            literal
+        } else {
+            let new = Arc::new(RwLock::new(Self::Literal(literal.read().unwrap().id())));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::Print
     pub fn new_print(print: Arc<RwLock<Print>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Print(print.read().unwrap().id)));
-        store.inter_expression(new.clone());
-        new
+        if let Some(print) = store.exhume_expression(&print.read().unwrap().id) {
+            print
+        } else {
+            let new = Arc::new(RwLock::new(Self::Print(print.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::StructExpression
@@ -100,11 +126,17 @@ impl Expression {
         struct_expression: Arc<RwLock<StructExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::StructExpression(
-            struct_expression.read().unwrap().id,
-        )));
-        store.inter_expression(new.clone());
-        new
+        if let Some(struct_expression) =
+            store.exhume_expression(&struct_expression.read().unwrap().id)
+        {
+            struct_expression
+        } else {
+            let new = Arc::new(RwLock::new(Self::StructExpression(
+                struct_expression.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::VariableExpression
@@ -112,11 +144,17 @@ impl Expression {
         variable_expression: Arc<RwLock<VariableExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::VariableExpression(
-            variable_expression.read().unwrap().id,
-        )));
-        store.inter_expression(new.clone());
-        new
+        if let Some(variable_expression) =
+            store.exhume_expression(&variable_expression.read().unwrap().id)
+        {
+            variable_expression
+        } else {
+            let new = Arc::new(RwLock::new(Self::VariableExpression(
+                variable_expression.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

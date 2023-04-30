@@ -33,7 +33,7 @@ impl Reference {
     pub fn new(
         address: Uuid,
         is_valid: bool,
-        ty: Arc<RwLock<ValueType>>,
+        ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Reference>> {
         let id = Uuid::new_v4();

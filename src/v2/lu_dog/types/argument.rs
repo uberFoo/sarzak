@@ -32,9 +32,9 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
     pub fn new(
-        next: Option<Arc<RwLock<Argument>>>,
-        function: Arc<RwLock<Call>>,
-        expression: Arc<RwLock<Expression>>,
+        next: Option<&Arc<RwLock<Argument>>>,
+        function: &Arc<RwLock<Call>>,
+        expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Argument>> {
         let id = Uuid::new_v4();

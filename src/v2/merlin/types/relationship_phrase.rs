@@ -32,8 +32,8 @@ impl RelationshipPhrase {
         text: String,
         x: i64,
         y: i64,
-        origin: Arc<RwLock<Anchor>>,
-        line: Arc<RwLock<Line>>,
+        origin: &Arc<RwLock<Anchor>>,
+        line: &Arc<RwLock<Line>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<RelationshipPhrase>> {
         let id = Uuid::new_v4();

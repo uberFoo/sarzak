@@ -26,9 +26,9 @@ impl Error {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-new-impl"}}}
     /// Create a new instance of Error::UnknownVariable
-    pub fn new_unknown_variable() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::UnknownVariable(UNKNOWN_VARIABLE)))
+    pub fn new_unknown_variable(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_error(&UNKNOWN_VARIABLE).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

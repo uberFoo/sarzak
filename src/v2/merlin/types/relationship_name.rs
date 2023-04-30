@@ -32,8 +32,8 @@ impl RelationshipName {
         text: String,
         x: i64,
         y: i64,
-        origin: Arc<RwLock<Bisection>>,
-        line: Arc<RwLock<Line>>,
+        origin: &Arc<RwLock<Bisection>>,
+        line: &Arc<RwLock<Line>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<RelationshipName>> {
         let id = Uuid::new_v4();

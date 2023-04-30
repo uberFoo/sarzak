@@ -52,10 +52,10 @@ impl Anchor {
         offset: f64,
         x_offset: i64,
         y_offset: i64,
-        edge: Arc<RwLock<Edge>>,
-        glyph: Arc<RwLock<Glyph>>,
-        x_box: Arc<RwLock<XBox>>,
-        line: Arc<RwLock<Line>>,
+        edge: &Arc<RwLock<Edge>>,
+        glyph: &Arc<RwLock<Glyph>>,
+        x_box: &Arc<RwLock<XBox>>,
+        line: &Arc<RwLock<Line>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Anchor>> {
         let id = Uuid::new_v4();

@@ -41,7 +41,7 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_function_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_function_call(
-        expression: Option<Arc<RwLock<Expression>>>,
+        expression: Option<&Arc<RwLock<Expression>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -61,8 +61,8 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_method_call(
-        expression: Option<Arc<RwLock<Expression>>>,
-        subtype: Arc<RwLock<MethodCall>>,
+        expression: Option<&Arc<RwLock<Expression>>>,
+        subtype: &Arc<RwLock<MethodCall>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -82,8 +82,8 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_static_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_static_method_call(
-        expression: Option<Arc<RwLock<Expression>>>,
-        subtype: Arc<RwLock<StaticMethodCall>>,
+        expression: Option<&Arc<RwLock<Expression>>>,
+        subtype: &Arc<RwLock<StaticMethodCall>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

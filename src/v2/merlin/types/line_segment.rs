@@ -31,7 +31,7 @@ pub struct LineSegment {
 impl LineSegment {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new"}}}
     /// Inter a new 'Line Segment' in the store, and return it's `id`.
-    pub fn new(line: Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<LineSegment>> {
+    pub fn new(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<LineSegment>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LineSegment {
             id: id,

@@ -34,8 +34,8 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
-        function: Arc<RwLock<Function>>,
-        next: Option<Arc<RwLock<Parameter>>>,
+        function: &Arc<RwLock<Function>>,
+        next: Option<&Arc<RwLock<Parameter>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Parameter>> {
         let id = Uuid::new_v4();

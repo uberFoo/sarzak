@@ -31,7 +31,7 @@ impl ResultStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"result_statement-struct-impl-new"}}}
     /// Inter a new 'Result Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: Arc<RwLock<Expression>>,
+        expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<ResultStatement>> {
         let id = Uuid::new_v4();

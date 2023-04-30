@@ -158,7 +158,7 @@ impl Type {
                 let ty = Ty::new_boolean();
                 ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
-            Type::Empty => ValueType::new_empty(),
+            Type::Empty => ValueType::new_empty(store),
             Type::Float => {
                 let ty = Ty::new_float();
                 ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
@@ -169,17 +169,17 @@ impl Type {
             }
             Type::List(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
-                let list = List::new(ty, store);
+                let list = List::new(&ty, store);
                 ValueType::new_list(list, store)
             }
             Type::Option(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
-                let option = WoogOption::new_z_none(ty, store);
+                let option = WoogOption::new_z_none(&ty, store);
                 ValueType::new_woog_option(option, store)
             }
             Type::Reference(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
-                let reference = Reference::new(Uuid::new_v4(), false, ty, store);
+                let reference = Reference::new(Uuid::new_v4(), false, &ty, store);
                 ValueType::new_reference(reference, store)
             }
             Type::Self_(_type_) => panic!("Self is deprecated."),
@@ -187,7 +187,7 @@ impl Type {
                 let ty = Ty::new_s_string();
                 ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
             }
-            Type::Unknown => ValueType::new_unknown(),
+            Type::Unknown => ValueType::new_unknown(store),
             Type::UserType(type_) => {
                 let name = if let Token::Ident(name) = &**type_ {
                     name

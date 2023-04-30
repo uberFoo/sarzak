@@ -45,9 +45,9 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
-        block: Arc<RwLock<Block>>,
-        next: Option<Arc<RwLock<Statement>>>,
-        subtype: Arc<RwLock<ExpressionStatement>>,
+        block: &Arc<RwLock<Block>>,
+        next: Option<&Arc<RwLock<Statement>>>,
+        subtype: &Arc<RwLock<ExpressionStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -68,8 +68,8 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
-        block: Arc<RwLock<Block>>,
-        next: Option<Arc<RwLock<Statement>>>,
+        block: &Arc<RwLock<Block>>,
+        next: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -90,9 +90,9 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
-        block: Arc<RwLock<Block>>,
-        next: Option<Arc<RwLock<Statement>>>,
-        subtype: Arc<RwLock<LetStatement>>,
+        block: &Arc<RwLock<Block>>,
+        next: Option<&Arc<RwLock<Statement>>>,
+        subtype: &Arc<RwLock<LetStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -113,9 +113,9 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
-        block: Arc<RwLock<Block>>,
-        next: Option<Arc<RwLock<Statement>>>,
-        subtype: Arc<RwLock<ResultStatement>>,
+        block: &Arc<RwLock<Block>>,
+        next: Option<&Arc<RwLock<Statement>>>,
+        subtype: &Arc<RwLock<ResultStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

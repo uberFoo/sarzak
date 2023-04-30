@@ -27,15 +27,15 @@ pub enum BooleanLiteral {
 impl BooleanLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-new-impl"}}}
     /// Create a new instance of BooleanLiteral::FalseLiteral
-    pub fn new_false_literal() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::FalseLiteral(FALSE_LITERAL)))
+    pub fn new_false_literal(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_boolean_literal(&FALSE_LITERAL).unwrap()
     }
 
     /// Create a new instance of BooleanLiteral::TrueLiteral
-    pub fn new_true_literal() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::TrueLiteral(TRUE_LITERAL)))
+    pub fn new_true_literal(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_boolean_literal(&TRUE_LITERAL).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

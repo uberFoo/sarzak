@@ -43,7 +43,7 @@ impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_none"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
     pub fn new_z_none(
-        ty: Arc<RwLock<ValueType>>,
+        ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<WoogOption>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -65,8 +65,8 @@ impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_some"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
     pub fn new_z_some(
-        ty: Arc<RwLock<ValueType>>,
-        subtype: Arc<RwLock<ZSome>>,
+        ty: &Arc<RwLock<ValueType>>,
+        subtype: &Arc<RwLock<ZSome>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<WoogOption>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

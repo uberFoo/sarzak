@@ -34,8 +34,8 @@ impl Field {
     /// Inter a new 'Field' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        model: Arc<RwLock<WoogStruct>>,
-        ty: Arc<RwLock<ValueType>>,
+        model: &Arc<RwLock<WoogStruct>>,
+        ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Field>> {
         let id = Uuid::new_v4();

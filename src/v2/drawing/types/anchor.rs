@@ -148,6 +148,7 @@ impl Anchor {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-assoc_many-to-subtype_anchors"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-assoc-many-to-subtype_anchors"}}}
     /// Navigate to [`SubtypeAnchors`] across R10(1-M)
     pub fn r10_subtype_anchors<'a>(&'a self, store: &'a DrawingStore) -> Vec<&SubtypeAnchors> {
         store

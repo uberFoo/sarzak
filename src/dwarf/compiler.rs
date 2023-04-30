@@ -227,8 +227,8 @@ fn inter_func(
     params: &[(Spanned<String>, Spanned<Type>)],
     return_type: &Spanned<Type>,
     stmts: &[Spanned<ParserStatement>],
-    impl_block: Option<Arc<RwLock<Implementation>>>,
-    impl_ty: Option<Arc<RwLock<ValueType>>>,
+    impl_block: Option<&Arc<RwLock<Implementation>>>,
+    impl_ty: Option<&Arc<RwLock<ValueType>>>,
     lu_dog: &mut LuDogStore,
     models: &[SarzakStore],
     sarzak: &SarzakStore,
@@ -238,8 +238,8 @@ fn inter_func(
 
     let name = name.de_sanitize();
 
-    let ret_ty = get_value_type(&return_type.0, impl_ty.clone(), lu_dog, models, sarzak);
-    let func = Function::new(name.to_owned(), block.clone(), impl_block, ret_ty, lu_dog);
+    let ret_ty = get_value_type(&return_type.0, impl_ty, lu_dog, models, sarzak);
+    let func = Function::new(name.to_owned(), &block, impl_block, &ret_ty, lu_dog);
     // Create a type for our function
     ValueType::new_function(func.clone(), lu_dog);
 
@@ -247,9 +247,9 @@ fn inter_func(
     for ((param_name, _), (param_ty, _)) in params {
         debug!("inter_func param name", param_name);
         debug!("inter_func param ty", param_ty);
-        let param = Parameter::new(func.clone(), None, lu_dog);
+        let param = Parameter::new(&func, None, lu_dog);
         debug!("inter_func param param", param);
-        let var = Variable::new_parameter(param_name.to_owned(), param.clone(), lu_dog);
+        let var = Variable::new_parameter(param_name.to_owned(), &param, lu_dog);
         debug!("inter_func param var", var);
         // 🚧 We'll need to do something about this soon. Actually, it never belonged
         // here. It only makes sense that you can only have values in a block. Now the
@@ -260,7 +260,7 @@ fn inter_func(
         //
         let param_ty = get_value_type(&param_ty, impl_ty.clone(), lu_dog, models, sarzak);
         debug!("inter_func param param_ty", param_ty);
-        let _value = Value::new_variable(block.clone(), param_ty, var, lu_dog);
+        let _value = Value::new_variable(&block, &param_ty, &var, lu_dog);
         last_param_uuid = link_parameter!(last_param_uuid, param, lu_dog);
         debug!("inter_func param last_param_uuid", last_param_uuid);
     }
@@ -293,10 +293,10 @@ pub fn inter_statement(
                 models,
                 sarzak,
             );
-            let stmt = ExpressionStatement::new(expr, lu_dog);
-            let stmt = Statement::new_expression_statement(block.clone(), None, stmt, lu_dog);
+            let stmt = ExpressionStatement::new(&expr, lu_dog);
+            let stmt = Statement::new_expression_statement(&block, None, &stmt, lu_dog);
 
-            (stmt, ValueType::new_empty())
+            (stmt, ValueType::new_empty(lu_dog))
         }
         //
         // Let
@@ -304,7 +304,7 @@ pub fn inter_statement(
         ParserStatement::Let((var_name, _), type_, (expr, _)) => {
             // Setup the local variable that is the LHS of the statement.
             let local = LocalVariable::new(Uuid::new_v4(), lu_dog);
-            let var = Variable::new_local_variable(var_name.to_owned(), local.clone(), lu_dog);
+            let var = Variable::new_local_variable(var_name.to_owned(), &local, lu_dog);
 
             // Now parse the RHS, which is an expression.
             let (expr, ty) = inter_expression(
@@ -327,13 +327,13 @@ pub fn inter_statement(
             }
 
             // Create a variable, now that we (hopefully) have a type from the expression.
-            let _value = Value::new_variable(block.clone(), ty, var, lu_dog);
+            let _value = Value::new_variable(&block, &ty, &var, lu_dog);
 
             // Setup the let statement itself.
-            let stmt = LetStatement::new(expr, local, lu_dog);
-            let stmt = Statement::new_let_statement(block.clone(), None, stmt, lu_dog);
+            let stmt = LetStatement::new(&expr, &local, lu_dog);
+            let stmt = Statement::new_let_statement(&block, None, &stmt, lu_dog);
 
-            (stmt, ValueType::new_empty())
+            (stmt, ValueType::new_empty(lu_dog))
         }
         //
         // Result
@@ -346,8 +346,8 @@ pub fn inter_statement(
                 models,
                 sarzak,
             );
-            let stmt = ResultStatement::new(expr, lu_dog);
-            let stmt = Statement::new_result_statement(block.clone(), None, stmt, lu_dog);
+            let stmt = ResultStatement::new(&expr, lu_dog);
+            let stmt = Statement::new_result_statement(&block, None, &stmt, lu_dog);
 
             (stmt, ty)
         }
@@ -362,7 +362,7 @@ fn inter_statements(
     models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Arc<RwLock<ValueType>> {
-    let mut value_type = ValueType::new_empty();
+    let mut value_type = ValueType::new_empty(lu_dog);
 
     let mut last_stmt_uuid: Option<Uuid> = None;
     for stmt in statements {
@@ -436,7 +436,7 @@ fn inter_expression(
             );
             let expr = Expression::new_error_expression(error, lu_dog);
             // Returning an empty, because the error stuff in ValueType is fucked.
-            (expr, ValueType::new_empty())
+            (expr, ValueType::new_empty(lu_dog))
         }
         //
         // FieldAccess
@@ -462,10 +462,10 @@ fn inter_expression(
                     for model in models {
                         if let Some(Ty::Object(ref _object)) = model.exhume_ty(id) {
                             // let object = model.exhume_object(object).unwrap();
-                            let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
+                            let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
                             let expr = Expression::new_field_access(expr, lu_dog);
 
-                            return (expr, ValueType::new_unknown());
+                            return (expr, ValueType::new_unknown(lu_dog));
                         }
                     }
 
@@ -477,11 +477,11 @@ fn inter_expression(
                     );
                     let expr = Expression::new_error_expression(error, lu_dog);
                     // Returning an empty, because the error stuff in ValueType is fucked.
-                    (expr, ValueType::new_empty())
+                    (expr, ValueType::new_empty(lu_dog))
                 }
                 ValueType::WoogStruct(ref id) => {
                     let woog_struct = lu_dog.exhume_woog_struct(id).unwrap();
-                    let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
+                    let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
                     let expr = Expression::new_field_access(expr, lu_dog);
                     let field = woog_struct.read().unwrap();
                     let field = field.r7_field(lu_dog);
@@ -496,7 +496,7 @@ fn inter_expression(
                         let error = ErrorExpression::new("💥 No such field\n".to_owned(), lu_dog);
                         let expr = Expression::new_error_expression(error, lu_dog);
                         // Returning an empty, because the error stuff in ValueType is fucked.
-                        (expr, ValueType::new_empty())
+                        (expr, ValueType::new_empty(lu_dog))
                     }
                 }
                 ty => {
@@ -504,7 +504,7 @@ fn inter_expression(
                         ErrorExpression::new(format!("💥 {:?} is not a struct\n", ty), lu_dog);
                     let expr = Expression::new_error_expression(error, lu_dog);
                     // Returning an empty, because the error stuff in ValueType is fucked.
-                    (expr, ValueType::new_empty())
+                    (expr, ValueType::new_empty(lu_dog))
                 }
             }
         }
@@ -533,7 +533,7 @@ fn inter_expression(
                 models,
                 sarzak,
             );
-            let func_call = Call::new_function_call(Some(func_expr), lu_dog);
+            let func_call = Call::new_function_call(Some(&func_expr), lu_dog);
             let func = Expression::new_call(func_call.clone(), lu_dog);
 
             let mut last_arg_uuid: Option<Uuid> = None;
@@ -545,8 +545,8 @@ fn inter_expression(
                     models,
                     sarzak,
                 );
-                let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
-                let arg = Argument::new(None, func_call.clone(), arg_expr, lu_dog);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &func_call, &arg_expr, lu_dog);
                 last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
             }
 
@@ -685,12 +685,12 @@ fn inter_expression(
                 let expr = Expression::new_error_expression(expr, lu_dog);
                 (
                     expr,
-                    ValueType::new_error(Error::new_unknown_variable(), lu_dog),
+                    ValueType::new_error(Error::new_unknown_variable(lu_dog), lu_dog),
                 );
                 let expr = VariableExpression::new(name.to_owned(), lu_dog);
                 let expr = Expression::new_variable_expression(expr, lu_dog);
 
-                (expr, ValueType::new_unknown())
+                (expr, ValueType::new_unknown(lu_dog))
             }
         }
         //
@@ -707,7 +707,7 @@ fn inter_expression(
                 sarzak,
             );
             let meth = MethodCall::new(method.to_owned(), lu_dog);
-            let call = Call::new_method_call(Some(instance), meth, lu_dog);
+            let call = Call::new_method_call(Some(&instance), &meth, lu_dog);
             let expr = Expression::new_call(call.clone(), lu_dog);
 
             let mut last_arg_uuid: Option<Uuid> = None;
@@ -720,8 +720,8 @@ fn inter_expression(
                     models,
                     sarzak,
                 );
-                let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
-                let arg = Argument::new(None, call.clone(), arg_expr.clone(), lu_dog);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &call, &arg_expr, lu_dog);
                 last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
             }
 
@@ -735,7 +735,7 @@ fn inter_expression(
                 models,
                 sarzak,
             );
-            let print = Print::new(expr, lu_dog);
+            let print = Print::new(&expr, lu_dog);
 
             (Expression::new_print(print, lu_dog), ty)
         }
@@ -753,7 +753,7 @@ fn inter_expression(
             };
 
             let meth = StaticMethodCall::new(method.to_owned(), type_name.to_owned(), lu_dog);
-            let call = Call::new_static_method_call(None, meth, lu_dog);
+            let call = Call::new_static_method_call(None, &meth, lu_dog);
             let expr = Expression::new_call(call.clone(), lu_dog);
 
             debug!("ParserExpression::StaticMethodCall: name", type_name);
@@ -773,7 +773,7 @@ fn inter_expression(
                     type_name
                 );
 
-                let mut ty = ValueType::new_unknown();
+                let mut ty = ValueType::new_unknown(lu_dog);
                 for model in models {
                     if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
                         let id = if let Some(s) = lu_dog
@@ -802,8 +802,8 @@ fn inter_expression(
                     models,
                     sarzak,
                 );
-                let _value = Value::new_expression(block.clone(), ty, arg_expr.clone(), lu_dog);
-                let arg = Argument::new(None, call.clone(), arg_expr.clone(), lu_dog);
+                let _value = Value::new_expression(&block, &ty, &arg_expr, lu_dog);
+                let arg = Argument::new(None, &call, &arg_expr, lu_dog);
                 last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
             }
 
@@ -844,7 +844,7 @@ fn inter_expression(
             let struct_id = lu_dog.exhume_woog_struct_id_by_name(&name).unwrap();
             let woog_struct = lu_dog.exhume_woog_struct(&struct_id).unwrap().clone();
 
-            let expr = StructExpression::new(Uuid::new_v4(), woog_struct, lu_dog);
+            let expr = StructExpression::new(Uuid::new_v4(), &woog_struct, lu_dog);
             fields
                 .iter()
                 .map(|((name, _), (field_expr, _))| (name, field_expr))
@@ -857,8 +857,7 @@ fn inter_expression(
                         models,
                         sarzak,
                     );
-                    let _field =
-                        FieldExpression::new(name.to_owned(), field_expr, expr.clone(), lu_dog);
+                    let _field = FieldExpression::new(name.to_owned(), &field_expr, &expr, lu_dog);
                 });
 
             // Same name, de_sanitized, in a different model. Oh, right, this is
@@ -936,12 +935,12 @@ fn inter_implementation(
             .find(|mt| mt.read().unwrap().object == Some(obj.id))
             .expect(&format!("Struct for {} not found", name))
             .clone();
-        let implementation = Implementation::new(mt, lu_dog);
+        let implementation = Implementation::new(&mt, lu_dog);
 
         for ((name, _), func) in funcs {
             match **func {
             Item::Function(ref params, ref return_type, ref stmts) => {
-                inter_func(&name, &params, &return_type, &stmts, Some(implementation.clone()), Some(impl_ty.clone()), lu_dog, models, sarzak)
+                inter_func(&name, &params, &return_type, &stmts, Some(&implementation), Some(&impl_ty), lu_dog, models, sarzak)
             }
             _ => panic!("Implementation can only contain functions -- this is actually wrong, but it's good enough for a temporary failure message"),
         }
@@ -974,7 +973,7 @@ fn inter_struct(
             let name = name.de_sanitize();
 
             let ty = get_value_type(type_, None, lu_dog, models, sarzak);
-            let _field = Field::new(name.to_owned(), mt.clone(), ty, lu_dog);
+            let _field = Field::new(name.to_owned(), &mt, &ty, lu_dog);
         }
     }
 }
@@ -988,7 +987,7 @@ fn inter_struct(
 /// 🚧 This should return a result...
 fn get_value_type(
     type_: &Type,
-    enclosing_type: Option<Arc<RwLock<ValueType>>>,
+    enclosing_type: Option<&Arc<RwLock<ValueType>>>,
     lu_dog: &mut LuDogStore,
     models: &[SarzakStore],
     sarzak: &SarzakStore,
@@ -998,7 +997,7 @@ fn get_value_type(
             let ty = Ty::new_boolean();
             ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
         }
-        Type::Empty => ValueType::new_empty(),
+        Type::Empty => ValueType::new_empty(lu_dog),
         Type::Float => {
             let ty = Ty::new_float();
             ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
@@ -1009,18 +1008,18 @@ fn get_value_type(
         }
         Type::List(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
-            let list = List::new(inner_type, lu_dog);
+            let list = List::new(&inner_type, lu_dog);
             ValueType::new_list(list, lu_dog)
         }
         Type::Option(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
-            let option = WoogOption::new_z_none(inner_type, lu_dog);
+            let option = WoogOption::new_z_none(&inner_type, lu_dog);
             ValueType::new_woog_option(option, lu_dog)
         }
         Type::Reference(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             // We don't know the address yet -- we'll fix it in the interpreter.
-            let reference = Reference::new(Uuid::new_v4(), false, inner_type, lu_dog);
+            let reference = Reference::new(Uuid::new_v4(), false, &inner_type, lu_dog);
             ValueType::new_reference(reference, lu_dog)
         }
         Type::String => {

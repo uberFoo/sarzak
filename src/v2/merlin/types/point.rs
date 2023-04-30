@@ -44,7 +44,7 @@ impl Point {
     pub fn new_anchor(
         x: i64,
         y: i64,
-        subtype: Arc<RwLock<Anchor>>,
+        subtype: &Arc<RwLock<Anchor>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Point>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -68,7 +68,7 @@ impl Point {
     pub fn new_bisection(
         x: i64,
         y: i64,
-        subtype: Arc<RwLock<Bisection>>,
+        subtype: &Arc<RwLock<Bisection>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Point>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

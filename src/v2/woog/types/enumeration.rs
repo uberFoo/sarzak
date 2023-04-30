@@ -48,6 +48,7 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc_many-to-enumeration_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc-many-to-enumeration_field"}}}
     /// Navigate to [`EnumerationField`] across R28(1-M)
     pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {
         store

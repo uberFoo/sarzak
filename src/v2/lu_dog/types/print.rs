@@ -30,7 +30,7 @@ pub struct Print {
 impl Print {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-struct-impl-new"}}}
     /// Inter a new 'Print' in the store, and return it's `id`.
-    pub fn new(expression: Arc<RwLock<Expression>>, store: &mut LuDogStore) -> Arc<RwLock<Print>> {
+    pub fn new(expression: &Arc<RwLock<Expression>>, store: &mut LuDogStore) -> Arc<RwLock<Print>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Print {
             id: id,

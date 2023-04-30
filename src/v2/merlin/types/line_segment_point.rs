@@ -26,8 +26,8 @@ impl LineSegmentPoint {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment_point-struct-impl-new"}}}
     /// Inter a new 'Line Segment Point' in the store, and return it's `id`.
     pub fn new(
-        segment: Arc<RwLock<LineSegment>>,
-        point: Arc<RwLock<Point>>,
+        segment: &Arc<RwLock<LineSegment>>,
+        point: &Arc<RwLock<Point>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<LineSegmentPoint>> {
         let id = Uuid::new_v4();

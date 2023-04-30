@@ -43,9 +43,9 @@ impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
-        block: Arc<RwLock<Block>>,
-        ty: Arc<RwLock<ValueType>>,
-        subtype: Arc<RwLock<Expression>>,
+        block: &Arc<RwLock<Block>>,
+        ty: &Arc<RwLock<ValueType>>,
+        subtype: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Value>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -66,9 +66,9 @@ impl Value {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
-        block: Arc<RwLock<Block>>,
-        ty: Arc<RwLock<ValueType>>,
-        subtype: Arc<RwLock<Variable>>,
+        block: &Arc<RwLock<Block>>,
+        ty: &Arc<RwLock<ValueType>>,
+        subtype: &Arc<RwLock<Variable>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Value>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

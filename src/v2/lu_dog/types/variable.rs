@@ -41,7 +41,7 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(
         name: String,
-        subtype: Arc<RwLock<LocalVariable>>,
+        subtype: &Arc<RwLock<LocalVariable>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Variable>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -62,7 +62,7 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
-        subtype: Arc<RwLock<Parameter>>,
+        subtype: &Arc<RwLock<Parameter>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Variable>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

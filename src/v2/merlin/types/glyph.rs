@@ -38,7 +38,7 @@ impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_many"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
-    pub fn new_many(line: Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
+    pub fn new_many(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = MANY;
@@ -56,7 +56,7 @@ impl Glyph {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_one"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
-    pub fn new_one(line: Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
+    pub fn new_one(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = ONE;
@@ -74,7 +74,7 @@ impl Glyph {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_sub"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
-    pub fn new_sub(line: Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
+    pub fn new_sub(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = SUB;
@@ -92,7 +92,7 @@ impl Glyph {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_x_super"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
-    pub fn new_x_super(line: Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
+    pub fn new_x_super(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
         // about this local. This should be fixed in the near future.
         let id = X_SUPER;

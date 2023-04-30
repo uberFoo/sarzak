@@ -39,8 +39,8 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(
-        source: Arc<RwLock<DwarfSourceFile>>,
-        subtype: Arc<RwLock<Function>>,
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<Function>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -58,8 +58,8 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_implementation(
-        source: Arc<RwLock<DwarfSourceFile>>,
-        subtype: Arc<RwLock<Implementation>>,
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<Implementation>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -77,8 +77,8 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_import"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_import(
-        source: Arc<RwLock<DwarfSourceFile>>,
-        subtype: Arc<RwLock<Import>>,
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<Import>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
@@ -96,8 +96,8 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_woog_struct"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_woog_struct(
-        source: Arc<RwLock<DwarfSourceFile>>,
-        subtype: Arc<RwLock<WoogStruct>>,
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
         // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know

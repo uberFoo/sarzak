@@ -60,16 +60,20 @@ pub enum ValueType {
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
     /// Create a new instance of ValueType::Empty
-    pub fn new_empty() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Empty(EMPTY)))
+    pub fn new_empty(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&EMPTY).unwrap()
     }
 
     /// Create a new instance of ValueType::Error
     pub fn new_error(error: Arc<RwLock<Error>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Error(error.read().unwrap().id())));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(error) = store.exhume_value_type(&error.read().unwrap().id()) {
+            error
+        } else {
+            let new = Arc::new(RwLock::new(Self::Error(error.read().unwrap().id())));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::Function
@@ -77,23 +81,35 @@ impl ValueType {
         function: Arc<RwLock<Function>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Function(function.read().unwrap().id)));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(function) = store.exhume_value_type(&function.read().unwrap().id) {
+            function
+        } else {
+            let new = Arc::new(RwLock::new(Self::Function(function.read().unwrap().id)));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::Import
     pub fn new_import(import: Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Import(import.read().unwrap().id)));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(import) = store.exhume_value_type(&import.read().unwrap().id) {
+            import
+        } else {
+            let new = Arc::new(RwLock::new(Self::Import(import.read().unwrap().id)));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::List
     pub fn new_list(list: Arc<RwLock<List>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::List(list.read().unwrap().id)));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(list) = store.exhume_value_type(&list.read().unwrap().id) {
+            list
+        } else {
+            let new = Arc::new(RwLock::new(Self::List(list.read().unwrap().id)));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::ZObjectStore
@@ -101,11 +117,15 @@ impl ValueType {
         z_object_store: Arc<RwLock<ZObjectStore>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::ZObjectStore(
-            z_object_store.read().unwrap().id,
-        )));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(z_object_store) = store.exhume_value_type(&z_object_store.read().unwrap().id) {
+            z_object_store
+        } else {
+            let new = Arc::new(RwLock::new(Self::ZObjectStore(
+                z_object_store.read().unwrap().id,
+            )));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::WoogOption
@@ -113,11 +133,15 @@ impl ValueType {
         woog_option: Arc<RwLock<WoogOption>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::WoogOption(
-            woog_option.read().unwrap().id,
-        )));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(woog_option) = store.exhume_value_type(&woog_option.read().unwrap().id) {
+            woog_option
+        } else {
+            let new = Arc::new(RwLock::new(Self::WoogOption(
+                woog_option.read().unwrap().id,
+            )));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::Reference
@@ -125,9 +149,13 @@ impl ValueType {
         reference: Arc<RwLock<Reference>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Reference(reference.read().unwrap().id)));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(reference) = store.exhume_value_type(&reference.read().unwrap().id) {
+            reference
+        } else {
+            let new = Arc::new(RwLock::new(Self::Reference(reference.read().unwrap().id)));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::WoogStruct
@@ -135,24 +163,32 @@ impl ValueType {
         woog_struct: Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::WoogStruct(
-            woog_struct.read().unwrap().id,
-        )));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(woog_struct) = store.exhume_value_type(&woog_struct.read().unwrap().id) {
+            woog_struct
+        } else {
+            let new = Arc::new(RwLock::new(Self::WoogStruct(
+                woog_struct.read().unwrap().id,
+            )));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: Arc<RwLock<Ty>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::Ty(ty.read().unwrap().id())));
-        store.inter_value_type(new.clone());
-        new
+        if let Some(ty) = store.exhume_value_type(&ty.read().unwrap().id()) {
+            ty
+        } else {
+            let new = Arc::new(RwLock::new(Self::Ty(ty.read().unwrap().id())));
+            store.inter_value_type(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of ValueType::Unknown
-    pub fn new_unknown() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Unknown(UNKNOWN)))
+    pub fn new_unknown(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&UNKNOWN).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

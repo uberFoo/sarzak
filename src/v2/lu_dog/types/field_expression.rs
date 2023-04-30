@@ -34,8 +34,8 @@ impl FieldExpression {
     /// Inter a new 'Field Expression' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        expression: Arc<RwLock<Expression>>,
-        woog_struct: Arc<RwLock<StructExpression>>,
+        expression: &Arc<RwLock<Expression>>,
+        woog_struct: &Arc<RwLock<StructExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<FieldExpression>> {
         let id = Uuid::new_v4();

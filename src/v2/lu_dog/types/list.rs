@@ -28,7 +28,7 @@ pub struct List {
 impl List {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-struct-impl-new"}}}
     /// Inter a new 'List' in the store, and return it's `id`.
-    pub fn new(ty: Arc<RwLock<ValueType>>, store: &mut LuDogStore) -> Arc<RwLock<List>> {
+    pub fn new(ty: &Arc<RwLock<ValueType>>, store: &mut LuDogStore) -> Arc<RwLock<List>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(List {
             id: id,

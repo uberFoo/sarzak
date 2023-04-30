@@ -31,7 +31,7 @@ impl FieldAccess {
     /// Inter a new 'Field Access' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        expression: Arc<RwLock<Expression>>,
+        expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<FieldAccess>> {
         let id = Uuid::new_v4();

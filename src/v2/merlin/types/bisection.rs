@@ -38,7 +38,7 @@ impl Bisection {
     /// Inter a new 'Bisection' in the store, and return it's `id`.
     pub fn new(
         offset: f64,
-        segment: Arc<RwLock<LineSegment>>,
+        segment: &Arc<RwLock<LineSegment>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Bisection>> {
         let id = Uuid::new_v4();

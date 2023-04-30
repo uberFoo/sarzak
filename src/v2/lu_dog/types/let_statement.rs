@@ -33,8 +33,8 @@ impl LetStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-new"}}}
     /// Inter a new 'Let Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: Arc<RwLock<Expression>>,
-        variable: Arc<RwLock<LocalVariable>>,
+        expression: &Arc<RwLock<Expression>>,
+        variable: &Arc<RwLock<LocalVariable>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<LetStatement>> {
         let id = Uuid::new_v4();

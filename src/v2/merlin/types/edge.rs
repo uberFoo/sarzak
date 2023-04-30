@@ -25,27 +25,27 @@ pub enum Edge {
 impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
     /// Create a new instance of Edge::Bottom
-    pub fn new_bottom() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Bottom(BOTTOM)))
+    pub fn new_bottom(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&BOTTOM).unwrap()
     }
 
     /// Create a new instance of Edge::Left
-    pub fn new_left() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Left(LEFT)))
+    pub fn new_left(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&LEFT).unwrap()
     }
 
     /// Create a new instance of Edge::Right
-    pub fn new_right() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Right(RIGHT)))
+    pub fn new_right(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&RIGHT).unwrap()
     }
 
     /// Create a new instance of Edge::Top
-    pub fn new_top() -> Arc<RwLock<Self>> {
-        // This is already in the store, see associated function `new` above.
-        Arc::new(RwLock::new(Self::Top(TOP)))
+    pub fn new_top(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&TOP).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

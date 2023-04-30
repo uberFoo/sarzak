@@ -30,7 +30,7 @@ impl ExpressionStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-new"}}}
     /// Inter a new 'Expression Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: Arc<RwLock<Expression>>,
+        expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<ExpressionStatement>> {
         let id = Uuid::new_v4();

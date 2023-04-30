@@ -30,7 +30,7 @@ pub struct ZSome {
 impl ZSome {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-new"}}}
     /// Inter a new 'Some' in the store, and return it's `id`.
-    pub fn new(inner: Arc<RwLock<Value>>, store: &mut LuDogStore) -> Arc<RwLock<ZSome>> {
+    pub fn new(inner: &Arc<RwLock<Value>>, store: &mut LuDogStore) -> Arc<RwLock<ZSome>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ZSome {
             id: id,

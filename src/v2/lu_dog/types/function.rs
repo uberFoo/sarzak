@@ -39,9 +39,9 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: Arc<RwLock<Block>>,
-        impl_block: Option<Arc<RwLock<Implementation>>>,
-        return_type: Arc<RwLock<ValueType>>,
+        block: &Arc<RwLock<Block>>,
+        impl_block: Option<&Arc<RwLock<Implementation>>>,
+        return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Function>> {
         let id = Uuid::new_v4();

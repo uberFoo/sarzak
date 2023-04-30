@@ -33,7 +33,7 @@ impl StructExpression {
     /// Inter a new 'Struct Expression' in the store, and return it's `id`.
     pub fn new(
         bug: Uuid,
-        woog_struct: Arc<RwLock<WoogStruct>>,
+        woog_struct: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<StructExpression>> {
         let id = Uuid::new_v4();

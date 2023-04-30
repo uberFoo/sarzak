@@ -31,7 +31,7 @@ impl Implementation {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-new"}}}
     /// Inter a new 'Implementation' in the store, and return it's `id`.
     pub fn new(
-        model_type: Arc<RwLock<WoogStruct>>,
+        model_type: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Implementation>> {
         let id = Uuid::new_v4();

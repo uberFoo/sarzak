@@ -35,11 +35,15 @@ impl Literal {
         boolean_literal: Arc<RwLock<BooleanLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::BooleanLiteral(
-            boolean_literal.read().unwrap().id(),
-        )));
-        store.inter_literal(new.clone());
-        new
+        if let Some(boolean_literal) = store.exhume_literal(&boolean_literal.read().unwrap().id()) {
+            boolean_literal
+        } else {
+            let new = Arc::new(RwLock::new(Self::BooleanLiteral(
+                boolean_literal.read().unwrap().id(),
+            )));
+            store.inter_literal(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Literal::FloatLiteral
@@ -47,11 +51,15 @@ impl Literal {
         float_literal: Arc<RwLock<FloatLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::FloatLiteral(
-            float_literal.read().unwrap().id,
-        )));
-        store.inter_literal(new.clone());
-        new
+        if let Some(float_literal) = store.exhume_literal(&float_literal.read().unwrap().id) {
+            float_literal
+        } else {
+            let new = Arc::new(RwLock::new(Self::FloatLiteral(
+                float_literal.read().unwrap().id,
+            )));
+            store.inter_literal(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Literal::IntegerLiteral
@@ -59,11 +67,15 @@ impl Literal {
         integer_literal: Arc<RwLock<IntegerLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::IntegerLiteral(
-            integer_literal.read().unwrap().id,
-        )));
-        store.inter_literal(new.clone());
-        new
+        if let Some(integer_literal) = store.exhume_literal(&integer_literal.read().unwrap().id) {
+            integer_literal
+        } else {
+            let new = Arc::new(RwLock::new(Self::IntegerLiteral(
+                integer_literal.read().unwrap().id,
+            )));
+            store.inter_literal(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Literal::StringLiteral
@@ -71,11 +83,15 @@ impl Literal {
         string_literal: Arc<RwLock<StringLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        let new = Arc::new(RwLock::new(Self::StringLiteral(
-            string_literal.read().unwrap().id,
-        )));
-        store.inter_literal(new.clone());
-        new
+        if let Some(string_literal) = store.exhume_literal(&string_literal.read().unwrap().id) {
+            string_literal
+        } else {
+            let new = Arc::new(RwLock::new(Self::StringLiteral(
+                string_literal.read().unwrap().id,
+            )));
+            store.inter_literal(new.clone());
+            new
+        }
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
