@@ -20,7 +20,8 @@ use crate::{
             StructExpression, Value, ValueEnum, ValueType, Variable, VariableExpression,
             WoogOption, WoogStruct,
         },
-        Argument, FloatLiteral, List, MethodCall, Reference, ResultStatement,
+        Argument, BooleanLiteral, FieldAccess, FloatLiteral, List, MethodCall, Reference,
+        ResultStatement,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
@@ -438,6 +439,45 @@ fn inter_expression(
             (expr, ValueType::new_empty())
         }
         //
+        // FieldAccess
+        //
+        ParserExpression::FieldAccess(instance, (field_name, _)) => {
+            debug!("ParserExpression::FieldAccess instance", instance);
+            debug!("ParserExpression::FieldAccess field", field_name);
+
+            let (instance, instance_ty) = inter_expression(
+                &Arc::new(RwLock::new((*instance).0.clone())),
+                block,
+                lu_dog,
+                model,
+                sarzak,
+            );
+            let expr = FieldAccess::new(field_name.to_owned(), instance, lu_dog);
+            let expr = Expression::new_field_access(expr, lu_dog);
+
+            let id = instance_ty.read().unwrap().id();
+            if let Some(woog_struct) = lu_dog.exhume_woog_struct(&id) {
+                let field = woog_struct.read().unwrap();
+                let field = field.r7_field(lu_dog);
+                let field = field.iter().find(|f| f.read().unwrap().name == *field_name);
+
+                if let Some(field) = field {
+                    let ty = field.read().unwrap().r5_value_type(lu_dog)[0].clone();
+                    (expr, ty)
+                } else {
+                    let error = ErrorExpression::new("💥 No such field\n".to_owned(), lu_dog);
+                    let expr = Expression::new_error_expression(error, lu_dog);
+                    // Returning an empty, because the error stuff in ValueType is fucked.
+                    (expr, ValueType::new_empty())
+                }
+            } else {
+                let error = ErrorExpression::new("💥 that is not a struct\n".to_owned(), lu_dog);
+                let expr = Expression::new_error_expression(error, lu_dog);
+                // Returning an empty, because the error stuff in ValueType is fucked.
+                (expr, ValueType::new_empty())
+            }
+        }
+        //
         // FloatLiteral
         //
         ParserExpression::FloatLiteral(literal) => (
@@ -492,7 +532,7 @@ fn inter_expression(
             ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
         ),
         //
-        // LocalVarialbe
+        // LocalVariable
         //
         ParserExpression::LocalVariable(name) => {
             debug!("ParserExpression::LocalVariable", name);
@@ -512,7 +552,6 @@ fn inter_expression(
             //
             let values = lu_dog
                 .iter_value()
-                // This feels like deadlock...
                 .filter(|value| value.read().unwrap().block == block.read().unwrap().id)
                 .collect::<Vec<Arc<RwLock<Value>>>>();
 
@@ -526,8 +565,8 @@ fn inter_expression(
                     debug!("ParserExpression::LocalVariable: value", value);
 
                     match value.read().unwrap().subtype {
-                        ValueEnum::Expression(ref expr) => {
-                            let expr = lu_dog.exhume_expression(expr).unwrap();
+                        ValueEnum::Expression(ref _expr) => {
+                            // let expr = lu_dog.exhume_expression(expr).unwrap();
                             // error!("we don't expect to be here", expr);
                             // So we get here after all.
                             // Must. Remember. In. Compiler.
@@ -703,8 +742,16 @@ fn inter_expression(
                 );
                 // How do we look up a type? Oh, duh.
                 if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
-                    let ty = model.exhume_ty(&obj).unwrap();
-                    lu_dog.exhume_value_type(&ty.id()).unwrap().clone()
+                    let id = if let Some(s) = lu_dog
+                        .iter_woog_struct()
+                        .find(|s| s.read().unwrap().object == Some(*obj))
+                    {
+                        s.read().unwrap().id
+                    } else {
+                        model.exhume_ty(&obj).unwrap().id()
+                    };
+
+                    lu_dog.exhume_value_type(&id).unwrap().clone()
                 } else {
                     ValueType::new_unknown()
                 }
@@ -974,7 +1021,11 @@ fn get_value_type(
             if let Some(ty) = model.iter_ty().find(|ty| match ty {
                 Ty::Object(ref obj) => {
                     let obj = model.exhume_object(obj).unwrap();
-                    obj.name.to_upper_camel_case() == *name
+                    // We are going to cheat a little bit here. Say we have an
+                    // object called `Point`. We want to be able to also handle
+                    // proxy objects for `Point`. Those are suffixed with "Proxy".
+                    let obj = obj.name.to_upper_camel_case();
+                    obj == *name || name == format!("{}Proxy", obj)
                 }
                 _ => false,
             }) {

@@ -195,10 +195,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                     expr.clone()
                         .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))),
                 )
-                .map(|(_tok, expr)| {
-                    dbg!(&expr);
-                    Expression::Some(Box::new(expr))
-                })
+                .map(|(_tok, expr)| Expression::Some(Box::new(expr)))
                 .labelled("Some");
 
             let none = just::<_, _, Simple<Token>>(Token::None)
@@ -213,6 +210,12 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 Token::Uuid => Ok(Token::Uuid),
                 _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
             });
+
+            let xyzzy = ident
+                .debug("xyzzy")
+                .then_ignore(just(Token::Punct('.')))
+                // .map(Expression::LocalVariable);
+                .map_with_span(|expr, span| (Expression::LocalVariable(expr), span));
 
             // let reference = just(Token::Punct('&')).ignore_then(expr.clone());
 
@@ -239,12 +242,13 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
 
             // 'Atoms' are expressions that contain no ambiguity
             let atom = literal
+                .debug("atom")
                 .or(some)
                 .or(none)
+                // .or(xyzzy)
                 .or(ident.map(Expression::LocalVariable))
                 .or(list)
                 // In dwarf, `print` is just a keyword, just like Python 2, for simplicity
-                .debug("atom")
                 .or(just(Token::Print)
                     .ignore_then(
                         expr.clone()
@@ -257,7 +261,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 .or(expr
                     .clone()
                     .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))))
-                // Attempt to recover anything that looks like a parenthesised expression but contains errors
+                // Attempt to recover anything that looks like a parenthesized expression but contains errors
                 .recover_with(nested_delimiters(
                     Token::Punct('('),
                     Token::Punct(')'),
@@ -270,17 +274,22 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 // I tried using reference, and got errors.
                 .or(just(Token::Punct('&')).ignore_then(expr.clone()));
 
-            let field_access = atom
-                .clone()
-                .debug("field_access")
-                .map_with_span(|expr, span| (expr, span))
-                .then_ignore(just(Token::Punct('.')))
-                .then(ident.map_with_span(|ident, span| (ident, span)))
-                .map(|((obj, span), field)| (Expression::FieldAccess(Box::new(obj), field), span));
+            // let field_access = atom
+            //     .clone()
+            //     .debug("field_access")
+            //     .map_with_span(|expr, span| (expr, span))
+            //     .then_ignore(just(Token::Punct('.')))
+            //     .then(ident.map_with_span(|ident, span| (ident, span)))
+            //     .map(|((obj, span), field)| (Expression::FieldAccess(Box::new(obj), field), span));
 
             let method_call = atom
                 .clone()
                 .debug("method_call")
+                // .then(
+                //     just(Token::Punct('.'))
+                //         .ignore_then(ident.map_with_span(|ident, span| (ident, span))),
+                // )
+                // .repeated()
                 .then_ignore(just(Token::Punct('.')))
                 .then(ident.map_with_span(|ident, span| (ident, span)))
                 .then(
@@ -288,16 +297,28 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                         .clone()
                         .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
                         .map_with_span(|args, span: Span| (args, span))
-                        .repeated(),
+                        .repeated()
+                        .or_not(),
                 )
                 // This bit feels dirty. Like there is an elegant solution that I'm
                 // unable to find.
                 .foldl(|(f, m), args| {
-                    let span = f.1.start..args.1.end;
-                    (
-                        (Expression::MethodCall(Box::new(f), m.clone(), args.0), span),
-                        m,
-                    )
+                    // dbg!(&f, &m, &args);
+                    if args.is_empty() {
+                        let span = f.1.start..m.1.end;
+                        let foo = Expression::FieldAccess(Box::new(f), m.clone());
+                        // What the fuck is going on here anyway?
+                        ((foo, span), m)
+                    } else {
+                        let span = f.1.start..args[0].1.end;
+                        (
+                            (
+                                Expression::MethodCall(Box::new(f), m.clone(), args[0].0.clone()),
+                                span,
+                            ),
+                            m,
+                        )
+                    }
                 })
                 .map(|(expr, _)| expr);
 
@@ -379,7 +400,7 @@ fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token
                 });
 
             method_call
-                .or(field_access)
+                // .or(field_access)
                 .or(static_method_call)
                 .or(struct_expression)
                 .or(call)
@@ -697,11 +718,14 @@ fn item_parser(
 }
 
 pub fn parse_line(src: &str) -> Option<Statement> {
+    // let (tokens, errs) = lexer().parse_recovery_verbose(src);
     let (tokens, errs) = lexer().parse_recovery(src);
     let (ast, parse_errs) = if let Some(tokens) = tokens {
         let len = src.chars().count();
         let (ast, parse_errs) =
-            stmt_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+        // stmt_parser()
+        // .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
+        stmt_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
 
         (ast, parse_errs)
     } else {
@@ -970,7 +994,7 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        // dbg!(&ast);
+        dbg!(&ast);
 
         assert!(ast.is_some());
     }
@@ -1095,6 +1119,17 @@ mod tests {
         "#;
 
         let ast = parse_dwarf(src);
+
+        assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_field_access() {
+        let src = "a.id";
+
+        let ast = parse_line(src);
+
+        // dbg!(&ast);
 
         assert!(ast.is_some());
     }
