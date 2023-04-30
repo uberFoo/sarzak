@@ -8,6 +8,8 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
+use std::sync::{Arc, RwLock};
+
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::merlin::types::{
@@ -47,9 +49,14 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
 
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
+
         for oui in drawing.iter_object_ui() {
             let instance = XBox::from((oui, drawing));
-            merlin.inter_x_box(instance);
+            merlin.inter_x_box(Arc::new(RwLock::new(instance)));
         }
 
         for bui in drawing.iter_binary_ui() {
@@ -57,16 +64,16 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             let rel = binary.r4_relationship(sarzak)[0];
 
             let line = Line::new(&rel, &mut merlin);
-            let line_seg = LineSegment::new(&line, &mut merlin);
+            let line_seg = LineSegment::new(line.clone(), &mut merlin);
 
             // Default to putting the relationship at the midpoint of the line,
-            let bisection = Bisection::new(0.5, &line_seg, &mut merlin);
+            let bisection = Bisection::new(0.5, line_seg.clone(), &mut merlin);
             let name = RelationshipName::new(
                 format!("R{}", binary.number),
                 0,
                 0,
-                &bisection,
-                &line,
+                bisection,
+                line.clone(),
                 &mut merlin,
             );
 
@@ -94,8 +101,8 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Sort out the glyph.
             let card = referrer.r9_cardinality(sarzak)[0];
             let glyph = match card {
-                Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
-                Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
+                Cardinality::One(_) => Glyph::new_one(line.clone(), &mut merlin),
+                Cardinality::Many(_) => Glyph::new_many(line.clone(), &mut merlin),
             };
 
             // Get the box.
@@ -106,18 +113,18 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &edge.into(),
-                &glyph,
-                &x_box,
-                &line,
+                XyzzyEdge(edge, &merlin).into(),
+                glyph,
+                x_box,
+                line.clone(),
                 &mut merlin,
             );
 
             // Create the from point
-            let point = Point::new_anchor(point.x, point.y, &from_anchor, &mut merlin);
+            let point = Point::new_anchor(point.x, point.y, from_anchor, &mut merlin);
 
             // Create the "line segment point"
-            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
+            LineSegmentPoint::new(line_seg.clone(), point, &mut merlin);
 
             let to_anchor = bui.r8_anchor(drawing)[0];
             let referent = binary.r5_referent(sarzak)[0];
@@ -139,8 +146,8 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Sort out the glyph.
             let card = referent.r8_cardinality(sarzak)[0];
             let glyph = match card {
-                Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
-                Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
+                Cardinality::One(_) => Glyph::new_one(line.clone(), &mut merlin),
+                Cardinality::Many(_) => Glyph::new_many(line.clone(), &mut merlin),
             };
 
             // Get the box.
@@ -151,23 +158,18 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &edge.into(),
-                &glyph,
-                &x_box,
-                &line,
+                XyzzyEdge(edge, &merlin).into(),
+                glyph,
+                x_box,
+                line.clone(),
                 &mut merlin,
             );
 
             // Create the to point
-            let point = Point::new_anchor(point.x, point.y, &to_anchor, &mut merlin);
+            let point = Point::new_anchor(point.x, point.y, to_anchor, &mut merlin);
 
             // Create the "line segment point"
-            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
-        }
-
-        for instance in drawing.iter_edge() {
-            let instance = Edge::from(instance);
-            merlin.inter_edge(instance);
+            LineSegmentPoint::new(line_seg, point, &mut merlin);
         }
 
         merlin
@@ -216,13 +218,18 @@ impl From<(&ObjectUi, &DrawingStore)> for XBox {
     }
 }
 
-impl From<&FromEdge> for Edge {
-    fn from(src: &FromEdge) -> Self {
+struct XyzzyEdge<'a>(&'a FromEdge, &'a ObjectStore);
+
+impl<'a> From<XyzzyEdge<'a>> for Arc<RwLock<Edge>> {
+    fn from(edge: XyzzyEdge<'a>) -> Self {
+        let src = edge.0;
+        let merlin = edge.1;
+
         match src {
-            FromEdge::Bottom(_) => Edge::Bottom(BOTTOM),
-            FromEdge::Left(_) => Edge::Left(LEFT),
-            FromEdge::Right(_) => Edge::Right(RIGHT),
-            FromEdge::Top(_) => Edge::Top(TOP),
+            FromEdge::Bottom(_) => merlin.exhume_edge(&BOTTOM).unwrap(),
+            FromEdge::Left(_) => merlin.exhume_edge(&LEFT).unwrap(),
+            FromEdge::Right(_) => merlin.exhume_edge(&RIGHT).unwrap(),
+            FromEdge::Top(_) => merlin.exhume_edge(&TOP).unwrap(),
         }
     }
 }

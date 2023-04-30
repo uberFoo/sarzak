@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"bisection-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::merlin::types::line_segment::LineSegment;
@@ -34,13 +36,17 @@ pub struct Bisection {
 impl Bisection {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-new"}}}
     /// Inter a new 'Bisection' in the store, and return it's `id`.
-    pub fn new(offset: f64, segment: &LineSegment, store: &mut MerlinStore) -> Bisection {
+    pub fn new(
+        offset: f64,
+        segment: Arc<RwLock<LineSegment>>,
+        store: &mut MerlinStore,
+    ) -> Arc<RwLock<Bisection>> {
         let id = Uuid::new_v4();
-        let new = Bisection {
+        let new = Arc::new(RwLock::new(Bisection {
             id: id,
             offset: offset,
-            segment: segment.id,
-        };
+            segment: segment.read().unwrap().id,
+        }));
         store.inter_bisection(new.clone());
         new
     }
@@ -49,25 +55,28 @@ impl Bisection {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-nav-forward-to-segment"}}}
     /// Navigate to [`LineSegment`] across R14(1-*)
-    pub fn r14_line_segment<'a>(&'a self, store: &'a MerlinStore) -> Vec<&LineSegment> {
+    pub fn r14_line_segment<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<LineSegment>>> {
         vec![store.exhume_line_segment(&self.segment).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-nav-backward-cond-to-relationship_name"}}}
     /// Navigate to [`RelationshipName`] across R15(1-1c)
-    pub fn r15c_relationship_name<'a>(&'a self, store: &'a MerlinStore) -> Vec<&RelationshipName> {
+    pub fn r15c_relationship_name<'a>(
+        &'a self,
+        store: &'a MerlinStore,
+    ) -> Vec<Arc<RwLock<RelationshipName>>> {
         let relationship_name = store
             .iter_relationship_name()
-            .find(|relationship_name| relationship_name.origin == self.id);
+            .find(|relationship_name| relationship_name.read().unwrap().origin == self.id);
         match relationship_name {
-            Some(ref relationship_name) => vec![relationship_name],
+            Some(ref relationship_name) => vec![relationship_name.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-impl-nav-subtype-to-supertype-point"}}}
     // Navigate to [`Point`] across R6(isa)
-    pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Point> {
+    pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Point>>> {
         vec![store.exhume_point(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
