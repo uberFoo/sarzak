@@ -115,8 +115,8 @@ fn main() -> Result<()> {
 
     let ast = parse_dwarf(&src).expect("Failed to parse file");
 
-    let lu_dog =
-        populate_lu_dog(&ast, model.sarzak(), sarzak.sarzak()).expect("Failed to populate lu_dog");
+    let lu_dog = populate_lu_dog(&ast, &[model.sarzak().clone()], sarzak.sarzak())
+        .expect("Failed to populate lu_dog");
 
     lu_dog.persist(&path).expect("Failed to persist lu_dog");
 
