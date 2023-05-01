@@ -44,7 +44,7 @@ pub enum Expression {
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
-    pub fn new_block(block: Arc<RwLock<Block>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_block(block: &Arc<RwLock<Block>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(block) = store.exhume_expression(&block.read().unwrap().id) {
             block
         } else {
@@ -55,7 +55,7 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::Call
-    pub fn new_call(call: Arc<RwLock<Call>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_call(call: &Arc<RwLock<Call>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(call) = store.exhume_expression(&call.read().unwrap().id) {
             call
         } else {
@@ -67,7 +67,7 @@ impl Expression {
 
     /// Create a new instance of Expression::ErrorExpression
     pub fn new_error_expression(
-        error_expression: Arc<RwLock<ErrorExpression>>,
+        error_expression: &Arc<RwLock<ErrorExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(error_expression) =
@@ -85,7 +85,7 @@ impl Expression {
 
     /// Create a new instance of Expression::FieldAccess
     pub fn new_field_access(
-        field_access: Arc<RwLock<FieldAccess>>,
+        field_access: &Arc<RwLock<FieldAccess>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(field_access) = store.exhume_expression(&field_access.read().unwrap().id) {
@@ -100,7 +100,10 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::Literal
-    pub fn new_literal(literal: Arc<RwLock<Literal>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_literal(
+        literal: &Arc<RwLock<Literal>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
         if let Some(literal) = store.exhume_expression(&literal.read().unwrap().id()) {
             literal
         } else {
@@ -111,7 +114,7 @@ impl Expression {
     }
 
     /// Create a new instance of Expression::Print
-    pub fn new_print(print: Arc<RwLock<Print>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_print(print: &Arc<RwLock<Print>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(print) = store.exhume_expression(&print.read().unwrap().id) {
             print
         } else {
@@ -123,7 +126,7 @@ impl Expression {
 
     /// Create a new instance of Expression::StructExpression
     pub fn new_struct_expression(
-        struct_expression: Arc<RwLock<StructExpression>>,
+        struct_expression: &Arc<RwLock<StructExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(struct_expression) =
@@ -141,7 +144,7 @@ impl Expression {
 
     /// Create a new instance of Expression::VariableExpression
     pub fn new_variable_expression(
-        variable_expression: Arc<RwLock<VariableExpression>>,
+        variable_expression: &Arc<RwLock<VariableExpression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(variable_expression) =

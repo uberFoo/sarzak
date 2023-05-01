@@ -241,7 +241,7 @@ fn inter_func(
     let ret_ty = get_value_type(&return_type.0, impl_ty, lu_dog, models, sarzak);
     let func = Function::new(name.to_owned(), &block, impl_block, &ret_ty, lu_dog);
     // Create a type for our function
-    ValueType::new_function(func.clone(), lu_dog);
+    ValueType::new_function(&func, lu_dog);
 
     let mut last_param_uuid: Option<Uuid> = None;
     for ((param_name, _), (param_ty, _)) in params {
@@ -401,7 +401,7 @@ fn inter_expression(
                 .map(|stmt| Arc::new(RwLock::new(stmt.0.to_owned())))
                 .collect();
             (
-                Expression::new_block(block.clone(), lu_dog),
+                Expression::new_block(&block, lu_dog),
                 inter_statements(&stmts, &block, lu_dog, models, sarzak),
             )
         }
@@ -434,7 +434,7 @@ fn inter_expression(
                 "🚧 Under Construction 🚧\n💥 Input is fucked up for some reason 💥\n".to_owned(),
                 lu_dog,
             );
-            let expr = Expression::new_error_expression(error, lu_dog);
+            let expr = Expression::new_error_expression(&error, lu_dog);
             // Returning an empty, because the error stuff in ValueType is fucked.
             (expr, ValueType::new_empty(lu_dog))
         }
@@ -463,7 +463,7 @@ fn inter_expression(
                         if let Some(Ty::Object(ref _object)) = model.exhume_ty(id) {
                             // let object = model.exhume_object(object).unwrap();
                             let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
-                            let expr = Expression::new_field_access(expr, lu_dog);
+                            let expr = Expression::new_field_access(&expr, lu_dog);
 
                             return (expr, ValueType::new_unknown(lu_dog));
                         }
@@ -475,14 +475,14 @@ fn inter_expression(
                         format!("💥 {:?} is not a proxy object\n", ty),
                         lu_dog,
                     );
-                    let expr = Expression::new_error_expression(error, lu_dog);
+                    let expr = Expression::new_error_expression(&error, lu_dog);
                     // Returning an empty, because the error stuff in ValueType is fucked.
                     (expr, ValueType::new_empty(lu_dog))
                 }
                 ValueType::WoogStruct(ref id) => {
                     let woog_struct = lu_dog.exhume_woog_struct(id).unwrap();
                     let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
-                    let expr = Expression::new_field_access(expr, lu_dog);
+                    let expr = Expression::new_field_access(&expr, lu_dog);
                     let field = woog_struct.read().unwrap();
                     let field = field.r7_field(lu_dog);
                     let field = field.iter().find(|f| f.read().unwrap().name == *field_name);
@@ -494,7 +494,7 @@ fn inter_expression(
                         (expr, ty)
                     } else {
                         let error = ErrorExpression::new("💥 No such field\n".to_owned(), lu_dog);
-                        let expr = Expression::new_error_expression(error, lu_dog);
+                        let expr = Expression::new_error_expression(&error, lu_dog);
                         // Returning an empty, because the error stuff in ValueType is fucked.
                         (expr, ValueType::new_empty(lu_dog))
                     }
@@ -502,7 +502,7 @@ fn inter_expression(
                 ty => {
                     let error =
                         ErrorExpression::new(format!("💥 {:?} is not a struct\n", ty), lu_dog);
-                    let expr = Expression::new_error_expression(error, lu_dog);
+                    let expr = Expression::new_error_expression(&error, lu_dog);
                     // Returning an empty, because the error stuff in ValueType is fucked.
                     (expr, ValueType::new_empty(lu_dog))
                 }
@@ -513,10 +513,10 @@ fn inter_expression(
         //
         ParserExpression::FloatLiteral(literal) => (
             Expression::new_literal(
-                Literal::new_float_literal(FloatLiteral::new(*literal, lu_dog), lu_dog),
+                &Literal::new_float_literal(&FloatLiteral::new(*literal, lu_dog), lu_dog),
                 lu_dog,
             ),
-            ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
+            ValueType::new_ty(&Ty::new_integer(), lu_dog),
         ),
         //
         // FunctionCall
@@ -534,7 +534,7 @@ fn inter_expression(
                 sarzak,
             );
             let func_call = Call::new_function_call(Some(&func_expr), lu_dog);
-            let func = Expression::new_call(func_call.clone(), lu_dog);
+            let func = Expression::new_call(&func_call, lu_dog);
 
             let mut last_arg_uuid: Option<Uuid> = None;
             for param in params {
@@ -557,10 +557,10 @@ fn inter_expression(
         //
         ParserExpression::IntegerLiteral(literal) => (
             Expression::new_literal(
-                Literal::new_integer_literal(IntegerLiteral::new(*literal, lu_dog), lu_dog),
+                &Literal::new_integer_literal(&IntegerLiteral::new(*literal, lu_dog), lu_dog),
                 lu_dog,
             ),
-            ValueType::new_ty(Arc::new(RwLock::new(Ty::new_integer())), lu_dog),
+            ValueType::new_ty(&Ty::new_integer(), lu_dog),
         ),
         //
         // LocalVariable
@@ -649,7 +649,7 @@ fn inter_expression(
                                 } else {
                                     let expr = VariableExpression::new(name.to_owned(), lu_dog);
                                     debug!("created a new variable expression", expr);
-                                    Expression::new_variable_expression(expr, lu_dog)
+                                    Expression::new_variable_expression(&expr, lu_dog)
                                 };
 
                                 Some((expr, ty))
@@ -682,13 +682,13 @@ fn inter_expression(
                     ),
                     lu_dog,
                 );
-                let expr = Expression::new_error_expression(expr, lu_dog);
+                let expr = Expression::new_error_expression(&expr, lu_dog);
                 (
                     expr,
-                    ValueType::new_error(Error::new_unknown_variable(lu_dog), lu_dog),
+                    ValueType::new_error(&Error::new_unknown_variable(lu_dog), lu_dog),
                 );
                 let expr = VariableExpression::new(name.to_owned(), lu_dog);
-                let expr = Expression::new_variable_expression(expr, lu_dog);
+                let expr = Expression::new_variable_expression(&expr, lu_dog);
 
                 (expr, ValueType::new_unknown(lu_dog))
             }
@@ -708,7 +708,7 @@ fn inter_expression(
             );
             let meth = MethodCall::new(method.to_owned(), lu_dog);
             let call = Call::new_method_call(Some(&instance), &meth, lu_dog);
-            let expr = Expression::new_call(call.clone(), lu_dog);
+            let expr = Expression::new_call(&call, lu_dog);
 
             let mut last_arg_uuid: Option<Uuid> = None;
             let params: Vec<&ParserExpression> = params.iter().map(|param| &param.0).collect();
@@ -737,7 +737,7 @@ fn inter_expression(
             );
             let print = Print::new(&expr, lu_dog);
 
-            (Expression::new_print(print, lu_dog), ty)
+            (Expression::new_print(&print, lu_dog), ty)
         }
         //
         // StaticMethodCall
@@ -754,7 +754,7 @@ fn inter_expression(
 
             let meth = StaticMethodCall::new(method.to_owned(), type_name.to_owned(), lu_dog);
             let call = Call::new_static_method_call(None, &meth, lu_dog);
-            let expr = Expression::new_call(call.clone(), lu_dog);
+            let expr = Expression::new_call(&call, lu_dog);
 
             debug!("ParserExpression::StaticMethodCall: name", type_name);
             debug!("ParserExpression::StaticMethodCall: method", method);
@@ -766,7 +766,7 @@ fn inter_expression(
             // We could do something with the imports...
             // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
             let ty = if type_name == "Uuid" && method == "new" {
-                ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_uuid())), lu_dog)
+                ValueType::new_ty(&Ty::new_s_uuid(), lu_dog)
             } else {
                 debug!(
                     "ParserExpression::StaticMethodCall: looking up type",
@@ -816,13 +816,13 @@ fn inter_expression(
             debug!("ParserExpression::StringLiteral", literal);
             (
                 Expression::new_literal(
-                    Literal::new_string_literal(
-                        StringLiteral::new(literal.to_owned(), lu_dog),
+                    &Literal::new_string_literal(
+                        &StringLiteral::new(literal.to_owned(), lu_dog),
                         lu_dog,
                     ),
                     lu_dog,
                 ),
-                ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_string())), lu_dog),
+                ValueType::new_ty(&Ty::new_s_string(), lu_dog),
             )
         }
         //
@@ -870,8 +870,8 @@ fn inter_expression(
                     // let ty = model.exhume_ty(&obj).unwrap();
 
                     return (
-                        Expression::new_struct_expression(expr, lu_dog),
-                        ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog),
+                        Expression::new_struct_expression(&expr, lu_dog),
+                        ValueType::new_ty(&ty, lu_dog),
                     );
                 }
             }
@@ -968,7 +968,7 @@ fn inter_struct(
             .expect(&format!("Object {} not found", s_name));
 
         let mt = WoogStruct::new(name.to_owned(), Some(obj.clone()), lu_dog);
-        let _ty = ValueType::new_woog_struct(mt.clone(), lu_dog);
+        let _ty = ValueType::new_woog_struct(&mt, lu_dog);
         for ((name, _), (type_, _)) in fields {
             let name = name.de_sanitize();
 
@@ -995,36 +995,36 @@ fn get_value_type(
     match type_ {
         Type::Boolean => {
             let ty = Ty::new_boolean();
-            ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
+            ValueType::new_ty(&ty, lu_dog)
         }
         Type::Empty => ValueType::new_empty(lu_dog),
         Type::Float => {
             let ty = Ty::new_float();
-            ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
+            ValueType::new_ty(&ty, lu_dog)
         }
         Type::Integer => {
             let ty = Ty::new_integer();
-            ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
+            ValueType::new_ty(&ty, lu_dog)
         }
         Type::List(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             let list = List::new(&inner_type, lu_dog);
-            ValueType::new_list(list, lu_dog)
+            ValueType::new_list(&list, lu_dog)
         }
         Type::Option(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             let option = WoogOption::new_z_none(&inner_type, lu_dog);
-            ValueType::new_woog_option(option, lu_dog)
+            ValueType::new_woog_option(&option, lu_dog)
         }
         Type::Reference(ref type_) => {
             let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
             // We don't know the address yet -- we'll fix it in the interpreter.
             let reference = Reference::new(Uuid::new_v4(), false, &inner_type, lu_dog);
-            ValueType::new_reference(reference, lu_dog)
+            ValueType::new_reference(&reference, lu_dog)
         }
         Type::String => {
             let ty = Ty::new_s_string();
-            ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
+            ValueType::new_ty(&ty, lu_dog)
         }
         Type::UserType(tok) => {
             let name = match **tok {
@@ -1052,14 +1052,14 @@ fn get_value_type(
                 // It might be sort of cool to make `Import` a `ValueType`, and then
                 // just return this. `Function` and `Struct`, two out of the other
                 // three `Item`s are already `ValueType`s, so it's not a stretch.
-                ValueType::new_import(import, lu_dog)
+                ValueType::new_import(&import, lu_dog)
             } else if name == "Self" {
                 match enclosing_type {
                     Some(ty) => ty.clone(),
                     None => panic!("Self must be used inside an impl block."),
                 }
             } else if name == "String" {
-                ValueType::new_ty(Arc::new(RwLock::new(Ty::new_s_string())), lu_dog)
+                ValueType::new_ty(&Ty::new_s_string(), lu_dog)
             } else {
                 for model in models {
                     // Look for the Object in the model domains first.
@@ -1074,7 +1074,7 @@ fn get_value_type(
                         }
                         _ => false,
                     }) {
-                        return ValueType::new_ty(Arc::new(RwLock::new(ty.clone())), lu_dog);
+                        return ValueType::new_ty(ty, lu_dog);
                     }
                 }
 
@@ -1087,7 +1087,7 @@ fn get_value_type(
                     }
                     _ => false,
                 }) {
-                    ValueType::new_ty(Arc::new(RwLock::new(ty.clone())), lu_dog)
+                    ValueType::new_ty(ty, lu_dog)
                 } else {
                     panic!("Type not found for object {}.", name)
                 }
@@ -1095,7 +1095,7 @@ fn get_value_type(
         }
         Type::Uuid => {
             let ty = Ty::new_s_uuid();
-            ValueType::new_ty(Arc::new(RwLock::new(ty)), lu_dog)
+            ValueType::new_ty(&ty, lu_dog)
         }
         道 => todo!("{:?}", 道),
     }

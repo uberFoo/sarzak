@@ -156,36 +156,36 @@ impl Type {
         match self {
             Type::Boolean => {
                 let ty = Ty::new_boolean();
-                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
+                ValueType::new_ty(&ty, store)
             }
             Type::Empty => ValueType::new_empty(store),
             Type::Float => {
                 let ty = Ty::new_float();
-                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
+                ValueType::new_ty(&ty, store)
             }
             Type::Integer => {
                 let ty = Ty::new_integer();
-                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
+                ValueType::new_ty(&ty, store)
             }
             Type::List(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
                 let list = List::new(&ty, store);
-                ValueType::new_list(list, store)
+                ValueType::new_list(&list, store)
             }
             Type::Option(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
                 let option = WoogOption::new_z_none(&ty, store);
-                ValueType::new_woog_option(option, store)
+                ValueType::new_woog_option(&option, store)
             }
             Type::Reference(type_) => {
                 let ty = type_.into_value_type(store, models, sarzak);
                 let reference = Reference::new(Uuid::new_v4(), false, &ty, store);
-                ValueType::new_reference(reference, store)
+                ValueType::new_reference(&reference, store)
             }
             Type::Self_(_type_) => panic!("Self is deprecated."),
             Type::String => {
                 let ty = Ty::new_s_string();
-                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
+                ValueType::new_ty(&ty, store)
             }
             Type::Unknown => ValueType::new_unknown(store),
             Type::UserType(type_) => {
@@ -204,7 +204,7 @@ impl Type {
                         let woog_struct = woog_struct.read().unwrap();
 
                         return ValueType::new_woog_struct(
-                            Arc::new(RwLock::new(woog_struct.to_owned())),
+                            &Arc::new(RwLock::new(woog_struct.to_owned())),
                             store,
                         );
                     }
@@ -214,11 +214,11 @@ impl Type {
                 let obj_id = sarzak.exhume_object_id_by_name(&name).unwrap();
                 let ty = sarzak.exhume_ty(obj_id).unwrap();
 
-                ValueType::new_ty(Arc::new(RwLock::new(ty.to_owned())), store)
+                ValueType::new_ty(ty, store)
             }
             Type::Uuid => {
                 let ty = Ty::new_s_uuid();
-                ValueType::new_ty(Arc::new(RwLock::new(ty)), store)
+                ValueType::new_ty(&ty, store)
             }
         }
     }

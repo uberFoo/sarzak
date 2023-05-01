@@ -32,7 +32,7 @@ impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
     /// Create a new instance of Literal::BooleanLiteral
     pub fn new_boolean_literal(
-        boolean_literal: Arc<RwLock<BooleanLiteral>>,
+        boolean_literal: &Arc<RwLock<BooleanLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(boolean_literal) = store.exhume_literal(&boolean_literal.read().unwrap().id()) {
@@ -48,7 +48,7 @@ impl Literal {
 
     /// Create a new instance of Literal::FloatLiteral
     pub fn new_float_literal(
-        float_literal: Arc<RwLock<FloatLiteral>>,
+        float_literal: &Arc<RwLock<FloatLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(float_literal) = store.exhume_literal(&float_literal.read().unwrap().id) {
@@ -64,7 +64,7 @@ impl Literal {
 
     /// Create a new instance of Literal::IntegerLiteral
     pub fn new_integer_literal(
-        integer_literal: Arc<RwLock<IntegerLiteral>>,
+        integer_literal: &Arc<RwLock<IntegerLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(integer_literal) = store.exhume_literal(&integer_literal.read().unwrap().id) {
@@ -80,7 +80,7 @@ impl Literal {
 
     /// Create a new instance of Literal::StringLiteral
     pub fn new_string_literal(
-        string_literal: Arc<RwLock<StringLiteral>>,
+        string_literal: &Arc<RwLock<StringLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(string_literal) = store.exhume_literal(&string_literal.read().unwrap().id) {

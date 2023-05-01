@@ -66,7 +66,7 @@ impl ValueType {
     }
 
     /// Create a new instance of ValueType::Error
-    pub fn new_error(error: Arc<RwLock<Error>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_error(error: &Arc<RwLock<Error>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(error) = store.exhume_value_type(&error.read().unwrap().id()) {
             error
         } else {
@@ -78,7 +78,7 @@ impl ValueType {
 
     /// Create a new instance of ValueType::Function
     pub fn new_function(
-        function: Arc<RwLock<Function>>,
+        function: &Arc<RwLock<Function>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(function) = store.exhume_value_type(&function.read().unwrap().id) {
@@ -91,7 +91,7 @@ impl ValueType {
     }
 
     /// Create a new instance of ValueType::Import
-    pub fn new_import(import: Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_import(import: &Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(import) = store.exhume_value_type(&import.read().unwrap().id) {
             import
         } else {
@@ -102,7 +102,7 @@ impl ValueType {
     }
 
     /// Create a new instance of ValueType::List
-    pub fn new_list(list: Arc<RwLock<List>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_list(list: &Arc<RwLock<List>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(list) = store.exhume_value_type(&list.read().unwrap().id) {
             list
         } else {
@@ -114,7 +114,7 @@ impl ValueType {
 
     /// Create a new instance of ValueType::ZObjectStore
     pub fn new_z_object_store(
-        z_object_store: Arc<RwLock<ZObjectStore>>,
+        z_object_store: &Arc<RwLock<ZObjectStore>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(z_object_store) = store.exhume_value_type(&z_object_store.read().unwrap().id) {
@@ -130,7 +130,7 @@ impl ValueType {
 
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(
-        woog_option: Arc<RwLock<WoogOption>>,
+        woog_option: &Arc<RwLock<WoogOption>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(woog_option) = store.exhume_value_type(&woog_option.read().unwrap().id) {
@@ -146,7 +146,7 @@ impl ValueType {
 
     /// Create a new instance of ValueType::Reference
     pub fn new_reference(
-        reference: Arc<RwLock<Reference>>,
+        reference: &Arc<RwLock<Reference>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(reference) = store.exhume_value_type(&reference.read().unwrap().id) {
@@ -160,7 +160,7 @@ impl ValueType {
 
     /// Create a new instance of ValueType::WoogStruct
     pub fn new_woog_struct(
-        woog_struct: Arc<RwLock<WoogStruct>>,
+        woog_struct: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
         if let Some(woog_struct) = store.exhume_value_type(&woog_struct.read().unwrap().id) {
@@ -175,11 +175,11 @@ impl ValueType {
     }
 
     /// Create a new instance of ValueType::Ty
-    pub fn new_ty(ty: Arc<RwLock<Ty>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        if let Some(ty) = store.exhume_value_type(&ty.read().unwrap().id()) {
+    pub fn new_ty(ty: &Ty, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        if let Some(ty) = store.exhume_value_type(&ty.id()) {
             ty
         } else {
-            let new = Arc::new(RwLock::new(Self::Ty(ty.read().unwrap().id())));
+            let new = Arc::new(RwLock::new(Self::Ty(ty.id())));
             store.inter_value_type(new.clone());
             new
         }
