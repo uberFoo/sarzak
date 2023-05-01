@@ -50,7 +50,7 @@ use_paths = ["serde::{Deserialize, Serialize}"]
 is_meta_model = true
 is_sarzak = false
 persist = true
-persist_timestamps = true
+persist_timestamps = false
 uber_store = true
 target = "domain"
 

@@ -24,7 +24,6 @@ use std::{
     fs,
     io::{self, prelude::*},
     path::Path,
-    time::SystemTime,
 };
 
 use fnv::FnvHashMap as HashMap;
@@ -38,33 +37,33 @@ use crate::v2::merlin::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    anchor: HashMap<Uuid, (Arc<RwLock<Anchor>>, SystemTime)>,
-    bisection: HashMap<Uuid, (Arc<RwLock<Bisection>>, SystemTime)>,
-    x_box: HashMap<Uuid, (Arc<RwLock<XBox>>, SystemTime)>,
-    edge: HashMap<Uuid, (Arc<RwLock<Edge>>, SystemTime)>,
-    glyph: HashMap<Uuid, (Arc<RwLock<Glyph>>, SystemTime)>,
-    line: HashMap<Uuid, (Arc<RwLock<Line>>, SystemTime)>,
-    line_segment: HashMap<Uuid, (Arc<RwLock<LineSegment>>, SystemTime)>,
-    line_segment_point: HashMap<Uuid, (Arc<RwLock<LineSegmentPoint>>, SystemTime)>,
-    point: HashMap<Uuid, (Arc<RwLock<Point>>, SystemTime)>,
-    relationship_name: HashMap<Uuid, (Arc<RwLock<RelationshipName>>, SystemTime)>,
-    relationship_phrase: HashMap<Uuid, (Arc<RwLock<RelationshipPhrase>>, SystemTime)>,
+    anchor: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Anchor>>>>>,
+    bisection: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Bisection>>>>>,
+    x_box: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XBox>>>>>,
+    edge: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Edge>>>>>,
+    glyph: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Glyph>>>>>,
+    line: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Line>>>>>,
+    line_segment: Arc<RwLock<HashMap<Uuid, Arc<RwLock<LineSegment>>>>>,
+    line_segment_point: Arc<RwLock<HashMap<Uuid, Arc<RwLock<LineSegmentPoint>>>>>,
+    point: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Point>>>>>,
+    relationship_name: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RelationshipName>>>>>,
+    relationship_phrase: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RelationshipPhrase>>>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            anchor: HashMap::default(),
-            bisection: HashMap::default(),
-            x_box: HashMap::default(),
-            edge: HashMap::default(),
-            glyph: HashMap::default(),
-            line: HashMap::default(),
-            line_segment: HashMap::default(),
-            line_segment_point: HashMap::default(),
-            point: HashMap::default(),
-            relationship_name: HashMap::default(),
-            relationship_phrase: HashMap::default(),
+            anchor: Arc::new(RwLock::new(HashMap::default())),
+            bisection: Arc::new(RwLock::new(HashMap::default())),
+            x_box: Arc::new(RwLock::new(HashMap::default())),
+            edge: Arc::new(RwLock::new(HashMap::default())),
+            glyph: Arc::new(RwLock::new(HashMap::default())),
+            line: Arc::new(RwLock::new(HashMap::default())),
+            line_segment: Arc::new(RwLock::new(HashMap::default())),
+            line_segment_point: Arc::new(RwLock::new(HashMap::default())),
+            point: Arc::new(RwLock::new(HashMap::default())),
+            relationship_name: Arc::new(RwLock::new(HashMap::default())),
+            relationship_phrase: Arc::new(RwLock::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
@@ -84,29 +83,31 @@ impl ObjectStore {
     ///
     pub fn inter_anchor(&mut self, anchor: Arc<RwLock<Anchor>>) {
         let read = anchor.read().unwrap();
-        self.anchor
-            .insert(read.id, (anchor.clone(), SystemTime::now()));
+        self.anchor.write().unwrap().insert(read.id, anchor.clone());
     }
 
     /// Exhume [`Anchor`] from the store.
     ///
     pub fn exhume_anchor(&self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
-        self.anchor.get(id).map(|anchor| anchor.0.clone())
+        self.anchor
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|anchor| anchor.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
     pub fn iter_anchor(&self) -> impl Iterator<Item = Arc<RwLock<Anchor>>> + '_ {
-        self.anchor.values().map(|anchor| anchor.0.clone())
-    }
-
-    /// Get the timestamp for Anchor.
-    ///
-    pub fn anchor_timestamp(&self, anchor: &Anchor) -> SystemTime {
-        self.anchor
-            .get(&anchor.id)
-            .map(|anchor| anchor.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Anchor>>> = self
+            .anchor
+            .read()
+            .unwrap()
+            .values()
+            .map(|anchor| anchor.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`Bisection`] into the store.
@@ -114,143 +115,149 @@ impl ObjectStore {
     pub fn inter_bisection(&mut self, bisection: Arc<RwLock<Bisection>>) {
         let read = bisection.read().unwrap();
         self.bisection
-            .insert(read.id, (bisection.clone(), SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, bisection.clone());
     }
 
     /// Exhume [`Bisection`] from the store.
     ///
     pub fn exhume_bisection(&self, id: &Uuid) -> Option<Arc<RwLock<Bisection>>> {
-        self.bisection.get(id).map(|bisection| bisection.0.clone())
+        self.bisection
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|bisection| bisection.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Bisection>`.
     ///
     pub fn iter_bisection(&self) -> impl Iterator<Item = Arc<RwLock<Bisection>>> + '_ {
-        self.bisection.values().map(|bisection| bisection.0.clone())
-    }
-
-    /// Get the timestamp for Bisection.
-    ///
-    pub fn bisection_timestamp(&self, bisection: &Bisection) -> SystemTime {
-        self.bisection
-            .get(&bisection.id)
-            .map(|bisection| bisection.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Bisection>>> = self
+            .bisection
+            .read()
+            .unwrap()
+            .values()
+            .map(|bisection| bisection.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`XBox`] into the store.
     ///
     pub fn inter_x_box(&mut self, x_box: Arc<RwLock<XBox>>) {
         let read = x_box.read().unwrap();
-        self.x_box
-            .insert(read.id, (x_box.clone(), SystemTime::now()));
+        self.x_box.write().unwrap().insert(read.id, x_box.clone());
     }
 
     /// Exhume [`XBox`] from the store.
     ///
     pub fn exhume_x_box(&self, id: &Uuid) -> Option<Arc<RwLock<XBox>>> {
-        self.x_box.get(id).map(|x_box| x_box.0.clone())
+        self.x_box
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_box| x_box.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XBox>`.
     ///
     pub fn iter_x_box(&self) -> impl Iterator<Item = Arc<RwLock<XBox>>> + '_ {
-        self.x_box.values().map(|x_box| x_box.0.clone())
-    }
-
-    /// Get the timestamp for XBox.
-    ///
-    pub fn x_box_timestamp(&self, x_box: &XBox) -> SystemTime {
-        self.x_box
-            .get(&x_box.id)
-            .map(|x_box| x_box.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<XBox>>> = self
+            .x_box
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_box| x_box.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`Edge`] into the store.
     ///
     pub fn inter_edge(&mut self, edge: Arc<RwLock<Edge>>) {
         let read = edge.read().unwrap();
-        self.edge
-            .insert(read.id(), (edge.clone(), SystemTime::now()));
+        self.edge.write().unwrap().insert(read.id(), edge.clone());
     }
 
     /// Exhume [`Edge`] from the store.
     ///
     pub fn exhume_edge(&self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
-        self.edge.get(id).map(|edge| edge.0.clone())
+        self.edge.read().unwrap().get(id).map(|edge| edge.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
     pub fn iter_edge(&self) -> impl Iterator<Item = Arc<RwLock<Edge>>> + '_ {
-        self.edge.values().map(|edge| edge.0.clone())
-    }
-
-    /// Get the timestamp for Edge.
-    ///
-    pub fn edge_timestamp(&self, edge: &Edge) -> SystemTime {
-        self.edge
-            .get(&edge.id())
-            .map(|edge| edge.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Edge>>> = self
+            .edge
+            .read()
+            .unwrap()
+            .values()
+            .map(|edge| edge.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`Glyph`] into the store.
     ///
     pub fn inter_glyph(&mut self, glyph: Arc<RwLock<Glyph>>) {
         let read = glyph.read().unwrap();
-        self.glyph
-            .insert(read.id, (glyph.clone(), SystemTime::now()));
+        self.glyph.write().unwrap().insert(read.id, glyph.clone());
     }
 
     /// Exhume [`Glyph`] from the store.
     ///
     pub fn exhume_glyph(&self, id: &Uuid) -> Option<Arc<RwLock<Glyph>>> {
-        self.glyph.get(id).map(|glyph| glyph.0.clone())
+        self.glyph
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|glyph| glyph.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Glyph>`.
     ///
     pub fn iter_glyph(&self) -> impl Iterator<Item = Arc<RwLock<Glyph>>> + '_ {
-        self.glyph.values().map(|glyph| glyph.0.clone())
-    }
-
-    /// Get the timestamp for Glyph.
-    ///
-    pub fn glyph_timestamp(&self, glyph: &Glyph) -> SystemTime {
-        self.glyph
-            .get(&glyph.id)
-            .map(|glyph| glyph.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Glyph>>> = self
+            .glyph
+            .read()
+            .unwrap()
+            .values()
+            .map(|glyph| glyph.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`Line`] into the store.
     ///
     pub fn inter_line(&mut self, line: Arc<RwLock<Line>>) {
         let read = line.read().unwrap();
-        self.line.insert(read.id, (line.clone(), SystemTime::now()));
+        self.line.write().unwrap().insert(read.id, line.clone());
     }
 
     /// Exhume [`Line`] from the store.
     ///
     pub fn exhume_line(&self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
-        self.line.get(id).map(|line| line.0.clone())
+        self.line.read().unwrap().get(id).map(|line| line.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Line>`.
     ///
     pub fn iter_line(&self) -> impl Iterator<Item = Arc<RwLock<Line>>> + '_ {
-        self.line.values().map(|line| line.0.clone())
-    }
-
-    /// Get the timestamp for Line.
-    ///
-    pub fn line_timestamp(&self, line: &Line) -> SystemTime {
-        self.line
-            .get(&line.id)
-            .map(|line| line.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Line>>> = self
+            .line
+            .read()
+            .unwrap()
+            .values()
+            .map(|line| line.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`LineSegment`] into the store.
@@ -258,32 +265,33 @@ impl ObjectStore {
     pub fn inter_line_segment(&mut self, line_segment: Arc<RwLock<LineSegment>>) {
         let read = line_segment.read().unwrap();
         self.line_segment
-            .insert(read.id, (line_segment.clone(), SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, line_segment.clone());
     }
 
     /// Exhume [`LineSegment`] from the store.
     ///
     pub fn exhume_line_segment(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegment>>> {
         self.line_segment
+            .read()
+            .unwrap()
             .get(id)
-            .map(|line_segment| line_segment.0.clone())
+            .map(|line_segment| line_segment.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegment>`.
     ///
     pub fn iter_line_segment(&self) -> impl Iterator<Item = Arc<RwLock<LineSegment>>> + '_ {
-        self.line_segment
+        let values: Vec<Arc<RwLock<LineSegment>>> = self
+            .line_segment
+            .read()
+            .unwrap()
             .values()
-            .map(|line_segment| line_segment.0.clone())
-    }
-
-    /// Get the timestamp for LineSegment.
-    ///
-    pub fn line_segment_timestamp(&self, line_segment: &LineSegment) -> SystemTime {
-        self.line_segment
-            .get(&line_segment.id)
-            .map(|line_segment| line_segment.1)
-            .unwrap_or(SystemTime::now())
+            .map(|line_segment| line_segment.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`LineSegmentPoint`] into the store.
@@ -291,15 +299,19 @@ impl ObjectStore {
     pub fn inter_line_segment_point(&mut self, line_segment_point: Arc<RwLock<LineSegmentPoint>>) {
         let read = line_segment_point.read().unwrap();
         self.line_segment_point
-            .insert(read.id, (line_segment_point.clone(), SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, line_segment_point.clone());
     }
 
     /// Exhume [`LineSegmentPoint`] from the store.
     ///
     pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegmentPoint>>> {
         self.line_segment_point
+            .read()
+            .unwrap()
             .get(id)
-            .map(|line_segment_point| line_segment_point.0.clone())
+            .map(|line_segment_point| line_segment_point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegmentPoint>`.
@@ -307,50 +319,46 @@ impl ObjectStore {
     pub fn iter_line_segment_point(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<LineSegmentPoint>>> + '_ {
-        self.line_segment_point
+        let values: Vec<Arc<RwLock<LineSegmentPoint>>> = self
+            .line_segment_point
+            .read()
+            .unwrap()
             .values()
-            .map(|line_segment_point| line_segment_point.0.clone())
-    }
-
-    /// Get the timestamp for LineSegmentPoint.
-    ///
-    pub fn line_segment_point_timestamp(
-        &self,
-        line_segment_point: &LineSegmentPoint,
-    ) -> SystemTime {
-        self.line_segment_point
-            .get(&line_segment_point.id)
-            .map(|line_segment_point| line_segment_point.1)
-            .unwrap_or(SystemTime::now())
+            .map(|line_segment_point| line_segment_point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`Point`] into the store.
     ///
     pub fn inter_point(&mut self, point: Arc<RwLock<Point>>) {
         let read = point.read().unwrap();
-        self.point
-            .insert(read.id, (point.clone(), SystemTime::now()));
+        self.point.write().unwrap().insert(read.id, point.clone());
     }
 
     /// Exhume [`Point`] from the store.
     ///
     pub fn exhume_point(&self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
-        self.point.get(id).map(|point| point.0.clone())
+        self.point
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|point| point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
     ///
     pub fn iter_point(&self) -> impl Iterator<Item = Arc<RwLock<Point>>> + '_ {
-        self.point.values().map(|point| point.0.clone())
-    }
-
-    /// Get the timestamp for Point.
-    ///
-    pub fn point_timestamp(&self, point: &Point) -> SystemTime {
-        self.point
-            .get(&point.id)
-            .map(|point| point.1)
-            .unwrap_or(SystemTime::now())
+        let values: Vec<Arc<RwLock<Point>>> = self
+            .point
+            .read()
+            .unwrap()
+            .values()
+            .map(|point| point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`RelationshipName`] into the store.
@@ -358,15 +366,19 @@ impl ObjectStore {
     pub fn inter_relationship_name(&mut self, relationship_name: Arc<RwLock<RelationshipName>>) {
         let read = relationship_name.read().unwrap();
         self.relationship_name
-            .insert(read.id, (relationship_name.clone(), SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, relationship_name.clone());
     }
 
     /// Exhume [`RelationshipName`] from the store.
     ///
     pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipName>>> {
         self.relationship_name
+            .read()
+            .unwrap()
             .get(id)
-            .map(|relationship_name| relationship_name.0.clone())
+            .map(|relationship_name| relationship_name.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipName>`.
@@ -374,18 +386,15 @@ impl ObjectStore {
     pub fn iter_relationship_name(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<RelationshipName>>> + '_ {
-        self.relationship_name
+        let values: Vec<Arc<RwLock<RelationshipName>>> = self
+            .relationship_name
+            .read()
+            .unwrap()
             .values()
-            .map(|relationship_name| relationship_name.0.clone())
-    }
-
-    /// Get the timestamp for RelationshipName.
-    ///
-    pub fn relationship_name_timestamp(&self, relationship_name: &RelationshipName) -> SystemTime {
-        self.relationship_name
-            .get(&relationship_name.id)
-            .map(|relationship_name| relationship_name.1)
-            .unwrap_or(SystemTime::now())
+            .map(|relationship_name| relationship_name.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter [`RelationshipPhrase`] into the store.
@@ -396,15 +405,19 @@ impl ObjectStore {
     ) {
         let read = relationship_phrase.read().unwrap();
         self.relationship_phrase
-            .insert(read.id, (relationship_phrase.clone(), SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, relationship_phrase.clone());
     }
 
     /// Exhume [`RelationshipPhrase`] from the store.
     ///
     pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipPhrase>>> {
         self.relationship_phrase
+            .read()
+            .unwrap()
             .get(id)
-            .map(|relationship_phrase| relationship_phrase.0.clone())
+            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipPhrase>`.
@@ -412,21 +425,15 @@ impl ObjectStore {
     pub fn iter_relationship_phrase(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<RelationshipPhrase>>> + '_ {
-        self.relationship_phrase
+        let values: Vec<Arc<RwLock<RelationshipPhrase>>> = self
+            .relationship_phrase
+            .read()
+            .unwrap()
             .values()
-            .map(|relationship_phrase| relationship_phrase.0.clone())
-    }
-
-    /// Get the timestamp for RelationshipPhrase.
-    ///
-    pub fn relationship_phrase_timestamp(
-        &self,
-        relationship_phrase: &RelationshipPhrase,
-    ) -> SystemTime {
-        self.relationship_phrase
-            .get(&relationship_phrase.id)
-            .map(|relationship_phrase| relationship_phrase.1)
-            .unwrap_or(SystemTime::now())
+            .map(|relationship_phrase| relationship_phrase.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -453,36 +460,11 @@ impl ObjectStore {
         {
             let path = path.join("anchor");
             fs::create_dir_all(&path)?;
-            for anchor_tuple in self.anchor.values() {
-                let path = path.join(format!("{}.json", anchor_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Anchor>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != anchor_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.anchor.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for anchor in self.anchor.read().unwrap().values() {
+                let path = path.join(format!("{}.json", anchor.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &anchor)?;
             }
         }
 
@@ -490,36 +472,11 @@ impl ObjectStore {
         {
             let path = path.join("bisection");
             fs::create_dir_all(&path)?;
-            for bisection_tuple in self.bisection.values() {
-                let path = path.join(format!("{}.json", bisection_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Bisection>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != bisection_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &bisection_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &bisection_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.bisection.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for bisection in self.bisection.read().unwrap().values() {
+                let path = path.join(format!("{}.json", bisection.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &bisection)?;
             }
         }
 
@@ -527,35 +484,11 @@ impl ObjectStore {
         {
             let path = path.join("x_box");
             fs::create_dir_all(&path)?;
-            for x_box_tuple in self.x_box.values() {
-                let path = path.join(format!("{}.json", x_box_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<XBox>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != x_box_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &x_box_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &x_box_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_box.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for x_box in self.x_box.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_box.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_box)?;
             }
         }
 
@@ -563,35 +496,11 @@ impl ObjectStore {
         {
             let path = path.join("edge");
             fs::create_dir_all(&path)?;
-            for edge_tuple in self.edge.values() {
-                let path = path.join(format!("{}.json", edge_tuple.0.read().unwrap().id()));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != edge_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.edge.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for edge in self.edge.read().unwrap().values() {
+                let path = path.join(format!("{}.json", edge.read().unwrap().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &edge)?;
             }
         }
 
@@ -599,36 +508,11 @@ impl ObjectStore {
         {
             let path = path.join("glyph");
             fs::create_dir_all(&path)?;
-            for glyph_tuple in self.glyph.values() {
-                let path = path.join(format!("{}.json", glyph_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Glyph>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != glyph_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &glyph_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &glyph_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.glyph.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for glyph in self.glyph.read().unwrap().values() {
+                let path = path.join(format!("{}.json", glyph.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &glyph)?;
             }
         }
 
@@ -636,35 +520,11 @@ impl ObjectStore {
         {
             let path = path.join("line");
             fs::create_dir_all(&path)?;
-            for line_tuple in self.line.values() {
-                let path = path.join(format!("{}.json", line_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Line>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != line_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line in self.line.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line)?;
             }
         }
 
@@ -672,36 +532,11 @@ impl ObjectStore {
         {
             let path = path.join("line_segment");
             fs::create_dir_all(&path)?;
-            for line_segment_tuple in self.line_segment.values() {
-                let path = path.join(format!("{}.json", line_segment_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<LineSegment>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != line_segment_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_segment_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_segment_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line_segment.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line_segment in self.line_segment.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line_segment.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line_segment)?;
             }
         }
 
@@ -709,39 +544,11 @@ impl ObjectStore {
         {
             let path = path.join("line_segment_point");
             fs::create_dir_all(&path)?;
-            for line_segment_point_tuple in self.line_segment_point.values() {
-                let path = path.join(format!(
-                    "{}.json",
-                    line_segment_point_tuple.0.read().unwrap().id
-                ));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<LineSegmentPoint>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != line_segment_point_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_segment_point_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_segment_point_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line_segment_point.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line_segment_point in self.line_segment_point.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line_segment_point.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line_segment_point)?;
             }
         }
 
@@ -749,36 +556,11 @@ impl ObjectStore {
         {
             let path = path.join("point");
             fs::create_dir_all(&path)?;
-            for point_tuple in self.point.values() {
-                let path = path.join(format!("{}.json", point_tuple.0.read().unwrap().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Point>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != point_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.point.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for point in self.point.read().unwrap().values() {
+                let path = path.join(format!("{}.json", point.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &point)?;
             }
         }
 
@@ -786,39 +568,11 @@ impl ObjectStore {
         {
             let path = path.join("relationship_name");
             fs::create_dir_all(&path)?;
-            for relationship_name_tuple in self.relationship_name.values() {
-                let path = path.join(format!(
-                    "{}.json",
-                    relationship_name_tuple.0.read().unwrap().id
-                ));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<RelationshipName>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != relationship_name_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &relationship_name_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &relationship_name_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.relationship_name.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for relationship_name in self.relationship_name.read().unwrap().values() {
+                let path = path.join(format!("{}.json", relationship_name.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &relationship_name)?;
             }
         }
 
@@ -826,39 +580,11 @@ impl ObjectStore {
         {
             let path = path.join("relationship_phrase");
             fs::create_dir_all(&path)?;
-            for relationship_phrase_tuple in self.relationship_phrase.values() {
-                let path = path.join(format!(
-                    "{}.json",
-                    relationship_phrase_tuple.0.read().unwrap().id
-                ));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<RelationshipPhrase>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().unwrap().to_owned()
-                        != relationship_phrase_tuple.0.read().unwrap().to_owned()
-                    {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &relationship_phrase_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &relationship_phrase_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.relationship_phrase.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for relationship_phrase in self.relationship_phrase.read().unwrap().values() {
+                let path = path.join(format!("{}.json", relationship_phrase.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &relationship_phrase)?;
             }
         }
 
@@ -885,10 +611,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let anchor: (Arc<RwLock<Anchor>>, SystemTime) = serde_json::from_reader(reader)?;
+                let anchor: Arc<RwLock<Anchor>> = serde_json::from_reader(reader)?;
                 store
                     .anchor
-                    .insert(anchor.0.read().unwrap().id, anchor.clone());
+                    .write()
+                    .unwrap()
+                    .insert(anchor.read().unwrap().id, anchor.clone());
             }
         }
 
@@ -901,11 +629,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let bisection: (Arc<RwLock<Bisection>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let bisection: Arc<RwLock<Bisection>> = serde_json::from_reader(reader)?;
                 store
                     .bisection
-                    .insert(bisection.0.read().unwrap().id, bisection.clone());
+                    .write()
+                    .unwrap()
+                    .insert(bisection.read().unwrap().id, bisection.clone());
             }
         }
 
@@ -918,10 +647,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_box: (Arc<RwLock<XBox>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_box: Arc<RwLock<XBox>> = serde_json::from_reader(reader)?;
                 store
                     .x_box
-                    .insert(x_box.0.read().unwrap().id, x_box.clone());
+                    .write()
+                    .unwrap()
+                    .insert(x_box.read().unwrap().id, x_box.clone());
             }
         }
 
@@ -934,8 +665,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let edge: (Arc<RwLock<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.edge.insert(edge.0.read().unwrap().id(), edge.clone());
+                let edge: Arc<RwLock<Edge>> = serde_json::from_reader(reader)?;
+                store
+                    .edge
+                    .write()
+                    .unwrap()
+                    .insert(edge.read().unwrap().id(), edge.clone());
             }
         }
 
@@ -948,10 +683,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let glyph: (Arc<RwLock<Glyph>>, SystemTime) = serde_json::from_reader(reader)?;
+                let glyph: Arc<RwLock<Glyph>> = serde_json::from_reader(reader)?;
                 store
                     .glyph
-                    .insert(glyph.0.read().unwrap().id, glyph.clone());
+                    .write()
+                    .unwrap()
+                    .insert(glyph.read().unwrap().id, glyph.clone());
             }
         }
 
@@ -964,8 +701,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line: (Arc<RwLock<Line>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.line.insert(line.0.read().unwrap().id, line.clone());
+                let line: Arc<RwLock<Line>> = serde_json::from_reader(reader)?;
+                store
+                    .line
+                    .write()
+                    .unwrap()
+                    .insert(line.read().unwrap().id, line.clone());
             }
         }
 
@@ -978,11 +719,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment: (Arc<RwLock<LineSegment>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let line_segment: Arc<RwLock<LineSegment>> = serde_json::from_reader(reader)?;
                 store
                     .line_segment
-                    .insert(line_segment.0.read().unwrap().id, line_segment.clone());
+                    .write()
+                    .unwrap()
+                    .insert(line_segment.read().unwrap().id, line_segment.clone());
             }
         }
 
@@ -995,10 +737,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment_point: (Arc<RwLock<LineSegmentPoint>>, SystemTime) =
+                let line_segment_point: Arc<RwLock<LineSegmentPoint>> =
                     serde_json::from_reader(reader)?;
-                store.line_segment_point.insert(
-                    line_segment_point.0.read().unwrap().id,
+                store.line_segment_point.write().unwrap().insert(
+                    line_segment_point.read().unwrap().id,
                     line_segment_point.clone(),
                 );
             }
@@ -1013,10 +755,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let point: (Arc<RwLock<Point>>, SystemTime) = serde_json::from_reader(reader)?;
+                let point: Arc<RwLock<Point>> = serde_json::from_reader(reader)?;
                 store
                     .point
-                    .insert(point.0.read().unwrap().id, point.clone());
+                    .write()
+                    .unwrap()
+                    .insert(point.read().unwrap().id, point.clone());
             }
         }
 
@@ -1029,10 +773,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_name: (Arc<RwLock<RelationshipName>>, SystemTime) =
+                let relationship_name: Arc<RwLock<RelationshipName>> =
                     serde_json::from_reader(reader)?;
-                store.relationship_name.insert(
-                    relationship_name.0.read().unwrap().id,
+                store.relationship_name.write().unwrap().insert(
+                    relationship_name.read().unwrap().id,
                     relationship_name.clone(),
                 );
             }
@@ -1047,10 +791,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_phrase: (Arc<RwLock<RelationshipPhrase>>, SystemTime) =
+                let relationship_phrase: Arc<RwLock<RelationshipPhrase>> =
                     serde_json::from_reader(reader)?;
-                store.relationship_phrase.insert(
-                    relationship_phrase.0.read().unwrap().id,
+                store.relationship_phrase.write().unwrap().insert(
+                    relationship_phrase.read().unwrap().id,
                     relationship_phrase.clone(),
                 );
             }

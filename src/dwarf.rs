@@ -199,7 +199,7 @@ impl Type {
                     if let Some(obj_id) = model.exhume_object_id_by_name(&name) {
                         let woog_struct = store
                             .iter_woog_struct()
-                            .find(|ws| ws.read().unwrap().object == Some(*obj_id))
+                            .find(|ws| ws.read().unwrap().object == Some(obj_id))
                             .unwrap();
                         let woog_struct = woog_struct.read().unwrap();
 
@@ -212,7 +212,7 @@ impl Type {
 
                 // If it's not in one of the models, it must be in sarzak.
                 let obj_id = sarzak.exhume_object_id_by_name(&name).unwrap();
-                let ty = sarzak.exhume_ty(obj_id).unwrap();
+                let ty = sarzak.exhume_ty(&obj_id).unwrap();
 
                 ValueType::new_ty(ty, store)
             }

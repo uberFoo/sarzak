@@ -778,7 +778,7 @@ fn inter_expression(
                     if let Some(obj) = model.exhume_object_id_by_name(&type_name) {
                         let id = if let Some(s) = lu_dog
                             .iter_woog_struct()
-                            .find(|s| s.read().unwrap().object == Some(*obj))
+                            .find(|s| s.read().unwrap().object == Some(obj))
                         {
                             s.read().unwrap().id
                         } else {
@@ -927,7 +927,7 @@ fn inter_implementation(
             .expect(&format!("Object {} not found", name));
 
         let obj = model
-            .exhume_object(obj_id)
+            .exhume_object(&obj_id)
             .expect(&format!("Object {} not found", name));
 
         let mt = lu_dog
@@ -964,7 +964,7 @@ fn inter_struct(
             .expect(&format!("Object {} not found", s_name));
 
         let obj = model
-            .exhume_object(obj_id)
+            .exhume_object(&obj_id)
             .expect(&format!("Object {} not found", s_name));
 
         let mt = WoogStruct::new(name.to_owned(), Some(obj.clone()), lu_dog);
