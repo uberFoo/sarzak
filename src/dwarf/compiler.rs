@@ -1,8 +1,8 @@
-use std::{ops::Range, sync::Arc, sync::RwLock};
+use std::{fs::File, io::prelude::*, ops::Range, path::PathBuf, sync::Arc, sync::RwLock};
 
 use ansi_term::Colour;
 use fnv::FnvHashMap as HashMap;
-use heck::ToUpperCamelCase;
+use heck::{ToShoutySnakeCase, ToUpperCamelCase};
 use log;
 use uuid::Uuid;
 
@@ -153,18 +153,20 @@ impl<'a> ConveyImpl<'a> {
 ///
 /// 🚧 Return a result!
 pub fn populate_lu_dog(
+    out_dir: &PathBuf,
     ast: &HashMap<(String, ItemKind), Item>,
     models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Result<LuDogStore> {
     let mut lu_dog = LuDogStore::new();
 
-    walk_tree(ast, &mut lu_dog, models, sarzak)?;
+    walk_tree(out_dir, ast, &mut lu_dog, models, sarzak)?;
 
     Ok(lu_dog)
 }
 
 fn walk_tree(
+    out_dir: &PathBuf,
     ast: &HashMap<(String, ItemKind), Item>,
     lu_dog: &mut LuDogStore,
     models: &[SarzakStore],
@@ -217,6 +219,25 @@ fn walk_tree(
             models,
             sarzak,
         );
+    }
+
+    // Now write a file containing the WoogStruct id's.
+    // 🚧 Fix this unwrap
+    let mut path = PathBuf::from(out_dir);
+    path.push("woog_structs.rs");
+
+    let mut file = File::create(&path).unwrap();
+    writeln!(file, "use uuid::{{uuid, Uuid}};\n").unwrap();
+
+    for ws in lu_dog.iter_woog_struct() {
+        let ws = ws.read().unwrap();
+        writeln!(
+            file,
+            "pub(crate) const {}_TYPE_UUID: Uuid = uuid!(\"{}\");",
+            ws.name.to_shouty_snake_case(),
+            ws.id
+        )
+        .unwrap();
     }
 
     Ok(())
@@ -1061,6 +1082,7 @@ fn get_value_type(
             } else if name == "String" {
                 ValueType::new_ty(&Ty::new_s_string(), lu_dog)
             } else {
+                let name = name.de_sanitize();
                 for model in models {
                     // Look for the Object in the model domains first.
                     if let Some(ty) = model.iter_ty().find(|ty| match ty {
@@ -1083,7 +1105,8 @@ fn get_value_type(
                 if let Some(ty) = sarzak.iter_ty().find(|ty| match ty {
                     Ty::Object(ref obj) => {
                         let obj = sarzak.exhume_object(obj).unwrap();
-                        obj.name.to_upper_camel_case() == *name
+                        let obj = obj.name.to_upper_camel_case();
+                        obj == *name || name == format!("{}Proxy", obj)
                     }
                     _ => false,
                 }) {
@@ -1135,7 +1158,9 @@ fn de_sanitize(string: &str) -> Option<&str> {
         "True Literal" => Some("True"),
         "TrueLiteral" => Some("True"),
         "XSuper" => Some("Super"),
+        "XSuperProxy" => Some("SuperProxy"),
         "XBox" => Some("Box"),
+        "XBoxProxy" => Some("BoxProxy"),
         "ZObjectStore" => Some("ObjectStore"),
         "ZSome" => Some("Some"),
         "ZNone" => Some("None"),

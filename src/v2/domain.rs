@@ -1,5 +1,6 @@
 //! Version 2 Sarzak Domain
 //!
+use std::path::PathBuf;
 use std::{fs, io, path::Path};
 
 use serde::{Deserialize, Serialize};
@@ -20,6 +21,7 @@ struct MetaData {
     description: String,
     extents: [u16; 2],
     view: [i32; 2],
+    path: PathBuf,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -92,6 +94,10 @@ impl Domain {
         &mut self.merlin
     }
 
+    pub fn path(&self) -> &PathBuf {
+        &self.meta.path
+    }
+
     pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
 
@@ -141,6 +147,7 @@ impl From<DomainV1> for Domain {
                 description: domain.description().to_owned(),
                 extents: domain.extents().to_owned(),
                 view: domain.view().to_owned(),
+                path: domain.path().to_owned(),
             },
             sarzak,
             merlin,

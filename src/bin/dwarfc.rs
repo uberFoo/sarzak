@@ -1,8 +1,8 @@
-use std::{env, ffi::OsString, fs, os::unix::ffi::OsStringExt, path::PathBuf, process};
+use std::{ffi::OsString, fs, os::unix::ffi::OsStringExt, path::PathBuf, process};
 
-use clap::{ArgAction, Parser, Subcommand};
+use clap::Parser;
 use log;
-use sarzak::mc::{CompilerSnafu, FileSnafu, IOSnafu, ModelCompilerError, Result};
+use sarzak::mc::{CompilerSnafu, FileSnafu, IOSnafu, Result};
 use snafu::prelude::*;
 
 use sarzak::{
@@ -111,11 +111,11 @@ fn main() -> Result<()> {
         path: &path,
     })?;
 
-    let src = fs::read_to_string(&args.source).expect("Failed to read file");
+    let source_code = fs::read_to_string(&args.source).expect("Failed to read file");
 
-    let ast = parse_dwarf(&src).expect("Failed to parse file");
+    let ast = parse_dwarf(&source_code).expect("Failed to parse file");
 
-    let lu_dog = populate_lu_dog(&ast, &[model.sarzak().clone()], sarzak.sarzak())
+    let lu_dog = populate_lu_dog(&path, &ast, &[model.sarzak().clone()], sarzak.sarzak())
         .expect("Failed to populate lu_dog");
 
     lu_dog.persist(&path).expect("Failed to persist lu_dog");
