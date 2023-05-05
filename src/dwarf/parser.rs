@@ -1,12 +1,52 @@
-use core::ops::Range;
-
+use ansi_term::Colour;
 use ariadne::{Color, Fmt, Label, Report, ReportKind, Source};
-use chumsky::{prelude::*, stream::Stream};
-use fnv::FnvHashMap as HashMap;
+use chumsky::{error::SimpleReason, prelude::*};
+use log;
 
-use crate::dwarf::{Expression, Item, ItemKind, Span, Spanned, Statement, Token, Type};
+use crate::dwarf::{DwarfFloat, Expression, Item, Spanned, Statement, Token, Type};
 
-fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
+use super::DwarfInteger;
+
+macro_rules! debug {
+    ($msg:literal, $($arg:expr),*) => {
+        $(
+            log::debug!(
+                "{} --> {:?}\n  --> {}:{}:{}",
+                Colour::Yellow.underline().paint($msg),
+                $arg,
+                file!(),
+                line!(),
+                column!()
+            );
+        )*
+    };
+    ($arg:expr) => {
+        log::debug!("{:?}\n  --> {}:{}:{}", $arg, file!(), line!(), column!())
+    };
+}
+
+macro_rules! error {
+    ($msg:literal, $($arg:expr),*) => {
+        $(
+            log::error!(
+                "{} --> {:?}\n  --> {}:{}:{}",
+                Colour::Red.underline().paint($msg),
+                $arg,
+                file!(),
+                line!(),
+                column!()
+            );
+        )*
+    };
+    ($arg:literal) => {
+        log::error!("{}\n  --> {}:{}:{}", Colour::Red.underline().paint($arg), file!(), line!(), column!())
+    };
+    ($arg:expr) => {
+        log::error!("{:?}\n  --> {}:{}:{}", $arg, file!(), line!(), column!())
+    };
+}
+
+fn lexer() -> impl Parser<char, Vec<Spanned<Token>>, Error = Simple<char>> {
     // A parser for numbers
     let int = text::int(10).map(Token::Integer);
 
@@ -32,14 +72,14 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .map(|_| Token::Punct('∷'));
 
     // A parser for operators
-    let op = one_of("+-*/!=")
-        .repeated()
-        .at_least(1)
-        .collect::<String>()
-        .map(Token::Op);
+    // let op = one_of("+-*/!=")
+    //     .repeated()
+    //     .at_least(1)
+    //     .collect::<String>()
+    //     .map(Token::Op);
 
     // A parser for punctuation (delimiters, semicolons, etc.)
-    let punct = one_of("()[]{}:;,.&<>").map(|c| Token::Punct(c));
+    let punct = one_of("=-()[]{}:;,.&<>").map(|c| Token::Punct(c));
 
     // A "Object type" parser. Basically I'm asserting that if an identifier starts
     // with a capital letter, then it's an object.
@@ -61,21 +101,23 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         "false" => Token::Bool(false),
         "float" => Token::Type(Type::Float),
         "fn" => Token::Fn,
+        "for" => Token::For,
         // "global" => Token::Global,
         // "if" => Token::If,
         "impl" => Token::Impl,
         "int" => Token::Type(Type::Integer),
+        "in" => Token::In,
         "let" => Token::Let,
         "None" => Token::None,
         "print" => Token::Print,
-        "Self" => Token::Self_,
-        "self" => Token::SmallSelf,
+        // "Self" => Token::Self_,
+        // "self" => Token::SmallSelf,
         "Some" => Token::Some,
         "string" => Token::Type(Type::String),
         "struct" => Token::Struct,
         "true" => Token::Bool(true),
         "use" => Token::Import,
-        "Uuid" => Token::Uuid,
+        // "Uuid" => Token::Uuid,
         _ => Token::Ident(ident),
     });
 
@@ -85,9 +127,9 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
     let token = float
         .or(int)
         .or(str_)
-        .or(dagger)
-        .or(double_colon)
-        .or(op)
+        // .or(dagger)
+        // .or(double_colon)
+        // .or(op)
         .or(punct)
         .or(option)
         // .or(object)
@@ -104,730 +146,1845 @@ fn lexer() -> impl Parser<char, Vec<(Token, Span)>, Error = Simple<char>> {
         .repeated()
 }
 
-fn type_parser() -> impl Parser<Token, Type, Error = Simple<Token>> + Clone {
-    recursive(|_type_| {
-        let basic_type = filter_map(|span: Span, tok| match tok {
-            Token::Type(type_) => Ok(type_.clone()),
-            Token::Uuid => Ok(Type::Uuid),
-            Token::Ident(ident) => Ok(Type::UserType(Box::new(Token::Ident(ident.clone())))),
-            _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-        });
-
-        let reference = just(Token::Punct('&'))
-            .ignore_then(basic_type.clone())
-            .map(|type_| Type::Reference(Box::new(type_)));
-
-        let type_ = basic_type.or(reference);
-
-        let option = just(Token::Option)
-            .ignore_then(just(Token::Punct('<')))
-            .ignore_then(type_.clone())
-            .then_ignore(just(Token::Punct('>')))
-            .map(|type_| Type::Option(Box::new(type_)));
-
-        let list = type_
-            .clone()
-            .delimited_by(just(Token::Punct('[')), just(Token::Punct(']')))
-            .map(|type_| Type::List(Box::new(type_)));
-
-        let self_ = just(Token::Self_).map(|_| Type::Self_(Box::new(Token::Self_)));
-
-        let empty = just(Token::Punct('('))
-            .ignore_then(just(Token::Punct(')')))
-            .map(|_| Type::Empty);
-
-        self_.or(type_).or(empty).or(option).or(list)
-    })
+#[derive(Debug)]
+struct DwarfParser {
+    tokens: Vec<Spanned<Token>>,
+    current: usize,
+    errors: Vec<Simple<String>>,
 }
 
-fn stmt_parser() -> impl Parser<Token, Statement, Error = Simple<Token>> + Clone {
-    let ident = filter_map(|span: Span, tok| match tok {
-        Token::Ident(ident) => Ok(ident.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
+impl DwarfParser {
+    pub fn new(tokens: Vec<Spanned<Token>>) -> Self {
+        Self {
+            tokens,
+            current: 0,
+            errors: Vec::new(),
+        }
+    }
 
-    let let_ = just(Token::Let)
-        .ignore_then(
-            ident
-                .map_with_span(|ident, span| (ident, span))
-                .labelled("variable name"),
-        )
-        .then(
-            just(Token::Punct(':'))
-                .ignore_then(
-                    type_parser()
-                        .map_with_span(|name, span| (name, span))
-                        .labelled("param name"),
-                )
-                .or_not(),
-        )
-        .then_ignore(just(Token::Op("=".to_string())))
-        .debug("let statement")
-        .then(expr_parser())
-        .then_ignore(just(Token::Punct(';')))
-        .map(|((name, ty), expr)| Statement::Let(name, ty, expr));
+    /// Parse a program
+    ///
+    /// A proram is a list of items
+    ///
+    /// program -> item*
+    fn parse_program(&mut self) -> (Vec<Spanned<Item>>, Vec<Simple<String>>) {
+        debug!("enter parse_program");
 
-    let expr = expr_parser()
-        .debug("expression statement")
-        .then_ignore(just(Token::Punct(';')))
-        .map(Statement::Expression);
+        let mut result = Vec::new();
 
-    let result = expr_parser()
-        .debug("result statement")
-        .map(Statement::Result);
+        while !self.at_end() {
+            debug!("parse_program: parsse_item");
+            if let Some(item) = self.parse_item() {
+                debug!("parse_program: item:", item);
+                result.push(item);
+            } else {
+                let tok = if let Some(tok) = self.peek() {
+                    tok
+                } else {
+                    self.previous().unwrap()
+                };
 
-    let_.or(expr).or(result)
-}
-
-fn expr_parser() -> impl Parser<Token, Spanned<Expression>, Error = Simple<Token>> + Clone {
-    recursive(|expr| {
-        let raw_expr = recursive(|_raw_expr| {
-            let literal = select! {
-                Token::Bool(x) => Expression::BooleanLiteral(x),
-                Token::Integer(n) => Expression::IntegerLiteral(n.parse().unwrap()),
-                Token::Float(n) => Expression::FloatLiteral(n.parse().unwrap()),
-                Token::String(s) => Expression::StringLiteral(s),
-            }
-            .labelled("literal");
-
-            let some = just(Token::Some)
-                .then(
-                    expr.clone()
-                        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))),
-                )
-                .map(|(_tok, expr)| Expression::Some(Box::new(expr)))
-                .labelled("Some");
-
-            let none = just::<_, _, Simple<Token>>(Token::None)
-                .map(|_| Expression::None)
-                .labelled("None");
-
-            let ident = select! { Token::Ident(ident) => ident.clone() }.labelled("identifier");
-
-            let object = filter_map(|span: Span, tok| match tok {
-                Token::Ident(ident) => Ok(Token::Ident(ident.clone())),
-                Token::Self_ => Ok(Token::Self_),
-                Token::Uuid => Ok(Token::Uuid),
-                _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-            });
-
-            let xyzzy = ident
-                .debug("xyzzy")
-                .then_ignore(just(Token::Punct('.')))
-                // .map(Expression::LocalVariable);
-                .map_with_span(|expr, span| (Expression::LocalVariable(expr), span));
-
-            // let reference = just(Token::Punct('&')).ignore_then(expr.clone());
-
-            // let none = select! { Token::None => Expression::None }.labelled("none");
-            // let some = select! { Token::Some(inner) => {
-            // let expr = expr_parser(inner);
-            // Expression::Some(Box::new(expr))
-            // }}
-            // .labelled("some");
-
-            // A list of expressions
-            let items = expr
-                .clone()
-                .debug("items")
-                // .or(reference)
-                .separated_by(just(Token::Punct(',')))
-                .allow_trailing();
-
-            let list = items
-                .clone()
-                .debug("list")
-                .delimited_by(just(Token::Punct('[')), just(Token::Punct(']')))
-                .map(Expression::List);
-
-            // 'Atoms' are expressions that contain no ambiguity
-            let atom = literal
-                .debug("atom")
-                .or(some)
-                .or(none)
-                // .or(xyzzy)
-                .or(ident.map(Expression::LocalVariable))
-                .or(list)
-                // In dwarf, `print` is just a keyword, just like Python 2, for simplicity
-                .or(just(Token::Print)
-                    .ignore_then(
-                        expr.clone()
-                            .then_ignore(just(Token::Punct(',')).or_not())
-                            .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))),
-                    )
-                    .map(|expr| Expression::Print(Box::new(expr))))
-                .map_with_span(|expr, span| (expr, span))
-                // Atoms can also just be normal expressions, but surrounded with parentheses
-                .or(expr
-                    .clone()
-                    .delimited_by(just(Token::Punct('(')), just(Token::Punct(')'))))
-                // Attempt to recover anything that looks like a parenthesized expression but contains errors
-                .recover_with(nested_delimiters(
-                    Token::Punct('('),
-                    Token::Punct(')'),
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
                     [
-                        (Token::Punct('['), Token::Punct(']')),
-                        (Token::Punct('{'), Token::Punct('}')),
+                        Some("use".to_owned()),
+                        Some("impl".to_owned()),
+                        Some("struct".to_owned()),
+                        Some("Fn".to_owned()),
                     ],
-                    |span| (Expression::Error, span),
-                ))
-                // I tried using reference, and got errors.
-                .or(just(Token::Punct('&')).ignore_then(expr.clone()));
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected item");
 
-            // let field_access = atom
-            //     .clone()
-            //     .debug("field_access")
-            //     .map_with_span(|expr, span| (expr, span))
-            //     .then_ignore(just(Token::Punct('.')))
-            //     .then(ident.map_with_span(|ident, span| (ident, span)))
-            //     .map(|((obj, span), field)| (Expression::FieldAccess(Box::new(obj), field), span));
+                self.errors.push(err);
 
-            let method_call = atom
-                .clone()
-                .debug("method_call")
-                // .then(
-                //     just(Token::Punct('.'))
-                //         .ignore_then(ident.map_with_span(|ident, span| (ident, span))),
-                // )
-                // .repeated()
-                .then_ignore(just(Token::Punct('.')))
-                .then(ident.map_with_span(|ident, span| (ident, span)))
-                .then(
-                    items
-                        .clone()
-                        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
-                        .map_with_span(|args, span: Span| (args, span))
-                        .repeated()
-                        .or_not(),
-                )
-                // This bit feels dirty. Like there is an elegant solution that I'm
-                // unable to find.
-                .foldl(|(f, m), args| {
-                    // dbg!(&f, &m, &args);
-                    if args.is_empty() {
-                        let span = f.1.start..m.1.end;
-                        let foo = Expression::FieldAccess(Box::new(f), m.clone());
-                        // What the fuck is going on here anyway?
-                        ((foo, span), m)
-                    } else {
-                        let span = f.1.start..args[0].1.end;
-                        (
-                            (
-                                Expression::MethodCall(Box::new(f), m.clone(), args[0].0.clone()),
-                                span,
-                            ),
-                            m,
-                        )
-                    }
-                })
-                .map(|(expr, _)| expr);
-
-            let static_method_call = object
-                .clone()
-                .debug("static_method_call")
-                .map_with_span(|obj, span| (obj, span))
-                .then_ignore(just(Token::Punct('∷')))
-                .then(ident.map_with_span(|ident, span| (ident, span)))
-                .then(
-                    items
-                        .clone()
-                        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
-                        .map_with_span(|args, span: Span| (args, span))
-                        .repeated(),
-                )
-                .map(|((obj, method), args)| {
-                    // dbg!(&obj, &method, &args);
-                    if args.len() > 0 {
-                        let args = &args[0];
-                        let span = obj.1.start..args.1.end;
-                        (
-                            Expression::StaticMethodCall(obj, method, args.0.clone()),
-                            span,
-                        )
-                    } else {
-                        (Expression::Error, obj.1.start..obj.1.end)
-                    }
-                });
-
-            // Function calls have very high precedence so we prioritise them
-            let call = atom
-                .clone()
-                .debug("call")
-                .then(
-                    items
-                        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
-                        .map_with_span(|args, span: Span| (args, span))
-                        .repeated(),
-                )
-                .foldl(|f, args| {
-                    let span = f.1.start..args.1.end;
-                    (Expression::FunctionCall(Box::new(f), args.0), span)
-                });
-
-            let field = ident
-                .debug("field")
-                .map_with_span(|type_, span| (type_, span))
-                .labelled("field name")
-                .then_ignore(just(Token::Punct(':')))
-                .then(
-                    expr.clone()
-                        // .map_with_span(|name, span| (name, span))
-                        .labelled("field value"),
-                )
-                .map(|(name, expr)| (name, expr));
-
-            let fields = field
-                .debug("fields")
-                .separated_by(just(Token::Punct(',')))
-                .allow_trailing()
-                .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
-                .map(|fields| fields.into_iter().collect::<Vec<_>>());
-
-            let struct_expression = object
-                .debug("struct_expression")
-                // let struct_expression = atom
-                .map_with_span(|obj, span| (obj, span))
-                .labelled("struct type")
-                .then(fields)
-                .map(|(name, fields)| {
-                    if fields.is_empty() {
-                        let span = name.1.clone();
-                        (Expression::Struct(name, fields), span)
-                    } else {
-                        let span = name.1.start..(fields.last().unwrap().1).1.end;
-                        (Expression::Struct(name, fields), span)
-                    }
-                });
-
-            method_call
-                // .or(field_access)
-                .or(static_method_call)
-                .or(struct_expression)
-                .or(call)
-
-            // // Product ops (multiply and divide) have equal precedence
-            // let op = just(Token::Op("*".to_string()))
-            //     .to(BinaryOp::Mul)
-            //     .or(just(Token::Op("/".to_string())).to(BinaryOp::Div));
-            // let product = call
-            //     .clone()
-            //     .then(op.then(call).repeated())
-            //     .foldl(|a, (op, b)| {
-            //         let span = a.1.start..b.1.end;
-            //         (Expr::Binary(Box::new(a), op, Box::new(b)), span)
-            //     });
-
-            // // Sum ops (add and subtract) have equal precedence
-            // let op = just(Token::Op("+".to_string()))
-            //     .to(BinaryOp::Add)
-            //     .or(just(Token::Op("-".to_string())).to(BinaryOp::Sub));
-            // let sum = product
-            //     .clone()
-            //     .then(op.then(product).repeated())
-            //     .foldl(|a, (op, b)| {
-            //         let span = a.1.start..b.1.end;
-            //         (Expr::Binary(Box::new(a), op, Box::new(b)), span)
-            //     });
-
-            // // Comparison ops (equal, not-equal) have equal precedence
-            // let op = just(Token::Op("==".to_string()))
-            //     .to(BinaryOp::Eq)
-            //     .or(just(Token::Op("!=".to_string())).to(BinaryOp::NotEq));
-            // let compare = sum
-            //     .clone()
-            //     .then(op.then(sum).repeated())
-            //     .foldl(|a, (op, b)| {
-            //         let span = a.1.start..b.1.end;
-            //         (Expr::Binary(Box::new(a), op, Box::new(b)), span)
-            //     });
-
-            // compare
-        });
-
-        raw_expr
-
-        //     // Blocks are expressions but delimited with braces
-        //     let block = expr
-        //         .clone()
-        //         .delimited_by(just(Token::Ctrl('{')), just(Token::Ctrl('}')))
-        //         // Attempt to recover anything that looks like a block but contains errors
-        //         .recover_with(nested_delimiters(
-        //             Token::Ctrl('{'),
-        //             Token::Ctrl('}'),
-        //             [
-        //                 (Token::Ctrl('('), Token::Ctrl(')')),
-        //                 (Token::Ctrl('['), Token::Ctrl(']')),
-        //             ],
-        //             |span| (Expr::Error, span),
-        //         ));
-
-        //     let if_ = recursive(|if_| {
-        //         just(Token::If)
-        //             .ignore_then(expr.clone())
-        //             .then(block.clone())
-        //             .then(
-        //                 just(Token::Else)
-        //                     .ignore_then(block.clone().or(if_))
-        //                     .or_not(),
-        //             )
-        //             .map_with_span(|((cond, a), b), span: Span| {
-        //                 (
-        //                     Expr::If(
-        //                         Box::new(cond),
-        //                         Box::new(a),
-        //                         Box::new(match b {
-        //                             Some(b) => b,
-        //                             // If an `if` expression has no trailing `else` block, we magic up one that just produces null
-        //                             None => (Expr::Value(Value::Null), span.clone()),
-        //                         }),
-        //                     ),
-        //                     span,
-        //                 )
-        //             })
-        //     });
-
-        //     // Both blocks and `if` are 'block expressions' and can appear in the place of statements
-        //     let block_expr = block.or(if_).labelled("block");
-
-        //     let block_chain = block_expr
-        //         .clone()
-        //         .then(block_expr.clone().repeated())
-        //         .foldl(|a, b| {
-        //             let span = a.1.start..b.1.end;
-        //             (Expr::Then(Box::new(a), Box::new(b)), span)
-        //         });
-
-        //     block_chain
-        //         // Expressions, chained by semicolons, are statements
-        //         .or(raw_expr.clone())
-        //         .then(just(Token::Ctrl(';')).ignore_then(expr.or_not()).repeated())
-        //         .foldl(|a, b| {
-        //             // This allows creating a span that covers the entire Then expression.
-        //             // b_end is the end of b if it exists, otherwise it is the end of a.
-        //             let a_start = a.1.start;
-        //             let b_end = b.as_ref().map(|b| b.1.end).unwrap_or(a.1.end);
-        //             (
-        //                 Expr::Then(
-        //                     Box::new(a),
-        //                     Box::new(match b {
-        //                         Some(b) => b,
-        //                         // Since there is no b expression then its span is empty.
-        //                         None => (Expr::Value(Value::Null), b_end..b_end),
-        //                     }),
-        //                 ),
-        //                 a_start..b_end,
-        //             )
-        //         })
-    })
-}
-
-fn impl_block_parser(
-) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
-    let ident = filter_map(|span: Span, tok| match tok {
-        Token::Ident(ident) => Ok(ident.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
-
-    let functions = func_parser()
-        .map_with_span(|name, span| (name, span))
-        .repeated()
-        .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
-        .map(|functions| functions.into_iter().collect::<Vec<_>>());
-
-    just(Token::Impl)
-        .ignore_then(
-            ident
-                .map_with_span(|name, span| (name, span))
-                .labelled("implementation name"),
-        )
-        .then(functions)
-        .map(|(name, functions)| {
-            let functions = functions
-                .into_iter()
-                .map(|(((name, _), function), _)| (name, Box::new(function)))
-                .collect::<Vec<_>>();
-            (
-                (name, ItemKind::Implementation),
-                Item::Implementation(functions),
-            )
-        })
-        .labelled("implementation block")
-}
-
-fn func_parser(
-) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
-    let ident = filter_map(|span: Span, tok| match tok {
-        Token::Ident(ident) => Ok(ident.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
-
-    let ref_self = just::<_, _, Simple<_>>(Token::Punct('&'))
-        .ignore_then(just(Token::SmallSelf))
-        .map_with_span(|_, span| (Token::SmallSelf.to_string(), span))
-        .map(|name| {
-            (
-                name,
-                (Type::Self_(Box::new(Token::SmallSelf)), Range::default()),
-            )
-        });
-
-    let param = ident
-        .clone()
-        // .or(ref_self)
-        .map_with_span(|name, span| (name, span))
-        .labelled("param name")
-        .then_ignore(just(Token::Punct(':')))
-        .then(
-            type_parser()
-                .map_with_span(|type_, span| (type_, span))
-                .labelled("param type"),
-        )
-        .or(ref_self)
-        .map(|(name, type_)| (name, type_));
-
-    let params = param
-        .separated_by(just(Token::Punct(',')))
-        .allow_trailing()
-        .delimited_by(just(Token::Punct('(')), just(Token::Punct(')')))
-        .labelled("function parameters")
-        .map(|params| params.into_iter().collect::<Vec<_>>());
-
-    just(Token::Fn)
-        .ignore_then(
-            ident
-                .map_with_span(|name, span| (name, span))
-                .labelled("function name"),
-        )
-        .then(params)
-        .map_with_span(|name, span| (name, span))
-        .labelled("function parameters")
-        .then_ignore(just(Token::Punct('→')))
-        .then(type_parser())
-        .map_with_span(|ty, span| (ty, span))
-        .labelled("return type")
-        .then(
-            stmt_parser()
-                .debug("function body")
-                .map_with_span(|stmt, span| (stmt, span))
-                .repeated()
-                .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
-                .labelled("function body"),
-        )
-        // This got away from me...
-        .map(
-            |(((((name, params), _span_2), return_type), span_3), body)| {
-                (
-                    (name, ItemKind::Function),
-                    Item::Function(params, (return_type, span_3), body),
-                )
-            },
-        )
-        .labelled("function")
-}
-
-fn struct_parser(
-) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
-    let obj = filter_map(|span: Span, tok| match tok {
-        Token::Ident(ident) => Ok(ident.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
-
-    let ident = filter_map(|span: Span, tok| match tok {
-        Token::Ident(ident) => Ok(ident.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
-
-    let field = ident
-        .map_with_span(|type_, span| (type_, span))
-        .labelled("field name")
-        .then_ignore(just(Token::Punct(':')))
-        .then(
-            type_parser()
-                .map_with_span(|name, span| (name, span))
-                .labelled("field type"),
-        )
-        .map(|(name, type_)| (name, type_));
-
-    let fields = field
-        .separated_by(just(Token::Punct(',')))
-        .allow_trailing()
-        .delimited_by(just(Token::Punct('{')), just(Token::Punct('}')))
-        .map(|fields| fields.into_iter().collect::<Vec<_>>());
-
-    just(Token::Struct)
-        .ignore_then(
-            obj.map_with_span(|name, span| (name, span))
-                .labelled("struct name"),
-        )
-        .then(fields)
-        .map(|(name, fields)| ((name, ItemKind::Struct), Item::Struct(fields)))
-        .labelled("struct")
-}
-
-fn import_parser(
-) -> impl Parser<Token, ((Spanned<String>, ItemKind), Item), Error = Simple<Token>> + Clone {
-    let ident = filter_map(|span: Span, tok| match tok {
-        Token::Ident(string) => Ok(string.clone()),
-        _ => Err(Simple::expected_input_found(span, Vec::new(), Some(tok))),
-    });
-
-    let path = ident
-        .separated_by(just(Token::Punct('∷')))
-        .map(|path| path.join("::"));
-
-    just(Token::Import)
-        .ignore_then(
-            path.map_with_span(|name, span| (name, span))
-                .labelled("import path"),
-        )
-        .then(
-            just(Token::As)
-                .ignore_then(
-                    ident
-                        .map_with_span(|name, span| (name, span))
-                        .labelled("alias"),
-                )
-                .or_not(),
-        )
-        .then_ignore(just(Token::Punct(';')))
-        .map(|(name, alias)| ((name.clone(), ItemKind::Import), Item::Import(name, alias)))
-        .labelled("import")
-}
-
-fn item_parser(
-) -> impl Parser<Token, HashMap<(String, ItemKind), Item>, Error = Simple<Token>> + Clone {
-    let item = struct_parser()
-        .or(impl_block_parser())
-        .or(import_parser())
-        .or(func_parser());
-
-    item.repeated()
-        .try_map(|items, _| {
-            let mut result = HashMap::default();
-            for (((name, span), kind), item) in items {
-                if result.insert((name.clone(), kind), item).is_some() {
-                    return Err(Simple::custom(
-                        span.clone(),
-                        format!("Item `{}` already defined", name),
-                    ));
+                error!("parse_program: resynchronize looking for '}'");
+                while !self.at_end() && !self.match_(&[Token::Punct('}')]) {
+                    self.advance();
                 }
+                error!("parse_program: resynchronized");
             }
-            Ok(result)
-        })
-        .then_ignore(end())
-}
+        }
 
-pub fn parse_line(src: &str) -> Option<Statement> {
-    // let (tokens, errs) = lexer().parse_recovery_verbose(src);
-    let (tokens, errs) = lexer().parse_recovery(src);
-    let (ast, parse_errs) = if let Some(tokens) = tokens {
-        let len = src.chars().count();
-        let (ast, parse_errs) =
-        // stmt_parser()
-        // .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
-        stmt_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+        debug!("exit parse_program: ", result);
 
-        (ast, parse_errs)
-    } else {
-        (None, Vec::new())
-    };
+        (result, self.errors.clone())
+    }
 
-    errs.into_iter()
-        .map(|e| e.map(|c| c.to_string()))
-        .chain(parse_errs.into_iter().map(|e| e.map(|tok| tok.to_string())))
-        .for_each(|e| {
-            let report = Report::build(ReportKind::Error, (), e.span().start);
+    /// Parse a Statement
+    ///
+    ///  statement -> ; | Item | LetStatement | ExpressionStatement
+    fn parse_statement(&mut self) -> Result<Option<Spanned<Statement>>, Simple<String>> {
+        debug!("enter parse_statement");
 
-            let report = match e.reason() {
-                chumsky::error::SimpleReason::Unclosed { span, delimiter } => report
-                    .with_message(format!(
-                        "Unclosed delimiter {}",
-                        delimiter.fg(Color::Yellow)
-                    ))
-                    .with_label(
-                        Label::new(span.clone())
-                            .with_message(format!(
-                                "Unclosed delimiter {}",
-                                delimiter.fg(Color::Yellow)
-                            ))
-                            .with_color(Color::Yellow),
-                    )
-                    .with_label(
-                        Label::new(e.span())
-                            .with_message(format!(
-                                "Must be closed before this {}",
-                                e.found()
-                                    .unwrap_or(&"end of file".to_string())
-                                    .fg(Color::Red)
-                            ))
-                            .with_color(Color::Red),
-                    ),
-                chumsky::error::SimpleReason::Unexpected => report
-                    .with_message(format!(
-                        "{}, expected {}",
-                        if e.found().is_some() {
-                            "Unexpected token in input"
-                        } else {
-                            "Unexpected end of input"
-                        },
-                        if e.expected().len() == 0 {
-                            "something else".to_string()
-                        } else {
-                            e.expected()
-                                .map(|expected| match expected {
-                                    Some(expected) => expected.to_string(),
-                                    None => "end of input".to_string(),
-                                })
-                                .collect::<Vec<_>>()
-                                .join(", ")
-                        }
-                    ))
-                    .with_label(
-                        Label::new(e.span())
-                            .with_message(format!(
-                                "Unexpected token {}",
-                                e.found()
-                                    .unwrap_or(&"end of file".to_string())
-                                    .fg(Color::Red)
-                            ))
-                            .with_color(Color::Red),
-                    ),
-                chumsky::error::SimpleReason::Custom(msg) => report.with_message(msg).with_label(
-                    Label::new(e.span())
-                        .with_message(format!("{}", msg.fg(Color::Red)))
-                        .with_color(Color::Red),
-                ),
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if self.match_(&[Token::Punct(';')]) {
+            debug!("parse_statement: empty statement");
+            return Ok(Some((
+                Statement::Empty,
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        if let Some(item) = self.parse_item() {
+            debug!("parse_statement: item:", item);
+            return Ok(Some((
+                Statement::Item(item),
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        // OK. Time to work this out.I want to try to parse a let statemnet. If
+        // I get an error I want to append the error to our vec, and then continue
+        // on as if nothing happened. Basically, we need to go up one more level
+        // and hove them start over. So maybe we just pass this up the stack.
+
+        if let Some(statement) = self.parse_let_statement()? {
+            if self.match_(&[Token::Punct(';')]) {
+                debug!("parse_statement: let statement:", statement);
+                return Ok(Some(statement));
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("';'".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected ;");
+                return Err(err);
+            }
+        }
+
+        if let Some(expr) = self.parse_expression_without_block()? {
+            debug!("parse_statement: expression:", expr);
+            if self.match_(&[Token::Punct(';')]) {
+                debug!("parse_statement: expression statement:", expr);
+                return Ok(Some((
+                    Statement::Expression(expr),
+                    start..self.previous().unwrap().1.end,
+                )));
+                // Don't consume the '}'.
+            } else if self.check(&Token::Punct('}')) {
+                debug!("parse_statement: result statement:", expr);
+                return Ok(Some((
+                    Statement::Result(expr),
+                    start..self.previous().unwrap().1.end,
+                )));
+            } else {
+                let tok = if let Some(tok) = self.peek() {
+                    tok
+                } else {
+                    self.previous().unwrap()
+                };
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("'}'".to_owned()), Some("';'".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+
+                debug!("exit parse_statement: error:", err);
+                return Err(err);
+            }
+        }
+
+        if let Some(expr) = self.parse_expression_with_block()? {
+            debug!("parse_statement: expression:", expr);
+            return Ok(Some((
+                Statement::Expression(expr),
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        Ok(None)
+    }
+
+    /// Parse an Item
+    ///
+    /// This should probably just return an error...
+    ///  item -> Struct | ImplBlock | Import | Function
+    fn parse_item(&mut self) -> Option<Spanned<Item>> {
+        debug!("enter parse_item");
+
+        // Try to parse a struct
+        match self.parse_struct() {
+            Ok(Some(item)) => {
+                debug!("parse_item: struct:", item);
+                return Some(item);
+            }
+            Ok(None) => error!("parse_item: no struct"),
+            Err(err) => {
+                error!("parse_item: error:", err);
+                self.errors.push(err);
+            }
+        }
+
+        if let Some(item) = self.parse_impl_block() {
+            return Some(item);
+        }
+
+        if let Some(item) = self.parse_import() {
+            return Some(item);
+        }
+
+        // Try to parse a function
+        match self.parse_function() {
+            Ok(Some(func)) => {
+                debug!("parse_item: function:", func);
+                return Some(func);
+            }
+            Ok(None) => {}
+            Err(err) => {
+                self.errors.push(err);
+            }
+        }
+
+        None
+    }
+
+    /// Parse a path
+    ///
+    /// path -> IDENTIFIER (:: IDENTIFIER)*
+    fn parse_path(&mut self) -> Option<Spanned<Vec<Spanned<String>>>> {
+        debug!("enter parse_path");
+
+        let mut path = Vec::new();
+        while let Some(ident) = self.parse_ident() {
+            path.push(ident);
+            if !self.match_(&[Token::Punct(':')]) || !self.match_(&[Token::Punct(':')]) {
+                debug!("exit parse_path snarf: ", path);
+                break;
+            }
+        }
+
+        if path.is_empty() {
+            return None;
+        }
+
+        debug!("exit parse_path: ", path);
+        let span = path[0].1.start..path[path.len() - 1].1.end;
+        Some((path, span))
+    }
+
+    /// Parse an Import
+    ///
+    /// import -> USE IDENTIFIER (:: IDENTIFIER)* ( AS IDENTIFIER )? ;
+    fn parse_import(&mut self) -> Option<Spanned<Item>> {
+        debug!("enter parse_import");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return None;
+        };
+
+        if !self.match_(&[Token::Import]) {
+            return None;
+        }
+
+        let name = if let Some(ident) = self.parse_path() {
+            debug!("parse_import: path:", ident);
+            ident
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("<path -> IDENTIFIER (:: IDENTIFIER)*>".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected path");
+            self.errors.push(err);
+            return None;
+        };
+
+        let alias = if self.match_(&[Token::As]) {
+            if let Some(ident) = self.parse_ident() {
+                debug!("parse_import: alias:", ident);
+                Some(ident)
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("identifier".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected identifier");
+                self.errors.push(err);
+                return None;
+            }
+        } else {
+            None
+        };
+
+        if !self.match_(&[Token::Punct(';')]) {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("';'".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected ;");
+            self.errors.push(err);
+            return None;
+        }
+
+        debug!("exit parse_import");
+
+        Some((
+            Item::Import(name, alias),
+            start..self.previous().unwrap().1.end,
+        ))
+    }
+
+    /// Parse an impl block
+    ///
+    /// impl_block -> impl IDENTIFIER  { impl_block_body }
+    fn parse_impl_block(&mut self) -> Option<Spanned<Item>> {
+        debug!("enter parse_impl_block");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return None;
+        };
+
+        if !self.match_(&[Token::Impl]) {
+            return None;
+        }
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("identifier".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected identifier");
+            self.errors.push(err);
+            return None;
+        };
+
+        if !self.match_(&[Token::Punct('{')]) {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("'{'".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected '{'");
+            self.errors.push(err);
+            return None;
+        }
+
+        let mut body = Vec::new();
+        while !self.match_(&[Token::Punct('}')]) {
+            if let Some(item) = self.parse_item() {
+                debug!("parse_impl_block: item:", item);
+                body.push(item);
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("'}'".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected '}'");
+                self.errors.push(err);
+                return None;
+            }
+        }
+
+        debug!("exit parse_impl_block: ", (&name, &body));
+
+        Some((
+            Item::Implementation(name, body),
+            start..self.previous().unwrap().1.end,
+        ))
+    }
+
+    /// Parse a Let Statement
+    ///
+    /// let_statement -> let IDENTIFIER(:TYPE)? = expression
+    fn parse_let_statement(&mut self) -> Result<Option<Spanned<Statement>>, Simple<String>> {
+        debug!("enter parse_let_statement");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Let]) {
+            return Ok(None);
+        }
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("identifier".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected identifier");
+            return Err(err);
+        };
+
+        let type_ = if self.match_(&[Token::Punct(':')]) {
+            if let Some(ty) = self.parse_type()? {
+                Some(ty)
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [
+                        Some("'bool'".to_owned()),
+                        Some("'float'".to_owned()),
+                        Some("'int'".to_owned()),
+                        Some("'string'".to_owned()),
+                        Some("'Uuid'".to_owned()),
+                        Some("'Option<T>'".to_owned()),
+                        Some("'[T]'".to_owned()),
+                    ],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected type");
+                return Err(err);
+            }
+        } else {
+            None
+        };
+
+        if !self.match_(&[Token::Punct('=')]) {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("'='".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected equals");
+            return Err(err);
+        }
+
+        let value = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("expression".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected expression");
+            return Err(err);
+        };
+
+        debug!("exit parse_let_statement");
+
+        Ok(Some((
+            Statement::Let(name, type_, value),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a "simple" expression
+    ///
+    /// I broke this out for a reason that no longer applies. I'm not sure that
+    /// it's great.
+    ///
+    /// expression -> boolean_literal | float_literal | integer_literal |
+    ///               local_variable | none | some | string_literal
+    fn parse_simple_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_simple_expression");
+
+        // parse a boolean literal
+        if let Some(expression) = self.parse_boolean_literal() {
+            debug!("parse_simple_expression: boolean literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a float literal
+        if let Some(expression) = self.parse_float_literal() {
+            debug!("parse_simple_expression: float literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse an interger literal
+        if let Some(expression) = self.parse_integer_literal() {
+            debug!("parse_simple_expression: integer literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a none literal
+        if let Some(expression) = self.parse_none_literal() {
+            debug!("parse_simple_expression: none literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a some literal
+        if let Some(expression) = self.parse_some_literal()? {
+            debug!("parse_simple_expression: some literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a string literal
+        if let Some(expression) = self.parse_string_literal() {
+            debug!("parse_simple_expression: string literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a list literal
+        if let Some(expression) = self.parse_list_literal()? {
+            debug!("parse_simple_expression: list literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a local variable
+        if let Some(expression) = self.parse_local_variable() {
+            debug!("parse_expression: local variable:", expression);
+            return Ok(Some(expression));
+        }
+
+        Ok(None)
+    }
+
+    fn parse_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_expression");
+        if let Some(expression) = self.parse_expression_without_block()? {
+            debug!("parse_expression: expression without block:", expression);
+            return Ok(Some(expression));
+        }
+
+        if let Some(expression) = self.parse_expression_with_block()? {
+            debug!("parse_expression: expression with block:", expression);
+            return Ok(Some(expression));
+        }
+
+        debug!("exit parse_expression None");
+        Ok(None)
+    }
+
+    /// Parse an expression without a block
+    ///
+    /// expression -> assignment | block | Error | field_access |
+    ///               for | function_call | if |
+    ///               list | method_call |print |
+    ///               static_method_call | struct
+    fn parse_expression_without_block(
+        &mut self,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_expression_without_block");
+
+        let expr = self.parse_simple_expression()?;
+        debug!("parse_expression_without_block: simple expression:", expr);
+
+        // parse a print expression
+        if let Some(expression) = self.parse_print_expression()? {
+            debug!(
+                "parse_expression_without_block: print expression:",
+                expression
+            );
+            return Ok(Some(expression));
+        }
+
+        if let Some(expr) = &expr {
+            // parse a function call
+            if let Some(expression) = self.parse_function_call(expr)? {
+                debug!("parse_expression_without_block: function call:", expression);
+                return Ok(Some(expression));
+            }
+
+            // parse a field access
+            if let Some(expression) = self.parse_field_access(expr)? {
+                debug!("parse_expression_without_block: field access:", expression);
+                return Ok(Some(expression));
+            }
+
+            // parse a static method call
+            if let Some(expression) = self.parse_static_method_call(expr)? {
+                debug!(
+                    "parse_expression_without_block: static method call:",
+                    expression
+                );
+                return Ok(Some(expression));
+            }
+
+            // Parse a struct expression
+            if let Some(expression) = self.parse_struct_expression(expr)? {
+                debug!(
+                    "parse_expression_without_block: struct expression:",
+                    expression
+                );
+                return Ok(Some(expression));
+            }
+        }
+
+        debug!(
+            "exit parse_expression_without_block with simple expression",
+            expr
+        );
+        Ok(expr)
+    }
+
+    /// Parse an expression with a block
+    ///
+    /// expression -> assignment | block | Error | field_access |
+    ///               for | function_call | if |
+    ///               list | method_call |print |
+    ///               static_method_call | struct
+    fn parse_expression_with_block(
+        &mut self,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_expression_with_block");
+
+        // parse a block expression
+        if let Some(expression) = self.parse_block_expression()? {
+            debug!("parse_expression_with_block: block expression:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a for loop expression
+        if let Some(expression) = self.parse_for_loop_expression()? {
+            debug!(
+                "parse_expression_with_block: for loop expression:",
+                expression
+            );
+            return Ok(Some(expression));
+        }
+
+        debug!("exit parse_expression_with_block with None");
+        Ok(None)
+    }
+
+    /// Parse a Boolean Litearal
+    ///
+    /// boolean_literal -> true | false
+    fn parse_boolean_literal(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_boolean_literal");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::Bool(bool), span) = token {
+            self.advance();
+            Some((Expression::BooleanLiteral(bool), span.to_owned()))
+        } else {
+            None
+        }
+    }
+
+    /// Parse field access
+    ///
+    /// field _access -> expression ('.' expression)+
+    fn parse_field_access(
+        &mut self,
+        name: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_field_access");
+
+        let start = name.1.start;
+
+        if !self.match_(&[Token::Punct('.')]) {
+            return Ok(None);
+        }
+
+        let expr = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        let end = expr.1.end;
+
+        debug!("exit parse_field_access");
+
+        Ok(Some((
+            Expression::FieldAccess(Box::new(name.clone()), Box::new(expr)),
+            start..end,
+        )))
+    }
+
+    /// Parse a Float Literal
+    ///
+    /// float_litearl -> FLOAT
+    fn parse_float_literal(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_float_literal");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::Float(float), span) = token {
+            if let Ok(float) = float.parse::<DwarfFloat>() {
+                self.advance();
+                Some((Expression::FloatLiteral(float), span.to_owned()))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Parse a for loop expression
+    ///
+    /// for_loop --> FOR expression IN expression expression
+    fn parse_for_loop_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_for_loop_expression");
+
+        let start = if let Some(tok) = self.previous() {
+            tok.1.start
+        } else {
+            debug!("exit parse_for_loop_expression");
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::For]) {
+            debug!("exit parse_for_loop_expression no token");
+            return Ok(None);
+        }
+
+        debug!("parse_for_loop_expression getting iterator");
+        let iterator = if let Some(expr) = self.parse_expression()? {
+            debug!("parse_for_loop_expression iterator", expr);
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_for_loop_expression no iterator");
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::In]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("in".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_for_loop_expression no in");
+            return Err(err);
+        }
+
+        debug!("parse_for_loop_expression calling getting collection");
+        let collection = if let Some(expr) = self.parse_simple_expression()? {
+            debug!("parse_for_loop_expression collection", expr);
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_for_loop_expression no collection");
+            return Err(err);
+        };
+
+        debug!("parse_for_loop_expression getting body");
+        let body = if let Some(expr) = self.parse_block_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_for_loop_expression no body");
+            return Err(err);
+        };
+
+        debug!("exit parse_for_loop_expression");
+
+        Ok(Some((
+            Expression::For(Box::new(iterator), Box::new(collection), Box::new(body)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a function call
+    ///
+    /// function_call -> expression '(' expression,* ')'
+    fn parse_function_call(
+        &mut self,
+        name: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_function_call");
+
+        let start = name.1.start;
+
+        if !self.match_(&[Token::Punct('(')]) {
+            return Ok(None);
+        }
+
+        let mut arguments = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct(')')]) {
+            if let Some(expr) = self.parse_expression()? {
+                arguments.push(expr);
+                if self.peek().unwrap().0 == Token::Punct(',') {
+                    self.advance();
+                }
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("expression".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected expression");
+                return Err(err);
+            }
+        }
+
+        debug!("exit parse_function_call");
+
+        Ok(Some((
+            Expression::FunctionCall(Box::new(name.clone()), arguments),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse an Integer Literal
+    ///
+    /// integer_literal -> INTEGER
+    fn parse_integer_literal(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_integer_literal");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::Integer(int), span) = token {
+            if let Ok(int) = int.parse::<DwarfInteger>() {
+                self.advance();
+                Some((Expression::IntegerLiteral(int), span.to_owned()))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Parse a list expression
+    ///
+    /// Each element in the expression should be the same type, and I think that
+    /// needs to be checked in the compiler, and not the parser, since the parser
+    /// doesn't really grok types.
+    ///
+    /// list -> '[' expression,* ']'
+    fn parse_list_literal(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_list_expression");
+
+        let start = if let Some(tok) = self.previous() {
+            tok.1.start
+        } else {
+            debug!("exit parse_list_expression");
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('[')]) {
+            debug!("exit parse_list_expression no token");
+            return Ok(None);
+        }
+
+        let mut elements = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct(']')]) {
+            if let Some(expr) = self.parse_expression()? {
+                elements.push(expr);
+                if self.peek().unwrap().0 == Token::Punct(',') {
+                    self.advance();
+                }
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("expression".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected expression");
+                return Err(err);
+            }
+        }
+
+        debug!("exit parse_list_expression");
+
+        Ok(Some((
+            Expression::List(elements),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a local variable
+    ///
+    /// var -> IDENTIFIER
+    fn parse_local_variable(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_local_variable");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::Ident(ident), span) = token {
+            self.advance();
+            debug!("exit parse_local_variable", ident);
+            Some((Expression::LocalVariable(ident), span.to_owned()))
+        } else {
+            None
+        }
+    }
+
+    /// Parse a None expression
+    ///
+    /// none -> NONE
+    fn parse_none_literal(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_none_expression");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::None, span) = token {
+            self.advance();
+            Some((Expression::None, span.to_owned()))
+        } else {
+            None
+        }
+    }
+
+    /// Parse a print expression
+    ///
+    /// print_expression -> PRINT
+    fn parse_print_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_print_expression");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Print]) {
+            return Ok(None);
+        }
+
+        if !self.match_(&[Token::Punct('(')]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("(".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        let expression = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct(')')]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some(")".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        debug!("exit parse_print_expression");
+
+        Ok(Some((
+            Expression::Print(Box::new(expression)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a static method call
+    ///
+    /// This is a bit goofy. Rust calls locals and the static method syntax a
+    /// path. I guess the discriminate all the bits in the compiler when they
+    /// are doing something with the AST. I don't think that I need that sort
+    /// of flexibility.
+    ///
+    /// Anyway, the type part of the static method call has already been parsed
+    /// as a local variable. If the next two tokens (yes, I'm pasing that as two
+    /// tokens and not one. I may pay for that later.) are ':' and ':' then I
+    /// am going to change the type of the passed in thing.
+    ///
+    /// static_method_call -> Type '::' IDENTIFIER '(' expression,* ')'
+    fn parse_static_method_call(
+        &mut self,
+        name: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_static_method_call");
+
+        let start = name.1.start;
+
+        if !self.match_(&[Token::Punct(':')]) {
+            return Ok(None);
+        }
+
+        if !self.match_(&[Token::Punct(':')]) {
+            return Ok(None);
+        }
+
+        let name = if let (Expression::LocalVariable(name), span) = &name {
+            Type::UserType((name.to_owned(), span.to_owned()))
+        } else {
+            let err = Simple::expected_input_found(
+                name.1.clone(),
+                [Some("<local_variable>".to_owned())],
+                Some(format!("{:?}", name.0)),
+            );
+            return Err(err);
+        };
+
+        let method_name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<ident>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct('(')]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("(".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        let mut arguments = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct(')')]) {
+            if let Some(expr) = self.parse_expression()? {
+                arguments.push(expr);
+
+                if self.peek().unwrap().0 == Token::Punct(',') {
+                    self.advance();
+                }
+            } else {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("expression".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected expression");
+
+                return Err(err);
+            }
+        }
+
+        debug!("exit parse_static_method_call");
+
+        Ok(Some((
+            Expression::StaticMethodCall(name, method_name, arguments),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a struct expression
+    ///
+    /// struct_expression -> IDENTIFIER '{' (IDENTIFIER ':' expression,)* '}'
+    fn parse_struct_expression(
+        &mut self,
+        name: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_struct_expression");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('{')]) {
+            return Ok(None);
+        }
+
+        let name = if let (Expression::LocalVariable(name), span) = &name {
+            Type::UserType((name.to_owned(), span.to_owned()))
+        } else {
+            let err = Simple::expected_input_found(
+                name.1.clone(),
+                [Some("<local_variable>".to_owned())],
+                Some(format!("{:?}", name.0)),
+            );
+            return Err(err);
+        };
+
+        let mut fields = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct('}')]) {
+            let field_name = if let Some(ident) = self.parse_ident() {
+                ident
+            } else {
+                let token = &self.previous().unwrap();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("<ident>".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
             };
 
-            report.finish().print(Source::from(&src)).unwrap();
-        });
+            if !self.match_(&[Token::Punct(':')]) {
+                let token = &self.previous().unwrap();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some(":".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            let expression = if let Some(expr) = self.parse_expression()? {
+                expr
+            } else {
+                let token = &self.previous().unwrap();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("<expression>".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            };
+
+            fields.push((field_name, expression));
+
+            if self.peek().unwrap().0 == Token::Punct(',') {
+                self.advance();
+            }
+        }
+
+        debug!("exit parse_struct_expression");
+
+        Ok(Some((
+            Expression::Struct(name, fields),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a Some expression
+    ///
+    /// some -> SOME
+    fn parse_some_literal(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_some_expression");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Some]) {
+            return Ok(None);
+        }
+
+        if !self.match_(&[Token::Punct('(')]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("(".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        let expression = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct(')')]) {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some(")".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        debug!("exit parse_some_expression");
+
+        Ok(Some((
+            Expression::Some(Box::new(expression)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a String Literal
+    ///
+    /// string_siteral -> STRING
+    fn parse_string_literal(&mut self) -> Option<Spanned<Expression>> {
+        debug!("enter parse_string_literal");
+
+        let token = self.peek()?.clone();
+
+        if let (Token::String(string), span) = token {
+            self.advance();
+            Some((Expression::StringLiteral(string), span.to_owned()))
+        } else {
+            None
+        }
+    }
+
+    fn parse_block_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+        debug!("enter parse_block_expression");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            debug!("parse_block_expression: no tokens");
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('{')]) {
+            debug!("parse_block_expression: no opening brace");
+            return Ok(None);
+        }
+
+        let mut statements = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct('}')]) {
+            // Ok, this is where I want to log, and then ignore errors. Now, how
+            // do I do that?
+            match self.parse_statement() {
+                Ok(Some(statement)) => {
+                    debug!("parse_block_expression: statement:", statement);
+                    statements.push(statement);
+                }
+                // 🚧 I have a feeling that we should log this as an error, and
+                // maybe even resyrchronize, but I'm not sure, and there's other
+                // places to work where I do know what I'm doing. I'll tackle
+                // this later. Hopefully it'll pop up.
+                Ok(None) => {
+                    error!("parse_block_expression: no statement");
+                    let token = if let Some(token) = self.peek() {
+                        token
+                    } else {
+                        self.previous().unwrap()
+                    };
+                    let err = Simple::expected_input_found(
+                        token.1.clone(),
+                        [Some("<statement>".to_owned())],
+                        Some(token.0.to_string()),
+                    );
+
+                    debug!("parse_block_expression: no statement");
+                    return Err(err);
+                }
+
+                Err(error) => {
+                    debug!("parse_block_expression: error:", error);
+                    return Err(error);
+                }
+            }
+        }
+
+        debug!("exit parse_block_expression");
+
+        Ok(Some((
+            Expression::Block(statements),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    fn parse_function(&mut self) -> Result<Option<Spanned<Item>>, Simple<String>> {
+        debug!("enter parse_function");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            debug!("exit parse_function: no token");
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Fn]) {
+            debug!("exit parse_function: no fn");
+            return Ok(None);
+        }
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let token = self.peek().unwrap().clone();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("identifier".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_function: no ident");
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct('(')]) {
+            let token = self.peek().unwrap().clone();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("'('".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_function: no '('");
+            return Err(err);
+        }
+
+        let mut params = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct(')')]) {
+            match self.parse_param() {
+                Ok(Some(param)) => {
+                    params.push(param);
+                    if self.peek().unwrap().0 == Token::Punct(',') {
+                        self.advance();
+                    }
+                }
+                Ok(None) => error!("parse_function: no param"),
+                Err(error) => {
+                    self.errors.push(error);
+
+                    error!("parse_function: resynchronize looking for ')'");
+                    while !self.at_end() && !self.match_(&[Token::Punct(')')]) {
+                        self.advance();
+                    }
+                    error!("parse_function: resynchronized");
+                }
+            }
+        }
+
+        let return_type = if self.match_(&[Token::Punct('-')]) {
+            if !self.match_(&[Token::Punct('>')]) {
+                let token = self.peek().unwrap().clone();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("'>'".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                debug!("exit parse_function: got '-', but no '>'");
+                return Err(err);
+            }
+
+            match self.parse_type() {
+                Ok(Some(ty)) => ty,
+                Ok(None) => {
+                    let start = self.previous().unwrap().1.end;
+                    let end = self.peek().unwrap().1.start;
+                    debug!("exit parse_function: no type");
+                    return Err(Simple::custom(start..end, "missing type"));
+                }
+                Err(error) => {
+                    self.errors.push(error);
+
+                    error!("parse_function: resynchronize looking for '{'");
+                    while !self.at_end() && !self.match_(&[Token::Punct('{')]) {
+                        self.advance();
+                    }
+                    error!("parse_function: resynchronized");
+
+                    let start = self.previous().unwrap().1.end;
+                    let end = self.peek().unwrap().1.start;
+                    (Type::Empty, start..end)
+                }
+            }
+        } else {
+            let start = self.previous().unwrap().1.end;
+            let end = self.peek().unwrap().1.start;
+            (Type::Empty, start..end)
+        };
+
+        let body = if let Some(body) = self.parse_block_expression()? {
+            body
+        } else {
+            let start = self.previous().unwrap().1.end;
+            let end = self.peek().unwrap().1.start;
+            let err = Simple::custom(start..end, "missing body");
+            debug!("exit parse_function: no body");
+            return Err(err);
+        };
+
+        let end = body.1.end;
+
+        debug!("exit parse_function");
+
+        Ok(Some((
+            Item::Function(name, params, return_type, body),
+            start..end,
+        )))
+    }
+
+    /// Parse a parameter
+    ///
+    /// param -> ident : type
+    fn parse_param(&mut self) -> Result<Option<(Spanned<String>, Spanned<Type>)>, Simple<String>> {
+        debug!("enter parse_param");
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct(':')]) {
+            let token = self.peek().unwrap().clone();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("':'".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        }
+
+        let ty = if let Some(ty) = self.parse_type()? {
+            ty
+        } else {
+            let start = self.previous().unwrap().1.end;
+            let end = self.peek().unwrap().1.start;
+            let err = Simple::custom(start..end, "missing type");
+            return Err(err);
+        };
+
+        debug!("exit parse_param: ", (&name, &ty));
+
+        Ok(Some((name, ty)))
+    }
+
+    /// Parse a Type
+    ///
+    /// type -> boolean | empty | float | integer | option | string | UDT | uuid
+    fn parse_type(&mut self) -> Result<Option<Spanned<Type>>, Simple<String>> {
+        debug!("enter parse_type");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        // Match a boolean
+        if self.match_(&[Token::Type(Type::Boolean)]) {
+            debug!("exit parse_type: boolean");
+            return Ok(Some((Type::Boolean, start..self.peek().unwrap().1.end)));
+        }
+
+        // Match emppty
+        if self.match_(&[Token::Punct('(')]) {
+            if !self.match_(&[Token::Punct(')')]) {
+                let token = self.peek().unwrap().clone();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("')'".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            debug!("exit parse_type: empty");
+            return Ok(Some((Type::Empty, start..self.peek().unwrap().1.end)));
+        }
+
+        // Match a float
+        if self.match_(&[Token::Type(Type::Float)]) {
+            debug!("exit parse_type: float");
+            return Ok(Some((Type::Float, start..self.peek().unwrap().1.end)));
+        }
+
+        // Mtatch an integer
+        if self.match_(&[Token::Type(Type::Integer)]) {
+            debug!("exit parse_type: integer");
+            return Ok(Some((Type::Integer, start..self.peek().unwrap().1.end)));
+        }
+
+        // Match a list
+        if self.match_(&[Token::Punct('[')]) {
+            let ty = if let Some(ty) = self.parse_type()? {
+                ty
+            } else {
+                let start = self.previous().unwrap().1.end;
+                let end = self.peek().unwrap().1.start;
+                let err = Simple::custom(start..end, "missing type");
+                return Err(err);
+            };
+
+            if !self.match_(&[Token::Punct(']')]) {
+                let token = self.peek().unwrap().clone();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("']'".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            debug!("exit parse_type: list");
+            return Ok(Some((
+                Type::List(Box::new(ty)),
+                start..self.peek().unwrap().1.end,
+            )));
+        }
+
+        // Match an option
+        if self.match_(&[Token::Option]) {
+            if !self.match_(&[Token::Punct('<')]) {
+                let token = self.peek().unwrap().clone();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("'<'".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            let ty = self.parse_type()?;
+
+            if let None = ty {
+                let tok = self.peek().unwrap();
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [
+                        Some("'bool'".to_owned()),
+                        Some("'float'".to_owned()),
+                        Some("'int'".to_owned()),
+                        Some("'string'".to_owned()),
+                        Some("'Uuid'".to_owned()),
+                        Some("'Option<T>'".to_owned()),
+                        Some("'[T]'".to_owned()),
+                    ],
+                    Some(tok.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            if !self.match_(&[Token::Punct('>')]) {
+                let token = self.peek().unwrap().clone();
+                let err = Simple::expected_input_found(
+                    token.1.clone(),
+                    [Some("'>'".to_owned())],
+                    Some(token.0.to_string()),
+                );
+                return Err(err);
+            }
+
+            debug!("exit parse_type: option", ty);
+            return Ok(Some((
+                Type::Option(Box::new(ty.unwrap())),
+                start..self.peek().unwrap().1.end,
+            )));
+        }
+
+        // Match Self
+        if self.match_(&[Token::Self_]) {
+            debug!("exit parse_type: self");
+            return Ok(Some((Type::Self_, start..self.peek().unwrap().1.end)));
+        }
+
+        // Match String
+        if self.match_(&[Token::Type(Type::String)]) {
+            debug!("exit parse_type: string");
+            return Ok(Some((Type::String, start..self.peek().unwrap().1.end)));
+        }
+
+        // Match User Defined Type
+        if let Some(ident) = self.parse_ident() {
+            debug!("exit parse_type: user defined", ident);
+            return Ok(Some((
+                Type::UserType(ident),
+                start..self.peek().unwrap().1.end,
+            )));
+        }
+
+        // Match Uuid
+        if self.match_(&[Token::Uuid]) {
+            debug!("exit parse_type: uuid");
+            return Ok(Some((Type::Uuid, start..self.peek().unwrap().1.end)));
+        }
+
+        Ok(None)
+    }
+
+    /// Parse a Struct
+    ///
+    /// struct -> struct IDENT { struct_field* }
+    fn parse_struct(&mut self) -> Result<Option<Spanned<Item>>, Simple<String>> {
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Struct]) {
+            return Ok(None);
+        }
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("identifier".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected identifier");
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct('{')]) {
+            let tok = self.peek().unwrap();
+            return Err(Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("'{".to_owned())],
+                Some(tok.0.to_string()),
+            ));
+        }
+
+        let mut fields = Vec::new();
+
+        while !self.at_end() && !self.match_(&[Token::Punct('}')]) {
+            match self.parse_struct_field() {
+                Ok(field) => {
+                    fields.push(field);
+                }
+                Err(err) => {
+                    return Err(err);
+                }
+            }
+            self.match_(&[Token::Punct(',')]);
+        }
+
+        // 🚧 This isn't right, but maybe it's good enough.
+        let end = if let Some(tok) = self.peek() {
+            tok.1.end
+        } else {
+            self.previous().unwrap().1.end
+        };
+
+        Ok(Some((Item::Struct(name, fields), start..end)))
+    }
+
+    /// Parse an identifier
+    ///
+    /// ident -> IDENT
+    fn parse_ident(&mut self) -> Option<Spanned<String>> {
+        debug!("enter parse_ident");
+
+        let next = self.peek()?.clone();
+
+        if let (Token::Ident(ident), span) = next {
+            self.advance();
+            debug!("exit parse_ident");
+            Some((ident.to_owned(), span.to_owned()))
+        } else {
+            None
+        }
+    }
+
+    /// Parse a struct field
+    ///
+    /// field -> IDENT : TYPE
+    fn parse_struct_field(&mut self) -> Result<(Spanned<String>, Spanned<Type>), Simple<String>> {
+        debug!("enter parse_struct_field");
+
+        let name = if let Some(ident) = self.parse_ident() {
+            ident
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("identifier".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected identifier");
+            return Err(err);
+        };
+
+        if !self.match_(&[Token::Punct(':')]) {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [Some("':'".to_owned())],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected colon");
+            return Err(err);
+        }
+
+        let ty = if let Some(ty) = self.parse_type()? {
+            ty
+        } else {
+            let tok = self.peek().unwrap();
+            let err = Simple::expected_input_found(
+                tok.1.clone(),
+                [
+                    Some("'bool'".to_owned()),
+                    Some("'float'".to_owned()),
+                    Some("'int'".to_owned()),
+                    Some("'string'".to_owned()),
+                    Some("'Uuid'".to_owned()),
+                    Some("'Option<T>'".to_owned()),
+                    Some("'[T]'".to_owned()),
+                ],
+                Some(tok.0.to_string()),
+            );
+            let err = err.with_label("expected type");
+            return Err(err);
+        };
+
+        debug!("exit parse_struct_field: ", (&name, &ty));
+
+        Ok((name, ty))
+    }
+
+    fn match_(&mut self, tokens: &[Token]) -> bool {
+        for tok in tokens {
+            if self.check(tok) {
+                self.advance();
+                debug!("matched: ", tok);
+                return true;
+            }
+        }
+
+        false
+    }
+
+    fn check(&mut self, tok: &Token) -> bool {
+        if self.at_end() {
+            return false;
+        }
+
+        if self.peek().unwrap().0 == *tok {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn advance(&mut self) -> Option<&Spanned<Token>> {
+        if !self.at_end() {
+            self.current += 1;
+        }
+
+        self.previous()
+    }
+
+    fn at_end(&self) -> bool {
+        self.peek().is_none()
+    }
+
+    fn peek(&self) -> Option<&Spanned<Token>> {
+        let current = self.tokens.get(self.current);
+        debug!("peek:", current);
+
+        current
+    }
+
+    fn previous(&self) -> Option<&Spanned<Token>> {
+        if self.current == 0 {
+            return None;
+        }
+
+        self.tokens.get(self.current - 1)
+    }
+}
+
+pub fn parse_line(src: &str) -> Option<Spanned<Statement>> {
+    let (tokens, errs) = lexer().parse_recovery_verbose(src);
+
+    let mut parser = DwarfParser::new(tokens.unwrap());
+    let ast = parser.parse_statement();
+
+    match ast {
+        Ok(ast) => return ast,
+        Err(err) => {
+            let mut parser_errs = parser.errors;
+            parser_errs.push(err);
+            report_errors(errs, parser_errs, src);
+            return None;
+        }
+    }
+
+    //     let (tokens, errs) = lexer().parse_recovery(src);
+    //     let (ast, parse_errs) = if let Some(tokens) = tokens {
+    //         let len = src.chars().count();
+    //         let (ast, parse_errs) =
+    //         // stmt_parser()
+    //         // .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
+    //         stmt_parser().parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+
+    //         (ast, parse_errs)
+    //     } else {
+    //         (None, Vec::new())
+    //     };
+
+    //     report_errors(errs, parse_errs, src);
+
+    //     ast
+    ast.unwrap()
+}
+
+pub fn parse_dwarf(src: &str) -> Vec<Spanned<Item>> {
+    let (tokens, errs) = lexer().parse_recovery_verbose(src);
+
+    dbg!(&errs);
+
+    let mut parser = DwarfParser::new(tokens.unwrap());
+    let (ast, parse_errs) = parser.parse_program();
+
+    // let (tokens, errs) = lexer().parse_recovery(src);
+    // let (ast, parse_errs) = if let Some(tokens) = tokens {
+    //     let len = src.chars().count();
+    //     let (ast, parse_errs) = item_parser()
+    //         .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
+    //     // .parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
+
+    //     (ast, parse_errs)
+    // } else {
+    //     (None, Vec::new())
+    // };
+
+    report_errors(errs, parse_errs, src);
+
+    // ast
 
     ast
 }
 
-// pub struct Error {
-// span: Span,
-// msg: String,
-// }
-
-// pub fn parse<P: AsRef<Path>>(
-//     src: &str,
-//     source: Option<P>,
-// ) -> Option<HashMap<(String, ItemKind), Item>> {
-pub fn parse_dwarf(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
-    // let (tokens, errs) = lexer().parse_recovery_verbose(src);
-    let (tokens, errs) = lexer().parse_recovery(src);
-    let (ast, parse_errs) = if let Some(tokens) = tokens {
-        let len = src.chars().count();
-        let (ast, parse_errs) = item_parser()
-            // .parse_recovery_verbose(Stream::from_iter(len..len + 1, tokens.into_iter()));
-            .parse_recovery(Stream::from_iter(len..len + 1, tokens.into_iter()));
-
-        (ast, parse_errs)
-    } else {
-        (None, Vec::new())
-    };
-
+fn report_errors(errs: Vec<Simple<char>>, parse_errs: Vec<Simple<String>>, src: &str) {
     // dbg!(&ast, &errs, &parse_errs);
     errs.into_iter()
         .map(|e| e.map(|c| c.to_string()))
@@ -898,8 +2055,6 @@ pub fn parse_dwarf(src: &str) -> Option<HashMap<(String, ItemKind), Item>> {
 
             report.finish().print(Source::from(&src)).unwrap();
         });
-
-    ast
 }
 
 #[cfg(test)]
@@ -907,7 +2062,23 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_empty_statement() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        let src = r#"
+            ;
+        "#;
+
+        let ast = parse_line(src);
+
+        assert!(ast.is_some());
+        assert_eq!(ast.unwrap(), (Statement::Empty, (13..14)));
+    }
+
+    #[test]
     fn test_lexer() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             // This is a comment
             type Foo {
@@ -926,6 +2097,8 @@ mod tests {
 
     #[test]
     fn test_struct() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             struct Foo {
                 bar: Option<int>,
@@ -938,11 +2111,13 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn test_import() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             use foo;
             use foo::bar::baz::Baz;
@@ -951,25 +2126,31 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        dbg!(&ast);
+
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn xyzzy() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
-            fn foo() -> Option<bool> {
+            fn foo(a: string, b: int, d: Option<Foo>) -> Option<bool> {
                 None
             }
 
-            fn bar() -> Option<String> {
+            fn bar() -> Option<string> {
                 Some("Hello, World!")
             }
 
             fn xyzzy() -> Bar {
-                foo();
+                foo(a, b, c.d(), Foo::new(), 42, 3.14, "Hello, World!", true);
                 let a = Foo::new();
                 let b = a.b();
-                a.collect
+                a.collect();
+                a.b.c.e;
+                a.b.c.d();
                 Bar {
                     foo: 42,
                     bar: 3.14,
@@ -980,6 +2161,7 @@ mod tests {
             }
 
             fn yzzyx() -> Self {
+                Foo::bar(a, 42, 3.14, true, "Hello, World!", Foo::new(), a.b.c, d.e.f.g(4, 8));
                 Uuid::new();
                 Self {
                     foo: 42,
@@ -994,13 +2176,15 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        dbg!(&ast);
+        // dbg!(&ast);
 
-        assert!(ast.is_some());
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn test_impl() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             impl Foo {
                 fn new() -> Self {
@@ -1049,17 +2233,27 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn test_item_fn() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             fn foo() -> int {
                 let a = 1;
                 let b = true;
                 let c = "Hello, World!";
                 let d = 3.14;
+                true
+            }
+
+            fn beano() -> bool {
+                let a: int = 1;
+                let b: bool = true;
+                let c: string = "Hello, World!";
+                let d: float = 3.14;
                 true
             }
 
@@ -1070,32 +2264,36 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        assert!(ast.len() == 3);
     }
 
-    #[test]
-    fn test_reference() {
-        let src = r#"
-            fn foo() -> () {
-                let a = &b;
-            }
+    // #[test]
+    // fn test_reference() {
+    //     let _ = env_logger::builder().is_test(true).try_init();
 
-            fn fun() -> () {}
+    //     let src = r#"
+    //         fn foo() -> () {
+    //             let a = &b;
+    //         }
 
-            fn bar(a: &int) -> [&Bar] {}
+    //         fn fun() -> () {}
 
-            impl Bar {
-                fn baz(&self) -> () {}
-            }
-        "#;
+    //         fn bar(a: &int) -> [&Bar] {}
 
-        let ast = parse_dwarf(src);
+    //         impl Bar {
+    //             fn baz(&self) -> () {}
+    //         }
+    //     "#;
 
-        assert!(ast.is_some());
-    }
+    //     let ast = parse_dwarf(src);
+
+    //     assert!(!ast.is_empty());
+    // }
 
     #[test]
     fn test_list() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             fn foo() -> [int] {
                 let a = [1, 2, 3];
@@ -1104,11 +2302,13 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn test_option() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
         let src = r#"
             fn foo() -> [int] {
                 let a = 123;
@@ -1120,16 +2320,41 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        assert!(ast.is_some());
+        assert!(!ast.is_empty());
+    }
+
+    #[test]
+    fn test_for() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        let src = r#"
+            fn foo() -> () {
+                for a in b {
+                    print(a);
+                }
+
+                for a in [1, 2, 3] {
+                    print(a);
+                }
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        dbg!(&ast);
+
+        assert!(!ast.is_empty());
     }
 
     #[test]
     fn test_field_access() {
-        let src = "a.id";
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        let src = "a.id;";
 
         let ast = parse_line(src);
 
-        // dbg!(&ast);
+        dbg!(&ast);
 
         assert!(ast.is_some());
     }

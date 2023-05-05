@@ -21,7 +21,7 @@ use crate::{
 
 pub mod compiler;
 pub mod parser;
-pub mod parser_orig;
+// pub mod parser_orig;
 
 pub use compiler::{inter_statement, populate_lu_dog};
 pub use parser::{parse_dwarf, parse_line};
@@ -30,6 +30,10 @@ pub type Result<T, E = DwarfError> = std::result::Result<T, E>;
 
 pub type Span = ops::Range<usize>;
 pub type Spanned<T> = (T, Span);
+
+// These should eventually come from the domain.
+pub type DwarfInteger = i64;
+pub type DwarfFloat = f64;
 
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
@@ -61,10 +65,12 @@ pub enum Token {
     Bool(bool),
     Float(String),
     Fn,
+    For,
     // Global,
     Ident(String),
     Impl,
     Import,
+    In,
     Integer(String),
     Let,
     None,
@@ -88,10 +94,12 @@ impl fmt::Display for Token {
             Self::Bool(bool_) => write!(f, "{}", bool_),
             Self::Float(num) => write!(f, "{}", num),
             Self::Fn => write!(f, "fn"),
+            Self::For => write!(f, "for"),
             // Self::Global => write!(f, "global"),
             Self::Ident(ident) => write!(f, "{}", ident),
             Self::Impl => write!(f, "impl"),
             Self::Import => write!(f, "import"),
+            Self::In => write!(f, "in"),
             Self::Integer(num) => write!(f, "{}", num),
             Self::Let => write!(f, "let"),
             Self::None => write!(f, "None"),
@@ -116,13 +124,13 @@ pub enum Type {
     Empty,
     Float,
     Integer,
-    List(Box<Self>),
-    Option(Box<Self>),
-    Reference(Box<Self>),
-    Self_(Box<Token>),
+    List(Box<Spanned<Self>>),
+    Option(Box<Spanned<Self>>),
+    Reference(Box<Spanned<Self>>),
+    Self_,
     String,
     Unknown,
-    UserType(Box<Token>),
+    UserType(Spanned<String>),
     Uuid,
 }
 
@@ -133,13 +141,13 @@ impl fmt::Display for Type {
             Self::Empty => write!(f, "()"),
             Self::Float => write!(f, "float"),
             Self::Integer => write!(f, "int"),
-            Self::List(type_) => write!(f, "[{}]", type_),
-            Self::Option(type_) => write!(f, "Option<{}>", type_),
-            Self::Reference(type_) => write!(f, "&{}", type_),
-            Self::Self_(type_) => write!(f, "{}", type_),
+            Self::List(type_) => write!(f, "[{}]", type_.0),
+            Self::Option(type_) => write!(f, "Option<{}>", type_.0),
+            Self::Reference(type_) => write!(f, "&{}", type_.0),
+            Self::Self_ => write!(f, "Self"),
             Self::String => write!(f, "string"),
             Self::Unknown => write!(f, "<unknown>"),
-            Self::UserType(type_) => write!(f, "{}", type_),
+            Self::UserType(type_) => write!(f, "{}", type_.0),
             Self::Uuid => write!(f, "Uuid"),
         }
     }
@@ -168,32 +176,28 @@ impl Type {
                 ValueType::new_ty(&ty, store)
             }
             Type::List(type_) => {
-                let ty = type_.into_value_type(store, models, sarzak);
+                let ty = (*type_).0.into_value_type(store, models, sarzak);
                 let list = List::new(&ty, store);
                 ValueType::new_list(&list, store)
             }
             Type::Option(type_) => {
-                let ty = type_.into_value_type(store, models, sarzak);
+                let ty = (*type_).0.into_value_type(store, models, sarzak);
                 let option = WoogOption::new_z_none(&ty, store);
                 ValueType::new_woog_option(&option, store)
             }
             Type::Reference(type_) => {
-                let ty = type_.into_value_type(store, models, sarzak);
+                let ty = (*type_).0.into_value_type(store, models, sarzak);
                 let reference = Reference::new(Uuid::new_v4(), false, &ty, store);
                 ValueType::new_reference(&reference, store)
             }
-            Type::Self_(_type_) => panic!("Self is deprecated."),
+            Type::Self_ => panic!("Self is deprecated."),
             Type::String => {
                 let ty = Ty::new_s_string();
                 ValueType::new_ty(&ty, store)
             }
             Type::Unknown => ValueType::new_unknown(store),
             Type::UserType(type_) => {
-                let name = if let Token::Ident(name) = &**type_ {
-                    name
-                } else {
-                    panic!("Expected UserType to be Token::Object.")
-                };
+                let name = &type_.0;
 
                 for model in models {
                     if let Some(obj_id) = model.exhume_object_id_by_name(&name) {
@@ -268,15 +272,16 @@ impl Type {
 //     }
 // }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Statement {
+    Empty,
     Expression(Spanned<Expression>),
-    Item(Item),
+    Item(Spanned<Item>),
     Let(Spanned<String>, Option<Spanned<Type>>, Spanned<Expression>),
     Result(Spanned<Expression>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
     /// Assignment Expression
     ///
@@ -288,8 +293,9 @@ pub enum Expression {
     Block(Vec<Spanned<Statement>>),
     BooleanLiteral(bool),
     Error,
-    FieldAccess(Box<Spanned<Self>>, Spanned<String>),
+    FieldAccess(Box<Spanned<Self>>, Box<Spanned<Self>>),
     FloatLiteral(f64),
+    For(Box<Spanned<Self>>, Box<Spanned<Self>>, Box<Spanned<Self>>),
     // The first element is the function being called, the second is the list of
     // arguments.
     FunctionCall(Box<Spanned<Self>>, Vec<Spanned<Self>>),
@@ -304,40 +310,31 @@ pub enum Expression {
     ///
     /// E.g., `Foo::bar()`.
     ///
-    StaticMethodCall(Spanned<Token>, Spanned<String>, Vec<Spanned<Self>>),
+    StaticMethodCall(Type, Spanned<String>, Vec<Spanned<Self>>),
     /// String Literal
     ///
     StringLiteral(String),
     /// Structure Expression
     ///
     /// Struct Name, Vec<Field Name, Field Value>
-    Struct(Spanned<Token>, Vec<(Spanned<String>, Spanned<Self>)>),
+    Struct(Type, Vec<(Spanned<String>, Spanned<Self>)>),
 }
 
-/// ItemKind
-///
-/// The sole purpose of this is to have a unique key in the hashmap.
-#[derive(Debug, Eq, Hash, PartialEq)]
-pub enum ItemKind {
-    Function,
-    Implementation,
-    Import,
-    Struct,
-}
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Item {
     /// A Function Definition
     ///
-    /// (Vec<(Parameter Name, Parameter Type)>, Return Type, Vec<Statement>)
+    /// name, Vec<(Parameter Name, Parameter Type)>, Return Type, Vec<Statement>
     Function(
+        Spanned<String>,
         Vec<(Spanned<String>, Spanned<Type>)>,
         Spanned<Type>,
-        Vec<Spanned<Statement>>,
+        Spanned<Expression>,
     ),
-    /// Vec<(Function Name, Function)>
-    Implementation(Vec<(Spanned<String>, Box<Item>)>),
-    Import(Spanned<String>, Option<Spanned<String>>),
-    /// Vec<(Field Name, Field Type)>
-    Struct(Vec<(Spanned<String>, Spanned<Type>)>),
+    /// name, Vec<(Function Name, Function)>
+    Implementation(Spanned<String>, Vec<Spanned<Item>>),
+    /// path, Option<Alias>
+    Import(Spanned<Vec<Spanned<String>>>, Option<Spanned<String>>),
+    /// name, Vec<(Field Name, Field Type)>
+    Struct(Spanned<String>, Vec<(Spanned<String>, Spanned<Type>)>),
 }

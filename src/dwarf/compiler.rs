@@ -8,8 +8,8 @@ use uuid::Uuid;
 
 use crate::{
     dwarf::{
-        Expression as ParserExpression, Item, ItemKind, Result, Spanned,
-        Statement as ParserStatement, Token, Type,
+        Expression as ParserExpression, Item, Result, Spanned, Statement as ParserStatement, Token,
+        Type,
     },
     lu_dog::{
         store::ObjectStore as LuDogStore,
@@ -106,7 +106,7 @@ struct ConveyFunc<'a> {
     name: &'a str,
     params: &'a [(Spanned<String>, Spanned<Type>)],
     return_type: &'a Spanned<Type>,
-    statements: &'a [Spanned<ParserStatement>],
+    statements: &'a Spanned<ParserExpression>,
 }
 
 impl<'a> ConveyFunc<'a> {
@@ -114,7 +114,7 @@ impl<'a> ConveyFunc<'a> {
         name: &'a str,
         params: &'a [(Spanned<String>, Spanned<Type>)],
         return_type: &'a Spanned<Type>,
-        statements: &'a [Spanned<ParserStatement>],
+        statements: &'a Spanned<ParserExpression>,
     ) -> Self {
         Self {
             name,
@@ -138,11 +138,11 @@ impl<'a> ConveyStruct<'a> {
 
 struct ConveyImpl<'a> {
     name: &'a str,
-    funcs: &'a [(Spanned<String>, Box<Item>)],
+    funcs: &'a [Spanned<Item>],
 }
 
 impl<'a> ConveyImpl<'a> {
-    fn new(name: &'a str, funcs: &'a [(Spanned<String>, Box<Item>)]) -> Self {
+    fn new(name: &'a str, funcs: &'a [Spanned<Item>]) -> Self {
         Self { name, funcs }
     }
 }
@@ -154,7 +154,7 @@ impl<'a> ConveyImpl<'a> {
 /// 🚧 Return a result!
 pub fn populate_lu_dog(
     out_dir: &PathBuf,
-    ast: &HashMap<(String, ItemKind), Item>,
+    ast: &[Spanned<Item>],
     models: &[SarzakStore],
     sarzak: &SarzakStore,
 ) -> Result<LuDogStore> {
@@ -167,7 +167,7 @@ pub fn populate_lu_dog(
 
 fn walk_tree(
     out_dir: &PathBuf,
-    ast: &HashMap<(String, ItemKind), Item>,
+    ast: &[Spanned<Item>],
     lu_dog: &mut LuDogStore,
     models: &[SarzakStore],
     sarzak: &SarzakStore,
@@ -177,15 +177,17 @@ fn walk_tree(
     let mut structs = Vec::new();
 
     // We need the structs before the impls, so we do this.
-    for ((ref name, _), item) in ast {
+    for item in ast {
         match item {
-            Item::Function(params, return_type, stmts) => {
-                funcs.push(ConveyFunc::new(name, params, return_type, stmts))
+            (Item::Function(name, params, return_type, stmts), _span) => {
+                funcs.push(ConveyFunc::new(&name.0, params, return_type, stmts))
             }
-            Item::Implementation(funcs) => implementations.push(ConveyImpl::new(name, funcs)),
+            (Item::Implementation(name, funcs), _span) => {
+                implementations.push(ConveyImpl::new(&name.0, funcs))
+            }
             // Imports can happen any time, I think.
-            Item::Import(path, alias) => inter_import(&path.0, alias, lu_dog),
-            Item::Struct(fields) => structs.push(ConveyStruct::new(name, fields)),
+            (Item::Import(path, alias), _span) => inter_import(&path.0, alias, lu_dog),
+            (Item::Struct(name, fields), _span) => structs.push(ConveyStruct::new(&name.0, fields)),
         }
     }
 
@@ -247,7 +249,7 @@ fn inter_func(
     name: &str,
     params: &[(Spanned<String>, Spanned<Type>)],
     return_type: &Spanned<Type>,
-    stmts: &[Spanned<ParserStatement>],
+    stmts: &Spanned<ParserExpression>,
     impl_block: Option<&Arc<RwLock<Implementation>>>,
     impl_ty: Option<&Arc<RwLock<ValueType>>>,
     lu_dog: &mut LuDogStore,
@@ -255,9 +257,15 @@ fn inter_func(
     sarzak: &SarzakStore,
 ) {
     debug!("inter_func", name);
+
     let block = Block::new(Uuid::new_v4(), lu_dog);
 
     let name = name.de_sanitize();
+    let stmts = if let ParserExpression::Block(stmts) = &stmts.0 {
+        stmts
+    } else {
+        panic!("Expected a block expression");
+    };
 
     let ret_ty = get_value_type(&return_type.0, impl_ty, lu_dog, models, sarzak);
     let func = Function::new(name.to_owned(), &block, impl_block, &ret_ty, lu_dog);
@@ -462,19 +470,27 @@ fn inter_expression(
         //
         // FieldAccess
         //
-        ParserExpression::FieldAccess(instance, (field_name, _)) => {
-            debug!("ParserExpression::FieldAccess instance", instance);
-            debug!("ParserExpression::FieldAccess field", field_name);
+        ParserExpression::FieldAccess(lhs, rhs) => {
+            debug!("ParserExpression::FieldAccess lhs", lhs);
+            debug!("ParserExpression::FieldAccess rhs", rhs);
 
-            let (instance, instance_ty) = inter_expression(
-                &Arc::new(RwLock::new((*instance).0.clone())),
+            let (lhs, lhs_ty) = inter_expression(
+                &Arc::new(RwLock::new((*lhs).0.clone())),
                 block,
                 lu_dog,
                 models,
                 sarzak,
             );
 
-            let id = instance_ty.read().unwrap().id();
+            let (rhs, rhs_ty) = inter_expression(
+                &Arc::new(RwLock::new((*rhs).0.clone())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+
+            let id = lhs_ty.read().unwrap().id();
             let ty = lu_dog.exhume_value_type(&id).unwrap();
             let ty = ty.read().unwrap();
 
@@ -483,7 +499,8 @@ fn inter_expression(
                     for model in models {
                         if let Some(Ty::Object(ref _object)) = model.exhume_ty(id) {
                             // let object = model.exhume_object(object).unwrap();
-                            let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
+                            let expr =
+                                FieldAccess::new("💥figure this out🖕".to_owned(), &lhs, lu_dog);
                             let expr = Expression::new_field_access(&expr, lu_dog);
 
                             return (expr, ValueType::new_unknown(lu_dog));
@@ -502,11 +519,13 @@ fn inter_expression(
                 }
                 ValueType::WoogStruct(ref id) => {
                     let woog_struct = lu_dog.exhume_woog_struct(id).unwrap();
-                    let expr = FieldAccess::new(field_name.to_owned(), &instance, lu_dog);
+                    let expr = FieldAccess::new("💥figure this out🖕".to_owned(), &lhs, lu_dog);
                     let expr = Expression::new_field_access(&expr, lu_dog);
                     let field = woog_struct.read().unwrap();
                     let field = field.r7_field(lu_dog);
-                    let field = field.iter().find(|f| f.read().unwrap().name == *field_name);
+                    let field = field
+                        .iter()
+                        .find(|f| f.read().unwrap().name == "💥figure this out🖕");
 
                     // We need to grab the type from the field: what we have above is the type
                     // of the struct.
@@ -763,15 +782,21 @@ fn inter_expression(
         //
         // StaticMethodCall
         //
-        ParserExpression::StaticMethodCall((obj, _), (method, _), params) => {
-            debug!("ParserExpression::StaticMethodCall", obj);
-            let type_name = if let Token::Ident(obj) = obj {
+        ParserExpression::StaticMethodCall(ty, (method, _), params) => {
+            let type_name = if let Type::UserType((obj, _)) = ty {
                 obj.de_sanitize().to_owned()
-            } else if obj == &Token::Uuid {
-                "Uuid".to_owned()
             } else {
-                panic!("I don't think that we should ever see anything other than an object or Uuid here: {:?}", obj);
+                panic!("I don't think that we should ever see anything other than a user type here: {:?}", ty);
             };
+
+            debug!("ParserExpression::StaticMethodCall", type_name);
+            // let type_name = if let Token::Ident(obj) = obj {
+            //     obj.de_sanitize().to_owned()
+            // } else if obj == &Token::Uuid {
+            //     "Uuid".to_owned()
+            // } else {
+            //     panic!("I don't think that we should ever see anything other than an object or Uuid here: {:?}", obj);
+            // };
 
             let meth = StaticMethodCall::new(method.to_owned(), type_name.to_owned(), lu_dog);
             let call = Call::new_static_method_call(None, &meth, lu_dog);
@@ -849,13 +874,13 @@ fn inter_expression(
         //
         // Struct
         //
-        ParserExpression::Struct((name, _), fields) => {
-            let name = if let Token::Ident(name) = name {
-                // name.de_sanitize()
-                name
+        ParserExpression::Struct(ty, fields) => {
+            let name = if let Type::UserType((obj, _)) = ty {
+                obj.de_sanitize().to_owned()
             } else {
-                panic!("I don't think that we should ever see anything other than an object here: {:?}", name);
+                panic!("I don't think that we should ever see anything other than a user type here: {:?}", ty);
             };
+
             debug!("ParserExpression::Struct", name);
 
             // dbg!(&lu_dog.iter_woog_struct().collect::<Vec<_>>());
@@ -903,31 +928,36 @@ fn inter_expression(
     }
 }
 
-fn inter_import(path: &String, alias: &Option<(String, Range<usize>)>, lu_dog: &mut LuDogStore) {
-    let mut path_root = path.split("::").collect::<Vec<_>>();
-    path_root.pop().expect("Path root not found");
-    let path_root = path_root.join("::");
-    let obj_name = path.split("::").last().unwrap();
-    let (has_alias, alias) = if let Some((alias, _)) = alias {
-        (true, alias.to_owned())
-    } else {
-        (false, "".to_owned())
-    };
+fn inter_import(
+    _path: &Vec<Spanned<String>>,
+    _alias: &Option<(String, Range<usize>)>,
+    _lu_dog: &mut LuDogStore,
+) {
+    error!("Do somethnig with the use statement");
+    // let mut path_root = path;
+    // path_root.pop().expect("Path root not found");
+    // let path_root = path_root.join("::");
+    // let obj_name = path.split("::").last().unwrap();
+    // let (has_alias, alias) = if let Some((alias, _)) = alias {
+    //     (true, alias.to_owned())
+    // } else {
+    //     (false, "".to_owned())
+    // };
 
-    let import = Import::new(
-        alias,
-        has_alias,
-        obj_name.to_owned(),
-        path_root,
-        None,
-        lu_dog,
-    );
-    debug!("import", import);
+    // let import = Import::new(
+    //     alias,
+    //     has_alias,
+    //     obj_name.to_owned(),
+    //     path_root,
+    //     None,
+    //     lu_dog,
+    // );
+    // debug!("import", import);
 }
 
 fn inter_implementation(
     name: &str,
-    funcs: &[(Spanned<String>, Box<Item>)],
+    funcs: &[Spanned<Item>],
     lu_dog: &mut LuDogStore,
     models: &[SarzakStore],
     sarzak: &SarzakStore,
@@ -935,7 +965,7 @@ fn inter_implementation(
     let name = name.de_sanitize();
 
     let impl_ty = get_value_type(
-        &Type::UserType(Box::new(Token::Ident(name.to_owned()))),
+        &Type::UserType((name.to_owned(), 0..0)),
         None,
         lu_dog,
         models,
@@ -958,10 +988,10 @@ fn inter_implementation(
             .clone();
         let implementation = Implementation::new(&mt, lu_dog);
 
-        for ((name, _), func) in funcs {
-            match **func {
-            Item::Function(ref params, ref return_type, ref stmts) => {
-                inter_func(&name, &params, &return_type, &stmts, Some(&implementation), Some(&impl_ty), lu_dog, models, sarzak)
+        for (func, _) in funcs {
+            match func {
+            Item::Function(ref name, ref params, ref return_type, ref stmts) => {
+                inter_func(&name.0, &params, &return_type, &stmts, Some(&implementation), Some(&impl_ty), lu_dog, models, sarzak)
             }
             _ => panic!("Implementation can only contain functions -- this is actually wrong, but it's good enough for a temporary failure message"),
         }
@@ -1028,17 +1058,17 @@ fn get_value_type(
             ValueType::new_ty(&ty, lu_dog)
         }
         Type::List(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
+            let inner_type = get_value_type(&(*type_).0, enclosing_type, lu_dog, models, sarzak);
             let list = List::new(&inner_type, lu_dog);
             ValueType::new_list(&list, lu_dog)
         }
         Type::Option(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
+            let inner_type = get_value_type(&(*type_).0, enclosing_type, lu_dog, models, sarzak);
             let option = WoogOption::new_z_none(&inner_type, lu_dog);
             ValueType::new_woog_option(&option, lu_dog)
         }
         Type::Reference(ref type_) => {
-            let inner_type = get_value_type(type_, enclosing_type, lu_dog, models, sarzak);
+            let inner_type = get_value_type(&(*type_).0, enclosing_type, lu_dog, models, sarzak);
             // We don't know the address yet -- we'll fix it in the interpreter.
             let reference = Reference::new(Uuid::new_v4(), false, &inner_type, lu_dog);
             ValueType::new_reference(&reference, lu_dog)
@@ -1048,12 +1078,7 @@ fn get_value_type(
             ValueType::new_ty(&ty, lu_dog)
         }
         Type::UserType(tok) => {
-            let name = match **tok {
-                Token::Ident(ref name) => name,
-                _ => panic!("Expected object, found {:?}", tok),
-            };
-
-            let name = name.de_sanitize();
+            let name = tok.0.de_sanitize();
 
             // Deal with imports
             let import = lu_dog.iter_import().find(|import| {

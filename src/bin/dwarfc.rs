@@ -113,7 +113,7 @@ fn main() -> Result<()> {
 
     let source_code = fs::read_to_string(&args.source).expect("Failed to read file");
 
-    let ast = parse_dwarf(&source_code).expect("Failed to parse file");
+    let ast = parse_dwarf(&source_code);
 
     let lu_dog = populate_lu_dog(&path, &ast, &[model.sarzak().clone()], sarzak.sarzak())
         .expect("Failed to populate lu_dog");
