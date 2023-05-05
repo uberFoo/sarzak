@@ -20,7 +20,9 @@
 //! * [`FieldAccess`]
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
+//! * [`ForLoop`]
 //! * [`Function`]
+//! * [`XIf`]
 //! * [`Implementation`]
 //! * [`Import`]
 //! * [`IntegerLiteral`]
@@ -36,6 +38,7 @@
 //! * [`Print`]
 //! * [`Reference`]
 //! * [`ResultStatement`]
+//! * [`XReturn`]
 //! * [`ZSome`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -62,11 +65,12 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
     Argument, Block, BooleanLiteral, Call, DwarfSourceFile, Error, ErrorExpression, Expression,
-    ExpressionStatement, Field, FieldAccess, FieldExpression, FloatLiteral, Function,
+    ExpressionStatement, Field, FieldAccess, FieldExpression, FloatLiteral, ForLoop, Function,
     Implementation, Import, IntegerLiteral, Item, LetStatement, List, Literal, LocalVariable,
     MethodCall, Parameter, Print, Reference, ResultStatement, Statement, StaticMethodCall,
     StringLiteral, StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    WoogStruct, XIf, XReturn, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL, TRUE_LITERAL, UNKNOWN,
+    UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -85,7 +89,9 @@ pub struct ObjectStore {
     field_access: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FieldAccess>>, SystemTime)>>>,
     field_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FieldExpression>>, SystemTime)>>>,
     float_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FloatLiteral>>, SystemTime)>>>,
+    for_loop: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ForLoop>>, SystemTime)>>>,
     function: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Function>>, SystemTime)>>>,
+    x_if: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XIf>>, SystemTime)>>>,
     implementation: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Implementation>>, SystemTime)>>>,
     import: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Import>>, SystemTime)>>>,
     integer_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<IntegerLiteral>>, SystemTime)>>>,
@@ -101,6 +107,7 @@ pub struct ObjectStore {
     print: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Print>>, SystemTime)>>>,
     reference: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Reference>>, SystemTime)>>>,
     result_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ResultStatement>>, SystemTime)>>>,
+    x_return: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XReturn>>, SystemTime)>>>,
     z_some: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZSome>>, SystemTime)>>>,
     statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Statement>>, SystemTime)>>>,
     static_method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StaticMethodCall>>, SystemTime)>>>,
@@ -130,7 +137,9 @@ impl ObjectStore {
             field_access: Arc::new(RwLock::new(HashMap::default())),
             field_expression: Arc::new(RwLock::new(HashMap::default())),
             float_literal: Arc::new(RwLock::new(HashMap::default())),
+            for_loop: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
+            x_if: Arc::new(RwLock::new(HashMap::default())),
             implementation: Arc::new(RwLock::new(HashMap::default())),
             import: Arc::new(RwLock::new(HashMap::default())),
             integer_literal: Arc::new(RwLock::new(HashMap::default())),
@@ -146,6 +155,7 @@ impl ObjectStore {
             print: Arc::new(RwLock::new(HashMap::default())),
             reference: Arc::new(RwLock::new(HashMap::default())),
             result_statement: Arc::new(RwLock::new(HashMap::default())),
+            x_return: Arc::new(RwLock::new(HashMap::default())),
             z_some: Arc::new(RwLock::new(HashMap::default())),
             statement: Arc::new(RwLock::new(HashMap::default())),
             static_method_call: Arc::new(RwLock::new(HashMap::default())),
@@ -788,6 +798,51 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`ForLoop`] into the store.
+    ///
+    pub fn inter_for_loop(&mut self, for_loop: Arc<RwLock<ForLoop>>) {
+        let read = for_loop.read().unwrap();
+        self.for_loop
+            .write()
+            .unwrap()
+            .insert(read.id, (for_loop.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`ForLoop`] from the store.
+    ///
+    pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Arc<RwLock<ForLoop>>> {
+        self.for_loop
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|for_loop| for_loop.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
+    ///
+    pub fn iter_for_loop(&self) -> impl Iterator<Item = Arc<RwLock<ForLoop>>> + '_ {
+        let values: Vec<Arc<RwLock<ForLoop>>> = self
+            .for_loop
+            .read()
+            .unwrap()
+            .values()
+            .map(|for_loop| for_loop.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for ForLoop.
+    ///
+    pub fn for_loop_timestamp(&self, for_loop: &ForLoop) -> SystemTime {
+        self.for_loop
+            .read()
+            .unwrap()
+            .get(&for_loop.id)
+            .map(|for_loop| for_loop.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Arc<RwLock<Function>>) {
@@ -830,6 +885,47 @@ impl ObjectStore {
             .unwrap()
             .get(&function.id)
             .map(|function| function.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`XIf`] into the store.
+    ///
+    pub fn inter_x_if(&mut self, x_if: Arc<RwLock<XIf>>) {
+        let read = x_if.read().unwrap();
+        self.x_if
+            .write()
+            .unwrap()
+            .insert(read.id, (x_if.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`XIf`] from the store.
+    ///
+    pub fn exhume_x_if(&self, id: &Uuid) -> Option<Arc<RwLock<XIf>>> {
+        self.x_if.read().unwrap().get(id).map(|x_if| x_if.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
+    ///
+    pub fn iter_x_if(&self) -> impl Iterator<Item = Arc<RwLock<XIf>>> + '_ {
+        let values: Vec<Arc<RwLock<XIf>>> = self
+            .x_if
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_if| x_if.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for XIf.
+    ///
+    pub fn x_if_timestamp(&self, x_if: &XIf) -> SystemTime {
+        self.x_if
+            .read()
+            .unwrap()
+            .get(&x_if.id)
+            .map(|x_if| x_if.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1497,6 +1593,51 @@ impl ObjectStore {
             .unwrap()
             .get(&result_statement.id)
             .map(|result_statement| result_statement.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`XReturn`] into the store.
+    ///
+    pub fn inter_x_return(&mut self, x_return: Arc<RwLock<XReturn>>) {
+        let read = x_return.read().unwrap();
+        self.x_return
+            .write()
+            .unwrap()
+            .insert(read.id, (x_return.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`XReturn`] from the store.
+    ///
+    pub fn exhume_x_return(&self, id: &Uuid) -> Option<Arc<RwLock<XReturn>>> {
+        self.x_return
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_return| x_return.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
+    ///
+    pub fn iter_x_return(&self) -> impl Iterator<Item = Arc<RwLock<XReturn>>> + '_ {
+        let values: Vec<Arc<RwLock<XReturn>>> = self
+            .x_return
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_return| x_return.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for XReturn.
+    ///
+    pub fn x_return_timestamp(&self, x_return: &XReturn) -> SystemTime {
+        self.x_return
+            .read()
+            .unwrap()
+            .get(&x_return.id)
+            .map(|x_return| x_return.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -2492,6 +2633,43 @@ impl ObjectStore {
             }
         }
 
+        // Persist For Loop.
+        {
+            let path = path.join("for_loop");
+            fs::create_dir_all(&path)?;
+            for for_loop_tuple in self.for_loop.read().unwrap().values() {
+                let path = path.join(format!("{}.json", for_loop_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<ForLoop>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != for_loop_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &for_loop_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &for_loop_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.for_loop.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Function.
         {
             let path = path.join("function");
@@ -2523,6 +2701,42 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.function.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist If.
+        {
+            let path = path.join("x_if");
+            fs::create_dir_all(&path)?;
+            for x_if_tuple in self.x_if.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_if_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != x_if_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &x_if_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_if_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_if.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3091,6 +3305,43 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.result_statement.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Return.
+        {
+            let path = path.join("x_return");
+            fs::create_dir_all(&path)?;
+            for x_return_tuple in self.x_return.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_return_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<XReturn>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != x_return_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &x_return_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_return_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_return.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3731,6 +3982,24 @@ impl ObjectStore {
             }
         }
 
+        // Load For Loop.
+        {
+            let path = path.join("for_loop");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let for_loop: (Arc<RwLock<ForLoop>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .for_loop
+                    .write()
+                    .unwrap()
+                    .insert(for_loop.0.read().unwrap().id, for_loop.clone());
+            }
+        }
+
         // Load Function.
         {
             let path = path.join("function");
@@ -3747,6 +4016,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(function.0.read().unwrap().id, function.clone());
+            }
+        }
+
+        // Load If.
+        {
+            let path = path.join("x_if");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_if: (Arc<RwLock<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .x_if
+                    .write()
+                    .unwrap()
+                    .insert(x_if.0.read().unwrap().id, x_if.clone());
             }
         }
 
@@ -4025,6 +4312,24 @@ impl ObjectStore {
                     result_statement.0.read().unwrap().id,
                     result_statement.clone(),
                 );
+            }
+        }
+
+        // Load Return.
+        {
+            let path = path.join("x_return");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_return: (Arc<RwLock<XReturn>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .x_return
+                    .write()
+                    .unwrap()
+                    .insert(x_return.0.read().unwrap().id, x_return.clone());
             }
         }
 

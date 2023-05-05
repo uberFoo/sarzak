@@ -78,6 +78,7 @@ pub enum Token {
     Option,
     Print,
     Punct(char),
+    Return,
     Self_,
     SmallSelf,
     Some,
@@ -107,6 +108,7 @@ impl fmt::Display for Token {
             Self::Option => write!(f, "Option"),
             Self::Print => write!(f, "print"),
             Self::Punct(punct) => write!(f, "{}", punct),
+            Self::Return => write!(f, "return"),
             Self::Self_ => write!(f, "Self"),
             Self::SmallSelf => write!(f, "self"),
             Self::Some => write!(f, "Some"),
@@ -295,7 +297,7 @@ pub enum Expression {
     Error,
     FieldAccess(Box<Spanned<Self>>, Box<Spanned<Self>>),
     FloatLiteral(f64),
-    For(Box<Spanned<Self>>, Box<Spanned<Self>>, Box<Spanned<Self>>),
+    For(Spanned<String>, Box<Spanned<Self>>, Box<Spanned<Self>>),
     // The first element is the function being called, the second is the list of
     // arguments.
     FunctionCall(Box<Spanned<Self>>, Vec<Spanned<Self>>),
@@ -305,6 +307,7 @@ pub enum Expression {
     MethodCall(Box<Spanned<Self>>, Spanned<String>, Vec<Spanned<Self>>),
     None,
     Print(Box<Spanned<Self>>),
+    Return(Box<Spanned<Self>>),
     Some(Box<Spanned<Self>>),
     /// Static Method Call
     ///

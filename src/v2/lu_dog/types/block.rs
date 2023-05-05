@@ -5,9 +5,11 @@ use std::sync::{Arc, RwLock};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::statement::Statement;
 use crate::v2::lu_dog::types::value::Value;
+use crate::v2::lu_dog::types::x_if::XIf;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -46,7 +48,20 @@ impl Block {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new_"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-for_loop"}}}
+    /// Navigate to [`ForLoop`] across R43(1-M)
+    pub fn r43_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ForLoop>>> {
+        store
+            .iter_for_loop()
+            .filter_map(|for_loop| {
+                if for_loop.read().unwrap().block == self.id {
+                    Some(for_loop)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
     /// Navigate to [`Function`] across R19(1-1c)
@@ -58,6 +73,36 @@ impl Block {
             Some(ref function) => vec![function.clone()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R46(1-M)
+    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
+        store
+            .iter_x_if()
+            .filter_map(|x_if| {
+                if x_if.read().unwrap().true_block == self.id {
+                    Some(x_if)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
+    /// Navigate to [`XIf`] across R47(1-Mc)
+    pub fn r47_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
+        store
+            .iter_x_if()
+            .filter_map(|x_if| {
+                if x_if.read().unwrap().false_block == Some(self.id) {
+                    Some(x_if)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}

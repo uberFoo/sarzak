@@ -46,6 +46,8 @@ macro_rules! error {
     };
 }
 
+type Result<T, E = Simple<String>> = std::result::Result<T, E>;
+
 fn lexer() -> impl Parser<char, Vec<Spanned<Token>>, Error = Simple<char>> {
     // A parser for numbers
     let int = text::int(10).map(Token::Integer);
@@ -112,6 +114,7 @@ fn lexer() -> impl Parser<char, Vec<Spanned<Token>>, Error = Simple<char>> {
         "print" => Token::Print,
         // "Self" => Token::Self_,
         // "self" => Token::SmallSelf,
+        "return" => Token::Return,
         "Some" => Token::Some,
         "string" => Token::Type(Type::String),
         "struct" => Token::Struct,
@@ -214,7 +217,7 @@ impl DwarfParser {
     /// Parse a Statement
     ///
     ///  statement -> ; | Item | LetStatement | ExpressionStatement
-    fn parse_statement(&mut self) -> Result<Option<Spanned<Statement>>, Simple<String>> {
+    fn parse_statement(&mut self) -> Result<Option<Spanned<Statement>>> {
         debug!("enter parse_statement");
 
         let start = if let Some(tok) = self.peek() {
@@ -316,7 +319,7 @@ impl DwarfParser {
                 debug!("parse_item: struct:", item);
                 return Some(item);
             }
-            Ok(None) => error!("parse_item: no struct"),
+            Ok(None) => {}
             Err(err) => {
                 error!("parse_item: error:", err);
                 self.errors.push(err);
@@ -511,7 +514,7 @@ impl DwarfParser {
     /// Parse a Let Statement
     ///
     /// let_statement -> let IDENTIFIER(:TYPE)? = expression
-    fn parse_let_statement(&mut self) -> Result<Option<Spanned<Statement>>, Simple<String>> {
+    fn parse_let_statement(&mut self) -> Result<Option<Spanned<Statement>>> {
         debug!("enter parse_let_statement");
 
         let start = if let Some(tok) = self.peek() {
@@ -601,7 +604,7 @@ impl DwarfParser {
     ///
     /// expression -> boolean_literal | float_literal | integer_literal |
     ///               local_variable | none | some | string_literal
-    fn parse_simple_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_simple_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_simple_expression");
 
         // parse a boolean literal
@@ -625,6 +628,24 @@ impl DwarfParser {
         // parse a none literal
         if let Some(expression) = self.parse_none_literal() {
             debug!("parse_simple_expression: none literal:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a print expression
+        if let Some(expression) = self.parse_print_expression()? {
+            debug!(
+                "parse_expression_without_block: print expression:",
+                expression
+            );
+            return Ok(Some(expression));
+        }
+
+        // parse a return expression
+        if let Some(expression) = self.parse_return_expression()? {
+            debug!(
+                "parse_expression_without_block: return expression:",
+                expression
+            );
             return Ok(Some(expression));
         }
 
@@ -655,7 +676,7 @@ impl DwarfParser {
         Ok(None)
     }
 
-    fn parse_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_expression");
         if let Some(expression) = self.parse_expression_without_block()? {
             debug!("parse_expression: expression without block:", expression);
@@ -677,22 +698,11 @@ impl DwarfParser {
     ///               for | function_call | if |
     ///               list | method_call |print |
     ///               static_method_call | struct
-    fn parse_expression_without_block(
-        &mut self,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_expression_without_block(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_expression_without_block");
 
         let expr = self.parse_simple_expression()?;
         debug!("parse_expression_without_block: simple expression:", expr);
-
-        // parse a print expression
-        if let Some(expression) = self.parse_print_expression()? {
-            debug!(
-                "parse_expression_without_block: print expression:",
-                expression
-            );
-            return Ok(Some(expression));
-        }
 
         if let Some(expr) = &expr {
             // parse a function call
@@ -739,9 +749,7 @@ impl DwarfParser {
     ///               for | function_call | if |
     ///               list | method_call |print |
     ///               static_method_call | struct
-    fn parse_expression_with_block(
-        &mut self,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_expression_with_block(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_expression_with_block");
 
         // parse a block expression
@@ -785,7 +793,7 @@ impl DwarfParser {
     fn parse_field_access(
         &mut self,
         name: &Spanned<Expression>,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    ) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_field_access");
 
         let start = name.1.start;
@@ -839,10 +847,10 @@ impl DwarfParser {
     /// Parse a for loop expression
     ///
     /// for_loop --> FOR expression IN expression expression
-    fn parse_for_loop_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_for_loop_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_for_loop_expression");
 
-        let start = if let Some(tok) = self.previous() {
+        let start = if let Some(tok) = self.peek() {
             tok.1.start
         } else {
             debug!("exit parse_for_loop_expression");
@@ -855,14 +863,14 @@ impl DwarfParser {
         }
 
         debug!("parse_for_loop_expression getting iterator");
-        let iterator = if let Some(expr) = self.parse_expression()? {
-            debug!("parse_for_loop_expression iterator", expr);
-            expr
+        let iterator = if let Some(ident) = self.parse_ident() {
+            debug!("parse_for_loop_expression iterator", ident);
+            ident
         } else {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("IDENT".to_owned())],
                 Some(token.0.to_string()),
             );
             debug!("exit parse_for_loop_expression no iterator");
@@ -912,7 +920,7 @@ impl DwarfParser {
         debug!("exit parse_for_loop_expression");
 
         Ok(Some((
-            Expression::For(Box::new(iterator), Box::new(collection), Box::new(body)),
+            Expression::For(iterator, Box::new(collection), Box::new(body)),
             start..self.previous().unwrap().1.end,
         )))
     }
@@ -923,7 +931,7 @@ impl DwarfParser {
     fn parse_function_call(
         &mut self,
         name: &Spanned<Expression>,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    ) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_function_call");
 
         let start = name.1.start;
@@ -987,10 +995,10 @@ impl DwarfParser {
     /// doesn't really grok types.
     ///
     /// list -> '[' expression,* ']'
-    fn parse_list_literal(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_list_literal(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_list_expression");
 
-        let start = if let Some(tok) = self.previous() {
+        let start = if let Some(tok) = self.peek() {
             tok.1.start
         } else {
             debug!("exit parse_list_expression");
@@ -1066,7 +1074,7 @@ impl DwarfParser {
     /// Parse a print expression
     ///
     /// print_expression -> PRINT
-    fn parse_print_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_print_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_print_expression");
 
         let start = if let Some(tok) = self.peek() {
@@ -1135,7 +1143,7 @@ impl DwarfParser {
     fn parse_static_method_call(
         &mut self,
         name: &Spanned<Expression>,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    ) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_static_method_call");
 
         let start = name.1.start;
@@ -1217,7 +1225,7 @@ impl DwarfParser {
     fn parse_struct_expression(
         &mut self,
         name: &Spanned<Expression>,
-    ) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    ) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_struct_expression");
 
         let start = if let Some(tok) = self.peek() {
@@ -1293,11 +1301,15 @@ impl DwarfParser {
         )))
     }
 
-    /// Parse a Some expression
+    /// Parse a return expression
     ///
-    /// some -> SOME
-    fn parse_some_literal(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
-        debug!("enter parse_some_expression");
+    /// return -> RETURN expression
+    fn parse_return_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_return_expression");
+
+        if !self.match_(&[Token::Return]) {
+            return Ok(None);
+        }
 
         let start = if let Some(tok) = self.peek() {
             tok.1.start
@@ -1305,9 +1317,41 @@ impl DwarfParser {
             return Ok(None);
         };
 
+        let expression = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        debug!("exit parse_return_expression");
+
+        Ok(Some((
+            Expression::Return(Box::new(expression)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a Some expression
+    ///
+    /// some -> SOME
+    fn parse_some_literal(&mut self) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_some_expression");
+
         if !self.match_(&[Token::Some]) {
             return Ok(None);
         }
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
 
         if !self.match_(&[Token::Punct('(')]) {
             let token = &self.previous().unwrap();
@@ -1365,7 +1409,7 @@ impl DwarfParser {
         }
     }
 
-    fn parse_block_expression(&mut self) -> Result<Option<Spanned<Expression>>, Simple<String>> {
+    fn parse_block_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
         debug!("enter parse_block_expression");
 
         let start = if let Some(tok) = self.peek() {
@@ -1403,7 +1447,9 @@ impl DwarfParser {
                     };
                     let err = Simple::expected_input_found(
                         token.1.clone(),
-                        [Some("<statement>".to_owned())],
+                        [Some(
+                            "<statement -> [(LET | EXPRESSION); | EXPRESSION]>".to_owned(),
+                        )],
                         Some(token.0.to_string()),
                     );
 
@@ -1426,7 +1472,7 @@ impl DwarfParser {
         )))
     }
 
-    fn parse_function(&mut self) -> Result<Option<Spanned<Item>>, Simple<String>> {
+    fn parse_function(&mut self) -> Result<Option<Spanned<Item>>> {
         debug!("enter parse_function");
 
         let start = if let Some(tok) = self.peek() {
@@ -1551,7 +1597,7 @@ impl DwarfParser {
     /// Parse a parameter
     ///
     /// param -> ident : type
-    fn parse_param(&mut self) -> Result<Option<(Spanned<String>, Spanned<Type>)>, Simple<String>> {
+    fn parse_param(&mut self) -> Result<Option<(Spanned<String>, Spanned<Type>)>> {
         debug!("enter parse_param");
 
         let name = if let Some(ident) = self.parse_ident() {
@@ -1587,7 +1633,7 @@ impl DwarfParser {
     /// Parse a Type
     ///
     /// type -> boolean | empty | float | integer | option | string | UDT | uuid
-    fn parse_type(&mut self) -> Result<Option<Spanned<Type>>, Simple<String>> {
+    fn parse_type(&mut self) -> Result<Option<Spanned<Type>>> {
         debug!("enter parse_type");
 
         let start = if let Some(tok) = self.peek() {
@@ -1740,7 +1786,7 @@ impl DwarfParser {
     /// Parse a Struct
     ///
     /// struct -> struct IDENT { struct_field* }
-    fn parse_struct(&mut self) -> Result<Option<Spanned<Item>>, Simple<String>> {
+    fn parse_struct(&mut self) -> Result<Option<Spanned<Item>>> {
         let start = if let Some(tok) = self.peek() {
             tok.1.start
         } else {
@@ -1817,7 +1863,7 @@ impl DwarfParser {
     /// Parse a struct field
     ///
     /// field -> IDENT : TYPE
-    fn parse_struct_field(&mut self) -> Result<(Spanned<String>, Spanned<Type>), Simple<String>> {
+    fn parse_struct_field(&mut self) -> Result<(Spanned<String>, Spanned<Type>)> {
         debug!("enter parse_struct_field");
 
         let name = if let Some(ident) = self.parse_ident() {
@@ -1960,7 +2006,7 @@ pub fn parse_line(src: &str) -> Option<Spanned<Statement>> {
 pub fn parse_dwarf(src: &str) -> Vec<Spanned<Item>> {
     let (tokens, errs) = lexer().parse_recovery_verbose(src);
 
-    dbg!(&errs);
+    // dbg!(&errs);
 
     let mut parser = DwarfParser::new(tokens.unwrap());
     let (ast, parse_errs) = parser.parse_program();
@@ -2126,7 +2172,7 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        dbg!(&ast);
+        // dbg!(&ast);
 
         assert!(!ast.is_empty());
     }
@@ -2232,6 +2278,8 @@ mod tests {
         "#;
 
         let ast = parse_dwarf(src);
+
+        // dbg!(&ast);
 
         assert!(!ast.is_empty());
     }
@@ -2341,7 +2389,7 @@ mod tests {
 
         let ast = parse_dwarf(src);
 
-        dbg!(&ast);
+        // dbg!(&ast);
 
         assert!(!ast.is_empty());
     }
@@ -2354,8 +2402,29 @@ mod tests {
 
         let ast = parse_line(src);
 
-        dbg!(&ast);
+        // dbg!(&ast);
 
         assert!(ast.is_some());
+    }
+
+    #[test]
+    fn test_return() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        let src = r#"
+            fn foo() -> int {
+                return 42;
+            }
+
+            fn bar() -> int {
+                return { 42 };
+            }
+        "#;
+
+        let ast = parse_dwarf(src);
+
+        dbg!(&ast);
+
+        assert!(!ast.is_empty());
     }
 }

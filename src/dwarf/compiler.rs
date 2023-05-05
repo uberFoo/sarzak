@@ -15,13 +15,13 @@ use crate::{
         store::ObjectStore as LuDogStore,
         types::{
             Block, Call, Error, ErrorExpression, Expression, ExpressionStatement, Field,
-            FieldExpression, Function, Implementation, Import, IntegerLiteral, LetStatement,
-            Literal, LocalVariable, Parameter, Print, Statement, StaticMethodCall, StringLiteral,
-            StructExpression, Value, ValueEnum, ValueType, Variable, VariableExpression,
-            WoogOption, WoogStruct,
+            FieldExpression, ForLoop, Function, Implementation, Import, IntegerLiteral,
+            LetStatement, Literal, LocalVariable, Parameter, Print, Statement, StaticMethodCall,
+            StringLiteral, StructExpression, Value, ValueEnum, ValueType, Variable,
+            VariableExpression, WoogOption, WoogStruct,
         },
         Argument, BooleanLiteral, FieldAccess, FloatLiteral, List, MethodCall, Reference,
-        ResultStatement,
+        ResultStatement, XReturn,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
@@ -559,6 +559,38 @@ fn inter_expression(
             ValueType::new_ty(&Ty::new_integer(), lu_dog),
         ),
         //
+        // For Loop
+        //
+        ParserExpression::For(iter, collection, body) => {
+            debug!("ParserExpresssion::For");
+            let iter = iter.0.clone();
+
+            let collection = Arc::new(RwLock::new(collection.0.clone()));
+            let (collection, collection_ty) =
+                inter_expression(&collection, block, lu_dog, models, sarzak);
+
+            let stmts = if let ParserExpression::Block(stmts) = &body.0 {
+                stmts
+            } else {
+                panic!("Expected a block expression");
+            };
+
+            let body = Arc::new(RwLock::new((&body.0).to_owned()));
+            let (body, body_ty) = inter_expression(&body, block, lu_dog, models, sarzak);
+
+            let body = if let Expression::Block(body) = body.read().unwrap().clone() {
+                body
+            } else {
+                panic!("Expected a block expression");
+            };
+            let body = lu_dog.exhume_block(&body).unwrap();
+
+            let for_loop = ForLoop::new(iter, &body, &collection, lu_dog);
+            let expr = Expression::new_for_loop(&for_loop, lu_dog);
+
+            (expr, ValueType::new_empty(lu_dog))
+        }
+        //
         // FunctionCall
         //
         ParserExpression::FunctionCall(func, params) => {
@@ -780,6 +812,21 @@ fn inter_expression(
             (Expression::new_print(&print, lu_dog), ty)
         }
         //
+        // Return
+        //
+        ParserExpression::Return(expr) => {
+            let (expr, ty) = inter_expression(
+                &Arc::new(RwLock::new((*expr).0.clone())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+            let ret = XReturn::new(&expr, lu_dog);
+
+            (Expression::new_x_return(&ret, lu_dog), ty)
+        }
+        //
         // StaticMethodCall
         //
         ParserExpression::StaticMethodCall(ty, (method, _), params) => {
@@ -876,7 +923,7 @@ fn inter_expression(
         //
         ParserExpression::Struct(ty, fields) => {
             let name = if let Type::UserType((obj, _)) = ty {
-                obj.de_sanitize().to_owned()
+                obj
             } else {
                 panic!("I don't think that we should ever see anything other than a user type here: {:?}", ty);
             };
@@ -933,7 +980,7 @@ fn inter_import(
     _alias: &Option<(String, Range<usize>)>,
     _lu_dog: &mut LuDogStore,
 ) {
-    error!("Do somethnig with the use statement");
+    error!("Do something with the use statement");
     // let mut path_root = path;
     // path_root.pop().expect("Path root not found");
     // let path_root = path_root.join("::");

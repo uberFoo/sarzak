@@ -1,6 +1,5 @@
 //! A blank domain
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::lu_dog-module-definition-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-module-definition"}}}
 pub mod argument;
 pub mod block;
 pub mod boolean_literal;
@@ -16,6 +15,7 @@ pub mod field;
 pub mod field_access;
 pub mod field_expression;
 pub mod float_literal;
+pub mod for_loop;
 pub mod function;
 pub mod function_call;
 pub mod implementation;
@@ -45,6 +45,8 @@ pub mod variable;
 pub mod variable_expression;
 pub mod woog_option;
 pub mod woog_struct;
+pub mod x_if;
+pub mod x_return;
 pub mod z_none;
 pub mod z_object_store;
 pub mod z_some;
@@ -67,6 +69,7 @@ pub use crate::v2::lu_dog::field::Field;
 pub use crate::v2::lu_dog::field_access::FieldAccess;
 pub use crate::v2::lu_dog::field_expression::FieldExpression;
 pub use crate::v2::lu_dog::float_literal::FloatLiteral;
+pub use crate::v2::lu_dog::for_loop::ForLoop;
 pub use crate::v2::lu_dog::function::Function;
 pub use crate::v2::lu_dog::function_call::FunctionCall;
 pub use crate::v2::lu_dog::function_call::FUNCTION_CALL;
@@ -106,7 +109,8 @@ pub use crate::v2::lu_dog::variable_expression::VariableExpression;
 pub use crate::v2::lu_dog::woog_option::WoogOption;
 pub use crate::v2::lu_dog::woog_option::WoogOptionEnum;
 pub use crate::v2::lu_dog::woog_struct::WoogStruct;
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+pub use crate::v2::lu_dog::x_if::XIf;
+pub use crate::v2::lu_dog::x_return::XReturn;
 pub use crate::v2::lu_dog::z_none::ZNone;
 pub use crate::v2::lu_dog::z_none::Z_NONE;
 pub use crate::v2::lu_dog::z_object_store::ZObjectStore;

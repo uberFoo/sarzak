@@ -10,6 +10,7 @@ use crate::v2::lu_dog::types::error_expression::ErrorExpression;
 use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
+use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::print::Print;
@@ -17,6 +18,8 @@ use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::variable_expression::VariableExpression;
+use crate::v2::lu_dog::types::x_if::XIf;
+use crate::v2::lu_dog::types::x_return::XReturn;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -34,8 +37,11 @@ pub enum Expression {
     Call(Uuid),
     ErrorExpression(Uuid),
     FieldAccess(Uuid),
+    ForLoop(Uuid),
+    XIf(Uuid),
     Literal(Uuid),
     Print(Uuid),
+    XReturn(Uuid),
     StructExpression(Uuid),
     VariableExpression(Uuid),
 }
@@ -99,6 +105,31 @@ impl Expression {
         }
     }
 
+    /// Create a new instance of Expression::ForLoop
+    pub fn new_for_loop(
+        for_loop: &Arc<RwLock<ForLoop>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(for_loop) = store.exhume_expression(&for_loop.read().unwrap().id) {
+            for_loop
+        } else {
+            let new = Arc::new(RwLock::new(Self::ForLoop(for_loop.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::XIf
+    pub fn new_x_if(x_if: &Arc<RwLock<XIf>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        if let Some(x_if) = store.exhume_expression(&x_if.read().unwrap().id) {
+            x_if
+        } else {
+            let new = Arc::new(RwLock::new(Self::XIf(x_if.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
     /// Create a new instance of Expression::Literal
     pub fn new_literal(
         literal: &Arc<RwLock<Literal>>,
@@ -119,6 +150,20 @@ impl Expression {
             print
         } else {
             let new = Arc::new(RwLock::new(Self::Print(print.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::XReturn
+    pub fn new_x_return(
+        x_return: &Arc<RwLock<XReturn>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(x_return) = store.exhume_expression(&x_return.read().unwrap().id) {
+            x_return
+        } else {
+            let new = Arc::new(RwLock::new(Self::XReturn(x_return.read().unwrap().id)));
             store.inter_expression(new.clone());
             new
         }
@@ -168,8 +213,11 @@ impl Expression {
             Expression::Call(id) => *id,
             Expression::ErrorExpression(id) => *id,
             Expression::FieldAccess(id) => *id,
+            Expression::ForLoop(id) => *id,
+            Expression::XIf(id) => *id,
             Expression::Literal(id) => *id,
             Expression::Print(id) => *id,
+            Expression::XReturn(id) => *id,
             Expression::StructExpression(id) => *id,
             Expression::VariableExpression(id) => *id,
         }
@@ -231,8 +279,6 @@ impl Expression {
             .filter_map(|field_access| {
                 if field_access.read().unwrap().expression == self.id() {
                     Some(field_access)
-                // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-                // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-function_call"}}}
                 } else {
                     None
                 }
@@ -251,6 +297,36 @@ impl Expression {
             .filter_map(|field_expression| {
                 if field_expression.read().unwrap().expression == self.id() {
                     Some(field_expression)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
+    /// Navigate to [`ForLoop`] across R42(1-M)
+    pub fn r42_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ForLoop>>> {
+        store
+            .iter_for_loop()
+            .filter_map(|for_loop| {
+                if for_loop.read().unwrap().expression == self.id() {
+                    Some(for_loop)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R44(1-M)
+    pub fn r44_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
+        store
+            .iter_x_if()
+            .filter_map(|x_if| {
+                if x_if.read().unwrap().test == self.id() {
+                    Some(x_if)
                 } else {
                     None
                 }
@@ -299,6 +375,21 @@ impl Expression {
             .filter_map(|result_statement| {
                 if result_statement.read().unwrap().expression == self.id() {
                     Some(result_statement)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_return"}}}
+    /// Navigate to [`XReturn`] across R45(1-M)
+    pub fn r45_x_return<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XReturn>>> {
+        store
+            .iter_x_return()
+            .filter_map(|x_return| {
+                if x_return.read().unwrap().expression == self.id() {
+                    Some(x_return)
                 } else {
                     None
                 }
