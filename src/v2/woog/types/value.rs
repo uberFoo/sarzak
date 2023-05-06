@@ -6,7 +6,6 @@ use crate::v2::woog::types::access::Access;
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::grace_type::GraceType;
 use crate::v2::woog::types::variable::Variable;
-use crate::v2::woog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;

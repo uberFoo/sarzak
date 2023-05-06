@@ -8,7 +8,6 @@ use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
-use crate::v2::lu_dog::types::variable::VariableEnum;
 use crate::v2::lu_dog::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
