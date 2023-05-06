@@ -39,7 +39,7 @@ impl Argument {
     ) -> Arc<RwLock<Argument>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Argument {
-            id: id,
+            id,
             next: next.map(|argument| argument.read().unwrap().id),
             function: function.read().unwrap().id,
             expression: expression.read().unwrap().id(),

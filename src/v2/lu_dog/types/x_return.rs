@@ -34,7 +34,7 @@ impl XReturn {
     ) -> Arc<RwLock<XReturn>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XReturn {
-            id: id,
+            id,
             expression: expression.read().unwrap().id(),
         }));
         store.inter_x_return(new.clone());

@@ -77,13 +77,7 @@ impl GraceType {
     pub fn r29_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&Field> {
         store
             .iter_field()
-            .filter_map(|field| {
-                if field.ty == self.id() {
-                    Some(field)
-                } else {
-                    None
-                }
-            })
+            .filter(|field| field.ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -92,13 +86,7 @@ impl GraceType {
     pub fn r20_woog_option<'a>(&'a self, store: &'a WoogStore) -> Vec<&WoogOption> {
         store
             .iter_woog_option()
-            .filter_map(|woog_option| {
-                if woog_option.ty == self.id() {
-                    Some(woog_option)
-                } else {
-                    None
-                }
-            })
+            .filter(|woog_option| woog_option.ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -107,13 +95,7 @@ impl GraceType {
     pub fn r3_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
         store
             .iter_value()
-            .filter_map(|value| {
-                if value.ty == self.id() {
-                    Some(value)
-                } else {
-                    None
-                }
-            })
+            .filter(|value| value.ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

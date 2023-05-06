@@ -19,5 +19,11 @@ impl One {
         ONE
     }
 }
+
+impl Default for One {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -42,7 +42,7 @@ impl AssociativeUi {
     ) -> AssociativeUi {
         let id = Uuid::new_v4();
         let new = AssociativeUi {
-            id: id,
+            id,
             other: other.id,
             one: one.id,
             middle: middle.id,

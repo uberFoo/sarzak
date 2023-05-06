@@ -19,5 +19,11 @@ impl Top {
         TOP
     }
 }
+
+impl Default for Top {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

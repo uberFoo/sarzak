@@ -30,10 +30,7 @@ impl StringLiteral {
     /// Inter a new 'String Literal' in the store, and return it's `id`.
     pub fn new(value: String, store: &mut LuDogStore) -> Arc<RwLock<StringLiteral>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(StringLiteral {
-            id: id,
-            value: value,
-        }));
+        let new = Arc::new(RwLock::new(StringLiteral { id, value }));
         store.inter_string_literal(new.clone());
         new
     }

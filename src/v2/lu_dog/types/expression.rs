@@ -246,13 +246,7 @@ impl Expression {
     pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         store
             .iter_argument()
-            .filter_map(|argument| {
-                if argument.read().unwrap().expression == self.id() {
-                    Some(argument)
-                } else {
-                    None
-                }
-            })
+            .filter(|argument| argument.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -279,12 +273,8 @@ impl Expression {
     ) -> Vec<Arc<RwLock<ExpressionStatement>>> {
         store
             .iter_expression_statement()
-            .filter_map(|expression_statement| {
-                if expression_statement.read().unwrap().expression == self.id() {
-                    Some(expression_statement)
-                } else {
-                    None
-                }
+            .filter(|expression_statement| {
+                expression_statement.read().unwrap().expression == self.id()
             })
             .collect()
     }
@@ -294,13 +284,7 @@ impl Expression {
     pub fn r27_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<FieldAccess>>> {
         store
             .iter_field_access()
-            .filter_map(|field_access| {
-                if field_access.read().unwrap().expression == self.id() {
-                    Some(field_access)
-                } else {
-                    None
-                }
-            })
+            .filter(|field_access| field_access.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -312,13 +296,7 @@ impl Expression {
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
         store
             .iter_field_expression()
-            .filter_map(|field_expression| {
-                if field_expression.read().unwrap().expression == self.id() {
-                    Some(field_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|field_expression| field_expression.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -327,13 +305,7 @@ impl Expression {
     pub fn r42_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ForLoop>>> {
         store
             .iter_for_loop()
-            .filter_map(|for_loop| {
-                if for_loop.read().unwrap().expression == self.id() {
-                    Some(for_loop)
-                } else {
-                    None
-                }
-            })
+            .filter(|for_loop| for_loop.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -342,13 +314,7 @@ impl Expression {
     pub fn r44_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
         store
             .iter_x_if()
-            .filter_map(|x_if| {
-                if x_if.read().unwrap().test == self.id() {
-                    Some(x_if)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_if| x_if.read().unwrap().test == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -387,13 +353,7 @@ impl Expression {
     pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Operator>>> {
         store
             .iter_operator()
-            .filter_map(|operator| {
-                if operator.read().unwrap().lhs == self.id() {
-                    Some(operator)
-                } else {
-                    None
-                }
-            })
+            .filter(|operator| operator.read().unwrap().lhs == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -402,13 +362,7 @@ impl Expression {
     pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Print>>> {
         store
             .iter_print()
-            .filter_map(|print| {
-                if print.read().unwrap().expression == self.id() {
-                    Some(print)
-                } else {
-                    None
-                }
-            })
+            .filter(|print| print.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -420,13 +374,7 @@ impl Expression {
     ) -> Vec<Arc<RwLock<ResultStatement>>> {
         store
             .iter_result_statement()
-            .filter_map(|result_statement| {
-                if result_statement.read().unwrap().expression == self.id() {
-                    Some(result_statement)
-                } else {
-                    None
-                }
-            })
+            .filter(|result_statement| result_statement.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -435,13 +383,7 @@ impl Expression {
     pub fn r45_x_return<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XReturn>>> {
         store
             .iter_x_return()
-            .filter_map(|x_return| {
-                if x_return.read().unwrap().expression == self.id() {
-                    Some(x_return)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_return| x_return.read().unwrap().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -29,7 +29,7 @@ impl VariableExpression {
     /// Inter a new 'Variable Expression' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut LuDogStore) -> Arc<RwLock<VariableExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(VariableExpression { id: id, name: name }));
+        let new = Arc::new(RwLock::new(VariableExpression { id, name }));
         store.inter_variable_expression(new.clone());
         new
     }

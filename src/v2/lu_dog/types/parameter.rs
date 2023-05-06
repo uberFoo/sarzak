@@ -41,7 +41,7 @@ impl Parameter {
     ) -> Arc<RwLock<Parameter>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Parameter {
-            id: id,
+            id,
             function: function.read().unwrap().id,
             next: next.map(|parameter| parameter.read().unwrap().id),
         }));

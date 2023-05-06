@@ -27,5 +27,11 @@ impl Borrowed {
         BORROWED
     }
 }
+
+impl Default for Borrowed {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

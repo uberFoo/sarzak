@@ -31,7 +31,7 @@ impl List {
     pub fn new(ty: &Arc<RwLock<ValueType>>, store: &mut LuDogStore) -> Arc<RwLock<List>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(List {
-            id: id,
+            id,
             ty: ty.read().unwrap().id(),
         }));
         store.inter_list(new.clone());

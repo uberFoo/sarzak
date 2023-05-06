@@ -34,7 +34,7 @@ impl ExpressionStatement {
     ) -> Arc<RwLock<ExpressionStatement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ExpressionStatement {
-            id: id,
+            id,
             expression: expression.read().unwrap().id(),
         }));
         store.inter_expression_statement(new.clone());

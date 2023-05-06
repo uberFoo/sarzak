@@ -29,7 +29,7 @@ impl ErrorExpression {
     /// Inter a new 'Error Expression' in the store, and return it's `id`.
     pub fn new(span: String, store: &mut LuDogStore) -> Arc<RwLock<ErrorExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(ErrorExpression { id: id, span: span }));
+        let new = Arc::new(RwLock::new(ErrorExpression { id, span }));
         store.inter_error_expression(new.clone());
         new
     }

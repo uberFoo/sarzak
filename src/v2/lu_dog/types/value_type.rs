@@ -214,13 +214,7 @@ impl ValueType {
     pub fn r5_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Field>>> {
         store
             .iter_field()
-            .filter_map(|field| {
-                if field.read().unwrap().ty == self.id() {
-                    Some(field)
-                } else {
-                    None
-                }
-            })
+            .filter(|field| field.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -229,13 +223,7 @@ impl ValueType {
     pub fn r10_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Function>>> {
         store
             .iter_function()
-            .filter_map(|function| {
-                if function.read().unwrap().return_type == self.id() {
-                    Some(function)
-                } else {
-                    None
-                }
-            })
+            .filter(|function| function.read().unwrap().return_type == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -244,13 +232,7 @@ impl ValueType {
     pub fn r36_list<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<List>>> {
         store
             .iter_list()
-            .filter_map(|list| {
-                if list.read().unwrap().ty == self.id() {
-                    Some(list)
-                } else {
-                    None
-                }
-            })
+            .filter(|list| list.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -259,13 +241,7 @@ impl ValueType {
     pub fn r2_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogOption>>> {
         store
             .iter_woog_option()
-            .filter_map(|woog_option| {
-                if woog_option.read().unwrap().ty == self.id() {
-                    Some(woog_option)
-                } else {
-                    None
-                }
-            })
+            .filter(|woog_option| woog_option.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -274,13 +250,7 @@ impl ValueType {
     pub fn r35_reference<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Reference>>> {
         store
             .iter_reference()
-            .filter_map(|reference| {
-                if reference.read().unwrap().ty == self.id() {
-                    Some(reference)
-                } else {
-                    None
-                }
-            })
+            .filter(|reference| reference.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -289,13 +259,7 @@ impl ValueType {
     pub fn r24_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
         store
             .iter_value()
-            .filter_map(|value| {
-                if value.read().unwrap().ty == self.id() {
-                    Some(value)
-                } else {
-                    None
-                }
-            })
+            .filter(|value| value.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

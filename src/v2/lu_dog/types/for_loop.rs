@@ -40,8 +40,8 @@ impl ForLoop {
     ) -> Arc<RwLock<ForLoop>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ForLoop {
-            id: id,
-            ident: ident,
+            id,
+            ident,
             block: block.read().unwrap().id,
             expression: expression.read().unwrap().id(),
         }));

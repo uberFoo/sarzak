@@ -28,7 +28,7 @@ impl Point {
     /// Inter a new 'Point' in the store, and return it's `id`.
     pub fn new(x: i64, y: i64, store: &mut DrawingStore) -> Point {
         let id = Uuid::new_v4();
-        let new = Point { id: id, x: x, y: y };
+        let new = Point { id, x, y };
         store.inter_point(new.clone());
         new
     }

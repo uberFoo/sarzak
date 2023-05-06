@@ -102,13 +102,7 @@ impl Call {
     pub fn r28_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         store
             .iter_argument()
-            .filter_map(|argument| {
-                if argument.read().unwrap().function == self.id {
-                    Some(argument)
-                } else {
-                    None
-                }
-            })
+            .filter(|argument| argument.read().unwrap().function == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

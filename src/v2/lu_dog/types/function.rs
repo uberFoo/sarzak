@@ -47,8 +47,8 @@ impl Function {
     ) -> Arc<RwLock<Function>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Function {
-            id: id,
-            name: name,
+            id,
+            name,
             block: block.read().unwrap().id,
             impl_block: impl_block.map(|implementation| implementation.read().unwrap().id),
             return_type: return_type.read().unwrap().id(),
@@ -86,13 +86,7 @@ impl Function {
     pub fn r13_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Parameter>>> {
         store
             .iter_parameter()
-            .filter_map(|parameter| {
-                if parameter.read().unwrap().function == self.id {
-                    Some(parameter)
-                } else {
-                    None
-                }
-            })
+            .filter(|parameter| parameter.read().unwrap().function == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

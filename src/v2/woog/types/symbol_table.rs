@@ -30,7 +30,7 @@ impl SymbolTable {
     pub fn new(block: &Block, store: &mut WoogStore) -> SymbolTable {
         let id = Uuid::new_v4();
         let new = SymbolTable {
-            id: id,
+            id,
             block: block.id,
         };
         store.inter_symbol_table(new.clone());
@@ -48,13 +48,7 @@ impl SymbolTable {
     pub fn r20_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
         store
             .iter_variable()
-            .filter_map(|variable| {
-                if variable.symbol_table == self.id {
-                    Some(variable)
-                } else {
-                    None
-                }
-            })
+            .filter(|variable| variable.symbol_table == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

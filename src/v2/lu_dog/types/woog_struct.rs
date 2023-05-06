@@ -43,8 +43,8 @@ impl WoogStruct {
     ) -> Arc<RwLock<WoogStruct>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogStruct {
-            id: id,
-            name: name,
+            id,
+            name,
             object: object.map(|object| object.id),
         }));
         store.inter_woog_struct(new.clone());
@@ -65,13 +65,7 @@ impl WoogStruct {
     pub fn r7_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Field>>> {
         store
             .iter_field()
-            .filter_map(|field| {
-                if field.read().unwrap().model == self.id {
-                    Some(field)
-                } else {
-                    None
-                }
-            })
+            .filter(|field| field.read().unwrap().model == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -98,13 +92,7 @@ impl WoogStruct {
     ) -> Vec<Arc<RwLock<StructExpression>>> {
         store
             .iter_struct_expression()
-            .filter_map(|struct_expression| {
-                if struct_expression.read().unwrap().woog_struct == self.id {
-                    Some(struct_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|struct_expression| struct_expression.read().unwrap().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -42,8 +42,8 @@ impl XLet {
     ) -> XLet {
         let id = Uuid::new_v4();
         let new = XLet {
-            id: id,
-            value: value,
+            id,
+            value,
             expression: expression.id(),
             variable: variable.id,
         };

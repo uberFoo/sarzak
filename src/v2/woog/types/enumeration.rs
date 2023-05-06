@@ -30,7 +30,7 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Enumeration {
         let id = Uuid::new_v4();
-        let new = Enumeration { id: id, name: name };
+        let new = Enumeration { id, name };
         store.inter_enumeration(new.clone());
         new
     }

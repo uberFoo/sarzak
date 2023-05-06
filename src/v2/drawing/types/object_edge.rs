@@ -32,7 +32,7 @@ impl ObjectEdge {
     pub fn new(edge: &Edge, oui_id: &ObjectUi, store: &mut DrawingStore) -> ObjectEdge {
         let id = Uuid::new_v4();
         let new = ObjectEdge {
-            id: id,
+            id,
             edge: edge.id(),
             oui_id: oui_id.id,
         };

@@ -30,7 +30,7 @@ impl Local {
     /// Inter a new 'Local' in the store, and return it's `id`.
     pub fn new(seed: Uuid, store: &mut WoogStore) -> Local {
         let id = Uuid::new_v4();
-        let new = Local { id: id, seed: seed };
+        let new = Local { id, seed };
         store.inter_local(new.clone());
         new
     }

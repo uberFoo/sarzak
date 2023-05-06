@@ -39,5 +39,11 @@ impl SString {
         S_STRING
     }
 }
+
+impl Default for SString {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

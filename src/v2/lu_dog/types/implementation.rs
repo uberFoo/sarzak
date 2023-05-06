@@ -37,7 +37,7 @@ impl Implementation {
     ) -> Arc<RwLock<Implementation>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Implementation {
-            id: id,
+            id,
             model_type: model_type.read().unwrap().id,
         }));
         store.inter_implementation(new.clone());

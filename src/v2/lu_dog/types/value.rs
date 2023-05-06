@@ -95,13 +95,7 @@ impl Value {
     pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ZSome>>> {
         store
             .iter_z_some()
-            .filter_map(|z_some| {
-                if z_some.read().unwrap().inner == self.id {
-                    Some(z_some)
-                } else {
-                    None
-                }
-            })
+            .filter(|z_some| z_some.read().unwrap().inner == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

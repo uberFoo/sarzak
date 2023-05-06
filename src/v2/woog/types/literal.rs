@@ -25,5 +25,11 @@ impl Literal {
         LITERAL
     }
 }
+
+impl Default for Literal {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

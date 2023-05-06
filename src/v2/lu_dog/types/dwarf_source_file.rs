@@ -31,10 +31,7 @@ impl DwarfSourceFile {
     /// Inter a new 'Dwarf Source File' in the store, and return it's `id`.
     pub fn new(source: String, store: &mut LuDogStore) -> Arc<RwLock<DwarfSourceFile>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(DwarfSourceFile {
-            id: id,
-            source: source,
-        }));
+        let new = Arc::new(RwLock::new(DwarfSourceFile { id, source }));
         store.inter_dwarf_source_file(new.clone());
         new
     }
@@ -44,13 +41,7 @@ impl DwarfSourceFile {
     pub fn r25_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
         store
             .iter_item()
-            .filter_map(|item| {
-                if item.read().unwrap().source == self.id {
-                    Some(item)
-                } else {
-                    None
-                }
-            })
+            .filter(|item| item.read().unwrap().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

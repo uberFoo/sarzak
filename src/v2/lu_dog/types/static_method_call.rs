@@ -34,11 +34,7 @@ impl StaticMethodCall {
     /// Inter a new 'Static Method Call' in the store, and return it's `id`.
     pub fn new(func: String, ty: String, store: &mut LuDogStore) -> Arc<RwLock<StaticMethodCall>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(StaticMethodCall {
-            func: func,
-            id: id,
-            ty: ty,
-        }));
+        let new = Arc::new(RwLock::new(StaticMethodCall { func, id, ty }));
         store.inter_static_method_call(new.clone());
         new
     }

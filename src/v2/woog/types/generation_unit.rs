@@ -31,7 +31,7 @@ impl GenerationUnit {
     ) -> GenerationUnit {
         let id = Uuid::new_v4();
         let new = GenerationUnit {
-            id: id,
+            id,
             object: object.id,
             creation_time: creation_time.id,
         };

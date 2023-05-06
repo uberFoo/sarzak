@@ -61,10 +61,10 @@ impl Anchor {
     ) -> Arc<RwLock<Anchor>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Anchor {
-            id: id,
-            offset: offset,
-            x_offset: x_offset,
-            y_offset: y_offset,
+            id,
+            offset,
+            x_offset,
+            y_offset,
             edge: edge.read().unwrap().id(),
             glyph: glyph.read().unwrap().id,
             x_box: x_box.read().unwrap().id,

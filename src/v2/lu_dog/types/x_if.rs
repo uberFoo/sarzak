@@ -41,7 +41,7 @@ impl XIf {
     ) -> Arc<RwLock<XIf>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XIf {
-            id: id,
+            id,
             false_block: false_block.map(|block| block.read().unwrap().id),
             true_block: true_block.read().unwrap().id,
             test: test.read().unwrap().id(),

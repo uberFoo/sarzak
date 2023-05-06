@@ -47,11 +47,11 @@ impl XBox {
     ) -> Arc<RwLock<XBox>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XBox {
-            height: height,
-            id: id,
-            width: width,
-            x: x,
-            y: y,
+            height,
+            id,
+            width,
+            x,
+            y,
             object: object.id,
         }));
         store.inter_x_box(new.clone());

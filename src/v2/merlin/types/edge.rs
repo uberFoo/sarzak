@@ -64,13 +64,7 @@ impl Edge {
     pub fn r9_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
         store
             .iter_anchor()
-            .filter_map(|anchor| {
-                if anchor.read().unwrap().edge == self.id() {
-                    Some(anchor)
-                } else {
-                    None
-                }
-            })
+            .filter(|anchor| anchor.read().unwrap().edge == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

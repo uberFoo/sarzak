@@ -35,7 +35,7 @@ impl ResultStatement {
     ) -> Arc<RwLock<ResultStatement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ResultStatement {
-            id: id,
+            id,
             expression: expression.read().unwrap().id(),
         }));
         store.inter_result_statement(new.clone());

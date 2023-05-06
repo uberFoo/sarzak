@@ -25,5 +25,11 @@ impl Public {
         PUBLIC
     }
 }
+
+impl Default for Public {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

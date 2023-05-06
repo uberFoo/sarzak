@@ -38,8 +38,8 @@ impl StructExpression {
     ) -> Arc<RwLock<StructExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(StructExpression {
-            bug: bug,
-            id: id,
+            bug,
+            id,
             woog_struct: woog_struct.read().unwrap().id,
         }));
         store.inter_struct_expression(new.clone());
@@ -60,13 +60,7 @@ impl StructExpression {
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
         store
             .iter_field_expression()
-            .filter_map(|field_expression| {
-                if field_expression.read().unwrap().woog_struct == self.id {
-                    Some(field_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|field_expression| field_expression.read().unwrap().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

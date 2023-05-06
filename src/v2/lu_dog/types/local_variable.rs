@@ -31,7 +31,7 @@ impl LocalVariable {
     /// Inter a new 'Local Variable' in the store, and return it's `id`.
     pub fn new(bug: Uuid, store: &mut LuDogStore) -> Arc<RwLock<LocalVariable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(LocalVariable { bug: bug, id: id }));
+        let new = Arc::new(RwLock::new(LocalVariable { bug, id }));
         store.inter_local_variable(new.clone());
         new
     }

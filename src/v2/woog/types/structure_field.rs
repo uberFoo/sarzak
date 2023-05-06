@@ -37,7 +37,7 @@ impl StructureField {
     ) -> StructureField {
         let id = Uuid::new_v4();
         let new = StructureField {
-            id: id,
+            id,
             next: next.map(|structure_field| structure_field.id),
             woog_struct: woog_struct.id,
             field: field.id,

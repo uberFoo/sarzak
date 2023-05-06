@@ -23,5 +23,11 @@ impl ZNone {
         Z_NONE
     }
 }
+
+impl Default for ZNone {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

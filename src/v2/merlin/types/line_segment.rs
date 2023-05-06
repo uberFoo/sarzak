@@ -34,7 +34,7 @@ impl LineSegment {
     pub fn new(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<LineSegment>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LineSegment {
-            id: id,
+            id,
             line: line.read().unwrap().id,
         }));
         store.inter_line_segment(new.clone());

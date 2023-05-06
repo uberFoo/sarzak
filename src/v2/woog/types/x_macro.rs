@@ -26,5 +26,11 @@ impl XMacro {
         X_MACRO
     }
 }
+
+impl Default for XMacro {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -33,7 +33,7 @@ impl Access {
     pub fn new(ownership: &Ownership, visibility: &Visibility, store: &mut WoogStore) -> Access {
         let id = Uuid::new_v4();
         let new = Access {
-            id: id,
+            id,
             ownership: ownership.id(),
             visibility: visibility.id(),
         };
@@ -58,13 +58,7 @@ impl Access {
     pub fn r16_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
         store
             .iter_value()
-            .filter_map(|value| {
-                if value.access == self.id {
-                    Some(value)
-                } else {
-                    None
-                }
-            })
+            .filter(|value| value.access == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

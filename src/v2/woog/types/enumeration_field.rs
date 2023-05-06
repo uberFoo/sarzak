@@ -30,7 +30,7 @@ impl EnumerationField {
     pub fn new(field: &Enumeration, woog_enum: &Field, store: &mut WoogStore) -> EnumerationField {
         let id = Uuid::new_v4();
         let new = EnumerationField {
-            id: id,
+            id,
             field: field.id,
             woog_enum: woog_enum.id,
         };

@@ -40,7 +40,7 @@ impl LetStatement {
     ) -> Arc<RwLock<LetStatement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LetStatement {
-            id: id,
+            id,
             expression: expression.read().unwrap().id(),
             variable: variable.read().unwrap().id,
         }));

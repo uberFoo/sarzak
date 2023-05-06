@@ -40,7 +40,7 @@ impl BinaryUi {
     ) -> BinaryUi {
         let id = Uuid::new_v4();
         let new = BinaryUi {
-            id: id,
+            id,
             to: to.id,
             from: from.id,
             binary_id: binary_id.id,

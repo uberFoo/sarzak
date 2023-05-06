@@ -38,7 +38,7 @@ impl Line {
     pub fn new(relationship: &Relationship, store: &mut MerlinStore) -> Arc<RwLock<Line>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Line {
-            id: id,
+            id,
             relationship: relationship.id(),
         }));
         store.inter_line(new.clone());
@@ -94,13 +94,7 @@ impl Line {
     ) -> Vec<Arc<RwLock<RelationshipPhrase>>> {
         store
             .iter_relationship_phrase()
-            .filter_map(|relationship_phrase| {
-                if relationship_phrase.read().unwrap().line == self.id {
-                    Some(relationship_phrase)
-                } else {
-                    None
-                }
-            })
+            .filter(|relationship_phrase| relationship_phrase.read().unwrap().line == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

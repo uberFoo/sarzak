@@ -23,5 +23,11 @@ impl ItemStatement {
         ITEM_STATEMENT
     }
 }
+
+impl Default for ItemStatement {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

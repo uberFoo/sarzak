@@ -29,10 +29,7 @@ impl FloatLiteral {
     /// Inter a new 'Float Literal' in the store, and return it's `id`.
     pub fn new(value: f64, store: &mut LuDogStore) -> Arc<RwLock<FloatLiteral>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(FloatLiteral {
-            id: id,
-            value: value,
-        }));
+        let new = Arc::new(RwLock::new(FloatLiteral { id, value }));
         store.inter_float_literal(new.clone());
         new
     }

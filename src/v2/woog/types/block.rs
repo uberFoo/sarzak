@@ -31,7 +31,7 @@ impl Block {
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(seed: Uuid, store: &mut WoogStore) -> Block {
         let id = Uuid::new_v4();
-        let new = Block { id: id, seed: seed };
+        let new = Block { id, seed };
         store.inter_block(new.clone());
         new
     }
@@ -53,13 +53,7 @@ impl Block {
     pub fn r12_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
         store
             .iter_statement()
-            .filter_map(|statement| {
-                if statement.block == self.id {
-                    Some(statement)
-                } else {
-                    None
-                }
-            })
+            .filter(|statement| statement.block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -46,7 +46,7 @@ impl ObjectMethod {
     pub fn new(block: &Block, object: &Object, store: &mut WoogStore) -> ObjectMethod {
         let id = Uuid::new_v4();
         let new = ObjectMethod {
-            id: id,
+            id,
             block: block.id,
             object: object.id,
         };
@@ -71,13 +71,7 @@ impl ObjectMethod {
     pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<&Call> {
         store
             .iter_call()
-            .filter_map(|call| {
-                if call.method == self.id {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
+            .filter(|call| call.method == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

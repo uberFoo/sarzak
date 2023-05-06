@@ -40,8 +40,8 @@ impl FieldExpression {
     ) -> Arc<RwLock<FieldExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(FieldExpression {
-            id: id,
-            name: name,
+            id,
+            name,
             expression: expression.read().unwrap().id(),
             woog_struct: woog_struct.read().unwrap().id,
         }));

@@ -31,7 +31,7 @@ impl MethodCall {
     /// Inter a new 'Method Call' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut LuDogStore) -> Arc<RwLock<MethodCall>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(MethodCall { id: id, name: name }));
+        let new = Arc::new(RwLock::new(MethodCall { id, name }));
         store.inter_method_call(new.clone());
         new
     }

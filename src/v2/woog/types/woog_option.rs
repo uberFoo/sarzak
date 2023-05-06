@@ -28,10 +28,7 @@ impl WoogOption {
     /// Inter a new 'Option' in the store, and return it's `id`.
     pub fn new(ty: &GraceType, store: &mut WoogStore) -> WoogOption {
         let id = Uuid::new_v4();
-        let new = WoogOption {
-            id: id,
-            ty: ty.id(),
-        };
+        let new = WoogOption { id, ty: ty.id() };
         store.inter_woog_option(new.clone());
         new
     }

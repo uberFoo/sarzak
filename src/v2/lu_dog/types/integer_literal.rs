@@ -29,10 +29,7 @@ impl IntegerLiteral {
     /// Inter a new 'Integer Literal' in the store, and return it's `id`.
     pub fn new(value: i64, store: &mut LuDogStore) -> Arc<RwLock<IntegerLiteral>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(IntegerLiteral {
-            id: id,
-            value: value,
-        }));
+        let new = Arc::new(RwLock::new(IntegerLiteral { id, value }));
         store.inter_integer_literal(new.clone());
         new
     }

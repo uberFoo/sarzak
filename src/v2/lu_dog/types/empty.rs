@@ -26,5 +26,11 @@ impl Empty {
         EMPTY
     }
 }
+
+impl Default for Empty {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

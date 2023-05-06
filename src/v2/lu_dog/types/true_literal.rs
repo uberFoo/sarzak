@@ -25,5 +25,11 @@ impl TrueLiteral {
         TRUE_LITERAL
     }
 }
+
+impl Default for TrueLiteral {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -67,13 +67,7 @@ impl Expression {
     pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
         store
             .iter_x_let()
-            .filter_map(|x_let| {
-                if x_let.expression == self.id() {
-                    Some(x_let)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_let| x_let.expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

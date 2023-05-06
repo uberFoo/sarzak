@@ -46,7 +46,7 @@ impl Anchor {
     pub fn new(edge: &Edge, location: &Point, offset: &Point, store: &mut DrawingStore) -> Anchor {
         let id = Uuid::new_v4();
         let new = Anchor {
-            id: id,
+            id,
             edge: edge.id(),
             location: location.id,
             offset: offset.id,

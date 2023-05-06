@@ -33,7 +33,7 @@ impl SubtypeAnchors {
     pub fn new(anchor_id: &Anchor, isaui_id: &IsaUi, store: &mut DrawingStore) -> SubtypeAnchors {
         let id = Uuid::new_v4();
         let new = SubtypeAnchors {
-            id: id,
+            id,
             anchor_id: anchor_id.id,
             isaui_id: isaui_id.id,
         };

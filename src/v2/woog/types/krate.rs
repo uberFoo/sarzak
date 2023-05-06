@@ -27,5 +27,11 @@ impl Krate {
         KRATE
     }
 }
+
+impl Default for Krate {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

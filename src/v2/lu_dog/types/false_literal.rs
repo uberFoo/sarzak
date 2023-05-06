@@ -25,5 +25,11 @@ impl FalseLiteral {
         FALSE_LITERAL
     }
 }
+
+impl Default for FalseLiteral {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

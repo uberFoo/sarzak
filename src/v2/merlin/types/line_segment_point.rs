@@ -32,7 +32,7 @@ impl LineSegmentPoint {
     ) -> Arc<RwLock<LineSegmentPoint>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LineSegmentPoint {
-            id: id,
+            id,
             segment: segment.read().unwrap().id,
             point: point.read().unwrap().id,
         }));

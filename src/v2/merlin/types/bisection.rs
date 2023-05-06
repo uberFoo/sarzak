@@ -44,8 +44,8 @@ impl Bisection {
     ) -> Arc<RwLock<Bisection>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Bisection {
-            id: id,
-            offset: offset,
+            id,
+            offset,
             segment: segment.read().unwrap().id,
         }));
         store.inter_bisection(new.clone());

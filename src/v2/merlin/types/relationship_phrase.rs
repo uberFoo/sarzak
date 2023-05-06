@@ -38,10 +38,10 @@ impl RelationshipPhrase {
     ) -> Arc<RwLock<RelationshipPhrase>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RelationshipPhrase {
-            id: id,
-            text: text,
-            x: x,
-            y: y,
+            id,
+            text,
+            x,
+            y,
             origin: origin.read().unwrap().id,
             line: line.read().unwrap().id,
         }));

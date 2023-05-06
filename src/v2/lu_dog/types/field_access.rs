@@ -36,8 +36,8 @@ impl FieldAccess {
     ) -> Arc<RwLock<FieldAccess>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(FieldAccess {
-            id: id,
-            name: name,
+            id,
+            name,
             expression: expression.read().unwrap().id(),
         }));
         store.inter_field_access(new.clone());

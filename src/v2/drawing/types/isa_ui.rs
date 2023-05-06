@@ -34,7 +34,7 @@ impl IsaUi {
     pub fn new(from: &Anchor, isa: &Isa, store: &mut DrawingStore) -> IsaUi {
         let id = Uuid::new_v4();
         let new = IsaUi {
-            id: id,
+            id,
             from: from.id,
             isa: isa.id,
         };

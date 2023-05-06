@@ -39,8 +39,8 @@ impl Parameter {
     ) -> Parameter {
         let id = Uuid::new_v4();
         let new = Parameter {
-            id: id,
-            seed: seed,
+            id,
+            seed,
             function: function.map(|function| function.id),
             next: next.map(|parameter| parameter.id),
         };

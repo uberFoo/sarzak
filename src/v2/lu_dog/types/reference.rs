@@ -38,9 +38,9 @@ impl Reference {
     ) -> Arc<RwLock<Reference>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Reference {
-            address: address,
-            id: id,
-            is_valid: is_valid,
+            address,
+            id,
+            is_valid,
             ty: ty.read().unwrap().id(),
         }));
         store.inter_reference(new.clone());

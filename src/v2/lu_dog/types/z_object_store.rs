@@ -29,10 +29,7 @@ impl ZObjectStore {
     /// Inter a new 'Object Store' in the store, and return it's `id`.
     pub fn new(domain: String, store: &mut LuDogStore) -> Arc<RwLock<ZObjectStore>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(ZObjectStore {
-            domain: domain,
-            id: id,
-        }));
+        let new = Arc::new(RwLock::new(ZObjectStore { domain, id }));
         store.inter_z_object_store(new.clone());
         new
     }

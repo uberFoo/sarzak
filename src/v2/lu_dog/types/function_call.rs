@@ -19,5 +19,11 @@ impl FunctionCall {
         FUNCTION_CALL
     }
 }
+
+impl Default for FunctionCall {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

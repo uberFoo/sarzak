@@ -43,7 +43,7 @@ impl Block {
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(bug: Uuid, store: &mut LuDogStore) -> Arc<RwLock<Block>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Block { bug: bug, id: id }));
+        let new = Arc::new(RwLock::new(Block { bug, id }));
         store.inter_block(new.clone());
         new
     }
@@ -53,13 +53,7 @@ impl Block {
     pub fn r43_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ForLoop>>> {
         store
             .iter_for_loop()
-            .filter_map(|for_loop| {
-                if for_loop.read().unwrap().block == self.id {
-                    Some(for_loop)
-                } else {
-                    None
-                }
-            })
+            .filter(|for_loop| for_loop.read().unwrap().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -95,13 +89,7 @@ impl Block {
     pub fn r46_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
         store
             .iter_x_if()
-            .filter_map(|x_if| {
-                if x_if.read().unwrap().true_block == self.id {
-                    Some(x_if)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_if| x_if.read().unwrap().true_block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -110,13 +98,7 @@ impl Block {
     pub fn r18_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
         store
             .iter_statement()
-            .filter_map(|statement| {
-                if statement.read().unwrap().block == self.id {
-                    Some(statement)
-                } else {
-                    None
-                }
-            })
+            .filter(|statement| statement.read().unwrap().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -125,13 +107,7 @@ impl Block {
     pub fn r33_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
         store
             .iter_value()
-            .filter_map(|value| {
-                if value.read().unwrap().block == self.id {
-                    Some(value)
-                } else {
-                    None
-                }
-            })
+            .filter(|value| value.read().unwrap().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

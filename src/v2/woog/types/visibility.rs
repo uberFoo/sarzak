@@ -64,13 +64,7 @@ impl Visibility {
     pub fn r14_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
         store
             .iter_access()
-            .filter_map(|access| {
-                if access.visibility == self.id() {
-                    Some(access)
-                } else {
-                    None
-                }
-            })
+            .filter(|access| access.visibility == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

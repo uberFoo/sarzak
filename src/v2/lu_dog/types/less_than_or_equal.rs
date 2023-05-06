@@ -23,5 +23,11 @@ impl LessThanOrEqual {
         LESS_THAN_OR_EQUAL
     }
 }
+
+impl Default for LessThanOrEqual {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

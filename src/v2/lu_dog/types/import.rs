@@ -55,11 +55,11 @@ impl Import {
     ) -> Arc<RwLock<Import>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Import {
-            alias: alias,
-            has_alias: has_alias,
-            id: id,
-            name: name,
-            path: path,
+            alias,
+            has_alias,
+            id,
+            name,
+            path,
             object: object.map(|object| object.id),
         }));
         store.inter_import(new.clone());

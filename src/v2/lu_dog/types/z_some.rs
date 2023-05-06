@@ -34,7 +34,7 @@ impl ZSome {
     pub fn new(inner: &Arc<RwLock<Value>>, store: &mut LuDogStore) -> Arc<RwLock<ZSome>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ZSome {
-            id: id,
+            id,
             inner: inner.read().unwrap().id,
         }));
         store.inter_z_some(new.clone());

@@ -40,8 +40,8 @@ impl Field {
     ) -> Arc<RwLock<Field>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Field {
-            id: id,
-            name: name,
+            id,
+            name,
             model: model.read().unwrap().id,
             ty: ty.read().unwrap().id(),
         }));
