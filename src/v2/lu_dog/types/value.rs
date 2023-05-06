@@ -8,6 +8,7 @@ use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
+use crate::v2::lu_dog::types::variable::VariableEnum;
 use crate::v2::lu_dog::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
@@ -48,9 +49,7 @@ impl Value {
         subtype: &Arc<RwLock<Expression>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Value>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id();
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Value {
             block: block.read().unwrap().id,
             ty: ty.read().unwrap().id(),
@@ -61,8 +60,6 @@ impl Value {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
@@ -71,9 +68,7 @@ impl Value {
         subtype: &Arc<RwLock<Variable>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Value>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Value {
             block: block.read().unwrap().id,
             ty: ty.read().unwrap().id(),
@@ -83,8 +78,6 @@ impl Value {
         store.inter_value(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R33(1-*)
@@ -98,7 +91,6 @@ impl Value {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-some"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-nav-backward-1_M-to-z_some"}}}
     /// Navigate to [`ZSome`] across R23(1-M)
     pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ZSome>>> {

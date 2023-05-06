@@ -224,7 +224,6 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-function"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-function"}}}
     /// Navigate to [`Function`] across R10(1-M)
     pub fn r10_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Function>>> {
@@ -240,7 +239,6 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-some"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-list"}}}
     /// Navigate to [`List`] across R36(1-M)
     pub fn r36_list<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<List>>> {

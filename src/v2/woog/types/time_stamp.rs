@@ -25,7 +25,6 @@ pub struct TimeStamp {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-ee-impl"}}}
 impl TimeStamp {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-struct-impl-new"}}}
     pub fn new(store: &mut WoogStore) -> TimeStamp {
         let inner = SystemTime::now();
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", inner).as_bytes());
@@ -36,6 +35,5 @@ impl TimeStamp {
         store.inter_time_stamp(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

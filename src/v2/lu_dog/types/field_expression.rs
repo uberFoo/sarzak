@@ -49,15 +49,11 @@ impl FieldExpression {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R38(1-*)
     pub fn r38_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-cond-to-next"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-woog_struct"}}}
     /// Navigate to [`StructExpression`] across R26(1-*)
@@ -66,8 +62,6 @@ impl FieldExpression {
         store: &'a LuDogStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
         vec![store.exhume_struct_expression(&self.woog_struct).unwrap()]
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-backward-one-bi-cond-to-field_expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

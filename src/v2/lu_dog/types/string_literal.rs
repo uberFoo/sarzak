@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-const-documentation"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-struct-documentation"}}}
 /// A String
 ///
@@ -18,7 +17,6 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 ///  as UTF-8.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct StringLiteral {
@@ -39,8 +37,6 @@ impl StringLiteral {
         store.inter_string_literal(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-impl-nav-subtype-to-supertype-literal"}}}
     // Navigate to [`Literal`] across R22(isa)

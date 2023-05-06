@@ -46,8 +46,6 @@ impl StructureField {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`StructureField`] across R30(1-*c)
     pub fn r30_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {
@@ -70,14 +68,12 @@ impl StructureField {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Field`] across R27(1-*)
     pub fn r27_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&Field> {
         vec![store.exhume_field(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
     /// Navigate to [`Structure`] across R27(1-*)
     pub fn r27_structure<'a>(&'a self, store: &'a WoogStore) -> Vec<&Structure> {
         vec![store.exhume_structure(&self.field).unwrap()]

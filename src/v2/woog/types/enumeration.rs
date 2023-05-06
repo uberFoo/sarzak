@@ -10,7 +10,6 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-documentation"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-hybrid-documentation"}}}
 /// An Enumerated Data Type
 ///
 /// This has fields like a structure, but it's only allowed to contain a
@@ -19,19 +18,15 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-definition"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Enumeration {
     pub id: Uuid,
     pub name: String,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-hybrid-enum-definition"}}}
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-implementation"}}}
 impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_hybrid_enum"}}}
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Enumeration {
         let id = Uuid::new_v4();
@@ -40,14 +35,6 @@ impl Enumeration {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new_hybrid_enum_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-to-field_zero"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-to-object"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc_many-to-enumeration_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc-many-to-enumeration_field"}}}
     /// Navigate to [`EnumerationField`] across R28(1-M)
     pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {

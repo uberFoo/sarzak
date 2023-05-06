@@ -1,6 +1,6 @@
 use ansi_term::Colour;
 use ariadne::{Color, Fmt, Label, Report, ReportKind, Source};
-use chumsky::{error::SimpleReason, prelude::*};
+use chumsky::prelude::*;
 use log;
 
 use crate::dwarf::{DwarfFloat, Expression, Item, Spanned, Statement, Token, Type};
@@ -81,7 +81,7 @@ fn lexer() -> impl Parser<char, Vec<Spanned<Token>>, Error = Simple<char>> {
     //     .map(Token::Op);
 
     // A parser for punctuation (delimiters, semicolons, etc.)
-    let punct = one_of("=-()[]{}:;,.&<>").map(|c| Token::Punct(c));
+    let punct = one_of("=-()[]{}:;,.&<>+").map(|c| Token::Punct(c));
 
     // A "Object type" parser. Basically I'm asserting that if an identifier starts
     // with a capital letter, then it's an object.
@@ -99,13 +99,13 @@ fn lexer() -> impl Parser<char, Vec<Spanned<Token>>, Error = Simple<char>> {
     let ident = text::ident().map(|ident: String| match ident.as_str() {
         "as" => Token::As,
         "bool" => Token::Type(Type::Boolean),
-        // "else" => Token::Else,
+        "else" => Token::Else,
         "false" => Token::Bool(false),
         "float" => Token::Type(Type::Float),
         "fn" => Token::Fn,
         "for" => Token::For,
         // "global" => Token::Global,
-        // "if" => Token::If,
+        "if" => Token::If,
         "impl" => Token::Impl,
         "int" => Token::Type(Type::Integer),
         "in" => Token::In,
@@ -214,96 +214,83 @@ impl DwarfParser {
         (result, self.errors.clone())
     }
 
-    /// Parse a Statement
+    /// Parse an if expression
     ///
-    ///  statement -> ; | Item | LetStatement | ExpressionStatement
-    fn parse_statement(&mut self) -> Result<Option<Spanned<Statement>>> {
-        debug!("enter parse_statement");
+    /// if --> IF expression { BLOCK } (ELSE { BLOCK })?
+    fn parse_if_expression(&mut self) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_if_expression");
 
         let start = if let Some(tok) = self.peek() {
             tok.1.start
         } else {
+            debug!("exit parse_if_expression");
             return Ok(None);
         };
 
-        if self.match_(&[Token::Punct(';')]) {
-            debug!("parse_statement: empty statement");
-            return Ok(Some((
-                Statement::Empty,
-                start..self.previous().unwrap().1.end,
-            )));
+        if !self.match_(&[Token::If]) {
+            debug!("exit parse_if_expression no token");
+            return Ok(None);
         }
 
-        if let Some(item) = self.parse_item() {
-            debug!("parse_statement: item:", item);
-            return Ok(Some((
-                Statement::Item(item),
-                start..self.previous().unwrap().1.end,
-            )));
-        }
+        debug!("parse_if_expression getting conditional");
+        let conditional = if let Some(cond) = self.parse_expression()? {
+            debug!("parse_for_loop_expression conditional", cond);
+            cond
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_if_expression no conditional");
+            return Err(err);
+        };
 
-        // OK. Time to work this out.I want to try to parse a let statemnet. If
-        // I get an error I want to append the error to our vec, and then continue
-        // on as if nothing happened. Basically, we need to go up one more level
-        // and hove them start over. So maybe we just pass this up the stack.
+        debug!("parse_if_expression calling getting true block");
+        let true_block = if let Some(expr) = self.parse_block_expression()? {
+            debug!("parse_if_expression true block", expr);
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            debug!("exit parse_if_expression no true block");
+            return Err(err);
+        };
 
-        if let Some(statement) = self.parse_let_statement()? {
-            if self.match_(&[Token::Punct(';')]) {
-                debug!("parse_statement: let statement:", statement);
-                return Ok(Some(statement));
+        let false_block = if self.match_(&[Token::Else]) {
+            debug!("parse_if_expression getting false block");
+            let false_block = if let Some(expr) = self.parse_block_expression()? {
+                debug!("parse_if_expression false block", expr);
+                expr
             } else {
-                let tok = self.peek().unwrap();
+                let token = &self.previous().unwrap();
                 let err = Simple::expected_input_found(
-                    tok.1.clone(),
-                    [Some("';'".to_owned())],
-                    Some(tok.0.to_string()),
+                    token.1.clone(),
+                    [Some("<expression -> there's a lot of them...>".to_owned())],
+                    Some(token.0.to_string()),
                 );
-                let err = err.with_label("expected ;");
+                debug!("exit parse_if_expression no false block");
                 return Err(err);
-            }
-        }
+            };
 
-        if let Some(expr) = self.parse_expression_without_block()? {
-            debug!("parse_statement: expression:", expr);
-            if self.match_(&[Token::Punct(';')]) {
-                debug!("parse_statement: expression statement:", expr);
-                return Ok(Some((
-                    Statement::Expression(expr),
-                    start..self.previous().unwrap().1.end,
-                )));
-                // Don't consume the '}'.
-            } else if self.check(&Token::Punct('}')) {
-                debug!("parse_statement: result statement:", expr);
-                return Ok(Some((
-                    Statement::Result(expr),
-                    start..self.previous().unwrap().1.end,
-                )));
-            } else {
-                let tok = if let Some(tok) = self.peek() {
-                    tok
-                } else {
-                    self.previous().unwrap()
-                };
-                let err = Simple::expected_input_found(
-                    tok.1.clone(),
-                    [Some("'}'".to_owned()), Some("';'".to_owned())],
-                    Some(tok.0.to_string()),
-                );
+            debug!("exit parse_if_expression");
 
-                debug!("exit parse_statement: error:", err);
-                return Err(err);
-            }
-        }
+            Some(Box::new(false_block))
+        } else {
+            None
+        };
 
-        if let Some(expr) = self.parse_expression_with_block()? {
-            debug!("parse_statement: expression:", expr);
-            return Ok(Some((
-                Statement::Expression(expr),
-                start..self.previous().unwrap().1.end,
-            )));
-        }
+        debug!("exit parse_if_expression");
 
-        Ok(None)
+        Ok(Some((
+            Expression::If(Box::new(conditional), Box::new(true_block), false_block),
+            start..self.previous().unwrap().1.end,
+        )))
     }
 
     /// Parse an Item
@@ -327,10 +314,12 @@ impl DwarfParser {
         }
 
         if let Some(item) = self.parse_impl_block() {
+            debug!("parse_item: impl:", item);
             return Some(item);
         }
 
         if let Some(item) = self.parse_import() {
+            debug!("parse_item: import:", item);
             return Some(item);
         }
 
@@ -345,6 +334,8 @@ impl DwarfParser {
                 self.errors.push(err);
             }
         }
+
+        debug!("exit parse_item: None");
 
         None
     }
@@ -597,6 +588,127 @@ impl DwarfParser {
         )))
     }
 
+    /// Parse an addition operator
+    ///
+    /// addition = expression + expression
+    fn parse_addition_operator(
+        &mut self,
+        left: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_addition_operator");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('+')]) {
+            return Ok(None);
+        }
+
+        let right = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        debug!("exit parse_addition_operator");
+
+        Ok(Some((
+            Expression::Addition(Box::new(left.to_owned()), Box::new(right)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse an subtraction operator
+    ///
+    /// subtraciton = expression - expression
+    fn parse_subtraction_operator(
+        &mut self,
+        left: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_subtraction_operator");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('-')]) {
+            return Ok(None);
+        }
+
+        let right = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        debug!("exit parse_subtraction_operator");
+
+        Ok(Some((
+            Expression::Subtraction(Box::new(left.to_owned()), Box::new(right)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
+    /// Parse a less than or equal to operator
+    ///
+    /// lte -> expression <= expression
+    fn parse_lte_operator(
+        &mut self,
+        left: &Spanned<Expression>,
+    ) -> Result<Option<Spanned<Expression>>> {
+        debug!("enter parse_lte_operator");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if !self.match_(&[Token::Punct('<')]) {
+            return Ok(None);
+        }
+
+        if !self.match_(&[Token::Punct('=')]) {
+            return Ok(None);
+        }
+
+        let right = if let Some(expr) = self.parse_expression()? {
+            expr
+        } else {
+            let token = &self.previous().unwrap();
+            let err = Simple::expected_input_found(
+                token.1.clone(),
+                [Some("<expression -> there's a lot of them...>".to_owned())],
+                Some(token.0.to_string()),
+            );
+            return Err(err);
+        };
+
+        debug!("exit parse_lte_operator");
+
+        Ok(Some((
+            Expression::LessThanOrEqual(Box::new(left.to_owned()), Box::new(right)),
+            start..self.previous().unwrap().1.end,
+        )))
+    }
+
     /// Parse a "simple" expression
     ///
     /// I broke this out for a reason that no longer applies. I'm not sure that
@@ -631,24 +743,6 @@ impl DwarfParser {
             return Ok(Some(expression));
         }
 
-        // parse a print expression
-        if let Some(expression) = self.parse_print_expression()? {
-            debug!(
-                "parse_expression_without_block: print expression:",
-                expression
-            );
-            return Ok(Some(expression));
-        }
-
-        // parse a return expression
-        if let Some(expression) = self.parse_return_expression()? {
-            debug!(
-                "parse_expression_without_block: return expression:",
-                expression
-            );
-            return Ok(Some(expression));
-        }
-
         // parse a some literal
         if let Some(expression) = self.parse_some_literal()? {
             debug!("parse_simple_expression: some literal:", expression);
@@ -670,6 +764,24 @@ impl DwarfParser {
         // parse a local variable
         if let Some(expression) = self.parse_local_variable() {
             debug!("parse_expression: local variable:", expression);
+            return Ok(Some(expression));
+        }
+
+        // parse a print expression
+        if let Some(expression) = self.parse_print_expression()? {
+            debug!(
+                "parse_expression_without_block: print expression:",
+                expression
+            );
+            return Ok(Some(expression));
+        }
+
+        // parse a return expression
+        if let Some(expression) = self.parse_return_expression()? {
+            debug!(
+                "parse_expression_without_block: return expression:",
+                expression
+            );
             return Ok(Some(expression));
         }
 
@@ -705,6 +817,33 @@ impl DwarfParser {
         debug!("parse_expression_without_block: simple expression:", expr);
 
         if let Some(expr) = &expr {
+            // parse an addition operator
+            if let Some(expression) = self.parse_addition_operator(expr)? {
+                debug!(
+                    "parse_simple_expression_without_block: addition operator:",
+                    expression
+                );
+                return Ok(Some(expression));
+            }
+
+            // parse an subtraction operator
+            if let Some(expression) = self.parse_subtraction_operator(expr)? {
+                debug!(
+                    "parse_simple_expression_without_block: subtraction operator:",
+                    expression
+                );
+                return Ok(Some(expression));
+            }
+
+            // parse an lte operator
+            if let Some(expression) = self.parse_lte_operator(expr)? {
+                debug!(
+                    "parse_simple_expression_without_block: lte operator:",
+                    expression
+                );
+                return Ok(Some(expression));
+            }
+
             // parse a function call
             if let Some(expression) = self.parse_function_call(expr)? {
                 debug!("parse_expression_without_block: function call:", expression);
@@ -727,13 +866,13 @@ impl DwarfParser {
             }
 
             // Parse a struct expression
-            if let Some(expression) = self.parse_struct_expression(expr)? {
-                debug!(
-                    "parse_expression_without_block: struct expression:",
-                    expression
-                );
-                return Ok(Some(expression));
-            }
+            // if let Some(expression) = self.parse_struct_expression(expr)? {
+            //     debug!(
+            //         "parse_expression_without_block: struct expression:",
+            //         expression
+            //     );
+            //     return Ok(Some(expression));
+            // }
         }
 
         debug!(
@@ -764,6 +903,12 @@ impl DwarfParser {
                 "parse_expression_with_block: for loop expression:",
                 expression
             );
+            return Ok(Some(expression));
+        }
+
+        // parse an if expression
+        if let Some(expression) = self.parse_if_expression()? {
+            debug!("parse_expression_with_block: if expression:", expression);
             return Ok(Some(expression));
         }
 
@@ -808,7 +953,7 @@ impl DwarfParser {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("<expression -> there's a lot of them...>".to_owned())],
                 Some(token.0.to_string()),
             );
             return Err(err);
@@ -896,7 +1041,7 @@ impl DwarfParser {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("<expression -> there's a lot of them...>".to_owned())],
                 Some(token.0.to_string()),
             );
             debug!("exit parse_for_loop_expression no collection");
@@ -910,7 +1055,7 @@ impl DwarfParser {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("<expression -> there's a lot of them...>".to_owned())],
                 Some(token.0.to_string()),
             );
             debug!("exit parse_for_loop_expression no body");
@@ -1103,7 +1248,7 @@ impl DwarfParser {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("<expression -> there's a lot of them...>".to_owned())],
                 Some(token.0.to_string()),
             );
             return Err(err);
@@ -1125,6 +1270,102 @@ impl DwarfParser {
             Expression::Print(Box::new(expression)),
             start..self.previous().unwrap().1.end,
         )))
+    }
+
+    /// Parse a Statement
+    ///
+    ///  statement -> ; | Item | LetStatement | ExpressionStatement
+    fn parse_statement(&mut self) -> Result<Option<Spanned<Statement>>> {
+        debug!("enter parse_statement");
+
+        let start = if let Some(tok) = self.peek() {
+            tok.1.start
+        } else {
+            return Ok(None);
+        };
+
+        if self.match_(&[Token::Punct(';')]) {
+            debug!("parse_statement: empty statement");
+            return Ok(Some((
+                Statement::Empty,
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        if let Some(item) = self.parse_item() {
+            debug!("parse_statement: item:", item);
+            return Ok(Some((
+                Statement::Item(item),
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        if let Some(expr) = self.parse_expression_without_block()? {
+            debug!("parse_statement: expression:", expr);
+            if self.match_(&[Token::Punct(';')]) {
+                debug!("parse_statement: expression statement:", expr);
+                return Ok(Some((
+                    Statement::Expression(expr),
+                    start..self.previous().unwrap().1.end,
+                )));
+                // Don't consume the '}'.
+            } else if self.check(&Token::Punct('}')) {
+                debug!("parse_statement: result statement:", expr);
+                return Ok(Some((
+                    Statement::Result(expr),
+                    start..self.previous().unwrap().1.end,
+                )));
+            } else {
+                let tok = if let Some(tok) = self.peek() {
+                    tok
+                } else {
+                    self.previous().unwrap()
+                };
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("'}'".to_owned()), Some("';'".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+
+                debug!("exit parse_statement: error:", err);
+                return Err(err);
+            }
+        }
+
+        if let Some(expr) = self.parse_expression_with_block()? {
+            debug!("parse_statement: expression:", expr);
+            return Ok(Some((
+                Statement::Expression(expr),
+                start..self.previous().unwrap().1.end,
+            )));
+        }
+
+        // OK. Time to work this out.I want to try to parse a let statemnet. If
+        // I get an error I want to append the error to our vec, and then continue
+        // on as if nothing happened. Basically, we need to go up one more level
+        // and hove them start over. So maybe we just pass this up the stack.
+
+        if let Some(statement) = self.parse_let_statement()? {
+            if self.match_(&[Token::Punct(';')]) {
+                debug!("parse_statement: let statement:", statement);
+                return Ok(Some(statement));
+            } else {
+                let tok = if let Some(tok) = self.peek() {
+                    tok
+                } else {
+                    self.previous().unwrap()
+                };
+                let err = Simple::expected_input_found(
+                    tok.1.clone(),
+                    [Some("';'".to_owned())],
+                    Some(tok.0.to_string()),
+                );
+                let err = err.with_label("expected ;");
+                return Err(err);
+            }
+        }
+
+        Ok(None)
     }
 
     /// Parse a static method call
@@ -1280,7 +1521,7 @@ impl DwarfParser {
                 let token = &self.previous().unwrap();
                 let err = Simple::expected_input_found(
                     token.1.clone(),
-                    [Some("<expression>".to_owned())],
+                    [Some("<expression -> there's a lot of them...>".to_owned())],
                     Some(token.0.to_string()),
                 );
                 return Err(err);
@@ -1369,7 +1610,7 @@ impl DwarfParser {
             let token = &self.previous().unwrap();
             let err = Simple::expected_input_found(
                 token.1.clone(),
-                [Some("<expression>".to_owned())],
+                [Some("<expression -> there's a lot of them...>".to_owned())],
                 Some(token.0.to_string()),
             );
             return Err(err);

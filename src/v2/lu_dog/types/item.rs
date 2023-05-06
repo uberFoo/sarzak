@@ -14,7 +14,6 @@ use serde::{Deserialize, Serialize};
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-enum-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Item {
@@ -35,7 +34,6 @@ pub enum ItemEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
 impl Item {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-new-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(
@@ -43,9 +41,7 @@ impl Item {
         subtype: &Arc<RwLock<Function>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
             subtype: ItemEnum::Function(subtype.read().unwrap().id),
@@ -62,9 +58,7 @@ impl Item {
         subtype: &Arc<RwLock<Implementation>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
             subtype: ItemEnum::Implementation(subtype.read().unwrap().id),
@@ -81,9 +75,7 @@ impl Item {
         subtype: &Arc<RwLock<Import>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
             subtype: ItemEnum::Import(subtype.read().unwrap().id),
@@ -100,9 +92,7 @@ impl Item {
         subtype: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Item>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
             subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id),
@@ -112,7 +102,6 @@ impl Item {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-get-id-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-nav-forward-to-source"}}}
     /// Navigate to [`DwarfSourceFile`] across R25(1-*)
     pub fn r25_dwarf_source_file<'a>(

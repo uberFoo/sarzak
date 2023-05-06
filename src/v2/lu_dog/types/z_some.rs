@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
+use crate::v2::lu_dog::types::woog_option::WoogOptionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -40,8 +41,6 @@ impl ZSome {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-nav-forward-to-inner"}}}
     /// Navigate to [`Value`] across R23(1-*)
     pub fn r23_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
@@ -51,7 +50,16 @@ impl ZSome {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-impl-nav-subtype-to-supertype-woog_option"}}}
     // Navigate to [`WoogOption`] across R3(isa)
     pub fn r3_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogOption>>> {
-        vec![store.exhume_woog_option(&self.id).unwrap()]
+        vec![store
+            .iter_woog_option()
+            .find(|woog_option| {
+                if let WoogOptionEnum::ZSome(id) = woog_option.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

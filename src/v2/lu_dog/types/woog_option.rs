@@ -12,14 +12,12 @@ use serde::{Deserialize, Serialize};
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-enum-documentation"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-hybrid-documentation"}}}
 /// An Optional Type
 ///
 /// This type is either `None` or `Some(`[Type]`)`.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-enum-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct WoogOption {
@@ -38,17 +36,13 @@ pub enum WoogOptionEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-implementation"}}}
 impl WoogOption {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-new-impl"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_none"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_none"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
     pub fn new_z_none(
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<WoogOption>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = Z_NONE;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogOption {
             ty: ty.read().unwrap().id(),
             subtype: WoogOptionEnum::ZNone(Z_NONE),
@@ -58,10 +52,6 @@ impl WoogOption {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_none_"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_none_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_some"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_some"}}}
     /// Inter a new WoogOption in the store, and return it's `id`.
     pub fn new_z_some(
@@ -69,9 +59,7 @@ impl WoogOption {
         subtype: &Arc<RwLock<ZSome>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<WoogOption>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogOption {
             ty: ty.read().unwrap().id(),
             subtype: WoogOptionEnum::ZSome(subtype.read().unwrap().id),
@@ -81,10 +69,6 @@ impl WoogOption {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_some_"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new_z_some_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-get-id-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R2(1-*)
     pub fn r2_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {

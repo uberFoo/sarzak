@@ -39,9 +39,7 @@ impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_many"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_many(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = MANY;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Glyph {
             line: line.read().unwrap().id,
             subtype: GlyphEnum::Many(MANY),
@@ -57,9 +55,7 @@ impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_one"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_one(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = ONE;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Glyph {
             line: line.read().unwrap().id,
             subtype: GlyphEnum::One(ONE),
@@ -75,9 +71,7 @@ impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_sub"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_sub(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = SUB;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Glyph {
             line: line.read().unwrap().id,
             subtype: GlyphEnum::Sub(SUB),
@@ -93,9 +87,7 @@ impl Glyph {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"glyph-struct-impl-new_x_super"}}}
     /// Inter a new Glyph in the store, and return it's `id`.
     pub fn new_x_super(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<Glyph>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = X_SUPER;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Glyph {
             line: line.read().unwrap().id,
             subtype: GlyphEnum::XSuper(X_SUPER),

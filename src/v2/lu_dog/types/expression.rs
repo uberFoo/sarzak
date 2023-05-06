@@ -13,10 +13,12 @@ use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::literal::Literal;
+use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::print::Print;
 use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value::Value;
+use crate::v2::lu_dog::types::value::ValueEnum;
 use crate::v2::lu_dog::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog::types::x_if::XIf;
 use crate::v2::lu_dog::types::x_return::XReturn;
@@ -40,6 +42,7 @@ pub enum Expression {
     ForLoop(Uuid),
     XIf(Uuid),
     Literal(Uuid),
+    Operator(Uuid),
     Print(Uuid),
     XReturn(Uuid),
     StructExpression(Uuid),
@@ -144,6 +147,20 @@ impl Expression {
         }
     }
 
+    /// Create a new instance of Expression::Operator
+    pub fn new_operator(
+        operator: &Arc<RwLock<Operator>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(operator) = store.exhume_expression(&operator.read().unwrap().id) {
+            operator
+        } else {
+            let new = Arc::new(RwLock::new(Self::Operator(operator.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
     /// Create a new instance of Expression::Print
     pub fn new_print(print: &Arc<RwLock<Print>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
         if let Some(print) = store.exhume_expression(&print.read().unwrap().id) {
@@ -216,6 +233,7 @@ impl Expression {
             Expression::ForLoop(id) => *id,
             Expression::XIf(id) => *id,
             Expression::Literal(id) => *id,
+            Expression::Operator(id) => *id,
             Expression::Print(id) => *id,
             Expression::XReturn(id) => *id,
             Expression::StructExpression(id) => *id,
@@ -349,6 +367,36 @@ impl Expression {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
+    /// Navigate to [`Operator`] across R51(1-Mc)
+    pub fn r51_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Operator>>> {
+        store
+            .iter_operator()
+            .filter_map(|operator| {
+                if operator.read().unwrap().rhs == Some(self.id()) {
+                    Some(operator)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    /// Navigate to [`Operator`] across R50(1-M)
+    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Operator>>> {
+        store
+            .iter_operator()
+            .filter_map(|operator| {
+                if operator.read().unwrap().lhs == self.id() {
+                    Some(operator)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
     /// Navigate to [`Print`] across R32(1-M)
     pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Print>>> {
@@ -400,7 +448,16 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R11(isa)
     pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
-        vec![store.exhume_value(&self.id()).unwrap()]
+        vec![store
+            .iter_value()
+            .find(|value| {
+                if let ValueEnum::Expression(id) = value.read().unwrap().subtype {
+                    id == self.id()
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

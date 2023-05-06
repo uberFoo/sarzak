@@ -41,24 +41,11 @@ impl Field {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-cond-to-next"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R29(1-*)
     pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc_many-to-enumeration_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-cond-to-enumeration"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc_many-to-structure_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-one-bi-cond-to-field"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-one-bi-cond-to-structure"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-1c)
@@ -68,10 +55,6 @@ impl Field {
             .find(|structure_field| structure_field.woog_struct == self.id);
         match structure_field {
             Some(ref structure_field) => vec![structure_field],
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
             None => Vec::new(),
         }
     }

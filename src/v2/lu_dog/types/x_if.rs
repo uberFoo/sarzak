@@ -21,7 +21,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct XIf {
     pub id: Uuid,
-    /// R47: [`XIf`] 'when false, evaluates' [`Block`]
+    /// R52: [`XIf`] 'false block' [`Block`]
     pub false_block: Option<Uuid>,
     /// R46: [`XIf`] 'when true, evaluates' [`Block`]
     pub true_block: Uuid,
@@ -51,8 +51,8 @@ impl XIf {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-cond-to-false_block"}}}
-    /// Navigate to [`Block`] across R47(1-*c)
-    pub fn r47_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    /// Navigate to [`Block`] across R52(1-*c)
+    pub fn r52_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
         match self.false_block {
             Some(ref false_block) => vec![store.exhume_block(false_block).unwrap()],
             None => Vec::new(),

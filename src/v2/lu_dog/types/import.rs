@@ -5,6 +5,7 @@ use std::sync::{Arc, RwLock};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
@@ -65,9 +66,6 @@ impl Import {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R40(1-*c)
     pub fn r40_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
@@ -80,7 +78,16 @@ impl Import {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
-        vec![store.exhume_item(&self.id).unwrap()]
+        vec![store
+            .iter_item()
+            .find(|item| {
+                if let ItemEnum::Import(id) = item.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-value_type"}}}

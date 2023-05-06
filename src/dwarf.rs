@@ -21,7 +21,6 @@ use crate::{
 
 pub mod compiler;
 pub mod parser;
-// pub mod parser_orig;
 
 pub use compiler::{inter_statement, populate_lu_dog};
 pub use parser::{parse_dwarf, parse_line};
@@ -63,11 +62,13 @@ pub struct DwarfOptions {
 pub enum Token {
     As,
     Bool(bool),
+    Else,
     Float(String),
     Fn,
     For,
     // Global,
     Ident(String),
+    If,
     Impl,
     Import,
     In,
@@ -93,11 +94,13 @@ impl fmt::Display for Token {
         match self {
             Self::As => write!(f, "as"),
             Self::Bool(bool_) => write!(f, "{}", bool_),
+            Self::Else => write!(f, "else"),
             Self::Float(num) => write!(f, "{}", num),
             Self::Fn => write!(f, "fn"),
             Self::For => write!(f, "for"),
             // Self::Global => write!(f, "global"),
             Self::Ident(ident) => write!(f, "{}", ident),
+            Self::If => write!(f, "if"),
             Self::Impl => write!(f, "impl"),
             Self::Import => write!(f, "import"),
             Self::In => write!(f, "in"),
@@ -285,6 +288,7 @@ pub enum Statement {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
+    Addition(Box<Spanned<Self>>, Box<Spanned<Self>>),
     /// Assignment Expression
     ///
     /// E.g.: `a = b`
@@ -301,7 +305,13 @@ pub enum Expression {
     // The first element is the function being called, the second is the list of
     // arguments.
     FunctionCall(Box<Spanned<Self>>, Vec<Spanned<Self>>),
+    If(
+        Box<Spanned<Self>>,
+        Box<Spanned<Self>>,
+        Option<Box<Spanned<Self>>>,
+    ),
     IntegerLiteral(i64),
+    LessThanOrEqual(Box<Spanned<Self>>, Box<Spanned<Self>>),
     List(Vec<Spanned<Self>>),
     LocalVariable(String),
     MethodCall(Box<Spanned<Self>>, Spanned<String>, Vec<Spanned<Self>>),
@@ -321,6 +331,7 @@ pub enum Expression {
     ///
     /// Struct Name, Vec<Field Name, Field Value>
     Struct(Type, Vec<(Spanned<String>, Spanned<Self>)>),
+    Subtraction(Box<Spanned<Self>>, Box<Spanned<Self>>),
 }
 
 #[derive(Clone, Debug, PartialEq)]

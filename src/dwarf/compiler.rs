@@ -18,10 +18,10 @@ use crate::{
             FieldExpression, ForLoop, Function, Implementation, Import, IntegerLiteral,
             LetStatement, Literal, LocalVariable, Parameter, Print, Statement, StaticMethodCall,
             StringLiteral, StructExpression, Value, ValueEnum, ValueType, Variable,
-            VariableExpression, WoogOption, WoogStruct,
+            VariableExpression, WoogOption, WoogStruct, XIf,
         },
-        Argument, BooleanLiteral, FieldAccess, FloatLiteral, List, MethodCall, Reference,
-        ResultStatement, XReturn,
+        Argument, Binary, BooleanLiteral, Comparison, FieldAccess, FloatLiteral, List, MethodCall,
+        Operator, Reference, ResultStatement, XReturn,
     },
     sarzak::{store::ObjectStore as SarzakStore, types::Ty},
 };
@@ -420,6 +420,39 @@ fn inter_expression(
 
     match &*expr.read().unwrap() {
         //
+        // Addition
+        //
+        ParserExpression::Addition(ref lhs, ref rhs) => {
+            let (lhs, lhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(lhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+            let (rhs, rhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(rhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+            // 🚧                        THIS IS SUPER IMPORTANT!
+            // 🚧
+            // 🚧 We need to check the types of the LHS and RHS to make sure that they are the same.
+            // 🚧 We also need to check that the type supports addition.
+            // 🚧
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+            let expr = Binary::new_addition(lu_dog);
+            let expr = Operator::new_binary(Some(&rhs), &lhs, &expr, lu_dog);
+            let expr = Expression::new_operator(&expr, lu_dog);
+
+            (expr, lhs_ty)
+        }
+        //
         // Block
         //
         ParserExpression::Block(ref stmts) => {
@@ -437,11 +470,17 @@ fn inter_expression(
         //
         // BooleanLiteral
         //
-        // There is nothing to inter here. The literals are consts.
-        //  ParserExpression::BooleanLiteral(literal) => ValueType::new_empty(),
-        //
-        // Error
-        //
+        ParserExpression::BooleanLiteral(literal) => {
+            let literal = if *literal {
+                BooleanLiteral::new_true_literal(lu_dog)
+            } else {
+                BooleanLiteral::new_false_literal(lu_dog)
+            };
+            (
+                Expression::new_literal(&Literal::new_boolean_literal(&literal, lu_dog), lu_dog),
+                ValueType::new_ty(&Ty::new_boolean(), lu_dog),
+            )
+        }
         ParserExpression::Error => {
             // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
             //
@@ -569,11 +608,11 @@ fn inter_expression(
             let (collection, collection_ty) =
                 inter_expression(&collection, block, lu_dog, models, sarzak);
 
-            let stmts = if let ParserExpression::Block(stmts) = &body.0 {
-                stmts
-            } else {
-                panic!("Expected a block expression");
-            };
+            // let stmts = if let ParserExpression::Block(stmts) = &body.0 {
+            //     stmts
+            // } else {
+            //     panic!("Expected a block expression");
+            // };
 
             let body = Arc::new(RwLock::new((&body.0).to_owned()));
             let (body, body_ty) = inter_expression(&body, block, lu_dog, models, sarzak);
@@ -622,7 +661,102 @@ fn inter_expression(
                 last_arg_uuid = link_argument!(last_arg_uuid, arg, lu_dog);
             }
 
+            debug!(
+                "ParserExpression::FunctionCall exit",
+                (&func_call, &func_call.read().unwrap().r28_argument(lu_dog))
+            );
+
             (func, ret_ty)
+        }
+        //
+        // If
+        //
+        ParserExpression::If(conditional, true_block, false_block) => {
+            debug!("ParserExpression::If", conditional);
+            let conditional = Arc::new(RwLock::new(conditional.0.clone()));
+            let (conditional, conditional_ty) =
+                inter_expression(&conditional, block, lu_dog, models, sarzak);
+            debug!("ParserExpression::If", conditional_ty);
+
+            // We really need to get some error handling in here.
+            if let ValueType::Ty(ref ty) = conditional_ty.read().unwrap().to_owned() {
+                if let Ty::Boolean(_) = sarzak.exhume_ty(ty).unwrap() {
+                    // We're good.
+                } else {
+                    panic!("Expected a boolean");
+                }
+            } else {
+                panic!("Expected a boolean");
+            }
+
+            let true_block = Arc::new(RwLock::new(true_block.0.clone()));
+            let (true_block, _true_ty) =
+                inter_expression(&true_block, block, lu_dog, models, sarzak);
+            let true_block =
+                if let Expression::Block(true_block) = true_block.read().unwrap().clone() {
+                    true_block
+                } else {
+                    panic!("Expected a block expression");
+                };
+            let true_block = lu_dog.exhume_block(&true_block).unwrap();
+
+            let false_block = if let Some(false_block) = false_block {
+                let false_block = Arc::new(RwLock::new(false_block.0.clone()));
+                let (false_block, _false_ty) =
+                    inter_expression(&false_block, block, lu_dog, models, sarzak);
+                let false_block =
+                    if let Expression::Block(false_block) = false_block.read().unwrap().clone() {
+                        false_block
+                    } else {
+                        panic!("Expected a block expression");
+                    };
+                let false_block = lu_dog.exhume_block(&false_block).unwrap();
+                Some(false_block)
+            } else {
+                None
+            };
+
+            let if_expr = XIf::new(false_block.as_ref(), &true_block, &conditional, lu_dog);
+            let expr = Expression::new_x_if(&if_expr, lu_dog);
+
+            (expr, ValueType::new_empty(lu_dog))
+        }
+        //
+        // LessThanOrEqual
+        //
+        ParserExpression::LessThanOrEqual(ref lhs, ref rhs) => {
+            let (lhs, _lhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(lhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+            let (rhs, _rhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(rhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+            // 🚧                        THIS IS SUPER IMPORTANT!
+            // 🚧
+            // 🚧 We need to check the types of the LHS and RHS to make sure that they are the same,
+            // 🚧 or at least compatible. Need to look into rust rules.
+            // 🚧 We also need to check that the types implement PartialEq, and whatever else...
+            // 🚧
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+            let expr = Comparison::new_less_than_or_equal(lu_dog);
+            let expr = Operator::new_comparison(Some(&rhs), &lhs, &expr, lu_dog);
+            let expr = Expression::new_operator(&expr, lu_dog);
+
+            let ty = Ty::new_boolean();
+            let ty = ValueType::new_ty(&ty, lu_dog);
+
+            (expr, ty)
         }
         //
         // IntegerLiteral
@@ -970,6 +1104,39 @@ fn inter_expression(
             }
 
             panic!("badness happened: {}", name);
+        }
+        //
+        // Subtraction
+        //
+        ParserExpression::Subtraction(ref lhs, ref rhs) => {
+            let (lhs, lhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(lhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+            let (rhs, rhs_ty) = inter_expression(
+                &Arc::new(RwLock::new(rhs.0.to_owned())),
+                block,
+                lu_dog,
+                models,
+                sarzak,
+            );
+
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+            // 🚧                        THIS IS SUPER IMPORTANT!
+            // 🚧
+            // 🚧 We need to check the types of the LHS and RHS to make sure that they are the same.
+            // 🚧 We also need to check that the type supports subtraction.
+            // 🚧
+            // 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+            let expr = Binary::new_subtraction(lu_dog);
+            let expr = Operator::new_binary(Some(&rhs), &lhs, &expr, lu_dog);
+            let expr = Expression::new_operator(&expr, lu_dog);
+
+            (expr, lhs_ty)
         }
         道 => todo!("{:?}", 道),
     }

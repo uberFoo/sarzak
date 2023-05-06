@@ -6,6 +6,7 @@ use crate::v2::woog::types::access::Access;
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::grace_type::GraceType;
 use crate::v2::woog::types::variable::Variable;
+use crate::v2::woog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
@@ -25,8 +26,6 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// The utility are completely compiler/language level constructs. These are [`Mutability`]
 ///  and [`Visibility`].
 ///
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -48,7 +47,6 @@ pub enum ValueEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-implementation"}}}
 impl Value {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
@@ -57,9 +55,7 @@ impl Value {
         subtype: &Expression,
         store: &mut WoogStore,
     ) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
+        let id = Uuid::new_v4();
         let new = Value {
             access: access.id,
             ty: ty.id(),
@@ -70,9 +66,6 @@ impl Value {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
@@ -81,9 +74,7 @@ impl Value {
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Value {
             access: access.id,
             ty: ty.id(),
@@ -91,8 +82,6 @@ impl Value {
             id,
         };
         store.inter_value(new.clone());
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

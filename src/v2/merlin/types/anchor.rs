@@ -8,6 +8,7 @@ use crate::v2::merlin::types::edge::Edge;
 use crate::v2::merlin::types::glyph::Glyph;
 use crate::v2::merlin::types::line::Line;
 use crate::v2::merlin::types::point::Point;
+use crate::v2::merlin::types::point::PointEnum;
 use crate::v2::merlin::types::relationship_phrase::RelationshipPhrase;
 use crate::v2::merlin::types::x_box::XBox;
 use serde::{Deserialize, Serialize};
@@ -119,7 +120,16 @@ impl Anchor {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-impl-nav-subtype-to-supertype-point"}}}
     // Navigate to [`Point`] across R6(isa)
     pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Point>>> {
-        vec![store.exhume_point(&self.id).unwrap()]
+        vec![store
+            .iter_point()
+            .find(|point| {
+                if let PointEnum::Anchor(id) = point.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

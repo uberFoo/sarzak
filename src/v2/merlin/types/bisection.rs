@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::merlin::types::line_segment::LineSegment;
 use crate::v2::merlin::types::point::Point;
+use crate::v2::merlin::types::point::PointEnum;
 use crate::v2::merlin::types::relationship_name::RelationshipName;
 use serde::{Deserialize, Serialize};
 
@@ -77,7 +78,16 @@ impl Bisection {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-impl-nav-subtype-to-supertype-point"}}}
     // Navigate to [`Point`] across R6(isa)
     pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Point>>> {
-        vec![store.exhume_point(&self.id).unwrap()]
+        vec![store
+            .iter_point()
+            .find(|point| {
+                if let PointEnum::Bisection(id) = point.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

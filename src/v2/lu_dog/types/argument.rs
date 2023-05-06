@@ -48,8 +48,6 @@ impl Argument {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Argument`] across R27(1-*c)
     pub fn r27_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
@@ -81,8 +79,6 @@ impl Argument {
             Some(ref argument) => vec![argument.clone()],
             None => Vec::new(),
         }
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-impl-nav-subtype-to-supertype-expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

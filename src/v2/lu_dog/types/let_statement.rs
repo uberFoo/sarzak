@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
 use crate::v2::lu_dog::types::statement::Statement;
+use crate::v2::lu_dog::types::statement::StatementEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -47,8 +48,6 @@ impl LetStatement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R20(1-*)
     pub fn r20_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
@@ -67,7 +66,16 @@ impl LetStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
     pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
-        vec![store.exhume_statement(&self.id).unwrap()]
+        vec![store
+            .iter_statement()
+            .find(|statement| {
+                if let StatementEnum::LetStatement(id) = statement.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

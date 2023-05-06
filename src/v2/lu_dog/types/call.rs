@@ -44,9 +44,7 @@ impl Call {
         expression: Option<&Arc<RwLock<Expression>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = FUNCTION_CALL;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
@@ -56,8 +54,6 @@ impl Call {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_function_call_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_method_call(
@@ -65,9 +61,7 @@ impl Call {
         subtype: &Arc<RwLock<MethodCall>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
@@ -77,8 +71,6 @@ impl Call {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_method_call_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_static_method_call"}}}
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_static_method_call(
@@ -86,9 +78,7 @@ impl Call {
         subtype: &Arc<RwLock<StaticMethodCall>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Call>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
@@ -97,8 +87,6 @@ impl Call {
         store.inter_call(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_static_method_call_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
     /// Navigate to [`Expression`] across R29(1-*c)

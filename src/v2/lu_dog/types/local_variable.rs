@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::variable::Variable;
+use crate::v2::lu_dog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -35,8 +36,6 @@ impl LocalVariable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-nav-backward-one-to-let_statement"}}}
     /// Navigate to [`LetStatement`] across R21(1-1)
     pub fn r21_let_statement<'a>(
@@ -52,7 +51,16 @@ impl LocalVariable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
     pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Variable>>> {
-        vec![store.exhume_variable(&self.id).unwrap()]
+        vec![store
+            .iter_variable()
+            .find(|variable| {
+                if let VariableEnum::LocalVariable(id) = variable.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

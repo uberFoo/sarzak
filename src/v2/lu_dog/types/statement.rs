@@ -50,9 +50,7 @@ impl Statement {
         subtype: &Arc<RwLock<ExpressionStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
@@ -63,8 +61,6 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
@@ -72,9 +68,7 @@ impl Statement {
         next: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = ITEM_STATEMENT;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
@@ -85,8 +79,6 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
@@ -95,9 +87,7 @@ impl Statement {
         subtype: &Arc<RwLock<LetStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
@@ -108,8 +98,6 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
@@ -118,9 +106,7 @@ impl Statement {
         subtype: &Arc<RwLock<ResultStatement>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Statement>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
@@ -130,8 +116,6 @@ impl Statement {
         store.inter_statement(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)

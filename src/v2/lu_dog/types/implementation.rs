@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
@@ -43,8 +44,6 @@ impl Implementation {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-nav-forward-to-model_type"}}}
     /// Navigate to [`WoogStruct`] across R8(1-*)
     pub fn r8_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogStruct>>> {
@@ -69,7 +68,16 @@ impl Implementation {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
-        vec![store.exhume_item(&self.id).unwrap()]
+        vec![store
+            .iter_item()
+            .find(|item| {
+                if let ItemEnum::Implementation(id) = item.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

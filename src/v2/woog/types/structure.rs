@@ -33,14 +33,6 @@ impl Structure {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-forward-cond-to-field_zero"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-forward-to-object"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc_many-to-structure_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-many-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-M)
     pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {

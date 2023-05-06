@@ -47,9 +47,7 @@ impl Point {
         subtype: &Arc<RwLock<Anchor>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Point>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
             x: x,
             y: y,
@@ -71,9 +69,7 @@ impl Point {
         subtype: &Arc<RwLock<Bisection>>,
         store: &mut MerlinStore,
     ) -> Arc<RwLock<Point>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
             x: x,
             y: y,
@@ -90,9 +86,7 @@ impl Point {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-new_inflection"}}}
     /// Inter a new Point in the store, and return it's `id`.
     pub fn new_inflection(x: i64, y: i64, store: &mut MerlinStore) -> Arc<RwLock<Point>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = INFLECTION;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
             x: x,
             y: y,

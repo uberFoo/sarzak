@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::sarzak::types::object::Object;
@@ -50,9 +51,6 @@ impl WoogStruct {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-to-object"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*c)
     pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
@@ -113,7 +111,16 @@ impl WoogStruct {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
-        vec![store.exhume_item(&self.id).unwrap()]
+        vec![store
+            .iter_item()
+            .find(|item| {
+                if let ItemEnum::WoogStruct(id) = item.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-value_type"}}}

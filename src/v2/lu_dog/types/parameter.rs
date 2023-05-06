@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::variable::Variable;
+use crate::v2::lu_dog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -48,8 +49,6 @@ impl Parameter {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Function`] across R13(1-*)
     pub fn r13_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Function>>> {
@@ -80,7 +79,16 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
     pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Variable>>> {
-        vec![store.exhume_variable(&self.id).unwrap()]
+        vec![store
+            .iter_variable()
+            .find(|variable| {
+                if let VariableEnum::Parameter(id) = variable.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

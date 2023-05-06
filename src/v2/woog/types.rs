@@ -1,8 +1,5 @@
 //! Domain for generating code.
-// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::woog_2-module-definition-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog_2-module-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"v2::woog-module-definition-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-module-definition"}}}
 pub mod access;
 pub mod block;
 pub mod borrowed;
@@ -92,5 +89,4 @@ pub use crate::v2::woog::woog_option::WoogOption;
 pub use crate::v2::woog::x_let::XLet;
 pub use crate::v2::woog::x_macro::XMacro;
 pub use crate::v2::woog::x_macro::X_MACRO;
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

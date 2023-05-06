@@ -3,6 +3,7 @@
 use uuid::Uuid;
 
 use crate::v2::woog::types::variable::Variable;
+use crate::v2::woog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
@@ -34,12 +35,19 @@ impl Local {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R8(isa)
     pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
-        vec![store.exhume_variable(&self.id).unwrap()]
+        vec![store
+            .iter_variable()
+            .find(|variable| {
+                if let VariableEnum::Local(id) = variable.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

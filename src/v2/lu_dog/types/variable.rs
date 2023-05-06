@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
 use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::value::Value;
+use crate::v2::lu_dog::types::value::ValueEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -44,9 +45,7 @@ impl Variable {
         subtype: &Arc<RwLock<LocalVariable>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Variable>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
             subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
@@ -56,8 +55,6 @@ impl Variable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local_variable_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
@@ -65,9 +62,7 @@ impl Variable {
         subtype: &Arc<RwLock<Parameter>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Variable>> {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.read().unwrap().id;
+        let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
             subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
@@ -77,12 +72,19 @@ impl Variable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R11(isa)
     pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
-        vec![store.exhume_value(&self.id).unwrap()]
+        vec![store
+            .iter_value()
+            .find(|value| {
+                if let ValueEnum::Variable(id) = value.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

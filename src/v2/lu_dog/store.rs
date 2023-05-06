@@ -8,9 +8,11 @@
 //! # Contents:
 //!
 //! * [`Argument`]
+//! * [`Binary`]
 //! * [`Block`]
 //! * [`BooleanLiteral`]
 //! * [`Call`]
+//! * [`Comparison`]
 //! * [`DwarfSourceFile`]
 //! * [`Error`]
 //! * [`ErrorExpression`]
@@ -33,6 +35,7 @@
 //! * [`LocalVariable`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
+//! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
 //! * [`Print`]
@@ -64,21 +67,24 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Argument, Block, BooleanLiteral, Call, DwarfSourceFile, Error, ErrorExpression, Expression,
-    ExpressionStatement, Field, FieldAccess, FieldExpression, FloatLiteral, ForLoop, Function,
-    Implementation, Import, IntegerLiteral, Item, LetStatement, List, Literal, LocalVariable,
-    MethodCall, Parameter, Print, Reference, ResultStatement, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XIf, XReturn, ZObjectStore, ZSome, EMPTY, FALSE_LITERAL, TRUE_LITERAL, UNKNOWN,
+    Argument, Binary, Block, BooleanLiteral, Call, Comparison, DwarfSourceFile, Error,
+    ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldExpression,
+    FloatLiteral, ForLoop, Function, Implementation, Import, IntegerLiteral, Item, LetStatement,
+    List, Literal, LocalVariable, MethodCall, Operator, Parameter, Print, Reference,
+    ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression, Value,
+    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, ZObjectStore,
+    ZSome, ADDITION, EMPTY, FALSE_LITERAL, LESS_THAN_OR_EQUAL, SUBTRACTION, TRUE_LITERAL, UNKNOWN,
     UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     argument: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Argument>>, SystemTime)>>>,
+    binary: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Binary>>, SystemTime)>>>,
     block: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Block>>, SystemTime)>>>,
     boolean_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<BooleanLiteral>>, SystemTime)>>>,
     call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Call>>, SystemTime)>>>,
+    comparison: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Comparison>>, SystemTime)>>>,
     dwarf_source_file: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<DwarfSourceFile>>, SystemTime)>>>,
     error: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Error>>, SystemTime)>>>,
     error_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ErrorExpression>>, SystemTime)>>>,
@@ -102,6 +108,7 @@ pub struct ObjectStore {
     local_variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LocalVariable>>, SystemTime)>>>,
     method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<MethodCall>>, SystemTime)>>>,
     z_object_store: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZObjectStore>>, SystemTime)>>>,
+    operator: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Operator>>, SystemTime)>>>,
     woog_option: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<WoogOption>>, SystemTime)>>>,
     parameter: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Parameter>>, SystemTime)>>>,
     print: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Print>>, SystemTime)>>>,
@@ -125,9 +132,11 @@ impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
             argument: Arc::new(RwLock::new(HashMap::default())),
+            binary: Arc::new(RwLock::new(HashMap::default())),
             block: Arc::new(RwLock::new(HashMap::default())),
             boolean_literal: Arc::new(RwLock::new(HashMap::default())),
             call: Arc::new(RwLock::new(HashMap::default())),
+            comparison: Arc::new(RwLock::new(HashMap::default())),
             dwarf_source_file: Arc::new(RwLock::new(HashMap::default())),
             error: Arc::new(RwLock::new(HashMap::default())),
             error_expression: Arc::new(RwLock::new(HashMap::default())),
@@ -150,6 +159,7 @@ impl ObjectStore {
             local_variable: Arc::new(RwLock::new(HashMap::default())),
             method_call: Arc::new(RwLock::new(HashMap::default())),
             z_object_store: Arc::new(RwLock::new(HashMap::default())),
+            operator: Arc::new(RwLock::new(HashMap::default())),
             woog_option: Arc::new(RwLock::new(HashMap::default())),
             parameter: Arc::new(RwLock::new(HashMap::default())),
             print: Arc::new(RwLock::new(HashMap::default())),
@@ -173,11 +183,16 @@ impl ObjectStore {
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
+        store.inter_binary(Arc::new(RwLock::new(Binary::Addition(ADDITION))));
+        store.inter_binary(Arc::new(RwLock::new(Binary::Subtraction(SUBTRACTION))));
         store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::FalseLiteral(
             FALSE_LITERAL,
         ))));
         store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::TrueLiteral(
             TRUE_LITERAL,
+        ))));
+        store.inter_comparison(Arc::new(RwLock::new(Comparison::LessThanOrEqual(
+            LESS_THAN_OR_EQUAL,
         ))));
         store.inter_error(Arc::new(RwLock::new(Error::UnknownVariable(
             UNKNOWN_VARIABLE,
@@ -246,6 +261,51 @@ impl ObjectStore {
             .unwrap()
             .get(&argument.id)
             .map(|argument| argument.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Binary`] into the store.
+    ///
+    pub fn inter_binary(&mut self, binary: Arc<RwLock<Binary>>) {
+        let read = binary.read().unwrap();
+        self.binary
+            .write()
+            .unwrap()
+            .insert(read.id(), (binary.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`Binary`] from the store.
+    ///
+    pub fn exhume_binary(&self, id: &Uuid) -> Option<Arc<RwLock<Binary>>> {
+        self.binary
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|binary| binary.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
+    ///
+    pub fn iter_binary(&self) -> impl Iterator<Item = Arc<RwLock<Binary>>> + '_ {
+        let values: Vec<Arc<RwLock<Binary>>> = self
+            .binary
+            .read()
+            .unwrap()
+            .values()
+            .map(|binary| binary.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Binary.
+    ///
+    pub fn binary_timestamp(&self, binary: &Binary) -> SystemTime {
+        self.binary
+            .read()
+            .unwrap()
+            .get(&binary.id())
+            .map(|binary| binary.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -377,6 +437,51 @@ impl ObjectStore {
             .unwrap()
             .get(&call.id)
             .map(|call| call.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`Comparison`] into the store.
+    ///
+    pub fn inter_comparison(&mut self, comparison: Arc<RwLock<Comparison>>) {
+        let read = comparison.read().unwrap();
+        self.comparison
+            .write()
+            .unwrap()
+            .insert(read.id(), (comparison.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`Comparison`] from the store.
+    ///
+    pub fn exhume_comparison(&self, id: &Uuid) -> Option<Arc<RwLock<Comparison>>> {
+        self.comparison
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|comparison| comparison.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
+    ///
+    pub fn iter_comparison(&self) -> impl Iterator<Item = Arc<RwLock<Comparison>>> + '_ {
+        let values: Vec<Arc<RwLock<Comparison>>> = self
+            .comparison
+            .read()
+            .unwrap()
+            .values()
+            .map(|comparison| comparison.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Comparison.
+    ///
+    pub fn comparison_timestamp(&self, comparison: &Comparison) -> SystemTime {
+        self.comparison
+            .read()
+            .unwrap()
+            .get(&comparison.id())
+            .map(|comparison| comparison.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1371,6 +1476,51 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`Operator`] into the store.
+    ///
+    pub fn inter_operator(&mut self, operator: Arc<RwLock<Operator>>) {
+        let read = operator.read().unwrap();
+        self.operator
+            .write()
+            .unwrap()
+            .insert(read.id, (operator.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`Operator`] from the store.
+    ///
+    pub fn exhume_operator(&self, id: &Uuid) -> Option<Arc<RwLock<Operator>>> {
+        self.operator
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|operator| operator.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
+    ///
+    pub fn iter_operator(&self) -> impl Iterator<Item = Arc<RwLock<Operator>>> + '_ {
+        let values: Vec<Arc<RwLock<Operator>>> = self
+            .operator
+            .read()
+            .unwrap()
+            .values()
+            .map(|operator| operator.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Operator.
+    ///
+    pub fn operator_timestamp(&self, operator: &Operator) -> SystemTime {
+        self.operator
+            .read()
+            .unwrap()
+            .get(&operator.id)
+            .map(|operator| operator.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`WoogOption`] into the store.
     ///
     pub fn inter_woog_option(&mut self, woog_option: Arc<RwLock<WoogOption>>) {
@@ -2175,6 +2325,43 @@ impl ObjectStore {
             }
         }
 
+        // Persist Binary.
+        {
+            let path = path.join("binary");
+            fs::create_dir_all(&path)?;
+            for binary_tuple in self.binary.read().unwrap().values() {
+                let path = path.join(format!("{}.json", binary_tuple.0.read().unwrap().id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Binary>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != binary_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.binary.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Block.
         {
             let path = path.join("block");
@@ -2282,6 +2469,43 @@ impl ObjectStore {
                 let id = file_name.split(".").next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.call.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Comparison.
+        {
+            let path = path.join("comparison");
+            fs::create_dir_all(&path)?;
+            for comparison_tuple in self.comparison.read().unwrap().values() {
+                let path = path.join(format!("{}.json", comparison_tuple.0.read().unwrap().id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Comparison>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != comparison_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &comparison_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &comparison_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.comparison.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3123,6 +3347,43 @@ impl ObjectStore {
             }
         }
 
+        // Persist Operator.
+        {
+            let path = path.join("operator");
+            fs::create_dir_all(&path)?;
+            for operator_tuple in self.operator.read().unwrap().values() {
+                let path = path.join(format!("{}.json", operator_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Operator>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != operator_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &operator_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &operator_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split(".").next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.operator.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Option.
         {
             let path = path.join("woog_option");
@@ -3763,6 +4024,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Binary.
+        {
+            let path = path.join("binary");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let binary: (Arc<RwLock<Binary>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .binary
+                    .write()
+                    .unwrap()
+                    .insert(binary.0.read().unwrap().id(), binary.clone());
+            }
+        }
+
         // Load Block.
         {
             let path = path.join("block");
@@ -3814,6 +4093,25 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(call.0.read().unwrap().id, call.clone());
+            }
+        }
+
+        // Load Comparison.
+        {
+            let path = path.join("comparison");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let comparison: (Arc<RwLock<Comparison>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .comparison
+                    .write()
+                    .unwrap()
+                    .insert(comparison.0.read().unwrap().id(), comparison.clone());
             }
         }
 
@@ -4219,6 +4517,25 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(z_object_store.0.read().unwrap().id, z_object_store.clone());
+            }
+        }
+
+        // Load Operator.
+        {
+            let path = path.join("operator");
+            let mut entries = fs::read_dir(path)?;
+            while let Some(entry) = entries.next() {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let operator: (Arc<RwLock<Operator>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .operator
+                    .write()
+                    .unwrap()
+                    .insert(operator.0.read().unwrap().id, operator.clone());
             }
         }
 

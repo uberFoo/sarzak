@@ -6,6 +6,7 @@ use crate::v2::sarzak::types::object::Object;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::function::Function;
+use crate::v2::woog::types::function::FunctionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
@@ -53,8 +54,6 @@ impl ObjectMethod {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R23(1-*)
     pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
@@ -82,11 +81,19 @@ impl ObjectMethod {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}
     // Navigate to [`Function`] across R25(isa)
     pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<&Function> {
-        vec![store.exhume_function(&self.id).unwrap()]
+        vec![store
+            .iter_function()
+            .find(|function| {
+                if let FunctionEnum::ObjectMethod(id) = function.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -75,13 +75,13 @@ impl Block {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
-    /// Navigate to [`XIf`] across R46(1-M)
-    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
+    /// Navigate to [`XIf`] across R52(1-Mc)
+    pub fn r52_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
         store
             .iter_x_if()
             .filter_map(|x_if| {
-                if x_if.read().unwrap().true_block == self.id {
+                if x_if.read().unwrap().false_block == Some(self.id) {
                     Some(x_if)
                 } else {
                     None
@@ -90,13 +90,13 @@ impl Block {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
-    /// Navigate to [`XIf`] across R47(1-Mc)
-    pub fn r47_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R46(1-M)
+    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
         store
             .iter_x_if()
             .filter_map(|x_if| {
-                if x_if.read().unwrap().false_block == Some(self.id) {
+                if x_if.read().unwrap().true_block == self.id {
                     Some(x_if)
                 } else {
                     None

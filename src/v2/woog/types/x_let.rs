@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
 use crate::v2::woog::types::statement::Statement;
+use crate::v2::woog::types::statement::StatementEnum;
 use crate::v2::woog::types::variable::Variable;
 use serde::{Deserialize, Serialize};
 
@@ -47,8 +48,6 @@ impl XLet {
             variable: variable.id,
         };
         store.inter_x_let(new.clone());
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -67,7 +66,16 @@ impl XLet {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R11(isa)
     pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
-        vec![store.exhume_statement(&self.id).unwrap()]
+        vec![store
+            .iter_statement()
+            .find(|statement| {
+                if let StatementEnum::XLet(id) = statement.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
@@ -56,8 +57,6 @@ impl Function {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new_"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R19(1-*)
     pub fn r19_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
@@ -76,7 +75,6 @@ impl Function {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-return_type"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-return_type"}}}
     /// Navigate to [`ValueType`] across R10(1-*)
     pub fn r10_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
@@ -101,7 +99,16 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
-        vec![store.exhume_item(&self.id).unwrap()]
+        vec![store
+            .iter_item()
+            .find(|item| {
+                if let ItemEnum::Function(id) = item.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()] // 💥
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-value_type"}}}
