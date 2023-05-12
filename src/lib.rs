@@ -1,5 +1,4 @@
 pub mod domain;
-pub mod dwarf;
 pub mod error;
 pub mod mc;
 pub mod v1;
