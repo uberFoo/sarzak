@@ -4,6 +4,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::addition::ADDITION;
+use crate::v2::lu_dog::types::assignment::ASSIGNMENT;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
 use crate::v2::lu_dog::types::subtraction::SUBTRACTION;
@@ -21,6 +22,7 @@ use uuid::Uuid;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Binary {
     Addition(Uuid),
+    Assignment(Uuid),
     Subtraction(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -31,6 +33,12 @@ impl Binary {
     pub fn new_addition(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_binary(&ADDITION).unwrap()
+    }
+
+    /// Create a new instance of Binary::Assignment
+    pub fn new_assignment(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_binary(&ASSIGNMENT).unwrap()
     }
 
     /// Create a new instance of Binary::Subtraction
@@ -44,6 +52,7 @@ impl Binary {
     pub fn id(&self) -> Uuid {
         match self {
             Binary::Addition(id) => *id,
+            Binary::Assignment(id) => *id,
             Binary::Subtraction(id) => *id,
         }
     }

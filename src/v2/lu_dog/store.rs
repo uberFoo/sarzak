@@ -31,6 +31,8 @@
 //! * [`Item`]
 //! * [`LetStatement`]
 //! * [`List`]
+//! * [`ListElement`]
+//! * [`ListExpression`]
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`MethodCall`]
@@ -70,11 +72,11 @@ use crate::v2::lu_dog::types::{
     Argument, Binary, Block, BooleanLiteral, Call, Comparison, DwarfSourceFile, Error,
     ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldExpression,
     FloatLiteral, ForLoop, Function, Implementation, Import, IntegerLiteral, Item, LetStatement,
-    List, Literal, LocalVariable, MethodCall, Operator, Parameter, Print, Reference,
-    ResultStatement, Statement, StaticMethodCall, StringLiteral, StructExpression, Value,
-    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, ZObjectStore,
-    ZSome, ADDITION, EMPTY, FALSE_LITERAL, LESS_THAN_OR_EQUAL, SUBTRACTION, TRUE_LITERAL, UNKNOWN,
-    UNKNOWN_VARIABLE,
+    List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator, Parameter,
+    Print, Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf,
+    XReturn, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, EMPTY, FALSE_LITERAL, LESS_THAN_OR_EQUAL,
+    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -104,6 +106,8 @@ pub struct ObjectStore {
     item: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Item>>, SystemTime)>>>,
     let_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LetStatement>>, SystemTime)>>>,
     list: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<List>>, SystemTime)>>>,
+    list_element: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ListElement>>, SystemTime)>>>,
+    list_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ListExpression>>, SystemTime)>>>,
     literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Literal>>, SystemTime)>>>,
     local_variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LocalVariable>>, SystemTime)>>>,
     method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<MethodCall>>, SystemTime)>>>,
@@ -155,6 +159,8 @@ impl ObjectStore {
             item: Arc::new(RwLock::new(HashMap::default())),
             let_statement: Arc::new(RwLock::new(HashMap::default())),
             list: Arc::new(RwLock::new(HashMap::default())),
+            list_element: Arc::new(RwLock::new(HashMap::default())),
+            list_expression: Arc::new(RwLock::new(HashMap::default())),
             literal: Arc::new(RwLock::new(HashMap::default())),
             local_variable: Arc::new(RwLock::new(HashMap::default())),
             method_call: Arc::new(RwLock::new(HashMap::default())),
@@ -184,6 +190,7 @@ impl ObjectStore {
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_binary(Arc::new(RwLock::new(Binary::Addition(ADDITION))));
+        store.inter_binary(Arc::new(RwLock::new(Binary::Assignment(ASSIGNMENT))));
         store.inter_binary(Arc::new(RwLock::new(Binary::Subtraction(SUBTRACTION))));
         store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::FalseLiteral(
             FALSE_LITERAL,
@@ -1296,6 +1303,96 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`ListElement`] into the store.
+    ///
+    pub fn inter_list_element(&mut self, list_element: Arc<RwLock<ListElement>>) {
+        let read = list_element.read().unwrap();
+        self.list_element
+            .write()
+            .unwrap()
+            .insert(read.id, (list_element.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`ListElement`] from the store.
+    ///
+    pub fn exhume_list_element(&self, id: &Uuid) -> Option<Arc<RwLock<ListElement>>> {
+        self.list_element
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|list_element| list_element.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
+    ///
+    pub fn iter_list_element(&self) -> impl Iterator<Item = Arc<RwLock<ListElement>>> + '_ {
+        let values: Vec<Arc<RwLock<ListElement>>> = self
+            .list_element
+            .read()
+            .unwrap()
+            .values()
+            .map(|list_element| list_element.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for ListElement.
+    ///
+    pub fn list_element_timestamp(&self, list_element: &ListElement) -> SystemTime {
+        self.list_element
+            .read()
+            .unwrap()
+            .get(&list_element.id)
+            .map(|list_element| list_element.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter [`ListExpression`] into the store.
+    ///
+    pub fn inter_list_expression(&mut self, list_expression: Arc<RwLock<ListExpression>>) {
+        let read = list_expression.read().unwrap();
+        self.list_expression
+            .write()
+            .unwrap()
+            .insert(read.id, (list_expression.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`ListExpression`] from the store.
+    ///
+    pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ListExpression>>> {
+        self.list_expression
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|list_expression| list_expression.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
+    ///
+    pub fn iter_list_expression(&self) -> impl Iterator<Item = Arc<RwLock<ListExpression>>> + '_ {
+        let values: Vec<Arc<RwLock<ListExpression>>> = self
+            .list_expression
+            .read()
+            .unwrap()
+            .values()
+            .map(|list_expression| list_expression.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for ListExpression.
+    ///
+    pub fn list_expression_timestamp(&self, list_expression: &ListExpression) -> SystemTime {
+        self.list_expression
+            .read()
+            .unwrap()
+            .get(&list_expression.id)
+            .map(|list_expression| list_expression.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`Literal`] into the store.
     ///
     pub fn inter_literal(&mut self, literal: Arc<RwLock<Literal>>) {
@@ -2273,17 +2370,23 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-persistence"}}}
     /// Persist the store.
     ///
+    /// The store is persisted as a a bincode file.
+    pub fn persist_bincode<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
+        let mut bin_file = fs::File::create(path)?;
+        let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
+        bin_file.write_all(&encoded)?;
+        Ok(())
+    }
+
+    /// Persist the store.
+    ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
     /// In fact, I intend to add automagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
         fs::create_dir_all(path)?;
-
-        let bin_path = path.clone().join("lu_dog.bin");
-        let mut bin_file = fs::File::create(bin_path)?;
-        let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
-        bin_file.write_all(&encoded)?;
 
         let path = path.join("lu_dog.json");
         fs::create_dir_all(&path)?;
@@ -3193,6 +3296,83 @@ impl ObjectStore {
             }
         }
 
+        // Persist List Element.
+        {
+            let path = path.join("list_element");
+            fs::create_dir_all(&path)?;
+            for list_element_tuple in self.list_element.read().unwrap().values() {
+                let path = path.join(format!("{}.json", list_element_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<ListElement>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != list_element_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &list_element_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &list_element_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.list_element.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist List Expression.
+        {
+            let path = path.join("list_expression");
+            fs::create_dir_all(&path)?;
+            for list_expression_tuple in self.list_expression.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    list_expression_tuple.0.read().unwrap().id
+                ));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<ListExpression>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != list_expression_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &list_expression_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &list_expression_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.list_expression.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Literal.
         {
             let path = path.join("literal");
@@ -3994,6 +4174,18 @@ impl ObjectStore {
         Ok(())
     }
 
+    pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path = path.as_ref();
+
+        let bin_file = fs::File::open(path)?;
+        Ok(bincode::deserialize_from(bin_file).unwrap())
+        // let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
+        // bin_file.write_all(&encoded)?;
+        // Ok(())
+
+        // store.
+    }
+
     /// Load the store.
     ///
     /// The store is persisted as a directory of JSON files. The intention
@@ -4442,6 +4634,43 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(list.0.read().unwrap().id, list.clone());
+            }
+        }
+
+        // Load List Element.
+        {
+            let path = path.join("list_element");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let list_element: (Arc<RwLock<ListElement>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .list_element
+                    .write()
+                    .unwrap()
+                    .insert(list_element.0.read().unwrap().id, list_element.clone());
+            }
+        }
+
+        // Load List Expression.
+        {
+            let path = path.join("list_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let list_expression: (Arc<RwLock<ListExpression>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store.list_expression.write().unwrap().insert(
+                    list_expression.0.read().unwrap().id,
+                    list_expression.clone(),
+                );
             }
         }
 

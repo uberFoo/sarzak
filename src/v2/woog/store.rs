@@ -1090,17 +1090,23 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-persistence"}}}
     /// Persist the store.
     ///
+    /// The store is persisted as a a bincode file.
+    pub fn persist_bincode<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
+        let mut bin_file = fs::File::create(path)?;
+        let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
+        bin_file.write_all(&encoded)?;
+        Ok(())
+    }
+
+    /// Persist the store.
+    ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
     /// In fact, I intend to add automagic git integration as an option.
     pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
         fs::create_dir_all(path)?;
-
-        let bin_path = path.clone().join("woog.bin");
-        let mut bin_file = fs::File::create(bin_path)?;
-        let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
-        bin_file.write_all(&encoded)?;
 
         let path = path.join("woog.json");
         fs::create_dir_all(&path)?;

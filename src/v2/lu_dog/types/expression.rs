@@ -12,6 +12,8 @@ use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
+use crate::v2::lu_dog::types::list_element::ListElement;
+use crate::v2::lu_dog::types::list_expression::ListExpression;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::print::Print;
@@ -41,6 +43,8 @@ pub enum Expression {
     FieldAccess(Uuid),
     ForLoop(Uuid),
     XIf(Uuid),
+    ListElement(Uuid),
+    ListExpression(Uuid),
     Literal(Uuid),
     Operator(Uuid),
     Print(Uuid),
@@ -128,6 +132,39 @@ impl Expression {
             x_if
         } else {
             let new = Arc::new(RwLock::new(Self::XIf(x_if.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::ListElement
+    pub fn new_list_element(
+        list_element: &Arc<RwLock<ListElement>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(list_element) = store.exhume_expression(&list_element.read().unwrap().id) {
+            list_element
+        } else {
+            let new = Arc::new(RwLock::new(Self::ListElement(
+                list_element.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::ListExpression
+    pub fn new_list_expression(
+        list_expression: &Arc<RwLock<ListExpression>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(list_expression) = store.exhume_expression(&list_expression.read().unwrap().id)
+        {
+            list_expression
+        } else {
+            let new = Arc::new(RwLock::new(Self::ListExpression(
+                list_expression.read().unwrap().id,
+            )));
             store.inter_expression(new.clone());
             new
         }
@@ -232,6 +269,8 @@ impl Expression {
             Expression::FieldAccess(id) => *id,
             Expression::ForLoop(id) => *id,
             Expression::XIf(id) => *id,
+            Expression::ListElement(id) => *id,
+            Expression::ListExpression(id) => *id,
             Expression::Literal(id) => *id,
             Expression::Operator(id) => *id,
             Expression::Print(id) => *id,
