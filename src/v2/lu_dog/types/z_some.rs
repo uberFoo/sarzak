@@ -59,7 +59,7 @@ impl ZSome {
                     false
                 }
             })
-            .unwrap()] // 💥
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

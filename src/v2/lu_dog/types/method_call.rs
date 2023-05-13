@@ -48,7 +48,7 @@ impl MethodCall {
                     false
                 }
             })
-            .unwrap()] // 💥
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -599,6 +599,15 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    /// The store is as a bincode file.
+    pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path = path.as_ref();
+        let bin_file = fs::File::open(path)?;
+        Ok(bincode::deserialize_from(bin_file).unwrap())
+    }
+
+    /// Load the store.
+    ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
     /// In fact, I intend to add automagic git integration as an option.

@@ -51,7 +51,7 @@ impl Comparison {
                     false
                 }
             })
-            .unwrap()] // 💥
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

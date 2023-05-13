@@ -60,7 +60,7 @@ impl ResultStatement {
                     false
                 }
             })
-            .unwrap()] // 💥
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

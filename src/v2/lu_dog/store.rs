@@ -4174,16 +4174,13 @@ impl ObjectStore {
         Ok(())
     }
 
+    /// Load the store.
+    ///
+    /// The store is as a bincode file.
     pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
-
         let bin_file = fs::File::open(path)?;
         Ok(bincode::deserialize_from(bin_file).unwrap())
-        // let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
-        // bin_file.write_all(&encoded)?;
-        // Ok(())
-
-        // store.
     }
 
     /// Load the store.

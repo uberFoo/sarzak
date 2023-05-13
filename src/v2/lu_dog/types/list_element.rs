@@ -15,6 +15,8 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ListElement {
     pub id: Uuid,
+    /// R55: [`ListElement`] 'points at an' [`Expression`]
+    pub expression: Uuid,
     /// R53: [`ListElement`] 'follows' [`ListElement`]
     pub next: Option<Uuid>,
 }
@@ -24,16 +26,24 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-new"}}}
     /// Inter a new 'List Element' in the store, and return it's `id`.
     pub fn new(
+        expression: &Arc<RwLock<Expression>>,
         next: Option<&Arc<RwLock<ListElement>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<ListElement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ListElement {
             id,
+            expression: expression.read().unwrap().id(),
             next: next.map(|list_element| list_element.read().unwrap().id),
         }));
         store.inter_list_element(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-forward-to-expression"}}}
+    /// Navigate to [`Expression`] across R55(1-*)
+    pub fn r55_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+        vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-forward-cond-to-next"}}}
