@@ -11,6 +11,7 @@ use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
+use crate::v2::lu_dog::types::index::Index;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::list_element::ListElement;
 use crate::v2::lu_dog::types::list_expression::ListExpression;
@@ -43,6 +44,7 @@ pub enum Expression {
     FieldAccess(Uuid),
     ForLoop(Uuid),
     XIf(Uuid),
+    Index(Uuid),
     ListElement(Uuid),
     ListExpression(Uuid),
     Literal(Uuid),
@@ -132,6 +134,17 @@ impl Expression {
             x_if
         } else {
             let new = Arc::new(RwLock::new(Self::XIf(x_if.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::Index
+    pub fn new_index(index: &Arc<RwLock<Index>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        if let Some(index) = store.exhume_expression(&index.read().unwrap().id) {
+            index
+        } else {
+            let new = Arc::new(RwLock::new(Self::Index(index.read().unwrap().id)));
             store.inter_expression(new.clone());
             new
         }
@@ -269,6 +282,7 @@ impl Expression {
             Expression::FieldAccess(id) => *id,
             Expression::ForLoop(id) => *id,
             Expression::XIf(id) => *id,
+            Expression::Index(id) => *id,
             Expression::ListElement(id) => *id,
             Expression::ListExpression(id) => *id,
             Expression::Literal(id) => *id,
@@ -354,6 +368,24 @@ impl Expression {
         store
             .iter_x_if()
             .filter(|x_if| x_if.read().unwrap().test == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
+    /// Navigate to [`Index`] across R57(1-M)
+    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
+        store
+            .iter_index()
+            .filter(|index| index.read().unwrap().target == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
+    /// Navigate to [`Index`] across R56(1-M)
+    pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
+        store
+            .iter_index()
+            .filter(|index| index.read().unwrap().index == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

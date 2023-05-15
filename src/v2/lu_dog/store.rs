@@ -27,6 +27,7 @@
 //! * [`XIf`]
 //! * [`Implementation`]
 //! * [`Import`]
+//! * [`Index`]
 //! * [`IntegerLiteral`]
 //! * [`Item`]
 //! * [`LetStatement`]
@@ -71,9 +72,9 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::{
     Argument, Binary, Block, BooleanLiteral, Call, Comparison, DwarfSourceFile, Error,
     ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldExpression,
-    FloatLiteral, ForLoop, Function, Implementation, Import, IntegerLiteral, Item, LetStatement,
-    List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator, Parameter,
-    Print, Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral,
+    FloatLiteral, ForLoop, Function, Implementation, Import, Index, IntegerLiteral, Item,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator,
+    Parameter, Print, Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral,
     StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf,
     XReturn, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, EMPTY, FALSE_LITERAL, LESS_THAN_OR_EQUAL,
     SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
@@ -102,6 +103,7 @@ pub struct ObjectStore {
     x_if: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XIf>>, SystemTime)>>>,
     implementation: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Implementation>>, SystemTime)>>>,
     import: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Import>>, SystemTime)>>>,
+    index: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Index>>, SystemTime)>>>,
     integer_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<IntegerLiteral>>, SystemTime)>>>,
     item: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Item>>, SystemTime)>>>,
     let_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LetStatement>>, SystemTime)>>>,
@@ -155,6 +157,7 @@ impl ObjectStore {
             x_if: Arc::new(RwLock::new(HashMap::default())),
             implementation: Arc::new(RwLock::new(HashMap::default())),
             import: Arc::new(RwLock::new(HashMap::default())),
+            index: Arc::new(RwLock::new(HashMap::default())),
             integer_literal: Arc::new(RwLock::new(HashMap::default())),
             item: Arc::new(RwLock::new(HashMap::default())),
             let_statement: Arc::new(RwLock::new(HashMap::default())),
@@ -1131,6 +1134,51 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter [`Index`] into the store.
+    ///
+    pub fn inter_index(&mut self, index: Arc<RwLock<Index>>) {
+        let read = index.read().unwrap();
+        self.index
+            .write()
+            .unwrap()
+            .insert(read.id, (index.clone(), SystemTime::now()));
+    }
+
+    /// Exhume [`Index`] from the store.
+    ///
+    pub fn exhume_index(&self, id: &Uuid) -> Option<Arc<RwLock<Index>>> {
+        self.index
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|index| index.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
+    ///
+    pub fn iter_index(&self) -> impl Iterator<Item = Arc<RwLock<Index>>> + '_ {
+        let values: Vec<Arc<RwLock<Index>>> = self
+            .index
+            .read()
+            .unwrap()
+            .values()
+            .map(|index| index.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Index.
+    ///
+    pub fn index_timestamp(&self, index: &Index) -> SystemTime {
+        self.index
+            .read()
+            .unwrap()
+            .get(&index.id)
+            .map(|index| index.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter [`IntegerLiteral`] into the store.
     ///
     pub fn inter_integer_literal(&mut self, integer_literal: Arc<RwLock<IntegerLiteral>>) {
@@ -1455,6 +1503,14 @@ impl ObjectStore {
             .read()
             .unwrap()
             .get(id)
+            .map(|local_variable| local_variable.0.clone())
+    }
+
+    pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<LocalVariable>>> {
+        self.local_variable
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|local_variable| local_variable.0.clone())
     }
 
@@ -2197,6 +2253,14 @@ impl ObjectStore {
             .map(|value| value.0.clone())
     }
 
+    pub fn exorcise_value(&mut self, id: &Uuid) -> Option<Arc<RwLock<Value>>> {
+        self.value
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|value| value.0.clone())
+    }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Value>`.
     ///
     pub fn iter_value(&self) -> impl Iterator<Item = Arc<RwLock<Value>>> + '_ {
@@ -2284,6 +2348,14 @@ impl ObjectStore {
             .read()
             .unwrap()
             .get(id)
+            .map(|variable| variable.0.clone())
+    }
+
+    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<Variable>>> {
+        self.variable
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|variable| variable.0.clone())
     }
 
@@ -3141,6 +3213,43 @@ impl ObjectStore {
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.import.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Index.
+        {
+            let path = path.join("index");
+            fs::create_dir_all(&path)?;
+            for index_tuple in self.index.read().unwrap().values() {
+                let path = path.join(format!("{}.json", index_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Index>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != index_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &index_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &index_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.index.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4558,6 +4667,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(import.0.read().unwrap().id, import.clone());
+            }
+        }
+
+        // Load Index.
+        {
+            let path = path.join("index");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let index: (Arc<RwLock<Index>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .index
+                    .write()
+                    .unwrap()
+                    .insert(index.0.read().unwrap().id, index.clone());
             }
         }
 
