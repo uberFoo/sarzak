@@ -76,19 +76,25 @@ impl ObjectStore {
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-methods"}}}
-    /// Inter [`Anchor`] into the store.
+    /// Inter (insert) [`Anchor`] into the store.
     ///
     pub fn inter_anchor(&mut self, anchor: Anchor) {
         self.anchor.insert(anchor.id, (anchor, SystemTime::now()));
     }
 
-    /// Exhume [`Anchor`] from the store.
+    /// Exhume (get) [`Anchor`] from the store.
     ///
     pub fn exhume_anchor(&self, id: &Uuid) -> Option<&Anchor> {
         self.anchor.get(id).map(|anchor| &anchor.0)
     }
 
-    /// Exhume [`Anchor`] from the store — mutably.
+    /// Exorcise (remove) [`Anchor`] from the store.
+    ///
+    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Anchor> {
+        self.anchor.remove(id).map(|anchor| anchor.0)
+    }
+
+    /// Exhume mut [`Anchor`] from the store — mutably.
     ///
     pub fn exhume_anchor_mut(&mut self, id: &Uuid) -> Option<&mut Anchor> {
         self.anchor.get_mut(id).map(|anchor| &mut anchor.0)
@@ -109,14 +115,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`AssociativeUi`] into the store.
+    /// Inter (insert) [`AssociativeUi`] into the store.
     ///
     pub fn inter_associative_ui(&mut self, associative_ui: AssociativeUi) {
         self.associative_ui
             .insert(associative_ui.id, (associative_ui, SystemTime::now()));
     }
 
-    /// Exhume [`AssociativeUi`] from the store.
+    /// Exhume (get) [`AssociativeUi`] from the store.
     ///
     pub fn exhume_associative_ui(&self, id: &Uuid) -> Option<&AssociativeUi> {
         self.associative_ui
@@ -124,7 +130,15 @@ impl ObjectStore {
             .map(|associative_ui| &associative_ui.0)
     }
 
-    /// Exhume [`AssociativeUi`] from the store — mutably.
+    /// Exorcise (remove) [`AssociativeUi`] from the store.
+    ///
+    pub fn exorcise_associative_ui(&mut self, id: &Uuid) -> Option<AssociativeUi> {
+        self.associative_ui
+            .remove(id)
+            .map(|associative_ui| associative_ui.0)
+    }
+
+    /// Exhume mut [`AssociativeUi`] from the store — mutably.
     ///
     pub fn exhume_associative_ui_mut(&mut self, id: &Uuid) -> Option<&mut AssociativeUi> {
         self.associative_ui
@@ -149,20 +163,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`BinaryUi`] into the store.
+    /// Inter (insert) [`BinaryUi`] into the store.
     ///
     pub fn inter_binary_ui(&mut self, binary_ui: BinaryUi) {
         self.binary_ui
             .insert(binary_ui.id, (binary_ui, SystemTime::now()));
     }
 
-    /// Exhume [`BinaryUi`] from the store.
+    /// Exhume (get) [`BinaryUi`] from the store.
     ///
     pub fn exhume_binary_ui(&self, id: &Uuid) -> Option<&BinaryUi> {
         self.binary_ui.get(id).map(|binary_ui| &binary_ui.0)
     }
 
-    /// Exhume [`BinaryUi`] from the store — mutably.
+    /// Exorcise (remove) [`BinaryUi`] from the store.
+    ///
+    pub fn exorcise_binary_ui(&mut self, id: &Uuid) -> Option<BinaryUi> {
+        self.binary_ui.remove(id).map(|binary_ui| binary_ui.0)
+    }
+
+    /// Exhume mut [`BinaryUi`] from the store — mutably.
     ///
     pub fn exhume_binary_ui_mut(&mut self, id: &Uuid) -> Option<&mut BinaryUi> {
         self.binary_ui.get_mut(id).map(|binary_ui| &mut binary_ui.0)
@@ -183,19 +203,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Edge`] into the store.
+    /// Inter (insert) [`Edge`] into the store.
     ///
     pub fn inter_edge(&mut self, edge: Edge) {
         self.edge.insert(edge.id(), (edge, SystemTime::now()));
     }
 
-    /// Exhume [`Edge`] from the store.
+    /// Exhume (get) [`Edge`] from the store.
     ///
     pub fn exhume_edge(&self, id: &Uuid) -> Option<&Edge> {
         self.edge.get(id).map(|edge| &edge.0)
     }
 
-    /// Exhume [`Edge`] from the store — mutably.
+    /// Exorcise (remove) [`Edge`] from the store.
+    ///
+    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Edge> {
+        self.edge.remove(id).map(|edge| edge.0)
+    }
+
+    /// Exhume mut [`Edge`] from the store — mutably.
     ///
     pub fn exhume_edge_mut(&mut self, id: &Uuid) -> Option<&mut Edge> {
         self.edge.get_mut(id).map(|edge| &mut edge.0)
@@ -216,19 +242,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`IsaUi`] into the store.
+    /// Inter (insert) [`IsaUi`] into the store.
     ///
     pub fn inter_isa_ui(&mut self, isa_ui: IsaUi) {
         self.isa_ui.insert(isa_ui.id, (isa_ui, SystemTime::now()));
     }
 
-    /// Exhume [`IsaUi`] from the store.
+    /// Exhume (get) [`IsaUi`] from the store.
     ///
     pub fn exhume_isa_ui(&self, id: &Uuid) -> Option<&IsaUi> {
         self.isa_ui.get(id).map(|isa_ui| &isa_ui.0)
     }
 
-    /// Exhume [`IsaUi`] from the store — mutably.
+    /// Exorcise (remove) [`IsaUi`] from the store.
+    ///
+    pub fn exorcise_isa_ui(&mut self, id: &Uuid) -> Option<IsaUi> {
+        self.isa_ui.remove(id).map(|isa_ui| isa_ui.0)
+    }
+
+    /// Exhume mut [`IsaUi`] from the store — mutably.
     ///
     pub fn exhume_isa_ui_mut(&mut self, id: &Uuid) -> Option<&mut IsaUi> {
         self.isa_ui.get_mut(id).map(|isa_ui| &mut isa_ui.0)
@@ -249,20 +281,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ObjectEdge`] into the store.
+    /// Inter (insert) [`ObjectEdge`] into the store.
     ///
     pub fn inter_object_edge(&mut self, object_edge: ObjectEdge) {
         self.object_edge
             .insert(object_edge.id, (object_edge, SystemTime::now()));
     }
 
-    /// Exhume [`ObjectEdge`] from the store.
+    /// Exhume (get) [`ObjectEdge`] from the store.
     ///
     pub fn exhume_object_edge(&self, id: &Uuid) -> Option<&ObjectEdge> {
         self.object_edge.get(id).map(|object_edge| &object_edge.0)
     }
 
-    /// Exhume [`ObjectEdge`] from the store — mutably.
+    /// Exorcise (remove) [`ObjectEdge`] from the store.
+    ///
+    pub fn exorcise_object_edge(&mut self, id: &Uuid) -> Option<ObjectEdge> {
+        self.object_edge.remove(id).map(|object_edge| object_edge.0)
+    }
+
+    /// Exhume mut [`ObjectEdge`] from the store — mutably.
     ///
     pub fn exhume_object_edge_mut(&mut self, id: &Uuid) -> Option<&mut ObjectEdge> {
         self.object_edge
@@ -285,20 +323,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ObjectUi`] into the store.
+    /// Inter (insert) [`ObjectUi`] into the store.
     ///
     pub fn inter_object_ui(&mut self, object_ui: ObjectUi) {
         self.object_ui
             .insert(object_ui.id, (object_ui, SystemTime::now()));
     }
 
-    /// Exhume [`ObjectUi`] from the store.
+    /// Exhume (get) [`ObjectUi`] from the store.
     ///
     pub fn exhume_object_ui(&self, id: &Uuid) -> Option<&ObjectUi> {
         self.object_ui.get(id).map(|object_ui| &object_ui.0)
     }
 
-    /// Exhume [`ObjectUi`] from the store — mutably.
+    /// Exorcise (remove) [`ObjectUi`] from the store.
+    ///
+    pub fn exorcise_object_ui(&mut self, id: &Uuid) -> Option<ObjectUi> {
+        self.object_ui.remove(id).map(|object_ui| object_ui.0)
+    }
+
+    /// Exhume mut [`ObjectUi`] from the store — mutably.
     ///
     pub fn exhume_object_ui_mut(&mut self, id: &Uuid) -> Option<&mut ObjectUi> {
         self.object_ui.get_mut(id).map(|object_ui| &mut object_ui.0)
@@ -319,19 +363,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Point`] into the store.
+    /// Inter (insert) [`Point`] into the store.
     ///
     pub fn inter_point(&mut self, point: Point) {
         self.point.insert(point.id, (point, SystemTime::now()));
     }
 
-    /// Exhume [`Point`] from the store.
+    /// Exhume (get) [`Point`] from the store.
     ///
     pub fn exhume_point(&self, id: &Uuid) -> Option<&Point> {
         self.point.get(id).map(|point| &point.0)
     }
 
-    /// Exhume [`Point`] from the store — mutably.
+    /// Exorcise (remove) [`Point`] from the store.
+    ///
+    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Point> {
+        self.point.remove(id).map(|point| point.0)
+    }
+
+    /// Exhume mut [`Point`] from the store — mutably.
     ///
     pub fn exhume_point_mut(&mut self, id: &Uuid) -> Option<&mut Point> {
         self.point.get_mut(id).map(|point| &mut point.0)
@@ -352,14 +402,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`RelationshipUi`] into the store.
+    /// Inter (insert) [`RelationshipUi`] into the store.
     ///
     pub fn inter_relationship_ui(&mut self, relationship_ui: RelationshipUi) {
         self.relationship_ui
             .insert(relationship_ui.id(), (relationship_ui, SystemTime::now()));
     }
 
-    /// Exhume [`RelationshipUi`] from the store.
+    /// Exhume (get) [`RelationshipUi`] from the store.
     ///
     pub fn exhume_relationship_ui(&self, id: &Uuid) -> Option<&RelationshipUi> {
         self.relationship_ui
@@ -367,7 +417,15 @@ impl ObjectStore {
             .map(|relationship_ui| &relationship_ui.0)
     }
 
-    /// Exhume [`RelationshipUi`] from the store — mutably.
+    /// Exorcise (remove) [`RelationshipUi`] from the store.
+    ///
+    pub fn exorcise_relationship_ui(&mut self, id: &Uuid) -> Option<RelationshipUi> {
+        self.relationship_ui
+            .remove(id)
+            .map(|relationship_ui| relationship_ui.0)
+    }
+
+    /// Exhume mut [`RelationshipUi`] from the store — mutably.
     ///
     pub fn exhume_relationship_ui_mut(&mut self, id: &Uuid) -> Option<&mut RelationshipUi> {
         self.relationship_ui
@@ -392,14 +450,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`SubtypeAnchors`] into the store.
+    /// Inter (insert) [`SubtypeAnchors`] into the store.
     ///
     pub fn inter_subtype_anchors(&mut self, subtype_anchors: SubtypeAnchors) {
         self.subtype_anchors
             .insert(subtype_anchors.id, (subtype_anchors, SystemTime::now()));
     }
 
-    /// Exhume [`SubtypeAnchors`] from the store.
+    /// Exhume (get) [`SubtypeAnchors`] from the store.
     ///
     pub fn exhume_subtype_anchors(&self, id: &Uuid) -> Option<&SubtypeAnchors> {
         self.subtype_anchors
@@ -407,7 +465,15 @@ impl ObjectStore {
             .map(|subtype_anchors| &subtype_anchors.0)
     }
 
-    /// Exhume [`SubtypeAnchors`] from the store — mutably.
+    /// Exorcise (remove) [`SubtypeAnchors`] from the store.
+    ///
+    pub fn exorcise_subtype_anchors(&mut self, id: &Uuid) -> Option<SubtypeAnchors> {
+        self.subtype_anchors
+            .remove(id)
+            .map(|subtype_anchors| subtype_anchors.0)
+    }
+
+    /// Exhume mut [`SubtypeAnchors`] from the store — mutably.
     ///
     pub fn exhume_subtype_anchors_mut(&mut self, id: &Uuid) -> Option<&mut SubtypeAnchors> {
         self.subtype_anchors

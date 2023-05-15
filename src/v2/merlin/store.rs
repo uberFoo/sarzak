@@ -79,20 +79,30 @@ impl ObjectStore {
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-methods"}}}
-    /// Inter [`Anchor`] into the store.
+    /// Inter (insert) [`Anchor`] into the store.
     ///
     pub fn inter_anchor(&mut self, anchor: Arc<RwLock<Anchor>>) {
         let read = anchor.read().unwrap();
         self.anchor.write().unwrap().insert(read.id, anchor.clone());
     }
 
-    /// Exhume [`Anchor`] from the store.
+    /// Exhume (get) [`Anchor`] from the store.
     ///
     pub fn exhume_anchor(&self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
         self.anchor
             .read()
             .unwrap()
             .get(id)
+            .map(|anchor| anchor.clone())
+    }
+
+    /// Exorcise (remove) [`Anchor`] from the store.
+    ///
+    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
+        self.anchor
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|anchor| anchor.clone())
     }
 
@@ -110,7 +120,7 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Bisection`] into the store.
+    /// Inter (insert) [`Bisection`] into the store.
     ///
     pub fn inter_bisection(&mut self, bisection: Arc<RwLock<Bisection>>) {
         let read = bisection.read().unwrap();
@@ -120,13 +130,23 @@ impl ObjectStore {
             .insert(read.id, bisection.clone());
     }
 
-    /// Exhume [`Bisection`] from the store.
+    /// Exhume (get) [`Bisection`] from the store.
     ///
     pub fn exhume_bisection(&self, id: &Uuid) -> Option<Arc<RwLock<Bisection>>> {
         self.bisection
             .read()
             .unwrap()
             .get(id)
+            .map(|bisection| bisection.clone())
+    }
+
+    /// Exorcise (remove) [`Bisection`] from the store.
+    ///
+    pub fn exorcise_bisection(&mut self, id: &Uuid) -> Option<Arc<RwLock<Bisection>>> {
+        self.bisection
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|bisection| bisection.clone())
     }
 
@@ -144,20 +164,30 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`XBox`] into the store.
+    /// Inter (insert) [`XBox`] into the store.
     ///
     pub fn inter_x_box(&mut self, x_box: Arc<RwLock<XBox>>) {
         let read = x_box.read().unwrap();
         self.x_box.write().unwrap().insert(read.id, x_box.clone());
     }
 
-    /// Exhume [`XBox`] from the store.
+    /// Exhume (get) [`XBox`] from the store.
     ///
     pub fn exhume_x_box(&self, id: &Uuid) -> Option<Arc<RwLock<XBox>>> {
         self.x_box
             .read()
             .unwrap()
             .get(id)
+            .map(|x_box| x_box.clone())
+    }
+
+    /// Exorcise (remove) [`XBox`] from the store.
+    ///
+    pub fn exorcise_x_box(&mut self, id: &Uuid) -> Option<Arc<RwLock<XBox>>> {
+        self.x_box
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|x_box| x_box.clone())
     }
 
@@ -175,17 +205,27 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Edge`] into the store.
+    /// Inter (insert) [`Edge`] into the store.
     ///
     pub fn inter_edge(&mut self, edge: Arc<RwLock<Edge>>) {
         let read = edge.read().unwrap();
         self.edge.write().unwrap().insert(read.id(), edge.clone());
     }
 
-    /// Exhume [`Edge`] from the store.
+    /// Exhume (get) [`Edge`] from the store.
     ///
     pub fn exhume_edge(&self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
         self.edge.read().unwrap().get(id).map(|edge| edge.clone())
+    }
+
+    /// Exorcise (remove) [`Edge`] from the store.
+    ///
+    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
+        self.edge
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|edge| edge.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
@@ -202,20 +242,30 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Glyph`] into the store.
+    /// Inter (insert) [`Glyph`] into the store.
     ///
     pub fn inter_glyph(&mut self, glyph: Arc<RwLock<Glyph>>) {
         let read = glyph.read().unwrap();
         self.glyph.write().unwrap().insert(read.id, glyph.clone());
     }
 
-    /// Exhume [`Glyph`] from the store.
+    /// Exhume (get) [`Glyph`] from the store.
     ///
     pub fn exhume_glyph(&self, id: &Uuid) -> Option<Arc<RwLock<Glyph>>> {
         self.glyph
             .read()
             .unwrap()
             .get(id)
+            .map(|glyph| glyph.clone())
+    }
+
+    /// Exorcise (remove) [`Glyph`] from the store.
+    ///
+    pub fn exorcise_glyph(&mut self, id: &Uuid) -> Option<Arc<RwLock<Glyph>>> {
+        self.glyph
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|glyph| glyph.clone())
     }
 
@@ -233,17 +283,27 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Line`] into the store.
+    /// Inter (insert) [`Line`] into the store.
     ///
     pub fn inter_line(&mut self, line: Arc<RwLock<Line>>) {
         let read = line.read().unwrap();
         self.line.write().unwrap().insert(read.id, line.clone());
     }
 
-    /// Exhume [`Line`] from the store.
+    /// Exhume (get) [`Line`] from the store.
     ///
     pub fn exhume_line(&self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
         self.line.read().unwrap().get(id).map(|line| line.clone())
+    }
+
+    /// Exorcise (remove) [`Line`] from the store.
+    ///
+    pub fn exorcise_line(&mut self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
+        self.line
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|line| line.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Line>`.
@@ -260,7 +320,7 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`LineSegment`] into the store.
+    /// Inter (insert) [`LineSegment`] into the store.
     ///
     pub fn inter_line_segment(&mut self, line_segment: Arc<RwLock<LineSegment>>) {
         let read = line_segment.read().unwrap();
@@ -270,13 +330,23 @@ impl ObjectStore {
             .insert(read.id, line_segment.clone());
     }
 
-    /// Exhume [`LineSegment`] from the store.
+    /// Exhume (get) [`LineSegment`] from the store.
     ///
     pub fn exhume_line_segment(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegment>>> {
         self.line_segment
             .read()
             .unwrap()
             .get(id)
+            .map(|line_segment| line_segment.clone())
+    }
+
+    /// Exorcise (remove) [`LineSegment`] from the store.
+    ///
+    pub fn exorcise_line_segment(&mut self, id: &Uuid) -> Option<Arc<RwLock<LineSegment>>> {
+        self.line_segment
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|line_segment| line_segment.clone())
     }
 
@@ -294,7 +364,7 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`LineSegmentPoint`] into the store.
+    /// Inter (insert) [`LineSegmentPoint`] into the store.
     ///
     pub fn inter_line_segment_point(&mut self, line_segment_point: Arc<RwLock<LineSegmentPoint>>) {
         let read = line_segment_point.read().unwrap();
@@ -304,13 +374,26 @@ impl ObjectStore {
             .insert(read.id, line_segment_point.clone());
     }
 
-    /// Exhume [`LineSegmentPoint`] from the store.
+    /// Exhume (get) [`LineSegmentPoint`] from the store.
     ///
     pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegmentPoint>>> {
         self.line_segment_point
             .read()
             .unwrap()
             .get(id)
+            .map(|line_segment_point| line_segment_point.clone())
+    }
+
+    /// Exorcise (remove) [`LineSegmentPoint`] from the store.
+    ///
+    pub fn exorcise_line_segment_point(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<LineSegmentPoint>>> {
+        self.line_segment_point
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|line_segment_point| line_segment_point.clone())
     }
 
@@ -330,20 +413,30 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Point`] into the store.
+    /// Inter (insert) [`Point`] into the store.
     ///
     pub fn inter_point(&mut self, point: Arc<RwLock<Point>>) {
         let read = point.read().unwrap();
         self.point.write().unwrap().insert(read.id, point.clone());
     }
 
-    /// Exhume [`Point`] from the store.
+    /// Exhume (get) [`Point`] from the store.
     ///
     pub fn exhume_point(&self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
         self.point
             .read()
             .unwrap()
             .get(id)
+            .map(|point| point.clone())
+    }
+
+    /// Exorcise (remove) [`Point`] from the store.
+    ///
+    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
+        self.point
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|point| point.clone())
     }
 
@@ -361,7 +454,7 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`RelationshipName`] into the store.
+    /// Inter (insert) [`RelationshipName`] into the store.
     ///
     pub fn inter_relationship_name(&mut self, relationship_name: Arc<RwLock<RelationshipName>>) {
         let read = relationship_name.read().unwrap();
@@ -371,13 +464,26 @@ impl ObjectStore {
             .insert(read.id, relationship_name.clone());
     }
 
-    /// Exhume [`RelationshipName`] from the store.
+    /// Exhume (get) [`RelationshipName`] from the store.
     ///
     pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipName>>> {
         self.relationship_name
             .read()
             .unwrap()
             .get(id)
+            .map(|relationship_name| relationship_name.clone())
+    }
+
+    /// Exorcise (remove) [`RelationshipName`] from the store.
+    ///
+    pub fn exorcise_relationship_name(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<RelationshipName>>> {
+        self.relationship_name
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|relationship_name| relationship_name.clone())
     }
 
@@ -397,7 +503,7 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`RelationshipPhrase`] into the store.
+    /// Inter (insert) [`RelationshipPhrase`] into the store.
     ///
     pub fn inter_relationship_phrase(
         &mut self,
@@ -410,13 +516,26 @@ impl ObjectStore {
             .insert(read.id, relationship_phrase.clone());
     }
 
-    /// Exhume [`RelationshipPhrase`] from the store.
+    /// Exhume (get) [`RelationshipPhrase`] from the store.
     ///
     pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipPhrase>>> {
         self.relationship_phrase
             .read()
             .unwrap()
             .get(id)
+            .map(|relationship_phrase| relationship_phrase.clone())
+    }
+
+    /// Exorcise (remove) [`RelationshipPhrase`] from the store.
+    ///
+    pub fn exorcise_relationship_phrase(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<RelationshipPhrase>>> {
+        self.relationship_phrase
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|relationship_phrase| relationship_phrase.clone())
     }
 

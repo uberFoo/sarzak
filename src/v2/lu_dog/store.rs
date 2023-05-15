@@ -229,7 +229,7 @@ impl ObjectStore {
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-methods"}}}
-    /// Inter [`Argument`] into the store.
+    /// Inter (insert) [`Argument`] into the store.
     ///
     pub fn inter_argument(&mut self, argument: Arc<RwLock<Argument>>) {
         let read = argument.read().unwrap();
@@ -239,13 +239,23 @@ impl ObjectStore {
             .insert(read.id, (argument.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Argument`] from the store.
+    /// Exhume (get) [`Argument`] from the store.
     ///
     pub fn exhume_argument(&self, id: &Uuid) -> Option<Arc<RwLock<Argument>>> {
         self.argument
             .read()
             .unwrap()
             .get(id)
+            .map(|argument| argument.0.clone())
+    }
+
+    /// Exorcise (remove) [`Argument`] from the store.
+    ///
+    pub fn exorcise_argument(&mut self, id: &Uuid) -> Option<Arc<RwLock<Argument>>> {
+        self.argument
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|argument| argument.0.clone())
     }
 
@@ -274,7 +284,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Binary`] into the store.
+    /// Inter (insert) [`Binary`] into the store.
     ///
     pub fn inter_binary(&mut self, binary: Arc<RwLock<Binary>>) {
         let read = binary.read().unwrap();
@@ -284,13 +294,23 @@ impl ObjectStore {
             .insert(read.id(), (binary.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Binary`] from the store.
+    /// Exhume (get) [`Binary`] from the store.
     ///
     pub fn exhume_binary(&self, id: &Uuid) -> Option<Arc<RwLock<Binary>>> {
         self.binary
             .read()
             .unwrap()
             .get(id)
+            .map(|binary| binary.0.clone())
+    }
+
+    /// Exorcise (remove) [`Binary`] from the store.
+    ///
+    pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Arc<RwLock<Binary>>> {
+        self.binary
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|binary| binary.0.clone())
     }
 
@@ -319,7 +339,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Block`] into the store.
+    /// Inter (insert) [`Block`] into the store.
     ///
     pub fn inter_block(&mut self, block: Arc<RwLock<Block>>) {
         let read = block.read().unwrap();
@@ -329,13 +349,23 @@ impl ObjectStore {
             .insert(read.id, (block.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Block`] from the store.
+    /// Exhume (get) [`Block`] from the store.
     ///
     pub fn exhume_block(&self, id: &Uuid) -> Option<Arc<RwLock<Block>>> {
         self.block
             .read()
             .unwrap()
             .get(id)
+            .map(|block| block.0.clone())
+    }
+
+    /// Exorcise (remove) [`Block`] from the store.
+    ///
+    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Arc<RwLock<Block>>> {
+        self.block
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|block| block.0.clone())
     }
 
@@ -364,7 +394,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`BooleanLiteral`] into the store.
+    /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
     pub fn inter_boolean_literal(&mut self, boolean_literal: Arc<RwLock<BooleanLiteral>>) {
         let read = boolean_literal.read().unwrap();
@@ -374,13 +404,23 @@ impl ObjectStore {
             .insert(read.id(), (boolean_literal.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`BooleanLiteral`] from the store.
+    /// Exhume (get) [`BooleanLiteral`] from the store.
     ///
     pub fn exhume_boolean_literal(&self, id: &Uuid) -> Option<Arc<RwLock<BooleanLiteral>>> {
         self.boolean_literal
             .read()
             .unwrap()
             .get(id)
+            .map(|boolean_literal| boolean_literal.0.clone())
+    }
+
+    /// Exorcise (remove) [`BooleanLiteral`] from the store.
+    ///
+    pub fn exorcise_boolean_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<BooleanLiteral>>> {
+        self.boolean_literal
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|boolean_literal| boolean_literal.0.clone())
     }
 
@@ -409,7 +449,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Call`] into the store.
+    /// Inter (insert) [`Call`] into the store.
     ///
     pub fn inter_call(&mut self, call: Arc<RwLock<Call>>) {
         let read = call.read().unwrap();
@@ -419,10 +459,20 @@ impl ObjectStore {
             .insert(read.id, (call.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Call`] from the store.
+    /// Exhume (get) [`Call`] from the store.
     ///
     pub fn exhume_call(&self, id: &Uuid) -> Option<Arc<RwLock<Call>>> {
         self.call.read().unwrap().get(id).map(|call| call.0.clone())
+    }
+
+    /// Exorcise (remove) [`Call`] from the store.
+    ///
+    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Arc<RwLock<Call>>> {
+        self.call
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|call| call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
@@ -450,7 +500,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Comparison`] into the store.
+    /// Inter (insert) [`Comparison`] into the store.
     ///
     pub fn inter_comparison(&mut self, comparison: Arc<RwLock<Comparison>>) {
         let read = comparison.read().unwrap();
@@ -460,13 +510,23 @@ impl ObjectStore {
             .insert(read.id(), (comparison.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Comparison`] from the store.
+    /// Exhume (get) [`Comparison`] from the store.
     ///
     pub fn exhume_comparison(&self, id: &Uuid) -> Option<Arc<RwLock<Comparison>>> {
         self.comparison
             .read()
             .unwrap()
             .get(id)
+            .map(|comparison| comparison.0.clone())
+    }
+
+    /// Exorcise (remove) [`Comparison`] from the store.
+    ///
+    pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Arc<RwLock<Comparison>>> {
+        self.comparison
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|comparison| comparison.0.clone())
     }
 
@@ -495,7 +555,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`DwarfSourceFile`] into the store.
+    /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
     pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<RwLock<DwarfSourceFile>>) {
         let read = dwarf_source_file.read().unwrap();
@@ -505,13 +565,26 @@ impl ObjectStore {
             .insert(read.id, (dwarf_source_file.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`DwarfSourceFile`] from the store.
+    /// Exhume (get) [`DwarfSourceFile`] from the store.
     ///
     pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Arc<RwLock<DwarfSourceFile>>> {
         self.dwarf_source_file
             .read()
             .unwrap()
             .get(id)
+            .map(|dwarf_source_file| dwarf_source_file.0.clone())
+    }
+
+    /// Exorcise (remove) [`DwarfSourceFile`] from the store.
+    ///
+    pub fn exorcise_dwarf_source_file(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<DwarfSourceFile>>> {
+        self.dwarf_source_file
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
@@ -542,7 +615,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Error`] into the store.
+    /// Inter (insert) [`Error`] into the store.
     ///
     pub fn inter_error(&mut self, error: Arc<RwLock<Error>>) {
         let read = error.read().unwrap();
@@ -552,13 +625,23 @@ impl ObjectStore {
             .insert(read.id(), (error.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Error`] from the store.
+    /// Exhume (get) [`Error`] from the store.
     ///
     pub fn exhume_error(&self, id: &Uuid) -> Option<Arc<RwLock<Error>>> {
         self.error
             .read()
             .unwrap()
             .get(id)
+            .map(|error| error.0.clone())
+    }
+
+    /// Exorcise (remove) [`Error`] from the store.
+    ///
+    pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Arc<RwLock<Error>>> {
+        self.error
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|error| error.0.clone())
     }
 
@@ -587,7 +670,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ErrorExpression`] into the store.
+    /// Inter (insert) [`ErrorExpression`] into the store.
     ///
     pub fn inter_error_expression(&mut self, error_expression: Arc<RwLock<ErrorExpression>>) {
         let read = error_expression.read().unwrap();
@@ -597,13 +680,23 @@ impl ObjectStore {
             .insert(read.id, (error_expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ErrorExpression`] from the store.
+    /// Exhume (get) [`ErrorExpression`] from the store.
     ///
     pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
         self.error_expression
             .read()
             .unwrap()
             .get(id)
+            .map(|error_expression| error_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`ErrorExpression`] from the store.
+    ///
+    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
+        self.error_expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|error_expression| error_expression.0.clone())
     }
 
@@ -632,7 +725,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Expression`] into the store.
+    /// Inter (insert) [`Expression`] into the store.
     ///
     pub fn inter_expression(&mut self, expression: Arc<RwLock<Expression>>) {
         let read = expression.read().unwrap();
@@ -642,13 +735,23 @@ impl ObjectStore {
             .insert(read.id(), (expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Expression`] from the store.
+    /// Exhume (get) [`Expression`] from the store.
     ///
     pub fn exhume_expression(&self, id: &Uuid) -> Option<Arc<RwLock<Expression>>> {
         self.expression
             .read()
             .unwrap()
             .get(id)
+            .map(|expression| expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`Expression`] from the store.
+    ///
+    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<Expression>>> {
+        self.expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|expression| expression.0.clone())
     }
 
@@ -677,7 +780,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ExpressionStatement`] into the store.
+    /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
     pub fn inter_expression_statement(
         &mut self,
@@ -690,7 +793,7 @@ impl ObjectStore {
             .insert(read.id, (expression_statement.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ExpressionStatement`] from the store.
+    /// Exhume (get) [`ExpressionStatement`] from the store.
     ///
     pub fn exhume_expression_statement(
         &self,
@@ -700,6 +803,19 @@ impl ObjectStore {
             .read()
             .unwrap()
             .get(id)
+            .map(|expression_statement| expression_statement.0.clone())
+    }
+
+    /// Exorcise (remove) [`ExpressionStatement`] from the store.
+    ///
+    pub fn exorcise_expression_statement(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<ExpressionStatement>>> {
+        self.expression_statement
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|expression_statement| expression_statement.0.clone())
     }
 
@@ -733,7 +849,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Field`] into the store.
+    /// Inter (insert) [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Arc<RwLock<Field>>) {
         let read = field.read().unwrap();
@@ -743,13 +859,23 @@ impl ObjectStore {
             .insert(read.id, (field.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Field`] from the store.
+    /// Exhume (get) [`Field`] from the store.
     ///
     pub fn exhume_field(&self, id: &Uuid) -> Option<Arc<RwLock<Field>>> {
         self.field
             .read()
             .unwrap()
             .get(id)
+            .map(|field| field.0.clone())
+    }
+
+    /// Exorcise (remove) [`Field`] from the store.
+    ///
+    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Arc<RwLock<Field>>> {
+        self.field
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|field| field.0.clone())
     }
 
@@ -778,7 +904,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`FieldAccess`] into the store.
+    /// Inter (insert) [`FieldAccess`] into the store.
     ///
     pub fn inter_field_access(&mut self, field_access: Arc<RwLock<FieldAccess>>) {
         let read = field_access.read().unwrap();
@@ -788,13 +914,23 @@ impl ObjectStore {
             .insert(read.id, (field_access.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`FieldAccess`] from the store.
+    /// Exhume (get) [`FieldAccess`] from the store.
     ///
     pub fn exhume_field_access(&self, id: &Uuid) -> Option<Arc<RwLock<FieldAccess>>> {
         self.field_access
             .read()
             .unwrap()
             .get(id)
+            .map(|field_access| field_access.0.clone())
+    }
+
+    /// Exorcise (remove) [`FieldAccess`] from the store.
+    ///
+    pub fn exorcise_field_access(&mut self, id: &Uuid) -> Option<Arc<RwLock<FieldAccess>>> {
+        self.field_access
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|field_access| field_access.0.clone())
     }
 
@@ -823,7 +959,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`FieldExpression`] into the store.
+    /// Inter (insert) [`FieldExpression`] into the store.
     ///
     pub fn inter_field_expression(&mut self, field_expression: Arc<RwLock<FieldExpression>>) {
         let read = field_expression.read().unwrap();
@@ -833,13 +969,23 @@ impl ObjectStore {
             .insert(read.id, (field_expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`FieldExpression`] from the store.
+    /// Exhume (get) [`FieldExpression`] from the store.
     ///
     pub fn exhume_field_expression(&self, id: &Uuid) -> Option<Arc<RwLock<FieldExpression>>> {
         self.field_expression
             .read()
             .unwrap()
             .get(id)
+            .map(|field_expression| field_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`FieldExpression`] from the store.
+    ///
+    pub fn exorcise_field_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<FieldExpression>>> {
+        self.field_expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|field_expression| field_expression.0.clone())
     }
 
@@ -868,7 +1014,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`FloatLiteral`] into the store.
+    /// Inter (insert) [`FloatLiteral`] into the store.
     ///
     pub fn inter_float_literal(&mut self, float_literal: Arc<RwLock<FloatLiteral>>) {
         let read = float_literal.read().unwrap();
@@ -878,13 +1024,23 @@ impl ObjectStore {
             .insert(read.id, (float_literal.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`FloatLiteral`] from the store.
+    /// Exhume (get) [`FloatLiteral`] from the store.
     ///
     pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Arc<RwLock<FloatLiteral>>> {
         self.float_literal
             .read()
             .unwrap()
             .get(id)
+            .map(|float_literal| float_literal.0.clone())
+    }
+
+    /// Exorcise (remove) [`FloatLiteral`] from the store.
+    ///
+    pub fn exorcise_float_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<FloatLiteral>>> {
+        self.float_literal
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|float_literal| float_literal.0.clone())
     }
 
@@ -913,7 +1069,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ForLoop`] into the store.
+    /// Inter (insert) [`ForLoop`] into the store.
     ///
     pub fn inter_for_loop(&mut self, for_loop: Arc<RwLock<ForLoop>>) {
         let read = for_loop.read().unwrap();
@@ -923,13 +1079,23 @@ impl ObjectStore {
             .insert(read.id, (for_loop.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ForLoop`] from the store.
+    /// Exhume (get) [`ForLoop`] from the store.
     ///
     pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Arc<RwLock<ForLoop>>> {
         self.for_loop
             .read()
             .unwrap()
             .get(id)
+            .map(|for_loop| for_loop.0.clone())
+    }
+
+    /// Exorcise (remove) [`ForLoop`] from the store.
+    ///
+    pub fn exorcise_for_loop(&mut self, id: &Uuid) -> Option<Arc<RwLock<ForLoop>>> {
+        self.for_loop
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|for_loop| for_loop.0.clone())
     }
 
@@ -958,7 +1124,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Function`] into the store.
+    /// Inter (insert) [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Arc<RwLock<Function>>) {
         let read = function.read().unwrap();
@@ -968,13 +1134,23 @@ impl ObjectStore {
             .insert(read.id, (function.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Function`] from the store.
+    /// Exhume (get) [`Function`] from the store.
     ///
     pub fn exhume_function(&self, id: &Uuid) -> Option<Arc<RwLock<Function>>> {
         self.function
             .read()
             .unwrap()
             .get(id)
+            .map(|function| function.0.clone())
+    }
+
+    /// Exorcise (remove) [`Function`] from the store.
+    ///
+    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Arc<RwLock<Function>>> {
+        self.function
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|function| function.0.clone())
     }
 
@@ -1003,7 +1179,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`XIf`] into the store.
+    /// Inter (insert) [`XIf`] into the store.
     ///
     pub fn inter_x_if(&mut self, x_if: Arc<RwLock<XIf>>) {
         let read = x_if.read().unwrap();
@@ -1013,10 +1189,20 @@ impl ObjectStore {
             .insert(read.id, (x_if.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`XIf`] from the store.
+    /// Exhume (get) [`XIf`] from the store.
     ///
     pub fn exhume_x_if(&self, id: &Uuid) -> Option<Arc<RwLock<XIf>>> {
         self.x_if.read().unwrap().get(id).map(|x_if| x_if.0.clone())
+    }
+
+    /// Exorcise (remove) [`XIf`] from the store.
+    ///
+    pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Arc<RwLock<XIf>>> {
+        self.x_if
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|x_if| x_if.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
@@ -1044,7 +1230,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Implementation`] into the store.
+    /// Inter (insert) [`Implementation`] into the store.
     ///
     pub fn inter_implementation(&mut self, implementation: Arc<RwLock<Implementation>>) {
         let read = implementation.read().unwrap();
@@ -1054,13 +1240,23 @@ impl ObjectStore {
             .insert(read.id, (implementation.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Implementation`] from the store.
+    /// Exhume (get) [`Implementation`] from the store.
     ///
     pub fn exhume_implementation(&self, id: &Uuid) -> Option<Arc<RwLock<Implementation>>> {
         self.implementation
             .read()
             .unwrap()
             .get(id)
+            .map(|implementation| implementation.0.clone())
+    }
+
+    /// Exorcise (remove) [`Implementation`] from the store.
+    ///
+    pub fn exorcise_implementation(&mut self, id: &Uuid) -> Option<Arc<RwLock<Implementation>>> {
+        self.implementation
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|implementation| implementation.0.clone())
     }
 
@@ -1089,7 +1285,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Import`] into the store.
+    /// Inter (insert) [`Import`] into the store.
     ///
     pub fn inter_import(&mut self, import: Arc<RwLock<Import>>) {
         let read = import.read().unwrap();
@@ -1099,13 +1295,23 @@ impl ObjectStore {
             .insert(read.id, (import.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Import`] from the store.
+    /// Exhume (get) [`Import`] from the store.
     ///
     pub fn exhume_import(&self, id: &Uuid) -> Option<Arc<RwLock<Import>>> {
         self.import
             .read()
             .unwrap()
             .get(id)
+            .map(|import| import.0.clone())
+    }
+
+    /// Exorcise (remove) [`Import`] from the store.
+    ///
+    pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Arc<RwLock<Import>>> {
+        self.import
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|import| import.0.clone())
     }
 
@@ -1134,7 +1340,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Index`] into the store.
+    /// Inter (insert) [`Index`] into the store.
     ///
     pub fn inter_index(&mut self, index: Arc<RwLock<Index>>) {
         let read = index.read().unwrap();
@@ -1144,13 +1350,23 @@ impl ObjectStore {
             .insert(read.id, (index.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Index`] from the store.
+    /// Exhume (get) [`Index`] from the store.
     ///
     pub fn exhume_index(&self, id: &Uuid) -> Option<Arc<RwLock<Index>>> {
         self.index
             .read()
             .unwrap()
             .get(id)
+            .map(|index| index.0.clone())
+    }
+
+    /// Exorcise (remove) [`Index`] from the store.
+    ///
+    pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Arc<RwLock<Index>>> {
+        self.index
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|index| index.0.clone())
     }
 
@@ -1179,7 +1395,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`IntegerLiteral`] into the store.
+    /// Inter (insert) [`IntegerLiteral`] into the store.
     ///
     pub fn inter_integer_literal(&mut self, integer_literal: Arc<RwLock<IntegerLiteral>>) {
         let read = integer_literal.read().unwrap();
@@ -1189,13 +1405,23 @@ impl ObjectStore {
             .insert(read.id, (integer_literal.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`IntegerLiteral`] from the store.
+    /// Exhume (get) [`IntegerLiteral`] from the store.
     ///
     pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<Arc<RwLock<IntegerLiteral>>> {
         self.integer_literal
             .read()
             .unwrap()
             .get(id)
+            .map(|integer_literal| integer_literal.0.clone())
+    }
+
+    /// Exorcise (remove) [`IntegerLiteral`] from the store.
+    ///
+    pub fn exorcise_integer_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<IntegerLiteral>>> {
+        self.integer_literal
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|integer_literal| integer_literal.0.clone())
     }
 
@@ -1224,7 +1450,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Item`] into the store.
+    /// Inter (insert) [`Item`] into the store.
     ///
     pub fn inter_item(&mut self, item: Arc<RwLock<Item>>) {
         let read = item.read().unwrap();
@@ -1234,10 +1460,20 @@ impl ObjectStore {
             .insert(read.id, (item.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Item`] from the store.
+    /// Exhume (get) [`Item`] from the store.
     ///
     pub fn exhume_item(&self, id: &Uuid) -> Option<Arc<RwLock<Item>>> {
         self.item.read().unwrap().get(id).map(|item| item.0.clone())
+    }
+
+    /// Exorcise (remove) [`Item`] from the store.
+    ///
+    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Arc<RwLock<Item>>> {
+        self.item
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|item| item.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
@@ -1265,7 +1501,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`LetStatement`] into the store.
+    /// Inter (insert) [`LetStatement`] into the store.
     ///
     pub fn inter_let_statement(&mut self, let_statement: Arc<RwLock<LetStatement>>) {
         let read = let_statement.read().unwrap();
@@ -1275,13 +1511,23 @@ impl ObjectStore {
             .insert(read.id, (let_statement.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`LetStatement`] from the store.
+    /// Exhume (get) [`LetStatement`] from the store.
     ///
     pub fn exhume_let_statement(&self, id: &Uuid) -> Option<Arc<RwLock<LetStatement>>> {
         self.let_statement
             .read()
             .unwrap()
             .get(id)
+            .map(|let_statement| let_statement.0.clone())
+    }
+
+    /// Exorcise (remove) [`LetStatement`] from the store.
+    ///
+    pub fn exorcise_let_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<LetStatement>>> {
+        self.let_statement
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|let_statement| let_statement.0.clone())
     }
 
@@ -1310,7 +1556,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`List`] into the store.
+    /// Inter (insert) [`List`] into the store.
     ///
     pub fn inter_list(&mut self, list: Arc<RwLock<List>>) {
         let read = list.read().unwrap();
@@ -1320,10 +1566,20 @@ impl ObjectStore {
             .insert(read.id, (list.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`List`] from the store.
+    /// Exhume (get) [`List`] from the store.
     ///
     pub fn exhume_list(&self, id: &Uuid) -> Option<Arc<RwLock<List>>> {
         self.list.read().unwrap().get(id).map(|list| list.0.clone())
+    }
+
+    /// Exorcise (remove) [`List`] from the store.
+    ///
+    pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Arc<RwLock<List>>> {
+        self.list
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|list| list.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
@@ -1351,7 +1607,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ListElement`] into the store.
+    /// Inter (insert) [`ListElement`] into the store.
     ///
     pub fn inter_list_element(&mut self, list_element: Arc<RwLock<ListElement>>) {
         let read = list_element.read().unwrap();
@@ -1361,13 +1617,23 @@ impl ObjectStore {
             .insert(read.id, (list_element.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ListElement`] from the store.
+    /// Exhume (get) [`ListElement`] from the store.
     ///
     pub fn exhume_list_element(&self, id: &Uuid) -> Option<Arc<RwLock<ListElement>>> {
         self.list_element
             .read()
             .unwrap()
             .get(id)
+            .map(|list_element| list_element.0.clone())
+    }
+
+    /// Exorcise (remove) [`ListElement`] from the store.
+    ///
+    pub fn exorcise_list_element(&mut self, id: &Uuid) -> Option<Arc<RwLock<ListElement>>> {
+        self.list_element
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|list_element| list_element.0.clone())
     }
 
@@ -1396,7 +1662,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ListExpression`] into the store.
+    /// Inter (insert) [`ListExpression`] into the store.
     ///
     pub fn inter_list_expression(&mut self, list_expression: Arc<RwLock<ListExpression>>) {
         let read = list_expression.read().unwrap();
@@ -1406,13 +1672,23 @@ impl ObjectStore {
             .insert(read.id, (list_expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ListExpression`] from the store.
+    /// Exhume (get) [`ListExpression`] from the store.
     ///
     pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ListExpression>>> {
         self.list_expression
             .read()
             .unwrap()
             .get(id)
+            .map(|list_expression| list_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`ListExpression`] from the store.
+    ///
+    pub fn exorcise_list_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<ListExpression>>> {
+        self.list_expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|list_expression| list_expression.0.clone())
     }
 
@@ -1441,7 +1717,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Literal`] into the store.
+    /// Inter (insert) [`Literal`] into the store.
     ///
     pub fn inter_literal(&mut self, literal: Arc<RwLock<Literal>>) {
         let read = literal.read().unwrap();
@@ -1451,13 +1727,23 @@ impl ObjectStore {
             .insert(read.id(), (literal.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Literal`] from the store.
+    /// Exhume (get) [`Literal`] from the store.
     ///
     pub fn exhume_literal(&self, id: &Uuid) -> Option<Arc<RwLock<Literal>>> {
         self.literal
             .read()
             .unwrap()
             .get(id)
+            .map(|literal| literal.0.clone())
+    }
+
+    /// Exorcise (remove) [`Literal`] from the store.
+    ///
+    pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<Literal>>> {
+        self.literal
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|literal| literal.0.clone())
     }
 
@@ -1486,7 +1772,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`LocalVariable`] into the store.
+    /// Inter (insert) [`LocalVariable`] into the store.
     ///
     pub fn inter_local_variable(&mut self, local_variable: Arc<RwLock<LocalVariable>>) {
         let read = local_variable.read().unwrap();
@@ -1496,7 +1782,7 @@ impl ObjectStore {
             .insert(read.id, (local_variable.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`LocalVariable`] from the store.
+    /// Exhume (get) [`LocalVariable`] from the store.
     ///
     pub fn exhume_local_variable(&self, id: &Uuid) -> Option<Arc<RwLock<LocalVariable>>> {
         self.local_variable
@@ -1506,6 +1792,8 @@ impl ObjectStore {
             .map(|local_variable| local_variable.0.clone())
     }
 
+    /// Exorcise (remove) [`LocalVariable`] from the store.
+    ///
     pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<LocalVariable>>> {
         self.local_variable
             .write()
@@ -1539,7 +1827,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`MethodCall`] into the store.
+    /// Inter (insert) [`MethodCall`] into the store.
     ///
     pub fn inter_method_call(&mut self, method_call: Arc<RwLock<MethodCall>>) {
         let read = method_call.read().unwrap();
@@ -1549,13 +1837,23 @@ impl ObjectStore {
             .insert(read.id, (method_call.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`MethodCall`] from the store.
+    /// Exhume (get) [`MethodCall`] from the store.
     ///
     pub fn exhume_method_call(&self, id: &Uuid) -> Option<Arc<RwLock<MethodCall>>> {
         self.method_call
             .read()
             .unwrap()
             .get(id)
+            .map(|method_call| method_call.0.clone())
+    }
+
+    /// Exorcise (remove) [`MethodCall`] from the store.
+    ///
+    pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<Arc<RwLock<MethodCall>>> {
+        self.method_call
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|method_call| method_call.0.clone())
     }
 
@@ -1584,7 +1882,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ZObjectStore`] into the store.
+    /// Inter (insert) [`ZObjectStore`] into the store.
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Arc<RwLock<ZObjectStore>>) {
         let read = z_object_store.read().unwrap();
@@ -1594,13 +1892,23 @@ impl ObjectStore {
             .insert(read.id, (z_object_store.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ZObjectStore`] from the store.
+    /// Exhume (get) [`ZObjectStore`] from the store.
     ///
     pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<Arc<RwLock<ZObjectStore>>> {
         self.z_object_store
             .read()
             .unwrap()
             .get(id)
+            .map(|z_object_store| z_object_store.0.clone())
+    }
+
+    /// Exorcise (remove) [`ZObjectStore`] from the store.
+    ///
+    pub fn exorcise_z_object_store(&mut self, id: &Uuid) -> Option<Arc<RwLock<ZObjectStore>>> {
+        self.z_object_store
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|z_object_store| z_object_store.0.clone())
     }
 
@@ -1629,7 +1937,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Operator`] into the store.
+    /// Inter (insert) [`Operator`] into the store.
     ///
     pub fn inter_operator(&mut self, operator: Arc<RwLock<Operator>>) {
         let read = operator.read().unwrap();
@@ -1639,13 +1947,23 @@ impl ObjectStore {
             .insert(read.id, (operator.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Operator`] from the store.
+    /// Exhume (get) [`Operator`] from the store.
     ///
     pub fn exhume_operator(&self, id: &Uuid) -> Option<Arc<RwLock<Operator>>> {
         self.operator
             .read()
             .unwrap()
             .get(id)
+            .map(|operator| operator.0.clone())
+    }
+
+    /// Exorcise (remove) [`Operator`] from the store.
+    ///
+    pub fn exorcise_operator(&mut self, id: &Uuid) -> Option<Arc<RwLock<Operator>>> {
+        self.operator
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|operator| operator.0.clone())
     }
 
@@ -1674,7 +1992,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`WoogOption`] into the store.
+    /// Inter (insert) [`WoogOption`] into the store.
     ///
     pub fn inter_woog_option(&mut self, woog_option: Arc<RwLock<WoogOption>>) {
         let read = woog_option.read().unwrap();
@@ -1684,13 +2002,23 @@ impl ObjectStore {
             .insert(read.id, (woog_option.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`WoogOption`] from the store.
+    /// Exhume (get) [`WoogOption`] from the store.
     ///
     pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
         self.woog_option
             .read()
             .unwrap()
             .get(id)
+            .map(|woog_option| woog_option.0.clone())
+    }
+
+    /// Exorcise (remove) [`WoogOption`] from the store.
+    ///
+    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
+        self.woog_option
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|woog_option| woog_option.0.clone())
     }
 
@@ -1719,7 +2047,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Parameter`] into the store.
+    /// Inter (insert) [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Arc<RwLock<Parameter>>) {
         let read = parameter.read().unwrap();
@@ -1729,13 +2057,23 @@ impl ObjectStore {
             .insert(read.id, (parameter.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Parameter`] from the store.
+    /// Exhume (get) [`Parameter`] from the store.
     ///
     pub fn exhume_parameter(&self, id: &Uuid) -> Option<Arc<RwLock<Parameter>>> {
         self.parameter
             .read()
             .unwrap()
             .get(id)
+            .map(|parameter| parameter.0.clone())
+    }
+
+    /// Exorcise (remove) [`Parameter`] from the store.
+    ///
+    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Arc<RwLock<Parameter>>> {
+        self.parameter
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|parameter| parameter.0.clone())
     }
 
@@ -1764,7 +2102,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Print`] into the store.
+    /// Inter (insert) [`Print`] into the store.
     ///
     pub fn inter_print(&mut self, print: Arc<RwLock<Print>>) {
         let read = print.read().unwrap();
@@ -1774,13 +2112,23 @@ impl ObjectStore {
             .insert(read.id, (print.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Print`] from the store.
+    /// Exhume (get) [`Print`] from the store.
     ///
     pub fn exhume_print(&self, id: &Uuid) -> Option<Arc<RwLock<Print>>> {
         self.print
             .read()
             .unwrap()
             .get(id)
+            .map(|print| print.0.clone())
+    }
+
+    /// Exorcise (remove) [`Print`] from the store.
+    ///
+    pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Arc<RwLock<Print>>> {
+        self.print
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|print| print.0.clone())
     }
 
@@ -1809,7 +2157,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Reference`] into the store.
+    /// Inter (insert) [`Reference`] into the store.
     ///
     pub fn inter_reference(&mut self, reference: Arc<RwLock<Reference>>) {
         let read = reference.read().unwrap();
@@ -1819,13 +2167,23 @@ impl ObjectStore {
             .insert(read.id, (reference.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Reference`] from the store.
+    /// Exhume (get) [`Reference`] from the store.
     ///
     pub fn exhume_reference(&self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
         self.reference
             .read()
             .unwrap()
             .get(id)
+            .map(|reference| reference.0.clone())
+    }
+
+    /// Exorcise (remove) [`Reference`] from the store.
+    ///
+    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
+        self.reference
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|reference| reference.0.clone())
     }
 
@@ -1854,7 +2212,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ResultStatement`] into the store.
+    /// Inter (insert) [`ResultStatement`] into the store.
     ///
     pub fn inter_result_statement(&mut self, result_statement: Arc<RwLock<ResultStatement>>) {
         let read = result_statement.read().unwrap();
@@ -1864,13 +2222,23 @@ impl ObjectStore {
             .insert(read.id, (result_statement.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ResultStatement`] from the store.
+    /// Exhume (get) [`ResultStatement`] from the store.
     ///
     pub fn exhume_result_statement(&self, id: &Uuid) -> Option<Arc<RwLock<ResultStatement>>> {
         self.result_statement
             .read()
             .unwrap()
             .get(id)
+            .map(|result_statement| result_statement.0.clone())
+    }
+
+    /// Exorcise (remove) [`ResultStatement`] from the store.
+    ///
+    pub fn exorcise_result_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<ResultStatement>>> {
+        self.result_statement
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|result_statement| result_statement.0.clone())
     }
 
@@ -1899,7 +2267,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`XReturn`] into the store.
+    /// Inter (insert) [`XReturn`] into the store.
     ///
     pub fn inter_x_return(&mut self, x_return: Arc<RwLock<XReturn>>) {
         let read = x_return.read().unwrap();
@@ -1909,13 +2277,23 @@ impl ObjectStore {
             .insert(read.id, (x_return.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`XReturn`] from the store.
+    /// Exhume (get) [`XReturn`] from the store.
     ///
     pub fn exhume_x_return(&self, id: &Uuid) -> Option<Arc<RwLock<XReturn>>> {
         self.x_return
             .read()
             .unwrap()
             .get(id)
+            .map(|x_return| x_return.0.clone())
+    }
+
+    /// Exorcise (remove) [`XReturn`] from the store.
+    ///
+    pub fn exorcise_x_return(&mut self, id: &Uuid) -> Option<Arc<RwLock<XReturn>>> {
+        self.x_return
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|x_return| x_return.0.clone())
     }
 
@@ -1944,7 +2322,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ZSome`] into the store.
+    /// Inter (insert) [`ZSome`] into the store.
     ///
     pub fn inter_z_some(&mut self, z_some: Arc<RwLock<ZSome>>) {
         let read = z_some.read().unwrap();
@@ -1954,13 +2332,23 @@ impl ObjectStore {
             .insert(read.id, (z_some.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ZSome`] from the store.
+    /// Exhume (get) [`ZSome`] from the store.
     ///
     pub fn exhume_z_some(&self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
         self.z_some
             .read()
             .unwrap()
             .get(id)
+            .map(|z_some| z_some.0.clone())
+    }
+
+    /// Exorcise (remove) [`ZSome`] from the store.
+    ///
+    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
+        self.z_some
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|z_some| z_some.0.clone())
     }
 
@@ -1989,7 +2377,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Statement`] into the store.
+    /// Inter (insert) [`Statement`] into the store.
     ///
     pub fn inter_statement(&mut self, statement: Arc<RwLock<Statement>>) {
         let read = statement.read().unwrap();
@@ -1999,13 +2387,23 @@ impl ObjectStore {
             .insert(read.id, (statement.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Statement`] from the store.
+    /// Exhume (get) [`Statement`] from the store.
     ///
     pub fn exhume_statement(&self, id: &Uuid) -> Option<Arc<RwLock<Statement>>> {
         self.statement
             .read()
             .unwrap()
             .get(id)
+            .map(|statement| statement.0.clone())
+    }
+
+    /// Exorcise (remove) [`Statement`] from the store.
+    ///
+    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<Statement>>> {
+        self.statement
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|statement| statement.0.clone())
     }
 
@@ -2034,7 +2432,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`StaticMethodCall`] into the store.
+    /// Inter (insert) [`StaticMethodCall`] into the store.
     ///
     pub fn inter_static_method_call(&mut self, static_method_call: Arc<RwLock<StaticMethodCall>>) {
         let read = static_method_call.read().unwrap();
@@ -2044,13 +2442,26 @@ impl ObjectStore {
             .insert(read.id, (static_method_call.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`StaticMethodCall`] from the store.
+    /// Exhume (get) [`StaticMethodCall`] from the store.
     ///
     pub fn exhume_static_method_call(&self, id: &Uuid) -> Option<Arc<RwLock<StaticMethodCall>>> {
         self.static_method_call
             .read()
             .unwrap()
             .get(id)
+            .map(|static_method_call| static_method_call.0.clone())
+    }
+
+    /// Exorcise (remove) [`StaticMethodCall`] from the store.
+    ///
+    pub fn exorcise_static_method_call(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<StaticMethodCall>>> {
+        self.static_method_call
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|static_method_call| static_method_call.0.clone())
     }
 
@@ -2084,7 +2495,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`StringLiteral`] into the store.
+    /// Inter (insert) [`StringLiteral`] into the store.
     ///
     pub fn inter_string_literal(&mut self, string_literal: Arc<RwLock<StringLiteral>>) {
         let read = string_literal.read().unwrap();
@@ -2094,13 +2505,23 @@ impl ObjectStore {
             .insert(read.id, (string_literal.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`StringLiteral`] from the store.
+    /// Exhume (get) [`StringLiteral`] from the store.
     ///
     pub fn exhume_string_literal(&self, id: &Uuid) -> Option<Arc<RwLock<StringLiteral>>> {
         self.string_literal
             .read()
             .unwrap()
             .get(id)
+            .map(|string_literal| string_literal.0.clone())
+    }
+
+    /// Exorcise (remove) [`StringLiteral`] from the store.
+    ///
+    pub fn exorcise_string_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<StringLiteral>>> {
+        self.string_literal
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|string_literal| string_literal.0.clone())
     }
 
@@ -2129,7 +2550,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`WoogStruct`] into the store.
+    /// Inter (insert) [`WoogStruct`] into the store.
     ///
     pub fn inter_woog_struct(&mut self, woog_struct: Arc<RwLock<WoogStruct>>) {
         let read = woog_struct.read().unwrap();
@@ -2141,13 +2562,23 @@ impl ObjectStore {
         self.woog_struct.write().unwrap().insert(read.id, value);
     }
 
-    /// Exhume [`WoogStruct`] from the store.
+    /// Exhume (get) [`WoogStruct`] from the store.
     ///
     pub fn exhume_woog_struct(&self, id: &Uuid) -> Option<Arc<RwLock<WoogStruct>>> {
         self.woog_struct
             .read()
             .unwrap()
             .get(id)
+            .map(|woog_struct| woog_struct.0.clone())
+    }
+
+    /// Exorcise (remove) [`WoogStruct`] from the store.
+    ///
+    pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<Arc<RwLock<WoogStruct>>> {
+        self.woog_struct
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|woog_struct| woog_struct.0.clone())
     }
 
@@ -2186,7 +2617,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`StructExpression`] into the store.
+    /// Inter (insert) [`StructExpression`] into the store.
     ///
     pub fn inter_struct_expression(&mut self, struct_expression: Arc<RwLock<StructExpression>>) {
         let read = struct_expression.read().unwrap();
@@ -2196,13 +2627,26 @@ impl ObjectStore {
             .insert(read.id, (struct_expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`StructExpression`] from the store.
+    /// Exhume (get) [`StructExpression`] from the store.
     ///
     pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<Arc<RwLock<StructExpression>>> {
         self.struct_expression
             .read()
             .unwrap()
             .get(id)
+            .map(|struct_expression| struct_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`StructExpression`] from the store.
+    ///
+    pub fn exorcise_struct_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<StructExpression>>> {
+        self.struct_expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|struct_expression| struct_expression.0.clone())
     }
 
@@ -2233,7 +2677,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Value`] into the store.
+    /// Inter (insert) [`Value`] into the store.
     ///
     pub fn inter_value(&mut self, value: Arc<RwLock<Value>>) {
         let read = value.read().unwrap();
@@ -2243,7 +2687,7 @@ impl ObjectStore {
             .insert(read.id, (value.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Value`] from the store.
+    /// Exhume (get) [`Value`] from the store.
     ///
     pub fn exhume_value(&self, id: &Uuid) -> Option<Arc<RwLock<Value>>> {
         self.value
@@ -2253,6 +2697,8 @@ impl ObjectStore {
             .map(|value| value.0.clone())
     }
 
+    /// Exorcise (remove) [`Value`] from the store.
+    ///
     pub fn exorcise_value(&mut self, id: &Uuid) -> Option<Arc<RwLock<Value>>> {
         self.value
             .write()
@@ -2286,7 +2732,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ValueType`] into the store.
+    /// Inter (insert) [`ValueType`] into the store.
     ///
     pub fn inter_value_type(&mut self, value_type: Arc<RwLock<ValueType>>) {
         let read = value_type.read().unwrap();
@@ -2296,13 +2742,23 @@ impl ObjectStore {
             .insert(read.id(), (value_type.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`ValueType`] from the store.
+    /// Exhume (get) [`ValueType`] from the store.
     ///
     pub fn exhume_value_type(&self, id: &Uuid) -> Option<Arc<RwLock<ValueType>>> {
         self.value_type
             .read()
             .unwrap()
             .get(id)
+            .map(|value_type| value_type.0.clone())
+    }
+
+    /// Exorcise (remove) [`ValueType`] from the store.
+    ///
+    pub fn exorcise_value_type(&mut self, id: &Uuid) -> Option<Arc<RwLock<ValueType>>> {
+        self.value_type
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|value_type| value_type.0.clone())
     }
 
@@ -2331,7 +2787,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Variable`] into the store.
+    /// Inter (insert) [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Arc<RwLock<Variable>>) {
         let read = variable.read().unwrap();
@@ -2341,7 +2797,7 @@ impl ObjectStore {
             .insert(read.id, (variable.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`Variable`] from the store.
+    /// Exhume (get) [`Variable`] from the store.
     ///
     pub fn exhume_variable(&self, id: &Uuid) -> Option<Arc<RwLock<Variable>>> {
         self.variable
@@ -2351,6 +2807,8 @@ impl ObjectStore {
             .map(|variable| variable.0.clone())
     }
 
+    /// Exorcise (remove) [`Variable`] from the store.
+    ///
     pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<Variable>>> {
         self.variable
             .write()
@@ -2384,7 +2842,7 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`VariableExpression`] into the store.
+    /// Inter (insert) [`VariableExpression`] into the store.
     ///
     pub fn inter_variable_expression(
         &mut self,
@@ -2397,13 +2855,26 @@ impl ObjectStore {
             .insert(read.id, (variable_expression.clone(), SystemTime::now()));
     }
 
-    /// Exhume [`VariableExpression`] from the store.
+    /// Exhume (get) [`VariableExpression`] from the store.
     ///
     pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<Arc<RwLock<VariableExpression>>> {
         self.variable_expression
             .read()
             .unwrap()
             .get(id)
+            .map(|variable_expression| variable_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`VariableExpression`] from the store.
+    ///
+    pub fn exorcise_variable_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<VariableExpression>>> {
+        self.variable_expression
+            .write()
+            .unwrap()
+            .remove(id)
             .map(|variable_expression| variable_expression.0.clone())
     }
 
