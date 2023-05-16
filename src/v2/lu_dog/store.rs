@@ -24,6 +24,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`Grouped`]
 //! * [`XIf`]
 //! * [`Implementation`]
 //! * [`Import`]
@@ -42,6 +43,7 @@
 //! * [`WoogOption`]
 //! * [`Parameter`]
 //! * [`Print`]
+//! * [`RangeExpression`]
 //! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
@@ -72,12 +74,13 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::{
     Argument, Binary, Block, BooleanLiteral, Call, Comparison, DwarfSourceFile, Error,
     ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldExpression,
-    FloatLiteral, ForLoop, Function, Implementation, Import, Index, IntegerLiteral, Item,
+    FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index, IntegerLiteral, Item,
     LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator,
-    Parameter, Print, Reference, ResultStatement, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf,
-    XReturn, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, EMPTY, FALSE_LITERAL, LESS_THAN_OR_EQUAL,
-    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Parameter, Print, RangeExpression, Reference, ResultStatement, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption,
+    WoogStruct, XIf, XReturn, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, RANGE, SUBTRACTION,
+    TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -100,6 +103,7 @@ pub struct ObjectStore {
     float_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FloatLiteral>>, SystemTime)>>>,
     for_loop: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ForLoop>>, SystemTime)>>>,
     function: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Function>>, SystemTime)>>>,
+    grouped: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Grouped>>, SystemTime)>>>,
     x_if: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XIf>>, SystemTime)>>>,
     implementation: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Implementation>>, SystemTime)>>>,
     import: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Import>>, SystemTime)>>>,
@@ -118,6 +122,7 @@ pub struct ObjectStore {
     woog_option: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<WoogOption>>, SystemTime)>>>,
     parameter: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Parameter>>, SystemTime)>>>,
     print: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Print>>, SystemTime)>>>,
+    range_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<RangeExpression>>, SystemTime)>>>,
     reference: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Reference>>, SystemTime)>>>,
     result_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ResultStatement>>, SystemTime)>>>,
     x_return: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XReturn>>, SystemTime)>>>,
@@ -154,6 +159,7 @@ impl ObjectStore {
             float_literal: Arc::new(RwLock::new(HashMap::default())),
             for_loop: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
+            grouped: Arc::new(RwLock::new(HashMap::default())),
             x_if: Arc::new(RwLock::new(HashMap::default())),
             implementation: Arc::new(RwLock::new(HashMap::default())),
             import: Arc::new(RwLock::new(HashMap::default())),
@@ -172,6 +178,7 @@ impl ObjectStore {
             woog_option: Arc::new(RwLock::new(HashMap::default())),
             parameter: Arc::new(RwLock::new(HashMap::default())),
             print: Arc::new(RwLock::new(HashMap::default())),
+            range_expression: Arc::new(RwLock::new(HashMap::default())),
             reference: Arc::new(RwLock::new(HashMap::default())),
             result_statement: Arc::new(RwLock::new(HashMap::default())),
             x_return: Arc::new(RwLock::new(HashMap::default())),
@@ -194,12 +201,20 @@ impl ObjectStore {
         // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_binary(Arc::new(RwLock::new(Binary::Addition(ADDITION))));
         store.inter_binary(Arc::new(RwLock::new(Binary::Assignment(ASSIGNMENT))));
+        store.inter_binary(Arc::new(RwLock::new(Binary::Division(DIVISION))));
+        store.inter_binary(Arc::new(RwLock::new(Binary::Multiplication(
+            MULTIPLICATION,
+        ))));
         store.inter_binary(Arc::new(RwLock::new(Binary::Subtraction(SUBTRACTION))));
         store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::FalseLiteral(
             FALSE_LITERAL,
         ))));
         store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::TrueLiteral(
             TRUE_LITERAL,
+        ))));
+        store.inter_comparison(Arc::new(RwLock::new(Comparison::Equal(EQUAL))));
+        store.inter_comparison(Arc::new(RwLock::new(Comparison::GreaterThanOrEqual(
+            GREATER_THAN_OR_EQUAL,
         ))));
         store.inter_comparison(Arc::new(RwLock::new(Comparison::LessThanOrEqual(
             LESS_THAN_OR_EQUAL,
@@ -223,6 +238,7 @@ impl ObjectStore {
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
         ))));
+        store.inter_value_type(Arc::new(RwLock::new(ValueType::Range(RANGE))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Unknown(UNKNOWN))));
 
         store
@@ -1176,6 +1192,61 @@ impl ObjectStore {
             .unwrap()
             .get(&function.id)
             .map(|function| function.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`Grouped`] into the store.
+    ///
+    pub fn inter_grouped(&mut self, grouped: Arc<RwLock<Grouped>>) {
+        let read = grouped.read().unwrap();
+        self.grouped
+            .write()
+            .unwrap()
+            .insert(read.id, (grouped.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`Grouped`] from the store.
+    ///
+    pub fn exhume_grouped(&self, id: &Uuid) -> Option<Arc<RwLock<Grouped>>> {
+        self.grouped
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|grouped| grouped.0.clone())
+    }
+
+    /// Exorcise (remove) [`Grouped`] from the store.
+    ///
+    pub fn exorcise_grouped(&mut self, id: &Uuid) -> Option<Arc<RwLock<Grouped>>> {
+        self.grouped
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|grouped| grouped.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
+    ///
+    pub fn iter_grouped(&self) -> impl Iterator<Item = Arc<RwLock<Grouped>>> + '_ {
+        let values: Vec<Arc<RwLock<Grouped>>> = self
+            .grouped
+            .read()
+            .unwrap()
+            .values()
+            .map(|grouped| grouped.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Grouped.
+    ///
+    pub fn grouped_timestamp(&self, grouped: &Grouped) -> SystemTime {
+        self.grouped
+            .read()
+            .unwrap()
+            .get(&grouped.id)
+            .map(|grouped| grouped.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -2154,6 +2225,61 @@ impl ObjectStore {
             .unwrap()
             .get(&print.id)
             .map(|print| print.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`RangeExpression`] into the store.
+    ///
+    pub fn inter_range_expression(&mut self, range_expression: Arc<RwLock<RangeExpression>>) {
+        let read = range_expression.read().unwrap();
+        self.range_expression
+            .write()
+            .unwrap()
+            .insert(read.id, (range_expression.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`RangeExpression`] from the store.
+    ///
+    pub fn exhume_range_expression(&self, id: &Uuid) -> Option<Arc<RwLock<RangeExpression>>> {
+        self.range_expression
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|range_expression| range_expression.0.clone())
+    }
+
+    /// Exorcise (remove) [`RangeExpression`] from the store.
+    ///
+    pub fn exorcise_range_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<RangeExpression>>> {
+        self.range_expression
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|range_expression| range_expression.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
+    ///
+    pub fn iter_range_expression(&self) -> impl Iterator<Item = Arc<RwLock<RangeExpression>>> + '_ {
+        let values: Vec<Arc<RwLock<RangeExpression>>> = self
+            .range_expression
+            .read()
+            .unwrap()
+            .values()
+            .map(|range_expression| range_expression.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for RangeExpression.
+    ///
+    pub fn range_expression_timestamp(&self, range_expression: &RangeExpression) -> SystemTime {
+        self.range_expression
+            .read()
+            .unwrap()
+            .get(&range_expression.id)
+            .map(|range_expression| range_expression.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -3577,6 +3703,43 @@ impl ObjectStore {
             }
         }
 
+        // Persist Grouped.
+        {
+            let path = path.join("grouped");
+            fs::create_dir_all(&path)?;
+            for grouped_tuple in self.grouped.read().unwrap().values() {
+                let path = path.join(format!("{}.json", grouped_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Grouped>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != grouped_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &grouped_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &grouped_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.grouped.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist If.
         {
             let path = path.join("x_if");
@@ -4249,6 +4412,46 @@ impl ObjectStore {
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.print.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Range Expression.
+        {
+            let path = path.join("range_expression");
+            fs::create_dir_all(&path)?;
+            for range_expression_tuple in self.range_expression.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    range_expression_tuple.0.read().unwrap().id
+                ));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<RangeExpression>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != range_expression_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &range_expression_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &range_expression_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.range_expression.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -5086,6 +5289,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Grouped.
+        {
+            let path = path.join("grouped");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let grouped: (Arc<RwLock<Grouped>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .grouped
+                    .write()
+                    .unwrap()
+                    .insert(grouped.0.read().unwrap().id, grouped.clone());
+            }
+        }
+
         // Load If.
         {
             let path = path.join("x_if");
@@ -5416,6 +5637,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(print.0.read().unwrap().id, print.clone());
+            }
+        }
+
+        // Load Range Expression.
+        {
+            let path = path.join("range_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let range_expression: (Arc<RwLock<RangeExpression>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store.range_expression.write().unwrap().insert(
+                    range_expression.0.read().unwrap().id,
+                    range_expression.clone(),
+                );
             }
         }
 

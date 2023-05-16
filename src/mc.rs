@@ -58,5 +58,5 @@ pub trait SarzakModelCompiler {
         src_path: P,
         options: Box<&dyn ModelCompilerOptions>,
         test: bool,
-    ) -> Result<(), ModelCompilerError>;
+    ) -> Result<usize, ModelCompilerError>;
 }

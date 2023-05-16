@@ -9,6 +9,7 @@ use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::list::List;
+use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::value::Value;
@@ -50,6 +51,7 @@ pub enum ValueType {
     List(Uuid),
     ZObjectStore(Uuid),
     WoogOption(Uuid),
+    Range(Uuid),
     Reference(Uuid),
     WoogStruct(Uuid),
     Ty(Uuid),
@@ -144,6 +146,12 @@ impl ValueType {
         }
     }
 
+    /// Create a new instance of ValueType::Range
+    pub fn new_range(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&RANGE).unwrap()
+    }
+
     /// Create a new instance of ValueType::Reference
     pub fn new_reference(
         reference: &Arc<RwLock<Reference>>,
@@ -202,6 +210,7 @@ impl ValueType {
             ValueType::List(id) => *id,
             ValueType::ZObjectStore(id) => *id,
             ValueType::WoogOption(id) => *id,
+            ValueType::Range(id) => *id,
             ValueType::Reference(id) => *id,
             ValueType::WoogStruct(id) => *id,
             ValueType::Ty(id) => *id,

@@ -5,6 +5,8 @@ use std::sync::{Arc, RwLock};
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::addition::ADDITION;
 use crate::v2::lu_dog::types::assignment::ASSIGNMENT;
+use crate::v2::lu_dog::types::division::DIVISION;
+use crate::v2::lu_dog::types::multiplication::MULTIPLICATION;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
 use crate::v2::lu_dog::types::subtraction::SUBTRACTION;
@@ -23,6 +25,8 @@ use uuid::Uuid;
 pub enum Binary {
     Addition(Uuid),
     Assignment(Uuid),
+    Division(Uuid),
+    Multiplication(Uuid),
     Subtraction(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,6 +45,18 @@ impl Binary {
         store.exhume_binary(&ASSIGNMENT).unwrap()
     }
 
+    /// Create a new instance of Binary::Division
+    pub fn new_division(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_binary(&DIVISION).unwrap()
+    }
+
+    /// Create a new instance of Binary::Multiplication
+    pub fn new_multiplication(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_binary(&MULTIPLICATION).unwrap()
+    }
+
     /// Create a new instance of Binary::Subtraction
     pub fn new_subtraction(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
@@ -53,6 +69,8 @@ impl Binary {
         match self {
             Binary::Addition(id) => *id,
             Binary::Assignment(id) => *id,
+            Binary::Division(id) => *id,
+            Binary::Multiplication(id) => *id,
             Binary::Subtraction(id) => *id,
         }
     }

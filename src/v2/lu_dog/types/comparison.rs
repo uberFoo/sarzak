@@ -3,6 +3,8 @@
 use std::sync::{Arc, RwLock};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use crate::v2::lu_dog::types::equal::EQUAL;
+use crate::v2::lu_dog::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::less_than_or_equal::LESS_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
@@ -19,12 +21,26 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Comparison {
+    Equal(Uuid),
+    GreaterThanOrEqual(Uuid),
     LessThanOrEqual(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-implementation"}}}
 impl Comparison {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-new-impl"}}}
+    /// Create a new instance of Comparison::Equal
+    pub fn new_equal(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&EQUAL).unwrap()
+    }
+
+    /// Create a new instance of Comparison::GreaterThanOrEqual
+    pub fn new_greater_than_or_equal(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&GREATER_THAN_OR_EQUAL).unwrap()
+    }
+
     /// Create a new instance of Comparison::LessThanOrEqual
     pub fn new_less_than_or_equal(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
@@ -35,6 +51,8 @@ impl Comparison {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            Comparison::Equal(id) => *id,
+            Comparison::GreaterThanOrEqual(id) => *id,
             Comparison::LessThanOrEqual(id) => *id,
         }
     }

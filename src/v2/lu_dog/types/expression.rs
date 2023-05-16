@@ -11,6 +11,7 @@ use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
+use crate::v2::lu_dog::types::grouped::Grouped;
 use crate::v2::lu_dog::types::index::Index;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::list_element::ListElement;
@@ -18,6 +19,7 @@ use crate::v2::lu_dog::types::list_expression::ListExpression;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::print::Print;
+use crate::v2::lu_dog::types::range_expression::RangeExpression;
 use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::value::Value;
@@ -43,6 +45,7 @@ pub enum Expression {
     ErrorExpression(Uuid),
     FieldAccess(Uuid),
     ForLoop(Uuid),
+    Grouped(Uuid),
     XIf(Uuid),
     Index(Uuid),
     ListElement(Uuid),
@@ -50,6 +53,7 @@ pub enum Expression {
     Literal(Uuid),
     Operator(Uuid),
     Print(Uuid),
+    RangeExpression(Uuid),
     XReturn(Uuid),
     StructExpression(Uuid),
     VariableExpression(Uuid),
@@ -123,6 +127,20 @@ impl Expression {
             for_loop
         } else {
             let new = Arc::new(RwLock::new(Self::ForLoop(for_loop.read().unwrap().id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::Grouped
+    pub fn new_grouped(
+        grouped: &Arc<RwLock<Grouped>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(grouped) = store.exhume_expression(&grouped.read().unwrap().id) {
+            grouped
+        } else {
+            let new = Arc::new(RwLock::new(Self::Grouped(grouped.read().unwrap().id)));
             store.inter_expression(new.clone());
             new
         }
@@ -222,6 +240,24 @@ impl Expression {
         }
     }
 
+    /// Create a new instance of Expression::RangeExpression
+    pub fn new_range_expression(
+        range_expression: &Arc<RwLock<RangeExpression>>,
+        store: &mut LuDogStore,
+    ) -> Arc<RwLock<Self>> {
+        if let Some(range_expression) =
+            store.exhume_expression(&range_expression.read().unwrap().id)
+        {
+            range_expression
+        } else {
+            let new = Arc::new(RwLock::new(Self::RangeExpression(
+                range_expression.read().unwrap().id,
+            )));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
     /// Create a new instance of Expression::XReturn
     pub fn new_x_return(
         x_return: &Arc<RwLock<XReturn>>,
@@ -281,6 +317,7 @@ impl Expression {
             Expression::ErrorExpression(id) => *id,
             Expression::FieldAccess(id) => *id,
             Expression::ForLoop(id) => *id,
+            Expression::Grouped(id) => *id,
             Expression::XIf(id) => *id,
             Expression::Index(id) => *id,
             Expression::ListElement(id) => *id,
@@ -288,6 +325,7 @@ impl Expression {
             Expression::Literal(id) => *id,
             Expression::Operator(id) => *id,
             Expression::Print(id) => *id,
+            Expression::RangeExpression(id) => *id,
             Expression::XReturn(id) => *id,
             Expression::StructExpression(id) => *id,
             Expression::VariableExpression(id) => *id,
@@ -362,6 +400,15 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-grouped"}}}
+    /// Navigate to [`Grouped`] across R61(1-M)
+    pub fn r61_grouped<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Grouped>>> {
+        store
+            .iter_grouped()
+            .filter(|grouped| grouped.read().unwrap().expression == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R44(1-M)
     pub fn r44_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
@@ -372,20 +419,20 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
-    /// Navigate to [`Index`] across R56(1-M)
-    pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
-        store
-            .iter_index()
-            .filter(|index| index.read().unwrap().index == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R57(1-M)
     pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
         store
             .iter_index()
             .filter(|index| index.read().unwrap().target == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
+    /// Navigate to [`Index`] across R56(1-M)
+    pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
+        store
+            .iter_index()
+            .filter(|index| index.read().unwrap().index == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -443,6 +490,44 @@ impl Expression {
         store
             .iter_print()
             .filter(|print| print.read().unwrap().expression == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
+    /// Navigate to [`RangeExpression`] across R59(1-Mc)
+    pub fn r59_range_expression<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<RangeExpression>>> {
+        store
+            .iter_range_expression()
+            .filter_map(|range_expression| {
+                if range_expression.read().unwrap().rhs == Some(self.id()) {
+                    Some(range_expression)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
+    /// Navigate to [`RangeExpression`] across R58(1-Mc)
+    pub fn r58_range_expression<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<RangeExpression>>> {
+        store
+            .iter_range_expression()
+            .filter_map(|range_expression| {
+                if range_expression.read().unwrap().lhs == Some(self.id()) {
+                    Some(range_expression)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
