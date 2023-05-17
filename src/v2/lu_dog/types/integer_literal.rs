@@ -20,16 +20,16 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct IntegerLiteral {
     pub id: Uuid,
-    pub value: i64,
+    pub x_value: i64,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-implementation"}}}
 impl IntegerLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"integer_literal-struct-impl-new"}}}
     /// Inter a new 'Integer Literal' in the store, and return it's `id`.
-    pub fn new(value: i64, store: &mut LuDogStore) -> Arc<RwLock<IntegerLiteral>> {
+    pub fn new(x_value: i64, store: &mut LuDogStore) -> Arc<RwLock<IntegerLiteral>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(IntegerLiteral { id, value }));
+        let new = Arc::new(RwLock::new(IntegerLiteral { id, x_value }));
         store.inter_integer_literal(new.clone());
         new
     }

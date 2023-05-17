@@ -8,8 +8,8 @@ use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::statement::Statement;
-use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::x_if::XIf;
+use crate::v2::lu_dog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -102,12 +102,12 @@ impl Block {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-value"}}}
-    /// Navigate to [`Value`] across R33(1-M)
-    pub fn r33_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_value"}}}
+    /// Navigate to [`XValue`] across R33(1-M)
+    pub fn r33_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
         store
-            .iter_value()
-            .filter(|value| value.read().unwrap().block == self.id)
+            .iter_x_value()
+            .filter(|x_value| x_value.read().unwrap().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

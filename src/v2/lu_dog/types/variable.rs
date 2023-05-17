@@ -6,8 +6,8 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
 use crate::v2::lu_dog::types::parameter::Parameter;
-use crate::v2::lu_dog::types::value::Value;
-use crate::v2::lu_dog::types::value::ValueEnum;
+use crate::v2::lu_dog::types::x_value::XValue;
+use crate::v2::lu_dog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -72,13 +72,13 @@ impl Variable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
-    // Navigate to [`Value`] across R11(isa)
-    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
+    // Navigate to [`XValue`] across R11(isa)
+    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
         vec![store
-            .iter_value()
-            .find(|value| {
-                if let ValueEnum::Variable(id) = value.read().unwrap().subtype {
+            .iter_x_value()
+            .find(|x_value| {
+                if let XValueEnum::Variable(id) = x_value.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

@@ -22,11 +22,11 @@ use crate::v2::lu_dog::types::print::Print;
 use crate::v2::lu_dog::types::range_expression::RangeExpression;
 use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
-use crate::v2::lu_dog::types::value::Value;
-use crate::v2::lu_dog::types::value::ValueEnum;
 use crate::v2::lu_dog::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog::types::x_if::XIf;
 use crate::v2::lu_dog::types::x_return::XReturn;
+use crate::v2::lu_dog::types::x_value::XValue;
+use crate::v2::lu_dog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -419,20 +419,20 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
-    /// Navigate to [`Index`] across R57(1-M)
-    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
-        store
-            .iter_index()
-            .filter(|index| index.read().unwrap().target == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R56(1-M)
     pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
         store
             .iter_index()
             .filter(|index| index.read().unwrap().index == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
+    /// Navigate to [`Index`] across R57(1-M)
+    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Index>>> {
+        store
+            .iter_index()
+            .filter(|index| index.read().unwrap().target == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -493,7 +493,6 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
     /// Navigate to [`RangeExpression`] across R59(1-Mc)
     pub fn r59_range_expression<'a>(
@@ -512,7 +511,6 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
     /// Navigate to [`RangeExpression`] across R58(1-Mc)
     pub fn r58_range_expression<'a>(
@@ -552,13 +550,13 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
-    // Navigate to [`Value`] across R11(isa)
-    pub fn r11_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
+    // Navigate to [`XValue`] across R11(isa)
+    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
         vec![store
-            .iter_value()
-            .find(|value| {
-                if let ValueEnum::Expression(id) = value.read().unwrap().subtype {
+            .iter_x_value()
+            .find(|x_value| {
+                if let XValueEnum::Expression(id) = x_value.read().unwrap().subtype {
                     id == self.id()
                 } else {
                     false

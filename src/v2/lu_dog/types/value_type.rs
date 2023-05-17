@@ -12,9 +12,9 @@ use crate::v2::lu_dog::types::list::List;
 use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
-use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog::types::x_value::XValue;
 use crate::v2::lu_dog::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
@@ -183,11 +183,11 @@ impl ValueType {
     }
 
     /// Create a new instance of ValueType::Ty
-    pub fn new_ty(ty: &Ty, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
-        if let Some(ty) = store.exhume_value_type(&ty.id()) {
+    pub fn new_ty(ty: &Arc<RwLock<Ty>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
+        if let Some(ty) = store.exhume_value_type(&ty.read().unwrap().id()) {
             ty
         } else {
-            let new = Arc::new(RwLock::new(Self::Ty(ty.id())));
+            let new = Arc::new(RwLock::new(Self::Ty(ty.read().unwrap().id())));
             store.inter_value_type(new.clone());
             new
         }
@@ -263,12 +263,12 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-value"}}}
-    /// Navigate to [`Value`] across R24(1-M)
-    pub fn r24_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_value"}}}
+    /// Navigate to [`XValue`] across R24(1-M)
+    pub fn r24_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
         store
-            .iter_value()
-            .filter(|value| value.read().unwrap().ty == self.id())
+            .iter_x_value()
+            .filter(|x_value| x_value.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -23,7 +23,7 @@ pub struct Field {
     pub id: Uuid,
     pub name: String,
     /// R7: [`Field`] 'comprises a' [`WoogStruct`]
-    pub model: Uuid,
+    pub x_model: Uuid,
     /// R5: [`Field`] 'has a' [`ValueType`]
     pub ty: Uuid,
 }
@@ -34,7 +34,7 @@ impl Field {
     /// Inter a new 'Field' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        model: &Arc<RwLock<WoogStruct>>,
+        x_model: &Arc<RwLock<WoogStruct>>,
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Field>> {
@@ -42,17 +42,17 @@ impl Field {
         let new = Arc::new(RwLock::new(Field {
             id,
             name,
-            model: model.read().unwrap().id,
+            x_model: x_model.read().unwrap().id,
             ty: ty.read().unwrap().id(),
         }));
         store.inter_field(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-model"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-x_model"}}}
     /// Navigate to [`WoogStruct`] across R7(1-*)
     pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogStruct>>> {
-        vec![store.exhume_woog_struct(&self.model).unwrap()]
+        vec![store.exhume_woog_struct(&self.x_model).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}

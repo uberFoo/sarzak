@@ -38,14 +38,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<Object>,
+        object: Option<&Arc<RwLock<Object>>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<WoogStruct>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogStruct {
             id,
             name,
-            object: object.map(|object| object.id),
+            object: object.map(|object| object.read().unwrap().id),
         }));
         store.inter_woog_struct(new.clone());
         new
@@ -65,7 +65,7 @@ impl WoogStruct {
     pub fn r7_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Field>>> {
         store
             .iter_field()
-            .filter(|field| field.read().unwrap().model == self.id)
+            .filter(|field| field.read().unwrap().x_model == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

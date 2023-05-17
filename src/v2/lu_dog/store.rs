@@ -53,7 +53,7 @@
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
-//! * [`Value`]
+//! * [`XValue`]
 //! * [`ValueType`]
 //! * [`Variable`]
 //! * [`VariableExpression`]
@@ -77,10 +77,10 @@ use crate::v2::lu_dog::types::{
     FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index, IntegerLiteral, Item,
     LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator,
     Parameter, Print, RangeExpression, Reference, ResultStatement, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, Value, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XIf, XReturn, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, RANGE, SUBTRACTION,
-    TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    StringLiteral, StructExpression, ValueType, Variable, VariableExpression, WoogOption,
+    WoogStruct, XIf, XReturn, XValue, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, DIVISION, EMPTY,
+    EQUAL, FALSE_LITERAL, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, RANGE,
+    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -133,7 +133,7 @@ pub struct ObjectStore {
     woog_struct: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<WoogStruct>>, SystemTime)>>>,
     woog_struct_id_by_name: Arc<RwLock<HashMap<String, (Uuid, SystemTime)>>>,
     struct_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StructExpression>>, SystemTime)>>>,
-    value: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Value>>, SystemTime)>>>,
+    x_value: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XValue>>, SystemTime)>>>,
     value_type: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ValueType>>, SystemTime)>>>,
     variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Variable>>, SystemTime)>>>,
     variable_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<VariableExpression>>, SystemTime)>>>,
@@ -189,7 +189,7 @@ impl ObjectStore {
             woog_struct: Arc::new(RwLock::new(HashMap::default())),
             woog_struct_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             struct_expression: Arc::new(RwLock::new(HashMap::default())),
-            value: Arc::new(RwLock::new(HashMap::default())),
+            x_value: Arc::new(RwLock::new(HashMap::default())),
             value_type: Arc::new(RwLock::new(HashMap::default())),
             variable: Arc::new(RwLock::new(HashMap::default())),
             variable_expression: Arc::new(RwLock::new(HashMap::default())),
@@ -2803,58 +2803,58 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter (insert) [`Value`] into the store.
+    /// Inter (insert) [`XValue`] into the store.
     ///
-    pub fn inter_value(&mut self, value: Arc<RwLock<Value>>) {
-        let read = value.read().unwrap();
-        self.value
+    pub fn inter_x_value(&mut self, x_value: Arc<RwLock<XValue>>) {
+        let read = x_value.read().unwrap();
+        self.x_value
             .write()
             .unwrap()
-            .insert(read.id, (value.clone(), SystemTime::now()));
+            .insert(read.id, (x_value.clone(), SystemTime::now()));
     }
 
-    /// Exhume (get) [`Value`] from the store.
+    /// Exhume (get) [`XValue`] from the store.
     ///
-    pub fn exhume_value(&self, id: &Uuid) -> Option<Arc<RwLock<Value>>> {
-        self.value
+    pub fn exhume_x_value(&self, id: &Uuid) -> Option<Arc<RwLock<XValue>>> {
+        self.x_value
             .read()
             .unwrap()
             .get(id)
-            .map(|value| value.0.clone())
+            .map(|x_value| x_value.0.clone())
     }
 
-    /// Exorcise (remove) [`Value`] from the store.
+    /// Exorcise (remove) [`XValue`] from the store.
     ///
-    pub fn exorcise_value(&mut self, id: &Uuid) -> Option<Arc<RwLock<Value>>> {
-        self.value
+    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<Arc<RwLock<XValue>>> {
+        self.x_value
             .write()
             .unwrap()
             .remove(id)
-            .map(|value| value.0.clone())
+            .map(|x_value| x_value.0.clone())
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Value>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
-    pub fn iter_value(&self) -> impl Iterator<Item = Arc<RwLock<Value>>> + '_ {
-        let values: Vec<Arc<RwLock<Value>>> = self
-            .value
+    pub fn iter_x_value(&self) -> impl Iterator<Item = Arc<RwLock<XValue>>> + '_ {
+        let values: Vec<Arc<RwLock<XValue>>> = self
+            .x_value
             .read()
             .unwrap()
             .values()
-            .map(|value| value.0.clone())
+            .map(|x_value| x_value.0.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Value.
+    /// Get the timestamp for XValue.
     ///
-    pub fn value_timestamp(&self, value: &Value) -> SystemTime {
-        self.value
+    pub fn x_value_timestamp(&self, x_value: &XValue) -> SystemTime {
+        self.x_value
             .read()
             .unwrap()
-            .get(&value.id)
-            .map(|value| value.1)
+            .get(&x_value.id)
+            .map(|x_value| x_value.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -4805,26 +4805,26 @@ impl ObjectStore {
 
         // Persist Value.
         {
-            let path = path.join("value");
+            let path = path.join("x_value");
             fs::create_dir_all(&path)?;
-            for value_tuple in self.value.read().unwrap().values() {
-                let path = path.join(format!("{}.json", value_tuple.0.read().unwrap().id));
+            for x_value_tuple in self.x_value.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_value_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Value>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<XValue>>, SystemTime) =
                         serde_json::from_reader(reader)?;
                     if on_disk.0.read().unwrap().to_owned()
-                        != value_tuple.0.read().unwrap().to_owned()
+                        != x_value_tuple.0.read().unwrap().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
+                        serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
                     }
                 } else {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
+                    serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -4833,7 +4833,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.value.read().unwrap().contains_key(&id) {
+                    if !self.x_value.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -5830,19 +5830,19 @@ impl ObjectStore {
 
         // Load Value.
         {
-            let path = path.join("value");
+            let path = path.join("x_value");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let value: (Arc<RwLock<Value>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_value: (Arc<RwLock<XValue>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
-                    .value
+                    .x_value
                     .write()
                     .unwrap()
-                    .insert(value.0.read().unwrap().id, value.clone());
+                    .insert(x_value.0.read().unwrap().id, x_value.clone());
             }
         }
 

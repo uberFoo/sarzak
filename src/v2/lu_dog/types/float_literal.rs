@@ -20,16 +20,16 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct FloatLiteral {
     pub id: Uuid,
-    pub value: f64,
+    pub x_value: f64,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-implementation"}}}
 impl FloatLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-struct-impl-new"}}}
     /// Inter a new 'Float Literal' in the store, and return it's `id`.
-    pub fn new(value: f64, store: &mut LuDogStore) -> Arc<RwLock<FloatLiteral>> {
+    pub fn new(x_value: f64, store: &mut LuDogStore) -> Arc<RwLock<FloatLiteral>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(FloatLiteral { id, value }));
+        let new = Arc::new(RwLock::new(FloatLiteral { id, x_value }));
         store.inter_float_literal(new.clone());
         new
     }

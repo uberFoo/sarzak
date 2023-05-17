@@ -4,9 +4,9 @@ use std::sync::{Arc, RwLock};
 
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::value::Value;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::lu_dog::types::woog_option::WoogOptionEnum;
+use crate::v2::lu_dog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -23,7 +23,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ZSome {
     pub id: Uuid,
-    /// R23: [`ZSome`] 'contains' [`Value`]
+    /// R23: [`ZSome`] 'contains' [`XValue`]
     pub inner: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -31,7 +31,7 @@ pub struct ZSome {
 impl ZSome {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-new"}}}
     /// Inter a new 'Some' in the store, and return it's `id`.
-    pub fn new(inner: &Arc<RwLock<Value>>, store: &mut LuDogStore) -> Arc<RwLock<ZSome>> {
+    pub fn new(inner: &Arc<RwLock<XValue>>, store: &mut LuDogStore) -> Arc<RwLock<ZSome>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ZSome {
             id,
@@ -42,9 +42,9 @@ impl ZSome {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-nav-forward-to-inner"}}}
-    /// Navigate to [`Value`] across R23(1-*)
-    pub fn r23_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Value>>> {
-        vec![store.exhume_value(&self.inner).unwrap()]
+    /// Navigate to [`XValue`] across R23(1-*)
+    pub fn r23_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
+        vec![store.exhume_x_value(&self.inner).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-impl-nav-subtype-to-supertype-woog_option"}}}

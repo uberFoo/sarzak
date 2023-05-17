@@ -55,8 +55,6 @@ impl ListElement {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-backward-one-to-list"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-backward-one-bi-cond-to-list_element"}}}
     /// Navigate to [`ListElement`] across R53(1c-1c)
     pub fn r53c_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ListElement>>> {
