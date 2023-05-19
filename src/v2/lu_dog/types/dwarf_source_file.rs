@@ -5,6 +5,7 @@ use std::sync::{Arc, RwLock};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::item::Item;
+use crate::v2::lu_dog::types::span::Span;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -42,6 +43,15 @@ impl DwarfSourceFile {
         store
             .iter_item()
             .filter(|item| item.read().unwrap().source == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-span"}}}
+    /// Navigate to [`Span`] across R64(1-M)
+    pub fn r64_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Span>>> {
+        store
+            .iter_span()
+            .filter(|span| span.read().unwrap().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

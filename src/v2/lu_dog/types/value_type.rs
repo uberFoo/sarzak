@@ -11,6 +11,7 @@ use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::list::List;
 use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::reference::Reference;
+use crate::v2::lu_dog::types::span::Span;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
@@ -22,6 +23,7 @@ use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-documentation"}}}
 /// Value Type
 ///
 /// This is the main type abstraction used in Lu Dog. We mostly rely on what is available in
@@ -42,7 +44,10 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-enum-definition"}}}
 pub enum ValueType {
     Empty(Uuid),
     Error(Uuid),
@@ -61,11 +66,14 @@ pub enum ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_empty"}}}
     /// Create a new instance of ValueType::Empty
     pub fn new_empty(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_value_type(&EMPTY).unwrap()
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_error"}}}
 
     /// Create a new instance of ValueType::Error
     pub fn new_error(error: &Arc<RwLock<Error>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
@@ -77,6 +85,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
 
     /// Create a new instance of ValueType::Function
     pub fn new_function(
@@ -91,6 +101,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
 
     /// Create a new instance of ValueType::Import
     pub fn new_import(import: &Arc<RwLock<Import>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
@@ -102,6 +114,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_list"}}}
 
     /// Create a new instance of ValueType::List
     pub fn new_list(list: &Arc<RwLock<List>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
@@ -113,6 +127,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_z_object_store"}}}
 
     /// Create a new instance of ValueType::ZObjectStore
     pub fn new_z_object_store(
@@ -129,6 +145,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_option"}}}
 
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(
@@ -145,12 +163,16 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
 
     /// Create a new instance of ValueType::Range
     pub fn new_range(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_value_type(&RANGE).unwrap()
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_reference"}}}
 
     /// Create a new instance of ValueType::Reference
     pub fn new_reference(
@@ -165,6 +187,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
 
     /// Create a new instance of ValueType::WoogStruct
     pub fn new_woog_struct(
@@ -181,6 +205,8 @@ impl ValueType {
             new
         }
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
 
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: &Arc<RwLock<Ty>>, store: &mut LuDogStore) -> Arc<RwLock<Self>> {
@@ -201,6 +227,7 @@ impl ValueType {
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_unknown"}}}
     pub fn id(&self) -> Uuid {
         match self {
             ValueType::Empty(id) => *id,
@@ -260,6 +287,21 @@ impl ValueType {
         store
             .iter_reference()
             .filter(|reference| reference.read().unwrap().ty == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-span"}}}
+    /// Navigate to [`Span`] across R62(1-Mc)
+    pub fn r62_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Span>>> {
+        store
+            .iter_span()
+            .filter_map(|span| {
+                if span.read().unwrap().ty == Some(self.id()) {
+                    Some(span)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::span::Span;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
 use crate::v2::lu_dog::types::z_some::ZSome;
@@ -96,6 +97,21 @@ impl XValue {
         store
             .iter_z_some()
             .filter(|z_some| z_some.read().unwrap().inner == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_Mc-to-span"}}}
+    /// Navigate to [`Span`] across R63(1-Mc)
+    pub fn r63_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Span>>> {
+        store
+            .iter_span()
+            .filter_map(|span| {
+                if span.read().unwrap().x_value == Some(self.id) {
+                    Some(span)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

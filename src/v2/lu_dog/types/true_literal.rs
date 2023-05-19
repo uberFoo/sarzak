@@ -5,25 +5,33 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-const-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-struct-documentation"}}}
 /// True Literal
 ///
 /// The literal `true`.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-const-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-struct-definition"}}}
 pub const TRUE_LITERAL: Uuid = uuid!["acf0b446-36cc-5862-ba90-bf3fa3e6de05"];
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-implementation"}}}
 pub struct TrueLiteral;
 
 impl TrueLiteral {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-struct-impl-new"}}}
     pub fn new() -> Self {
         Self {}
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"true_literal-impl-nav-subtype-to-supertype-boolean_literal"}}}
 
     pub fn id(&self) -> Uuid {
         TRUE_LITERAL
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 
 impl Default for TrueLiteral {

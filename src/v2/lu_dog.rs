@@ -12,10 +12,4 @@ pub use types::*;
 // lu_dog
 pub const UUID_NS: Uuid = uuid!("718a3c7b-8124-5b12-bf4f-6ff6274db22c");
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test() {}
-}
+pub const MODEL: &[u8] = include_bytes!("../../models/lu_dog.v2.json/sarzak.bin");

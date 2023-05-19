@@ -1724,6 +1724,10 @@ impl ObjectStore {
         Ok(bincode::deserialize_from(bin_file).unwrap())
     }
 
+    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
+        Ok(bincode::deserialize(code).unwrap())
+    }
+
     /// Load the store.
     ///
     /// The store is persisted as a directory of JSON files. The intention

@@ -48,6 +48,7 @@
 //! * [`ResultStatement`]
 //! * [`XReturn`]
 //! * [`ZSome`]
+//! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
 //! * [`StringLiteral`]
@@ -76,11 +77,11 @@ use crate::v2::lu_dog::types::{
     ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldExpression,
     FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index, IntegerLiteral, Item,
     LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall, Operator,
-    Parameter, Print, RangeExpression, Reference, ResultStatement, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XIf, XReturn, XValue, ZObjectStore, ZSome, ADDITION, ASSIGNMENT, DIVISION, EMPTY,
-    EQUAL, FALSE_LITERAL, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, RANGE,
-    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Parameter, Print, RangeExpression, Reference, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, ValueType, Variable, VariableExpression,
+    WoogOption, WoogStruct, XIf, XReturn, XValue, ZObjectStore, ZSome, ADDITION, ASSIGNMENT,
+    DIVISION, EMPTY, EQUAL, FALSE_LITERAL, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL,
+    MULTIPLICATION, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -127,6 +128,7 @@ pub struct ObjectStore {
     result_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ResultStatement>>, SystemTime)>>>,
     x_return: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XReturn>>, SystemTime)>>>,
     z_some: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZSome>>, SystemTime)>>>,
+    span: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Span>>, SystemTime)>>>,
     statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Statement>>, SystemTime)>>>,
     static_method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StaticMethodCall>>, SystemTime)>>>,
     string_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StringLiteral>>, SystemTime)>>>,
@@ -183,6 +185,7 @@ impl ObjectStore {
             result_statement: Arc::new(RwLock::new(HashMap::default())),
             x_return: Arc::new(RwLock::new(HashMap::default())),
             z_some: Arc::new(RwLock::new(HashMap::default())),
+            span: Arc::new(RwLock::new(HashMap::default())),
             statement: Arc::new(RwLock::new(HashMap::default())),
             static_method_call: Arc::new(RwLock::new(HashMap::default())),
             string_literal: Arc::new(RwLock::new(HashMap::default())),
@@ -2503,6 +2506,57 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter (insert) [`Span`] into the store.
+    ///
+    pub fn inter_span(&mut self, span: Arc<RwLock<Span>>) {
+        let read = span.read().unwrap();
+        self.span
+            .write()
+            .unwrap()
+            .insert(read.id, (span.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`Span`] from the store.
+    ///
+    pub fn exhume_span(&self, id: &Uuid) -> Option<Arc<RwLock<Span>>> {
+        self.span.read().unwrap().get(id).map(|span| span.0.clone())
+    }
+
+    /// Exorcise (remove) [`Span`] from the store.
+    ///
+    pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Arc<RwLock<Span>>> {
+        self.span
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|span| span.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
+    ///
+    pub fn iter_span(&self) -> impl Iterator<Item = Arc<RwLock<Span>>> + '_ {
+        let values: Vec<Arc<RwLock<Span>>> = self
+            .span
+            .read()
+            .unwrap()
+            .values()
+            .map(|span| span.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Span.
+    ///
+    pub fn span_timestamp(&self, span: &Span) -> SystemTime {
+        self.span
+            .read()
+            .unwrap()
+            .get(&span.id)
+            .map(|span| span.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter (insert) [`Statement`] into the store.
     ///
     pub fn inter_statement(&mut self, statement: Arc<RwLock<Statement>>) {
@@ -4609,6 +4663,42 @@ impl ObjectStore {
             }
         }
 
+        // Persist Span.
+        {
+            let path = path.join("span");
+            fs::create_dir_all(&path)?;
+            for span_tuple in self.span.read().unwrap().values() {
+                let path = path.join(format!("{}.json", span_tuple.0.read().unwrap().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != span_tuple.0.read().unwrap().to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &span_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &span_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.span.read().unwrap().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Statement.
         {
             let path = path.join("statement");
@@ -5728,6 +5818,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(z_some.0.read().unwrap().id, z_some.clone());
+            }
+        }
+
+        // Load Span.
+        {
+            let path = path.join("span");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let span: (Arc<RwLock<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .span
+                    .write()
+                    .unwrap()
+                    .insert(span.0.read().unwrap().id, span.clone());
             }
         }
 
