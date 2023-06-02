@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"argument-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -40,9 +42,9 @@ impl Argument {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Argument {
             id,
-            next: next.map(|argument| argument.read().unwrap().id),
-            function: function.read().unwrap().id,
-            expression: expression.read().unwrap().id(),
+            next: next.map(|argument| argument.read().id),
+            function: function.read().id,
+            expression: expression.read().id(),
         }));
         store.inter_argument(new.clone());
         new
@@ -74,7 +76,7 @@ impl Argument {
     pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         let argument = store
             .iter_argument()
-            .find(|argument| argument.read().unwrap().next == Some(self.id));
+            .find(|argument| argument.read().next == Some(self.id));
         match argument {
             Some(ref argument) => vec![argument.clone()],
             None => Vec::new(),

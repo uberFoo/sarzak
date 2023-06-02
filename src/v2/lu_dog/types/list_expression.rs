@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"list_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_expression-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -36,7 +38,7 @@ impl ListExpression {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ListExpression {
             id,
-            elements: elements.map(|list_element| list_element.read().unwrap().id),
+            elements: elements.map(|list_element| list_element.read().id),
         }));
         store.inter_list_expression(new.clone());
         new

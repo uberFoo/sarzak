@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"range_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -47,8 +48,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
             subtype: RangeExpressionEnum::From(FROM),
             id,
         }));
@@ -65,8 +66,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
             subtype: RangeExpressionEnum::Full(FULL),
             id,
         }));
@@ -83,8 +84,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
             subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
             id,
         }));
@@ -101,8 +102,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
             subtype: RangeExpressionEnum::To(TO),
             id,
         }));
@@ -119,8 +120,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
             subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
             id,
         }));

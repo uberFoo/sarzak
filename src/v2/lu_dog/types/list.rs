@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"list-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -32,7 +34,7 @@ impl List {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(List {
             id,
-            ty: ty.read().unwrap().id(),
+            ty: ty.read().id(),
         }));
         store.inter_list(new.clone());
         new

@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"list_element-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -33,8 +35,8 @@ impl ListElement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ListElement {
             id,
-            expression: expression.read().unwrap().id(),
-            next: next.map(|list_element| list_element.read().unwrap().id),
+            expression: expression.read().id(),
+            next: next.map(|list_element| list_element.read().id),
         }));
         store.inter_list_element(new.clone());
         new
@@ -60,7 +62,7 @@ impl ListElement {
     pub fn r53c_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ListElement>>> {
         let list_element = store
             .iter_list_element()
-            .find(|list_element| list_element.read().unwrap().next == Some(self.id));
+            .find(|list_element| list_element.read().next == Some(self.id));
         match list_element {
             Some(ref list_element) => vec![list_element.clone()],
             None => Vec::new(),
@@ -75,7 +77,7 @@ impl ListElement {
     ) -> Vec<Arc<RwLock<ListExpression>>> {
         vec![store
             .iter_list_expression()
-            .find(|list_expression| list_expression.read().unwrap().elements == Some(self.id))
+            .find(|list_expression| list_expression.read().elements == Some(self.id))
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

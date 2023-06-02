@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"binary-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::addition::ADDITION;
@@ -81,7 +82,7 @@ impl Binary {
         vec![store
             .iter_operator()
             .find(|operator| {
-                if let OperatorEnum::Binary(id) = operator.read().unwrap().subtype {
+                if let OperatorEnum::Binary(id) = operator.read().subtype {
                     id == self.id()
                 } else {
                     false

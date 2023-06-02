@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"struct_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -40,7 +42,7 @@ impl StructExpression {
         let new = Arc::new(RwLock::new(StructExpression {
             bug,
             id,
-            woog_struct: woog_struct.read().unwrap().id,
+            woog_struct: woog_struct.read().id,
         }));
         store.inter_struct_expression(new.clone());
         new
@@ -60,7 +62,7 @@ impl StructExpression {
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
         store
             .iter_field_expression()
-            .filter(|field_expression| field_expression.read().unwrap().woog_struct == self.id)
+            .filter(|field_expression| field_expression.read().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

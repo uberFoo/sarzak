@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"implementation-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -38,7 +40,7 @@ impl Implementation {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Implementation {
             id,
-            model_type: model_type.read().unwrap().id,
+            model_type: model_type.read().id,
         }));
         store.inter_implementation(new.clone());
         new
@@ -56,7 +58,7 @@ impl Implementation {
         store
             .iter_function()
             .filter_map(|function| {
-                if function.read().unwrap().impl_block == Some(self.id) {
+                if function.read().impl_block == Some(self.id) {
                     Some(function)
                 } else {
                     None
@@ -71,7 +73,7 @@ impl Implementation {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Implementation(id) = item.read().unwrap().subtype {
+                if let ItemEnum::Implementation(id) = item.read().subtype {
                     id == self.id
                 } else {
                     false

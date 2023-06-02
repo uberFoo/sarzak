@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -35,7 +37,7 @@ impl ExpressionStatement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ExpressionStatement {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().id(),
         }));
         store.inter_expression_statement(new.clone());
         new
@@ -53,7 +55,7 @@ impl ExpressionStatement {
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::ExpressionStatement(id) = statement.read().unwrap().subtype {
+                if let StatementEnum::ExpressionStatement(id) = statement.read().subtype {
                     id == self.id
                 } else {
                     false

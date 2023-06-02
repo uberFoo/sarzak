@@ -1,10 +1,13 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_struct-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::field::Field;
+use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
@@ -45,7 +48,7 @@ impl WoogStruct {
         let new = Arc::new(RwLock::new(WoogStruct {
             id,
             name,
-            object: object.map(|object| object.read().unwrap().id),
+            object: object.map(|object| object.read().id),
         }));
         store.inter_woog_struct(new.clone());
         new
@@ -65,7 +68,16 @@ impl WoogStruct {
     pub fn r7_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Field>>> {
         store
             .iter_field()
-            .filter(|field| field.read().unwrap().x_model == self.id)
+            .filter(|field| field.read().x_model == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field_access"}}}
+    /// Navigate to [`FieldAccess`] across R66(1-M)
+    pub fn r66_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<FieldAccess>>> {
+        store
+            .iter_field_access()
+            .filter(|field_access| field_access.read().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -77,7 +89,7 @@ impl WoogStruct {
     ) -> Vec<Arc<RwLock<Implementation>>> {
         let implementation = store
             .iter_implementation()
-            .find(|implementation| implementation.read().unwrap().model_type == self.id);
+            .find(|implementation| implementation.read().model_type == self.id);
         match implementation {
             Some(ref implementation) => vec![implementation.clone()],
             None => Vec::new(),
@@ -92,7 +104,7 @@ impl WoogStruct {
     ) -> Vec<Arc<RwLock<StructExpression>>> {
         store
             .iter_struct_expression()
-            .filter(|struct_expression| struct_expression.read().unwrap().woog_struct == self.id)
+            .filter(|struct_expression| struct_expression.read().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -102,7 +114,7 @@ impl WoogStruct {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::WoogStruct(id) = item.read().unwrap().subtype {
+                if let ItemEnum::WoogStruct(id) = item.read().subtype {
                     id == self.id
                 } else {
                     false

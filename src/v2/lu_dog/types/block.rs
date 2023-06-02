@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"block-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -53,7 +55,7 @@ impl Block {
     pub fn r43_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ForLoop>>> {
         store
             .iter_for_loop()
-            .filter(|for_loop| for_loop.read().unwrap().block == self.id)
+            .filter(|for_loop| for_loop.read().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -62,7 +64,7 @@ impl Block {
     pub fn r19c_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Function>>> {
         let function = store
             .iter_function()
-            .find(|function| function.read().unwrap().block == self.id);
+            .find(|function| function.read().block == self.id);
         match function {
             Some(ref function) => vec![function.clone()],
             None => Vec::new(),
@@ -75,7 +77,7 @@ impl Block {
         store
             .iter_x_if()
             .filter_map(|x_if| {
-                if x_if.read().unwrap().false_block == Some(self.id) {
+                if x_if.read().false_block == Some(self.id) {
                     Some(x_if)
                 } else {
                     None
@@ -89,7 +91,7 @@ impl Block {
     pub fn r46_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XIf>>> {
         store
             .iter_x_if()
-            .filter(|x_if| x_if.read().unwrap().true_block == self.id)
+            .filter(|x_if| x_if.read().true_block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -98,7 +100,7 @@ impl Block {
     pub fn r18_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
         store
             .iter_statement()
-            .filter(|statement| statement.read().unwrap().block == self.id)
+            .filter(|statement| statement.read().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -107,7 +109,7 @@ impl Block {
     pub fn r33_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
         store
             .iter_x_value()
-            .filter(|x_value| x_value.read().unwrap().block == self.id)
+            .filter(|x_value| x_value.read().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

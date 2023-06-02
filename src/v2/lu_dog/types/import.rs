@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"import-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -60,7 +62,7 @@ impl Import {
             id,
             name,
             path,
-            object: object.map(|object| object.read().unwrap().id),
+            object: object.map(|object| object.read().id),
         }));
         store.inter_import(new.clone());
         new
@@ -81,7 +83,7 @@ impl Import {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Import(id) = item.read().unwrap().subtype {
+                if let ItemEnum::Import(id) = item.read().subtype {
                     id == self.id
                 } else {
                     false

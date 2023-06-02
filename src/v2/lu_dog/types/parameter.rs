@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"parameter-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,8 +44,8 @@ impl Parameter {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Parameter {
             id,
-            function: function.read().unwrap().id,
-            next: next.map(|parameter| parameter.read().unwrap().id),
+            function: function.read().id,
+            next: next.map(|parameter| parameter.read().id),
         }));
         store.inter_parameter(new.clone());
         new
@@ -69,7 +71,7 @@ impl Parameter {
     pub fn r14c_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Parameter>>> {
         let parameter = store
             .iter_parameter()
-            .find(|parameter| parameter.read().unwrap().next == Some(self.id));
+            .find(|parameter| parameter.read().next == Some(self.id));
         match parameter {
             Some(ref parameter) => vec![parameter.clone()],
             None => Vec::new(),
@@ -82,7 +84,7 @@ impl Parameter {
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::Parameter(id) = variable.read().unwrap().subtype {
+                if let VariableEnum::Parameter(id) = variable.read().subtype {
                     id == self.id
                 } else {
                     false

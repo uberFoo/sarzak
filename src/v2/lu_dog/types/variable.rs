@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -48,7 +49,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
+            subtype: VariableEnum::LocalVariable(subtype.read().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -65,7 +66,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
+            subtype: VariableEnum::Parameter(subtype.read().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -78,7 +79,7 @@ impl Variable {
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Variable(id) = x_value.read().unwrap().subtype {
+                if let XValueEnum::Variable(id) = x_value.read().subtype {
                     id == self.id
                 } else {
                     false

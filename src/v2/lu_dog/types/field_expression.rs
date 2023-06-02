@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,8 +44,8 @@ impl FieldExpression {
         let new = Arc::new(RwLock::new(FieldExpression {
             id,
             name,
-            expression: expression.read().unwrap().id(),
-            woog_struct: woog_struct.read().unwrap().id,
+            expression: expression.read().id(),
+            woog_struct: woog_struct.read().id,
         }));
         store.inter_field_expression(new.clone());
         new
@@ -62,6 +64,12 @@ impl FieldExpression {
         store: &'a LuDogStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
         vec![store.exhume_struct_expression(&self.woog_struct).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-impl-nav-subtype-to-supertype-expression"}}}
+    // Navigate to [`Expression`] across R15(isa)
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+        vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

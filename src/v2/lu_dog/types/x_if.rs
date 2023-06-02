@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_if-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,9 +44,9 @@ impl XIf {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XIf {
             id,
-            false_block: false_block.map(|block| block.read().unwrap().id),
-            true_block: true_block.read().unwrap().id,
-            test: test.read().unwrap().id(),
+            false_block: false_block.map(|block| block.read().id),
+            true_block: true_block.read().id,
+            test: test.read().id(),
         }));
         store.inter_x_if(new.clone());
         new

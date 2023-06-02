@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"operator-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"operator-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -48,9 +49,9 @@ impl Operator {
     ) -> Arc<RwLock<Operator>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Operator {
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
-            lhs: lhs.read().unwrap().id(),
-            subtype: OperatorEnum::Binary(subtype.read().unwrap().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
+            lhs: lhs.read().id(),
+            subtype: OperatorEnum::Binary(subtype.read().id()),
             id,
         }));
         store.inter_operator(new.clone());
@@ -67,9 +68,9 @@ impl Operator {
     ) -> Arc<RwLock<Operator>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Operator {
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
-            lhs: lhs.read().unwrap().id(),
-            subtype: OperatorEnum::Comparison(subtype.read().unwrap().id()),
+            rhs: rhs.map(|expression| expression.read().id()),
+            lhs: lhs.read().id(),
+            subtype: OperatorEnum::Comparison(subtype.read().id()),
             id,
         }));
         store.inter_operator(new.clone());

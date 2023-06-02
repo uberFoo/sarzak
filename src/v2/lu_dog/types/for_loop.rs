@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"for_loop-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,8 +44,8 @@ impl ForLoop {
         let new = Arc::new(RwLock::new(ForLoop {
             id,
             ident,
-            block: block.read().unwrap().id,
-            expression: expression.read().unwrap().id(),
+            block: block.read().id,
+            expression: expression.read().id(),
         }));
         store.inter_for_loop(new.clone());
         new

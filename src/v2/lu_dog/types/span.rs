@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"span-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -51,9 +53,9 @@ impl Span {
             end,
             id,
             start,
-            source: source.read().unwrap().id,
-            x_value: x_value.map(|x_value| x_value.read().unwrap().id),
-            ty: ty.map(|value_type| value_type.read().unwrap().id()),
+            source: source.read().id,
+            x_value: x_value.map(|x_value| x_value.read().id),
+            ty: ty.map(|value_type| value_type.read().id()),
         }));
         store.inter_span(new.clone());
         new

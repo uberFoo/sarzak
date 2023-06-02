@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -52,9 +53,9 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
-            block: block.read().unwrap().id,
-            next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::ExpressionStatement(subtype.read().unwrap().id),
+            block: block.read().id,
+            next: next.map(|statement| statement.read().id),
+            subtype: StatementEnum::ExpressionStatement(subtype.read().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -70,8 +71,8 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
-            block: block.read().unwrap().id,
-            next: next.map(|statement| statement.read().unwrap().id),
+            block: block.read().id,
+            next: next.map(|statement| statement.read().id),
             subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
             id,
         }));
@@ -89,9 +90,9 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
-            block: block.read().unwrap().id,
-            next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::LetStatement(subtype.read().unwrap().id),
+            block: block.read().id,
+            next: next.map(|statement| statement.read().id),
+            subtype: StatementEnum::LetStatement(subtype.read().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -108,9 +109,9 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
-            block: block.read().unwrap().id,
-            next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::ResultStatement(subtype.read().unwrap().id),
+            block: block.read().id,
+            next: next.map(|statement| statement.read().id),
+            subtype: StatementEnum::ResultStatement(subtype.read().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -137,7 +138,7 @@ impl Statement {
     pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
         let statement = store
             .iter_statement()
-            .find(|statement| statement.read().unwrap().next == Some(self.id));
+            .find(|statement| statement.read().next == Some(self.id));
         match statement {
             Some(ref statement) => vec![statement.clone()],
             None => Vec::new(),

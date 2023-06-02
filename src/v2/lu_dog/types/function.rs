@@ -1,10 +1,13 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"function-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
+use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
@@ -49,9 +52,9 @@ impl Function {
         let new = Arc::new(RwLock::new(Function {
             id,
             name,
-            block: block.read().unwrap().id,
-            impl_block: impl_block.map(|implementation| implementation.read().unwrap().id),
-            return_type: return_type.read().unwrap().id(),
+            block: block.read().id,
+            impl_block: impl_block.map(|implementation| implementation.read().id),
+            return_type: return_type.read().id(),
         }));
         store.inter_function(new.clone());
         new
@@ -86,8 +89,17 @@ impl Function {
     pub fn r13_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Parameter>>> {
         store
             .iter_parameter()
-            .filter(|parameter| parameter.read().unwrap().function == self.id)
+            .filter(|parameter| parameter.read().function == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-field_access_target"}}}
+    // Navigate to [`FieldAccessTarget`] across R67(isa)
+    pub fn r67_field_access_target<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
+        vec![store.exhume_field_access_target(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
@@ -96,7 +108,7 @@ impl Function {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Function(id) = item.read().unwrap().subtype {
+                if let ItemEnum::Function(id) = item.read().subtype {
                     id == self.id
                 } else {
                     false

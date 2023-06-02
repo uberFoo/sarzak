@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"index-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -36,8 +38,8 @@ impl Index {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Index {
             id,
-            index: index.read().unwrap().id(),
-            target: target.read().unwrap().id(),
+            index: index.read().id(),
+            target: target.read().id(),
         }));
         store.inter_index(new.clone());
         new

@@ -1,9 +1,11 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"comparison-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::equal::EQUAL;
+use crate::v2::lu_dog::types::greater_than::GREATER_THAN;
 use crate::v2::lu_dog::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::less_than_or_equal::LESS_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::operator::Operator;
@@ -22,6 +24,7 @@ use uuid::Uuid;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Comparison {
     Equal(Uuid),
+    GreaterThan(Uuid),
     GreaterThanOrEqual(Uuid),
     LessThanOrEqual(Uuid),
 }
@@ -33,6 +36,12 @@ impl Comparison {
     pub fn new_equal(store: &LuDogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_comparison(&EQUAL).unwrap()
+    }
+
+    /// Create a new instance of Comparison::GreaterThan
+    pub fn new_greater_than(store: &LuDogStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&GREATER_THAN).unwrap()
     }
 
     /// Create a new instance of Comparison::GreaterThanOrEqual
@@ -52,6 +61,7 @@ impl Comparison {
     pub fn id(&self) -> Uuid {
         match self {
             Comparison::Equal(id) => *id,
+            Comparison::GreaterThan(id) => *id,
             Comparison::GreaterThanOrEqual(id) => *id,
             Comparison::LessThanOrEqual(id) => *id,
         }
@@ -63,7 +73,7 @@ impl Comparison {
         vec![store
             .iter_operator()
             .find(|operator| {
-                if let OperatorEnum::Comparison(id) = operator.read().unwrap().subtype {
+                if let OperatorEnum::Comparison(id) = operator.read().subtype {
                     id == self.id()
                 } else {
                     false

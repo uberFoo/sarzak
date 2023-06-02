@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"let_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -41,8 +43,8 @@ impl LetStatement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LetStatement {
             id,
-            expression: expression.read().unwrap().id(),
-            variable: variable.read().unwrap().id,
+            expression: expression.read().id(),
+            variable: variable.read().id,
         }));
         store.inter_let_statement(new.clone());
         new
@@ -69,7 +71,7 @@ impl LetStatement {
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::LetStatement(id) = statement.read().unwrap().subtype {
+                if let StatementEnum::LetStatement(id) = statement.read().subtype {
                     id == self.id
                 } else {
                     false

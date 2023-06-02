@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -43,8 +44,8 @@ impl Item {
     ) -> Arc<RwLock<Item>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
-            source: source.read().unwrap().id,
-            subtype: ItemEnum::Function(subtype.read().unwrap().id),
+            source: source.read().id,
+            subtype: ItemEnum::Function(subtype.read().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -60,8 +61,8 @@ impl Item {
     ) -> Arc<RwLock<Item>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
-            source: source.read().unwrap().id,
-            subtype: ItemEnum::Implementation(subtype.read().unwrap().id),
+            source: source.read().id,
+            subtype: ItemEnum::Implementation(subtype.read().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -77,8 +78,8 @@ impl Item {
     ) -> Arc<RwLock<Item>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
-            source: source.read().unwrap().id,
-            subtype: ItemEnum::Import(subtype.read().unwrap().id),
+            source: source.read().id,
+            subtype: ItemEnum::Import(subtype.read().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -94,8 +95,8 @@ impl Item {
     ) -> Arc<RwLock<Item>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
-            source: source.read().unwrap().id,
-            subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id),
+            source: source.read().id,
+            subtype: ItemEnum::WoogStruct(subtype.read().id),
             id,
         }));
         store.inter_item(new.clone());

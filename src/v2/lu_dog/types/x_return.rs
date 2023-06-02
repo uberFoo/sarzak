@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_return-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_return-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -35,7 +37,7 @@ impl XReturn {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XReturn {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().id(),
         }));
         store.inter_x_return(new.clone());
         new

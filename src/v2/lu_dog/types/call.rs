@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -46,7 +47,7 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            expression: expression.map(|expression| expression.read().unwrap().id()),
+            expression: expression.map(|expression| expression.read().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
         }));
@@ -63,8 +64,8 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            expression: expression.map(|expression| expression.read().unwrap().id()),
-            subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
+            expression: expression.map(|expression| expression.read().id()),
+            subtype: CallEnum::MethodCall(subtype.read().id),
             id,
         }));
         store.inter_call(new.clone());
@@ -80,8 +81,8 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            expression: expression.map(|expression| expression.read().unwrap().id()),
-            subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
+            expression: expression.map(|expression| expression.read().id()),
+            subtype: CallEnum::StaticMethodCall(subtype.read().id),
             id,
         }));
         store.inter_call(new.clone());
@@ -102,7 +103,7 @@ impl Call {
     pub fn r28_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
         store
             .iter_argument()
-            .filter(|argument| argument.read().unwrap().function == self.id)
+            .filter(|argument| argument.read().function == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

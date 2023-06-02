@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"reference-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -41,7 +43,7 @@ impl Reference {
             address,
             id,
             is_valid,
-            ty: ty.read().unwrap().id(),
+            ty: ty.read().id(),
         }));
         store.inter_reference(new.clone());
         new

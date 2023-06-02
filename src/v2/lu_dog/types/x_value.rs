@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_value-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -51,9 +52,9 @@ impl XValue {
     ) -> Arc<RwLock<XValue>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XValue {
-            block: block.read().unwrap().id,
-            ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Expression(subtype.read().unwrap().id()),
+            block: block.read().id,
+            ty: ty.read().id(),
+            subtype: XValueEnum::Expression(subtype.read().id()),
             id,
         }));
         store.inter_x_value(new.clone());
@@ -70,9 +71,9 @@ impl XValue {
     ) -> Arc<RwLock<XValue>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XValue {
-            block: block.read().unwrap().id,
-            ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Variable(subtype.read().unwrap().id),
+            block: block.read().id,
+            ty: ty.read().id(),
+            subtype: XValueEnum::Variable(subtype.read().id),
             id,
         }));
         store.inter_x_value(new.clone());
@@ -96,7 +97,7 @@ impl XValue {
     pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ZSome>>> {
         store
             .iter_z_some()
-            .filter(|z_some| z_some.read().unwrap().inner == self.id)
+            .filter(|z_some| z_some.read().inner == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -106,7 +107,7 @@ impl XValue {
         store
             .iter_span()
             .filter_map(|span| {
-                if span.read().unwrap().x_value == Some(self.id) {
+                if span.read().x_value == Some(self.id) {
                     Some(span)
                 } else {
                     None

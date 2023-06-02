@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"method_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"method_call-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,7 +44,7 @@ impl MethodCall {
         vec![store
             .iter_call()
             .find(|call| {
-                if let CallEnum::MethodCall(id) = call.read().unwrap().subtype {
+                if let CallEnum::MethodCall(id) = call.read().subtype {
                     id == self.id
                 } else {
                     false

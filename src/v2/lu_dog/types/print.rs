@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"print-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -32,7 +34,7 @@ impl Print {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Print {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().id(),
         }));
         store.inter_print(new.clone());
         new

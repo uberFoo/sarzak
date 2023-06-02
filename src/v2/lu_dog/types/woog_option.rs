@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_option-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use uuid::Uuid;
 
@@ -44,7 +45,7 @@ impl WoogOption {
     ) -> Arc<RwLock<WoogOption>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogOption {
-            ty: ty.read().unwrap().id(),
+            ty: ty.read().id(),
             subtype: WoogOptionEnum::ZNone(Z_NONE),
             id,
         }));
@@ -61,8 +62,8 @@ impl WoogOption {
     ) -> Arc<RwLock<WoogOption>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(WoogOption {
-            ty: ty.read().unwrap().id(),
-            subtype: WoogOptionEnum::ZSome(subtype.read().unwrap().id),
+            ty: ty.read().id(),
+            subtype: WoogOptionEnum::ZSome(subtype.read().id),
             id,
         }));
         store.inter_woog_option(new.clone());

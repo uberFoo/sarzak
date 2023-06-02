@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"static_method_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -45,7 +47,7 @@ impl StaticMethodCall {
         vec![store
             .iter_call()
             .find(|call| {
-                if let CallEnum::StaticMethodCall(id) = call.read().unwrap().subtype {
+                if let CallEnum::StaticMethodCall(id) = call.read().subtype {
                     id == self.id
                 } else {
                     false

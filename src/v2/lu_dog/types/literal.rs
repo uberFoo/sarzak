@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use parking_lot::RwLock;
+use std::sync::Arc;
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
@@ -35,11 +36,11 @@ impl Literal {
         boolean_literal: &Arc<RwLock<BooleanLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        if let Some(boolean_literal) = store.exhume_literal(&boolean_literal.read().unwrap().id()) {
+        if let Some(boolean_literal) = store.exhume_literal(&boolean_literal.read().id()) {
             boolean_literal
         } else {
             let new = Arc::new(RwLock::new(Self::BooleanLiteral(
-                boolean_literal.read().unwrap().id(),
+                boolean_literal.read().id(),
             )));
             store.inter_literal(new.clone());
             new
@@ -51,12 +52,10 @@ impl Literal {
         float_literal: &Arc<RwLock<FloatLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        if let Some(float_literal) = store.exhume_literal(&float_literal.read().unwrap().id) {
+        if let Some(float_literal) = store.exhume_literal(&float_literal.read().id) {
             float_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::FloatLiteral(
-                float_literal.read().unwrap().id,
-            )));
+            let new = Arc::new(RwLock::new(Self::FloatLiteral(float_literal.read().id)));
             store.inter_literal(new.clone());
             new
         }
@@ -67,12 +66,10 @@ impl Literal {
         integer_literal: &Arc<RwLock<IntegerLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        if let Some(integer_literal) = store.exhume_literal(&integer_literal.read().unwrap().id) {
+        if let Some(integer_literal) = store.exhume_literal(&integer_literal.read().id) {
             integer_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::IntegerLiteral(
-                integer_literal.read().unwrap().id,
-            )));
+            let new = Arc::new(RwLock::new(Self::IntegerLiteral(integer_literal.read().id)));
             store.inter_literal(new.clone());
             new
         }
@@ -83,12 +80,10 @@ impl Literal {
         string_literal: &Arc<RwLock<StringLiteral>>,
         store: &mut LuDogStore,
     ) -> Arc<RwLock<Self>> {
-        if let Some(string_literal) = store.exhume_literal(&string_literal.read().unwrap().id) {
+        if let Some(string_literal) = store.exhume_literal(&string_literal.read().id) {
             string_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::StringLiteral(
-                string_literal.read().unwrap().id,
-            )));
+            let new = Arc::new(RwLock::new(Self::StringLiteral(string_literal.read().id)));
             store.inter_literal(new.clone());
             new
         }

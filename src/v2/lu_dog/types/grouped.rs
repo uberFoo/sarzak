@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"grouped-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grouped-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -33,7 +35,7 @@ impl Grouped {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Grouped {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().id(),
         }));
         store.inter_grouped(new.clone());
         new

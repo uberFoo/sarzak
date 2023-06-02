@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"local_variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -44,7 +46,7 @@ impl LocalVariable {
     ) -> Vec<Arc<RwLock<LetStatement>>> {
         vec![store
             .iter_let_statement()
-            .find(|let_statement| let_statement.read().unwrap().variable == self.id)
+            .find(|let_statement| let_statement.read().variable == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -54,7 +56,7 @@ impl LocalVariable {
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::LocalVariable(id) = variable.read().unwrap().subtype {
+                if let VariableEnum::LocalVariable(id) = variable.read().subtype {
                     id == self.id
                 } else {
                     false

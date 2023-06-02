@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"dwarf_source_file-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
@@ -42,7 +44,7 @@ impl DwarfSourceFile {
     pub fn r25_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
         store
             .iter_item()
-            .filter(|item| item.read().unwrap().source == self.id)
+            .filter(|item| item.read().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -51,7 +53,7 @@ impl DwarfSourceFile {
     pub fn r64_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Span>>> {
         store
             .iter_span()
-            .filter(|span| span.read().unwrap().source == self.id)
+            .filter(|span| span.read().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

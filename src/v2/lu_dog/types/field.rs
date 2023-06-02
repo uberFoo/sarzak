@@ -1,9 +1,12 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
@@ -42,8 +45,8 @@ impl Field {
         let new = Arc::new(RwLock::new(Field {
             id,
             name,
-            x_model: x_model.read().unwrap().id,
-            ty: ty.read().unwrap().id(),
+            x_model: x_model.read().id,
+            ty: ty.read().id(),
         }));
         store.inter_field(new.clone());
         new
@@ -59,6 +62,15 @@ impl Field {
     /// Navigate to [`ValueType`] across R5(1-*)
     pub fn r5_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-impl-nav-subtype-to-supertype-field_access_target"}}}
+    // Navigate to [`FieldAccessTarget`] across R67(isa)
+    pub fn r67_field_access_target<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
+        vec![store.exhume_field_access_target(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
