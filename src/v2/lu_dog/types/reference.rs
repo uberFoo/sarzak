@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"reference-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -35,15 +33,15 @@ impl Reference {
     pub fn new(
         address: Uuid,
         is_valid: bool,
-        ty: &Arc<RwLock<ValueType>>,
+        ty: &Arc<Mutex<ValueType>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Reference>> {
+    ) -> Arc<Mutex<Reference>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Reference {
+        let new = Arc::new(Mutex::new(Reference {
             address,
             id,
             is_valid,
-            ty: ty.read().id(),
+            ty: ty.lock().id(),
         }));
         store.inter_reference(new.clone());
         new
@@ -51,13 +49,13 @@ impl Reference {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R35(1-*)
-    pub fn r35_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r35_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

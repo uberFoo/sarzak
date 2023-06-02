@@ -62,7 +62,7 @@
 //! * [`Variable`]
 //! * [`VariableExpression`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-definition"}}}
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 use std::sync::Arc;
 use std::{
     fs,
@@ -91,176 +91,173 @@ use crate::v2::lu_dog::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    argument: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Argument>>, SystemTime)>>>,
-    binary: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Binary>>, SystemTime)>>>,
-    block: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Block>>, SystemTime)>>>,
-    boolean_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<BooleanLiteral>>, SystemTime)>>>,
-    call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Call>>, SystemTime)>>>,
-    comparison: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Comparison>>, SystemTime)>>>,
-    dwarf_source_file: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<DwarfSourceFile>>, SystemTime)>>>,
-    error: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Error>>, SystemTime)>>>,
-    error_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ErrorExpression>>, SystemTime)>>>,
-    expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Expression>>, SystemTime)>>>,
-    expression_statement:
-        Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ExpressionStatement>>, SystemTime)>>>,
-    field: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Field>>, SystemTime)>>>,
-    field_id_by_name: Arc<RwLock<HashMap<String, (Uuid, SystemTime)>>>,
-    field_access: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FieldAccess>>, SystemTime)>>>,
-    field_access_target: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FieldAccessTarget>>, SystemTime)>>>,
-    field_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FieldExpression>>, SystemTime)>>>,
-    float_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<FloatLiteral>>, SystemTime)>>>,
-    for_loop: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ForLoop>>, SystemTime)>>>,
-    function: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Function>>, SystemTime)>>>,
-    function_id_by_name: Arc<RwLock<HashMap<String, (Uuid, SystemTime)>>>,
-    grouped: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Grouped>>, SystemTime)>>>,
-    x_if: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XIf>>, SystemTime)>>>,
-    implementation: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Implementation>>, SystemTime)>>>,
-    import: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Import>>, SystemTime)>>>,
-    index: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Index>>, SystemTime)>>>,
-    integer_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<IntegerLiteral>>, SystemTime)>>>,
-    item: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Item>>, SystemTime)>>>,
-    let_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LetStatement>>, SystemTime)>>>,
-    list: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<List>>, SystemTime)>>>,
-    list_element: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ListElement>>, SystemTime)>>>,
-    list_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ListExpression>>, SystemTime)>>>,
-    literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Literal>>, SystemTime)>>>,
-    local_variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LocalVariable>>, SystemTime)>>>,
-    method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<MethodCall>>, SystemTime)>>>,
-    negation: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Negation>>, SystemTime)>>>,
-    z_object_store: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZObjectStore>>, SystemTime)>>>,
-    operator: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Operator>>, SystemTime)>>>,
-    woog_option: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<WoogOption>>, SystemTime)>>>,
-    parameter: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Parameter>>, SystemTime)>>>,
-    print: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Print>>, SystemTime)>>>,
-    range_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<RangeExpression>>, SystemTime)>>>,
-    reference: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Reference>>, SystemTime)>>>,
-    result_statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ResultStatement>>, SystemTime)>>>,
-    x_return: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XReturn>>, SystemTime)>>>,
-    z_some: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZSome>>, SystemTime)>>>,
-    span: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Span>>, SystemTime)>>>,
-    statement: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Statement>>, SystemTime)>>>,
-    static_method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StaticMethodCall>>, SystemTime)>>>,
-    string_literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StringLiteral>>, SystemTime)>>>,
-    woog_struct: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<WoogStruct>>, SystemTime)>>>,
-    woog_struct_id_by_name: Arc<RwLock<HashMap<String, (Uuid, SystemTime)>>>,
-    struct_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<StructExpression>>, SystemTime)>>>,
-    type_cast: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<TypeCast>>, SystemTime)>>>,
-    x_value: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XValue>>, SystemTime)>>>,
-    value_type: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ValueType>>, SystemTime)>>>,
-    variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Variable>>, SystemTime)>>>,
-    variable_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<VariableExpression>>, SystemTime)>>>,
+    argument: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Argument>>, SystemTime)>>>,
+    binary: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Binary>>, SystemTime)>>>,
+    block: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Block>>, SystemTime)>>>,
+    boolean_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<BooleanLiteral>>, SystemTime)>>>,
+    call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Call>>, SystemTime)>>>,
+    comparison: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Comparison>>, SystemTime)>>>,
+    dwarf_source_file: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<DwarfSourceFile>>, SystemTime)>>>,
+    error: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Error>>, SystemTime)>>>,
+    error_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ErrorExpression>>, SystemTime)>>>,
+    expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Expression>>, SystemTime)>>>,
+    expression_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ExpressionStatement>>, SystemTime)>>>,
+    field: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Field>>, SystemTime)>>>,
+    field_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
+    field_access: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldAccess>>, SystemTime)>>>,
+    field_access_target: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldAccessTarget>>, SystemTime)>>>,
+    field_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldExpression>>, SystemTime)>>>,
+    float_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FloatLiteral>>, SystemTime)>>>,
+    for_loop: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ForLoop>>, SystemTime)>>>,
+    function: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Function>>, SystemTime)>>>,
+    function_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
+    grouped: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Grouped>>, SystemTime)>>>,
+    x_if: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XIf>>, SystemTime)>>>,
+    implementation: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Implementation>>, SystemTime)>>>,
+    import: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Import>>, SystemTime)>>>,
+    index: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Index>>, SystemTime)>>>,
+    integer_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<IntegerLiteral>>, SystemTime)>>>,
+    item: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Item>>, SystemTime)>>>,
+    let_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<LetStatement>>, SystemTime)>>>,
+    list: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<List>>, SystemTime)>>>,
+    list_element: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ListElement>>, SystemTime)>>>,
+    list_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ListExpression>>, SystemTime)>>>,
+    literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Literal>>, SystemTime)>>>,
+    local_variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<LocalVariable>>, SystemTime)>>>,
+    method_call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<MethodCall>>, SystemTime)>>>,
+    negation: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Negation>>, SystemTime)>>>,
+    z_object_store: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ZObjectStore>>, SystemTime)>>>,
+    operator: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Operator>>, SystemTime)>>>,
+    woog_option: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<WoogOption>>, SystemTime)>>>,
+    parameter: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Parameter>>, SystemTime)>>>,
+    print: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Print>>, SystemTime)>>>,
+    range_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<RangeExpression>>, SystemTime)>>>,
+    reference: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Reference>>, SystemTime)>>>,
+    result_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ResultStatement>>, SystemTime)>>>,
+    x_return: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XReturn>>, SystemTime)>>>,
+    z_some: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ZSome>>, SystemTime)>>>,
+    span: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Span>>, SystemTime)>>>,
+    statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Statement>>, SystemTime)>>>,
+    static_method_call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StaticMethodCall>>, SystemTime)>>>,
+    string_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StringLiteral>>, SystemTime)>>>,
+    woog_struct: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<WoogStruct>>, SystemTime)>>>,
+    woog_struct_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
+    struct_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StructExpression>>, SystemTime)>>>,
+    type_cast: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<TypeCast>>, SystemTime)>>>,
+    x_value: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XValue>>, SystemTime)>>>,
+    value_type: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ValueType>>, SystemTime)>>>,
+    variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Variable>>, SystemTime)>>>,
+    variable_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<VariableExpression>>, SystemTime)>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            argument: Arc::new(RwLock::new(HashMap::default())),
-            binary: Arc::new(RwLock::new(HashMap::default())),
-            block: Arc::new(RwLock::new(HashMap::default())),
-            boolean_literal: Arc::new(RwLock::new(HashMap::default())),
-            call: Arc::new(RwLock::new(HashMap::default())),
-            comparison: Arc::new(RwLock::new(HashMap::default())),
-            dwarf_source_file: Arc::new(RwLock::new(HashMap::default())),
-            error: Arc::new(RwLock::new(HashMap::default())),
-            error_expression: Arc::new(RwLock::new(HashMap::default())),
-            expression: Arc::new(RwLock::new(HashMap::default())),
-            expression_statement: Arc::new(RwLock::new(HashMap::default())),
-            field: Arc::new(RwLock::new(HashMap::default())),
-            field_id_by_name: Arc::new(RwLock::new(HashMap::default())),
-            field_access: Arc::new(RwLock::new(HashMap::default())),
-            field_access_target: Arc::new(RwLock::new(HashMap::default())),
-            field_expression: Arc::new(RwLock::new(HashMap::default())),
-            float_literal: Arc::new(RwLock::new(HashMap::default())),
-            for_loop: Arc::new(RwLock::new(HashMap::default())),
-            function: Arc::new(RwLock::new(HashMap::default())),
-            function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
-            grouped: Arc::new(RwLock::new(HashMap::default())),
-            x_if: Arc::new(RwLock::new(HashMap::default())),
-            implementation: Arc::new(RwLock::new(HashMap::default())),
-            import: Arc::new(RwLock::new(HashMap::default())),
-            index: Arc::new(RwLock::new(HashMap::default())),
-            integer_literal: Arc::new(RwLock::new(HashMap::default())),
-            item: Arc::new(RwLock::new(HashMap::default())),
-            let_statement: Arc::new(RwLock::new(HashMap::default())),
-            list: Arc::new(RwLock::new(HashMap::default())),
-            list_element: Arc::new(RwLock::new(HashMap::default())),
-            list_expression: Arc::new(RwLock::new(HashMap::default())),
-            literal: Arc::new(RwLock::new(HashMap::default())),
-            local_variable: Arc::new(RwLock::new(HashMap::default())),
-            method_call: Arc::new(RwLock::new(HashMap::default())),
-            negation: Arc::new(RwLock::new(HashMap::default())),
-            z_object_store: Arc::new(RwLock::new(HashMap::default())),
-            operator: Arc::new(RwLock::new(HashMap::default())),
-            woog_option: Arc::new(RwLock::new(HashMap::default())),
-            parameter: Arc::new(RwLock::new(HashMap::default())),
-            print: Arc::new(RwLock::new(HashMap::default())),
-            range_expression: Arc::new(RwLock::new(HashMap::default())),
-            reference: Arc::new(RwLock::new(HashMap::default())),
-            result_statement: Arc::new(RwLock::new(HashMap::default())),
-            x_return: Arc::new(RwLock::new(HashMap::default())),
-            z_some: Arc::new(RwLock::new(HashMap::default())),
-            span: Arc::new(RwLock::new(HashMap::default())),
-            statement: Arc::new(RwLock::new(HashMap::default())),
-            static_method_call: Arc::new(RwLock::new(HashMap::default())),
-            string_literal: Arc::new(RwLock::new(HashMap::default())),
-            woog_struct: Arc::new(RwLock::new(HashMap::default())),
-            woog_struct_id_by_name: Arc::new(RwLock::new(HashMap::default())),
-            struct_expression: Arc::new(RwLock::new(HashMap::default())),
-            type_cast: Arc::new(RwLock::new(HashMap::default())),
-            x_value: Arc::new(RwLock::new(HashMap::default())),
-            value_type: Arc::new(RwLock::new(HashMap::default())),
-            variable: Arc::new(RwLock::new(HashMap::default())),
-            variable_expression: Arc::new(RwLock::new(HashMap::default())),
+            argument: Arc::new(Mutex::new(HashMap::default())),
+            binary: Arc::new(Mutex::new(HashMap::default())),
+            block: Arc::new(Mutex::new(HashMap::default())),
+            boolean_literal: Arc::new(Mutex::new(HashMap::default())),
+            call: Arc::new(Mutex::new(HashMap::default())),
+            comparison: Arc::new(Mutex::new(HashMap::default())),
+            dwarf_source_file: Arc::new(Mutex::new(HashMap::default())),
+            error: Arc::new(Mutex::new(HashMap::default())),
+            error_expression: Arc::new(Mutex::new(HashMap::default())),
+            expression: Arc::new(Mutex::new(HashMap::default())),
+            expression_statement: Arc::new(Mutex::new(HashMap::default())),
+            field: Arc::new(Mutex::new(HashMap::default())),
+            field_id_by_name: Arc::new(Mutex::new(HashMap::default())),
+            field_access: Arc::new(Mutex::new(HashMap::default())),
+            field_access_target: Arc::new(Mutex::new(HashMap::default())),
+            field_expression: Arc::new(Mutex::new(HashMap::default())),
+            float_literal: Arc::new(Mutex::new(HashMap::default())),
+            for_loop: Arc::new(Mutex::new(HashMap::default())),
+            function: Arc::new(Mutex::new(HashMap::default())),
+            function_id_by_name: Arc::new(Mutex::new(HashMap::default())),
+            grouped: Arc::new(Mutex::new(HashMap::default())),
+            x_if: Arc::new(Mutex::new(HashMap::default())),
+            implementation: Arc::new(Mutex::new(HashMap::default())),
+            import: Arc::new(Mutex::new(HashMap::default())),
+            index: Arc::new(Mutex::new(HashMap::default())),
+            integer_literal: Arc::new(Mutex::new(HashMap::default())),
+            item: Arc::new(Mutex::new(HashMap::default())),
+            let_statement: Arc::new(Mutex::new(HashMap::default())),
+            list: Arc::new(Mutex::new(HashMap::default())),
+            list_element: Arc::new(Mutex::new(HashMap::default())),
+            list_expression: Arc::new(Mutex::new(HashMap::default())),
+            literal: Arc::new(Mutex::new(HashMap::default())),
+            local_variable: Arc::new(Mutex::new(HashMap::default())),
+            method_call: Arc::new(Mutex::new(HashMap::default())),
+            negation: Arc::new(Mutex::new(HashMap::default())),
+            z_object_store: Arc::new(Mutex::new(HashMap::default())),
+            operator: Arc::new(Mutex::new(HashMap::default())),
+            woog_option: Arc::new(Mutex::new(HashMap::default())),
+            parameter: Arc::new(Mutex::new(HashMap::default())),
+            print: Arc::new(Mutex::new(HashMap::default())),
+            range_expression: Arc::new(Mutex::new(HashMap::default())),
+            reference: Arc::new(Mutex::new(HashMap::default())),
+            result_statement: Arc::new(Mutex::new(HashMap::default())),
+            x_return: Arc::new(Mutex::new(HashMap::default())),
+            z_some: Arc::new(Mutex::new(HashMap::default())),
+            span: Arc::new(Mutex::new(HashMap::default())),
+            statement: Arc::new(Mutex::new(HashMap::default())),
+            static_method_call: Arc::new(Mutex::new(HashMap::default())),
+            string_literal: Arc::new(Mutex::new(HashMap::default())),
+            woog_struct: Arc::new(Mutex::new(HashMap::default())),
+            woog_struct_id_by_name: Arc::new(Mutex::new(HashMap::default())),
+            struct_expression: Arc::new(Mutex::new(HashMap::default())),
+            type_cast: Arc::new(Mutex::new(HashMap::default())),
+            x_value: Arc::new(Mutex::new(HashMap::default())),
+            value_type: Arc::new(Mutex::new(HashMap::default())),
+            variable: Arc::new(Mutex::new(HashMap::default())),
+            variable_expression: Arc::new(Mutex::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_binary(Arc::new(RwLock::new(Binary::Addition(ADDITION))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Assignment(ASSIGNMENT))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Division(DIVISION))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Multiplication(
-            MULTIPLICATION,
-        ))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Subtraction(SUBTRACTION))));
-        store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::FalseLiteral(
+        store.inter_binary(Arc::new(Mutex::new(Binary::Addition(ADDITION))));
+        store.inter_binary(Arc::new(Mutex::new(Binary::Assignment(ASSIGNMENT))));
+        store.inter_binary(Arc::new(Mutex::new(Binary::Division(DIVISION))));
+        store.inter_binary(Arc::new(Mutex::new(Binary::Multiplication(MULTIPLICATION))));
+        store.inter_binary(Arc::new(Mutex::new(Binary::Subtraction(SUBTRACTION))));
+        store.inter_boolean_literal(Arc::new(Mutex::new(BooleanLiteral::FalseLiteral(
             FALSE_LITERAL,
         ))));
-        store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::TrueLiteral(
+        store.inter_boolean_literal(Arc::new(Mutex::new(BooleanLiteral::TrueLiteral(
             TRUE_LITERAL,
         ))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::Equal(EQUAL))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::GreaterThan(GREATER_THAN))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::GreaterThanOrEqual(
+        store.inter_comparison(Arc::new(Mutex::new(Comparison::Equal(EQUAL))));
+        store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThan(GREATER_THAN))));
+        store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThanOrEqual(
             GREATER_THAN_OR_EQUAL,
         ))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::LessThanOrEqual(
+        store.inter_comparison(Arc::new(Mutex::new(Comparison::LessThanOrEqual(
             LESS_THAN_OR_EQUAL,
         ))));
-        store.inter_error(Arc::new(RwLock::new(Error::UnknownVariable(
+        store.inter_error(Arc::new(Mutex::new(Error::UnknownVariable(
             UNKNOWN_VARIABLE,
         ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Debugger(DEBUGGER))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
+        store.inter_expression(Arc::new(Mutex::new(Expression::Debugger(DEBUGGER))));
+        store.inter_expression(Arc::new(Mutex::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
+        store.inter_expression(Arc::new(Mutex::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::ZNone(Z_NONE))));
-        store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
+        store.inter_expression(Arc::new(Mutex::new(Expression::ZNone(Z_NONE))));
+        store.inter_literal(Arc::new(Mutex::new(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ))));
-        store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
+        store.inter_literal(Arc::new(Mutex::new(Literal::BooleanLiteral(
             BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
         ))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Error(
+        store.inter_value_type(Arc::new(Mutex::new(ValueType::Empty(EMPTY))));
+        store.inter_value_type(Arc::new(Mutex::new(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
         ))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Range(RANGE))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Unknown(UNKNOWN))));
+        store.inter_value_type(Arc::new(Mutex::new(ValueType::Range(RANGE))));
+        store.inter_value_type(Arc::new(Mutex::new(ValueType::Unknown(UNKNOWN))));
 
         store
     }
@@ -268,37 +265,37 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-methods"}}}
     /// Inter (insert) [`Argument`] into the store.
     ///
-    pub fn inter_argument(&mut self, argument: Arc<RwLock<Argument>>) {
-        let read = argument.read();
+    pub fn inter_argument(&mut self, argument: Arc<Mutex<Argument>>) {
+        let read = argument.lock();
         self.argument
-            .write()
+            .lock()
             .insert(read.id, (argument.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Argument`] from the store.
     ///
-    pub fn exhume_argument(&self, id: &Uuid) -> Option<Arc<RwLock<Argument>>> {
+    pub fn exhume_argument(&self, id: &Uuid) -> Option<Arc<Mutex<Argument>>> {
         self.argument
-            .read()
+            .lock()
             .get(id)
             .map(|argument| argument.0.clone())
     }
 
     /// Exorcise (remove) [`Argument`] from the store.
     ///
-    pub fn exorcise_argument(&mut self, id: &Uuid) -> Option<Arc<RwLock<Argument>>> {
+    pub fn exorcise_argument(&mut self, id: &Uuid) -> Option<Arc<Mutex<Argument>>> {
         self.argument
-            .write()
+            .lock()
             .remove(id)
             .map(|argument| argument.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
     ///
-    pub fn iter_argument(&self) -> impl Iterator<Item = Arc<RwLock<Argument>>> + '_ {
-        let values: Vec<Arc<RwLock<Argument>>> = self
+    pub fn iter_argument(&self) -> impl Iterator<Item = Arc<Mutex<Argument>>> + '_ {
+        let values: Vec<Arc<Mutex<Argument>>> = self
             .argument
-            .read()
+            .lock()
             .values()
             .map(|argument| argument.0.clone())
             .collect();
@@ -310,7 +307,7 @@ impl ObjectStore {
     ///
     pub fn argument_timestamp(&self, argument: &Argument) -> SystemTime {
         self.argument
-            .read()
+            .lock()
             .get(&argument.id)
             .map(|argument| argument.1)
             .unwrap_or(SystemTime::now())
@@ -318,34 +315,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Binary`] into the store.
     ///
-    pub fn inter_binary(&mut self, binary: Arc<RwLock<Binary>>) {
-        let read = binary.read();
+    pub fn inter_binary(&mut self, binary: Arc<Mutex<Binary>>) {
+        let read = binary.lock();
         self.binary
-            .write()
+            .lock()
             .insert(read.id(), (binary.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Binary`] from the store.
     ///
-    pub fn exhume_binary(&self, id: &Uuid) -> Option<Arc<RwLock<Binary>>> {
-        self.binary.read().get(id).map(|binary| binary.0.clone())
+    pub fn exhume_binary(&self, id: &Uuid) -> Option<Arc<Mutex<Binary>>> {
+        self.binary.lock().get(id).map(|binary| binary.0.clone())
     }
 
     /// Exorcise (remove) [`Binary`] from the store.
     ///
-    pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Arc<RwLock<Binary>>> {
-        self.binary
-            .write()
-            .remove(id)
-            .map(|binary| binary.0.clone())
+    pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Arc<Mutex<Binary>>> {
+        self.binary.lock().remove(id).map(|binary| binary.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
-    pub fn iter_binary(&self) -> impl Iterator<Item = Arc<RwLock<Binary>>> + '_ {
-        let values: Vec<Arc<RwLock<Binary>>> = self
+    pub fn iter_binary(&self) -> impl Iterator<Item = Arc<Mutex<Binary>>> + '_ {
+        let values: Vec<Arc<Mutex<Binary>>> = self
             .binary
-            .read()
+            .lock()
             .values()
             .map(|binary| binary.0.clone())
             .collect();
@@ -357,7 +351,7 @@ impl ObjectStore {
     ///
     pub fn binary_timestamp(&self, binary: &Binary) -> SystemTime {
         self.binary
-            .read()
+            .lock()
             .get(&binary.id())
             .map(|binary| binary.1)
             .unwrap_or(SystemTime::now())
@@ -365,31 +359,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Block`] into the store.
     ///
-    pub fn inter_block(&mut self, block: Arc<RwLock<Block>>) {
-        let read = block.read();
+    pub fn inter_block(&mut self, block: Arc<Mutex<Block>>) {
+        let read = block.lock();
         self.block
-            .write()
+            .lock()
             .insert(read.id, (block.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Block`] from the store.
     ///
-    pub fn exhume_block(&self, id: &Uuid) -> Option<Arc<RwLock<Block>>> {
-        self.block.read().get(id).map(|block| block.0.clone())
+    pub fn exhume_block(&self, id: &Uuid) -> Option<Arc<Mutex<Block>>> {
+        self.block.lock().get(id).map(|block| block.0.clone())
     }
 
     /// Exorcise (remove) [`Block`] from the store.
     ///
-    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Arc<RwLock<Block>>> {
-        self.block.write().remove(id).map(|block| block.0.clone())
+    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Arc<Mutex<Block>>> {
+        self.block.lock().remove(id).map(|block| block.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
-    pub fn iter_block(&self) -> impl Iterator<Item = Arc<RwLock<Block>>> + '_ {
-        let values: Vec<Arc<RwLock<Block>>> = self
+    pub fn iter_block(&self) -> impl Iterator<Item = Arc<Mutex<Block>>> + '_ {
+        let values: Vec<Arc<Mutex<Block>>> = self
             .block
-            .read()
+            .lock()
             .values()
             .map(|block| block.0.clone())
             .collect();
@@ -401,7 +395,7 @@ impl ObjectStore {
     ///
     pub fn block_timestamp(&self, block: &Block) -> SystemTime {
         self.block
-            .read()
+            .lock()
             .get(&block.id)
             .map(|block| block.1)
             .unwrap_or(SystemTime::now())
@@ -409,37 +403,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
-    pub fn inter_boolean_literal(&mut self, boolean_literal: Arc<RwLock<BooleanLiteral>>) {
-        let read = boolean_literal.read();
+    pub fn inter_boolean_literal(&mut self, boolean_literal: Arc<Mutex<BooleanLiteral>>) {
+        let read = boolean_literal.lock();
         self.boolean_literal
-            .write()
+            .lock()
             .insert(read.id(), (boolean_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
     ///
-    pub fn exhume_boolean_literal(&self, id: &Uuid) -> Option<Arc<RwLock<BooleanLiteral>>> {
+    pub fn exhume_boolean_literal(&self, id: &Uuid) -> Option<Arc<Mutex<BooleanLiteral>>> {
         self.boolean_literal
-            .read()
+            .lock()
             .get(id)
             .map(|boolean_literal| boolean_literal.0.clone())
     }
 
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
-    pub fn exorcise_boolean_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<BooleanLiteral>>> {
+    pub fn exorcise_boolean_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<BooleanLiteral>>> {
         self.boolean_literal
-            .write()
+            .lock()
             .remove(id)
             .map(|boolean_literal| boolean_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
     ///
-    pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Arc<RwLock<BooleanLiteral>>> + '_ {
-        let values: Vec<Arc<RwLock<BooleanLiteral>>> = self
+    pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Arc<Mutex<BooleanLiteral>>> + '_ {
+        let values: Vec<Arc<Mutex<BooleanLiteral>>> = self
             .boolean_literal
-            .read()
+            .lock()
             .values()
             .map(|boolean_literal| boolean_literal.0.clone())
             .collect();
@@ -451,7 +445,7 @@ impl ObjectStore {
     ///
     pub fn boolean_literal_timestamp(&self, boolean_literal: &BooleanLiteral) -> SystemTime {
         self.boolean_literal
-            .read()
+            .lock()
             .get(&boolean_literal.id())
             .map(|boolean_literal| boolean_literal.1)
             .unwrap_or(SystemTime::now())
@@ -459,31 +453,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Call`] into the store.
     ///
-    pub fn inter_call(&mut self, call: Arc<RwLock<Call>>) {
-        let read = call.read();
+    pub fn inter_call(&mut self, call: Arc<Mutex<Call>>) {
+        let read = call.lock();
         self.call
-            .write()
+            .lock()
             .insert(read.id, (call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Call`] from the store.
     ///
-    pub fn exhume_call(&self, id: &Uuid) -> Option<Arc<RwLock<Call>>> {
-        self.call.read().get(id).map(|call| call.0.clone())
+    pub fn exhume_call(&self, id: &Uuid) -> Option<Arc<Mutex<Call>>> {
+        self.call.lock().get(id).map(|call| call.0.clone())
     }
 
     /// Exorcise (remove) [`Call`] from the store.
     ///
-    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Arc<RwLock<Call>>> {
-        self.call.write().remove(id).map(|call| call.0.clone())
+    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Arc<Mutex<Call>>> {
+        self.call.lock().remove(id).map(|call| call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
-    pub fn iter_call(&self) -> impl Iterator<Item = Arc<RwLock<Call>>> + '_ {
-        let values: Vec<Arc<RwLock<Call>>> = self
+    pub fn iter_call(&self) -> impl Iterator<Item = Arc<Mutex<Call>>> + '_ {
+        let values: Vec<Arc<Mutex<Call>>> = self
             .call
-            .read()
+            .lock()
             .values()
             .map(|call| call.0.clone())
             .collect();
@@ -495,7 +489,7 @@ impl ObjectStore {
     ///
     pub fn call_timestamp(&self, call: &Call) -> SystemTime {
         self.call
-            .read()
+            .lock()
             .get(&call.id)
             .map(|call| call.1)
             .unwrap_or(SystemTime::now())
@@ -503,37 +497,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Comparison`] into the store.
     ///
-    pub fn inter_comparison(&mut self, comparison: Arc<RwLock<Comparison>>) {
-        let read = comparison.read();
+    pub fn inter_comparison(&mut self, comparison: Arc<Mutex<Comparison>>) {
+        let read = comparison.lock();
         self.comparison
-            .write()
+            .lock()
             .insert(read.id(), (comparison.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Comparison`] from the store.
     ///
-    pub fn exhume_comparison(&self, id: &Uuid) -> Option<Arc<RwLock<Comparison>>> {
+    pub fn exhume_comparison(&self, id: &Uuid) -> Option<Arc<Mutex<Comparison>>> {
         self.comparison
-            .read()
+            .lock()
             .get(id)
             .map(|comparison| comparison.0.clone())
     }
 
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
-    pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Arc<RwLock<Comparison>>> {
+    pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Arc<Mutex<Comparison>>> {
         self.comparison
-            .write()
+            .lock()
             .remove(id)
             .map(|comparison| comparison.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
     ///
-    pub fn iter_comparison(&self) -> impl Iterator<Item = Arc<RwLock<Comparison>>> + '_ {
-        let values: Vec<Arc<RwLock<Comparison>>> = self
+    pub fn iter_comparison(&self) -> impl Iterator<Item = Arc<Mutex<Comparison>>> + '_ {
+        let values: Vec<Arc<Mutex<Comparison>>> = self
             .comparison
-            .read()
+            .lock()
             .values()
             .map(|comparison| comparison.0.clone())
             .collect();
@@ -545,7 +539,7 @@ impl ObjectStore {
     ///
     pub fn comparison_timestamp(&self, comparison: &Comparison) -> SystemTime {
         self.comparison
-            .read()
+            .lock()
             .get(&comparison.id())
             .map(|comparison| comparison.1)
             .unwrap_or(SystemTime::now())
@@ -553,42 +547,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
-    pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<RwLock<DwarfSourceFile>>) {
-        let read = dwarf_source_file.read();
+    pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<Mutex<DwarfSourceFile>>) {
+        let read = dwarf_source_file.lock();
         self.dwarf_source_file
-            .write()
+            .lock()
             .insert(read.id, (dwarf_source_file.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`DwarfSourceFile`] from the store.
     ///
-    pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Arc<RwLock<DwarfSourceFile>>> {
+    pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Arc<Mutex<DwarfSourceFile>>> {
         self.dwarf_source_file
-            .read()
+            .lock()
             .get(id)
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
     /// Exorcise (remove) [`DwarfSourceFile`] from the store.
     ///
-    pub fn exorcise_dwarf_source_file(
-        &mut self,
-        id: &Uuid,
-    ) -> Option<Arc<RwLock<DwarfSourceFile>>> {
+    pub fn exorcise_dwarf_source_file(&mut self, id: &Uuid) -> Option<Arc<Mutex<DwarfSourceFile>>> {
         self.dwarf_source_file
-            .write()
+            .lock()
             .remove(id)
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
     ///
-    pub fn iter_dwarf_source_file(
-        &self,
-    ) -> impl Iterator<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
-        let values: Vec<Arc<RwLock<DwarfSourceFile>>> = self
+    pub fn iter_dwarf_source_file(&self) -> impl Iterator<Item = Arc<Mutex<DwarfSourceFile>>> + '_ {
+        let values: Vec<Arc<Mutex<DwarfSourceFile>>> = self
             .dwarf_source_file
-            .read()
+            .lock()
             .values()
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
             .collect();
@@ -600,7 +589,7 @@ impl ObjectStore {
     ///
     pub fn dwarf_source_file_timestamp(&self, dwarf_source_file: &DwarfSourceFile) -> SystemTime {
         self.dwarf_source_file
-            .read()
+            .lock()
             .get(&dwarf_source_file.id)
             .map(|dwarf_source_file| dwarf_source_file.1)
             .unwrap_or(SystemTime::now())
@@ -608,31 +597,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Error`] into the store.
     ///
-    pub fn inter_error(&mut self, error: Arc<RwLock<Error>>) {
-        let read = error.read();
+    pub fn inter_error(&mut self, error: Arc<Mutex<Error>>) {
+        let read = error.lock();
         self.error
-            .write()
+            .lock()
             .insert(read.id(), (error.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Error`] from the store.
     ///
-    pub fn exhume_error(&self, id: &Uuid) -> Option<Arc<RwLock<Error>>> {
-        self.error.read().get(id).map(|error| error.0.clone())
+    pub fn exhume_error(&self, id: &Uuid) -> Option<Arc<Mutex<Error>>> {
+        self.error.lock().get(id).map(|error| error.0.clone())
     }
 
     /// Exorcise (remove) [`Error`] from the store.
     ///
-    pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Arc<RwLock<Error>>> {
-        self.error.write().remove(id).map(|error| error.0.clone())
+    pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Arc<Mutex<Error>>> {
+        self.error.lock().remove(id).map(|error| error.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
     ///
-    pub fn iter_error(&self) -> impl Iterator<Item = Arc<RwLock<Error>>> + '_ {
-        let values: Vec<Arc<RwLock<Error>>> = self
+    pub fn iter_error(&self) -> impl Iterator<Item = Arc<Mutex<Error>>> + '_ {
+        let values: Vec<Arc<Mutex<Error>>> = self
             .error
-            .read()
+            .lock()
             .values()
             .map(|error| error.0.clone())
             .collect();
@@ -644,7 +633,7 @@ impl ObjectStore {
     ///
     pub fn error_timestamp(&self, error: &Error) -> SystemTime {
         self.error
-            .read()
+            .lock()
             .get(&error.id())
             .map(|error| error.1)
             .unwrap_or(SystemTime::now())
@@ -652,37 +641,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ErrorExpression`] into the store.
     ///
-    pub fn inter_error_expression(&mut self, error_expression: Arc<RwLock<ErrorExpression>>) {
-        let read = error_expression.read();
+    pub fn inter_error_expression(&mut self, error_expression: Arc<Mutex<ErrorExpression>>) {
+        let read = error_expression.lock();
         self.error_expression
-            .write()
+            .lock()
             .insert(read.id, (error_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ErrorExpression`] from the store.
     ///
-    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
+    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Arc<Mutex<ErrorExpression>>> {
         self.error_expression
-            .read()
+            .lock()
             .get(id)
             .map(|error_expression| error_expression.0.clone())
     }
 
     /// Exorcise (remove) [`ErrorExpression`] from the store.
     ///
-    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
+    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<ErrorExpression>>> {
         self.error_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|error_expression| error_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
     ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Arc<RwLock<ErrorExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<ErrorExpression>>> = self
+    pub fn iter_error_expression(&self) -> impl Iterator<Item = Arc<Mutex<ErrorExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<ErrorExpression>>> = self
             .error_expression
-            .read()
+            .lock()
             .values()
             .map(|error_expression| error_expression.0.clone())
             .collect();
@@ -694,7 +683,7 @@ impl ObjectStore {
     ///
     pub fn error_expression_timestamp(&self, error_expression: &ErrorExpression) -> SystemTime {
         self.error_expression
-            .read()
+            .lock()
             .get(&error_expression.id)
             .map(|error_expression| error_expression.1)
             .unwrap_or(SystemTime::now())
@@ -702,37 +691,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Expression`] into the store.
     ///
-    pub fn inter_expression(&mut self, expression: Arc<RwLock<Expression>>) {
-        let read = expression.read();
+    pub fn inter_expression(&mut self, expression: Arc<Mutex<Expression>>) {
+        let read = expression.lock();
         self.expression
-            .write()
+            .lock()
             .insert(read.id(), (expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Expression`] from the store.
     ///
-    pub fn exhume_expression(&self, id: &Uuid) -> Option<Arc<RwLock<Expression>>> {
+    pub fn exhume_expression(&self, id: &Uuid) -> Option<Arc<Mutex<Expression>>> {
         self.expression
-            .read()
+            .lock()
             .get(id)
             .map(|expression| expression.0.clone())
     }
 
     /// Exorcise (remove) [`Expression`] from the store.
     ///
-    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<Expression>>> {
+    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<Expression>>> {
         self.expression
-            .write()
+            .lock()
             .remove(id)
             .map(|expression| expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
-    pub fn iter_expression(&self) -> impl Iterator<Item = Arc<RwLock<Expression>>> + '_ {
-        let values: Vec<Arc<RwLock<Expression>>> = self
+    pub fn iter_expression(&self) -> impl Iterator<Item = Arc<Mutex<Expression>>> + '_ {
+        let values: Vec<Arc<Mutex<Expression>>> = self
             .expression
-            .read()
+            .lock()
             .values()
             .map(|expression| expression.0.clone())
             .collect();
@@ -744,7 +733,7 @@ impl ObjectStore {
     ///
     pub fn expression_timestamp(&self, expression: &Expression) -> SystemTime {
         self.expression
-            .read()
+            .lock()
             .get(&expression.id())
             .map(|expression| expression.1)
             .unwrap_or(SystemTime::now())
@@ -754,11 +743,11 @@ impl ObjectStore {
     ///
     pub fn inter_expression_statement(
         &mut self,
-        expression_statement: Arc<RwLock<ExpressionStatement>>,
+        expression_statement: Arc<Mutex<ExpressionStatement>>,
     ) {
-        let read = expression_statement.read();
+        let read = expression_statement.lock();
         self.expression_statement
-            .write()
+            .lock()
             .insert(read.id, (expression_statement.clone(), SystemTime::now()));
     }
 
@@ -767,9 +756,9 @@ impl ObjectStore {
     pub fn exhume_expression_statement(
         &self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<ExpressionStatement>>> {
+    ) -> Option<Arc<Mutex<ExpressionStatement>>> {
         self.expression_statement
-            .read()
+            .lock()
             .get(id)
             .map(|expression_statement| expression_statement.0.clone())
     }
@@ -779,9 +768,9 @@ impl ObjectStore {
     pub fn exorcise_expression_statement(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<ExpressionStatement>>> {
+    ) -> Option<Arc<Mutex<ExpressionStatement>>> {
         self.expression_statement
-            .write()
+            .lock()
             .remove(id)
             .map(|expression_statement| expression_statement.0.clone())
     }
@@ -790,10 +779,10 @@ impl ObjectStore {
     ///
     pub fn iter_expression_statement(
         &self,
-    ) -> impl Iterator<Item = Arc<RwLock<ExpressionStatement>>> + '_ {
-        let values: Vec<Arc<RwLock<ExpressionStatement>>> = self
+    ) -> impl Iterator<Item = Arc<Mutex<ExpressionStatement>>> + '_ {
+        let values: Vec<Arc<Mutex<ExpressionStatement>>> = self
             .expression_statement
-            .read()
+            .lock()
             .values()
             .map(|expression_statement| expression_statement.0.clone())
             .collect();
@@ -808,7 +797,7 @@ impl ObjectStore {
         expression_statement: &ExpressionStatement,
     ) -> SystemTime {
         self.expression_statement
-            .read()
+            .lock()
             .get(&expression_statement.id)
             .map(|expression_statement| expression_statement.1)
             .unwrap_or(SystemTime::now())
@@ -816,39 +805,39 @@ impl ObjectStore {
 
     /// Inter (insert) [`Field`] into the store.
     ///
-    pub fn inter_field(&mut self, field: Arc<RwLock<Field>>) {
-        let read = field.read();
+    pub fn inter_field(&mut self, field: Arc<Mutex<Field>>) {
+        let read = field.lock();
         let value = (field.clone(), SystemTime::now());
         self.field_id_by_name
-            .write()
+            .lock()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.field.write().insert(read.id, value);
+        self.field.lock().insert(read.id, value);
     }
 
     /// Exhume (get) [`Field`] from the store.
     ///
-    pub fn exhume_field(&self, id: &Uuid) -> Option<Arc<RwLock<Field>>> {
-        self.field.read().get(id).map(|field| field.0.clone())
+    pub fn exhume_field(&self, id: &Uuid) -> Option<Arc<Mutex<Field>>> {
+        self.field.lock().get(id).map(|field| field.0.clone())
     }
 
     /// Exorcise (remove) [`Field`] from the store.
     ///
-    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Arc<RwLock<Field>>> {
-        self.field.write().remove(id).map(|field| field.0.clone())
+    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Arc<Mutex<Field>>> {
+        self.field.lock().remove(id).map(|field| field.0.clone())
     }
 
     /// Exhume [`Field`] id from the store by name.
     ///
     pub fn exhume_field_id_by_name(&self, name: &str) -> Option<Uuid> {
-        self.field_id_by_name.read().get(name).map(|field| field.0)
+        self.field_id_by_name.lock().get(name).map(|field| field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
     ///
-    pub fn iter_field(&self) -> impl Iterator<Item = Arc<RwLock<Field>>> + '_ {
-        let values: Vec<Arc<RwLock<Field>>> = self
+    pub fn iter_field(&self) -> impl Iterator<Item = Arc<Mutex<Field>>> + '_ {
+        let values: Vec<Arc<Mutex<Field>>> = self
             .field
-            .read()
+            .lock()
             .values()
             .map(|field| field.0.clone())
             .collect();
@@ -860,7 +849,7 @@ impl ObjectStore {
     ///
     pub fn field_timestamp(&self, field: &Field) -> SystemTime {
         self.field
-            .read()
+            .lock()
             .get(&field.id)
             .map(|field| field.1)
             .unwrap_or(SystemTime::now())
@@ -868,37 +857,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccess`] into the store.
     ///
-    pub fn inter_field_access(&mut self, field_access: Arc<RwLock<FieldAccess>>) {
-        let read = field_access.read();
+    pub fn inter_field_access(&mut self, field_access: Arc<Mutex<FieldAccess>>) {
+        let read = field_access.lock();
         self.field_access
-            .write()
+            .lock()
             .insert(read.id, (field_access.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldAccess`] from the store.
     ///
-    pub fn exhume_field_access(&self, id: &Uuid) -> Option<Arc<RwLock<FieldAccess>>> {
+    pub fn exhume_field_access(&self, id: &Uuid) -> Option<Arc<Mutex<FieldAccess>>> {
         self.field_access
-            .read()
+            .lock()
             .get(id)
             .map(|field_access| field_access.0.clone())
     }
 
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
-    pub fn exorcise_field_access(&mut self, id: &Uuid) -> Option<Arc<RwLock<FieldAccess>>> {
+    pub fn exorcise_field_access(&mut self, id: &Uuid) -> Option<Arc<Mutex<FieldAccess>>> {
         self.field_access
-            .write()
+            .lock()
             .remove(id)
             .map(|field_access| field_access.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
     ///
-    pub fn iter_field_access(&self) -> impl Iterator<Item = Arc<RwLock<FieldAccess>>> + '_ {
-        let values: Vec<Arc<RwLock<FieldAccess>>> = self
+    pub fn iter_field_access(&self) -> impl Iterator<Item = Arc<Mutex<FieldAccess>>> + '_ {
+        let values: Vec<Arc<Mutex<FieldAccess>>> = self
             .field_access
-            .read()
+            .lock()
             .values()
             .map(|field_access| field_access.0.clone())
             .collect();
@@ -910,7 +899,7 @@ impl ObjectStore {
     ///
     pub fn field_access_timestamp(&self, field_access: &FieldAccess) -> SystemTime {
         self.field_access
-            .read()
+            .lock()
             .get(&field_access.id)
             .map(|field_access| field_access.1)
             .unwrap_or(SystemTime::now())
@@ -920,19 +909,19 @@ impl ObjectStore {
     ///
     pub fn inter_field_access_target(
         &mut self,
-        field_access_target: Arc<RwLock<FieldAccessTarget>>,
+        field_access_target: Arc<Mutex<FieldAccessTarget>>,
     ) {
-        let read = field_access_target.read();
+        let read = field_access_target.lock();
         self.field_access_target
-            .write()
+            .lock()
             .insert(read.id(), (field_access_target.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
     ///
-    pub fn exhume_field_access_target(&self, id: &Uuid) -> Option<Arc<RwLock<FieldAccessTarget>>> {
+    pub fn exhume_field_access_target(&self, id: &Uuid) -> Option<Arc<Mutex<FieldAccessTarget>>> {
         self.field_access_target
-            .read()
+            .lock()
             .get(id)
             .map(|field_access_target| field_access_target.0.clone())
     }
@@ -942,9 +931,9 @@ impl ObjectStore {
     pub fn exorcise_field_access_target(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<FieldAccessTarget>>> {
+    ) -> Option<Arc<Mutex<FieldAccessTarget>>> {
         self.field_access_target
-            .write()
+            .lock()
             .remove(id)
             .map(|field_access_target| field_access_target.0.clone())
     }
@@ -953,10 +942,10 @@ impl ObjectStore {
     ///
     pub fn iter_field_access_target(
         &self,
-    ) -> impl Iterator<Item = Arc<RwLock<FieldAccessTarget>>> + '_ {
-        let values: Vec<Arc<RwLock<FieldAccessTarget>>> = self
+    ) -> impl Iterator<Item = Arc<Mutex<FieldAccessTarget>>> + '_ {
+        let values: Vec<Arc<Mutex<FieldAccessTarget>>> = self
             .field_access_target
-            .read()
+            .lock()
             .values()
             .map(|field_access_target| field_access_target.0.clone())
             .collect();
@@ -971,7 +960,7 @@ impl ObjectStore {
         field_access_target: &FieldAccessTarget,
     ) -> SystemTime {
         self.field_access_target
-            .read()
+            .lock()
             .get(&field_access_target.id())
             .map(|field_access_target| field_access_target.1)
             .unwrap_or(SystemTime::now())
@@ -979,37 +968,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldExpression`] into the store.
     ///
-    pub fn inter_field_expression(&mut self, field_expression: Arc<RwLock<FieldExpression>>) {
-        let read = field_expression.read();
+    pub fn inter_field_expression(&mut self, field_expression: Arc<Mutex<FieldExpression>>) {
+        let read = field_expression.lock();
         self.field_expression
-            .write()
+            .lock()
             .insert(read.id, (field_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldExpression`] from the store.
     ///
-    pub fn exhume_field_expression(&self, id: &Uuid) -> Option<Arc<RwLock<FieldExpression>>> {
+    pub fn exhume_field_expression(&self, id: &Uuid) -> Option<Arc<Mutex<FieldExpression>>> {
         self.field_expression
-            .read()
+            .lock()
             .get(id)
             .map(|field_expression| field_expression.0.clone())
     }
 
     /// Exorcise (remove) [`FieldExpression`] from the store.
     ///
-    pub fn exorcise_field_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<FieldExpression>>> {
+    pub fn exorcise_field_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<FieldExpression>>> {
         self.field_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|field_expression| field_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
     ///
-    pub fn iter_field_expression(&self) -> impl Iterator<Item = Arc<RwLock<FieldExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<FieldExpression>>> = self
+    pub fn iter_field_expression(&self) -> impl Iterator<Item = Arc<Mutex<FieldExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<FieldExpression>>> = self
             .field_expression
-            .read()
+            .lock()
             .values()
             .map(|field_expression| field_expression.0.clone())
             .collect();
@@ -1021,7 +1010,7 @@ impl ObjectStore {
     ///
     pub fn field_expression_timestamp(&self, field_expression: &FieldExpression) -> SystemTime {
         self.field_expression
-            .read()
+            .lock()
             .get(&field_expression.id)
             .map(|field_expression| field_expression.1)
             .unwrap_or(SystemTime::now())
@@ -1029,37 +1018,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FloatLiteral`] into the store.
     ///
-    pub fn inter_float_literal(&mut self, float_literal: Arc<RwLock<FloatLiteral>>) {
-        let read = float_literal.read();
+    pub fn inter_float_literal(&mut self, float_literal: Arc<Mutex<FloatLiteral>>) {
+        let read = float_literal.lock();
         self.float_literal
-            .write()
+            .lock()
             .insert(read.id, (float_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FloatLiteral`] from the store.
     ///
-    pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Arc<RwLock<FloatLiteral>>> {
+    pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Arc<Mutex<FloatLiteral>>> {
         self.float_literal
-            .read()
+            .lock()
             .get(id)
             .map(|float_literal| float_literal.0.clone())
     }
 
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
-    pub fn exorcise_float_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<FloatLiteral>>> {
+    pub fn exorcise_float_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<FloatLiteral>>> {
         self.float_literal
-            .write()
+            .lock()
             .remove(id)
             .map(|float_literal| float_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
     ///
-    pub fn iter_float_literal(&self) -> impl Iterator<Item = Arc<RwLock<FloatLiteral>>> + '_ {
-        let values: Vec<Arc<RwLock<FloatLiteral>>> = self
+    pub fn iter_float_literal(&self) -> impl Iterator<Item = Arc<Mutex<FloatLiteral>>> + '_ {
+        let values: Vec<Arc<Mutex<FloatLiteral>>> = self
             .float_literal
-            .read()
+            .lock()
             .values()
             .map(|float_literal| float_literal.0.clone())
             .collect();
@@ -1071,7 +1060,7 @@ impl ObjectStore {
     ///
     pub fn float_literal_timestamp(&self, float_literal: &FloatLiteral) -> SystemTime {
         self.float_literal
-            .read()
+            .lock()
             .get(&float_literal.id)
             .map(|float_literal| float_literal.1)
             .unwrap_or(SystemTime::now())
@@ -1079,37 +1068,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ForLoop`] into the store.
     ///
-    pub fn inter_for_loop(&mut self, for_loop: Arc<RwLock<ForLoop>>) {
-        let read = for_loop.read();
+    pub fn inter_for_loop(&mut self, for_loop: Arc<Mutex<ForLoop>>) {
+        let read = for_loop.lock();
         self.for_loop
-            .write()
+            .lock()
             .insert(read.id, (for_loop.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ForLoop`] from the store.
     ///
-    pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Arc<RwLock<ForLoop>>> {
+    pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Arc<Mutex<ForLoop>>> {
         self.for_loop
-            .read()
+            .lock()
             .get(id)
             .map(|for_loop| for_loop.0.clone())
     }
 
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
-    pub fn exorcise_for_loop(&mut self, id: &Uuid) -> Option<Arc<RwLock<ForLoop>>> {
+    pub fn exorcise_for_loop(&mut self, id: &Uuid) -> Option<Arc<Mutex<ForLoop>>> {
         self.for_loop
-            .write()
+            .lock()
             .remove(id)
             .map(|for_loop| for_loop.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
     ///
-    pub fn iter_for_loop(&self) -> impl Iterator<Item = Arc<RwLock<ForLoop>>> + '_ {
-        let values: Vec<Arc<RwLock<ForLoop>>> = self
+    pub fn iter_for_loop(&self) -> impl Iterator<Item = Arc<Mutex<ForLoop>>> + '_ {
+        let values: Vec<Arc<Mutex<ForLoop>>> = self
             .for_loop
-            .read()
+            .lock()
             .values()
             .map(|for_loop| for_loop.0.clone())
             .collect();
@@ -1121,7 +1110,7 @@ impl ObjectStore {
     ///
     pub fn for_loop_timestamp(&self, for_loop: &ForLoop) -> SystemTime {
         self.for_loop
-            .read()
+            .lock()
             .get(&for_loop.id)
             .map(|for_loop| for_loop.1)
             .unwrap_or(SystemTime::now())
@@ -1129,29 +1118,29 @@ impl ObjectStore {
 
     /// Inter (insert) [`Function`] into the store.
     ///
-    pub fn inter_function(&mut self, function: Arc<RwLock<Function>>) {
-        let read = function.read();
+    pub fn inter_function(&mut self, function: Arc<Mutex<Function>>) {
+        let read = function.lock();
         let value = (function.clone(), SystemTime::now());
         self.function_id_by_name
-            .write()
+            .lock()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.function.write().insert(read.id, value);
+        self.function.lock().insert(read.id, value);
     }
 
     /// Exhume (get) [`Function`] from the store.
     ///
-    pub fn exhume_function(&self, id: &Uuid) -> Option<Arc<RwLock<Function>>> {
+    pub fn exhume_function(&self, id: &Uuid) -> Option<Arc<Mutex<Function>>> {
         self.function
-            .read()
+            .lock()
             .get(id)
             .map(|function| function.0.clone())
     }
 
     /// Exorcise (remove) [`Function`] from the store.
     ///
-    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Arc<RwLock<Function>>> {
+    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Arc<Mutex<Function>>> {
         self.function
-            .write()
+            .lock()
             .remove(id)
             .map(|function| function.0.clone())
     }
@@ -1160,17 +1149,17 @@ impl ObjectStore {
     ///
     pub fn exhume_function_id_by_name(&self, name: &str) -> Option<Uuid> {
         self.function_id_by_name
-            .read()
+            .lock()
             .get(name)
             .map(|function| function.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
     ///
-    pub fn iter_function(&self) -> impl Iterator<Item = Arc<RwLock<Function>>> + '_ {
-        let values: Vec<Arc<RwLock<Function>>> = self
+    pub fn iter_function(&self) -> impl Iterator<Item = Arc<Mutex<Function>>> + '_ {
+        let values: Vec<Arc<Mutex<Function>>> = self
             .function
-            .read()
+            .lock()
             .values()
             .map(|function| function.0.clone())
             .collect();
@@ -1182,7 +1171,7 @@ impl ObjectStore {
     ///
     pub fn function_timestamp(&self, function: &Function) -> SystemTime {
         self.function
-            .read()
+            .lock()
             .get(&function.id)
             .map(|function| function.1)
             .unwrap_or(SystemTime::now())
@@ -1190,34 +1179,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Grouped`] into the store.
     ///
-    pub fn inter_grouped(&mut self, grouped: Arc<RwLock<Grouped>>) {
-        let read = grouped.read();
+    pub fn inter_grouped(&mut self, grouped: Arc<Mutex<Grouped>>) {
+        let read = grouped.lock();
         self.grouped
-            .write()
+            .lock()
             .insert(read.id, (grouped.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Grouped`] from the store.
     ///
-    pub fn exhume_grouped(&self, id: &Uuid) -> Option<Arc<RwLock<Grouped>>> {
-        self.grouped.read().get(id).map(|grouped| grouped.0.clone())
+    pub fn exhume_grouped(&self, id: &Uuid) -> Option<Arc<Mutex<Grouped>>> {
+        self.grouped.lock().get(id).map(|grouped| grouped.0.clone())
     }
 
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
-    pub fn exorcise_grouped(&mut self, id: &Uuid) -> Option<Arc<RwLock<Grouped>>> {
+    pub fn exorcise_grouped(&mut self, id: &Uuid) -> Option<Arc<Mutex<Grouped>>> {
         self.grouped
-            .write()
+            .lock()
             .remove(id)
             .map(|grouped| grouped.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
     ///
-    pub fn iter_grouped(&self) -> impl Iterator<Item = Arc<RwLock<Grouped>>> + '_ {
-        let values: Vec<Arc<RwLock<Grouped>>> = self
+    pub fn iter_grouped(&self) -> impl Iterator<Item = Arc<Mutex<Grouped>>> + '_ {
+        let values: Vec<Arc<Mutex<Grouped>>> = self
             .grouped
-            .read()
+            .lock()
             .values()
             .map(|grouped| grouped.0.clone())
             .collect();
@@ -1229,7 +1218,7 @@ impl ObjectStore {
     ///
     pub fn grouped_timestamp(&self, grouped: &Grouped) -> SystemTime {
         self.grouped
-            .read()
+            .lock()
             .get(&grouped.id)
             .map(|grouped| grouped.1)
             .unwrap_or(SystemTime::now())
@@ -1237,31 +1226,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`XIf`] into the store.
     ///
-    pub fn inter_x_if(&mut self, x_if: Arc<RwLock<XIf>>) {
-        let read = x_if.read();
+    pub fn inter_x_if(&mut self, x_if: Arc<Mutex<XIf>>) {
+        let read = x_if.lock();
         self.x_if
-            .write()
+            .lock()
             .insert(read.id, (x_if.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XIf`] from the store.
     ///
-    pub fn exhume_x_if(&self, id: &Uuid) -> Option<Arc<RwLock<XIf>>> {
-        self.x_if.read().get(id).map(|x_if| x_if.0.clone())
+    pub fn exhume_x_if(&self, id: &Uuid) -> Option<Arc<Mutex<XIf>>> {
+        self.x_if.lock().get(id).map(|x_if| x_if.0.clone())
     }
 
     /// Exorcise (remove) [`XIf`] from the store.
     ///
-    pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Arc<RwLock<XIf>>> {
-        self.x_if.write().remove(id).map(|x_if| x_if.0.clone())
+    pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Arc<Mutex<XIf>>> {
+        self.x_if.lock().remove(id).map(|x_if| x_if.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
     ///
-    pub fn iter_x_if(&self) -> impl Iterator<Item = Arc<RwLock<XIf>>> + '_ {
-        let values: Vec<Arc<RwLock<XIf>>> = self
+    pub fn iter_x_if(&self) -> impl Iterator<Item = Arc<Mutex<XIf>>> + '_ {
+        let values: Vec<Arc<Mutex<XIf>>> = self
             .x_if
-            .read()
+            .lock()
             .values()
             .map(|x_if| x_if.0.clone())
             .collect();
@@ -1273,7 +1262,7 @@ impl ObjectStore {
     ///
     pub fn x_if_timestamp(&self, x_if: &XIf) -> SystemTime {
         self.x_if
-            .read()
+            .lock()
             .get(&x_if.id)
             .map(|x_if| x_if.1)
             .unwrap_or(SystemTime::now())
@@ -1281,37 +1270,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Implementation`] into the store.
     ///
-    pub fn inter_implementation(&mut self, implementation: Arc<RwLock<Implementation>>) {
-        let read = implementation.read();
+    pub fn inter_implementation(&mut self, implementation: Arc<Mutex<Implementation>>) {
+        let read = implementation.lock();
         self.implementation
-            .write()
+            .lock()
             .insert(read.id, (implementation.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Implementation`] from the store.
     ///
-    pub fn exhume_implementation(&self, id: &Uuid) -> Option<Arc<RwLock<Implementation>>> {
+    pub fn exhume_implementation(&self, id: &Uuid) -> Option<Arc<Mutex<Implementation>>> {
         self.implementation
-            .read()
+            .lock()
             .get(id)
             .map(|implementation| implementation.0.clone())
     }
 
     /// Exorcise (remove) [`Implementation`] from the store.
     ///
-    pub fn exorcise_implementation(&mut self, id: &Uuid) -> Option<Arc<RwLock<Implementation>>> {
+    pub fn exorcise_implementation(&mut self, id: &Uuid) -> Option<Arc<Mutex<Implementation>>> {
         self.implementation
-            .write()
+            .lock()
             .remove(id)
             .map(|implementation| implementation.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
     ///
-    pub fn iter_implementation(&self) -> impl Iterator<Item = Arc<RwLock<Implementation>>> + '_ {
-        let values: Vec<Arc<RwLock<Implementation>>> = self
+    pub fn iter_implementation(&self) -> impl Iterator<Item = Arc<Mutex<Implementation>>> + '_ {
+        let values: Vec<Arc<Mutex<Implementation>>> = self
             .implementation
-            .read()
+            .lock()
             .values()
             .map(|implementation| implementation.0.clone())
             .collect();
@@ -1323,7 +1312,7 @@ impl ObjectStore {
     ///
     pub fn implementation_timestamp(&self, implementation: &Implementation) -> SystemTime {
         self.implementation
-            .read()
+            .lock()
             .get(&implementation.id)
             .map(|implementation| implementation.1)
             .unwrap_or(SystemTime::now())
@@ -1331,34 +1320,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Import`] into the store.
     ///
-    pub fn inter_import(&mut self, import: Arc<RwLock<Import>>) {
-        let read = import.read();
+    pub fn inter_import(&mut self, import: Arc<Mutex<Import>>) {
+        let read = import.lock();
         self.import
-            .write()
+            .lock()
             .insert(read.id, (import.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Import`] from the store.
     ///
-    pub fn exhume_import(&self, id: &Uuid) -> Option<Arc<RwLock<Import>>> {
-        self.import.read().get(id).map(|import| import.0.clone())
+    pub fn exhume_import(&self, id: &Uuid) -> Option<Arc<Mutex<Import>>> {
+        self.import.lock().get(id).map(|import| import.0.clone())
     }
 
     /// Exorcise (remove) [`Import`] from the store.
     ///
-    pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Arc<RwLock<Import>>> {
-        self.import
-            .write()
-            .remove(id)
-            .map(|import| import.0.clone())
+    pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Arc<Mutex<Import>>> {
+        self.import.lock().remove(id).map(|import| import.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
     ///
-    pub fn iter_import(&self) -> impl Iterator<Item = Arc<RwLock<Import>>> + '_ {
-        let values: Vec<Arc<RwLock<Import>>> = self
+    pub fn iter_import(&self) -> impl Iterator<Item = Arc<Mutex<Import>>> + '_ {
+        let values: Vec<Arc<Mutex<Import>>> = self
             .import
-            .read()
+            .lock()
             .values()
             .map(|import| import.0.clone())
             .collect();
@@ -1370,7 +1356,7 @@ impl ObjectStore {
     ///
     pub fn import_timestamp(&self, import: &Import) -> SystemTime {
         self.import
-            .read()
+            .lock()
             .get(&import.id)
             .map(|import| import.1)
             .unwrap_or(SystemTime::now())
@@ -1378,31 +1364,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Index`] into the store.
     ///
-    pub fn inter_index(&mut self, index: Arc<RwLock<Index>>) {
-        let read = index.read();
+    pub fn inter_index(&mut self, index: Arc<Mutex<Index>>) {
+        let read = index.lock();
         self.index
-            .write()
+            .lock()
             .insert(read.id, (index.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Index`] from the store.
     ///
-    pub fn exhume_index(&self, id: &Uuid) -> Option<Arc<RwLock<Index>>> {
-        self.index.read().get(id).map(|index| index.0.clone())
+    pub fn exhume_index(&self, id: &Uuid) -> Option<Arc<Mutex<Index>>> {
+        self.index.lock().get(id).map(|index| index.0.clone())
     }
 
     /// Exorcise (remove) [`Index`] from the store.
     ///
-    pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Arc<RwLock<Index>>> {
-        self.index.write().remove(id).map(|index| index.0.clone())
+    pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Arc<Mutex<Index>>> {
+        self.index.lock().remove(id).map(|index| index.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
     ///
-    pub fn iter_index(&self) -> impl Iterator<Item = Arc<RwLock<Index>>> + '_ {
-        let values: Vec<Arc<RwLock<Index>>> = self
+    pub fn iter_index(&self) -> impl Iterator<Item = Arc<Mutex<Index>>> + '_ {
+        let values: Vec<Arc<Mutex<Index>>> = self
             .index
-            .read()
+            .lock()
             .values()
             .map(|index| index.0.clone())
             .collect();
@@ -1414,7 +1400,7 @@ impl ObjectStore {
     ///
     pub fn index_timestamp(&self, index: &Index) -> SystemTime {
         self.index
-            .read()
+            .lock()
             .get(&index.id)
             .map(|index| index.1)
             .unwrap_or(SystemTime::now())
@@ -1422,37 +1408,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`IntegerLiteral`] into the store.
     ///
-    pub fn inter_integer_literal(&mut self, integer_literal: Arc<RwLock<IntegerLiteral>>) {
-        let read = integer_literal.read();
+    pub fn inter_integer_literal(&mut self, integer_literal: Arc<Mutex<IntegerLiteral>>) {
+        let read = integer_literal.lock();
         self.integer_literal
-            .write()
+            .lock()
             .insert(read.id, (integer_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`IntegerLiteral`] from the store.
     ///
-    pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<Arc<RwLock<IntegerLiteral>>> {
+    pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<Arc<Mutex<IntegerLiteral>>> {
         self.integer_literal
-            .read()
+            .lock()
             .get(id)
             .map(|integer_literal| integer_literal.0.clone())
     }
 
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
-    pub fn exorcise_integer_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<IntegerLiteral>>> {
+    pub fn exorcise_integer_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<IntegerLiteral>>> {
         self.integer_literal
-            .write()
+            .lock()
             .remove(id)
             .map(|integer_literal| integer_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
     ///
-    pub fn iter_integer_literal(&self) -> impl Iterator<Item = Arc<RwLock<IntegerLiteral>>> + '_ {
-        let values: Vec<Arc<RwLock<IntegerLiteral>>> = self
+    pub fn iter_integer_literal(&self) -> impl Iterator<Item = Arc<Mutex<IntegerLiteral>>> + '_ {
+        let values: Vec<Arc<Mutex<IntegerLiteral>>> = self
             .integer_literal
-            .read()
+            .lock()
             .values()
             .map(|integer_literal| integer_literal.0.clone())
             .collect();
@@ -1464,7 +1450,7 @@ impl ObjectStore {
     ///
     pub fn integer_literal_timestamp(&self, integer_literal: &IntegerLiteral) -> SystemTime {
         self.integer_literal
-            .read()
+            .lock()
             .get(&integer_literal.id)
             .map(|integer_literal| integer_literal.1)
             .unwrap_or(SystemTime::now())
@@ -1472,31 +1458,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Item`] into the store.
     ///
-    pub fn inter_item(&mut self, item: Arc<RwLock<Item>>) {
-        let read = item.read();
+    pub fn inter_item(&mut self, item: Arc<Mutex<Item>>) {
+        let read = item.lock();
         self.item
-            .write()
+            .lock()
             .insert(read.id, (item.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Item`] from the store.
     ///
-    pub fn exhume_item(&self, id: &Uuid) -> Option<Arc<RwLock<Item>>> {
-        self.item.read().get(id).map(|item| item.0.clone())
+    pub fn exhume_item(&self, id: &Uuid) -> Option<Arc<Mutex<Item>>> {
+        self.item.lock().get(id).map(|item| item.0.clone())
     }
 
     /// Exorcise (remove) [`Item`] from the store.
     ///
-    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Arc<RwLock<Item>>> {
-        self.item.write().remove(id).map(|item| item.0.clone())
+    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Arc<Mutex<Item>>> {
+        self.item.lock().remove(id).map(|item| item.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
     ///
-    pub fn iter_item(&self) -> impl Iterator<Item = Arc<RwLock<Item>>> + '_ {
-        let values: Vec<Arc<RwLock<Item>>> = self
+    pub fn iter_item(&self) -> impl Iterator<Item = Arc<Mutex<Item>>> + '_ {
+        let values: Vec<Arc<Mutex<Item>>> = self
             .item
-            .read()
+            .lock()
             .values()
             .map(|item| item.0.clone())
             .collect();
@@ -1508,7 +1494,7 @@ impl ObjectStore {
     ///
     pub fn item_timestamp(&self, item: &Item) -> SystemTime {
         self.item
-            .read()
+            .lock()
             .get(&item.id)
             .map(|item| item.1)
             .unwrap_or(SystemTime::now())
@@ -1516,37 +1502,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`LetStatement`] into the store.
     ///
-    pub fn inter_let_statement(&mut self, let_statement: Arc<RwLock<LetStatement>>) {
-        let read = let_statement.read();
+    pub fn inter_let_statement(&mut self, let_statement: Arc<Mutex<LetStatement>>) {
+        let read = let_statement.lock();
         self.let_statement
-            .write()
+            .lock()
             .insert(read.id, (let_statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`LetStatement`] from the store.
     ///
-    pub fn exhume_let_statement(&self, id: &Uuid) -> Option<Arc<RwLock<LetStatement>>> {
+    pub fn exhume_let_statement(&self, id: &Uuid) -> Option<Arc<Mutex<LetStatement>>> {
         self.let_statement
-            .read()
+            .lock()
             .get(id)
             .map(|let_statement| let_statement.0.clone())
     }
 
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
-    pub fn exorcise_let_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<LetStatement>>> {
+    pub fn exorcise_let_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<LetStatement>>> {
         self.let_statement
-            .write()
+            .lock()
             .remove(id)
             .map(|let_statement| let_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
     ///
-    pub fn iter_let_statement(&self) -> impl Iterator<Item = Arc<RwLock<LetStatement>>> + '_ {
-        let values: Vec<Arc<RwLock<LetStatement>>> = self
+    pub fn iter_let_statement(&self) -> impl Iterator<Item = Arc<Mutex<LetStatement>>> + '_ {
+        let values: Vec<Arc<Mutex<LetStatement>>> = self
             .let_statement
-            .read()
+            .lock()
             .values()
             .map(|let_statement| let_statement.0.clone())
             .collect();
@@ -1558,7 +1544,7 @@ impl ObjectStore {
     ///
     pub fn let_statement_timestamp(&self, let_statement: &LetStatement) -> SystemTime {
         self.let_statement
-            .read()
+            .lock()
             .get(&let_statement.id)
             .map(|let_statement| let_statement.1)
             .unwrap_or(SystemTime::now())
@@ -1566,31 +1552,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`List`] into the store.
     ///
-    pub fn inter_list(&mut self, list: Arc<RwLock<List>>) {
-        let read = list.read();
+    pub fn inter_list(&mut self, list: Arc<Mutex<List>>) {
+        let read = list.lock();
         self.list
-            .write()
+            .lock()
             .insert(read.id, (list.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`List`] from the store.
     ///
-    pub fn exhume_list(&self, id: &Uuid) -> Option<Arc<RwLock<List>>> {
-        self.list.read().get(id).map(|list| list.0.clone())
+    pub fn exhume_list(&self, id: &Uuid) -> Option<Arc<Mutex<List>>> {
+        self.list.lock().get(id).map(|list| list.0.clone())
     }
 
     /// Exorcise (remove) [`List`] from the store.
     ///
-    pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Arc<RwLock<List>>> {
-        self.list.write().remove(id).map(|list| list.0.clone())
+    pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Arc<Mutex<List>>> {
+        self.list.lock().remove(id).map(|list| list.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
     ///
-    pub fn iter_list(&self) -> impl Iterator<Item = Arc<RwLock<List>>> + '_ {
-        let values: Vec<Arc<RwLock<List>>> = self
+    pub fn iter_list(&self) -> impl Iterator<Item = Arc<Mutex<List>>> + '_ {
+        let values: Vec<Arc<Mutex<List>>> = self
             .list
-            .read()
+            .lock()
             .values()
             .map(|list| list.0.clone())
             .collect();
@@ -1602,7 +1588,7 @@ impl ObjectStore {
     ///
     pub fn list_timestamp(&self, list: &List) -> SystemTime {
         self.list
-            .read()
+            .lock()
             .get(&list.id)
             .map(|list| list.1)
             .unwrap_or(SystemTime::now())
@@ -1610,37 +1596,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListElement`] into the store.
     ///
-    pub fn inter_list_element(&mut self, list_element: Arc<RwLock<ListElement>>) {
-        let read = list_element.read();
+    pub fn inter_list_element(&mut self, list_element: Arc<Mutex<ListElement>>) {
+        let read = list_element.lock();
         self.list_element
-            .write()
+            .lock()
             .insert(read.id, (list_element.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ListElement`] from the store.
     ///
-    pub fn exhume_list_element(&self, id: &Uuid) -> Option<Arc<RwLock<ListElement>>> {
+    pub fn exhume_list_element(&self, id: &Uuid) -> Option<Arc<Mutex<ListElement>>> {
         self.list_element
-            .read()
+            .lock()
             .get(id)
             .map(|list_element| list_element.0.clone())
     }
 
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
-    pub fn exorcise_list_element(&mut self, id: &Uuid) -> Option<Arc<RwLock<ListElement>>> {
+    pub fn exorcise_list_element(&mut self, id: &Uuid) -> Option<Arc<Mutex<ListElement>>> {
         self.list_element
-            .write()
+            .lock()
             .remove(id)
             .map(|list_element| list_element.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
     ///
-    pub fn iter_list_element(&self) -> impl Iterator<Item = Arc<RwLock<ListElement>>> + '_ {
-        let values: Vec<Arc<RwLock<ListElement>>> = self
+    pub fn iter_list_element(&self) -> impl Iterator<Item = Arc<Mutex<ListElement>>> + '_ {
+        let values: Vec<Arc<Mutex<ListElement>>> = self
             .list_element
-            .read()
+            .lock()
             .values()
             .map(|list_element| list_element.0.clone())
             .collect();
@@ -1652,7 +1638,7 @@ impl ObjectStore {
     ///
     pub fn list_element_timestamp(&self, list_element: &ListElement) -> SystemTime {
         self.list_element
-            .read()
+            .lock()
             .get(&list_element.id)
             .map(|list_element| list_element.1)
             .unwrap_or(SystemTime::now())
@@ -1660,37 +1646,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListExpression`] into the store.
     ///
-    pub fn inter_list_expression(&mut self, list_expression: Arc<RwLock<ListExpression>>) {
-        let read = list_expression.read();
+    pub fn inter_list_expression(&mut self, list_expression: Arc<Mutex<ListExpression>>) {
+        let read = list_expression.lock();
         self.list_expression
-            .write()
+            .lock()
             .insert(read.id, (list_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ListExpression`] from the store.
     ///
-    pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ListExpression>>> {
+    pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Arc<Mutex<ListExpression>>> {
         self.list_expression
-            .read()
+            .lock()
             .get(id)
             .map(|list_expression| list_expression.0.clone())
     }
 
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
-    pub fn exorcise_list_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<ListExpression>>> {
+    pub fn exorcise_list_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<ListExpression>>> {
         self.list_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|list_expression| list_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
     ///
-    pub fn iter_list_expression(&self) -> impl Iterator<Item = Arc<RwLock<ListExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<ListExpression>>> = self
+    pub fn iter_list_expression(&self) -> impl Iterator<Item = Arc<Mutex<ListExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<ListExpression>>> = self
             .list_expression
-            .read()
+            .lock()
             .values()
             .map(|list_expression| list_expression.0.clone())
             .collect();
@@ -1702,7 +1688,7 @@ impl ObjectStore {
     ///
     pub fn list_expression_timestamp(&self, list_expression: &ListExpression) -> SystemTime {
         self.list_expression
-            .read()
+            .lock()
             .get(&list_expression.id)
             .map(|list_expression| list_expression.1)
             .unwrap_or(SystemTime::now())
@@ -1710,34 +1696,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Literal`] into the store.
     ///
-    pub fn inter_literal(&mut self, literal: Arc<RwLock<Literal>>) {
-        let read = literal.read();
+    pub fn inter_literal(&mut self, literal: Arc<Mutex<Literal>>) {
+        let read = literal.lock();
         self.literal
-            .write()
+            .lock()
             .insert(read.id(), (literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Literal`] from the store.
     ///
-    pub fn exhume_literal(&self, id: &Uuid) -> Option<Arc<RwLock<Literal>>> {
-        self.literal.read().get(id).map(|literal| literal.0.clone())
+    pub fn exhume_literal(&self, id: &Uuid) -> Option<Arc<Mutex<Literal>>> {
+        self.literal.lock().get(id).map(|literal| literal.0.clone())
     }
 
     /// Exorcise (remove) [`Literal`] from the store.
     ///
-    pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<Literal>>> {
+    pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<Literal>>> {
         self.literal
-            .write()
+            .lock()
             .remove(id)
             .map(|literal| literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
     ///
-    pub fn iter_literal(&self) -> impl Iterator<Item = Arc<RwLock<Literal>>> + '_ {
-        let values: Vec<Arc<RwLock<Literal>>> = self
+    pub fn iter_literal(&self) -> impl Iterator<Item = Arc<Mutex<Literal>>> + '_ {
+        let values: Vec<Arc<Mutex<Literal>>> = self
             .literal
-            .read()
+            .lock()
             .values()
             .map(|literal| literal.0.clone())
             .collect();
@@ -1749,7 +1735,7 @@ impl ObjectStore {
     ///
     pub fn literal_timestamp(&self, literal: &Literal) -> SystemTime {
         self.literal
-            .read()
+            .lock()
             .get(&literal.id())
             .map(|literal| literal.1)
             .unwrap_or(SystemTime::now())
@@ -1757,37 +1743,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`LocalVariable`] into the store.
     ///
-    pub fn inter_local_variable(&mut self, local_variable: Arc<RwLock<LocalVariable>>) {
-        let read = local_variable.read();
+    pub fn inter_local_variable(&mut self, local_variable: Arc<Mutex<LocalVariable>>) {
+        let read = local_variable.lock();
         self.local_variable
-            .write()
+            .lock()
             .insert(read.id, (local_variable.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`LocalVariable`] from the store.
     ///
-    pub fn exhume_local_variable(&self, id: &Uuid) -> Option<Arc<RwLock<LocalVariable>>> {
+    pub fn exhume_local_variable(&self, id: &Uuid) -> Option<Arc<Mutex<LocalVariable>>> {
         self.local_variable
-            .read()
+            .lock()
             .get(id)
             .map(|local_variable| local_variable.0.clone())
     }
 
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
-    pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<LocalVariable>>> {
+    pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Arc<Mutex<LocalVariable>>> {
         self.local_variable
-            .write()
+            .lock()
             .remove(id)
             .map(|local_variable| local_variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
     ///
-    pub fn iter_local_variable(&self) -> impl Iterator<Item = Arc<RwLock<LocalVariable>>> + '_ {
-        let values: Vec<Arc<RwLock<LocalVariable>>> = self
+    pub fn iter_local_variable(&self) -> impl Iterator<Item = Arc<Mutex<LocalVariable>>> + '_ {
+        let values: Vec<Arc<Mutex<LocalVariable>>> = self
             .local_variable
-            .read()
+            .lock()
             .values()
             .map(|local_variable| local_variable.0.clone())
             .collect();
@@ -1799,7 +1785,7 @@ impl ObjectStore {
     ///
     pub fn local_variable_timestamp(&self, local_variable: &LocalVariable) -> SystemTime {
         self.local_variable
-            .read()
+            .lock()
             .get(&local_variable.id)
             .map(|local_variable| local_variable.1)
             .unwrap_or(SystemTime::now())
@@ -1807,37 +1793,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`MethodCall`] into the store.
     ///
-    pub fn inter_method_call(&mut self, method_call: Arc<RwLock<MethodCall>>) {
-        let read = method_call.read();
+    pub fn inter_method_call(&mut self, method_call: Arc<Mutex<MethodCall>>) {
+        let read = method_call.lock();
         self.method_call
-            .write()
+            .lock()
             .insert(read.id, (method_call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`MethodCall`] from the store.
     ///
-    pub fn exhume_method_call(&self, id: &Uuid) -> Option<Arc<RwLock<MethodCall>>> {
+    pub fn exhume_method_call(&self, id: &Uuid) -> Option<Arc<Mutex<MethodCall>>> {
         self.method_call
-            .read()
+            .lock()
             .get(id)
             .map(|method_call| method_call.0.clone())
     }
 
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
-    pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<Arc<RwLock<MethodCall>>> {
+    pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<Arc<Mutex<MethodCall>>> {
         self.method_call
-            .write()
+            .lock()
             .remove(id)
             .map(|method_call| method_call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
     ///
-    pub fn iter_method_call(&self) -> impl Iterator<Item = Arc<RwLock<MethodCall>>> + '_ {
-        let values: Vec<Arc<RwLock<MethodCall>>> = self
+    pub fn iter_method_call(&self) -> impl Iterator<Item = Arc<Mutex<MethodCall>>> + '_ {
+        let values: Vec<Arc<Mutex<MethodCall>>> = self
             .method_call
-            .read()
+            .lock()
             .values()
             .map(|method_call| method_call.0.clone())
             .collect();
@@ -1849,7 +1835,7 @@ impl ObjectStore {
     ///
     pub fn method_call_timestamp(&self, method_call: &MethodCall) -> SystemTime {
         self.method_call
-            .read()
+            .lock()
             .get(&method_call.id)
             .map(|method_call| method_call.1)
             .unwrap_or(SystemTime::now())
@@ -1857,37 +1843,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Negation`] into the store.
     ///
-    pub fn inter_negation(&mut self, negation: Arc<RwLock<Negation>>) {
-        let read = negation.read();
+    pub fn inter_negation(&mut self, negation: Arc<Mutex<Negation>>) {
+        let read = negation.lock();
         self.negation
-            .write()
+            .lock()
             .insert(read.id, (negation.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Negation`] from the store.
     ///
-    pub fn exhume_negation(&self, id: &Uuid) -> Option<Arc<RwLock<Negation>>> {
+    pub fn exhume_negation(&self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
         self.negation
-            .read()
+            .lock()
             .get(id)
             .map(|negation| negation.0.clone())
     }
 
     /// Exorcise (remove) [`Negation`] from the store.
     ///
-    pub fn exorcise_negation(&mut self, id: &Uuid) -> Option<Arc<RwLock<Negation>>> {
+    pub fn exorcise_negation(&mut self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
         self.negation
-            .write()
+            .lock()
             .remove(id)
             .map(|negation| negation.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Negation>`.
     ///
-    pub fn iter_negation(&self) -> impl Iterator<Item = Arc<RwLock<Negation>>> + '_ {
-        let values: Vec<Arc<RwLock<Negation>>> = self
+    pub fn iter_negation(&self) -> impl Iterator<Item = Arc<Mutex<Negation>>> + '_ {
+        let values: Vec<Arc<Mutex<Negation>>> = self
             .negation
-            .read()
+            .lock()
             .values()
             .map(|negation| negation.0.clone())
             .collect();
@@ -1899,7 +1885,7 @@ impl ObjectStore {
     ///
     pub fn negation_timestamp(&self, negation: &Negation) -> SystemTime {
         self.negation
-            .read()
+            .lock()
             .get(&negation.id)
             .map(|negation| negation.1)
             .unwrap_or(SystemTime::now())
@@ -1907,37 +1893,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
-    pub fn inter_z_object_store(&mut self, z_object_store: Arc<RwLock<ZObjectStore>>) {
-        let read = z_object_store.read();
+    pub fn inter_z_object_store(&mut self, z_object_store: Arc<Mutex<ZObjectStore>>) {
+        let read = z_object_store.lock();
         self.z_object_store
-            .write()
+            .lock()
             .insert(read.id, (z_object_store.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ZObjectStore`] from the store.
     ///
-    pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<Arc<RwLock<ZObjectStore>>> {
+    pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<Arc<Mutex<ZObjectStore>>> {
         self.z_object_store
-            .read()
+            .lock()
             .get(id)
             .map(|z_object_store| z_object_store.0.clone())
     }
 
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
-    pub fn exorcise_z_object_store(&mut self, id: &Uuid) -> Option<Arc<RwLock<ZObjectStore>>> {
+    pub fn exorcise_z_object_store(&mut self, id: &Uuid) -> Option<Arc<Mutex<ZObjectStore>>> {
         self.z_object_store
-            .write()
+            .lock()
             .remove(id)
             .map(|z_object_store| z_object_store.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
     ///
-    pub fn iter_z_object_store(&self) -> impl Iterator<Item = Arc<RwLock<ZObjectStore>>> + '_ {
-        let values: Vec<Arc<RwLock<ZObjectStore>>> = self
+    pub fn iter_z_object_store(&self) -> impl Iterator<Item = Arc<Mutex<ZObjectStore>>> + '_ {
+        let values: Vec<Arc<Mutex<ZObjectStore>>> = self
             .z_object_store
-            .read()
+            .lock()
             .values()
             .map(|z_object_store| z_object_store.0.clone())
             .collect();
@@ -1949,7 +1935,7 @@ impl ObjectStore {
     ///
     pub fn z_object_store_timestamp(&self, z_object_store: &ZObjectStore) -> SystemTime {
         self.z_object_store
-            .read()
+            .lock()
             .get(&z_object_store.id)
             .map(|z_object_store| z_object_store.1)
             .unwrap_or(SystemTime::now())
@@ -1957,37 +1943,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Operator`] into the store.
     ///
-    pub fn inter_operator(&mut self, operator: Arc<RwLock<Operator>>) {
-        let read = operator.read();
+    pub fn inter_operator(&mut self, operator: Arc<Mutex<Operator>>) {
+        let read = operator.lock();
         self.operator
-            .write()
+            .lock()
             .insert(read.id, (operator.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Operator`] from the store.
     ///
-    pub fn exhume_operator(&self, id: &Uuid) -> Option<Arc<RwLock<Operator>>> {
+    pub fn exhume_operator(&self, id: &Uuid) -> Option<Arc<Mutex<Operator>>> {
         self.operator
-            .read()
+            .lock()
             .get(id)
             .map(|operator| operator.0.clone())
     }
 
     /// Exorcise (remove) [`Operator`] from the store.
     ///
-    pub fn exorcise_operator(&mut self, id: &Uuid) -> Option<Arc<RwLock<Operator>>> {
+    pub fn exorcise_operator(&mut self, id: &Uuid) -> Option<Arc<Mutex<Operator>>> {
         self.operator
-            .write()
+            .lock()
             .remove(id)
             .map(|operator| operator.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
     ///
-    pub fn iter_operator(&self) -> impl Iterator<Item = Arc<RwLock<Operator>>> + '_ {
-        let values: Vec<Arc<RwLock<Operator>>> = self
+    pub fn iter_operator(&self) -> impl Iterator<Item = Arc<Mutex<Operator>>> + '_ {
+        let values: Vec<Arc<Mutex<Operator>>> = self
             .operator
-            .read()
+            .lock()
             .values()
             .map(|operator| operator.0.clone())
             .collect();
@@ -1999,7 +1985,7 @@ impl ObjectStore {
     ///
     pub fn operator_timestamp(&self, operator: &Operator) -> SystemTime {
         self.operator
-            .read()
+            .lock()
             .get(&operator.id)
             .map(|operator| operator.1)
             .unwrap_or(SystemTime::now())
@@ -2007,37 +1993,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogOption`] into the store.
     ///
-    pub fn inter_woog_option(&mut self, woog_option: Arc<RwLock<WoogOption>>) {
-        let read = woog_option.read();
+    pub fn inter_woog_option(&mut self, woog_option: Arc<Mutex<WoogOption>>) {
+        let read = woog_option.lock();
         self.woog_option
-            .write()
+            .lock()
             .insert(read.id, (woog_option.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`WoogOption`] from the store.
     ///
-    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
+    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Arc<Mutex<WoogOption>>> {
         self.woog_option
-            .read()
+            .lock()
             .get(id)
             .map(|woog_option| woog_option.0.clone())
     }
 
     /// Exorcise (remove) [`WoogOption`] from the store.
     ///
-    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
+    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Arc<Mutex<WoogOption>>> {
         self.woog_option
-            .write()
+            .lock()
             .remove(id)
             .map(|woog_option| woog_option.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
     ///
-    pub fn iter_woog_option(&self) -> impl Iterator<Item = Arc<RwLock<WoogOption>>> + '_ {
-        let values: Vec<Arc<RwLock<WoogOption>>> = self
+    pub fn iter_woog_option(&self) -> impl Iterator<Item = Arc<Mutex<WoogOption>>> + '_ {
+        let values: Vec<Arc<Mutex<WoogOption>>> = self
             .woog_option
-            .read()
+            .lock()
             .values()
             .map(|woog_option| woog_option.0.clone())
             .collect();
@@ -2049,7 +2035,7 @@ impl ObjectStore {
     ///
     pub fn woog_option_timestamp(&self, woog_option: &WoogOption) -> SystemTime {
         self.woog_option
-            .read()
+            .lock()
             .get(&woog_option.id)
             .map(|woog_option| woog_option.1)
             .unwrap_or(SystemTime::now())
@@ -2057,37 +2043,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Parameter`] into the store.
     ///
-    pub fn inter_parameter(&mut self, parameter: Arc<RwLock<Parameter>>) {
-        let read = parameter.read();
+    pub fn inter_parameter(&mut self, parameter: Arc<Mutex<Parameter>>) {
+        let read = parameter.lock();
         self.parameter
-            .write()
+            .lock()
             .insert(read.id, (parameter.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Parameter`] from the store.
     ///
-    pub fn exhume_parameter(&self, id: &Uuid) -> Option<Arc<RwLock<Parameter>>> {
+    pub fn exhume_parameter(&self, id: &Uuid) -> Option<Arc<Mutex<Parameter>>> {
         self.parameter
-            .read()
+            .lock()
             .get(id)
             .map(|parameter| parameter.0.clone())
     }
 
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
-    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Arc<RwLock<Parameter>>> {
+    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Arc<Mutex<Parameter>>> {
         self.parameter
-            .write()
+            .lock()
             .remove(id)
             .map(|parameter| parameter.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
-    pub fn iter_parameter(&self) -> impl Iterator<Item = Arc<RwLock<Parameter>>> + '_ {
-        let values: Vec<Arc<RwLock<Parameter>>> = self
+    pub fn iter_parameter(&self) -> impl Iterator<Item = Arc<Mutex<Parameter>>> + '_ {
+        let values: Vec<Arc<Mutex<Parameter>>> = self
             .parameter
-            .read()
+            .lock()
             .values()
             .map(|parameter| parameter.0.clone())
             .collect();
@@ -2099,7 +2085,7 @@ impl ObjectStore {
     ///
     pub fn parameter_timestamp(&self, parameter: &Parameter) -> SystemTime {
         self.parameter
-            .read()
+            .lock()
             .get(&parameter.id)
             .map(|parameter| parameter.1)
             .unwrap_or(SystemTime::now())
@@ -2107,31 +2093,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Print`] into the store.
     ///
-    pub fn inter_print(&mut self, print: Arc<RwLock<Print>>) {
-        let read = print.read();
+    pub fn inter_print(&mut self, print: Arc<Mutex<Print>>) {
+        let read = print.lock();
         self.print
-            .write()
+            .lock()
             .insert(read.id, (print.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Print`] from the store.
     ///
-    pub fn exhume_print(&self, id: &Uuid) -> Option<Arc<RwLock<Print>>> {
-        self.print.read().get(id).map(|print| print.0.clone())
+    pub fn exhume_print(&self, id: &Uuid) -> Option<Arc<Mutex<Print>>> {
+        self.print.lock().get(id).map(|print| print.0.clone())
     }
 
     /// Exorcise (remove) [`Print`] from the store.
     ///
-    pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Arc<RwLock<Print>>> {
-        self.print.write().remove(id).map(|print| print.0.clone())
+    pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Arc<Mutex<Print>>> {
+        self.print.lock().remove(id).map(|print| print.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
     ///
-    pub fn iter_print(&self) -> impl Iterator<Item = Arc<RwLock<Print>>> + '_ {
-        let values: Vec<Arc<RwLock<Print>>> = self
+    pub fn iter_print(&self) -> impl Iterator<Item = Arc<Mutex<Print>>> + '_ {
+        let values: Vec<Arc<Mutex<Print>>> = self
             .print
-            .read()
+            .lock()
             .values()
             .map(|print| print.0.clone())
             .collect();
@@ -2143,7 +2129,7 @@ impl ObjectStore {
     ///
     pub fn print_timestamp(&self, print: &Print) -> SystemTime {
         self.print
-            .read()
+            .lock()
             .get(&print.id)
             .map(|print| print.1)
             .unwrap_or(SystemTime::now())
@@ -2151,37 +2137,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`RangeExpression`] into the store.
     ///
-    pub fn inter_range_expression(&mut self, range_expression: Arc<RwLock<RangeExpression>>) {
-        let read = range_expression.read();
+    pub fn inter_range_expression(&mut self, range_expression: Arc<Mutex<RangeExpression>>) {
+        let read = range_expression.lock();
         self.range_expression
-            .write()
+            .lock()
             .insert(read.id, (range_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`RangeExpression`] from the store.
     ///
-    pub fn exhume_range_expression(&self, id: &Uuid) -> Option<Arc<RwLock<RangeExpression>>> {
+    pub fn exhume_range_expression(&self, id: &Uuid) -> Option<Arc<Mutex<RangeExpression>>> {
         self.range_expression
-            .read()
+            .lock()
             .get(id)
             .map(|range_expression| range_expression.0.clone())
     }
 
     /// Exorcise (remove) [`RangeExpression`] from the store.
     ///
-    pub fn exorcise_range_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<RangeExpression>>> {
+    pub fn exorcise_range_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<RangeExpression>>> {
         self.range_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|range_expression| range_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
     ///
-    pub fn iter_range_expression(&self) -> impl Iterator<Item = Arc<RwLock<RangeExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<RangeExpression>>> = self
+    pub fn iter_range_expression(&self) -> impl Iterator<Item = Arc<Mutex<RangeExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<RangeExpression>>> = self
             .range_expression
-            .read()
+            .lock()
             .values()
             .map(|range_expression| range_expression.0.clone())
             .collect();
@@ -2193,7 +2179,7 @@ impl ObjectStore {
     ///
     pub fn range_expression_timestamp(&self, range_expression: &RangeExpression) -> SystemTime {
         self.range_expression
-            .read()
+            .lock()
             .get(&range_expression.id)
             .map(|range_expression| range_expression.1)
             .unwrap_or(SystemTime::now())
@@ -2201,37 +2187,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Reference`] into the store.
     ///
-    pub fn inter_reference(&mut self, reference: Arc<RwLock<Reference>>) {
-        let read = reference.read();
+    pub fn inter_reference(&mut self, reference: Arc<Mutex<Reference>>) {
+        let read = reference.lock();
         self.reference
-            .write()
+            .lock()
             .insert(read.id, (reference.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Reference`] from the store.
     ///
-    pub fn exhume_reference(&self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
+    pub fn exhume_reference(&self, id: &Uuid) -> Option<Arc<Mutex<Reference>>> {
         self.reference
-            .read()
+            .lock()
             .get(id)
             .map(|reference| reference.0.clone())
     }
 
     /// Exorcise (remove) [`Reference`] from the store.
     ///
-    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
+    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Arc<Mutex<Reference>>> {
         self.reference
-            .write()
+            .lock()
             .remove(id)
             .map(|reference| reference.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
     ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Arc<RwLock<Reference>>> + '_ {
-        let values: Vec<Arc<RwLock<Reference>>> = self
+    pub fn iter_reference(&self) -> impl Iterator<Item = Arc<Mutex<Reference>>> + '_ {
+        let values: Vec<Arc<Mutex<Reference>>> = self
             .reference
-            .read()
+            .lock()
             .values()
             .map(|reference| reference.0.clone())
             .collect();
@@ -2243,7 +2229,7 @@ impl ObjectStore {
     ///
     pub fn reference_timestamp(&self, reference: &Reference) -> SystemTime {
         self.reference
-            .read()
+            .lock()
             .get(&reference.id)
             .map(|reference| reference.1)
             .unwrap_or(SystemTime::now())
@@ -2251,37 +2237,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
-    pub fn inter_result_statement(&mut self, result_statement: Arc<RwLock<ResultStatement>>) {
-        let read = result_statement.read();
+    pub fn inter_result_statement(&mut self, result_statement: Arc<Mutex<ResultStatement>>) {
+        let read = result_statement.lock();
         self.result_statement
-            .write()
+            .lock()
             .insert(read.id, (result_statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ResultStatement`] from the store.
     ///
-    pub fn exhume_result_statement(&self, id: &Uuid) -> Option<Arc<RwLock<ResultStatement>>> {
+    pub fn exhume_result_statement(&self, id: &Uuid) -> Option<Arc<Mutex<ResultStatement>>> {
         self.result_statement
-            .read()
+            .lock()
             .get(id)
             .map(|result_statement| result_statement.0.clone())
     }
 
     /// Exorcise (remove) [`ResultStatement`] from the store.
     ///
-    pub fn exorcise_result_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<ResultStatement>>> {
+    pub fn exorcise_result_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<ResultStatement>>> {
         self.result_statement
-            .write()
+            .lock()
             .remove(id)
             .map(|result_statement| result_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
     ///
-    pub fn iter_result_statement(&self) -> impl Iterator<Item = Arc<RwLock<ResultStatement>>> + '_ {
-        let values: Vec<Arc<RwLock<ResultStatement>>> = self
+    pub fn iter_result_statement(&self) -> impl Iterator<Item = Arc<Mutex<ResultStatement>>> + '_ {
+        let values: Vec<Arc<Mutex<ResultStatement>>> = self
             .result_statement
-            .read()
+            .lock()
             .values()
             .map(|result_statement| result_statement.0.clone())
             .collect();
@@ -2293,7 +2279,7 @@ impl ObjectStore {
     ///
     pub fn result_statement_timestamp(&self, result_statement: &ResultStatement) -> SystemTime {
         self.result_statement
-            .read()
+            .lock()
             .get(&result_statement.id)
             .map(|result_statement| result_statement.1)
             .unwrap_or(SystemTime::now())
@@ -2301,37 +2287,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`XReturn`] into the store.
     ///
-    pub fn inter_x_return(&mut self, x_return: Arc<RwLock<XReturn>>) {
-        let read = x_return.read();
+    pub fn inter_x_return(&mut self, x_return: Arc<Mutex<XReturn>>) {
+        let read = x_return.lock();
         self.x_return
-            .write()
+            .lock()
             .insert(read.id, (x_return.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XReturn`] from the store.
     ///
-    pub fn exhume_x_return(&self, id: &Uuid) -> Option<Arc<RwLock<XReturn>>> {
+    pub fn exhume_x_return(&self, id: &Uuid) -> Option<Arc<Mutex<XReturn>>> {
         self.x_return
-            .read()
+            .lock()
             .get(id)
             .map(|x_return| x_return.0.clone())
     }
 
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
-    pub fn exorcise_x_return(&mut self, id: &Uuid) -> Option<Arc<RwLock<XReturn>>> {
+    pub fn exorcise_x_return(&mut self, id: &Uuid) -> Option<Arc<Mutex<XReturn>>> {
         self.x_return
-            .write()
+            .lock()
             .remove(id)
             .map(|x_return| x_return.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
     ///
-    pub fn iter_x_return(&self) -> impl Iterator<Item = Arc<RwLock<XReturn>>> + '_ {
-        let values: Vec<Arc<RwLock<XReturn>>> = self
+    pub fn iter_x_return(&self) -> impl Iterator<Item = Arc<Mutex<XReturn>>> + '_ {
+        let values: Vec<Arc<Mutex<XReturn>>> = self
             .x_return
-            .read()
+            .lock()
             .values()
             .map(|x_return| x_return.0.clone())
             .collect();
@@ -2343,7 +2329,7 @@ impl ObjectStore {
     ///
     pub fn x_return_timestamp(&self, x_return: &XReturn) -> SystemTime {
         self.x_return
-            .read()
+            .lock()
             .get(&x_return.id)
             .map(|x_return| x_return.1)
             .unwrap_or(SystemTime::now())
@@ -2351,34 +2337,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZSome`] into the store.
     ///
-    pub fn inter_z_some(&mut self, z_some: Arc<RwLock<ZSome>>) {
-        let read = z_some.read();
+    pub fn inter_z_some(&mut self, z_some: Arc<Mutex<ZSome>>) {
+        let read = z_some.lock();
         self.z_some
-            .write()
+            .lock()
             .insert(read.id, (z_some.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ZSome`] from the store.
     ///
-    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
-        self.z_some.read().get(id).map(|z_some| z_some.0.clone())
+    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Arc<Mutex<ZSome>>> {
+        self.z_some.lock().get(id).map(|z_some| z_some.0.clone())
     }
 
     /// Exorcise (remove) [`ZSome`] from the store.
     ///
-    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
-        self.z_some
-            .write()
-            .remove(id)
-            .map(|z_some| z_some.0.clone())
+    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<Mutex<ZSome>>> {
+        self.z_some.lock().remove(id).map(|z_some| z_some.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
     ///
-    pub fn iter_z_some(&self) -> impl Iterator<Item = Arc<RwLock<ZSome>>> + '_ {
-        let values: Vec<Arc<RwLock<ZSome>>> = self
+    pub fn iter_z_some(&self) -> impl Iterator<Item = Arc<Mutex<ZSome>>> + '_ {
+        let values: Vec<Arc<Mutex<ZSome>>> = self
             .z_some
-            .read()
+            .lock()
             .values()
             .map(|z_some| z_some.0.clone())
             .collect();
@@ -2390,7 +2373,7 @@ impl ObjectStore {
     ///
     pub fn z_some_timestamp(&self, z_some: &ZSome) -> SystemTime {
         self.z_some
-            .read()
+            .lock()
             .get(&z_some.id)
             .map(|z_some| z_some.1)
             .unwrap_or(SystemTime::now())
@@ -2398,31 +2381,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Span`] into the store.
     ///
-    pub fn inter_span(&mut self, span: Arc<RwLock<Span>>) {
-        let read = span.read();
+    pub fn inter_span(&mut self, span: Arc<Mutex<Span>>) {
+        let read = span.lock();
         self.span
-            .write()
+            .lock()
             .insert(read.id, (span.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Span`] from the store.
     ///
-    pub fn exhume_span(&self, id: &Uuid) -> Option<Arc<RwLock<Span>>> {
-        self.span.read().get(id).map(|span| span.0.clone())
+    pub fn exhume_span(&self, id: &Uuid) -> Option<Arc<Mutex<Span>>> {
+        self.span.lock().get(id).map(|span| span.0.clone())
     }
 
     /// Exorcise (remove) [`Span`] from the store.
     ///
-    pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Arc<RwLock<Span>>> {
-        self.span.write().remove(id).map(|span| span.0.clone())
+    pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Arc<Mutex<Span>>> {
+        self.span.lock().remove(id).map(|span| span.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
     ///
-    pub fn iter_span(&self) -> impl Iterator<Item = Arc<RwLock<Span>>> + '_ {
-        let values: Vec<Arc<RwLock<Span>>> = self
+    pub fn iter_span(&self) -> impl Iterator<Item = Arc<Mutex<Span>>> + '_ {
+        let values: Vec<Arc<Mutex<Span>>> = self
             .span
-            .read()
+            .lock()
             .values()
             .map(|span| span.0.clone())
             .collect();
@@ -2434,7 +2417,7 @@ impl ObjectStore {
     ///
     pub fn span_timestamp(&self, span: &Span) -> SystemTime {
         self.span
-            .read()
+            .lock()
             .get(&span.id)
             .map(|span| span.1)
             .unwrap_or(SystemTime::now())
@@ -2442,37 +2425,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Statement`] into the store.
     ///
-    pub fn inter_statement(&mut self, statement: Arc<RwLock<Statement>>) {
-        let read = statement.read();
+    pub fn inter_statement(&mut self, statement: Arc<Mutex<Statement>>) {
+        let read = statement.lock();
         self.statement
-            .write()
+            .lock()
             .insert(read.id, (statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Statement`] from the store.
     ///
-    pub fn exhume_statement(&self, id: &Uuid) -> Option<Arc<RwLock<Statement>>> {
+    pub fn exhume_statement(&self, id: &Uuid) -> Option<Arc<Mutex<Statement>>> {
         self.statement
-            .read()
+            .lock()
             .get(id)
             .map(|statement| statement.0.clone())
     }
 
     /// Exorcise (remove) [`Statement`] from the store.
     ///
-    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Arc<RwLock<Statement>>> {
+    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<Statement>>> {
         self.statement
-            .write()
+            .lock()
             .remove(id)
             .map(|statement| statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
-    pub fn iter_statement(&self) -> impl Iterator<Item = Arc<RwLock<Statement>>> + '_ {
-        let values: Vec<Arc<RwLock<Statement>>> = self
+    pub fn iter_statement(&self) -> impl Iterator<Item = Arc<Mutex<Statement>>> + '_ {
+        let values: Vec<Arc<Mutex<Statement>>> = self
             .statement
-            .read()
+            .lock()
             .values()
             .map(|statement| statement.0.clone())
             .collect();
@@ -2484,7 +2467,7 @@ impl ObjectStore {
     ///
     pub fn statement_timestamp(&self, statement: &Statement) -> SystemTime {
         self.statement
-            .read()
+            .lock()
             .get(&statement.id)
             .map(|statement| statement.1)
             .unwrap_or(SystemTime::now())
@@ -2492,18 +2475,18 @@ impl ObjectStore {
 
     /// Inter (insert) [`StaticMethodCall`] into the store.
     ///
-    pub fn inter_static_method_call(&mut self, static_method_call: Arc<RwLock<StaticMethodCall>>) {
-        let read = static_method_call.read();
+    pub fn inter_static_method_call(&mut self, static_method_call: Arc<Mutex<StaticMethodCall>>) {
+        let read = static_method_call.lock();
         self.static_method_call
-            .write()
+            .lock()
             .insert(read.id, (static_method_call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StaticMethodCall`] from the store.
     ///
-    pub fn exhume_static_method_call(&self, id: &Uuid) -> Option<Arc<RwLock<StaticMethodCall>>> {
+    pub fn exhume_static_method_call(&self, id: &Uuid) -> Option<Arc<Mutex<StaticMethodCall>>> {
         self.static_method_call
-            .read()
+            .lock()
             .get(id)
             .map(|static_method_call| static_method_call.0.clone())
     }
@@ -2513,9 +2496,9 @@ impl ObjectStore {
     pub fn exorcise_static_method_call(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<StaticMethodCall>>> {
+    ) -> Option<Arc<Mutex<StaticMethodCall>>> {
         self.static_method_call
-            .write()
+            .lock()
             .remove(id)
             .map(|static_method_call| static_method_call.0.clone())
     }
@@ -2524,10 +2507,10 @@ impl ObjectStore {
     ///
     pub fn iter_static_method_call(
         &self,
-    ) -> impl Iterator<Item = Arc<RwLock<StaticMethodCall>>> + '_ {
-        let values: Vec<Arc<RwLock<StaticMethodCall>>> = self
+    ) -> impl Iterator<Item = Arc<Mutex<StaticMethodCall>>> + '_ {
+        let values: Vec<Arc<Mutex<StaticMethodCall>>> = self
             .static_method_call
-            .read()
+            .lock()
             .values()
             .map(|static_method_call| static_method_call.0.clone())
             .collect();
@@ -2542,7 +2525,7 @@ impl ObjectStore {
         static_method_call: &StaticMethodCall,
     ) -> SystemTime {
         self.static_method_call
-            .read()
+            .lock()
             .get(&static_method_call.id)
             .map(|static_method_call| static_method_call.1)
             .unwrap_or(SystemTime::now())
@@ -2550,37 +2533,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
-    pub fn inter_string_literal(&mut self, string_literal: Arc<RwLock<StringLiteral>>) {
-        let read = string_literal.read();
+    pub fn inter_string_literal(&mut self, string_literal: Arc<Mutex<StringLiteral>>) {
+        let read = string_literal.lock();
         self.string_literal
-            .write()
+            .lock()
             .insert(read.id, (string_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StringLiteral`] from the store.
     ///
-    pub fn exhume_string_literal(&self, id: &Uuid) -> Option<Arc<RwLock<StringLiteral>>> {
+    pub fn exhume_string_literal(&self, id: &Uuid) -> Option<Arc<Mutex<StringLiteral>>> {
         self.string_literal
-            .read()
+            .lock()
             .get(id)
             .map(|string_literal| string_literal.0.clone())
     }
 
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
-    pub fn exorcise_string_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<StringLiteral>>> {
+    pub fn exorcise_string_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<StringLiteral>>> {
         self.string_literal
-            .write()
+            .lock()
             .remove(id)
             .map(|string_literal| string_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
     ///
-    pub fn iter_string_literal(&self) -> impl Iterator<Item = Arc<RwLock<StringLiteral>>> + '_ {
-        let values: Vec<Arc<RwLock<StringLiteral>>> = self
+    pub fn iter_string_literal(&self) -> impl Iterator<Item = Arc<Mutex<StringLiteral>>> + '_ {
+        let values: Vec<Arc<Mutex<StringLiteral>>> = self
             .string_literal
-            .read()
+            .lock()
             .values()
             .map(|string_literal| string_literal.0.clone())
             .collect();
@@ -2592,7 +2575,7 @@ impl ObjectStore {
     ///
     pub fn string_literal_timestamp(&self, string_literal: &StringLiteral) -> SystemTime {
         self.string_literal
-            .read()
+            .lock()
             .get(&string_literal.id)
             .map(|string_literal| string_literal.1)
             .unwrap_or(SystemTime::now())
@@ -2600,29 +2583,29 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogStruct`] into the store.
     ///
-    pub fn inter_woog_struct(&mut self, woog_struct: Arc<RwLock<WoogStruct>>) {
-        let read = woog_struct.read();
+    pub fn inter_woog_struct(&mut self, woog_struct: Arc<Mutex<WoogStruct>>) {
+        let read = woog_struct.lock();
         let value = (woog_struct.clone(), SystemTime::now());
         self.woog_struct_id_by_name
-            .write()
+            .lock()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.woog_struct.write().insert(read.id, value);
+        self.woog_struct.lock().insert(read.id, value);
     }
 
     /// Exhume (get) [`WoogStruct`] from the store.
     ///
-    pub fn exhume_woog_struct(&self, id: &Uuid) -> Option<Arc<RwLock<WoogStruct>>> {
+    pub fn exhume_woog_struct(&self, id: &Uuid) -> Option<Arc<Mutex<WoogStruct>>> {
         self.woog_struct
-            .read()
+            .lock()
             .get(id)
             .map(|woog_struct| woog_struct.0.clone())
     }
 
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
-    pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<Arc<RwLock<WoogStruct>>> {
+    pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<Arc<Mutex<WoogStruct>>> {
         self.woog_struct
-            .write()
+            .lock()
             .remove(id)
             .map(|woog_struct| woog_struct.0.clone())
     }
@@ -2631,17 +2614,17 @@ impl ObjectStore {
     ///
     pub fn exhume_woog_struct_id_by_name(&self, name: &str) -> Option<Uuid> {
         self.woog_struct_id_by_name
-            .read()
+            .lock()
             .get(name)
             .map(|woog_struct| woog_struct.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogStruct>`.
     ///
-    pub fn iter_woog_struct(&self) -> impl Iterator<Item = Arc<RwLock<WoogStruct>>> + '_ {
-        let values: Vec<Arc<RwLock<WoogStruct>>> = self
+    pub fn iter_woog_struct(&self) -> impl Iterator<Item = Arc<Mutex<WoogStruct>>> + '_ {
+        let values: Vec<Arc<Mutex<WoogStruct>>> = self
             .woog_struct
-            .read()
+            .lock()
             .values()
             .map(|woog_struct| woog_struct.0.clone())
             .collect();
@@ -2653,7 +2636,7 @@ impl ObjectStore {
     ///
     pub fn woog_struct_timestamp(&self, woog_struct: &WoogStruct) -> SystemTime {
         self.woog_struct
-            .read()
+            .lock()
             .get(&woog_struct.id)
             .map(|woog_struct| woog_struct.1)
             .unwrap_or(SystemTime::now())
@@ -2661,18 +2644,18 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructExpression`] into the store.
     ///
-    pub fn inter_struct_expression(&mut self, struct_expression: Arc<RwLock<StructExpression>>) {
-        let read = struct_expression.read();
+    pub fn inter_struct_expression(&mut self, struct_expression: Arc<Mutex<StructExpression>>) {
+        let read = struct_expression.lock();
         self.struct_expression
-            .write()
+            .lock()
             .insert(read.id, (struct_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StructExpression`] from the store.
     ///
-    pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<Arc<RwLock<StructExpression>>> {
+    pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<Arc<Mutex<StructExpression>>> {
         self.struct_expression
-            .read()
+            .lock()
             .get(id)
             .map(|struct_expression| struct_expression.0.clone())
     }
@@ -2682,9 +2665,9 @@ impl ObjectStore {
     pub fn exorcise_struct_expression(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<StructExpression>>> {
+    ) -> Option<Arc<Mutex<StructExpression>>> {
         self.struct_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|struct_expression| struct_expression.0.clone())
     }
@@ -2693,10 +2676,10 @@ impl ObjectStore {
     ///
     pub fn iter_struct_expression(
         &self,
-    ) -> impl Iterator<Item = Arc<RwLock<StructExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<StructExpression>>> = self
+    ) -> impl Iterator<Item = Arc<Mutex<StructExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<StructExpression>>> = self
             .struct_expression
-            .read()
+            .lock()
             .values()
             .map(|struct_expression| struct_expression.0.clone())
             .collect();
@@ -2708,7 +2691,7 @@ impl ObjectStore {
     ///
     pub fn struct_expression_timestamp(&self, struct_expression: &StructExpression) -> SystemTime {
         self.struct_expression
-            .read()
+            .lock()
             .get(&struct_expression.id)
             .map(|struct_expression| struct_expression.1)
             .unwrap_or(SystemTime::now())
@@ -2716,37 +2699,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`TypeCast`] into the store.
     ///
-    pub fn inter_type_cast(&mut self, type_cast: Arc<RwLock<TypeCast>>) {
-        let read = type_cast.read();
+    pub fn inter_type_cast(&mut self, type_cast: Arc<Mutex<TypeCast>>) {
+        let read = type_cast.lock();
         self.type_cast
-            .write()
+            .lock()
             .insert(read.id, (type_cast.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`TypeCast`] from the store.
     ///
-    pub fn exhume_type_cast(&self, id: &Uuid) -> Option<Arc<RwLock<TypeCast>>> {
+    pub fn exhume_type_cast(&self, id: &Uuid) -> Option<Arc<Mutex<TypeCast>>> {
         self.type_cast
-            .read()
+            .lock()
             .get(id)
             .map(|type_cast| type_cast.0.clone())
     }
 
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
-    pub fn exorcise_type_cast(&mut self, id: &Uuid) -> Option<Arc<RwLock<TypeCast>>> {
+    pub fn exorcise_type_cast(&mut self, id: &Uuid) -> Option<Arc<Mutex<TypeCast>>> {
         self.type_cast
-            .write()
+            .lock()
             .remove(id)
             .map(|type_cast| type_cast.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
     ///
-    pub fn iter_type_cast(&self) -> impl Iterator<Item = Arc<RwLock<TypeCast>>> + '_ {
-        let values: Vec<Arc<RwLock<TypeCast>>> = self
+    pub fn iter_type_cast(&self) -> impl Iterator<Item = Arc<Mutex<TypeCast>>> + '_ {
+        let values: Vec<Arc<Mutex<TypeCast>>> = self
             .type_cast
-            .read()
+            .lock()
             .values()
             .map(|type_cast| type_cast.0.clone())
             .collect();
@@ -2758,7 +2741,7 @@ impl ObjectStore {
     ///
     pub fn type_cast_timestamp(&self, type_cast: &TypeCast) -> SystemTime {
         self.type_cast
-            .read()
+            .lock()
             .get(&type_cast.id)
             .map(|type_cast| type_cast.1)
             .unwrap_or(SystemTime::now())
@@ -2766,34 +2749,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`XValue`] into the store.
     ///
-    pub fn inter_x_value(&mut self, x_value: Arc<RwLock<XValue>>) {
-        let read = x_value.read();
+    pub fn inter_x_value(&mut self, x_value: Arc<Mutex<XValue>>) {
+        let read = x_value.lock();
         self.x_value
-            .write()
+            .lock()
             .insert(read.id, (x_value.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XValue`] from the store.
     ///
-    pub fn exhume_x_value(&self, id: &Uuid) -> Option<Arc<RwLock<XValue>>> {
-        self.x_value.read().get(id).map(|x_value| x_value.0.clone())
+    pub fn exhume_x_value(&self, id: &Uuid) -> Option<Arc<Mutex<XValue>>> {
+        self.x_value.lock().get(id).map(|x_value| x_value.0.clone())
     }
 
     /// Exorcise (remove) [`XValue`] from the store.
     ///
-    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<Arc<RwLock<XValue>>> {
+    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<Arc<Mutex<XValue>>> {
         self.x_value
-            .write()
+            .lock()
             .remove(id)
             .map(|x_value| x_value.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
-    pub fn iter_x_value(&self) -> impl Iterator<Item = Arc<RwLock<XValue>>> + '_ {
-        let values: Vec<Arc<RwLock<XValue>>> = self
+    pub fn iter_x_value(&self) -> impl Iterator<Item = Arc<Mutex<XValue>>> + '_ {
+        let values: Vec<Arc<Mutex<XValue>>> = self
             .x_value
-            .read()
+            .lock()
             .values()
             .map(|x_value| x_value.0.clone())
             .collect();
@@ -2805,7 +2788,7 @@ impl ObjectStore {
     ///
     pub fn x_value_timestamp(&self, x_value: &XValue) -> SystemTime {
         self.x_value
-            .read()
+            .lock()
             .get(&x_value.id)
             .map(|x_value| x_value.1)
             .unwrap_or(SystemTime::now())
@@ -2813,37 +2796,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ValueType`] into the store.
     ///
-    pub fn inter_value_type(&mut self, value_type: Arc<RwLock<ValueType>>) {
-        let read = value_type.read();
+    pub fn inter_value_type(&mut self, value_type: Arc<Mutex<ValueType>>) {
+        let read = value_type.lock();
         self.value_type
-            .write()
+            .lock()
             .insert(read.id(), (value_type.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ValueType`] from the store.
     ///
-    pub fn exhume_value_type(&self, id: &Uuid) -> Option<Arc<RwLock<ValueType>>> {
+    pub fn exhume_value_type(&self, id: &Uuid) -> Option<Arc<Mutex<ValueType>>> {
         self.value_type
-            .read()
+            .lock()
             .get(id)
             .map(|value_type| value_type.0.clone())
     }
 
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
-    pub fn exorcise_value_type(&mut self, id: &Uuid) -> Option<Arc<RwLock<ValueType>>> {
+    pub fn exorcise_value_type(&mut self, id: &Uuid) -> Option<Arc<Mutex<ValueType>>> {
         self.value_type
-            .write()
+            .lock()
             .remove(id)
             .map(|value_type| value_type.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
     ///
-    pub fn iter_value_type(&self) -> impl Iterator<Item = Arc<RwLock<ValueType>>> + '_ {
-        let values: Vec<Arc<RwLock<ValueType>>> = self
+    pub fn iter_value_type(&self) -> impl Iterator<Item = Arc<Mutex<ValueType>>> + '_ {
+        let values: Vec<Arc<Mutex<ValueType>>> = self
             .value_type
-            .read()
+            .lock()
             .values()
             .map(|value_type| value_type.0.clone())
             .collect();
@@ -2855,7 +2838,7 @@ impl ObjectStore {
     ///
     pub fn value_type_timestamp(&self, value_type: &ValueType) -> SystemTime {
         self.value_type
-            .read()
+            .lock()
             .get(&value_type.id())
             .map(|value_type| value_type.1)
             .unwrap_or(SystemTime::now())
@@ -2863,37 +2846,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Variable`] into the store.
     ///
-    pub fn inter_variable(&mut self, variable: Arc<RwLock<Variable>>) {
-        let read = variable.read();
+    pub fn inter_variable(&mut self, variable: Arc<Mutex<Variable>>) {
+        let read = variable.lock();
         self.variable
-            .write()
+            .lock()
             .insert(read.id, (variable.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Variable`] from the store.
     ///
-    pub fn exhume_variable(&self, id: &Uuid) -> Option<Arc<RwLock<Variable>>> {
+    pub fn exhume_variable(&self, id: &Uuid) -> Option<Arc<Mutex<Variable>>> {
         self.variable
-            .read()
+            .lock()
             .get(id)
             .map(|variable| variable.0.clone())
     }
 
     /// Exorcise (remove) [`Variable`] from the store.
     ///
-    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Arc<RwLock<Variable>>> {
+    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Arc<Mutex<Variable>>> {
         self.variable
-            .write()
+            .lock()
             .remove(id)
             .map(|variable| variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
     ///
-    pub fn iter_variable(&self) -> impl Iterator<Item = Arc<RwLock<Variable>>> + '_ {
-        let values: Vec<Arc<RwLock<Variable>>> = self
+    pub fn iter_variable(&self) -> impl Iterator<Item = Arc<Mutex<Variable>>> + '_ {
+        let values: Vec<Arc<Mutex<Variable>>> = self
             .variable
-            .read()
+            .lock()
             .values()
             .map(|variable| variable.0.clone())
             .collect();
@@ -2905,7 +2888,7 @@ impl ObjectStore {
     ///
     pub fn variable_timestamp(&self, variable: &Variable) -> SystemTime {
         self.variable
-            .read()
+            .lock()
             .get(&variable.id)
             .map(|variable| variable.1)
             .unwrap_or(SystemTime::now())
@@ -2915,19 +2898,19 @@ impl ObjectStore {
     ///
     pub fn inter_variable_expression(
         &mut self,
-        variable_expression: Arc<RwLock<VariableExpression>>,
+        variable_expression: Arc<Mutex<VariableExpression>>,
     ) {
-        let read = variable_expression.read();
+        let read = variable_expression.lock();
         self.variable_expression
-            .write()
+            .lock()
             .insert(read.id, (variable_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`VariableExpression`] from the store.
     ///
-    pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<Arc<RwLock<VariableExpression>>> {
+    pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<Arc<Mutex<VariableExpression>>> {
         self.variable_expression
-            .read()
+            .lock()
             .get(id)
             .map(|variable_expression| variable_expression.0.clone())
     }
@@ -2937,9 +2920,9 @@ impl ObjectStore {
     pub fn exorcise_variable_expression(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<RwLock<VariableExpression>>> {
+    ) -> Option<Arc<Mutex<VariableExpression>>> {
         self.variable_expression
-            .write()
+            .lock()
             .remove(id)
             .map(|variable_expression| variable_expression.0.clone())
     }
@@ -2948,10 +2931,10 @@ impl ObjectStore {
     ///
     pub fn iter_variable_expression(
         &self,
-    ) -> impl Iterator<Item = Arc<RwLock<VariableExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<VariableExpression>>> = self
+    ) -> impl Iterator<Item = Arc<Mutex<VariableExpression>>> + '_ {
+        let values: Vec<Arc<Mutex<VariableExpression>>> = self
             .variable_expression
-            .read()
+            .lock()
             .values()
             .map(|variable_expression| variable_expression.0.clone())
             .collect();
@@ -2966,7 +2949,7 @@ impl ObjectStore {
         variable_expression: &VariableExpression,
     ) -> SystemTime {
         self.variable_expression
-            .read()
+            .lock()
             .get(&variable_expression.id)
             .map(|variable_expression| variable_expression.1)
             .unwrap_or(SystemTime::now())
@@ -3002,14 +2985,14 @@ impl ObjectStore {
         {
             let path = path.join("argument");
             fs::create_dir_all(&path)?;
-            for argument_tuple in self.argument.read().values() {
-                let path = path.join(format!("{}.json", argument_tuple.0.read().id));
+            for argument_tuple in self.argument.lock().values() {
+                let path = path.join(format!("{}.json", argument_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Argument>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Argument>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != argument_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != argument_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &argument_tuple)?;
@@ -3026,7 +3009,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.argument.read().contains_key(&id) {
+                    if !self.argument.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3037,14 +3020,14 @@ impl ObjectStore {
         {
             let path = path.join("binary");
             fs::create_dir_all(&path)?;
-            for binary_tuple in self.binary.read().values() {
-                let path = path.join(format!("{}.json", binary_tuple.0.read().id()));
+            for binary_tuple in self.binary.lock().values() {
+                let path = path.join(format!("{}.json", binary_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Binary>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Binary>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != binary_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != binary_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
@@ -3061,7 +3044,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.binary.read().contains_key(&id) {
+                    if !self.binary.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3072,14 +3055,13 @@ impl ObjectStore {
         {
             let path = path.join("block");
             fs::create_dir_all(&path)?;
-            for block_tuple in self.block.read().values() {
-                let path = path.join(format!("{}.json", block_tuple.0.read().id));
+            for block_tuple in self.block.lock().values() {
+                let path = path.join(format!("{}.json", block_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Block>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != block_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Block>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != block_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &block_tuple)?;
@@ -3096,7 +3078,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.block.read().contains_key(&id) {
+                    if !self.block.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3107,14 +3089,14 @@ impl ObjectStore {
         {
             let path = path.join("boolean_literal");
             fs::create_dir_all(&path)?;
-            for boolean_literal_tuple in self.boolean_literal.read().values() {
-                let path = path.join(format!("{}.json", boolean_literal_tuple.0.read().id()));
+            for boolean_literal_tuple in self.boolean_literal.lock().values() {
+                let path = path.join(format!("{}.json", boolean_literal_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<BooleanLiteral>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<BooleanLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != boolean_literal_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != boolean_literal_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &boolean_literal_tuple)?;
@@ -3131,7 +3113,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.boolean_literal.read().contains_key(&id) {
+                    if !self.boolean_literal.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3142,13 +3124,13 @@ impl ObjectStore {
         {
             let path = path.join("call");
             fs::create_dir_all(&path)?;
-            for call_tuple in self.call.read().values() {
-                let path = path.join(format!("{}.json", call_tuple.0.read().id));
+            for call_tuple in self.call.lock().values() {
+                let path = path.join(format!("{}.json", call_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Call>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != call_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Call>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != call_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
@@ -3165,7 +3147,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.call.read().contains_key(&id) {
+                    if !self.call.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3176,14 +3158,14 @@ impl ObjectStore {
         {
             let path = path.join("comparison");
             fs::create_dir_all(&path)?;
-            for comparison_tuple in self.comparison.read().values() {
-                let path = path.join(format!("{}.json", comparison_tuple.0.read().id()));
+            for comparison_tuple in self.comparison.lock().values() {
+                let path = path.join(format!("{}.json", comparison_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Comparison>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Comparison>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != comparison_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != comparison_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &comparison_tuple)?;
@@ -3200,7 +3182,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.comparison.read().contains_key(&id) {
+                    if !self.comparison.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3211,14 +3193,14 @@ impl ObjectStore {
         {
             let path = path.join("dwarf_source_file");
             fs::create_dir_all(&path)?;
-            for dwarf_source_file_tuple in self.dwarf_source_file.read().values() {
-                let path = path.join(format!("{}.json", dwarf_source_file_tuple.0.read().id));
+            for dwarf_source_file_tuple in self.dwarf_source_file.lock().values() {
+                let path = path.join(format!("{}.json", dwarf_source_file_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<DwarfSourceFile>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<DwarfSourceFile>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != dwarf_source_file_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != dwarf_source_file_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &dwarf_source_file_tuple)?;
@@ -3235,7 +3217,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.dwarf_source_file.read().contains_key(&id) {
+                    if !self.dwarf_source_file.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3246,14 +3228,13 @@ impl ObjectStore {
         {
             let path = path.join("error");
             fs::create_dir_all(&path)?;
-            for error_tuple in self.error.read().values() {
-                let path = path.join(format!("{}.json", error_tuple.0.read().id()));
+            for error_tuple in self.error.lock().values() {
+                let path = path.join(format!("{}.json", error_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Error>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != error_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Error>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != error_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_tuple)?;
@@ -3270,7 +3251,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.error.read().contains_key(&id) {
+                    if !self.error.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3281,14 +3262,14 @@ impl ObjectStore {
         {
             let path = path.join("error_expression");
             fs::create_dir_all(&path)?;
-            for error_expression_tuple in self.error_expression.read().values() {
-                let path = path.join(format!("{}.json", error_expression_tuple.0.read().id));
+            for error_expression_tuple in self.error_expression.lock().values() {
+                let path = path.join(format!("{}.json", error_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ErrorExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ErrorExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != error_expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != error_expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
@@ -3305,7 +3286,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.error_expression.read().contains_key(&id) {
+                    if !self.error_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3316,14 +3297,14 @@ impl ObjectStore {
         {
             let path = path.join("expression");
             fs::create_dir_all(&path)?;
-            for expression_tuple in self.expression.read().values() {
-                let path = path.join(format!("{}.json", expression_tuple.0.read().id()));
+            for expression_tuple in self.expression.lock().values() {
+                let path = path.join(format!("{}.json", expression_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Expression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Expression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
@@ -3340,7 +3321,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.expression.read().contains_key(&id) {
+                    if !self.expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3351,14 +3332,14 @@ impl ObjectStore {
         {
             let path = path.join("expression_statement");
             fs::create_dir_all(&path)?;
-            for expression_statement_tuple in self.expression_statement.read().values() {
-                let path = path.join(format!("{}.json", expression_statement_tuple.0.read().id));
+            for expression_statement_tuple in self.expression_statement.lock().values() {
+                let path = path.join(format!("{}.json", expression_statement_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ExpressionStatement>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ExpressionStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != expression_statement_tuple.0.read().to_owned()
+                    if on_disk.0.lock().to_owned() != expression_statement_tuple.0.lock().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -3376,7 +3357,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.expression_statement.read().contains_key(&id) {
+                    if !self.expression_statement.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3387,14 +3368,13 @@ impl ObjectStore {
         {
             let path = path.join("field");
             fs::create_dir_all(&path)?;
-            for field_tuple in self.field.read().values() {
-                let path = path.join(format!("{}.json", field_tuple.0.read().id));
+            for field_tuple in self.field.lock().values() {
+                let path = path.join(format!("{}.json", field_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Field>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != field_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Field>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != field_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
@@ -3411,7 +3391,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field.read().contains_key(&id) {
+                    if !self.field.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3422,14 +3402,14 @@ impl ObjectStore {
         {
             let path = path.join("field_access");
             fs::create_dir_all(&path)?;
-            for field_access_tuple in self.field_access.read().values() {
-                let path = path.join(format!("{}.json", field_access_tuple.0.read().id));
+            for field_access_tuple in self.field_access.lock().values() {
+                let path = path.join(format!("{}.json", field_access_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<FieldAccess>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<FieldAccess>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != field_access_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != field_access_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_access_tuple)?;
@@ -3446,7 +3426,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_access.read().contains_key(&id) {
+                    if !self.field_access.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3457,14 +3437,14 @@ impl ObjectStore {
         {
             let path = path.join("field_access_target");
             fs::create_dir_all(&path)?;
-            for field_access_target_tuple in self.field_access_target.read().values() {
-                let path = path.join(format!("{}.json", field_access_target_tuple.0.read().id()));
+            for field_access_target_tuple in self.field_access_target.lock().values() {
+                let path = path.join(format!("{}.json", field_access_target_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<FieldAccessTarget>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<FieldAccessTarget>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != field_access_target_tuple.0.read().to_owned()
+                    if on_disk.0.lock().to_owned() != field_access_target_tuple.0.lock().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -3482,7 +3462,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_access_target.read().contains_key(&id) {
+                    if !self.field_access_target.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3493,14 +3473,14 @@ impl ObjectStore {
         {
             let path = path.join("field_expression");
             fs::create_dir_all(&path)?;
-            for field_expression_tuple in self.field_expression.read().values() {
-                let path = path.join(format!("{}.json", field_expression_tuple.0.read().id));
+            for field_expression_tuple in self.field_expression.lock().values() {
+                let path = path.join(format!("{}.json", field_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<FieldExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<FieldExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != field_expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != field_expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_expression_tuple)?;
@@ -3517,7 +3497,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_expression.read().contains_key(&id) {
+                    if !self.field_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3528,14 +3508,14 @@ impl ObjectStore {
         {
             let path = path.join("float_literal");
             fs::create_dir_all(&path)?;
-            for float_literal_tuple in self.float_literal.read().values() {
-                let path = path.join(format!("{}.json", float_literal_tuple.0.read().id));
+            for float_literal_tuple in self.float_literal.lock().values() {
+                let path = path.join(format!("{}.json", float_literal_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<FloatLiteral>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<FloatLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != float_literal_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != float_literal_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &float_literal_tuple)?;
@@ -3552,7 +3532,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.float_literal.read().contains_key(&id) {
+                    if !self.float_literal.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3563,14 +3543,14 @@ impl ObjectStore {
         {
             let path = path.join("for_loop");
             fs::create_dir_all(&path)?;
-            for for_loop_tuple in self.for_loop.read().values() {
-                let path = path.join(format!("{}.json", for_loop_tuple.0.read().id));
+            for for_loop_tuple in self.for_loop.lock().values() {
+                let path = path.join(format!("{}.json", for_loop_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ForLoop>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ForLoop>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != for_loop_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != for_loop_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &for_loop_tuple)?;
@@ -3587,7 +3567,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.for_loop.read().contains_key(&id) {
+                    if !self.for_loop.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3598,14 +3578,14 @@ impl ObjectStore {
         {
             let path = path.join("function");
             fs::create_dir_all(&path)?;
-            for function_tuple in self.function.read().values() {
-                let path = path.join(format!("{}.json", function_tuple.0.read().id));
+            for function_tuple in self.function.lock().values() {
+                let path = path.join(format!("{}.json", function_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Function>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Function>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != function_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != function_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
@@ -3622,7 +3602,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.function.read().contains_key(&id) {
+                    if !self.function.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3633,14 +3613,14 @@ impl ObjectStore {
         {
             let path = path.join("grouped");
             fs::create_dir_all(&path)?;
-            for grouped_tuple in self.grouped.read().values() {
-                let path = path.join(format!("{}.json", grouped_tuple.0.read().id));
+            for grouped_tuple in self.grouped.lock().values() {
+                let path = path.join(format!("{}.json", grouped_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Grouped>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Grouped>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != grouped_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != grouped_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &grouped_tuple)?;
@@ -3657,7 +3637,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.grouped.read().contains_key(&id) {
+                    if !self.grouped.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3668,13 +3648,13 @@ impl ObjectStore {
         {
             let path = path.join("x_if");
             fs::create_dir_all(&path)?;
-            for x_if_tuple in self.x_if.read().values() {
-                let path = path.join(format!("{}.json", x_if_tuple.0.read().id));
+            for x_if_tuple in self.x_if.lock().values() {
+                let path = path.join(format!("{}.json", x_if_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != x_if_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != x_if_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_if_tuple)?;
@@ -3691,7 +3671,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_if.read().contains_key(&id) {
+                    if !self.x_if.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3702,14 +3682,14 @@ impl ObjectStore {
         {
             let path = path.join("implementation");
             fs::create_dir_all(&path)?;
-            for implementation_tuple in self.implementation.read().values() {
-                let path = path.join(format!("{}.json", implementation_tuple.0.read().id));
+            for implementation_tuple in self.implementation.lock().values() {
+                let path = path.join(format!("{}.json", implementation_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Implementation>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Implementation>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != implementation_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != implementation_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
@@ -3726,7 +3706,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.implementation.read().contains_key(&id) {
+                    if !self.implementation.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3737,14 +3717,14 @@ impl ObjectStore {
         {
             let path = path.join("import");
             fs::create_dir_all(&path)?;
-            for import_tuple in self.import.read().values() {
-                let path = path.join(format!("{}.json", import_tuple.0.read().id));
+            for import_tuple in self.import.lock().values() {
+                let path = path.join(format!("{}.json", import_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Import>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Import>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != import_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != import_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
@@ -3761,7 +3741,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.import.read().contains_key(&id) {
+                    if !self.import.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3772,14 +3752,13 @@ impl ObjectStore {
         {
             let path = path.join("index");
             fs::create_dir_all(&path)?;
-            for index_tuple in self.index.read().values() {
-                let path = path.join(format!("{}.json", index_tuple.0.read().id));
+            for index_tuple in self.index.lock().values() {
+                let path = path.join(format!("{}.json", index_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Index>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != index_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Index>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != index_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &index_tuple)?;
@@ -3796,7 +3775,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.index.read().contains_key(&id) {
+                    if !self.index.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3807,14 +3786,14 @@ impl ObjectStore {
         {
             let path = path.join("integer_literal");
             fs::create_dir_all(&path)?;
-            for integer_literal_tuple in self.integer_literal.read().values() {
-                let path = path.join(format!("{}.json", integer_literal_tuple.0.read().id));
+            for integer_literal_tuple in self.integer_literal.lock().values() {
+                let path = path.join(format!("{}.json", integer_literal_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<IntegerLiteral>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<IntegerLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != integer_literal_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != integer_literal_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
@@ -3831,7 +3810,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.integer_literal.read().contains_key(&id) {
+                    if !self.integer_literal.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3842,13 +3821,13 @@ impl ObjectStore {
         {
             let path = path.join("item");
             fs::create_dir_all(&path)?;
-            for item_tuple in self.item.read().values() {
-                let path = path.join(format!("{}.json", item_tuple.0.read().id));
+            for item_tuple in self.item.lock().values() {
+                let path = path.join(format!("{}.json", item_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Item>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != item_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Item>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != item_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &item_tuple)?;
@@ -3865,7 +3844,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.item.read().contains_key(&id) {
+                    if !self.item.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3876,14 +3855,14 @@ impl ObjectStore {
         {
             let path = path.join("let_statement");
             fs::create_dir_all(&path)?;
-            for let_statement_tuple in self.let_statement.read().values() {
-                let path = path.join(format!("{}.json", let_statement_tuple.0.read().id));
+            for let_statement_tuple in self.let_statement.lock().values() {
+                let path = path.join(format!("{}.json", let_statement_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<LetStatement>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<LetStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != let_statement_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != let_statement_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &let_statement_tuple)?;
@@ -3900,7 +3879,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.let_statement.read().contains_key(&id) {
+                    if !self.let_statement.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3911,13 +3890,13 @@ impl ObjectStore {
         {
             let path = path.join("list");
             fs::create_dir_all(&path)?;
-            for list_tuple in self.list.read().values() {
-                let path = path.join(format!("{}.json", list_tuple.0.read().id));
+            for list_tuple in self.list.lock().values() {
+                let path = path.join(format!("{}.json", list_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<List>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != list_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<List>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != list_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
@@ -3934,7 +3913,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list.read().contains_key(&id) {
+                    if !self.list.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3945,14 +3924,14 @@ impl ObjectStore {
         {
             let path = path.join("list_element");
             fs::create_dir_all(&path)?;
-            for list_element_tuple in self.list_element.read().values() {
-                let path = path.join(format!("{}.json", list_element_tuple.0.read().id));
+            for list_element_tuple in self.list_element.lock().values() {
+                let path = path.join(format!("{}.json", list_element_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ListElement>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ListElement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != list_element_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != list_element_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_element_tuple)?;
@@ -3969,7 +3948,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list_element.read().contains_key(&id) {
+                    if !self.list_element.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3980,14 +3959,14 @@ impl ObjectStore {
         {
             let path = path.join("list_expression");
             fs::create_dir_all(&path)?;
-            for list_expression_tuple in self.list_expression.read().values() {
-                let path = path.join(format!("{}.json", list_expression_tuple.0.read().id));
+            for list_expression_tuple in self.list_expression.lock().values() {
+                let path = path.join(format!("{}.json", list_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ListExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ListExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != list_expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != list_expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_expression_tuple)?;
@@ -4004,7 +3983,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list_expression.read().contains_key(&id) {
+                    if !self.list_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4015,14 +3994,14 @@ impl ObjectStore {
         {
             let path = path.join("literal");
             fs::create_dir_all(&path)?;
-            for literal_tuple in self.literal.read().values() {
-                let path = path.join(format!("{}.json", literal_tuple.0.read().id()));
+            for literal_tuple in self.literal.lock().values() {
+                let path = path.join(format!("{}.json", literal_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Literal>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Literal>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != literal_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != literal_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &literal_tuple)?;
@@ -4039,7 +4018,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.literal.read().contains_key(&id) {
+                    if !self.literal.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4050,14 +4029,14 @@ impl ObjectStore {
         {
             let path = path.join("local_variable");
             fs::create_dir_all(&path)?;
-            for local_variable_tuple in self.local_variable.read().values() {
-                let path = path.join(format!("{}.json", local_variable_tuple.0.read().id));
+            for local_variable_tuple in self.local_variable.lock().values() {
+                let path = path.join(format!("{}.json", local_variable_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<LocalVariable>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<LocalVariable>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != local_variable_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != local_variable_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &local_variable_tuple)?;
@@ -4074,7 +4053,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.local_variable.read().contains_key(&id) {
+                    if !self.local_variable.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4085,14 +4064,14 @@ impl ObjectStore {
         {
             let path = path.join("method_call");
             fs::create_dir_all(&path)?;
-            for method_call_tuple in self.method_call.read().values() {
-                let path = path.join(format!("{}.json", method_call_tuple.0.read().id));
+            for method_call_tuple in self.method_call.lock().values() {
+                let path = path.join(format!("{}.json", method_call_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<MethodCall>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<MethodCall>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != method_call_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != method_call_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &method_call_tuple)?;
@@ -4109,7 +4088,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.method_call.read().contains_key(&id) {
+                    if !self.method_call.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4120,14 +4099,14 @@ impl ObjectStore {
         {
             let path = path.join("negation");
             fs::create_dir_all(&path)?;
-            for negation_tuple in self.negation.read().values() {
-                let path = path.join(format!("{}.json", negation_tuple.0.read().id));
+            for negation_tuple in self.negation.lock().values() {
+                let path = path.join(format!("{}.json", negation_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Negation>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Negation>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != negation_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != negation_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &negation_tuple)?;
@@ -4144,7 +4123,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.negation.read().contains_key(&id) {
+                    if !self.negation.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4155,14 +4134,14 @@ impl ObjectStore {
         {
             let path = path.join("z_object_store");
             fs::create_dir_all(&path)?;
-            for z_object_store_tuple in self.z_object_store.read().values() {
-                let path = path.join(format!("{}.json", z_object_store_tuple.0.read().id));
+            for z_object_store_tuple in self.z_object_store.lock().values() {
+                let path = path.join(format!("{}.json", z_object_store_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ZObjectStore>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ZObjectStore>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != z_object_store_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != z_object_store_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
@@ -4179,7 +4158,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.z_object_store.read().contains_key(&id) {
+                    if !self.z_object_store.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4190,14 +4169,14 @@ impl ObjectStore {
         {
             let path = path.join("operator");
             fs::create_dir_all(&path)?;
-            for operator_tuple in self.operator.read().values() {
-                let path = path.join(format!("{}.json", operator_tuple.0.read().id));
+            for operator_tuple in self.operator.lock().values() {
+                let path = path.join(format!("{}.json", operator_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Operator>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Operator>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != operator_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != operator_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &operator_tuple)?;
@@ -4214,7 +4193,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.operator.read().contains_key(&id) {
+                    if !self.operator.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4225,14 +4204,14 @@ impl ObjectStore {
         {
             let path = path.join("woog_option");
             fs::create_dir_all(&path)?;
-            for woog_option_tuple in self.woog_option.read().values() {
-                let path = path.join(format!("{}.json", woog_option_tuple.0.read().id));
+            for woog_option_tuple in self.woog_option.lock().values() {
+                let path = path.join(format!("{}.json", woog_option_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<WoogOption>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<WoogOption>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != woog_option_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != woog_option_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_option_tuple)?;
@@ -4249,7 +4228,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.woog_option.read().contains_key(&id) {
+                    if !self.woog_option.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4260,14 +4239,14 @@ impl ObjectStore {
         {
             let path = path.join("parameter");
             fs::create_dir_all(&path)?;
-            for parameter_tuple in self.parameter.read().values() {
-                let path = path.join(format!("{}.json", parameter_tuple.0.read().id));
+            for parameter_tuple in self.parameter.lock().values() {
+                let path = path.join(format!("{}.json", parameter_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Parameter>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Parameter>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != parameter_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != parameter_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &parameter_tuple)?;
@@ -4284,7 +4263,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.parameter.read().contains_key(&id) {
+                    if !self.parameter.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4295,14 +4274,13 @@ impl ObjectStore {
         {
             let path = path.join("print");
             fs::create_dir_all(&path)?;
-            for print_tuple in self.print.read().values() {
-                let path = path.join(format!("{}.json", print_tuple.0.read().id));
+            for print_tuple in self.print.lock().values() {
+                let path = path.join(format!("{}.json", print_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Print>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != print_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Print>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != print_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
@@ -4319,7 +4297,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.print.read().contains_key(&id) {
+                    if !self.print.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4330,14 +4308,14 @@ impl ObjectStore {
         {
             let path = path.join("range_expression");
             fs::create_dir_all(&path)?;
-            for range_expression_tuple in self.range_expression.read().values() {
-                let path = path.join(format!("{}.json", range_expression_tuple.0.read().id));
+            for range_expression_tuple in self.range_expression.lock().values() {
+                let path = path.join(format!("{}.json", range_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<RangeExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<RangeExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != range_expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != range_expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &range_expression_tuple)?;
@@ -4354,7 +4332,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.range_expression.read().contains_key(&id) {
+                    if !self.range_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4365,14 +4343,14 @@ impl ObjectStore {
         {
             let path = path.join("reference");
             fs::create_dir_all(&path)?;
-            for reference_tuple in self.reference.read().values() {
-                let path = path.join(format!("{}.json", reference_tuple.0.read().id));
+            for reference_tuple in self.reference.lock().values() {
+                let path = path.join(format!("{}.json", reference_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Reference>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Reference>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != reference_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != reference_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
@@ -4389,7 +4367,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.reference.read().contains_key(&id) {
+                    if !self.reference.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4400,14 +4378,14 @@ impl ObjectStore {
         {
             let path = path.join("result_statement");
             fs::create_dir_all(&path)?;
-            for result_statement_tuple in self.result_statement.read().values() {
-                let path = path.join(format!("{}.json", result_statement_tuple.0.read().id));
+            for result_statement_tuple in self.result_statement.lock().values() {
+                let path = path.join(format!("{}.json", result_statement_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ResultStatement>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ResultStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != result_statement_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != result_statement_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
@@ -4424,7 +4402,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.result_statement.read().contains_key(&id) {
+                    if !self.result_statement.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4435,14 +4413,14 @@ impl ObjectStore {
         {
             let path = path.join("x_return");
             fs::create_dir_all(&path)?;
-            for x_return_tuple in self.x_return.read().values() {
-                let path = path.join(format!("{}.json", x_return_tuple.0.read().id));
+            for x_return_tuple in self.x_return.lock().values() {
+                let path = path.join(format!("{}.json", x_return_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<XReturn>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<XReturn>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != x_return_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != x_return_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_return_tuple)?;
@@ -4459,7 +4437,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_return.read().contains_key(&id) {
+                    if !self.x_return.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4470,14 +4448,13 @@ impl ObjectStore {
         {
             let path = path.join("z_some");
             fs::create_dir_all(&path)?;
-            for z_some_tuple in self.z_some.read().values() {
-                let path = path.join(format!("{}.json", z_some_tuple.0.read().id));
+            for z_some_tuple in self.z_some.lock().values() {
+                let path = path.join(format!("{}.json", z_some_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ZSome>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != z_some_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != z_some_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
@@ -4494,7 +4471,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.z_some.read().contains_key(&id) {
+                    if !self.z_some.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4505,13 +4482,13 @@ impl ObjectStore {
         {
             let path = path.join("span");
             fs::create_dir_all(&path)?;
-            for span_tuple in self.span.read().values() {
-                let path = path.join(format!("{}.json", span_tuple.0.read().id));
+            for span_tuple in self.span.lock().values() {
+                let path = path.join(format!("{}.json", span_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Span>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != span_tuple.0.read().to_owned() {
+                    let on_disk: (Arc<Mutex<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != span_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &span_tuple)?;
@@ -4528,7 +4505,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.span.read().contains_key(&id) {
+                    if !self.span.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4539,14 +4516,14 @@ impl ObjectStore {
         {
             let path = path.join("statement");
             fs::create_dir_all(&path)?;
-            for statement_tuple in self.statement.read().values() {
-                let path = path.join(format!("{}.json", statement_tuple.0.read().id));
+            for statement_tuple in self.statement.lock().values() {
+                let path = path.join(format!("{}.json", statement_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Statement>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Statement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != statement_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != statement_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
@@ -4563,7 +4540,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.statement.read().contains_key(&id) {
+                    if !self.statement.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4574,14 +4551,14 @@ impl ObjectStore {
         {
             let path = path.join("static_method_call");
             fs::create_dir_all(&path)?;
-            for static_method_call_tuple in self.static_method_call.read().values() {
-                let path = path.join(format!("{}.json", static_method_call_tuple.0.read().id));
+            for static_method_call_tuple in self.static_method_call.lock().values() {
+                let path = path.join(format!("{}.json", static_method_call_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<StaticMethodCall>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<StaticMethodCall>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != static_method_call_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != static_method_call_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &static_method_call_tuple)?;
@@ -4598,7 +4575,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.static_method_call.read().contains_key(&id) {
+                    if !self.static_method_call.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4609,14 +4586,14 @@ impl ObjectStore {
         {
             let path = path.join("string_literal");
             fs::create_dir_all(&path)?;
-            for string_literal_tuple in self.string_literal.read().values() {
-                let path = path.join(format!("{}.json", string_literal_tuple.0.read().id));
+            for string_literal_tuple in self.string_literal.lock().values() {
+                let path = path.join(format!("{}.json", string_literal_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<StringLiteral>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<StringLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != string_literal_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != string_literal_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
@@ -4633,7 +4610,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.string_literal.read().contains_key(&id) {
+                    if !self.string_literal.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4644,14 +4621,14 @@ impl ObjectStore {
         {
             let path = path.join("woog_struct");
             fs::create_dir_all(&path)?;
-            for woog_struct_tuple in self.woog_struct.read().values() {
-                let path = path.join(format!("{}.json", woog_struct_tuple.0.read().id));
+            for woog_struct_tuple in self.woog_struct.lock().values() {
+                let path = path.join(format!("{}.json", woog_struct_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<WoogStruct>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<WoogStruct>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != woog_struct_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != woog_struct_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_struct_tuple)?;
@@ -4668,7 +4645,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.woog_struct.read().contains_key(&id) {
+                    if !self.woog_struct.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4679,14 +4656,14 @@ impl ObjectStore {
         {
             let path = path.join("struct_expression");
             fs::create_dir_all(&path)?;
-            for struct_expression_tuple in self.struct_expression.read().values() {
-                let path = path.join(format!("{}.json", struct_expression_tuple.0.read().id));
+            for struct_expression_tuple in self.struct_expression.lock().values() {
+                let path = path.join(format!("{}.json", struct_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<StructExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<StructExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != struct_expression_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != struct_expression_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
@@ -4703,7 +4680,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.struct_expression.read().contains_key(&id) {
+                    if !self.struct_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4714,14 +4691,14 @@ impl ObjectStore {
         {
             let path = path.join("type_cast");
             fs::create_dir_all(&path)?;
-            for type_cast_tuple in self.type_cast.read().values() {
-                let path = path.join(format!("{}.json", type_cast_tuple.0.read().id));
+            for type_cast_tuple in self.type_cast.lock().values() {
+                let path = path.join(format!("{}.json", type_cast_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<TypeCast>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<TypeCast>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != type_cast_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != type_cast_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &type_cast_tuple)?;
@@ -4738,7 +4715,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.type_cast.read().contains_key(&id) {
+                    if !self.type_cast.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4749,14 +4726,14 @@ impl ObjectStore {
         {
             let path = path.join("x_value");
             fs::create_dir_all(&path)?;
-            for x_value_tuple in self.x_value.read().values() {
-                let path = path.join(format!("{}.json", x_value_tuple.0.read().id));
+            for x_value_tuple in self.x_value.lock().values() {
+                let path = path.join(format!("{}.json", x_value_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<XValue>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<XValue>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != x_value_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != x_value_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
@@ -4773,7 +4750,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_value.read().contains_key(&id) {
+                    if !self.x_value.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4784,14 +4761,14 @@ impl ObjectStore {
         {
             let path = path.join("value_type");
             fs::create_dir_all(&path)?;
-            for value_type_tuple in self.value_type.read().values() {
-                let path = path.join(format!("{}.json", value_type_tuple.0.read().id()));
+            for value_type_tuple in self.value_type.lock().values() {
+                let path = path.join(format!("{}.json", value_type_tuple.0.lock().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<ValueType>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<ValueType>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != value_type_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != value_type_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &value_type_tuple)?;
@@ -4808,7 +4785,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.value_type.read().contains_key(&id) {
+                    if !self.value_type.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4819,14 +4796,14 @@ impl ObjectStore {
         {
             let path = path.join("variable");
             fs::create_dir_all(&path)?;
-            for variable_tuple in self.variable.read().values() {
-                let path = path.join(format!("{}.json", variable_tuple.0.read().id));
+            for variable_tuple in self.variable.lock().values() {
+                let path = path.join(format!("{}.json", variable_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<Variable>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<Variable>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != variable_tuple.0.read().to_owned() {
+                    if on_disk.0.lock().to_owned() != variable_tuple.0.lock().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &variable_tuple)?;
@@ -4843,7 +4820,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.variable.read().contains_key(&id) {
+                    if !self.variable.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4854,14 +4831,14 @@ impl ObjectStore {
         {
             let path = path.join("variable_expression");
             fs::create_dir_all(&path)?;
-            for variable_expression_tuple in self.variable_expression.read().values() {
-                let path = path.join(format!("{}.json", variable_expression_tuple.0.read().id));
+            for variable_expression_tuple in self.variable_expression.lock().values() {
+                let path = path.join(format!("{}.json", variable_expression_tuple.0.lock().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<RwLock<VariableExpression>>, SystemTime) =
+                    let on_disk: (Arc<Mutex<VariableExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.read().to_owned() != variable_expression_tuple.0.read().to_owned()
+                    if on_disk.0.lock().to_owned() != variable_expression_tuple.0.lock().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -4879,7 +4856,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.variable_expression.read().contains_key(&id) {
+                    if !self.variable_expression.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4918,12 +4895,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let argument: (Arc<RwLock<Argument>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let argument: (Arc<Mutex<Argument>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .argument
-                    .write()
-                    .insert(argument.0.read().id, argument.clone());
+                    .lock()
+                    .insert(argument.0.lock().id, argument.clone());
             }
         }
 
@@ -4936,11 +4912,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let binary: (Arc<RwLock<Binary>>, SystemTime) = serde_json::from_reader(reader)?;
+                let binary: (Arc<Mutex<Binary>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .binary
-                    .write()
-                    .insert(binary.0.read().id(), binary.clone());
+                    .lock()
+                    .insert(binary.0.lock().id(), binary.clone());
             }
         }
 
@@ -4953,8 +4929,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let block: (Arc<RwLock<Block>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.block.write().insert(block.0.read().id, block.clone());
+                let block: (Arc<Mutex<Block>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.block.lock().insert(block.0.lock().id, block.clone());
             }
         }
 
@@ -4967,12 +4943,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let boolean_literal: (Arc<RwLock<BooleanLiteral>>, SystemTime) =
+                let boolean_literal: (Arc<Mutex<BooleanLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .boolean_literal
-                    .write()
-                    .insert(boolean_literal.0.read().id(), boolean_literal.clone());
+                    .lock()
+                    .insert(boolean_literal.0.lock().id(), boolean_literal.clone());
             }
         }
 
@@ -4985,8 +4961,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let call: (Arc<RwLock<Call>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.call.write().insert(call.0.read().id, call.clone());
+                let call: (Arc<Mutex<Call>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.call.lock().insert(call.0.lock().id, call.clone());
             }
         }
 
@@ -4999,12 +4975,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let comparison: (Arc<RwLock<Comparison>>, SystemTime) =
+                let comparison: (Arc<Mutex<Comparison>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .comparison
-                    .write()
-                    .insert(comparison.0.read().id(), comparison.clone());
+                    .lock()
+                    .insert(comparison.0.lock().id(), comparison.clone());
             }
         }
 
@@ -5017,12 +4993,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let dwarf_source_file: (Arc<RwLock<DwarfSourceFile>>, SystemTime) =
+                let dwarf_source_file: (Arc<Mutex<DwarfSourceFile>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .dwarf_source_file
-                    .write()
-                    .insert(dwarf_source_file.0.read().id, dwarf_source_file.clone());
+                    .lock()
+                    .insert(dwarf_source_file.0.lock().id, dwarf_source_file.clone());
             }
         }
 
@@ -5035,11 +5011,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let error: (Arc<RwLock<Error>>, SystemTime) = serde_json::from_reader(reader)?;
+                let error: (Arc<Mutex<Error>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .error
-                    .write()
-                    .insert(error.0.read().id(), error.clone());
+                    .lock()
+                    .insert(error.0.lock().id(), error.clone());
             }
         }
 
@@ -5052,12 +5028,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let error_expression: (Arc<RwLock<ErrorExpression>>, SystemTime) =
+                let error_expression: (Arc<Mutex<ErrorExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .error_expression
-                    .write()
-                    .insert(error_expression.0.read().id, error_expression.clone());
+                    .lock()
+                    .insert(error_expression.0.lock().id, error_expression.clone());
             }
         }
 
@@ -5070,12 +5046,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let expression: (Arc<RwLock<Expression>>, SystemTime) =
+                let expression: (Arc<Mutex<Expression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .expression
-                    .write()
-                    .insert(expression.0.read().id(), expression.clone());
+                    .lock()
+                    .insert(expression.0.lock().id(), expression.clone());
             }
         }
 
@@ -5088,10 +5064,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let expression_statement: (Arc<RwLock<ExpressionStatement>>, SystemTime) =
+                let expression_statement: (Arc<Mutex<ExpressionStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.expression_statement.write().insert(
-                    expression_statement.0.read().id,
+                store.expression_statement.lock().insert(
+                    expression_statement.0.lock().id,
                     expression_statement.clone(),
                 );
             }
@@ -5106,12 +5082,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field: (Arc<RwLock<Field>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.field_id_by_name.write().insert(
-                    field.0.read().name.to_upper_camel_case(),
-                    (field.0.read().id, field.1),
+                let field: (Arc<Mutex<Field>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.field_id_by_name.lock().insert(
+                    field.0.lock().name.to_upper_camel_case(),
+                    (field.0.lock().id, field.1),
                 );
-                store.field.write().insert(field.0.read().id, field.clone());
+                store.field.lock().insert(field.0.lock().id, field.clone());
             }
         }
 
@@ -5124,12 +5100,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_access: (Arc<RwLock<FieldAccess>>, SystemTime) =
+                let field_access: (Arc<Mutex<FieldAccess>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .field_access
-                    .write()
-                    .insert(field_access.0.read().id, field_access.clone());
+                    .lock()
+                    .insert(field_access.0.lock().id, field_access.clone());
             }
         }
 
@@ -5142,10 +5118,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_access_target: (Arc<RwLock<FieldAccessTarget>>, SystemTime) =
+                let field_access_target: (Arc<Mutex<FieldAccessTarget>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.field_access_target.write().insert(
-                    field_access_target.0.read().id(),
+                store.field_access_target.lock().insert(
+                    field_access_target.0.lock().id(),
                     field_access_target.clone(),
                 );
             }
@@ -5160,12 +5136,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_expression: (Arc<RwLock<FieldExpression>>, SystemTime) =
+                let field_expression: (Arc<Mutex<FieldExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .field_expression
-                    .write()
-                    .insert(field_expression.0.read().id, field_expression.clone());
+                    .lock()
+                    .insert(field_expression.0.lock().id, field_expression.clone());
             }
         }
 
@@ -5178,12 +5154,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let float_literal: (Arc<RwLock<FloatLiteral>>, SystemTime) =
+                let float_literal: (Arc<Mutex<FloatLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .float_literal
-                    .write()
-                    .insert(float_literal.0.read().id, float_literal.clone());
+                    .lock()
+                    .insert(float_literal.0.lock().id, float_literal.clone());
             }
         }
 
@@ -5196,11 +5172,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let for_loop: (Arc<RwLock<ForLoop>>, SystemTime) = serde_json::from_reader(reader)?;
+                let for_loop: (Arc<Mutex<ForLoop>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .for_loop
-                    .write()
-                    .insert(for_loop.0.read().id, for_loop.clone());
+                    .lock()
+                    .insert(for_loop.0.lock().id, for_loop.clone());
             }
         }
 
@@ -5213,16 +5189,15 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let function: (Arc<RwLock<Function>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
-                store.function_id_by_name.write().insert(
-                    function.0.read().name.to_upper_camel_case(),
-                    (function.0.read().id, function.1),
+                let function: (Arc<Mutex<Function>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.function_id_by_name.lock().insert(
+                    function.0.lock().name.to_upper_camel_case(),
+                    (function.0.lock().id, function.1),
                 );
                 store
                     .function
-                    .write()
-                    .insert(function.0.read().id, function.clone());
+                    .lock()
+                    .insert(function.0.lock().id, function.clone());
             }
         }
 
@@ -5235,11 +5210,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let grouped: (Arc<RwLock<Grouped>>, SystemTime) = serde_json::from_reader(reader)?;
+                let grouped: (Arc<Mutex<Grouped>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .grouped
-                    .write()
-                    .insert(grouped.0.read().id, grouped.clone());
+                    .lock()
+                    .insert(grouped.0.lock().id, grouped.clone());
             }
         }
 
@@ -5252,8 +5227,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_if: (Arc<RwLock<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.x_if.write().insert(x_if.0.read().id, x_if.clone());
+                let x_if: (Arc<Mutex<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.x_if.lock().insert(x_if.0.lock().id, x_if.clone());
             }
         }
 
@@ -5266,12 +5241,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let implementation: (Arc<RwLock<Implementation>>, SystemTime) =
+                let implementation: (Arc<Mutex<Implementation>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .implementation
-                    .write()
-                    .insert(implementation.0.read().id, implementation.clone());
+                    .lock()
+                    .insert(implementation.0.lock().id, implementation.clone());
             }
         }
 
@@ -5284,11 +5259,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let import: (Arc<RwLock<Import>>, SystemTime) = serde_json::from_reader(reader)?;
+                let import: (Arc<Mutex<Import>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .import
-                    .write()
-                    .insert(import.0.read().id, import.clone());
+                    .lock()
+                    .insert(import.0.lock().id, import.clone());
             }
         }
 
@@ -5301,8 +5276,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let index: (Arc<RwLock<Index>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.index.write().insert(index.0.read().id, index.clone());
+                let index: (Arc<Mutex<Index>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.index.lock().insert(index.0.lock().id, index.clone());
             }
         }
 
@@ -5315,12 +5290,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let integer_literal: (Arc<RwLock<IntegerLiteral>>, SystemTime) =
+                let integer_literal: (Arc<Mutex<IntegerLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .integer_literal
-                    .write()
-                    .insert(integer_literal.0.read().id, integer_literal.clone());
+                    .lock()
+                    .insert(integer_literal.0.lock().id, integer_literal.clone());
             }
         }
 
@@ -5333,8 +5308,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let item: (Arc<RwLock<Item>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.item.write().insert(item.0.read().id, item.clone());
+                let item: (Arc<Mutex<Item>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.item.lock().insert(item.0.lock().id, item.clone());
             }
         }
 
@@ -5347,12 +5322,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let let_statement: (Arc<RwLock<LetStatement>>, SystemTime) =
+                let let_statement: (Arc<Mutex<LetStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .let_statement
-                    .write()
-                    .insert(let_statement.0.read().id, let_statement.clone());
+                    .lock()
+                    .insert(let_statement.0.lock().id, let_statement.clone());
             }
         }
 
@@ -5365,8 +5340,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list: (Arc<RwLock<List>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.list.write().insert(list.0.read().id, list.clone());
+                let list: (Arc<Mutex<List>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.list.lock().insert(list.0.lock().id, list.clone());
             }
         }
 
@@ -5379,12 +5354,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list_element: (Arc<RwLock<ListElement>>, SystemTime) =
+                let list_element: (Arc<Mutex<ListElement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .list_element
-                    .write()
-                    .insert(list_element.0.read().id, list_element.clone());
+                    .lock()
+                    .insert(list_element.0.lock().id, list_element.clone());
             }
         }
 
@@ -5397,12 +5372,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list_expression: (Arc<RwLock<ListExpression>>, SystemTime) =
+                let list_expression: (Arc<Mutex<ListExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .list_expression
-                    .write()
-                    .insert(list_expression.0.read().id, list_expression.clone());
+                    .lock()
+                    .insert(list_expression.0.lock().id, list_expression.clone());
             }
         }
 
@@ -5415,11 +5390,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let literal: (Arc<RwLock<Literal>>, SystemTime) = serde_json::from_reader(reader)?;
+                let literal: (Arc<Mutex<Literal>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .literal
-                    .write()
-                    .insert(literal.0.read().id(), literal.clone());
+                    .lock()
+                    .insert(literal.0.lock().id(), literal.clone());
             }
         }
 
@@ -5432,12 +5407,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let local_variable: (Arc<RwLock<LocalVariable>>, SystemTime) =
+                let local_variable: (Arc<Mutex<LocalVariable>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .local_variable
-                    .write()
-                    .insert(local_variable.0.read().id, local_variable.clone());
+                    .lock()
+                    .insert(local_variable.0.lock().id, local_variable.clone());
             }
         }
 
@@ -5450,12 +5425,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let method_call: (Arc<RwLock<MethodCall>>, SystemTime) =
+                let method_call: (Arc<Mutex<MethodCall>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .method_call
-                    .write()
-                    .insert(method_call.0.read().id, method_call.clone());
+                    .lock()
+                    .insert(method_call.0.lock().id, method_call.clone());
             }
         }
 
@@ -5468,12 +5443,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let negation: (Arc<RwLock<Negation>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let negation: (Arc<Mutex<Negation>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .negation
-                    .write()
-                    .insert(negation.0.read().id, negation.clone());
+                    .lock()
+                    .insert(negation.0.lock().id, negation.clone());
             }
         }
 
@@ -5486,12 +5460,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let z_object_store: (Arc<RwLock<ZObjectStore>>, SystemTime) =
+                let z_object_store: (Arc<Mutex<ZObjectStore>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .z_object_store
-                    .write()
-                    .insert(z_object_store.0.read().id, z_object_store.clone());
+                    .lock()
+                    .insert(z_object_store.0.lock().id, z_object_store.clone());
             }
         }
 
@@ -5504,12 +5478,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let operator: (Arc<RwLock<Operator>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let operator: (Arc<Mutex<Operator>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .operator
-                    .write()
-                    .insert(operator.0.read().id, operator.clone());
+                    .lock()
+                    .insert(operator.0.lock().id, operator.clone());
             }
         }
 
@@ -5522,12 +5495,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let woog_option: (Arc<RwLock<WoogOption>>, SystemTime) =
+                let woog_option: (Arc<Mutex<WoogOption>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .woog_option
-                    .write()
-                    .insert(woog_option.0.read().id, woog_option.clone());
+                    .lock()
+                    .insert(woog_option.0.lock().id, woog_option.clone());
             }
         }
 
@@ -5540,12 +5513,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let parameter: (Arc<RwLock<Parameter>>, SystemTime) =
+                let parameter: (Arc<Mutex<Parameter>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .parameter
-                    .write()
-                    .insert(parameter.0.read().id, parameter.clone());
+                    .lock()
+                    .insert(parameter.0.lock().id, parameter.clone());
             }
         }
 
@@ -5558,8 +5531,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let print: (Arc<RwLock<Print>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.print.write().insert(print.0.read().id, print.clone());
+                let print: (Arc<Mutex<Print>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.print.lock().insert(print.0.lock().id, print.clone());
             }
         }
 
@@ -5572,12 +5545,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let range_expression: (Arc<RwLock<RangeExpression>>, SystemTime) =
+                let range_expression: (Arc<Mutex<RangeExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .range_expression
-                    .write()
-                    .insert(range_expression.0.read().id, range_expression.clone());
+                    .lock()
+                    .insert(range_expression.0.lock().id, range_expression.clone());
             }
         }
 
@@ -5590,12 +5563,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let reference: (Arc<RwLock<Reference>>, SystemTime) =
+                let reference: (Arc<Mutex<Reference>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .reference
-                    .write()
-                    .insert(reference.0.read().id, reference.clone());
+                    .lock()
+                    .insert(reference.0.lock().id, reference.clone());
             }
         }
 
@@ -5608,12 +5581,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let result_statement: (Arc<RwLock<ResultStatement>>, SystemTime) =
+                let result_statement: (Arc<Mutex<ResultStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .result_statement
-                    .write()
-                    .insert(result_statement.0.read().id, result_statement.clone());
+                    .lock()
+                    .insert(result_statement.0.lock().id, result_statement.clone());
             }
         }
 
@@ -5626,11 +5599,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_return: (Arc<RwLock<XReturn>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_return: (Arc<Mutex<XReturn>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .x_return
-                    .write()
-                    .insert(x_return.0.read().id, x_return.clone());
+                    .lock()
+                    .insert(x_return.0.lock().id, x_return.clone());
             }
         }
 
@@ -5643,11 +5616,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let z_some: (Arc<RwLock<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
+                let z_some: (Arc<Mutex<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .z_some
-                    .write()
-                    .insert(z_some.0.read().id, z_some.clone());
+                    .lock()
+                    .insert(z_some.0.lock().id, z_some.clone());
             }
         }
 
@@ -5660,8 +5633,8 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let span: (Arc<RwLock<Span>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.span.write().insert(span.0.read().id, span.clone());
+                let span: (Arc<Mutex<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.span.lock().insert(span.0.lock().id, span.clone());
             }
         }
 
@@ -5674,12 +5647,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let statement: (Arc<RwLock<Statement>>, SystemTime) =
+                let statement: (Arc<Mutex<Statement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .statement
-                    .write()
-                    .insert(statement.0.read().id, statement.clone());
+                    .lock()
+                    .insert(statement.0.lock().id, statement.clone());
             }
         }
 
@@ -5692,12 +5665,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let static_method_call: (Arc<RwLock<StaticMethodCall>>, SystemTime) =
+                let static_method_call: (Arc<Mutex<StaticMethodCall>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .static_method_call
-                    .write()
-                    .insert(static_method_call.0.read().id, static_method_call.clone());
+                    .lock()
+                    .insert(static_method_call.0.lock().id, static_method_call.clone());
             }
         }
 
@@ -5710,12 +5683,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let string_literal: (Arc<RwLock<StringLiteral>>, SystemTime) =
+                let string_literal: (Arc<Mutex<StringLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .string_literal
-                    .write()
-                    .insert(string_literal.0.read().id, string_literal.clone());
+                    .lock()
+                    .insert(string_literal.0.lock().id, string_literal.clone());
             }
         }
 
@@ -5728,16 +5701,16 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let woog_struct: (Arc<RwLock<WoogStruct>>, SystemTime) =
+                let woog_struct: (Arc<Mutex<WoogStruct>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.woog_struct_id_by_name.write().insert(
-                    woog_struct.0.read().name.to_upper_camel_case(),
-                    (woog_struct.0.read().id, woog_struct.1),
+                store.woog_struct_id_by_name.lock().insert(
+                    woog_struct.0.lock().name.to_upper_camel_case(),
+                    (woog_struct.0.lock().id, woog_struct.1),
                 );
                 store
                     .woog_struct
-                    .write()
-                    .insert(woog_struct.0.read().id, woog_struct.clone());
+                    .lock()
+                    .insert(woog_struct.0.lock().id, woog_struct.clone());
             }
         }
 
@@ -5750,12 +5723,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let struct_expression: (Arc<RwLock<StructExpression>>, SystemTime) =
+                let struct_expression: (Arc<Mutex<StructExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .struct_expression
-                    .write()
-                    .insert(struct_expression.0.read().id, struct_expression.clone());
+                    .lock()
+                    .insert(struct_expression.0.lock().id, struct_expression.clone());
             }
         }
 
@@ -5768,12 +5741,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let type_cast: (Arc<RwLock<TypeCast>>, SystemTime) =
+                let type_cast: (Arc<Mutex<TypeCast>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .type_cast
-                    .write()
-                    .insert(type_cast.0.read().id, type_cast.clone());
+                    .lock()
+                    .insert(type_cast.0.lock().id, type_cast.clone());
             }
         }
 
@@ -5786,11 +5759,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_value: (Arc<RwLock<XValue>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_value: (Arc<Mutex<XValue>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .x_value
-                    .write()
-                    .insert(x_value.0.read().id, x_value.clone());
+                    .lock()
+                    .insert(x_value.0.lock().id, x_value.clone());
             }
         }
 
@@ -5803,12 +5776,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let value_type: (Arc<RwLock<ValueType>>, SystemTime) =
+                let value_type: (Arc<Mutex<ValueType>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .value_type
-                    .write()
-                    .insert(value_type.0.read().id(), value_type.clone());
+                    .lock()
+                    .insert(value_type.0.lock().id(), value_type.clone());
             }
         }
 
@@ -5821,12 +5794,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let variable: (Arc<RwLock<Variable>>, SystemTime) =
-                    serde_json::from_reader(reader)?;
+                let variable: (Arc<Mutex<Variable>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .variable
-                    .write()
-                    .insert(variable.0.read().id, variable.clone());
+                    .lock()
+                    .insert(variable.0.lock().id, variable.clone());
             }
         }
 
@@ -5839,12 +5811,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let variable_expression: (Arc<RwLock<VariableExpression>>, SystemTime) =
+                let variable_expression: (Arc<Mutex<VariableExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .variable_expression
-                    .write()
-                    .insert(variable_expression.0.read().id, variable_expression.clone());
+                    .lock()
+                    .insert(variable_expression.0.lock().id, variable_expression.clone());
             }
         }
 

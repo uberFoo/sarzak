@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"for_loop-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -36,16 +34,16 @@ impl ForLoop {
     /// Inter a new 'For Loop' in the store, and return it's `id`.
     pub fn new(
         ident: String,
-        block: &Arc<RwLock<Block>>,
-        expression: &Arc<RwLock<Expression>>,
+        block: &Arc<Mutex<Block>>,
+        expression: &Arc<Mutex<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<ForLoop>> {
+    ) -> Arc<Mutex<ForLoop>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(ForLoop {
+        let new = Arc::new(Mutex::new(ForLoop {
             id,
             ident,
-            block: block.read().id,
-            expression: expression.read().id(),
+            block: block.lock().id,
+            expression: expression.lock().id(),
         }));
         store.inter_for_loop(new.clone());
         new
@@ -53,19 +51,19 @@ impl ForLoop {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R43(1-*)
-    pub fn r43_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    pub fn r43_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R42(1-*)
-    pub fn r42_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r42_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

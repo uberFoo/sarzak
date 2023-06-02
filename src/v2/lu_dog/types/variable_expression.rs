@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable_expression-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -29,16 +27,16 @@ pub struct VariableExpression {
 impl VariableExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable_expression-struct-impl-new"}}}
     /// Inter a new 'Variable Expression' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut LuDogStore) -> Arc<RwLock<VariableExpression>> {
+    pub fn new(name: String, store: &mut LuDogStore) -> Arc<Mutex<VariableExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(VariableExpression { id, name }));
+        let new = Arc::new(Mutex::new(VariableExpression { id, name }));
         store.inter_variable_expression(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

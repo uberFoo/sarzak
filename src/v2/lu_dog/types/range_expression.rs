@@ -1,8 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"range_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-use-statements"}}}
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 use std::sync::Arc;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -42,14 +41,14 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_from"}}}
     /// Inter a new RangeExpression in the store, and return it's `id`.
     pub fn new_from(
-        lhs: Option<&Arc<RwLock<Expression>>>,
-        rhs: Option<&Arc<RwLock<Expression>>>,
+        lhs: Option<&Arc<Mutex<Expression>>>,
+        rhs: Option<&Arc<Mutex<Expression>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<RangeExpression>> {
+    ) -> Arc<Mutex<RangeExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().id()),
-            rhs: rhs.map(|expression| expression.read().id()),
+        let new = Arc::new(Mutex::new(RangeExpression {
+            lhs: lhs.map(|expression| expression.lock().id()),
+            rhs: rhs.map(|expression| expression.lock().id()),
             subtype: RangeExpressionEnum::From(FROM),
             id,
         }));
@@ -60,14 +59,14 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_full"}}}
     /// Inter a new RangeExpression in the store, and return it's `id`.
     pub fn new_full(
-        lhs: Option<&Arc<RwLock<Expression>>>,
-        rhs: Option<&Arc<RwLock<Expression>>>,
+        lhs: Option<&Arc<Mutex<Expression>>>,
+        rhs: Option<&Arc<Mutex<Expression>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<RangeExpression>> {
+    ) -> Arc<Mutex<RangeExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().id()),
-            rhs: rhs.map(|expression| expression.read().id()),
+        let new = Arc::new(Mutex::new(RangeExpression {
+            lhs: lhs.map(|expression| expression.lock().id()),
+            rhs: rhs.map(|expression| expression.lock().id()),
             subtype: RangeExpressionEnum::Full(FULL),
             id,
         }));
@@ -78,14 +77,14 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_inclusive"}}}
     /// Inter a new RangeExpression in the store, and return it's `id`.
     pub fn new_inclusive(
-        lhs: Option<&Arc<RwLock<Expression>>>,
-        rhs: Option<&Arc<RwLock<Expression>>>,
+        lhs: Option<&Arc<Mutex<Expression>>>,
+        rhs: Option<&Arc<Mutex<Expression>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<RangeExpression>> {
+    ) -> Arc<Mutex<RangeExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().id()),
-            rhs: rhs.map(|expression| expression.read().id()),
+        let new = Arc::new(Mutex::new(RangeExpression {
+            lhs: lhs.map(|expression| expression.lock().id()),
+            rhs: rhs.map(|expression| expression.lock().id()),
             subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
             id,
         }));
@@ -96,14 +95,14 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_to"}}}
     /// Inter a new RangeExpression in the store, and return it's `id`.
     pub fn new_to(
-        lhs: Option<&Arc<RwLock<Expression>>>,
-        rhs: Option<&Arc<RwLock<Expression>>>,
+        lhs: Option<&Arc<Mutex<Expression>>>,
+        rhs: Option<&Arc<Mutex<Expression>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<RangeExpression>> {
+    ) -> Arc<Mutex<RangeExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().id()),
-            rhs: rhs.map(|expression| expression.read().id()),
+        let new = Arc::new(Mutex::new(RangeExpression {
+            lhs: lhs.map(|expression| expression.lock().id()),
+            rhs: rhs.map(|expression| expression.lock().id()),
             subtype: RangeExpressionEnum::To(TO),
             id,
         }));
@@ -114,14 +113,14 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_to_inclusive"}}}
     /// Inter a new RangeExpression in the store, and return it's `id`.
     pub fn new_to_inclusive(
-        lhs: Option<&Arc<RwLock<Expression>>>,
-        rhs: Option<&Arc<RwLock<Expression>>>,
+        lhs: Option<&Arc<Mutex<Expression>>>,
+        rhs: Option<&Arc<Mutex<Expression>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<RangeExpression>> {
+    ) -> Arc<Mutex<RangeExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().id()),
-            rhs: rhs.map(|expression| expression.read().id()),
+        let new = Arc::new(Mutex::new(RangeExpression {
+            lhs: lhs.map(|expression| expression.lock().id()),
+            rhs: rhs.map(|expression| expression.lock().id()),
             subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
             id,
         }));
@@ -131,7 +130,7 @@ impl RangeExpression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-lhs"}}}
     /// Navigate to [`Expression`] across R58(1-*c)
-    pub fn r58_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r58_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         match self.lhs {
             Some(ref lhs) => vec![store.exhume_expression(lhs).unwrap()],
             None => Vec::new(),
@@ -140,7 +139,7 @@ impl RangeExpression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-rhs"}}}
     /// Navigate to [`Expression`] across R59(1-*c)
-    pub fn r59_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r59_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         match self.rhs {
             Some(ref rhs) => vec![store.exhume_expression(rhs).unwrap()],
             None => Vec::new(),
@@ -149,7 +148,7 @@ impl RangeExpression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

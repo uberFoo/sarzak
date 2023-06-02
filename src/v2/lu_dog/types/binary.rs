@@ -1,8 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"binary-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
-use parking_lot::RwLock;
-use std::sync::Arc;
-
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::addition::ADDITION;
 use crate::v2::lu_dog::types::assignment::ASSIGNMENT;
@@ -11,7 +8,9 @@ use crate::v2::lu_dog::types::multiplication::MULTIPLICATION;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
 use crate::v2::lu_dog::types::subtraction::SUBTRACTION;
+use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -35,31 +34,31 @@ pub enum Binary {
 impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-new-impl"}}}
     /// Create a new instance of Binary::Addition
-    pub fn new_addition(store: &LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_addition(store: &LuDogStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&ADDITION).unwrap()
     }
 
     /// Create a new instance of Binary::Assignment
-    pub fn new_assignment(store: &LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_assignment(store: &LuDogStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&ASSIGNMENT).unwrap()
     }
 
     /// Create a new instance of Binary::Division
-    pub fn new_division(store: &LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_division(store: &LuDogStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&DIVISION).unwrap()
     }
 
     /// Create a new instance of Binary::Multiplication
-    pub fn new_multiplication(store: &LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_multiplication(store: &LuDogStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&MULTIPLICATION).unwrap()
     }
 
     /// Create a new instance of Binary::Subtraction
-    pub fn new_subtraction(store: &LuDogStore) -> Arc<RwLock<Self>> {
+    pub fn new_subtraction(store: &LuDogStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&SUBTRACTION).unwrap()
     }
@@ -78,11 +77,11 @@ impl Binary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-impl-nav-subtype-to-supertype-operator"}}}
     // Navigate to [`Operator`] across R47(isa)
-    pub fn r47_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Operator>>> {
+    pub fn r47_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Operator>>> {
         vec![store
             .iter_operator()
             .find(|operator| {
-                if let OperatorEnum::Binary(id) = operator.read().subtype {
+                if let OperatorEnum::Binary(id) = operator.lock().subtype {
                     id == self.id()
                 } else {
                     false

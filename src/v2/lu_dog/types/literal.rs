@@ -1,15 +1,14 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-use-statements"}}}
-use parking_lot::RwLock;
-use std::sync::Arc;
-
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::float_literal::FloatLiteral;
 use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
+use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -33,15 +32,14 @@ impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
     /// Create a new instance of Literal::BooleanLiteral
     pub fn new_boolean_literal(
-        boolean_literal: &Arc<RwLock<BooleanLiteral>>,
+        boolean_literal: &Arc<Mutex<BooleanLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        if let Some(boolean_literal) = store.exhume_literal(&boolean_literal.read().id()) {
+    ) -> Arc<Mutex<Self>> {
+        let id = boolean_literal.lock().id();
+        if let Some(boolean_literal) = store.exhume_literal(&id) {
             boolean_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::BooleanLiteral(
-                boolean_literal.read().id(),
-            )));
+            let new = Arc::new(Mutex::new(Self::BooleanLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -49,13 +47,14 @@ impl Literal {
 
     /// Create a new instance of Literal::FloatLiteral
     pub fn new_float_literal(
-        float_literal: &Arc<RwLock<FloatLiteral>>,
+        float_literal: &Arc<Mutex<FloatLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        if let Some(float_literal) = store.exhume_literal(&float_literal.read().id) {
+    ) -> Arc<Mutex<Self>> {
+        let id = float_literal.lock().id;
+        if let Some(float_literal) = store.exhume_literal(&id) {
             float_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::FloatLiteral(float_literal.read().id)));
+            let new = Arc::new(Mutex::new(Self::FloatLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -63,13 +62,14 @@ impl Literal {
 
     /// Create a new instance of Literal::IntegerLiteral
     pub fn new_integer_literal(
-        integer_literal: &Arc<RwLock<IntegerLiteral>>,
+        integer_literal: &Arc<Mutex<IntegerLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        if let Some(integer_literal) = store.exhume_literal(&integer_literal.read().id) {
+    ) -> Arc<Mutex<Self>> {
+        let id = integer_literal.lock().id;
+        if let Some(integer_literal) = store.exhume_literal(&id) {
             integer_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::IntegerLiteral(integer_literal.read().id)));
+            let new = Arc::new(Mutex::new(Self::IntegerLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -77,13 +77,14 @@ impl Literal {
 
     /// Create a new instance of Literal::StringLiteral
     pub fn new_string_literal(
-        string_literal: &Arc<RwLock<StringLiteral>>,
+        string_literal: &Arc<Mutex<StringLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Self>> {
-        if let Some(string_literal) = store.exhume_literal(&string_literal.read().id) {
+    ) -> Arc<Mutex<Self>> {
+        let id = string_literal.lock().id;
+        if let Some(string_literal) = store.exhume_literal(&id) {
             string_literal
         } else {
-            let new = Arc::new(RwLock::new(Self::StringLiteral(string_literal.read().id)));
+            let new = Arc::new(Mutex::new(Self::StringLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -102,7 +103,7 @@ impl Literal {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

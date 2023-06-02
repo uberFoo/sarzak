@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"import-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::item::Item;
@@ -52,17 +50,17 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Arc<RwLock<Object>>>,
+        object: Option<&Arc<Mutex<Object>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Import>> {
+    ) -> Arc<Mutex<Import>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Import {
+        let new = Arc::new(Mutex::new(Import {
             alias,
             has_alias,
             id,
             name,
             path,
-            object: object.map(|object| object.read().id),
+            object: object.map(|object| object.lock().id),
         }));
         store.inter_import(new.clone());
         new
@@ -79,11 +77,11 @@ impl Import {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
-    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
+    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Item>>> {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Import(id) = item.read().subtype {
+                if let ItemEnum::Import(id) = item.lock().subtype {
                     id == self.id
                 } else {
                     false
@@ -94,7 +92,7 @@ impl Import {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

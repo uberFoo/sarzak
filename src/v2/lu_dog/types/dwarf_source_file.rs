@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"dwarf_source_file-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::item::Item;
@@ -32,28 +30,28 @@ pub struct DwarfSourceFile {
 impl DwarfSourceFile {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-new"}}}
     /// Inter a new 'Dwarf Source File' in the store, and return it's `id`.
-    pub fn new(source: String, store: &mut LuDogStore) -> Arc<RwLock<DwarfSourceFile>> {
+    pub fn new(source: String, store: &mut LuDogStore) -> Arc<Mutex<DwarfSourceFile>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(DwarfSourceFile { id, source }));
+        let new = Arc::new(Mutex::new(DwarfSourceFile { id, source }));
         store.inter_dwarf_source_file(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-item"}}}
     /// Navigate to [`Item`] across R25(1-M)
-    pub fn r25_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
+    pub fn r25_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Item>>> {
         store
             .iter_item()
-            .filter(|item| item.read().source == self.id)
+            .filter(|item| item.lock().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-span"}}}
     /// Navigate to [`Span`] across R64(1-M)
-    pub fn r64_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Span>>> {
+    pub fn r64_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Span>>> {
         store
             .iter_span()
-            .filter(|span| span.read().source == self.id)
+            .filter(|span| span.lock().source == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

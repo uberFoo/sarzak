@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"function-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -43,18 +41,18 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: &Arc<RwLock<Block>>,
-        impl_block: Option<&Arc<RwLock<Implementation>>>,
-        return_type: &Arc<RwLock<ValueType>>,
+        block: &Arc<Mutex<Block>>,
+        impl_block: Option<&Arc<Mutex<Implementation>>>,
+        return_type: &Arc<Mutex<ValueType>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Function>> {
+    ) -> Arc<Mutex<Function>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Function {
+        let new = Arc::new(Mutex::new(Function {
             id,
             name,
-            block: block.read().id,
-            impl_block: impl_block.map(|implementation| implementation.read().id),
-            return_type: return_type.read().id(),
+            block: block.lock().id,
+            impl_block: impl_block.map(|implementation| implementation.lock().id),
+            return_type: return_type.lock().id(),
         }));
         store.inter_function(new.clone());
         new
@@ -62,7 +60,7 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R19(1-*)
-    pub fn r19_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    pub fn r19_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -71,7 +69,7 @@ impl Function {
     pub fn r9_implementation<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<RwLock<Implementation>>> {
+    ) -> Vec<Arc<Mutex<Implementation>>> {
         match self.impl_block {
             Some(ref impl_block) => vec![store.exhume_implementation(impl_block).unwrap()],
             None => Vec::new(),
@@ -80,16 +78,16 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-return_type"}}}
     /// Navigate to [`ValueType`] across R10(1-*)
-    pub fn r10_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r10_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.return_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R13(1-M)
-    pub fn r13_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Parameter>>> {
+    pub fn r13_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Parameter>>> {
         store
             .iter_parameter()
-            .filter(|parameter| parameter.read().function == self.id)
+            .filter(|parameter| parameter.lock().function == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -98,17 +96,17 @@ impl Function {
     pub fn r67_field_access_target<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
+    ) -> Vec<Arc<Mutex<FieldAccessTarget>>> {
         vec![store.exhume_field_access_target(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
-    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Item>>> {
+    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Item>>> {
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Function(id) = item.read().subtype {
+                if let ItemEnum::Function(id) = item.lock().subtype {
                     id == self.id
                 } else {
                     false
@@ -119,7 +117,7 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

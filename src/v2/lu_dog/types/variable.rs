@@ -1,8 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 use std::sync::Arc;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
@@ -43,13 +42,13 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(
         name: String,
-        subtype: &Arc<RwLock<LocalVariable>>,
+        subtype: &Arc<Mutex<LocalVariable>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Variable>> {
+    ) -> Arc<Mutex<Variable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Variable {
+        let new = Arc::new(Mutex::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.read().id),
+            subtype: VariableEnum::LocalVariable(subtype.lock().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -60,13 +59,13 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
-        subtype: &Arc<RwLock<Parameter>>,
+        subtype: &Arc<Mutex<Parameter>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Variable>> {
+    ) -> Arc<Mutex<Variable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Variable {
+        let new = Arc::new(Mutex::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.read().id),
+            subtype: VariableEnum::Parameter(subtype.lock().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -75,11 +74,11 @@ impl Variable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R11(isa)
-    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<XValue>>> {
+    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XValue>>> {
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Variable(id) = x_value.read().subtype {
+                if let XValueEnum::Variable(id) = x_value.lock().subtype {
                     id == self.id
                 } else {
                     false

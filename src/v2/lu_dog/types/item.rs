@@ -1,8 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 use std::sync::Arc;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::dwarf_source_file::DwarfSourceFile;
@@ -38,14 +37,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(
-        source: &Arc<RwLock<DwarfSourceFile>>,
-        subtype: &Arc<RwLock<Function>>,
+        source: &Arc<Mutex<DwarfSourceFile>>,
+        subtype: &Arc<Mutex<Function>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Item>> {
+    ) -> Arc<Mutex<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Item {
-            source: source.read().id,
-            subtype: ItemEnum::Function(subtype.read().id),
+        let new = Arc::new(Mutex::new(Item {
+            source: source.lock().id,
+            subtype: ItemEnum::Function(subtype.lock().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -55,14 +54,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_implementation(
-        source: &Arc<RwLock<DwarfSourceFile>>,
-        subtype: &Arc<RwLock<Implementation>>,
+        source: &Arc<Mutex<DwarfSourceFile>>,
+        subtype: &Arc<Mutex<Implementation>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Item>> {
+    ) -> Arc<Mutex<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Item {
-            source: source.read().id,
-            subtype: ItemEnum::Implementation(subtype.read().id),
+        let new = Arc::new(Mutex::new(Item {
+            source: source.lock().id,
+            subtype: ItemEnum::Implementation(subtype.lock().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -72,14 +71,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_import"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_import(
-        source: &Arc<RwLock<DwarfSourceFile>>,
-        subtype: &Arc<RwLock<Import>>,
+        source: &Arc<Mutex<DwarfSourceFile>>,
+        subtype: &Arc<Mutex<Import>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Item>> {
+    ) -> Arc<Mutex<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Item {
-            source: source.read().id,
-            subtype: ItemEnum::Import(subtype.read().id),
+        let new = Arc::new(Mutex::new(Item {
+            source: source.lock().id,
+            subtype: ItemEnum::Import(subtype.lock().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -89,14 +88,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_woog_struct"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_woog_struct(
-        source: &Arc<RwLock<DwarfSourceFile>>,
-        subtype: &Arc<RwLock<WoogStruct>>,
+        source: &Arc<Mutex<DwarfSourceFile>>,
+        subtype: &Arc<Mutex<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Item>> {
+    ) -> Arc<Mutex<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Item {
-            source: source.read().id,
-            subtype: ItemEnum::WoogStruct(subtype.read().id),
+        let new = Arc::new(Mutex::new(Item {
+            source: source.lock().id,
+            subtype: ItemEnum::WoogStruct(subtype.lock().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -108,7 +107,7 @@ impl Item {
     pub fn r25_dwarf_source_file<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
+    ) -> Vec<Arc<Mutex<DwarfSourceFile>>> {
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

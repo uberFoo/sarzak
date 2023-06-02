@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"argument-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::call::Call;
@@ -34,17 +32,17 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
     pub fn new(
-        next: Option<&Arc<RwLock<Argument>>>,
-        function: &Arc<RwLock<Call>>,
-        expression: &Arc<RwLock<Expression>>,
+        next: Option<&Arc<Mutex<Argument>>>,
+        function: &Arc<Mutex<Call>>,
+        expression: &Arc<Mutex<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Argument>> {
+    ) -> Arc<Mutex<Argument>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Argument {
+        let new = Arc::new(Mutex::new(Argument {
             id,
-            next: next.map(|argument| argument.read().id),
-            function: function.read().id,
-            expression: expression.read().id(),
+            next: next.map(|argument| argument.lock().id),
+            function: function.lock().id,
+            expression: expression.lock().id(),
         }));
         store.inter_argument(new.clone());
         new
@@ -52,7 +50,7 @@ impl Argument {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Argument`] across R27(1-*c)
-    pub fn r27_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
+    pub fn r27_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Argument>>> {
         match self.next {
             Some(ref next) => vec![store.exhume_argument(next).unwrap()],
             None => Vec::new(),
@@ -61,22 +59,22 @@ impl Argument {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Call`] across R28(1-*)
-    pub fn r28_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Call>>> {
+    pub fn r28_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Call>>> {
         vec![store.exhume_call(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R37(1-*)
-    pub fn r37_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r37_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R27(1c-1c)
-    pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Argument>>> {
+    pub fn r27c_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Argument>>> {
         let argument = store
             .iter_argument()
-            .find(|argument| argument.read().next == Some(self.id));
+            .find(|argument| argument.lock().next == Some(self.id));
         match argument {
             Some(ref argument) => vec![argument.clone()],
             None => Vec::new(),

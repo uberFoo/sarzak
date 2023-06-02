@@ -1,8 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 use std::sync::Arc;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -46,16 +45,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
-        block: &Arc<RwLock<Block>>,
-        next: Option<&Arc<RwLock<Statement>>>,
-        subtype: &Arc<RwLock<ExpressionStatement>>,
+        block: &Arc<Mutex<Block>>,
+        next: Option<&Arc<Mutex<Statement>>>,
+        subtype: &Arc<Mutex<ExpressionStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Statement>> {
+    ) -> Arc<Mutex<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Statement {
-            block: block.read().id,
-            next: next.map(|statement| statement.read().id),
-            subtype: StatementEnum::ExpressionStatement(subtype.read().id),
+        let new = Arc::new(Mutex::new(Statement {
+            block: block.lock().id,
+            next: next.map(|statement| statement.lock().id),
+            subtype: StatementEnum::ExpressionStatement(subtype.lock().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -65,14 +64,14 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
-        block: &Arc<RwLock<Block>>,
-        next: Option<&Arc<RwLock<Statement>>>,
+        block: &Arc<Mutex<Block>>,
+        next: Option<&Arc<Mutex<Statement>>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Statement>> {
+    ) -> Arc<Mutex<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Statement {
-            block: block.read().id,
-            next: next.map(|statement| statement.read().id),
+        let new = Arc::new(Mutex::new(Statement {
+            block: block.lock().id,
+            next: next.map(|statement| statement.lock().id),
             subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
             id,
         }));
@@ -83,16 +82,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
-        block: &Arc<RwLock<Block>>,
-        next: Option<&Arc<RwLock<Statement>>>,
-        subtype: &Arc<RwLock<LetStatement>>,
+        block: &Arc<Mutex<Block>>,
+        next: Option<&Arc<Mutex<Statement>>>,
+        subtype: &Arc<Mutex<LetStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Statement>> {
+    ) -> Arc<Mutex<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Statement {
-            block: block.read().id,
-            next: next.map(|statement| statement.read().id),
-            subtype: StatementEnum::LetStatement(subtype.read().id),
+        let new = Arc::new(Mutex::new(Statement {
+            block: block.lock().id,
+            next: next.map(|statement| statement.lock().id),
+            subtype: StatementEnum::LetStatement(subtype.lock().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -102,16 +101,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
-        block: &Arc<RwLock<Block>>,
-        next: Option<&Arc<RwLock<Statement>>>,
-        subtype: &Arc<RwLock<ResultStatement>>,
+        block: &Arc<Mutex<Block>>,
+        next: Option<&Arc<Mutex<Statement>>>,
+        subtype: &Arc<Mutex<ResultStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<Statement>> {
+    ) -> Arc<Mutex<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Statement {
-            block: block.read().id,
-            next: next.map(|statement| statement.read().id),
-            subtype: StatementEnum::ResultStatement(subtype.read().id),
+        let new = Arc::new(Mutex::new(Statement {
+            block: block.lock().id,
+            next: next.map(|statement| statement.lock().id),
+            subtype: StatementEnum::ResultStatement(subtype.lock().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -120,13 +119,13 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
-    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Statement`] across R17(1-*c)
-    pub fn r17_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
+    pub fn r17_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
         match self.next {
             Some(ref next) => vec![store.exhume_statement(next).unwrap()],
             None => Vec::new(),
@@ -135,10 +134,10 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
     /// Navigate to [`Statement`] across R17(1c-1c)
-    pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
+    pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
         let statement = store
             .iter_statement()
-            .find(|statement| statement.read().next == Some(self.id));
+            .find(|statement| statement.lock().next == Some(self.id));
         match statement {
             Some(ref statement) => vec![statement.clone()],
             None => Vec::new(),

@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"result_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"result_statement-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -32,13 +30,13 @@ impl ResultStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"result_statement-struct-impl-new"}}}
     /// Inter a new 'Result Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: &Arc<RwLock<Expression>>,
+        expression: &Arc<Mutex<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<ResultStatement>> {
+    ) -> Arc<Mutex<ResultStatement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(ResultStatement {
+        let new = Arc::new(Mutex::new(ResultStatement {
             id,
-            expression: expression.read().id(),
+            expression: expression.lock().id(),
         }));
         store.inter_result_statement(new.clone());
         new
@@ -46,17 +44,17 @@ impl ResultStatement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"result_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R41(1-*)
-    pub fn r41_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r41_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"result_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
-    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Statement>>> {
+    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::ResultStatement(id) = statement.read().subtype {
+                if let StatementEnum::ResultStatement(id) = statement.lock().subtype {
                     id == self.id
                 } else {
                     false

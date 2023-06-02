@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"type_cast-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -34,15 +32,15 @@ impl TypeCast {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-new"}}}
     /// Inter a new 'Type Cast' in the store, and return it's `id`.
     pub fn new(
-        lhs: &Arc<RwLock<Expression>>,
-        ty: &Arc<RwLock<ValueType>>,
+        lhs: &Arc<Mutex<Expression>>,
+        ty: &Arc<Mutex<ValueType>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<TypeCast>> {
+    ) -> Arc<Mutex<TypeCast>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(TypeCast {
+        let new = Arc::new(Mutex::new(TypeCast {
             id,
-            lhs: lhs.read().id(),
-            ty: ty.read().id(),
+            lhs: lhs.lock().id(),
+            ty: ty.lock().id(),
         }));
         store.inter_type_cast(new.clone());
         new
@@ -50,19 +48,19 @@ impl TypeCast {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-nav-forward-to-lhs"}}}
     /// Navigate to [`Expression`] across R68(1-*)
-    pub fn r68_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r68_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.lhs).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R69(1-*)
-    pub fn r69_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<ValueType>>> {
+    pub fn r69_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"print-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -30,11 +28,11 @@ pub struct Print {
 impl Print {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-struct-impl-new"}}}
     /// Inter a new 'Print' in the store, and return it's `id`.
-    pub fn new(expression: &Arc<RwLock<Expression>>, store: &mut LuDogStore) -> Arc<RwLock<Print>> {
+    pub fn new(expression: &Arc<Mutex<Expression>>, store: &mut LuDogStore) -> Arc<Mutex<Print>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(Print {
+        let new = Arc::new(Mutex::new(Print {
             id,
-            expression: expression.read().id(),
+            expression: expression.lock().id(),
         }));
         store.inter_print(new.clone());
         new
@@ -42,13 +40,13 @@ impl Print {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R32(1-*)
-    pub fn r32_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r32_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"print-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

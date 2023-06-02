@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"struct_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -35,14 +33,14 @@ impl StructExpression {
     /// Inter a new 'Struct Expression' in the store, and return it's `id`.
     pub fn new(
         bug: Uuid,
-        woog_struct: &Arc<RwLock<WoogStruct>>,
+        woog_struct: &Arc<Mutex<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<StructExpression>> {
+    ) -> Arc<Mutex<StructExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(StructExpression {
+        let new = Arc::new(Mutex::new(StructExpression {
             bug,
             id,
-            woog_struct: woog_struct.read().id,
+            woog_struct: woog_struct.lock().id,
         }));
         store.inter_struct_expression(new.clone());
         new
@@ -50,7 +48,7 @@ impl StructExpression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-woog_struct"}}}
     /// Navigate to [`WoogStruct`] across R39(1-*)
-    pub fn r39_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<WoogStruct>>> {
+    pub fn r39_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<WoogStruct>>> {
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -59,16 +57,16 @@ impl StructExpression {
     pub fn r26_field_expression<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<RwLock<FieldExpression>>> {
+    ) -> Vec<Arc<Mutex<FieldExpression>>> {
         store
             .iter_field_expression()
-            .filter(|field_expression| field_expression.read().woog_struct == self.id)
+            .filter(|field_expression| field_expression.lock().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

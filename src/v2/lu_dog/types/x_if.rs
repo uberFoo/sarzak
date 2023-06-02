@@ -1,9 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_if-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-use-statements"}}}
+use parking_lot::Mutex;
 use std::sync::Arc;
-
-use parking_lot::RwLock;
-
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -36,17 +34,17 @@ impl XIf {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-new"}}}
     /// Inter a new 'If' in the store, and return it's `id`.
     pub fn new(
-        false_block: Option<&Arc<RwLock<Block>>>,
-        true_block: &Arc<RwLock<Block>>,
-        test: &Arc<RwLock<Expression>>,
+        false_block: Option<&Arc<Mutex<Block>>>,
+        true_block: &Arc<Mutex<Block>>,
+        test: &Arc<Mutex<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<RwLock<XIf>> {
+    ) -> Arc<Mutex<XIf>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(XIf {
+        let new = Arc::new(Mutex::new(XIf {
             id,
-            false_block: false_block.map(|block| block.read().id),
-            true_block: true_block.read().id,
-            test: test.read().id(),
+            false_block: false_block.map(|block| block.lock().id),
+            true_block: true_block.lock().id,
+            test: test.lock().id(),
         }));
         store.inter_x_if(new.clone());
         new
@@ -54,7 +52,7 @@ impl XIf {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-cond-to-false_block"}}}
     /// Navigate to [`Block`] across R52(1-*c)
-    pub fn r52_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    pub fn r52_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
         match self.false_block {
             Some(ref false_block) => vec![store.exhume_block(false_block).unwrap()],
             None => Vec::new(),
@@ -63,19 +61,19 @@ impl XIf {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-true_block"}}}
     /// Navigate to [`Block`] across R46(1-*)
-    pub fn r46_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Block>>> {
+    pub fn r46_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
         vec![store.exhume_block(&self.true_block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-test"}}}
     /// Navigate to [`Expression`] across R44(1-*)
-    pub fn r44_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r44_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.test).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<RwLock<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
