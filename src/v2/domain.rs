@@ -131,6 +131,15 @@ impl Domain {
 
         Ok(())
     }
+
+    pub fn persist_bincode<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
+        fs::create_dir_all(path.parent().unwrap())?;
+
+        self.sarzak.persist_bincode(&path)?;
+
+        Ok(())
+    }
 }
 
 impl From<DomainV1> for Domain {
