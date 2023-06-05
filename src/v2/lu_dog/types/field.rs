@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
@@ -35,16 +36,16 @@ impl Field {
     /// Inter a new 'Field' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        x_model: &Arc<Mutex<WoogStruct>>,
-        ty: &Arc<Mutex<ValueType>>,
+        x_model: &Rc<RefCell<WoogStruct>>,
+        ty: &Rc<RefCell<ValueType>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Field>> {
+    ) -> Rc<RefCell<Field>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Field {
+        let new = Rc::new(RefCell::new(Field {
             id,
             name,
-            x_model: x_model.lock().id,
-            ty: ty.lock().id(),
+            x_model: x_model.borrow().id,
+            ty: ty.borrow().id(),
         }));
         store.inter_field(new.clone());
         new
@@ -52,13 +53,15 @@ impl Field {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-x_model"}}}
     /// Navigate to [`WoogStruct`] across R7(1-*)
-    pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<WoogStruct>>> {
+    pub fn r7_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<WoogStruct>>> {
+        span!("r7_woog_struct");
         vec![store.exhume_woog_struct(&self.x_model).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R5(1-*)
-    pub fn r5_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
+    pub fn r5_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r5_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -67,7 +70,8 @@ impl Field {
     pub fn r67_field_access_target<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<FieldAccessTarget>>> {
+    ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
+        span!("r67_field_access_target");
         vec![store.exhume_field_access_target(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

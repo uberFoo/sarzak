@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_return-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_return-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -28,11 +29,14 @@ pub struct XReturn {
 impl XReturn {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_return-struct-impl-new"}}}
     /// Inter a new 'Return' in the store, and return it's `id`.
-    pub fn new(expression: &Arc<Mutex<Expression>>, store: &mut LuDogStore) -> Arc<Mutex<XReturn>> {
+    pub fn new(
+        expression: &Rc<RefCell<Expression>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<XReturn>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(XReturn {
+        let new = Rc::new(RefCell::new(XReturn {
             id,
-            expression: expression.lock().id(),
+            expression: expression.borrow().id(),
         }));
         store.inter_x_return(new.clone());
         new
@@ -40,13 +44,15 @@ impl XReturn {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_return-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R45(1-*)
-    pub fn r45_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r45_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r45_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_return-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -62,8 +62,8 @@
 //! * [`Variable`]
 //! * [`VariableExpression`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-definition"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::{
     fs,
     io::{self, prelude::*},
@@ -91,173 +91,176 @@ use crate::v2::lu_dog::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    argument: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Argument>>, SystemTime)>>>,
-    binary: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Binary>>, SystemTime)>>>,
-    block: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Block>>, SystemTime)>>>,
-    boolean_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<BooleanLiteral>>, SystemTime)>>>,
-    call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Call>>, SystemTime)>>>,
-    comparison: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Comparison>>, SystemTime)>>>,
-    dwarf_source_file: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<DwarfSourceFile>>, SystemTime)>>>,
-    error: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Error>>, SystemTime)>>>,
-    error_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ErrorExpression>>, SystemTime)>>>,
-    expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Expression>>, SystemTime)>>>,
-    expression_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ExpressionStatement>>, SystemTime)>>>,
-    field: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Field>>, SystemTime)>>>,
-    field_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
-    field_access: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldAccess>>, SystemTime)>>>,
-    field_access_target: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldAccessTarget>>, SystemTime)>>>,
-    field_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FieldExpression>>, SystemTime)>>>,
-    float_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<FloatLiteral>>, SystemTime)>>>,
-    for_loop: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ForLoop>>, SystemTime)>>>,
-    function: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Function>>, SystemTime)>>>,
-    function_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
-    grouped: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Grouped>>, SystemTime)>>>,
-    x_if: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XIf>>, SystemTime)>>>,
-    implementation: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Implementation>>, SystemTime)>>>,
-    import: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Import>>, SystemTime)>>>,
-    index: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Index>>, SystemTime)>>>,
-    integer_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<IntegerLiteral>>, SystemTime)>>>,
-    item: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Item>>, SystemTime)>>>,
-    let_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<LetStatement>>, SystemTime)>>>,
-    list: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<List>>, SystemTime)>>>,
-    list_element: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ListElement>>, SystemTime)>>>,
-    list_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ListExpression>>, SystemTime)>>>,
-    literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Literal>>, SystemTime)>>>,
-    local_variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<LocalVariable>>, SystemTime)>>>,
-    method_call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<MethodCall>>, SystemTime)>>>,
-    negation: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Negation>>, SystemTime)>>>,
-    z_object_store: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ZObjectStore>>, SystemTime)>>>,
-    operator: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Operator>>, SystemTime)>>>,
-    woog_option: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<WoogOption>>, SystemTime)>>>,
-    parameter: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Parameter>>, SystemTime)>>>,
-    print: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Print>>, SystemTime)>>>,
-    range_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<RangeExpression>>, SystemTime)>>>,
-    reference: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Reference>>, SystemTime)>>>,
-    result_statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ResultStatement>>, SystemTime)>>>,
-    x_return: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XReturn>>, SystemTime)>>>,
-    z_some: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ZSome>>, SystemTime)>>>,
-    span: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Span>>, SystemTime)>>>,
-    statement: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Statement>>, SystemTime)>>>,
-    static_method_call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StaticMethodCall>>, SystemTime)>>>,
-    string_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StringLiteral>>, SystemTime)>>>,
-    woog_struct: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<WoogStruct>>, SystemTime)>>>,
-    woog_struct_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
-    struct_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StructExpression>>, SystemTime)>>>,
-    type_cast: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<TypeCast>>, SystemTime)>>>,
-    x_value: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XValue>>, SystemTime)>>>,
-    value_type: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ValueType>>, SystemTime)>>>,
-    variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Variable>>, SystemTime)>>>,
-    variable_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<VariableExpression>>, SystemTime)>>>,
+    argument: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Argument>>, SystemTime)>>>,
+    binary: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Binary>>, SystemTime)>>>,
+    block: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Block>>, SystemTime)>>>,
+    boolean_literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<BooleanLiteral>>, SystemTime)>>>,
+    call: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Call>>, SystemTime)>>>,
+    comparison: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Comparison>>, SystemTime)>>>,
+    dwarf_source_file: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<DwarfSourceFile>>, SystemTime)>>>,
+    error: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Error>>, SystemTime)>>>,
+    error_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ErrorExpression>>, SystemTime)>>>,
+    expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Expression>>, SystemTime)>>>,
+    expression_statement:
+        Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ExpressionStatement>>, SystemTime)>>>,
+    field: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Field>>, SystemTime)>>>,
+    field_id_by_name: Rc<RefCell<HashMap<String, (Uuid, SystemTime)>>>,
+    field_access: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<FieldAccess>>, SystemTime)>>>,
+    field_access_target: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<FieldAccessTarget>>, SystemTime)>>>,
+    field_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<FieldExpression>>, SystemTime)>>>,
+    float_literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<FloatLiteral>>, SystemTime)>>>,
+    for_loop: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ForLoop>>, SystemTime)>>>,
+    function: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Function>>, SystemTime)>>>,
+    function_id_by_name: Rc<RefCell<HashMap<String, (Uuid, SystemTime)>>>,
+    grouped: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Grouped>>, SystemTime)>>>,
+    x_if: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<XIf>>, SystemTime)>>>,
+    implementation: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Implementation>>, SystemTime)>>>,
+    import: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Import>>, SystemTime)>>>,
+    index: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Index>>, SystemTime)>>>,
+    integer_literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<IntegerLiteral>>, SystemTime)>>>,
+    item: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Item>>, SystemTime)>>>,
+    let_statement: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<LetStatement>>, SystemTime)>>>,
+    list: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<List>>, SystemTime)>>>,
+    list_element: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ListElement>>, SystemTime)>>>,
+    list_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ListExpression>>, SystemTime)>>>,
+    literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Literal>>, SystemTime)>>>,
+    local_variable: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<LocalVariable>>, SystemTime)>>>,
+    method_call: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<MethodCall>>, SystemTime)>>>,
+    negation: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Negation>>, SystemTime)>>>,
+    z_object_store: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ZObjectStore>>, SystemTime)>>>,
+    operator: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Operator>>, SystemTime)>>>,
+    woog_option: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<WoogOption>>, SystemTime)>>>,
+    parameter: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Parameter>>, SystemTime)>>>,
+    print: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Print>>, SystemTime)>>>,
+    range_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<RangeExpression>>, SystemTime)>>>,
+    reference: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Reference>>, SystemTime)>>>,
+    result_statement: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ResultStatement>>, SystemTime)>>>,
+    x_return: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<XReturn>>, SystemTime)>>>,
+    z_some: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ZSome>>, SystemTime)>>>,
+    span: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Span>>, SystemTime)>>>,
+    statement: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Statement>>, SystemTime)>>>,
+    static_method_call: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<StaticMethodCall>>, SystemTime)>>>,
+    string_literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<StringLiteral>>, SystemTime)>>>,
+    woog_struct: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<WoogStruct>>, SystemTime)>>>,
+    woog_struct_id_by_name: Rc<RefCell<HashMap<String, (Uuid, SystemTime)>>>,
+    struct_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<StructExpression>>, SystemTime)>>>,
+    type_cast: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<TypeCast>>, SystemTime)>>>,
+    x_value: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<XValue>>, SystemTime)>>>,
+    value_type: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ValueType>>, SystemTime)>>>,
+    variable: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Variable>>, SystemTime)>>>,
+    variable_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<VariableExpression>>, SystemTime)>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            argument: Arc::new(Mutex::new(HashMap::default())),
-            binary: Arc::new(Mutex::new(HashMap::default())),
-            block: Arc::new(Mutex::new(HashMap::default())),
-            boolean_literal: Arc::new(Mutex::new(HashMap::default())),
-            call: Arc::new(Mutex::new(HashMap::default())),
-            comparison: Arc::new(Mutex::new(HashMap::default())),
-            dwarf_source_file: Arc::new(Mutex::new(HashMap::default())),
-            error: Arc::new(Mutex::new(HashMap::default())),
-            error_expression: Arc::new(Mutex::new(HashMap::default())),
-            expression: Arc::new(Mutex::new(HashMap::default())),
-            expression_statement: Arc::new(Mutex::new(HashMap::default())),
-            field: Arc::new(Mutex::new(HashMap::default())),
-            field_id_by_name: Arc::new(Mutex::new(HashMap::default())),
-            field_access: Arc::new(Mutex::new(HashMap::default())),
-            field_access_target: Arc::new(Mutex::new(HashMap::default())),
-            field_expression: Arc::new(Mutex::new(HashMap::default())),
-            float_literal: Arc::new(Mutex::new(HashMap::default())),
-            for_loop: Arc::new(Mutex::new(HashMap::default())),
-            function: Arc::new(Mutex::new(HashMap::default())),
-            function_id_by_name: Arc::new(Mutex::new(HashMap::default())),
-            grouped: Arc::new(Mutex::new(HashMap::default())),
-            x_if: Arc::new(Mutex::new(HashMap::default())),
-            implementation: Arc::new(Mutex::new(HashMap::default())),
-            import: Arc::new(Mutex::new(HashMap::default())),
-            index: Arc::new(Mutex::new(HashMap::default())),
-            integer_literal: Arc::new(Mutex::new(HashMap::default())),
-            item: Arc::new(Mutex::new(HashMap::default())),
-            let_statement: Arc::new(Mutex::new(HashMap::default())),
-            list: Arc::new(Mutex::new(HashMap::default())),
-            list_element: Arc::new(Mutex::new(HashMap::default())),
-            list_expression: Arc::new(Mutex::new(HashMap::default())),
-            literal: Arc::new(Mutex::new(HashMap::default())),
-            local_variable: Arc::new(Mutex::new(HashMap::default())),
-            method_call: Arc::new(Mutex::new(HashMap::default())),
-            negation: Arc::new(Mutex::new(HashMap::default())),
-            z_object_store: Arc::new(Mutex::new(HashMap::default())),
-            operator: Arc::new(Mutex::new(HashMap::default())),
-            woog_option: Arc::new(Mutex::new(HashMap::default())),
-            parameter: Arc::new(Mutex::new(HashMap::default())),
-            print: Arc::new(Mutex::new(HashMap::default())),
-            range_expression: Arc::new(Mutex::new(HashMap::default())),
-            reference: Arc::new(Mutex::new(HashMap::default())),
-            result_statement: Arc::new(Mutex::new(HashMap::default())),
-            x_return: Arc::new(Mutex::new(HashMap::default())),
-            z_some: Arc::new(Mutex::new(HashMap::default())),
-            span: Arc::new(Mutex::new(HashMap::default())),
-            statement: Arc::new(Mutex::new(HashMap::default())),
-            static_method_call: Arc::new(Mutex::new(HashMap::default())),
-            string_literal: Arc::new(Mutex::new(HashMap::default())),
-            woog_struct: Arc::new(Mutex::new(HashMap::default())),
-            woog_struct_id_by_name: Arc::new(Mutex::new(HashMap::default())),
-            struct_expression: Arc::new(Mutex::new(HashMap::default())),
-            type_cast: Arc::new(Mutex::new(HashMap::default())),
-            x_value: Arc::new(Mutex::new(HashMap::default())),
-            value_type: Arc::new(Mutex::new(HashMap::default())),
-            variable: Arc::new(Mutex::new(HashMap::default())),
-            variable_expression: Arc::new(Mutex::new(HashMap::default())),
+            argument: Rc::new(RefCell::new(HashMap::default())),
+            binary: Rc::new(RefCell::new(HashMap::default())),
+            block: Rc::new(RefCell::new(HashMap::default())),
+            boolean_literal: Rc::new(RefCell::new(HashMap::default())),
+            call: Rc::new(RefCell::new(HashMap::default())),
+            comparison: Rc::new(RefCell::new(HashMap::default())),
+            dwarf_source_file: Rc::new(RefCell::new(HashMap::default())),
+            error: Rc::new(RefCell::new(HashMap::default())),
+            error_expression: Rc::new(RefCell::new(HashMap::default())),
+            expression: Rc::new(RefCell::new(HashMap::default())),
+            expression_statement: Rc::new(RefCell::new(HashMap::default())),
+            field: Rc::new(RefCell::new(HashMap::default())),
+            field_id_by_name: Rc::new(RefCell::new(HashMap::default())),
+            field_access: Rc::new(RefCell::new(HashMap::default())),
+            field_access_target: Rc::new(RefCell::new(HashMap::default())),
+            field_expression: Rc::new(RefCell::new(HashMap::default())),
+            float_literal: Rc::new(RefCell::new(HashMap::default())),
+            for_loop: Rc::new(RefCell::new(HashMap::default())),
+            function: Rc::new(RefCell::new(HashMap::default())),
+            function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
+            grouped: Rc::new(RefCell::new(HashMap::default())),
+            x_if: Rc::new(RefCell::new(HashMap::default())),
+            implementation: Rc::new(RefCell::new(HashMap::default())),
+            import: Rc::new(RefCell::new(HashMap::default())),
+            index: Rc::new(RefCell::new(HashMap::default())),
+            integer_literal: Rc::new(RefCell::new(HashMap::default())),
+            item: Rc::new(RefCell::new(HashMap::default())),
+            let_statement: Rc::new(RefCell::new(HashMap::default())),
+            list: Rc::new(RefCell::new(HashMap::default())),
+            list_element: Rc::new(RefCell::new(HashMap::default())),
+            list_expression: Rc::new(RefCell::new(HashMap::default())),
+            literal: Rc::new(RefCell::new(HashMap::default())),
+            local_variable: Rc::new(RefCell::new(HashMap::default())),
+            method_call: Rc::new(RefCell::new(HashMap::default())),
+            negation: Rc::new(RefCell::new(HashMap::default())),
+            z_object_store: Rc::new(RefCell::new(HashMap::default())),
+            operator: Rc::new(RefCell::new(HashMap::default())),
+            woog_option: Rc::new(RefCell::new(HashMap::default())),
+            parameter: Rc::new(RefCell::new(HashMap::default())),
+            print: Rc::new(RefCell::new(HashMap::default())),
+            range_expression: Rc::new(RefCell::new(HashMap::default())),
+            reference: Rc::new(RefCell::new(HashMap::default())),
+            result_statement: Rc::new(RefCell::new(HashMap::default())),
+            x_return: Rc::new(RefCell::new(HashMap::default())),
+            z_some: Rc::new(RefCell::new(HashMap::default())),
+            span: Rc::new(RefCell::new(HashMap::default())),
+            statement: Rc::new(RefCell::new(HashMap::default())),
+            static_method_call: Rc::new(RefCell::new(HashMap::default())),
+            string_literal: Rc::new(RefCell::new(HashMap::default())),
+            woog_struct: Rc::new(RefCell::new(HashMap::default())),
+            woog_struct_id_by_name: Rc::new(RefCell::new(HashMap::default())),
+            struct_expression: Rc::new(RefCell::new(HashMap::default())),
+            type_cast: Rc::new(RefCell::new(HashMap::default())),
+            x_value: Rc::new(RefCell::new(HashMap::default())),
+            value_type: Rc::new(RefCell::new(HashMap::default())),
+            variable: Rc::new(RefCell::new(HashMap::default())),
+            variable_expression: Rc::new(RefCell::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_binary(Arc::new(Mutex::new(Binary::Addition(ADDITION))));
-        store.inter_binary(Arc::new(Mutex::new(Binary::Assignment(ASSIGNMENT))));
-        store.inter_binary(Arc::new(Mutex::new(Binary::Division(DIVISION))));
-        store.inter_binary(Arc::new(Mutex::new(Binary::Multiplication(MULTIPLICATION))));
-        store.inter_binary(Arc::new(Mutex::new(Binary::Subtraction(SUBTRACTION))));
-        store.inter_boolean_literal(Arc::new(Mutex::new(BooleanLiteral::FalseLiteral(
+        store.inter_binary(Rc::new(RefCell::new(Binary::Addition(ADDITION))));
+        store.inter_binary(Rc::new(RefCell::new(Binary::Assignment(ASSIGNMENT))));
+        store.inter_binary(Rc::new(RefCell::new(Binary::Division(DIVISION))));
+        store.inter_binary(Rc::new(RefCell::new(Binary::Multiplication(
+            MULTIPLICATION,
+        ))));
+        store.inter_binary(Rc::new(RefCell::new(Binary::Subtraction(SUBTRACTION))));
+        store.inter_boolean_literal(Rc::new(RefCell::new(BooleanLiteral::FalseLiteral(
             FALSE_LITERAL,
         ))));
-        store.inter_boolean_literal(Arc::new(Mutex::new(BooleanLiteral::TrueLiteral(
+        store.inter_boolean_literal(Rc::new(RefCell::new(BooleanLiteral::TrueLiteral(
             TRUE_LITERAL,
         ))));
-        store.inter_comparison(Arc::new(Mutex::new(Comparison::Equal(EQUAL))));
-        store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThan(GREATER_THAN))));
-        store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThanOrEqual(
+        store.inter_comparison(Rc::new(RefCell::new(Comparison::Equal(EQUAL))));
+        store.inter_comparison(Rc::new(RefCell::new(Comparison::GreaterThan(GREATER_THAN))));
+        store.inter_comparison(Rc::new(RefCell::new(Comparison::GreaterThanOrEqual(
             GREATER_THAN_OR_EQUAL,
         ))));
-        store.inter_comparison(Arc::new(Mutex::new(Comparison::LessThanOrEqual(
+        store.inter_comparison(Rc::new(RefCell::new(Comparison::LessThanOrEqual(
             LESS_THAN_OR_EQUAL,
         ))));
-        store.inter_error(Arc::new(Mutex::new(Error::UnknownVariable(
+        store.inter_error(Rc::new(RefCell::new(Error::UnknownVariable(
             UNKNOWN_VARIABLE,
         ))));
-        store.inter_expression(Arc::new(Mutex::new(Expression::Debugger(DEBUGGER))));
-        store.inter_expression(Arc::new(Mutex::new(Expression::Literal(
+        store.inter_expression(Rc::new(RefCell::new(Expression::Debugger(DEBUGGER))));
+        store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(Mutex::new(Expression::Literal(
+        store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(Mutex::new(Expression::ZNone(Z_NONE))));
-        store.inter_literal(Arc::new(Mutex::new(Literal::BooleanLiteral(
+        store.inter_expression(Rc::new(RefCell::new(Expression::ZNone(Z_NONE))));
+        store.inter_literal(Rc::new(RefCell::new(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ))));
-        store.inter_literal(Arc::new(Mutex::new(Literal::BooleanLiteral(
+        store.inter_literal(Rc::new(RefCell::new(Literal::BooleanLiteral(
             BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
         ))));
-        store.inter_value_type(Arc::new(Mutex::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Arc::new(Mutex::new(ValueType::Error(
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Empty(EMPTY))));
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
         ))));
-        store.inter_value_type(Arc::new(Mutex::new(ValueType::Range(RANGE))));
-        store.inter_value_type(Arc::new(Mutex::new(ValueType::Unknown(UNKNOWN))));
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Range(RANGE))));
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Unknown(UNKNOWN))));
 
         store
     }
@@ -265,37 +268,37 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog-object-store-methods"}}}
     /// Inter (insert) [`Argument`] into the store.
     ///
-    pub fn inter_argument(&mut self, argument: Arc<Mutex<Argument>>) {
-        let read = argument.lock();
+    pub fn inter_argument(&mut self, argument: Rc<RefCell<Argument>>) {
+        let read = argument.borrow();
         self.argument
-            .lock()
+            .borrow_mut()
             .insert(read.id, (argument.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Argument`] from the store.
     ///
-    pub fn exhume_argument(&self, id: &Uuid) -> Option<Arc<Mutex<Argument>>> {
+    pub fn exhume_argument(&self, id: &Uuid) -> Option<Rc<RefCell<Argument>>> {
         self.argument
-            .lock()
+            .borrow()
             .get(id)
             .map(|argument| argument.0.clone())
     }
 
     /// Exorcise (remove) [`Argument`] from the store.
     ///
-    pub fn exorcise_argument(&mut self, id: &Uuid) -> Option<Arc<Mutex<Argument>>> {
+    pub fn exorcise_argument(&mut self, id: &Uuid) -> Option<Rc<RefCell<Argument>>> {
         self.argument
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|argument| argument.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
     ///
-    pub fn iter_argument(&self) -> impl Iterator<Item = Arc<Mutex<Argument>>> + '_ {
-        let values: Vec<Arc<Mutex<Argument>>> = self
+    pub fn iter_argument(&self) -> impl Iterator<Item = Rc<RefCell<Argument>>> + '_ {
+        let values: Vec<Rc<RefCell<Argument>>> = self
             .argument
-            .lock()
+            .borrow()
             .values()
             .map(|argument| argument.0.clone())
             .collect();
@@ -307,7 +310,7 @@ impl ObjectStore {
     ///
     pub fn argument_timestamp(&self, argument: &Argument) -> SystemTime {
         self.argument
-            .lock()
+            .borrow()
             .get(&argument.id)
             .map(|argument| argument.1)
             .unwrap_or(SystemTime::now())
@@ -315,31 +318,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Binary`] into the store.
     ///
-    pub fn inter_binary(&mut self, binary: Arc<Mutex<Binary>>) {
-        let read = binary.lock();
+    pub fn inter_binary(&mut self, binary: Rc<RefCell<Binary>>) {
+        let read = binary.borrow();
         self.binary
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (binary.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Binary`] from the store.
     ///
-    pub fn exhume_binary(&self, id: &Uuid) -> Option<Arc<Mutex<Binary>>> {
-        self.binary.lock().get(id).map(|binary| binary.0.clone())
+    pub fn exhume_binary(&self, id: &Uuid) -> Option<Rc<RefCell<Binary>>> {
+        self.binary.borrow().get(id).map(|binary| binary.0.clone())
     }
 
     /// Exorcise (remove) [`Binary`] from the store.
     ///
-    pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Arc<Mutex<Binary>>> {
-        self.binary.lock().remove(id).map(|binary| binary.0.clone())
+    pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Rc<RefCell<Binary>>> {
+        self.binary
+            .borrow_mut()
+            .remove(id)
+            .map(|binary| binary.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
-    pub fn iter_binary(&self) -> impl Iterator<Item = Arc<Mutex<Binary>>> + '_ {
-        let values: Vec<Arc<Mutex<Binary>>> = self
+    pub fn iter_binary(&self) -> impl Iterator<Item = Rc<RefCell<Binary>>> + '_ {
+        let values: Vec<Rc<RefCell<Binary>>> = self
             .binary
-            .lock()
+            .borrow()
             .values()
             .map(|binary| binary.0.clone())
             .collect();
@@ -351,7 +357,7 @@ impl ObjectStore {
     ///
     pub fn binary_timestamp(&self, binary: &Binary) -> SystemTime {
         self.binary
-            .lock()
+            .borrow()
             .get(&binary.id())
             .map(|binary| binary.1)
             .unwrap_or(SystemTime::now())
@@ -359,31 +365,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Block`] into the store.
     ///
-    pub fn inter_block(&mut self, block: Arc<Mutex<Block>>) {
-        let read = block.lock();
+    pub fn inter_block(&mut self, block: Rc<RefCell<Block>>) {
+        let read = block.borrow();
         self.block
-            .lock()
+            .borrow_mut()
             .insert(read.id, (block.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Block`] from the store.
     ///
-    pub fn exhume_block(&self, id: &Uuid) -> Option<Arc<Mutex<Block>>> {
-        self.block.lock().get(id).map(|block| block.0.clone())
+    pub fn exhume_block(&self, id: &Uuid) -> Option<Rc<RefCell<Block>>> {
+        self.block.borrow().get(id).map(|block| block.0.clone())
     }
 
     /// Exorcise (remove) [`Block`] from the store.
     ///
-    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Arc<Mutex<Block>>> {
-        self.block.lock().remove(id).map(|block| block.0.clone())
+    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Rc<RefCell<Block>>> {
+        self.block
+            .borrow_mut()
+            .remove(id)
+            .map(|block| block.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
-    pub fn iter_block(&self) -> impl Iterator<Item = Arc<Mutex<Block>>> + '_ {
-        let values: Vec<Arc<Mutex<Block>>> = self
+    pub fn iter_block(&self) -> impl Iterator<Item = Rc<RefCell<Block>>> + '_ {
+        let values: Vec<Rc<RefCell<Block>>> = self
             .block
-            .lock()
+            .borrow()
             .values()
             .map(|block| block.0.clone())
             .collect();
@@ -395,7 +404,7 @@ impl ObjectStore {
     ///
     pub fn block_timestamp(&self, block: &Block) -> SystemTime {
         self.block
-            .lock()
+            .borrow()
             .get(&block.id)
             .map(|block| block.1)
             .unwrap_or(SystemTime::now())
@@ -403,37 +412,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
-    pub fn inter_boolean_literal(&mut self, boolean_literal: Arc<Mutex<BooleanLiteral>>) {
-        let read = boolean_literal.lock();
+    pub fn inter_boolean_literal(&mut self, boolean_literal: Rc<RefCell<BooleanLiteral>>) {
+        let read = boolean_literal.borrow();
         self.boolean_literal
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (boolean_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
     ///
-    pub fn exhume_boolean_literal(&self, id: &Uuid) -> Option<Arc<Mutex<BooleanLiteral>>> {
+    pub fn exhume_boolean_literal(&self, id: &Uuid) -> Option<Rc<RefCell<BooleanLiteral>>> {
         self.boolean_literal
-            .lock()
+            .borrow()
             .get(id)
             .map(|boolean_literal| boolean_literal.0.clone())
     }
 
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
-    pub fn exorcise_boolean_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<BooleanLiteral>>> {
+    pub fn exorcise_boolean_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<BooleanLiteral>>> {
         self.boolean_literal
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|boolean_literal| boolean_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
     ///
-    pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Arc<Mutex<BooleanLiteral>>> + '_ {
-        let values: Vec<Arc<Mutex<BooleanLiteral>>> = self
+    pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Rc<RefCell<BooleanLiteral>>> + '_ {
+        let values: Vec<Rc<RefCell<BooleanLiteral>>> = self
             .boolean_literal
-            .lock()
+            .borrow()
             .values()
             .map(|boolean_literal| boolean_literal.0.clone())
             .collect();
@@ -445,7 +454,7 @@ impl ObjectStore {
     ///
     pub fn boolean_literal_timestamp(&self, boolean_literal: &BooleanLiteral) -> SystemTime {
         self.boolean_literal
-            .lock()
+            .borrow()
             .get(&boolean_literal.id())
             .map(|boolean_literal| boolean_literal.1)
             .unwrap_or(SystemTime::now())
@@ -453,31 +462,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Call`] into the store.
     ///
-    pub fn inter_call(&mut self, call: Arc<Mutex<Call>>) {
-        let read = call.lock();
+    pub fn inter_call(&mut self, call: Rc<RefCell<Call>>) {
+        let read = call.borrow();
         self.call
-            .lock()
+            .borrow_mut()
             .insert(read.id, (call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Call`] from the store.
     ///
-    pub fn exhume_call(&self, id: &Uuid) -> Option<Arc<Mutex<Call>>> {
-        self.call.lock().get(id).map(|call| call.0.clone())
+    pub fn exhume_call(&self, id: &Uuid) -> Option<Rc<RefCell<Call>>> {
+        self.call.borrow().get(id).map(|call| call.0.clone())
     }
 
     /// Exorcise (remove) [`Call`] from the store.
     ///
-    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Arc<Mutex<Call>>> {
-        self.call.lock().remove(id).map(|call| call.0.clone())
+    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Rc<RefCell<Call>>> {
+        self.call.borrow_mut().remove(id).map(|call| call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
-    pub fn iter_call(&self) -> impl Iterator<Item = Arc<Mutex<Call>>> + '_ {
-        let values: Vec<Arc<Mutex<Call>>> = self
+    pub fn iter_call(&self) -> impl Iterator<Item = Rc<RefCell<Call>>> + '_ {
+        let values: Vec<Rc<RefCell<Call>>> = self
             .call
-            .lock()
+            .borrow()
             .values()
             .map(|call| call.0.clone())
             .collect();
@@ -489,7 +498,7 @@ impl ObjectStore {
     ///
     pub fn call_timestamp(&self, call: &Call) -> SystemTime {
         self.call
-            .lock()
+            .borrow()
             .get(&call.id)
             .map(|call| call.1)
             .unwrap_or(SystemTime::now())
@@ -497,37 +506,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Comparison`] into the store.
     ///
-    pub fn inter_comparison(&mut self, comparison: Arc<Mutex<Comparison>>) {
-        let read = comparison.lock();
+    pub fn inter_comparison(&mut self, comparison: Rc<RefCell<Comparison>>) {
+        let read = comparison.borrow();
         self.comparison
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (comparison.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Comparison`] from the store.
     ///
-    pub fn exhume_comparison(&self, id: &Uuid) -> Option<Arc<Mutex<Comparison>>> {
+    pub fn exhume_comparison(&self, id: &Uuid) -> Option<Rc<RefCell<Comparison>>> {
         self.comparison
-            .lock()
+            .borrow()
             .get(id)
             .map(|comparison| comparison.0.clone())
     }
 
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
-    pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Arc<Mutex<Comparison>>> {
+    pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Rc<RefCell<Comparison>>> {
         self.comparison
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|comparison| comparison.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
     ///
-    pub fn iter_comparison(&self) -> impl Iterator<Item = Arc<Mutex<Comparison>>> + '_ {
-        let values: Vec<Arc<Mutex<Comparison>>> = self
+    pub fn iter_comparison(&self) -> impl Iterator<Item = Rc<RefCell<Comparison>>> + '_ {
+        let values: Vec<Rc<RefCell<Comparison>>> = self
             .comparison
-            .lock()
+            .borrow()
             .values()
             .map(|comparison| comparison.0.clone())
             .collect();
@@ -539,7 +548,7 @@ impl ObjectStore {
     ///
     pub fn comparison_timestamp(&self, comparison: &Comparison) -> SystemTime {
         self.comparison
-            .lock()
+            .borrow()
             .get(&comparison.id())
             .map(|comparison| comparison.1)
             .unwrap_or(SystemTime::now())
@@ -547,37 +556,42 @@ impl ObjectStore {
 
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
-    pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<Mutex<DwarfSourceFile>>) {
-        let read = dwarf_source_file.lock();
+    pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Rc<RefCell<DwarfSourceFile>>) {
+        let read = dwarf_source_file.borrow();
         self.dwarf_source_file
-            .lock()
+            .borrow_mut()
             .insert(read.id, (dwarf_source_file.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`DwarfSourceFile`] from the store.
     ///
-    pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Arc<Mutex<DwarfSourceFile>>> {
+    pub fn exhume_dwarf_source_file(&self, id: &Uuid) -> Option<Rc<RefCell<DwarfSourceFile>>> {
         self.dwarf_source_file
-            .lock()
+            .borrow()
             .get(id)
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
     /// Exorcise (remove) [`DwarfSourceFile`] from the store.
     ///
-    pub fn exorcise_dwarf_source_file(&mut self, id: &Uuid) -> Option<Arc<Mutex<DwarfSourceFile>>> {
+    pub fn exorcise_dwarf_source_file(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<DwarfSourceFile>>> {
         self.dwarf_source_file
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
     ///
-    pub fn iter_dwarf_source_file(&self) -> impl Iterator<Item = Arc<Mutex<DwarfSourceFile>>> + '_ {
-        let values: Vec<Arc<Mutex<DwarfSourceFile>>> = self
+    pub fn iter_dwarf_source_file(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<DwarfSourceFile>>> + '_ {
+        let values: Vec<Rc<RefCell<DwarfSourceFile>>> = self
             .dwarf_source_file
-            .lock()
+            .borrow()
             .values()
             .map(|dwarf_source_file| dwarf_source_file.0.clone())
             .collect();
@@ -589,7 +603,7 @@ impl ObjectStore {
     ///
     pub fn dwarf_source_file_timestamp(&self, dwarf_source_file: &DwarfSourceFile) -> SystemTime {
         self.dwarf_source_file
-            .lock()
+            .borrow()
             .get(&dwarf_source_file.id)
             .map(|dwarf_source_file| dwarf_source_file.1)
             .unwrap_or(SystemTime::now())
@@ -597,31 +611,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Error`] into the store.
     ///
-    pub fn inter_error(&mut self, error: Arc<Mutex<Error>>) {
-        let read = error.lock();
+    pub fn inter_error(&mut self, error: Rc<RefCell<Error>>) {
+        let read = error.borrow();
         self.error
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (error.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Error`] from the store.
     ///
-    pub fn exhume_error(&self, id: &Uuid) -> Option<Arc<Mutex<Error>>> {
-        self.error.lock().get(id).map(|error| error.0.clone())
+    pub fn exhume_error(&self, id: &Uuid) -> Option<Rc<RefCell<Error>>> {
+        self.error.borrow().get(id).map(|error| error.0.clone())
     }
 
     /// Exorcise (remove) [`Error`] from the store.
     ///
-    pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Arc<Mutex<Error>>> {
-        self.error.lock().remove(id).map(|error| error.0.clone())
+    pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Rc<RefCell<Error>>> {
+        self.error
+            .borrow_mut()
+            .remove(id)
+            .map(|error| error.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
     ///
-    pub fn iter_error(&self) -> impl Iterator<Item = Arc<Mutex<Error>>> + '_ {
-        let values: Vec<Arc<Mutex<Error>>> = self
+    pub fn iter_error(&self) -> impl Iterator<Item = Rc<RefCell<Error>>> + '_ {
+        let values: Vec<Rc<RefCell<Error>>> = self
             .error
-            .lock()
+            .borrow()
             .values()
             .map(|error| error.0.clone())
             .collect();
@@ -633,7 +650,7 @@ impl ObjectStore {
     ///
     pub fn error_timestamp(&self, error: &Error) -> SystemTime {
         self.error
-            .lock()
+            .borrow()
             .get(&error.id())
             .map(|error| error.1)
             .unwrap_or(SystemTime::now())
@@ -641,37 +658,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ErrorExpression`] into the store.
     ///
-    pub fn inter_error_expression(&mut self, error_expression: Arc<Mutex<ErrorExpression>>) {
-        let read = error_expression.lock();
+    pub fn inter_error_expression(&mut self, error_expression: Rc<RefCell<ErrorExpression>>) {
+        let read = error_expression.borrow();
         self.error_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (error_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ErrorExpression`] from the store.
     ///
-    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Arc<Mutex<ErrorExpression>>> {
+    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Rc<RefCell<ErrorExpression>>> {
         self.error_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|error_expression| error_expression.0.clone())
     }
 
     /// Exorcise (remove) [`ErrorExpression`] from the store.
     ///
-    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<ErrorExpression>>> {
+    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<ErrorExpression>>> {
         self.error_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|error_expression| error_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
     ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Arc<Mutex<ErrorExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<ErrorExpression>>> = self
+    pub fn iter_error_expression(&self) -> impl Iterator<Item = Rc<RefCell<ErrorExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<ErrorExpression>>> = self
             .error_expression
-            .lock()
+            .borrow()
             .values()
             .map(|error_expression| error_expression.0.clone())
             .collect();
@@ -683,7 +700,7 @@ impl ObjectStore {
     ///
     pub fn error_expression_timestamp(&self, error_expression: &ErrorExpression) -> SystemTime {
         self.error_expression
-            .lock()
+            .borrow()
             .get(&error_expression.id)
             .map(|error_expression| error_expression.1)
             .unwrap_or(SystemTime::now())
@@ -691,37 +708,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Expression`] into the store.
     ///
-    pub fn inter_expression(&mut self, expression: Arc<Mutex<Expression>>) {
-        let read = expression.lock();
+    pub fn inter_expression(&mut self, expression: Rc<RefCell<Expression>>) {
+        let read = expression.borrow();
         self.expression
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Expression`] from the store.
     ///
-    pub fn exhume_expression(&self, id: &Uuid) -> Option<Arc<Mutex<Expression>>> {
+    pub fn exhume_expression(&self, id: &Uuid) -> Option<Rc<RefCell<Expression>>> {
         self.expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|expression| expression.0.clone())
     }
 
     /// Exorcise (remove) [`Expression`] from the store.
     ///
-    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<Expression>>> {
+    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<Expression>>> {
         self.expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|expression| expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
-    pub fn iter_expression(&self) -> impl Iterator<Item = Arc<Mutex<Expression>>> + '_ {
-        let values: Vec<Arc<Mutex<Expression>>> = self
+    pub fn iter_expression(&self) -> impl Iterator<Item = Rc<RefCell<Expression>>> + '_ {
+        let values: Vec<Rc<RefCell<Expression>>> = self
             .expression
-            .lock()
+            .borrow()
             .values()
             .map(|expression| expression.0.clone())
             .collect();
@@ -733,7 +750,7 @@ impl ObjectStore {
     ///
     pub fn expression_timestamp(&self, expression: &Expression) -> SystemTime {
         self.expression
-            .lock()
+            .borrow()
             .get(&expression.id())
             .map(|expression| expression.1)
             .unwrap_or(SystemTime::now())
@@ -743,11 +760,11 @@ impl ObjectStore {
     ///
     pub fn inter_expression_statement(
         &mut self,
-        expression_statement: Arc<Mutex<ExpressionStatement>>,
+        expression_statement: Rc<RefCell<ExpressionStatement>>,
     ) {
-        let read = expression_statement.lock();
+        let read = expression_statement.borrow();
         self.expression_statement
-            .lock()
+            .borrow_mut()
             .insert(read.id, (expression_statement.clone(), SystemTime::now()));
     }
 
@@ -756,9 +773,9 @@ impl ObjectStore {
     pub fn exhume_expression_statement(
         &self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<ExpressionStatement>>> {
+    ) -> Option<Rc<RefCell<ExpressionStatement>>> {
         self.expression_statement
-            .lock()
+            .borrow()
             .get(id)
             .map(|expression_statement| expression_statement.0.clone())
     }
@@ -768,9 +785,9 @@ impl ObjectStore {
     pub fn exorcise_expression_statement(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<ExpressionStatement>>> {
+    ) -> Option<Rc<RefCell<ExpressionStatement>>> {
         self.expression_statement
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|expression_statement| expression_statement.0.clone())
     }
@@ -779,10 +796,10 @@ impl ObjectStore {
     ///
     pub fn iter_expression_statement(
         &self,
-    ) -> impl Iterator<Item = Arc<Mutex<ExpressionStatement>>> + '_ {
-        let values: Vec<Arc<Mutex<ExpressionStatement>>> = self
+    ) -> impl Iterator<Item = Rc<RefCell<ExpressionStatement>>> + '_ {
+        let values: Vec<Rc<RefCell<ExpressionStatement>>> = self
             .expression_statement
-            .lock()
+            .borrow()
             .values()
             .map(|expression_statement| expression_statement.0.clone())
             .collect();
@@ -797,7 +814,7 @@ impl ObjectStore {
         expression_statement: &ExpressionStatement,
     ) -> SystemTime {
         self.expression_statement
-            .lock()
+            .borrow()
             .get(&expression_statement.id)
             .map(|expression_statement| expression_statement.1)
             .unwrap_or(SystemTime::now())
@@ -805,39 +822,45 @@ impl ObjectStore {
 
     /// Inter (insert) [`Field`] into the store.
     ///
-    pub fn inter_field(&mut self, field: Arc<Mutex<Field>>) {
-        let read = field.lock();
+    pub fn inter_field(&mut self, field: Rc<RefCell<Field>>) {
+        let read = field.borrow();
         let value = (field.clone(), SystemTime::now());
         self.field_id_by_name
-            .lock()
+            .borrow_mut()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.field.lock().insert(read.id, value);
+        self.field.borrow_mut().insert(read.id, value);
     }
 
     /// Exhume (get) [`Field`] from the store.
     ///
-    pub fn exhume_field(&self, id: &Uuid) -> Option<Arc<Mutex<Field>>> {
-        self.field.lock().get(id).map(|field| field.0.clone())
+    pub fn exhume_field(&self, id: &Uuid) -> Option<Rc<RefCell<Field>>> {
+        self.field.borrow().get(id).map(|field| field.0.clone())
     }
 
     /// Exorcise (remove) [`Field`] from the store.
     ///
-    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Arc<Mutex<Field>>> {
-        self.field.lock().remove(id).map(|field| field.0.clone())
+    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Rc<RefCell<Field>>> {
+        self.field
+            .borrow_mut()
+            .remove(id)
+            .map(|field| field.0.clone())
     }
 
     /// Exhume [`Field`] id from the store by name.
     ///
     pub fn exhume_field_id_by_name(&self, name: &str) -> Option<Uuid> {
-        self.field_id_by_name.lock().get(name).map(|field| field.0)
+        self.field_id_by_name
+            .borrow()
+            .get(name)
+            .map(|field| field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
     ///
-    pub fn iter_field(&self) -> impl Iterator<Item = Arc<Mutex<Field>>> + '_ {
-        let values: Vec<Arc<Mutex<Field>>> = self
+    pub fn iter_field(&self) -> impl Iterator<Item = Rc<RefCell<Field>>> + '_ {
+        let values: Vec<Rc<RefCell<Field>>> = self
             .field
-            .lock()
+            .borrow()
             .values()
             .map(|field| field.0.clone())
             .collect();
@@ -849,7 +872,7 @@ impl ObjectStore {
     ///
     pub fn field_timestamp(&self, field: &Field) -> SystemTime {
         self.field
-            .lock()
+            .borrow()
             .get(&field.id)
             .map(|field| field.1)
             .unwrap_or(SystemTime::now())
@@ -857,37 +880,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccess`] into the store.
     ///
-    pub fn inter_field_access(&mut self, field_access: Arc<Mutex<FieldAccess>>) {
-        let read = field_access.lock();
+    pub fn inter_field_access(&mut self, field_access: Rc<RefCell<FieldAccess>>) {
+        let read = field_access.borrow();
         self.field_access
-            .lock()
+            .borrow_mut()
             .insert(read.id, (field_access.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldAccess`] from the store.
     ///
-    pub fn exhume_field_access(&self, id: &Uuid) -> Option<Arc<Mutex<FieldAccess>>> {
+    pub fn exhume_field_access(&self, id: &Uuid) -> Option<Rc<RefCell<FieldAccess>>> {
         self.field_access
-            .lock()
+            .borrow()
             .get(id)
             .map(|field_access| field_access.0.clone())
     }
 
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
-    pub fn exorcise_field_access(&mut self, id: &Uuid) -> Option<Arc<Mutex<FieldAccess>>> {
+    pub fn exorcise_field_access(&mut self, id: &Uuid) -> Option<Rc<RefCell<FieldAccess>>> {
         self.field_access
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|field_access| field_access.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
     ///
-    pub fn iter_field_access(&self) -> impl Iterator<Item = Arc<Mutex<FieldAccess>>> + '_ {
-        let values: Vec<Arc<Mutex<FieldAccess>>> = self
+    pub fn iter_field_access(&self) -> impl Iterator<Item = Rc<RefCell<FieldAccess>>> + '_ {
+        let values: Vec<Rc<RefCell<FieldAccess>>> = self
             .field_access
-            .lock()
+            .borrow()
             .values()
             .map(|field_access| field_access.0.clone())
             .collect();
@@ -899,7 +922,7 @@ impl ObjectStore {
     ///
     pub fn field_access_timestamp(&self, field_access: &FieldAccess) -> SystemTime {
         self.field_access
-            .lock()
+            .borrow()
             .get(&field_access.id)
             .map(|field_access| field_access.1)
             .unwrap_or(SystemTime::now())
@@ -909,19 +932,19 @@ impl ObjectStore {
     ///
     pub fn inter_field_access_target(
         &mut self,
-        field_access_target: Arc<Mutex<FieldAccessTarget>>,
+        field_access_target: Rc<RefCell<FieldAccessTarget>>,
     ) {
-        let read = field_access_target.lock();
+        let read = field_access_target.borrow();
         self.field_access_target
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (field_access_target.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
     ///
-    pub fn exhume_field_access_target(&self, id: &Uuid) -> Option<Arc<Mutex<FieldAccessTarget>>> {
+    pub fn exhume_field_access_target(&self, id: &Uuid) -> Option<Rc<RefCell<FieldAccessTarget>>> {
         self.field_access_target
-            .lock()
+            .borrow()
             .get(id)
             .map(|field_access_target| field_access_target.0.clone())
     }
@@ -931,9 +954,9 @@ impl ObjectStore {
     pub fn exorcise_field_access_target(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<FieldAccessTarget>>> {
+    ) -> Option<Rc<RefCell<FieldAccessTarget>>> {
         self.field_access_target
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|field_access_target| field_access_target.0.clone())
     }
@@ -942,10 +965,10 @@ impl ObjectStore {
     ///
     pub fn iter_field_access_target(
         &self,
-    ) -> impl Iterator<Item = Arc<Mutex<FieldAccessTarget>>> + '_ {
-        let values: Vec<Arc<Mutex<FieldAccessTarget>>> = self
+    ) -> impl Iterator<Item = Rc<RefCell<FieldAccessTarget>>> + '_ {
+        let values: Vec<Rc<RefCell<FieldAccessTarget>>> = self
             .field_access_target
-            .lock()
+            .borrow()
             .values()
             .map(|field_access_target| field_access_target.0.clone())
             .collect();
@@ -960,7 +983,7 @@ impl ObjectStore {
         field_access_target: &FieldAccessTarget,
     ) -> SystemTime {
         self.field_access_target
-            .lock()
+            .borrow()
             .get(&field_access_target.id())
             .map(|field_access_target| field_access_target.1)
             .unwrap_or(SystemTime::now())
@@ -968,37 +991,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldExpression`] into the store.
     ///
-    pub fn inter_field_expression(&mut self, field_expression: Arc<Mutex<FieldExpression>>) {
-        let read = field_expression.lock();
+    pub fn inter_field_expression(&mut self, field_expression: Rc<RefCell<FieldExpression>>) {
+        let read = field_expression.borrow();
         self.field_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (field_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FieldExpression`] from the store.
     ///
-    pub fn exhume_field_expression(&self, id: &Uuid) -> Option<Arc<Mutex<FieldExpression>>> {
+    pub fn exhume_field_expression(&self, id: &Uuid) -> Option<Rc<RefCell<FieldExpression>>> {
         self.field_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|field_expression| field_expression.0.clone())
     }
 
     /// Exorcise (remove) [`FieldExpression`] from the store.
     ///
-    pub fn exorcise_field_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<FieldExpression>>> {
+    pub fn exorcise_field_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<FieldExpression>>> {
         self.field_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|field_expression| field_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
     ///
-    pub fn iter_field_expression(&self) -> impl Iterator<Item = Arc<Mutex<FieldExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<FieldExpression>>> = self
+    pub fn iter_field_expression(&self) -> impl Iterator<Item = Rc<RefCell<FieldExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<FieldExpression>>> = self
             .field_expression
-            .lock()
+            .borrow()
             .values()
             .map(|field_expression| field_expression.0.clone())
             .collect();
@@ -1010,7 +1033,7 @@ impl ObjectStore {
     ///
     pub fn field_expression_timestamp(&self, field_expression: &FieldExpression) -> SystemTime {
         self.field_expression
-            .lock()
+            .borrow()
             .get(&field_expression.id)
             .map(|field_expression| field_expression.1)
             .unwrap_or(SystemTime::now())
@@ -1018,37 +1041,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`FloatLiteral`] into the store.
     ///
-    pub fn inter_float_literal(&mut self, float_literal: Arc<Mutex<FloatLiteral>>) {
-        let read = float_literal.lock();
+    pub fn inter_float_literal(&mut self, float_literal: Rc<RefCell<FloatLiteral>>) {
+        let read = float_literal.borrow();
         self.float_literal
-            .lock()
+            .borrow_mut()
             .insert(read.id, (float_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`FloatLiteral`] from the store.
     ///
-    pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Arc<Mutex<FloatLiteral>>> {
+    pub fn exhume_float_literal(&self, id: &Uuid) -> Option<Rc<RefCell<FloatLiteral>>> {
         self.float_literal
-            .lock()
+            .borrow()
             .get(id)
             .map(|float_literal| float_literal.0.clone())
     }
 
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
-    pub fn exorcise_float_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<FloatLiteral>>> {
+    pub fn exorcise_float_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<FloatLiteral>>> {
         self.float_literal
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|float_literal| float_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
     ///
-    pub fn iter_float_literal(&self) -> impl Iterator<Item = Arc<Mutex<FloatLiteral>>> + '_ {
-        let values: Vec<Arc<Mutex<FloatLiteral>>> = self
+    pub fn iter_float_literal(&self) -> impl Iterator<Item = Rc<RefCell<FloatLiteral>>> + '_ {
+        let values: Vec<Rc<RefCell<FloatLiteral>>> = self
             .float_literal
-            .lock()
+            .borrow()
             .values()
             .map(|float_literal| float_literal.0.clone())
             .collect();
@@ -1060,7 +1083,7 @@ impl ObjectStore {
     ///
     pub fn float_literal_timestamp(&self, float_literal: &FloatLiteral) -> SystemTime {
         self.float_literal
-            .lock()
+            .borrow()
             .get(&float_literal.id)
             .map(|float_literal| float_literal.1)
             .unwrap_or(SystemTime::now())
@@ -1068,37 +1091,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ForLoop`] into the store.
     ///
-    pub fn inter_for_loop(&mut self, for_loop: Arc<Mutex<ForLoop>>) {
-        let read = for_loop.lock();
+    pub fn inter_for_loop(&mut self, for_loop: Rc<RefCell<ForLoop>>) {
+        let read = for_loop.borrow();
         self.for_loop
-            .lock()
+            .borrow_mut()
             .insert(read.id, (for_loop.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ForLoop`] from the store.
     ///
-    pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Arc<Mutex<ForLoop>>> {
+    pub fn exhume_for_loop(&self, id: &Uuid) -> Option<Rc<RefCell<ForLoop>>> {
         self.for_loop
-            .lock()
+            .borrow()
             .get(id)
             .map(|for_loop| for_loop.0.clone())
     }
 
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
-    pub fn exorcise_for_loop(&mut self, id: &Uuid) -> Option<Arc<Mutex<ForLoop>>> {
+    pub fn exorcise_for_loop(&mut self, id: &Uuid) -> Option<Rc<RefCell<ForLoop>>> {
         self.for_loop
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|for_loop| for_loop.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
     ///
-    pub fn iter_for_loop(&self) -> impl Iterator<Item = Arc<Mutex<ForLoop>>> + '_ {
-        let values: Vec<Arc<Mutex<ForLoop>>> = self
+    pub fn iter_for_loop(&self) -> impl Iterator<Item = Rc<RefCell<ForLoop>>> + '_ {
+        let values: Vec<Rc<RefCell<ForLoop>>> = self
             .for_loop
-            .lock()
+            .borrow()
             .values()
             .map(|for_loop| for_loop.0.clone())
             .collect();
@@ -1110,7 +1133,7 @@ impl ObjectStore {
     ///
     pub fn for_loop_timestamp(&self, for_loop: &ForLoop) -> SystemTime {
         self.for_loop
-            .lock()
+            .borrow()
             .get(&for_loop.id)
             .map(|for_loop| for_loop.1)
             .unwrap_or(SystemTime::now())
@@ -1118,29 +1141,29 @@ impl ObjectStore {
 
     /// Inter (insert) [`Function`] into the store.
     ///
-    pub fn inter_function(&mut self, function: Arc<Mutex<Function>>) {
-        let read = function.lock();
+    pub fn inter_function(&mut self, function: Rc<RefCell<Function>>) {
+        let read = function.borrow();
         let value = (function.clone(), SystemTime::now());
         self.function_id_by_name
-            .lock()
+            .borrow_mut()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.function.lock().insert(read.id, value);
+        self.function.borrow_mut().insert(read.id, value);
     }
 
     /// Exhume (get) [`Function`] from the store.
     ///
-    pub fn exhume_function(&self, id: &Uuid) -> Option<Arc<Mutex<Function>>> {
+    pub fn exhume_function(&self, id: &Uuid) -> Option<Rc<RefCell<Function>>> {
         self.function
-            .lock()
+            .borrow()
             .get(id)
             .map(|function| function.0.clone())
     }
 
     /// Exorcise (remove) [`Function`] from the store.
     ///
-    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Arc<Mutex<Function>>> {
+    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Rc<RefCell<Function>>> {
         self.function
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|function| function.0.clone())
     }
@@ -1149,17 +1172,17 @@ impl ObjectStore {
     ///
     pub fn exhume_function_id_by_name(&self, name: &str) -> Option<Uuid> {
         self.function_id_by_name
-            .lock()
+            .borrow()
             .get(name)
             .map(|function| function.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
     ///
-    pub fn iter_function(&self) -> impl Iterator<Item = Arc<Mutex<Function>>> + '_ {
-        let values: Vec<Arc<Mutex<Function>>> = self
+    pub fn iter_function(&self) -> impl Iterator<Item = Rc<RefCell<Function>>> + '_ {
+        let values: Vec<Rc<RefCell<Function>>> = self
             .function
-            .lock()
+            .borrow()
             .values()
             .map(|function| function.0.clone())
             .collect();
@@ -1171,7 +1194,7 @@ impl ObjectStore {
     ///
     pub fn function_timestamp(&self, function: &Function) -> SystemTime {
         self.function
-            .lock()
+            .borrow()
             .get(&function.id)
             .map(|function| function.1)
             .unwrap_or(SystemTime::now())
@@ -1179,34 +1202,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Grouped`] into the store.
     ///
-    pub fn inter_grouped(&mut self, grouped: Arc<Mutex<Grouped>>) {
-        let read = grouped.lock();
+    pub fn inter_grouped(&mut self, grouped: Rc<RefCell<Grouped>>) {
+        let read = grouped.borrow();
         self.grouped
-            .lock()
+            .borrow_mut()
             .insert(read.id, (grouped.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Grouped`] from the store.
     ///
-    pub fn exhume_grouped(&self, id: &Uuid) -> Option<Arc<Mutex<Grouped>>> {
-        self.grouped.lock().get(id).map(|grouped| grouped.0.clone())
+    pub fn exhume_grouped(&self, id: &Uuid) -> Option<Rc<RefCell<Grouped>>> {
+        self.grouped
+            .borrow()
+            .get(id)
+            .map(|grouped| grouped.0.clone())
     }
 
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
-    pub fn exorcise_grouped(&mut self, id: &Uuid) -> Option<Arc<Mutex<Grouped>>> {
+    pub fn exorcise_grouped(&mut self, id: &Uuid) -> Option<Rc<RefCell<Grouped>>> {
         self.grouped
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|grouped| grouped.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
     ///
-    pub fn iter_grouped(&self) -> impl Iterator<Item = Arc<Mutex<Grouped>>> + '_ {
-        let values: Vec<Arc<Mutex<Grouped>>> = self
+    pub fn iter_grouped(&self) -> impl Iterator<Item = Rc<RefCell<Grouped>>> + '_ {
+        let values: Vec<Rc<RefCell<Grouped>>> = self
             .grouped
-            .lock()
+            .borrow()
             .values()
             .map(|grouped| grouped.0.clone())
             .collect();
@@ -1218,7 +1244,7 @@ impl ObjectStore {
     ///
     pub fn grouped_timestamp(&self, grouped: &Grouped) -> SystemTime {
         self.grouped
-            .lock()
+            .borrow()
             .get(&grouped.id)
             .map(|grouped| grouped.1)
             .unwrap_or(SystemTime::now())
@@ -1226,31 +1252,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`XIf`] into the store.
     ///
-    pub fn inter_x_if(&mut self, x_if: Arc<Mutex<XIf>>) {
-        let read = x_if.lock();
+    pub fn inter_x_if(&mut self, x_if: Rc<RefCell<XIf>>) {
+        let read = x_if.borrow();
         self.x_if
-            .lock()
+            .borrow_mut()
             .insert(read.id, (x_if.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XIf`] from the store.
     ///
-    pub fn exhume_x_if(&self, id: &Uuid) -> Option<Arc<Mutex<XIf>>> {
-        self.x_if.lock().get(id).map(|x_if| x_if.0.clone())
+    pub fn exhume_x_if(&self, id: &Uuid) -> Option<Rc<RefCell<XIf>>> {
+        self.x_if.borrow().get(id).map(|x_if| x_if.0.clone())
     }
 
     /// Exorcise (remove) [`XIf`] from the store.
     ///
-    pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Arc<Mutex<XIf>>> {
-        self.x_if.lock().remove(id).map(|x_if| x_if.0.clone())
+    pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Rc<RefCell<XIf>>> {
+        self.x_if.borrow_mut().remove(id).map(|x_if| x_if.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
     ///
-    pub fn iter_x_if(&self) -> impl Iterator<Item = Arc<Mutex<XIf>>> + '_ {
-        let values: Vec<Arc<Mutex<XIf>>> = self
+    pub fn iter_x_if(&self) -> impl Iterator<Item = Rc<RefCell<XIf>>> + '_ {
+        let values: Vec<Rc<RefCell<XIf>>> = self
             .x_if
-            .lock()
+            .borrow()
             .values()
             .map(|x_if| x_if.0.clone())
             .collect();
@@ -1262,7 +1288,7 @@ impl ObjectStore {
     ///
     pub fn x_if_timestamp(&self, x_if: &XIf) -> SystemTime {
         self.x_if
-            .lock()
+            .borrow()
             .get(&x_if.id)
             .map(|x_if| x_if.1)
             .unwrap_or(SystemTime::now())
@@ -1270,37 +1296,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Implementation`] into the store.
     ///
-    pub fn inter_implementation(&mut self, implementation: Arc<Mutex<Implementation>>) {
-        let read = implementation.lock();
+    pub fn inter_implementation(&mut self, implementation: Rc<RefCell<Implementation>>) {
+        let read = implementation.borrow();
         self.implementation
-            .lock()
+            .borrow_mut()
             .insert(read.id, (implementation.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Implementation`] from the store.
     ///
-    pub fn exhume_implementation(&self, id: &Uuid) -> Option<Arc<Mutex<Implementation>>> {
+    pub fn exhume_implementation(&self, id: &Uuid) -> Option<Rc<RefCell<Implementation>>> {
         self.implementation
-            .lock()
+            .borrow()
             .get(id)
             .map(|implementation| implementation.0.clone())
     }
 
     /// Exorcise (remove) [`Implementation`] from the store.
     ///
-    pub fn exorcise_implementation(&mut self, id: &Uuid) -> Option<Arc<Mutex<Implementation>>> {
+    pub fn exorcise_implementation(&mut self, id: &Uuid) -> Option<Rc<RefCell<Implementation>>> {
         self.implementation
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|implementation| implementation.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
     ///
-    pub fn iter_implementation(&self) -> impl Iterator<Item = Arc<Mutex<Implementation>>> + '_ {
-        let values: Vec<Arc<Mutex<Implementation>>> = self
+    pub fn iter_implementation(&self) -> impl Iterator<Item = Rc<RefCell<Implementation>>> + '_ {
+        let values: Vec<Rc<RefCell<Implementation>>> = self
             .implementation
-            .lock()
+            .borrow()
             .values()
             .map(|implementation| implementation.0.clone())
             .collect();
@@ -1312,7 +1338,7 @@ impl ObjectStore {
     ///
     pub fn implementation_timestamp(&self, implementation: &Implementation) -> SystemTime {
         self.implementation
-            .lock()
+            .borrow()
             .get(&implementation.id)
             .map(|implementation| implementation.1)
             .unwrap_or(SystemTime::now())
@@ -1320,31 +1346,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Import`] into the store.
     ///
-    pub fn inter_import(&mut self, import: Arc<Mutex<Import>>) {
-        let read = import.lock();
+    pub fn inter_import(&mut self, import: Rc<RefCell<Import>>) {
+        let read = import.borrow();
         self.import
-            .lock()
+            .borrow_mut()
             .insert(read.id, (import.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Import`] from the store.
     ///
-    pub fn exhume_import(&self, id: &Uuid) -> Option<Arc<Mutex<Import>>> {
-        self.import.lock().get(id).map(|import| import.0.clone())
+    pub fn exhume_import(&self, id: &Uuid) -> Option<Rc<RefCell<Import>>> {
+        self.import.borrow().get(id).map(|import| import.0.clone())
     }
 
     /// Exorcise (remove) [`Import`] from the store.
     ///
-    pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Arc<Mutex<Import>>> {
-        self.import.lock().remove(id).map(|import| import.0.clone())
+    pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Rc<RefCell<Import>>> {
+        self.import
+            .borrow_mut()
+            .remove(id)
+            .map(|import| import.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
     ///
-    pub fn iter_import(&self) -> impl Iterator<Item = Arc<Mutex<Import>>> + '_ {
-        let values: Vec<Arc<Mutex<Import>>> = self
+    pub fn iter_import(&self) -> impl Iterator<Item = Rc<RefCell<Import>>> + '_ {
+        let values: Vec<Rc<RefCell<Import>>> = self
             .import
-            .lock()
+            .borrow()
             .values()
             .map(|import| import.0.clone())
             .collect();
@@ -1356,7 +1385,7 @@ impl ObjectStore {
     ///
     pub fn import_timestamp(&self, import: &Import) -> SystemTime {
         self.import
-            .lock()
+            .borrow()
             .get(&import.id)
             .map(|import| import.1)
             .unwrap_or(SystemTime::now())
@@ -1364,31 +1393,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Index`] into the store.
     ///
-    pub fn inter_index(&mut self, index: Arc<Mutex<Index>>) {
-        let read = index.lock();
+    pub fn inter_index(&mut self, index: Rc<RefCell<Index>>) {
+        let read = index.borrow();
         self.index
-            .lock()
+            .borrow_mut()
             .insert(read.id, (index.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Index`] from the store.
     ///
-    pub fn exhume_index(&self, id: &Uuid) -> Option<Arc<Mutex<Index>>> {
-        self.index.lock().get(id).map(|index| index.0.clone())
+    pub fn exhume_index(&self, id: &Uuid) -> Option<Rc<RefCell<Index>>> {
+        self.index.borrow().get(id).map(|index| index.0.clone())
     }
 
     /// Exorcise (remove) [`Index`] from the store.
     ///
-    pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Arc<Mutex<Index>>> {
-        self.index.lock().remove(id).map(|index| index.0.clone())
+    pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Rc<RefCell<Index>>> {
+        self.index
+            .borrow_mut()
+            .remove(id)
+            .map(|index| index.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
     ///
-    pub fn iter_index(&self) -> impl Iterator<Item = Arc<Mutex<Index>>> + '_ {
-        let values: Vec<Arc<Mutex<Index>>> = self
+    pub fn iter_index(&self) -> impl Iterator<Item = Rc<RefCell<Index>>> + '_ {
+        let values: Vec<Rc<RefCell<Index>>> = self
             .index
-            .lock()
+            .borrow()
             .values()
             .map(|index| index.0.clone())
             .collect();
@@ -1400,7 +1432,7 @@ impl ObjectStore {
     ///
     pub fn index_timestamp(&self, index: &Index) -> SystemTime {
         self.index
-            .lock()
+            .borrow()
             .get(&index.id)
             .map(|index| index.1)
             .unwrap_or(SystemTime::now())
@@ -1408,37 +1440,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`IntegerLiteral`] into the store.
     ///
-    pub fn inter_integer_literal(&mut self, integer_literal: Arc<Mutex<IntegerLiteral>>) {
-        let read = integer_literal.lock();
+    pub fn inter_integer_literal(&mut self, integer_literal: Rc<RefCell<IntegerLiteral>>) {
+        let read = integer_literal.borrow();
         self.integer_literal
-            .lock()
+            .borrow_mut()
             .insert(read.id, (integer_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`IntegerLiteral`] from the store.
     ///
-    pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<Arc<Mutex<IntegerLiteral>>> {
+    pub fn exhume_integer_literal(&self, id: &Uuid) -> Option<Rc<RefCell<IntegerLiteral>>> {
         self.integer_literal
-            .lock()
+            .borrow()
             .get(id)
             .map(|integer_literal| integer_literal.0.clone())
     }
 
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
-    pub fn exorcise_integer_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<IntegerLiteral>>> {
+    pub fn exorcise_integer_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<IntegerLiteral>>> {
         self.integer_literal
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|integer_literal| integer_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
     ///
-    pub fn iter_integer_literal(&self) -> impl Iterator<Item = Arc<Mutex<IntegerLiteral>>> + '_ {
-        let values: Vec<Arc<Mutex<IntegerLiteral>>> = self
+    pub fn iter_integer_literal(&self) -> impl Iterator<Item = Rc<RefCell<IntegerLiteral>>> + '_ {
+        let values: Vec<Rc<RefCell<IntegerLiteral>>> = self
             .integer_literal
-            .lock()
+            .borrow()
             .values()
             .map(|integer_literal| integer_literal.0.clone())
             .collect();
@@ -1450,7 +1482,7 @@ impl ObjectStore {
     ///
     pub fn integer_literal_timestamp(&self, integer_literal: &IntegerLiteral) -> SystemTime {
         self.integer_literal
-            .lock()
+            .borrow()
             .get(&integer_literal.id)
             .map(|integer_literal| integer_literal.1)
             .unwrap_or(SystemTime::now())
@@ -1458,31 +1490,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Item`] into the store.
     ///
-    pub fn inter_item(&mut self, item: Arc<Mutex<Item>>) {
-        let read = item.lock();
+    pub fn inter_item(&mut self, item: Rc<RefCell<Item>>) {
+        let read = item.borrow();
         self.item
-            .lock()
+            .borrow_mut()
             .insert(read.id, (item.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Item`] from the store.
     ///
-    pub fn exhume_item(&self, id: &Uuid) -> Option<Arc<Mutex<Item>>> {
-        self.item.lock().get(id).map(|item| item.0.clone())
+    pub fn exhume_item(&self, id: &Uuid) -> Option<Rc<RefCell<Item>>> {
+        self.item.borrow().get(id).map(|item| item.0.clone())
     }
 
     /// Exorcise (remove) [`Item`] from the store.
     ///
-    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Arc<Mutex<Item>>> {
-        self.item.lock().remove(id).map(|item| item.0.clone())
+    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Rc<RefCell<Item>>> {
+        self.item.borrow_mut().remove(id).map(|item| item.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
     ///
-    pub fn iter_item(&self) -> impl Iterator<Item = Arc<Mutex<Item>>> + '_ {
-        let values: Vec<Arc<Mutex<Item>>> = self
+    pub fn iter_item(&self) -> impl Iterator<Item = Rc<RefCell<Item>>> + '_ {
+        let values: Vec<Rc<RefCell<Item>>> = self
             .item
-            .lock()
+            .borrow()
             .values()
             .map(|item| item.0.clone())
             .collect();
@@ -1494,7 +1526,7 @@ impl ObjectStore {
     ///
     pub fn item_timestamp(&self, item: &Item) -> SystemTime {
         self.item
-            .lock()
+            .borrow()
             .get(&item.id)
             .map(|item| item.1)
             .unwrap_or(SystemTime::now())
@@ -1502,37 +1534,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`LetStatement`] into the store.
     ///
-    pub fn inter_let_statement(&mut self, let_statement: Arc<Mutex<LetStatement>>) {
-        let read = let_statement.lock();
+    pub fn inter_let_statement(&mut self, let_statement: Rc<RefCell<LetStatement>>) {
+        let read = let_statement.borrow();
         self.let_statement
-            .lock()
+            .borrow_mut()
             .insert(read.id, (let_statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`LetStatement`] from the store.
     ///
-    pub fn exhume_let_statement(&self, id: &Uuid) -> Option<Arc<Mutex<LetStatement>>> {
+    pub fn exhume_let_statement(&self, id: &Uuid) -> Option<Rc<RefCell<LetStatement>>> {
         self.let_statement
-            .lock()
+            .borrow()
             .get(id)
             .map(|let_statement| let_statement.0.clone())
     }
 
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
-    pub fn exorcise_let_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<LetStatement>>> {
+    pub fn exorcise_let_statement(&mut self, id: &Uuid) -> Option<Rc<RefCell<LetStatement>>> {
         self.let_statement
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|let_statement| let_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
     ///
-    pub fn iter_let_statement(&self) -> impl Iterator<Item = Arc<Mutex<LetStatement>>> + '_ {
-        let values: Vec<Arc<Mutex<LetStatement>>> = self
+    pub fn iter_let_statement(&self) -> impl Iterator<Item = Rc<RefCell<LetStatement>>> + '_ {
+        let values: Vec<Rc<RefCell<LetStatement>>> = self
             .let_statement
-            .lock()
+            .borrow()
             .values()
             .map(|let_statement| let_statement.0.clone())
             .collect();
@@ -1544,7 +1576,7 @@ impl ObjectStore {
     ///
     pub fn let_statement_timestamp(&self, let_statement: &LetStatement) -> SystemTime {
         self.let_statement
-            .lock()
+            .borrow()
             .get(&let_statement.id)
             .map(|let_statement| let_statement.1)
             .unwrap_or(SystemTime::now())
@@ -1552,31 +1584,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`List`] into the store.
     ///
-    pub fn inter_list(&mut self, list: Arc<Mutex<List>>) {
-        let read = list.lock();
+    pub fn inter_list(&mut self, list: Rc<RefCell<List>>) {
+        let read = list.borrow();
         self.list
-            .lock()
+            .borrow_mut()
             .insert(read.id, (list.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`List`] from the store.
     ///
-    pub fn exhume_list(&self, id: &Uuid) -> Option<Arc<Mutex<List>>> {
-        self.list.lock().get(id).map(|list| list.0.clone())
+    pub fn exhume_list(&self, id: &Uuid) -> Option<Rc<RefCell<List>>> {
+        self.list.borrow().get(id).map(|list| list.0.clone())
     }
 
     /// Exorcise (remove) [`List`] from the store.
     ///
-    pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Arc<Mutex<List>>> {
-        self.list.lock().remove(id).map(|list| list.0.clone())
+    pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Rc<RefCell<List>>> {
+        self.list.borrow_mut().remove(id).map(|list| list.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
     ///
-    pub fn iter_list(&self) -> impl Iterator<Item = Arc<Mutex<List>>> + '_ {
-        let values: Vec<Arc<Mutex<List>>> = self
+    pub fn iter_list(&self) -> impl Iterator<Item = Rc<RefCell<List>>> + '_ {
+        let values: Vec<Rc<RefCell<List>>> = self
             .list
-            .lock()
+            .borrow()
             .values()
             .map(|list| list.0.clone())
             .collect();
@@ -1588,7 +1620,7 @@ impl ObjectStore {
     ///
     pub fn list_timestamp(&self, list: &List) -> SystemTime {
         self.list
-            .lock()
+            .borrow()
             .get(&list.id)
             .map(|list| list.1)
             .unwrap_or(SystemTime::now())
@@ -1596,37 +1628,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListElement`] into the store.
     ///
-    pub fn inter_list_element(&mut self, list_element: Arc<Mutex<ListElement>>) {
-        let read = list_element.lock();
+    pub fn inter_list_element(&mut self, list_element: Rc<RefCell<ListElement>>) {
+        let read = list_element.borrow();
         self.list_element
-            .lock()
+            .borrow_mut()
             .insert(read.id, (list_element.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ListElement`] from the store.
     ///
-    pub fn exhume_list_element(&self, id: &Uuid) -> Option<Arc<Mutex<ListElement>>> {
+    pub fn exhume_list_element(&self, id: &Uuid) -> Option<Rc<RefCell<ListElement>>> {
         self.list_element
-            .lock()
+            .borrow()
             .get(id)
             .map(|list_element| list_element.0.clone())
     }
 
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
-    pub fn exorcise_list_element(&mut self, id: &Uuid) -> Option<Arc<Mutex<ListElement>>> {
+    pub fn exorcise_list_element(&mut self, id: &Uuid) -> Option<Rc<RefCell<ListElement>>> {
         self.list_element
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|list_element| list_element.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
     ///
-    pub fn iter_list_element(&self) -> impl Iterator<Item = Arc<Mutex<ListElement>>> + '_ {
-        let values: Vec<Arc<Mutex<ListElement>>> = self
+    pub fn iter_list_element(&self) -> impl Iterator<Item = Rc<RefCell<ListElement>>> + '_ {
+        let values: Vec<Rc<RefCell<ListElement>>> = self
             .list_element
-            .lock()
+            .borrow()
             .values()
             .map(|list_element| list_element.0.clone())
             .collect();
@@ -1638,7 +1670,7 @@ impl ObjectStore {
     ///
     pub fn list_element_timestamp(&self, list_element: &ListElement) -> SystemTime {
         self.list_element
-            .lock()
+            .borrow()
             .get(&list_element.id)
             .map(|list_element| list_element.1)
             .unwrap_or(SystemTime::now())
@@ -1646,37 +1678,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListExpression`] into the store.
     ///
-    pub fn inter_list_expression(&mut self, list_expression: Arc<Mutex<ListExpression>>) {
-        let read = list_expression.lock();
+    pub fn inter_list_expression(&mut self, list_expression: Rc<RefCell<ListExpression>>) {
+        let read = list_expression.borrow();
         self.list_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (list_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ListExpression`] from the store.
     ///
-    pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Arc<Mutex<ListExpression>>> {
+    pub fn exhume_list_expression(&self, id: &Uuid) -> Option<Rc<RefCell<ListExpression>>> {
         self.list_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|list_expression| list_expression.0.clone())
     }
 
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
-    pub fn exorcise_list_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<ListExpression>>> {
+    pub fn exorcise_list_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<ListExpression>>> {
         self.list_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|list_expression| list_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
     ///
-    pub fn iter_list_expression(&self) -> impl Iterator<Item = Arc<Mutex<ListExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<ListExpression>>> = self
+    pub fn iter_list_expression(&self) -> impl Iterator<Item = Rc<RefCell<ListExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<ListExpression>>> = self
             .list_expression
-            .lock()
+            .borrow()
             .values()
             .map(|list_expression| list_expression.0.clone())
             .collect();
@@ -1688,7 +1720,7 @@ impl ObjectStore {
     ///
     pub fn list_expression_timestamp(&self, list_expression: &ListExpression) -> SystemTime {
         self.list_expression
-            .lock()
+            .borrow()
             .get(&list_expression.id)
             .map(|list_expression| list_expression.1)
             .unwrap_or(SystemTime::now())
@@ -1696,34 +1728,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Literal`] into the store.
     ///
-    pub fn inter_literal(&mut self, literal: Arc<Mutex<Literal>>) {
-        let read = literal.lock();
+    pub fn inter_literal(&mut self, literal: Rc<RefCell<Literal>>) {
+        let read = literal.borrow();
         self.literal
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Literal`] from the store.
     ///
-    pub fn exhume_literal(&self, id: &Uuid) -> Option<Arc<Mutex<Literal>>> {
-        self.literal.lock().get(id).map(|literal| literal.0.clone())
+    pub fn exhume_literal(&self, id: &Uuid) -> Option<Rc<RefCell<Literal>>> {
+        self.literal
+            .borrow()
+            .get(id)
+            .map(|literal| literal.0.clone())
     }
 
     /// Exorcise (remove) [`Literal`] from the store.
     ///
-    pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<Literal>>> {
+    pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<Literal>>> {
         self.literal
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|literal| literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
     ///
-    pub fn iter_literal(&self) -> impl Iterator<Item = Arc<Mutex<Literal>>> + '_ {
-        let values: Vec<Arc<Mutex<Literal>>> = self
+    pub fn iter_literal(&self) -> impl Iterator<Item = Rc<RefCell<Literal>>> + '_ {
+        let values: Vec<Rc<RefCell<Literal>>> = self
             .literal
-            .lock()
+            .borrow()
             .values()
             .map(|literal| literal.0.clone())
             .collect();
@@ -1735,7 +1770,7 @@ impl ObjectStore {
     ///
     pub fn literal_timestamp(&self, literal: &Literal) -> SystemTime {
         self.literal
-            .lock()
+            .borrow()
             .get(&literal.id())
             .map(|literal| literal.1)
             .unwrap_or(SystemTime::now())
@@ -1743,37 +1778,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`LocalVariable`] into the store.
     ///
-    pub fn inter_local_variable(&mut self, local_variable: Arc<Mutex<LocalVariable>>) {
-        let read = local_variable.lock();
+    pub fn inter_local_variable(&mut self, local_variable: Rc<RefCell<LocalVariable>>) {
+        let read = local_variable.borrow();
         self.local_variable
-            .lock()
+            .borrow_mut()
             .insert(read.id, (local_variable.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`LocalVariable`] from the store.
     ///
-    pub fn exhume_local_variable(&self, id: &Uuid) -> Option<Arc<Mutex<LocalVariable>>> {
+    pub fn exhume_local_variable(&self, id: &Uuid) -> Option<Rc<RefCell<LocalVariable>>> {
         self.local_variable
-            .lock()
+            .borrow()
             .get(id)
             .map(|local_variable| local_variable.0.clone())
     }
 
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
-    pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Arc<Mutex<LocalVariable>>> {
+    pub fn exorcise_local_variable(&mut self, id: &Uuid) -> Option<Rc<RefCell<LocalVariable>>> {
         self.local_variable
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|local_variable| local_variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
     ///
-    pub fn iter_local_variable(&self) -> impl Iterator<Item = Arc<Mutex<LocalVariable>>> + '_ {
-        let values: Vec<Arc<Mutex<LocalVariable>>> = self
+    pub fn iter_local_variable(&self) -> impl Iterator<Item = Rc<RefCell<LocalVariable>>> + '_ {
+        let values: Vec<Rc<RefCell<LocalVariable>>> = self
             .local_variable
-            .lock()
+            .borrow()
             .values()
             .map(|local_variable| local_variable.0.clone())
             .collect();
@@ -1785,7 +1820,7 @@ impl ObjectStore {
     ///
     pub fn local_variable_timestamp(&self, local_variable: &LocalVariable) -> SystemTime {
         self.local_variable
-            .lock()
+            .borrow()
             .get(&local_variable.id)
             .map(|local_variable| local_variable.1)
             .unwrap_or(SystemTime::now())
@@ -1793,37 +1828,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`MethodCall`] into the store.
     ///
-    pub fn inter_method_call(&mut self, method_call: Arc<Mutex<MethodCall>>) {
-        let read = method_call.lock();
+    pub fn inter_method_call(&mut self, method_call: Rc<RefCell<MethodCall>>) {
+        let read = method_call.borrow();
         self.method_call
-            .lock()
+            .borrow_mut()
             .insert(read.id, (method_call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`MethodCall`] from the store.
     ///
-    pub fn exhume_method_call(&self, id: &Uuid) -> Option<Arc<Mutex<MethodCall>>> {
+    pub fn exhume_method_call(&self, id: &Uuid) -> Option<Rc<RefCell<MethodCall>>> {
         self.method_call
-            .lock()
+            .borrow()
             .get(id)
             .map(|method_call| method_call.0.clone())
     }
 
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
-    pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<Arc<Mutex<MethodCall>>> {
+    pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<Rc<RefCell<MethodCall>>> {
         self.method_call
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|method_call| method_call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
     ///
-    pub fn iter_method_call(&self) -> impl Iterator<Item = Arc<Mutex<MethodCall>>> + '_ {
-        let values: Vec<Arc<Mutex<MethodCall>>> = self
+    pub fn iter_method_call(&self) -> impl Iterator<Item = Rc<RefCell<MethodCall>>> + '_ {
+        let values: Vec<Rc<RefCell<MethodCall>>> = self
             .method_call
-            .lock()
+            .borrow()
             .values()
             .map(|method_call| method_call.0.clone())
             .collect();
@@ -1835,7 +1870,7 @@ impl ObjectStore {
     ///
     pub fn method_call_timestamp(&self, method_call: &MethodCall) -> SystemTime {
         self.method_call
-            .lock()
+            .borrow()
             .get(&method_call.id)
             .map(|method_call| method_call.1)
             .unwrap_or(SystemTime::now())
@@ -1843,37 +1878,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Negation`] into the store.
     ///
-    pub fn inter_negation(&mut self, negation: Arc<Mutex<Negation>>) {
-        let read = negation.lock();
+    pub fn inter_negation(&mut self, negation: Rc<RefCell<Negation>>) {
+        let read = negation.borrow();
         self.negation
-            .lock()
+            .borrow_mut()
             .insert(read.id, (negation.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Negation`] from the store.
     ///
-    pub fn exhume_negation(&self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
+    pub fn exhume_negation(&self, id: &Uuid) -> Option<Rc<RefCell<Negation>>> {
         self.negation
-            .lock()
+            .borrow()
             .get(id)
             .map(|negation| negation.0.clone())
     }
 
     /// Exorcise (remove) [`Negation`] from the store.
     ///
-    pub fn exorcise_negation(&mut self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
+    pub fn exorcise_negation(&mut self, id: &Uuid) -> Option<Rc<RefCell<Negation>>> {
         self.negation
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|negation| negation.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Negation>`.
     ///
-    pub fn iter_negation(&self) -> impl Iterator<Item = Arc<Mutex<Negation>>> + '_ {
-        let values: Vec<Arc<Mutex<Negation>>> = self
+    pub fn iter_negation(&self) -> impl Iterator<Item = Rc<RefCell<Negation>>> + '_ {
+        let values: Vec<Rc<RefCell<Negation>>> = self
             .negation
-            .lock()
+            .borrow()
             .values()
             .map(|negation| negation.0.clone())
             .collect();
@@ -1885,7 +1920,7 @@ impl ObjectStore {
     ///
     pub fn negation_timestamp(&self, negation: &Negation) -> SystemTime {
         self.negation
-            .lock()
+            .borrow()
             .get(&negation.id)
             .map(|negation| negation.1)
             .unwrap_or(SystemTime::now())
@@ -1893,37 +1928,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
-    pub fn inter_z_object_store(&mut self, z_object_store: Arc<Mutex<ZObjectStore>>) {
-        let read = z_object_store.lock();
+    pub fn inter_z_object_store(&mut self, z_object_store: Rc<RefCell<ZObjectStore>>) {
+        let read = z_object_store.borrow();
         self.z_object_store
-            .lock()
+            .borrow_mut()
             .insert(read.id, (z_object_store.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ZObjectStore`] from the store.
     ///
-    pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<Arc<Mutex<ZObjectStore>>> {
+    pub fn exhume_z_object_store(&self, id: &Uuid) -> Option<Rc<RefCell<ZObjectStore>>> {
         self.z_object_store
-            .lock()
+            .borrow()
             .get(id)
             .map(|z_object_store| z_object_store.0.clone())
     }
 
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
-    pub fn exorcise_z_object_store(&mut self, id: &Uuid) -> Option<Arc<Mutex<ZObjectStore>>> {
+    pub fn exorcise_z_object_store(&mut self, id: &Uuid) -> Option<Rc<RefCell<ZObjectStore>>> {
         self.z_object_store
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|z_object_store| z_object_store.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
     ///
-    pub fn iter_z_object_store(&self) -> impl Iterator<Item = Arc<Mutex<ZObjectStore>>> + '_ {
-        let values: Vec<Arc<Mutex<ZObjectStore>>> = self
+    pub fn iter_z_object_store(&self) -> impl Iterator<Item = Rc<RefCell<ZObjectStore>>> + '_ {
+        let values: Vec<Rc<RefCell<ZObjectStore>>> = self
             .z_object_store
-            .lock()
+            .borrow()
             .values()
             .map(|z_object_store| z_object_store.0.clone())
             .collect();
@@ -1935,7 +1970,7 @@ impl ObjectStore {
     ///
     pub fn z_object_store_timestamp(&self, z_object_store: &ZObjectStore) -> SystemTime {
         self.z_object_store
-            .lock()
+            .borrow()
             .get(&z_object_store.id)
             .map(|z_object_store| z_object_store.1)
             .unwrap_or(SystemTime::now())
@@ -1943,37 +1978,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Operator`] into the store.
     ///
-    pub fn inter_operator(&mut self, operator: Arc<Mutex<Operator>>) {
-        let read = operator.lock();
+    pub fn inter_operator(&mut self, operator: Rc<RefCell<Operator>>) {
+        let read = operator.borrow();
         self.operator
-            .lock()
+            .borrow_mut()
             .insert(read.id, (operator.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Operator`] from the store.
     ///
-    pub fn exhume_operator(&self, id: &Uuid) -> Option<Arc<Mutex<Operator>>> {
+    pub fn exhume_operator(&self, id: &Uuid) -> Option<Rc<RefCell<Operator>>> {
         self.operator
-            .lock()
+            .borrow()
             .get(id)
             .map(|operator| operator.0.clone())
     }
 
     /// Exorcise (remove) [`Operator`] from the store.
     ///
-    pub fn exorcise_operator(&mut self, id: &Uuid) -> Option<Arc<Mutex<Operator>>> {
+    pub fn exorcise_operator(&mut self, id: &Uuid) -> Option<Rc<RefCell<Operator>>> {
         self.operator
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|operator| operator.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
     ///
-    pub fn iter_operator(&self) -> impl Iterator<Item = Arc<Mutex<Operator>>> + '_ {
-        let values: Vec<Arc<Mutex<Operator>>> = self
+    pub fn iter_operator(&self) -> impl Iterator<Item = Rc<RefCell<Operator>>> + '_ {
+        let values: Vec<Rc<RefCell<Operator>>> = self
             .operator
-            .lock()
+            .borrow()
             .values()
             .map(|operator| operator.0.clone())
             .collect();
@@ -1985,7 +2020,7 @@ impl ObjectStore {
     ///
     pub fn operator_timestamp(&self, operator: &Operator) -> SystemTime {
         self.operator
-            .lock()
+            .borrow()
             .get(&operator.id)
             .map(|operator| operator.1)
             .unwrap_or(SystemTime::now())
@@ -1993,37 +2028,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogOption`] into the store.
     ///
-    pub fn inter_woog_option(&mut self, woog_option: Arc<Mutex<WoogOption>>) {
-        let read = woog_option.lock();
+    pub fn inter_woog_option(&mut self, woog_option: Rc<RefCell<WoogOption>>) {
+        let read = woog_option.borrow();
         self.woog_option
-            .lock()
+            .borrow_mut()
             .insert(read.id, (woog_option.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`WoogOption`] from the store.
     ///
-    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Arc<Mutex<WoogOption>>> {
+    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Rc<RefCell<WoogOption>>> {
         self.woog_option
-            .lock()
+            .borrow()
             .get(id)
             .map(|woog_option| woog_option.0.clone())
     }
 
     /// Exorcise (remove) [`WoogOption`] from the store.
     ///
-    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Arc<Mutex<WoogOption>>> {
+    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Rc<RefCell<WoogOption>>> {
         self.woog_option
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|woog_option| woog_option.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
     ///
-    pub fn iter_woog_option(&self) -> impl Iterator<Item = Arc<Mutex<WoogOption>>> + '_ {
-        let values: Vec<Arc<Mutex<WoogOption>>> = self
+    pub fn iter_woog_option(&self) -> impl Iterator<Item = Rc<RefCell<WoogOption>>> + '_ {
+        let values: Vec<Rc<RefCell<WoogOption>>> = self
             .woog_option
-            .lock()
+            .borrow()
             .values()
             .map(|woog_option| woog_option.0.clone())
             .collect();
@@ -2035,7 +2070,7 @@ impl ObjectStore {
     ///
     pub fn woog_option_timestamp(&self, woog_option: &WoogOption) -> SystemTime {
         self.woog_option
-            .lock()
+            .borrow()
             .get(&woog_option.id)
             .map(|woog_option| woog_option.1)
             .unwrap_or(SystemTime::now())
@@ -2043,37 +2078,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Parameter`] into the store.
     ///
-    pub fn inter_parameter(&mut self, parameter: Arc<Mutex<Parameter>>) {
-        let read = parameter.lock();
+    pub fn inter_parameter(&mut self, parameter: Rc<RefCell<Parameter>>) {
+        let read = parameter.borrow();
         self.parameter
-            .lock()
+            .borrow_mut()
             .insert(read.id, (parameter.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Parameter`] from the store.
     ///
-    pub fn exhume_parameter(&self, id: &Uuid) -> Option<Arc<Mutex<Parameter>>> {
+    pub fn exhume_parameter(&self, id: &Uuid) -> Option<Rc<RefCell<Parameter>>> {
         self.parameter
-            .lock()
+            .borrow()
             .get(id)
             .map(|parameter| parameter.0.clone())
     }
 
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
-    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Arc<Mutex<Parameter>>> {
+    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Rc<RefCell<Parameter>>> {
         self.parameter
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|parameter| parameter.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
-    pub fn iter_parameter(&self) -> impl Iterator<Item = Arc<Mutex<Parameter>>> + '_ {
-        let values: Vec<Arc<Mutex<Parameter>>> = self
+    pub fn iter_parameter(&self) -> impl Iterator<Item = Rc<RefCell<Parameter>>> + '_ {
+        let values: Vec<Rc<RefCell<Parameter>>> = self
             .parameter
-            .lock()
+            .borrow()
             .values()
             .map(|parameter| parameter.0.clone())
             .collect();
@@ -2085,7 +2120,7 @@ impl ObjectStore {
     ///
     pub fn parameter_timestamp(&self, parameter: &Parameter) -> SystemTime {
         self.parameter
-            .lock()
+            .borrow()
             .get(&parameter.id)
             .map(|parameter| parameter.1)
             .unwrap_or(SystemTime::now())
@@ -2093,31 +2128,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`Print`] into the store.
     ///
-    pub fn inter_print(&mut self, print: Arc<Mutex<Print>>) {
-        let read = print.lock();
+    pub fn inter_print(&mut self, print: Rc<RefCell<Print>>) {
+        let read = print.borrow();
         self.print
-            .lock()
+            .borrow_mut()
             .insert(read.id, (print.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Print`] from the store.
     ///
-    pub fn exhume_print(&self, id: &Uuid) -> Option<Arc<Mutex<Print>>> {
-        self.print.lock().get(id).map(|print| print.0.clone())
+    pub fn exhume_print(&self, id: &Uuid) -> Option<Rc<RefCell<Print>>> {
+        self.print.borrow().get(id).map(|print| print.0.clone())
     }
 
     /// Exorcise (remove) [`Print`] from the store.
     ///
-    pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Arc<Mutex<Print>>> {
-        self.print.lock().remove(id).map(|print| print.0.clone())
+    pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Rc<RefCell<Print>>> {
+        self.print
+            .borrow_mut()
+            .remove(id)
+            .map(|print| print.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
     ///
-    pub fn iter_print(&self) -> impl Iterator<Item = Arc<Mutex<Print>>> + '_ {
-        let values: Vec<Arc<Mutex<Print>>> = self
+    pub fn iter_print(&self) -> impl Iterator<Item = Rc<RefCell<Print>>> + '_ {
+        let values: Vec<Rc<RefCell<Print>>> = self
             .print
-            .lock()
+            .borrow()
             .values()
             .map(|print| print.0.clone())
             .collect();
@@ -2129,7 +2167,7 @@ impl ObjectStore {
     ///
     pub fn print_timestamp(&self, print: &Print) -> SystemTime {
         self.print
-            .lock()
+            .borrow()
             .get(&print.id)
             .map(|print| print.1)
             .unwrap_or(SystemTime::now())
@@ -2137,37 +2175,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`RangeExpression`] into the store.
     ///
-    pub fn inter_range_expression(&mut self, range_expression: Arc<Mutex<RangeExpression>>) {
-        let read = range_expression.lock();
+    pub fn inter_range_expression(&mut self, range_expression: Rc<RefCell<RangeExpression>>) {
+        let read = range_expression.borrow();
         self.range_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (range_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`RangeExpression`] from the store.
     ///
-    pub fn exhume_range_expression(&self, id: &Uuid) -> Option<Arc<Mutex<RangeExpression>>> {
+    pub fn exhume_range_expression(&self, id: &Uuid) -> Option<Rc<RefCell<RangeExpression>>> {
         self.range_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|range_expression| range_expression.0.clone())
     }
 
     /// Exorcise (remove) [`RangeExpression`] from the store.
     ///
-    pub fn exorcise_range_expression(&mut self, id: &Uuid) -> Option<Arc<Mutex<RangeExpression>>> {
+    pub fn exorcise_range_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<RangeExpression>>> {
         self.range_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|range_expression| range_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
     ///
-    pub fn iter_range_expression(&self) -> impl Iterator<Item = Arc<Mutex<RangeExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<RangeExpression>>> = self
+    pub fn iter_range_expression(&self) -> impl Iterator<Item = Rc<RefCell<RangeExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<RangeExpression>>> = self
             .range_expression
-            .lock()
+            .borrow()
             .values()
             .map(|range_expression| range_expression.0.clone())
             .collect();
@@ -2179,7 +2217,7 @@ impl ObjectStore {
     ///
     pub fn range_expression_timestamp(&self, range_expression: &RangeExpression) -> SystemTime {
         self.range_expression
-            .lock()
+            .borrow()
             .get(&range_expression.id)
             .map(|range_expression| range_expression.1)
             .unwrap_or(SystemTime::now())
@@ -2187,37 +2225,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Reference`] into the store.
     ///
-    pub fn inter_reference(&mut self, reference: Arc<Mutex<Reference>>) {
-        let read = reference.lock();
+    pub fn inter_reference(&mut self, reference: Rc<RefCell<Reference>>) {
+        let read = reference.borrow();
         self.reference
-            .lock()
+            .borrow_mut()
             .insert(read.id, (reference.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Reference`] from the store.
     ///
-    pub fn exhume_reference(&self, id: &Uuid) -> Option<Arc<Mutex<Reference>>> {
+    pub fn exhume_reference(&self, id: &Uuid) -> Option<Rc<RefCell<Reference>>> {
         self.reference
-            .lock()
+            .borrow()
             .get(id)
             .map(|reference| reference.0.clone())
     }
 
     /// Exorcise (remove) [`Reference`] from the store.
     ///
-    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Arc<Mutex<Reference>>> {
+    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Rc<RefCell<Reference>>> {
         self.reference
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|reference| reference.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
     ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Arc<Mutex<Reference>>> + '_ {
-        let values: Vec<Arc<Mutex<Reference>>> = self
+    pub fn iter_reference(&self) -> impl Iterator<Item = Rc<RefCell<Reference>>> + '_ {
+        let values: Vec<Rc<RefCell<Reference>>> = self
             .reference
-            .lock()
+            .borrow()
             .values()
             .map(|reference| reference.0.clone())
             .collect();
@@ -2229,7 +2267,7 @@ impl ObjectStore {
     ///
     pub fn reference_timestamp(&self, reference: &Reference) -> SystemTime {
         self.reference
-            .lock()
+            .borrow()
             .get(&reference.id)
             .map(|reference| reference.1)
             .unwrap_or(SystemTime::now())
@@ -2237,37 +2275,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
-    pub fn inter_result_statement(&mut self, result_statement: Arc<Mutex<ResultStatement>>) {
-        let read = result_statement.lock();
+    pub fn inter_result_statement(&mut self, result_statement: Rc<RefCell<ResultStatement>>) {
+        let read = result_statement.borrow();
         self.result_statement
-            .lock()
+            .borrow_mut()
             .insert(read.id, (result_statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ResultStatement`] from the store.
     ///
-    pub fn exhume_result_statement(&self, id: &Uuid) -> Option<Arc<Mutex<ResultStatement>>> {
+    pub fn exhume_result_statement(&self, id: &Uuid) -> Option<Rc<RefCell<ResultStatement>>> {
         self.result_statement
-            .lock()
+            .borrow()
             .get(id)
             .map(|result_statement| result_statement.0.clone())
     }
 
     /// Exorcise (remove) [`ResultStatement`] from the store.
     ///
-    pub fn exorcise_result_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<ResultStatement>>> {
+    pub fn exorcise_result_statement(&mut self, id: &Uuid) -> Option<Rc<RefCell<ResultStatement>>> {
         self.result_statement
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|result_statement| result_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
     ///
-    pub fn iter_result_statement(&self) -> impl Iterator<Item = Arc<Mutex<ResultStatement>>> + '_ {
-        let values: Vec<Arc<Mutex<ResultStatement>>> = self
+    pub fn iter_result_statement(&self) -> impl Iterator<Item = Rc<RefCell<ResultStatement>>> + '_ {
+        let values: Vec<Rc<RefCell<ResultStatement>>> = self
             .result_statement
-            .lock()
+            .borrow()
             .values()
             .map(|result_statement| result_statement.0.clone())
             .collect();
@@ -2279,7 +2317,7 @@ impl ObjectStore {
     ///
     pub fn result_statement_timestamp(&self, result_statement: &ResultStatement) -> SystemTime {
         self.result_statement
-            .lock()
+            .borrow()
             .get(&result_statement.id)
             .map(|result_statement| result_statement.1)
             .unwrap_or(SystemTime::now())
@@ -2287,37 +2325,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`XReturn`] into the store.
     ///
-    pub fn inter_x_return(&mut self, x_return: Arc<Mutex<XReturn>>) {
-        let read = x_return.lock();
+    pub fn inter_x_return(&mut self, x_return: Rc<RefCell<XReturn>>) {
+        let read = x_return.borrow();
         self.x_return
-            .lock()
+            .borrow_mut()
             .insert(read.id, (x_return.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XReturn`] from the store.
     ///
-    pub fn exhume_x_return(&self, id: &Uuid) -> Option<Arc<Mutex<XReturn>>> {
+    pub fn exhume_x_return(&self, id: &Uuid) -> Option<Rc<RefCell<XReturn>>> {
         self.x_return
-            .lock()
+            .borrow()
             .get(id)
             .map(|x_return| x_return.0.clone())
     }
 
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
-    pub fn exorcise_x_return(&mut self, id: &Uuid) -> Option<Arc<Mutex<XReturn>>> {
+    pub fn exorcise_x_return(&mut self, id: &Uuid) -> Option<Rc<RefCell<XReturn>>> {
         self.x_return
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|x_return| x_return.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
     ///
-    pub fn iter_x_return(&self) -> impl Iterator<Item = Arc<Mutex<XReturn>>> + '_ {
-        let values: Vec<Arc<Mutex<XReturn>>> = self
+    pub fn iter_x_return(&self) -> impl Iterator<Item = Rc<RefCell<XReturn>>> + '_ {
+        let values: Vec<Rc<RefCell<XReturn>>> = self
             .x_return
-            .lock()
+            .borrow()
             .values()
             .map(|x_return| x_return.0.clone())
             .collect();
@@ -2329,7 +2367,7 @@ impl ObjectStore {
     ///
     pub fn x_return_timestamp(&self, x_return: &XReturn) -> SystemTime {
         self.x_return
-            .lock()
+            .borrow()
             .get(&x_return.id)
             .map(|x_return| x_return.1)
             .unwrap_or(SystemTime::now())
@@ -2337,31 +2375,34 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZSome`] into the store.
     ///
-    pub fn inter_z_some(&mut self, z_some: Arc<Mutex<ZSome>>) {
-        let read = z_some.lock();
+    pub fn inter_z_some(&mut self, z_some: Rc<RefCell<ZSome>>) {
+        let read = z_some.borrow();
         self.z_some
-            .lock()
+            .borrow_mut()
             .insert(read.id, (z_some.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ZSome`] from the store.
     ///
-    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Arc<Mutex<ZSome>>> {
-        self.z_some.lock().get(id).map(|z_some| z_some.0.clone())
+    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Rc<RefCell<ZSome>>> {
+        self.z_some.borrow().get(id).map(|z_some| z_some.0.clone())
     }
 
     /// Exorcise (remove) [`ZSome`] from the store.
     ///
-    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<Mutex<ZSome>>> {
-        self.z_some.lock().remove(id).map(|z_some| z_some.0.clone())
+    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Rc<RefCell<ZSome>>> {
+        self.z_some
+            .borrow_mut()
+            .remove(id)
+            .map(|z_some| z_some.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
     ///
-    pub fn iter_z_some(&self) -> impl Iterator<Item = Arc<Mutex<ZSome>>> + '_ {
-        let values: Vec<Arc<Mutex<ZSome>>> = self
+    pub fn iter_z_some(&self) -> impl Iterator<Item = Rc<RefCell<ZSome>>> + '_ {
+        let values: Vec<Rc<RefCell<ZSome>>> = self
             .z_some
-            .lock()
+            .borrow()
             .values()
             .map(|z_some| z_some.0.clone())
             .collect();
@@ -2373,7 +2414,7 @@ impl ObjectStore {
     ///
     pub fn z_some_timestamp(&self, z_some: &ZSome) -> SystemTime {
         self.z_some
-            .lock()
+            .borrow()
             .get(&z_some.id)
             .map(|z_some| z_some.1)
             .unwrap_or(SystemTime::now())
@@ -2381,31 +2422,31 @@ impl ObjectStore {
 
     /// Inter (insert) [`Span`] into the store.
     ///
-    pub fn inter_span(&mut self, span: Arc<Mutex<Span>>) {
-        let read = span.lock();
+    pub fn inter_span(&mut self, span: Rc<RefCell<Span>>) {
+        let read = span.borrow();
         self.span
-            .lock()
+            .borrow_mut()
             .insert(read.id, (span.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Span`] from the store.
     ///
-    pub fn exhume_span(&self, id: &Uuid) -> Option<Arc<Mutex<Span>>> {
-        self.span.lock().get(id).map(|span| span.0.clone())
+    pub fn exhume_span(&self, id: &Uuid) -> Option<Rc<RefCell<Span>>> {
+        self.span.borrow().get(id).map(|span| span.0.clone())
     }
 
     /// Exorcise (remove) [`Span`] from the store.
     ///
-    pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Arc<Mutex<Span>>> {
-        self.span.lock().remove(id).map(|span| span.0.clone())
+    pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Rc<RefCell<Span>>> {
+        self.span.borrow_mut().remove(id).map(|span| span.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
     ///
-    pub fn iter_span(&self) -> impl Iterator<Item = Arc<Mutex<Span>>> + '_ {
-        let values: Vec<Arc<Mutex<Span>>> = self
+    pub fn iter_span(&self) -> impl Iterator<Item = Rc<RefCell<Span>>> + '_ {
+        let values: Vec<Rc<RefCell<Span>>> = self
             .span
-            .lock()
+            .borrow()
             .values()
             .map(|span| span.0.clone())
             .collect();
@@ -2417,7 +2458,7 @@ impl ObjectStore {
     ///
     pub fn span_timestamp(&self, span: &Span) -> SystemTime {
         self.span
-            .lock()
+            .borrow()
             .get(&span.id)
             .map(|span| span.1)
             .unwrap_or(SystemTime::now())
@@ -2425,37 +2466,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Statement`] into the store.
     ///
-    pub fn inter_statement(&mut self, statement: Arc<Mutex<Statement>>) {
-        let read = statement.lock();
+    pub fn inter_statement(&mut self, statement: Rc<RefCell<Statement>>) {
+        let read = statement.borrow();
         self.statement
-            .lock()
+            .borrow_mut()
             .insert(read.id, (statement.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Statement`] from the store.
     ///
-    pub fn exhume_statement(&self, id: &Uuid) -> Option<Arc<Mutex<Statement>>> {
+    pub fn exhume_statement(&self, id: &Uuid) -> Option<Rc<RefCell<Statement>>> {
         self.statement
-            .lock()
+            .borrow()
             .get(id)
             .map(|statement| statement.0.clone())
     }
 
     /// Exorcise (remove) [`Statement`] from the store.
     ///
-    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Arc<Mutex<Statement>>> {
+    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Rc<RefCell<Statement>>> {
         self.statement
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|statement| statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
-    pub fn iter_statement(&self) -> impl Iterator<Item = Arc<Mutex<Statement>>> + '_ {
-        let values: Vec<Arc<Mutex<Statement>>> = self
+    pub fn iter_statement(&self) -> impl Iterator<Item = Rc<RefCell<Statement>>> + '_ {
+        let values: Vec<Rc<RefCell<Statement>>> = self
             .statement
-            .lock()
+            .borrow()
             .values()
             .map(|statement| statement.0.clone())
             .collect();
@@ -2467,7 +2508,7 @@ impl ObjectStore {
     ///
     pub fn statement_timestamp(&self, statement: &Statement) -> SystemTime {
         self.statement
-            .lock()
+            .borrow()
             .get(&statement.id)
             .map(|statement| statement.1)
             .unwrap_or(SystemTime::now())
@@ -2475,18 +2516,18 @@ impl ObjectStore {
 
     /// Inter (insert) [`StaticMethodCall`] into the store.
     ///
-    pub fn inter_static_method_call(&mut self, static_method_call: Arc<Mutex<StaticMethodCall>>) {
-        let read = static_method_call.lock();
+    pub fn inter_static_method_call(&mut self, static_method_call: Rc<RefCell<StaticMethodCall>>) {
+        let read = static_method_call.borrow();
         self.static_method_call
-            .lock()
+            .borrow_mut()
             .insert(read.id, (static_method_call.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StaticMethodCall`] from the store.
     ///
-    pub fn exhume_static_method_call(&self, id: &Uuid) -> Option<Arc<Mutex<StaticMethodCall>>> {
+    pub fn exhume_static_method_call(&self, id: &Uuid) -> Option<Rc<RefCell<StaticMethodCall>>> {
         self.static_method_call
-            .lock()
+            .borrow()
             .get(id)
             .map(|static_method_call| static_method_call.0.clone())
     }
@@ -2496,9 +2537,9 @@ impl ObjectStore {
     pub fn exorcise_static_method_call(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<StaticMethodCall>>> {
+    ) -> Option<Rc<RefCell<StaticMethodCall>>> {
         self.static_method_call
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|static_method_call| static_method_call.0.clone())
     }
@@ -2507,10 +2548,10 @@ impl ObjectStore {
     ///
     pub fn iter_static_method_call(
         &self,
-    ) -> impl Iterator<Item = Arc<Mutex<StaticMethodCall>>> + '_ {
-        let values: Vec<Arc<Mutex<StaticMethodCall>>> = self
+    ) -> impl Iterator<Item = Rc<RefCell<StaticMethodCall>>> + '_ {
+        let values: Vec<Rc<RefCell<StaticMethodCall>>> = self
             .static_method_call
-            .lock()
+            .borrow()
             .values()
             .map(|static_method_call| static_method_call.0.clone())
             .collect();
@@ -2525,7 +2566,7 @@ impl ObjectStore {
         static_method_call: &StaticMethodCall,
     ) -> SystemTime {
         self.static_method_call
-            .lock()
+            .borrow()
             .get(&static_method_call.id)
             .map(|static_method_call| static_method_call.1)
             .unwrap_or(SystemTime::now())
@@ -2533,37 +2574,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
-    pub fn inter_string_literal(&mut self, string_literal: Arc<Mutex<StringLiteral>>) {
-        let read = string_literal.lock();
+    pub fn inter_string_literal(&mut self, string_literal: Rc<RefCell<StringLiteral>>) {
+        let read = string_literal.borrow();
         self.string_literal
-            .lock()
+            .borrow_mut()
             .insert(read.id, (string_literal.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StringLiteral`] from the store.
     ///
-    pub fn exhume_string_literal(&self, id: &Uuid) -> Option<Arc<Mutex<StringLiteral>>> {
+    pub fn exhume_string_literal(&self, id: &Uuid) -> Option<Rc<RefCell<StringLiteral>>> {
         self.string_literal
-            .lock()
+            .borrow()
             .get(id)
             .map(|string_literal| string_literal.0.clone())
     }
 
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
-    pub fn exorcise_string_literal(&mut self, id: &Uuid) -> Option<Arc<Mutex<StringLiteral>>> {
+    pub fn exorcise_string_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<StringLiteral>>> {
         self.string_literal
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|string_literal| string_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
     ///
-    pub fn iter_string_literal(&self) -> impl Iterator<Item = Arc<Mutex<StringLiteral>>> + '_ {
-        let values: Vec<Arc<Mutex<StringLiteral>>> = self
+    pub fn iter_string_literal(&self) -> impl Iterator<Item = Rc<RefCell<StringLiteral>>> + '_ {
+        let values: Vec<Rc<RefCell<StringLiteral>>> = self
             .string_literal
-            .lock()
+            .borrow()
             .values()
             .map(|string_literal| string_literal.0.clone())
             .collect();
@@ -2575,7 +2616,7 @@ impl ObjectStore {
     ///
     pub fn string_literal_timestamp(&self, string_literal: &StringLiteral) -> SystemTime {
         self.string_literal
-            .lock()
+            .borrow()
             .get(&string_literal.id)
             .map(|string_literal| string_literal.1)
             .unwrap_or(SystemTime::now())
@@ -2583,29 +2624,29 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogStruct`] into the store.
     ///
-    pub fn inter_woog_struct(&mut self, woog_struct: Arc<Mutex<WoogStruct>>) {
-        let read = woog_struct.lock();
+    pub fn inter_woog_struct(&mut self, woog_struct: Rc<RefCell<WoogStruct>>) {
+        let read = woog_struct.borrow();
         let value = (woog_struct.clone(), SystemTime::now());
         self.woog_struct_id_by_name
-            .lock()
+            .borrow_mut()
             .insert(read.name.to_upper_camel_case(), (read.id, value.1));
-        self.woog_struct.lock().insert(read.id, value);
+        self.woog_struct.borrow_mut().insert(read.id, value);
     }
 
     /// Exhume (get) [`WoogStruct`] from the store.
     ///
-    pub fn exhume_woog_struct(&self, id: &Uuid) -> Option<Arc<Mutex<WoogStruct>>> {
+    pub fn exhume_woog_struct(&self, id: &Uuid) -> Option<Rc<RefCell<WoogStruct>>> {
         self.woog_struct
-            .lock()
+            .borrow()
             .get(id)
             .map(|woog_struct| woog_struct.0.clone())
     }
 
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
-    pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<Arc<Mutex<WoogStruct>>> {
+    pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<Rc<RefCell<WoogStruct>>> {
         self.woog_struct
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|woog_struct| woog_struct.0.clone())
     }
@@ -2614,17 +2655,17 @@ impl ObjectStore {
     ///
     pub fn exhume_woog_struct_id_by_name(&self, name: &str) -> Option<Uuid> {
         self.woog_struct_id_by_name
-            .lock()
+            .borrow()
             .get(name)
             .map(|woog_struct| woog_struct.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogStruct>`.
     ///
-    pub fn iter_woog_struct(&self) -> impl Iterator<Item = Arc<Mutex<WoogStruct>>> + '_ {
-        let values: Vec<Arc<Mutex<WoogStruct>>> = self
+    pub fn iter_woog_struct(&self) -> impl Iterator<Item = Rc<RefCell<WoogStruct>>> + '_ {
+        let values: Vec<Rc<RefCell<WoogStruct>>> = self
             .woog_struct
-            .lock()
+            .borrow()
             .values()
             .map(|woog_struct| woog_struct.0.clone())
             .collect();
@@ -2636,7 +2677,7 @@ impl ObjectStore {
     ///
     pub fn woog_struct_timestamp(&self, woog_struct: &WoogStruct) -> SystemTime {
         self.woog_struct
-            .lock()
+            .borrow()
             .get(&woog_struct.id)
             .map(|woog_struct| woog_struct.1)
             .unwrap_or(SystemTime::now())
@@ -2644,18 +2685,18 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructExpression`] into the store.
     ///
-    pub fn inter_struct_expression(&mut self, struct_expression: Arc<Mutex<StructExpression>>) {
-        let read = struct_expression.lock();
+    pub fn inter_struct_expression(&mut self, struct_expression: Rc<RefCell<StructExpression>>) {
+        let read = struct_expression.borrow();
         self.struct_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (struct_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`StructExpression`] from the store.
     ///
-    pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<Arc<Mutex<StructExpression>>> {
+    pub fn exhume_struct_expression(&self, id: &Uuid) -> Option<Rc<RefCell<StructExpression>>> {
         self.struct_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|struct_expression| struct_expression.0.clone())
     }
@@ -2665,9 +2706,9 @@ impl ObjectStore {
     pub fn exorcise_struct_expression(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<StructExpression>>> {
+    ) -> Option<Rc<RefCell<StructExpression>>> {
         self.struct_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|struct_expression| struct_expression.0.clone())
     }
@@ -2676,10 +2717,10 @@ impl ObjectStore {
     ///
     pub fn iter_struct_expression(
         &self,
-    ) -> impl Iterator<Item = Arc<Mutex<StructExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<StructExpression>>> = self
+    ) -> impl Iterator<Item = Rc<RefCell<StructExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<StructExpression>>> = self
             .struct_expression
-            .lock()
+            .borrow()
             .values()
             .map(|struct_expression| struct_expression.0.clone())
             .collect();
@@ -2691,7 +2732,7 @@ impl ObjectStore {
     ///
     pub fn struct_expression_timestamp(&self, struct_expression: &StructExpression) -> SystemTime {
         self.struct_expression
-            .lock()
+            .borrow()
             .get(&struct_expression.id)
             .map(|struct_expression| struct_expression.1)
             .unwrap_or(SystemTime::now())
@@ -2699,37 +2740,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`TypeCast`] into the store.
     ///
-    pub fn inter_type_cast(&mut self, type_cast: Arc<Mutex<TypeCast>>) {
-        let read = type_cast.lock();
+    pub fn inter_type_cast(&mut self, type_cast: Rc<RefCell<TypeCast>>) {
+        let read = type_cast.borrow();
         self.type_cast
-            .lock()
+            .borrow_mut()
             .insert(read.id, (type_cast.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`TypeCast`] from the store.
     ///
-    pub fn exhume_type_cast(&self, id: &Uuid) -> Option<Arc<Mutex<TypeCast>>> {
+    pub fn exhume_type_cast(&self, id: &Uuid) -> Option<Rc<RefCell<TypeCast>>> {
         self.type_cast
-            .lock()
+            .borrow()
             .get(id)
             .map(|type_cast| type_cast.0.clone())
     }
 
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
-    pub fn exorcise_type_cast(&mut self, id: &Uuid) -> Option<Arc<Mutex<TypeCast>>> {
+    pub fn exorcise_type_cast(&mut self, id: &Uuid) -> Option<Rc<RefCell<TypeCast>>> {
         self.type_cast
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|type_cast| type_cast.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
     ///
-    pub fn iter_type_cast(&self) -> impl Iterator<Item = Arc<Mutex<TypeCast>>> + '_ {
-        let values: Vec<Arc<Mutex<TypeCast>>> = self
+    pub fn iter_type_cast(&self) -> impl Iterator<Item = Rc<RefCell<TypeCast>>> + '_ {
+        let values: Vec<Rc<RefCell<TypeCast>>> = self
             .type_cast
-            .lock()
+            .borrow()
             .values()
             .map(|type_cast| type_cast.0.clone())
             .collect();
@@ -2741,7 +2782,7 @@ impl ObjectStore {
     ///
     pub fn type_cast_timestamp(&self, type_cast: &TypeCast) -> SystemTime {
         self.type_cast
-            .lock()
+            .borrow()
             .get(&type_cast.id)
             .map(|type_cast| type_cast.1)
             .unwrap_or(SystemTime::now())
@@ -2749,34 +2790,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`XValue`] into the store.
     ///
-    pub fn inter_x_value(&mut self, x_value: Arc<Mutex<XValue>>) {
-        let read = x_value.lock();
+    pub fn inter_x_value(&mut self, x_value: Rc<RefCell<XValue>>) {
+        let read = x_value.borrow();
         self.x_value
-            .lock()
+            .borrow_mut()
             .insert(read.id, (x_value.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`XValue`] from the store.
     ///
-    pub fn exhume_x_value(&self, id: &Uuid) -> Option<Arc<Mutex<XValue>>> {
-        self.x_value.lock().get(id).map(|x_value| x_value.0.clone())
+    pub fn exhume_x_value(&self, id: &Uuid) -> Option<Rc<RefCell<XValue>>> {
+        self.x_value
+            .borrow()
+            .get(id)
+            .map(|x_value| x_value.0.clone())
     }
 
     /// Exorcise (remove) [`XValue`] from the store.
     ///
-    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<Arc<Mutex<XValue>>> {
+    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<Rc<RefCell<XValue>>> {
         self.x_value
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|x_value| x_value.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
-    pub fn iter_x_value(&self) -> impl Iterator<Item = Arc<Mutex<XValue>>> + '_ {
-        let values: Vec<Arc<Mutex<XValue>>> = self
+    pub fn iter_x_value(&self) -> impl Iterator<Item = Rc<RefCell<XValue>>> + '_ {
+        let values: Vec<Rc<RefCell<XValue>>> = self
             .x_value
-            .lock()
+            .borrow()
             .values()
             .map(|x_value| x_value.0.clone())
             .collect();
@@ -2788,7 +2832,7 @@ impl ObjectStore {
     ///
     pub fn x_value_timestamp(&self, x_value: &XValue) -> SystemTime {
         self.x_value
-            .lock()
+            .borrow()
             .get(&x_value.id)
             .map(|x_value| x_value.1)
             .unwrap_or(SystemTime::now())
@@ -2796,37 +2840,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`ValueType`] into the store.
     ///
-    pub fn inter_value_type(&mut self, value_type: Arc<Mutex<ValueType>>) {
-        let read = value_type.lock();
+    pub fn inter_value_type(&mut self, value_type: Rc<RefCell<ValueType>>) {
+        let read = value_type.borrow();
         self.value_type
-            .lock()
+            .borrow_mut()
             .insert(read.id(), (value_type.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ValueType`] from the store.
     ///
-    pub fn exhume_value_type(&self, id: &Uuid) -> Option<Arc<Mutex<ValueType>>> {
+    pub fn exhume_value_type(&self, id: &Uuid) -> Option<Rc<RefCell<ValueType>>> {
         self.value_type
-            .lock()
+            .borrow()
             .get(id)
             .map(|value_type| value_type.0.clone())
     }
 
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
-    pub fn exorcise_value_type(&mut self, id: &Uuid) -> Option<Arc<Mutex<ValueType>>> {
+    pub fn exorcise_value_type(&mut self, id: &Uuid) -> Option<Rc<RefCell<ValueType>>> {
         self.value_type
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|value_type| value_type.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
     ///
-    pub fn iter_value_type(&self) -> impl Iterator<Item = Arc<Mutex<ValueType>>> + '_ {
-        let values: Vec<Arc<Mutex<ValueType>>> = self
+    pub fn iter_value_type(&self) -> impl Iterator<Item = Rc<RefCell<ValueType>>> + '_ {
+        let values: Vec<Rc<RefCell<ValueType>>> = self
             .value_type
-            .lock()
+            .borrow()
             .values()
             .map(|value_type| value_type.0.clone())
             .collect();
@@ -2838,7 +2882,7 @@ impl ObjectStore {
     ///
     pub fn value_type_timestamp(&self, value_type: &ValueType) -> SystemTime {
         self.value_type
-            .lock()
+            .borrow()
             .get(&value_type.id())
             .map(|value_type| value_type.1)
             .unwrap_or(SystemTime::now())
@@ -2846,37 +2890,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Variable`] into the store.
     ///
-    pub fn inter_variable(&mut self, variable: Arc<Mutex<Variable>>) {
-        let read = variable.lock();
+    pub fn inter_variable(&mut self, variable: Rc<RefCell<Variable>>) {
+        let read = variable.borrow();
         self.variable
-            .lock()
+            .borrow_mut()
             .insert(read.id, (variable.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Variable`] from the store.
     ///
-    pub fn exhume_variable(&self, id: &Uuid) -> Option<Arc<Mutex<Variable>>> {
+    pub fn exhume_variable(&self, id: &Uuid) -> Option<Rc<RefCell<Variable>>> {
         self.variable
-            .lock()
+            .borrow()
             .get(id)
             .map(|variable| variable.0.clone())
     }
 
     /// Exorcise (remove) [`Variable`] from the store.
     ///
-    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Arc<Mutex<Variable>>> {
+    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Rc<RefCell<Variable>>> {
         self.variable
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|variable| variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
     ///
-    pub fn iter_variable(&self) -> impl Iterator<Item = Arc<Mutex<Variable>>> + '_ {
-        let values: Vec<Arc<Mutex<Variable>>> = self
+    pub fn iter_variable(&self) -> impl Iterator<Item = Rc<RefCell<Variable>>> + '_ {
+        let values: Vec<Rc<RefCell<Variable>>> = self
             .variable
-            .lock()
+            .borrow()
             .values()
             .map(|variable| variable.0.clone())
             .collect();
@@ -2888,7 +2932,7 @@ impl ObjectStore {
     ///
     pub fn variable_timestamp(&self, variable: &Variable) -> SystemTime {
         self.variable
-            .lock()
+            .borrow()
             .get(&variable.id)
             .map(|variable| variable.1)
             .unwrap_or(SystemTime::now())
@@ -2898,19 +2942,19 @@ impl ObjectStore {
     ///
     pub fn inter_variable_expression(
         &mut self,
-        variable_expression: Arc<Mutex<VariableExpression>>,
+        variable_expression: Rc<RefCell<VariableExpression>>,
     ) {
-        let read = variable_expression.lock();
+        let read = variable_expression.borrow();
         self.variable_expression
-            .lock()
+            .borrow_mut()
             .insert(read.id, (variable_expression.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`VariableExpression`] from the store.
     ///
-    pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<Arc<Mutex<VariableExpression>>> {
+    pub fn exhume_variable_expression(&self, id: &Uuid) -> Option<Rc<RefCell<VariableExpression>>> {
         self.variable_expression
-            .lock()
+            .borrow()
             .get(id)
             .map(|variable_expression| variable_expression.0.clone())
     }
@@ -2920,9 +2964,9 @@ impl ObjectStore {
     pub fn exorcise_variable_expression(
         &mut self,
         id: &Uuid,
-    ) -> Option<Arc<Mutex<VariableExpression>>> {
+    ) -> Option<Rc<RefCell<VariableExpression>>> {
         self.variable_expression
-            .lock()
+            .borrow_mut()
             .remove(id)
             .map(|variable_expression| variable_expression.0.clone())
     }
@@ -2931,10 +2975,10 @@ impl ObjectStore {
     ///
     pub fn iter_variable_expression(
         &self,
-    ) -> impl Iterator<Item = Arc<Mutex<VariableExpression>>> + '_ {
-        let values: Vec<Arc<Mutex<VariableExpression>>> = self
+    ) -> impl Iterator<Item = Rc<RefCell<VariableExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<VariableExpression>>> = self
             .variable_expression
-            .lock()
+            .borrow()
             .values()
             .map(|variable_expression| variable_expression.0.clone())
             .collect();
@@ -2949,7 +2993,7 @@ impl ObjectStore {
         variable_expression: &VariableExpression,
     ) -> SystemTime {
         self.variable_expression
-            .lock()
+            .borrow()
             .get(&variable_expression.id)
             .map(|variable_expression| variable_expression.1)
             .unwrap_or(SystemTime::now())
@@ -2985,14 +3029,14 @@ impl ObjectStore {
         {
             let path = path.join("argument");
             fs::create_dir_all(&path)?;
-            for argument_tuple in self.argument.lock().values() {
-                let path = path.join(format!("{}.json", argument_tuple.0.lock().id));
+            for argument_tuple in self.argument.borrow().values() {
+                let path = path.join(format!("{}.json", argument_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Argument>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Argument>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != argument_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != argument_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &argument_tuple)?;
@@ -3009,7 +3053,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.argument.lock().contains_key(&id) {
+                    if !self.argument.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3020,14 +3064,14 @@ impl ObjectStore {
         {
             let path = path.join("binary");
             fs::create_dir_all(&path)?;
-            for binary_tuple in self.binary.lock().values() {
-                let path = path.join(format!("{}.json", binary_tuple.0.lock().id()));
+            for binary_tuple in self.binary.borrow().values() {
+                let path = path.join(format!("{}.json", binary_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Binary>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Binary>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != binary_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != binary_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &binary_tuple)?;
@@ -3044,7 +3088,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.binary.lock().contains_key(&id) {
+                    if !self.binary.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3055,13 +3099,14 @@ impl ObjectStore {
         {
             let path = path.join("block");
             fs::create_dir_all(&path)?;
-            for block_tuple in self.block.lock().values() {
-                let path = path.join(format!("{}.json", block_tuple.0.lock().id));
+            for block_tuple in self.block.borrow().values() {
+                let path = path.join(format!("{}.json", block_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Block>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != block_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Block>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != block_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &block_tuple)?;
@@ -3078,7 +3123,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.block.lock().contains_key(&id) {
+                    if !self.block.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3089,14 +3134,15 @@ impl ObjectStore {
         {
             let path = path.join("boolean_literal");
             fs::create_dir_all(&path)?;
-            for boolean_literal_tuple in self.boolean_literal.lock().values() {
-                let path = path.join(format!("{}.json", boolean_literal_tuple.0.lock().id()));
+            for boolean_literal_tuple in self.boolean_literal.borrow().values() {
+                let path = path.join(format!("{}.json", boolean_literal_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<BooleanLiteral>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<BooleanLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != boolean_literal_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != boolean_literal_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &boolean_literal_tuple)?;
@@ -3113,7 +3159,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.boolean_literal.lock().contains_key(&id) {
+                    if !self.boolean_literal.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3124,13 +3170,13 @@ impl ObjectStore {
         {
             let path = path.join("call");
             fs::create_dir_all(&path)?;
-            for call_tuple in self.call.lock().values() {
-                let path = path.join(format!("{}.json", call_tuple.0.lock().id));
+            for call_tuple in self.call.borrow().values() {
+                let path = path.join(format!("{}.json", call_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Call>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != call_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Call>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != call_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &call_tuple)?;
@@ -3147,7 +3193,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.call.lock().contains_key(&id) {
+                    if !self.call.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3158,14 +3204,14 @@ impl ObjectStore {
         {
             let path = path.join("comparison");
             fs::create_dir_all(&path)?;
-            for comparison_tuple in self.comparison.lock().values() {
-                let path = path.join(format!("{}.json", comparison_tuple.0.lock().id()));
+            for comparison_tuple in self.comparison.borrow().values() {
+                let path = path.join(format!("{}.json", comparison_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Comparison>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Comparison>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != comparison_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != comparison_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &comparison_tuple)?;
@@ -3182,7 +3228,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.comparison.lock().contains_key(&id) {
+                    if !self.comparison.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3193,14 +3239,16 @@ impl ObjectStore {
         {
             let path = path.join("dwarf_source_file");
             fs::create_dir_all(&path)?;
-            for dwarf_source_file_tuple in self.dwarf_source_file.lock().values() {
-                let path = path.join(format!("{}.json", dwarf_source_file_tuple.0.lock().id));
+            for dwarf_source_file_tuple in self.dwarf_source_file.borrow().values() {
+                let path = path.join(format!("{}.json", dwarf_source_file_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<DwarfSourceFile>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<DwarfSourceFile>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != dwarf_source_file_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned()
+                        != dwarf_source_file_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &dwarf_source_file_tuple)?;
@@ -3217,7 +3265,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.dwarf_source_file.lock().contains_key(&id) {
+                    if !self.dwarf_source_file.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3228,13 +3276,14 @@ impl ObjectStore {
         {
             let path = path.join("error");
             fs::create_dir_all(&path)?;
-            for error_tuple in self.error.lock().values() {
-                let path = path.join(format!("{}.json", error_tuple.0.lock().id()));
+            for error_tuple in self.error.borrow().values() {
+                let path = path.join(format!("{}.json", error_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Error>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != error_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Error>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != error_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_tuple)?;
@@ -3251,7 +3300,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.error.lock().contains_key(&id) {
+                    if !self.error.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3262,14 +3311,15 @@ impl ObjectStore {
         {
             let path = path.join("error_expression");
             fs::create_dir_all(&path)?;
-            for error_expression_tuple in self.error_expression.lock().values() {
-                let path = path.join(format!("{}.json", error_expression_tuple.0.lock().id));
+            for error_expression_tuple in self.error_expression.borrow().values() {
+                let path = path.join(format!("{}.json", error_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ErrorExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ErrorExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != error_expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != error_expression_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &error_expression_tuple)?;
@@ -3286,7 +3336,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.error_expression.lock().contains_key(&id) {
+                    if !self.error_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3297,14 +3347,14 @@ impl ObjectStore {
         {
             let path = path.join("expression");
             fs::create_dir_all(&path)?;
-            for expression_tuple in self.expression.lock().values() {
-                let path = path.join(format!("{}.json", expression_tuple.0.lock().id()));
+            for expression_tuple in self.expression.borrow().values() {
+                let path = path.join(format!("{}.json", expression_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Expression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Expression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != expression_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &expression_tuple)?;
@@ -3321,7 +3371,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.expression.lock().contains_key(&id) {
+                    if !self.expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3332,14 +3382,15 @@ impl ObjectStore {
         {
             let path = path.join("expression_statement");
             fs::create_dir_all(&path)?;
-            for expression_statement_tuple in self.expression_statement.lock().values() {
-                let path = path.join(format!("{}.json", expression_statement_tuple.0.lock().id));
+            for expression_statement_tuple in self.expression_statement.borrow().values() {
+                let path = path.join(format!("{}.json", expression_statement_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ExpressionStatement>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ExpressionStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != expression_statement_tuple.0.lock().to_owned()
+                    if on_disk.0.borrow().to_owned()
+                        != expression_statement_tuple.0.borrow().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -3357,7 +3408,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.expression_statement.lock().contains_key(&id) {
+                    if !self.expression_statement.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3368,13 +3419,14 @@ impl ObjectStore {
         {
             let path = path.join("field");
             fs::create_dir_all(&path)?;
-            for field_tuple in self.field.lock().values() {
-                let path = path.join(format!("{}.json", field_tuple.0.lock().id));
+            for field_tuple in self.field.borrow().values() {
+                let path = path.join(format!("{}.json", field_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Field>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != field_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Field>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != field_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_tuple)?;
@@ -3391,7 +3443,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field.lock().contains_key(&id) {
+                    if !self.field.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3402,14 +3454,14 @@ impl ObjectStore {
         {
             let path = path.join("field_access");
             fs::create_dir_all(&path)?;
-            for field_access_tuple in self.field_access.lock().values() {
-                let path = path.join(format!("{}.json", field_access_tuple.0.lock().id));
+            for field_access_tuple in self.field_access.borrow().values() {
+                let path = path.join(format!("{}.json", field_access_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<FieldAccess>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<FieldAccess>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != field_access_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != field_access_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_access_tuple)?;
@@ -3426,7 +3478,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_access.lock().contains_key(&id) {
+                    if !self.field_access.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3437,14 +3489,18 @@ impl ObjectStore {
         {
             let path = path.join("field_access_target");
             fs::create_dir_all(&path)?;
-            for field_access_target_tuple in self.field_access_target.lock().values() {
-                let path = path.join(format!("{}.json", field_access_target_tuple.0.lock().id()));
+            for field_access_target_tuple in self.field_access_target.borrow().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    field_access_target_tuple.0.borrow().id()
+                ));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<FieldAccessTarget>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<FieldAccessTarget>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != field_access_target_tuple.0.lock().to_owned()
+                    if on_disk.0.borrow().to_owned()
+                        != field_access_target_tuple.0.borrow().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -3462,7 +3518,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_access_target.lock().contains_key(&id) {
+                    if !self.field_access_target.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3473,14 +3529,15 @@ impl ObjectStore {
         {
             let path = path.join("field_expression");
             fs::create_dir_all(&path)?;
-            for field_expression_tuple in self.field_expression.lock().values() {
-                let path = path.join(format!("{}.json", field_expression_tuple.0.lock().id));
+            for field_expression_tuple in self.field_expression.borrow().values() {
+                let path = path.join(format!("{}.json", field_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<FieldExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<FieldExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != field_expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != field_expression_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &field_expression_tuple)?;
@@ -3497,7 +3554,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.field_expression.lock().contains_key(&id) {
+                    if !self.field_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3508,14 +3565,14 @@ impl ObjectStore {
         {
             let path = path.join("float_literal");
             fs::create_dir_all(&path)?;
-            for float_literal_tuple in self.float_literal.lock().values() {
-                let path = path.join(format!("{}.json", float_literal_tuple.0.lock().id));
+            for float_literal_tuple in self.float_literal.borrow().values() {
+                let path = path.join(format!("{}.json", float_literal_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<FloatLiteral>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<FloatLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != float_literal_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != float_literal_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &float_literal_tuple)?;
@@ -3532,7 +3589,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.float_literal.lock().contains_key(&id) {
+                    if !self.float_literal.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3543,14 +3600,14 @@ impl ObjectStore {
         {
             let path = path.join("for_loop");
             fs::create_dir_all(&path)?;
-            for for_loop_tuple in self.for_loop.lock().values() {
-                let path = path.join(format!("{}.json", for_loop_tuple.0.lock().id));
+            for for_loop_tuple in self.for_loop.borrow().values() {
+                let path = path.join(format!("{}.json", for_loop_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ForLoop>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ForLoop>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != for_loop_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != for_loop_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &for_loop_tuple)?;
@@ -3567,7 +3624,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.for_loop.lock().contains_key(&id) {
+                    if !self.for_loop.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3578,14 +3635,14 @@ impl ObjectStore {
         {
             let path = path.join("function");
             fs::create_dir_all(&path)?;
-            for function_tuple in self.function.lock().values() {
-                let path = path.join(format!("{}.json", function_tuple.0.lock().id));
+            for function_tuple in self.function.borrow().values() {
+                let path = path.join(format!("{}.json", function_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Function>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Function>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != function_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != function_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &function_tuple)?;
@@ -3602,7 +3659,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.function.lock().contains_key(&id) {
+                    if !self.function.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3613,14 +3670,14 @@ impl ObjectStore {
         {
             let path = path.join("grouped");
             fs::create_dir_all(&path)?;
-            for grouped_tuple in self.grouped.lock().values() {
-                let path = path.join(format!("{}.json", grouped_tuple.0.lock().id));
+            for grouped_tuple in self.grouped.borrow().values() {
+                let path = path.join(format!("{}.json", grouped_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Grouped>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Grouped>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != grouped_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != grouped_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &grouped_tuple)?;
@@ -3637,7 +3694,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.grouped.lock().contains_key(&id) {
+                    if !self.grouped.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3648,13 +3705,13 @@ impl ObjectStore {
         {
             let path = path.join("x_if");
             fs::create_dir_all(&path)?;
-            for x_if_tuple in self.x_if.lock().values() {
-                let path = path.join(format!("{}.json", x_if_tuple.0.lock().id));
+            for x_if_tuple in self.x_if.borrow().values() {
+                let path = path.join(format!("{}.json", x_if_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != x_if_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != x_if_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_if_tuple)?;
@@ -3671,7 +3728,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_if.lock().contains_key(&id) {
+                    if !self.x_if.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3682,14 +3739,14 @@ impl ObjectStore {
         {
             let path = path.join("implementation");
             fs::create_dir_all(&path)?;
-            for implementation_tuple in self.implementation.lock().values() {
-                let path = path.join(format!("{}.json", implementation_tuple.0.lock().id));
+            for implementation_tuple in self.implementation.borrow().values() {
+                let path = path.join(format!("{}.json", implementation_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Implementation>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Implementation>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != implementation_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != implementation_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &implementation_tuple)?;
@@ -3706,7 +3763,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.implementation.lock().contains_key(&id) {
+                    if !self.implementation.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3717,14 +3774,14 @@ impl ObjectStore {
         {
             let path = path.join("import");
             fs::create_dir_all(&path)?;
-            for import_tuple in self.import.lock().values() {
-                let path = path.join(format!("{}.json", import_tuple.0.lock().id));
+            for import_tuple in self.import.borrow().values() {
+                let path = path.join(format!("{}.json", import_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Import>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Import>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != import_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != import_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &import_tuple)?;
@@ -3741,7 +3798,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.import.lock().contains_key(&id) {
+                    if !self.import.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3752,13 +3809,14 @@ impl ObjectStore {
         {
             let path = path.join("index");
             fs::create_dir_all(&path)?;
-            for index_tuple in self.index.lock().values() {
-                let path = path.join(format!("{}.json", index_tuple.0.lock().id));
+            for index_tuple in self.index.borrow().values() {
+                let path = path.join(format!("{}.json", index_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Index>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != index_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Index>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != index_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &index_tuple)?;
@@ -3775,7 +3833,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.index.lock().contains_key(&id) {
+                    if !self.index.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3786,14 +3844,15 @@ impl ObjectStore {
         {
             let path = path.join("integer_literal");
             fs::create_dir_all(&path)?;
-            for integer_literal_tuple in self.integer_literal.lock().values() {
-                let path = path.join(format!("{}.json", integer_literal_tuple.0.lock().id));
+            for integer_literal_tuple in self.integer_literal.borrow().values() {
+                let path = path.join(format!("{}.json", integer_literal_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<IntegerLiteral>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<IntegerLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != integer_literal_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != integer_literal_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &integer_literal_tuple)?;
@@ -3810,7 +3869,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.integer_literal.lock().contains_key(&id) {
+                    if !self.integer_literal.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3821,13 +3880,13 @@ impl ObjectStore {
         {
             let path = path.join("item");
             fs::create_dir_all(&path)?;
-            for item_tuple in self.item.lock().values() {
-                let path = path.join(format!("{}.json", item_tuple.0.lock().id));
+            for item_tuple in self.item.borrow().values() {
+                let path = path.join(format!("{}.json", item_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Item>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != item_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Item>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != item_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &item_tuple)?;
@@ -3844,7 +3903,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.item.lock().contains_key(&id) {
+                    if !self.item.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3855,14 +3914,14 @@ impl ObjectStore {
         {
             let path = path.join("let_statement");
             fs::create_dir_all(&path)?;
-            for let_statement_tuple in self.let_statement.lock().values() {
-                let path = path.join(format!("{}.json", let_statement_tuple.0.lock().id));
+            for let_statement_tuple in self.let_statement.borrow().values() {
+                let path = path.join(format!("{}.json", let_statement_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<LetStatement>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<LetStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != let_statement_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != let_statement_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &let_statement_tuple)?;
@@ -3879,7 +3938,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.let_statement.lock().contains_key(&id) {
+                    if !self.let_statement.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3890,13 +3949,13 @@ impl ObjectStore {
         {
             let path = path.join("list");
             fs::create_dir_all(&path)?;
-            for list_tuple in self.list.lock().values() {
-                let path = path.join(format!("{}.json", list_tuple.0.lock().id));
+            for list_tuple in self.list.borrow().values() {
+                let path = path.join(format!("{}.json", list_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<List>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != list_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<List>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != list_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_tuple)?;
@@ -3913,7 +3972,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list.lock().contains_key(&id) {
+                    if !self.list.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3924,14 +3983,14 @@ impl ObjectStore {
         {
             let path = path.join("list_element");
             fs::create_dir_all(&path)?;
-            for list_element_tuple in self.list_element.lock().values() {
-                let path = path.join(format!("{}.json", list_element_tuple.0.lock().id));
+            for list_element_tuple in self.list_element.borrow().values() {
+                let path = path.join(format!("{}.json", list_element_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ListElement>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ListElement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != list_element_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != list_element_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_element_tuple)?;
@@ -3948,7 +4007,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list_element.lock().contains_key(&id) {
+                    if !self.list_element.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3959,14 +4018,15 @@ impl ObjectStore {
         {
             let path = path.join("list_expression");
             fs::create_dir_all(&path)?;
-            for list_expression_tuple in self.list_expression.lock().values() {
-                let path = path.join(format!("{}.json", list_expression_tuple.0.lock().id));
+            for list_expression_tuple in self.list_expression.borrow().values() {
+                let path = path.join(format!("{}.json", list_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ListExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ListExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != list_expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != list_expression_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &list_expression_tuple)?;
@@ -3983,7 +4043,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.list_expression.lock().contains_key(&id) {
+                    if !self.list_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -3994,14 +4054,14 @@ impl ObjectStore {
         {
             let path = path.join("literal");
             fs::create_dir_all(&path)?;
-            for literal_tuple in self.literal.lock().values() {
-                let path = path.join(format!("{}.json", literal_tuple.0.lock().id()));
+            for literal_tuple in self.literal.borrow().values() {
+                let path = path.join(format!("{}.json", literal_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Literal>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Literal>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != literal_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != literal_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &literal_tuple)?;
@@ -4018,7 +4078,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.literal.lock().contains_key(&id) {
+                    if !self.literal.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4029,14 +4089,14 @@ impl ObjectStore {
         {
             let path = path.join("local_variable");
             fs::create_dir_all(&path)?;
-            for local_variable_tuple in self.local_variable.lock().values() {
-                let path = path.join(format!("{}.json", local_variable_tuple.0.lock().id));
+            for local_variable_tuple in self.local_variable.borrow().values() {
+                let path = path.join(format!("{}.json", local_variable_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<LocalVariable>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<LocalVariable>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != local_variable_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != local_variable_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &local_variable_tuple)?;
@@ -4053,7 +4113,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.local_variable.lock().contains_key(&id) {
+                    if !self.local_variable.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4064,14 +4124,14 @@ impl ObjectStore {
         {
             let path = path.join("method_call");
             fs::create_dir_all(&path)?;
-            for method_call_tuple in self.method_call.lock().values() {
-                let path = path.join(format!("{}.json", method_call_tuple.0.lock().id));
+            for method_call_tuple in self.method_call.borrow().values() {
+                let path = path.join(format!("{}.json", method_call_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<MethodCall>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<MethodCall>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != method_call_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != method_call_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &method_call_tuple)?;
@@ -4088,7 +4148,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.method_call.lock().contains_key(&id) {
+                    if !self.method_call.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4099,14 +4159,14 @@ impl ObjectStore {
         {
             let path = path.join("negation");
             fs::create_dir_all(&path)?;
-            for negation_tuple in self.negation.lock().values() {
-                let path = path.join(format!("{}.json", negation_tuple.0.lock().id));
+            for negation_tuple in self.negation.borrow().values() {
+                let path = path.join(format!("{}.json", negation_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Negation>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Negation>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != negation_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != negation_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &negation_tuple)?;
@@ -4123,7 +4183,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.negation.lock().contains_key(&id) {
+                    if !self.negation.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4134,14 +4194,14 @@ impl ObjectStore {
         {
             let path = path.join("z_object_store");
             fs::create_dir_all(&path)?;
-            for z_object_store_tuple in self.z_object_store.lock().values() {
-                let path = path.join(format!("{}.json", z_object_store_tuple.0.lock().id));
+            for z_object_store_tuple in self.z_object_store.borrow().values() {
+                let path = path.join(format!("{}.json", z_object_store_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ZObjectStore>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ZObjectStore>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != z_object_store_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != z_object_store_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_object_store_tuple)?;
@@ -4158,7 +4218,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.z_object_store.lock().contains_key(&id) {
+                    if !self.z_object_store.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4169,14 +4229,14 @@ impl ObjectStore {
         {
             let path = path.join("operator");
             fs::create_dir_all(&path)?;
-            for operator_tuple in self.operator.lock().values() {
-                let path = path.join(format!("{}.json", operator_tuple.0.lock().id));
+            for operator_tuple in self.operator.borrow().values() {
+                let path = path.join(format!("{}.json", operator_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Operator>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Operator>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != operator_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != operator_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &operator_tuple)?;
@@ -4193,7 +4253,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.operator.lock().contains_key(&id) {
+                    if !self.operator.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4204,14 +4264,14 @@ impl ObjectStore {
         {
             let path = path.join("woog_option");
             fs::create_dir_all(&path)?;
-            for woog_option_tuple in self.woog_option.lock().values() {
-                let path = path.join(format!("{}.json", woog_option_tuple.0.lock().id));
+            for woog_option_tuple in self.woog_option.borrow().values() {
+                let path = path.join(format!("{}.json", woog_option_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<WoogOption>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<WoogOption>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != woog_option_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != woog_option_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_option_tuple)?;
@@ -4228,7 +4288,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.woog_option.lock().contains_key(&id) {
+                    if !self.woog_option.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4239,14 +4299,14 @@ impl ObjectStore {
         {
             let path = path.join("parameter");
             fs::create_dir_all(&path)?;
-            for parameter_tuple in self.parameter.lock().values() {
-                let path = path.join(format!("{}.json", parameter_tuple.0.lock().id));
+            for parameter_tuple in self.parameter.borrow().values() {
+                let path = path.join(format!("{}.json", parameter_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Parameter>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Parameter>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != parameter_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != parameter_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &parameter_tuple)?;
@@ -4263,7 +4323,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.parameter.lock().contains_key(&id) {
+                    if !self.parameter.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4274,13 +4334,14 @@ impl ObjectStore {
         {
             let path = path.join("print");
             fs::create_dir_all(&path)?;
-            for print_tuple in self.print.lock().values() {
-                let path = path.join(format!("{}.json", print_tuple.0.lock().id));
+            for print_tuple in self.print.borrow().values() {
+                let path = path.join(format!("{}.json", print_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Print>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != print_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Print>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != print_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &print_tuple)?;
@@ -4297,7 +4358,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.print.lock().contains_key(&id) {
+                    if !self.print.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4308,14 +4369,15 @@ impl ObjectStore {
         {
             let path = path.join("range_expression");
             fs::create_dir_all(&path)?;
-            for range_expression_tuple in self.range_expression.lock().values() {
-                let path = path.join(format!("{}.json", range_expression_tuple.0.lock().id));
+            for range_expression_tuple in self.range_expression.borrow().values() {
+                let path = path.join(format!("{}.json", range_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<RangeExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<RangeExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != range_expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != range_expression_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &range_expression_tuple)?;
@@ -4332,7 +4394,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.range_expression.lock().contains_key(&id) {
+                    if !self.range_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4343,14 +4405,14 @@ impl ObjectStore {
         {
             let path = path.join("reference");
             fs::create_dir_all(&path)?;
-            for reference_tuple in self.reference.lock().values() {
-                let path = path.join(format!("{}.json", reference_tuple.0.lock().id));
+            for reference_tuple in self.reference.borrow().values() {
+                let path = path.join(format!("{}.json", reference_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Reference>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Reference>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != reference_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != reference_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &reference_tuple)?;
@@ -4367,7 +4429,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.reference.lock().contains_key(&id) {
+                    if !self.reference.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4378,14 +4440,15 @@ impl ObjectStore {
         {
             let path = path.join("result_statement");
             fs::create_dir_all(&path)?;
-            for result_statement_tuple in self.result_statement.lock().values() {
-                let path = path.join(format!("{}.json", result_statement_tuple.0.lock().id));
+            for result_statement_tuple in self.result_statement.borrow().values() {
+                let path = path.join(format!("{}.json", result_statement_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ResultStatement>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ResultStatement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != result_statement_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != result_statement_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &result_statement_tuple)?;
@@ -4402,7 +4465,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.result_statement.lock().contains_key(&id) {
+                    if !self.result_statement.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4413,14 +4476,14 @@ impl ObjectStore {
         {
             let path = path.join("x_return");
             fs::create_dir_all(&path)?;
-            for x_return_tuple in self.x_return.lock().values() {
-                let path = path.join(format!("{}.json", x_return_tuple.0.lock().id));
+            for x_return_tuple in self.x_return.borrow().values() {
+                let path = path.join(format!("{}.json", x_return_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<XReturn>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<XReturn>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != x_return_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != x_return_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_return_tuple)?;
@@ -4437,7 +4500,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_return.lock().contains_key(&id) {
+                    if !self.x_return.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4448,13 +4511,14 @@ impl ObjectStore {
         {
             let path = path.join("z_some");
             fs::create_dir_all(&path)?;
-            for z_some_tuple in self.z_some.lock().values() {
-                let path = path.join(format!("{}.json", z_some_tuple.0.lock().id));
+            for z_some_tuple in self.z_some.borrow().values() {
+                let path = path.join(format!("{}.json", z_some_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != z_some_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<ZSome>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != z_some_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &z_some_tuple)?;
@@ -4471,7 +4535,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.z_some.lock().contains_key(&id) {
+                    if !self.z_some.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4482,13 +4546,13 @@ impl ObjectStore {
         {
             let path = path.join("span");
             fs::create_dir_all(&path)?;
-            for span_tuple in self.span.lock().values() {
-                let path = path.join(format!("{}.json", span_tuple.0.lock().id));
+            for span_tuple in self.span.borrow().values() {
+                let path = path.join(format!("{}.json", span_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Span>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != span_tuple.0.lock().to_owned() {
+                    let on_disk: (Rc<RefCell<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != span_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &span_tuple)?;
@@ -4505,7 +4569,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.span.lock().contains_key(&id) {
+                    if !self.span.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4516,14 +4580,14 @@ impl ObjectStore {
         {
             let path = path.join("statement");
             fs::create_dir_all(&path)?;
-            for statement_tuple in self.statement.lock().values() {
-                let path = path.join(format!("{}.json", statement_tuple.0.lock().id));
+            for statement_tuple in self.statement.borrow().values() {
+                let path = path.join(format!("{}.json", statement_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Statement>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Statement>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != statement_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != statement_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &statement_tuple)?;
@@ -4540,7 +4604,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.statement.lock().contains_key(&id) {
+                    if !self.statement.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4551,14 +4615,16 @@ impl ObjectStore {
         {
             let path = path.join("static_method_call");
             fs::create_dir_all(&path)?;
-            for static_method_call_tuple in self.static_method_call.lock().values() {
-                let path = path.join(format!("{}.json", static_method_call_tuple.0.lock().id));
+            for static_method_call_tuple in self.static_method_call.borrow().values() {
+                let path = path.join(format!("{}.json", static_method_call_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<StaticMethodCall>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<StaticMethodCall>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != static_method_call_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned()
+                        != static_method_call_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &static_method_call_tuple)?;
@@ -4575,7 +4641,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.static_method_call.lock().contains_key(&id) {
+                    if !self.static_method_call.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4586,14 +4652,14 @@ impl ObjectStore {
         {
             let path = path.join("string_literal");
             fs::create_dir_all(&path)?;
-            for string_literal_tuple in self.string_literal.lock().values() {
-                let path = path.join(format!("{}.json", string_literal_tuple.0.lock().id));
+            for string_literal_tuple in self.string_literal.borrow().values() {
+                let path = path.join(format!("{}.json", string_literal_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<StringLiteral>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<StringLiteral>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != string_literal_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != string_literal_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &string_literal_tuple)?;
@@ -4610,7 +4676,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.string_literal.lock().contains_key(&id) {
+                    if !self.string_literal.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4621,14 +4687,14 @@ impl ObjectStore {
         {
             let path = path.join("woog_struct");
             fs::create_dir_all(&path)?;
-            for woog_struct_tuple in self.woog_struct.lock().values() {
-                let path = path.join(format!("{}.json", woog_struct_tuple.0.lock().id));
+            for woog_struct_tuple in self.woog_struct.borrow().values() {
+                let path = path.join(format!("{}.json", woog_struct_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<WoogStruct>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<WoogStruct>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != woog_struct_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != woog_struct_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &woog_struct_tuple)?;
@@ -4645,7 +4711,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.woog_struct.lock().contains_key(&id) {
+                    if !self.woog_struct.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4656,14 +4722,16 @@ impl ObjectStore {
         {
             let path = path.join("struct_expression");
             fs::create_dir_all(&path)?;
-            for struct_expression_tuple in self.struct_expression.lock().values() {
-                let path = path.join(format!("{}.json", struct_expression_tuple.0.lock().id));
+            for struct_expression_tuple in self.struct_expression.borrow().values() {
+                let path = path.join(format!("{}.json", struct_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<StructExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<StructExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != struct_expression_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned()
+                        != struct_expression_tuple.0.borrow().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &struct_expression_tuple)?;
@@ -4680,7 +4748,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.struct_expression.lock().contains_key(&id) {
+                    if !self.struct_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4691,14 +4759,14 @@ impl ObjectStore {
         {
             let path = path.join("type_cast");
             fs::create_dir_all(&path)?;
-            for type_cast_tuple in self.type_cast.lock().values() {
-                let path = path.join(format!("{}.json", type_cast_tuple.0.lock().id));
+            for type_cast_tuple in self.type_cast.borrow().values() {
+                let path = path.join(format!("{}.json", type_cast_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<TypeCast>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<TypeCast>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != type_cast_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != type_cast_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &type_cast_tuple)?;
@@ -4715,7 +4783,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.type_cast.lock().contains_key(&id) {
+                    if !self.type_cast.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4726,14 +4794,14 @@ impl ObjectStore {
         {
             let path = path.join("x_value");
             fs::create_dir_all(&path)?;
-            for x_value_tuple in self.x_value.lock().values() {
-                let path = path.join(format!("{}.json", x_value_tuple.0.lock().id));
+            for x_value_tuple in self.x_value.borrow().values() {
+                let path = path.join(format!("{}.json", x_value_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<XValue>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<XValue>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != x_value_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != x_value_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
@@ -4750,7 +4818,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_value.lock().contains_key(&id) {
+                    if !self.x_value.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4761,14 +4829,14 @@ impl ObjectStore {
         {
             let path = path.join("value_type");
             fs::create_dir_all(&path)?;
-            for value_type_tuple in self.value_type.lock().values() {
-                let path = path.join(format!("{}.json", value_type_tuple.0.lock().id()));
+            for value_type_tuple in self.value_type.borrow().values() {
+                let path = path.join(format!("{}.json", value_type_tuple.0.borrow().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<ValueType>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<ValueType>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != value_type_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != value_type_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &value_type_tuple)?;
@@ -4785,7 +4853,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.value_type.lock().contains_key(&id) {
+                    if !self.value_type.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4796,14 +4864,14 @@ impl ObjectStore {
         {
             let path = path.join("variable");
             fs::create_dir_all(&path)?;
-            for variable_tuple in self.variable.lock().values() {
-                let path = path.join(format!("{}.json", variable_tuple.0.lock().id));
+            for variable_tuple in self.variable.borrow().values() {
+                let path = path.join(format!("{}.json", variable_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Variable>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<Variable>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != variable_tuple.0.lock().to_owned() {
+                    if on_disk.0.borrow().to_owned() != variable_tuple.0.borrow().to_owned() {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &variable_tuple)?;
@@ -4820,7 +4888,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.variable.lock().contains_key(&id) {
+                    if !self.variable.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4831,14 +4899,15 @@ impl ObjectStore {
         {
             let path = path.join("variable_expression");
             fs::create_dir_all(&path)?;
-            for variable_expression_tuple in self.variable_expression.lock().values() {
-                let path = path.join(format!("{}.json", variable_expression_tuple.0.lock().id));
+            for variable_expression_tuple in self.variable_expression.borrow().values() {
+                let path = path.join(format!("{}.json", variable_expression_tuple.0.borrow().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<VariableExpression>>, SystemTime) =
+                    let on_disk: (Rc<RefCell<VariableExpression>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != variable_expression_tuple.0.lock().to_owned()
+                    if on_disk.0.borrow().to_owned()
+                        != variable_expression_tuple.0.borrow().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -4856,7 +4925,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.variable_expression.lock().contains_key(&id) {
+                    if !self.variable_expression.borrow().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4895,11 +4964,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let argument: (Arc<Mutex<Argument>>, SystemTime) = serde_json::from_reader(reader)?;
+                let argument: (Rc<RefCell<Argument>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .argument
-                    .lock()
-                    .insert(argument.0.lock().id, argument.clone());
+                    .borrow_mut()
+                    .insert(argument.0.borrow().id, argument.clone());
             }
         }
 
@@ -4912,11 +4982,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let binary: (Arc<Mutex<Binary>>, SystemTime) = serde_json::from_reader(reader)?;
+                let binary: (Rc<RefCell<Binary>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .binary
-                    .lock()
-                    .insert(binary.0.lock().id(), binary.clone());
+                    .borrow_mut()
+                    .insert(binary.0.borrow().id(), binary.clone());
             }
         }
 
@@ -4929,8 +4999,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let block: (Arc<Mutex<Block>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.block.lock().insert(block.0.lock().id, block.clone());
+                let block: (Rc<RefCell<Block>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .block
+                    .borrow_mut()
+                    .insert(block.0.borrow().id, block.clone());
             }
         }
 
@@ -4943,12 +5016,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let boolean_literal: (Arc<Mutex<BooleanLiteral>>, SystemTime) =
+                let boolean_literal: (Rc<RefCell<BooleanLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .boolean_literal
-                    .lock()
-                    .insert(boolean_literal.0.lock().id(), boolean_literal.clone());
+                    .borrow_mut()
+                    .insert(boolean_literal.0.borrow().id(), boolean_literal.clone());
             }
         }
 
@@ -4961,8 +5034,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let call: (Arc<Mutex<Call>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.call.lock().insert(call.0.lock().id, call.clone());
+                let call: (Rc<RefCell<Call>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .call
+                    .borrow_mut()
+                    .insert(call.0.borrow().id, call.clone());
             }
         }
 
@@ -4975,12 +5051,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let comparison: (Arc<Mutex<Comparison>>, SystemTime) =
+                let comparison: (Rc<RefCell<Comparison>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .comparison
-                    .lock()
-                    .insert(comparison.0.lock().id(), comparison.clone());
+                    .borrow_mut()
+                    .insert(comparison.0.borrow().id(), comparison.clone());
             }
         }
 
@@ -4993,12 +5069,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let dwarf_source_file: (Arc<Mutex<DwarfSourceFile>>, SystemTime) =
+                let dwarf_source_file: (Rc<RefCell<DwarfSourceFile>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .dwarf_source_file
-                    .lock()
-                    .insert(dwarf_source_file.0.lock().id, dwarf_source_file.clone());
+                    .borrow_mut()
+                    .insert(dwarf_source_file.0.borrow().id, dwarf_source_file.clone());
             }
         }
 
@@ -5011,11 +5087,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let error: (Arc<Mutex<Error>>, SystemTime) = serde_json::from_reader(reader)?;
+                let error: (Rc<RefCell<Error>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .error
-                    .lock()
-                    .insert(error.0.lock().id(), error.clone());
+                    .borrow_mut()
+                    .insert(error.0.borrow().id(), error.clone());
             }
         }
 
@@ -5028,12 +5104,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let error_expression: (Arc<Mutex<ErrorExpression>>, SystemTime) =
+                let error_expression: (Rc<RefCell<ErrorExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .error_expression
-                    .lock()
-                    .insert(error_expression.0.lock().id, error_expression.clone());
+                    .borrow_mut()
+                    .insert(error_expression.0.borrow().id, error_expression.clone());
             }
         }
 
@@ -5046,12 +5122,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let expression: (Arc<Mutex<Expression>>, SystemTime) =
+                let expression: (Rc<RefCell<Expression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .expression
-                    .lock()
-                    .insert(expression.0.lock().id(), expression.clone());
+                    .borrow_mut()
+                    .insert(expression.0.borrow().id(), expression.clone());
             }
         }
 
@@ -5064,10 +5140,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let expression_statement: (Arc<Mutex<ExpressionStatement>>, SystemTime) =
+                let expression_statement: (Rc<RefCell<ExpressionStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.expression_statement.lock().insert(
-                    expression_statement.0.lock().id,
+                store.expression_statement.borrow_mut().insert(
+                    expression_statement.0.borrow().id,
                     expression_statement.clone(),
                 );
             }
@@ -5082,12 +5158,15 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field: (Arc<Mutex<Field>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.field_id_by_name.lock().insert(
-                    field.0.lock().name.to_upper_camel_case(),
-                    (field.0.lock().id, field.1),
+                let field: (Rc<RefCell<Field>>, SystemTime) = serde_json::from_reader(reader)?;
+                store.field_id_by_name.borrow_mut().insert(
+                    field.0.borrow().name.to_upper_camel_case(),
+                    (field.0.borrow().id, field.1),
                 );
-                store.field.lock().insert(field.0.lock().id, field.clone());
+                store
+                    .field
+                    .borrow_mut()
+                    .insert(field.0.borrow().id, field.clone());
             }
         }
 
@@ -5100,12 +5179,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_access: (Arc<Mutex<FieldAccess>>, SystemTime) =
+                let field_access: (Rc<RefCell<FieldAccess>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .field_access
-                    .lock()
-                    .insert(field_access.0.lock().id, field_access.clone());
+                    .borrow_mut()
+                    .insert(field_access.0.borrow().id, field_access.clone());
             }
         }
 
@@ -5118,10 +5197,10 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_access_target: (Arc<Mutex<FieldAccessTarget>>, SystemTime) =
+                let field_access_target: (Rc<RefCell<FieldAccessTarget>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.field_access_target.lock().insert(
-                    field_access_target.0.lock().id(),
+                store.field_access_target.borrow_mut().insert(
+                    field_access_target.0.borrow().id(),
                     field_access_target.clone(),
                 );
             }
@@ -5136,12 +5215,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let field_expression: (Arc<Mutex<FieldExpression>>, SystemTime) =
+                let field_expression: (Rc<RefCell<FieldExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .field_expression
-                    .lock()
-                    .insert(field_expression.0.lock().id, field_expression.clone());
+                    .borrow_mut()
+                    .insert(field_expression.0.borrow().id, field_expression.clone());
             }
         }
 
@@ -5154,12 +5233,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let float_literal: (Arc<Mutex<FloatLiteral>>, SystemTime) =
+                let float_literal: (Rc<RefCell<FloatLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .float_literal
-                    .lock()
-                    .insert(float_literal.0.lock().id, float_literal.clone());
+                    .borrow_mut()
+                    .insert(float_literal.0.borrow().id, float_literal.clone());
             }
         }
 
@@ -5172,11 +5251,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let for_loop: (Arc<Mutex<ForLoop>>, SystemTime) = serde_json::from_reader(reader)?;
+                let for_loop: (Rc<RefCell<ForLoop>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .for_loop
-                    .lock()
-                    .insert(for_loop.0.lock().id, for_loop.clone());
+                    .borrow_mut()
+                    .insert(for_loop.0.borrow().id, for_loop.clone());
             }
         }
 
@@ -5189,15 +5268,16 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let function: (Arc<Mutex<Function>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.function_id_by_name.lock().insert(
-                    function.0.lock().name.to_upper_camel_case(),
-                    (function.0.lock().id, function.1),
+                let function: (Rc<RefCell<Function>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store.function_id_by_name.borrow_mut().insert(
+                    function.0.borrow().name.to_upper_camel_case(),
+                    (function.0.borrow().id, function.1),
                 );
                 store
                     .function
-                    .lock()
-                    .insert(function.0.lock().id, function.clone());
+                    .borrow_mut()
+                    .insert(function.0.borrow().id, function.clone());
             }
         }
 
@@ -5210,11 +5290,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let grouped: (Arc<Mutex<Grouped>>, SystemTime) = serde_json::from_reader(reader)?;
+                let grouped: (Rc<RefCell<Grouped>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .grouped
-                    .lock()
-                    .insert(grouped.0.lock().id, grouped.clone());
+                    .borrow_mut()
+                    .insert(grouped.0.borrow().id, grouped.clone());
             }
         }
 
@@ -5227,8 +5307,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_if: (Arc<Mutex<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.x_if.lock().insert(x_if.0.lock().id, x_if.clone());
+                let x_if: (Rc<RefCell<XIf>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .x_if
+                    .borrow_mut()
+                    .insert(x_if.0.borrow().id, x_if.clone());
             }
         }
 
@@ -5241,12 +5324,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let implementation: (Arc<Mutex<Implementation>>, SystemTime) =
+                let implementation: (Rc<RefCell<Implementation>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .implementation
-                    .lock()
-                    .insert(implementation.0.lock().id, implementation.clone());
+                    .borrow_mut()
+                    .insert(implementation.0.borrow().id, implementation.clone());
             }
         }
 
@@ -5259,11 +5342,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let import: (Arc<Mutex<Import>>, SystemTime) = serde_json::from_reader(reader)?;
+                let import: (Rc<RefCell<Import>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .import
-                    .lock()
-                    .insert(import.0.lock().id, import.clone());
+                    .borrow_mut()
+                    .insert(import.0.borrow().id, import.clone());
             }
         }
 
@@ -5276,8 +5359,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let index: (Arc<Mutex<Index>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.index.lock().insert(index.0.lock().id, index.clone());
+                let index: (Rc<RefCell<Index>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .index
+                    .borrow_mut()
+                    .insert(index.0.borrow().id, index.clone());
             }
         }
 
@@ -5290,12 +5376,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let integer_literal: (Arc<Mutex<IntegerLiteral>>, SystemTime) =
+                let integer_literal: (Rc<RefCell<IntegerLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .integer_literal
-                    .lock()
-                    .insert(integer_literal.0.lock().id, integer_literal.clone());
+                    .borrow_mut()
+                    .insert(integer_literal.0.borrow().id, integer_literal.clone());
             }
         }
 
@@ -5308,8 +5394,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let item: (Arc<Mutex<Item>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.item.lock().insert(item.0.lock().id, item.clone());
+                let item: (Rc<RefCell<Item>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .item
+                    .borrow_mut()
+                    .insert(item.0.borrow().id, item.clone());
             }
         }
 
@@ -5322,12 +5411,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let let_statement: (Arc<Mutex<LetStatement>>, SystemTime) =
+                let let_statement: (Rc<RefCell<LetStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .let_statement
-                    .lock()
-                    .insert(let_statement.0.lock().id, let_statement.clone());
+                    .borrow_mut()
+                    .insert(let_statement.0.borrow().id, let_statement.clone());
             }
         }
 
@@ -5340,8 +5429,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list: (Arc<Mutex<List>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.list.lock().insert(list.0.lock().id, list.clone());
+                let list: (Rc<RefCell<List>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .list
+                    .borrow_mut()
+                    .insert(list.0.borrow().id, list.clone());
             }
         }
 
@@ -5354,12 +5446,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list_element: (Arc<Mutex<ListElement>>, SystemTime) =
+                let list_element: (Rc<RefCell<ListElement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .list_element
-                    .lock()
-                    .insert(list_element.0.lock().id, list_element.clone());
+                    .borrow_mut()
+                    .insert(list_element.0.borrow().id, list_element.clone());
             }
         }
 
@@ -5372,12 +5464,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let list_expression: (Arc<Mutex<ListExpression>>, SystemTime) =
+                let list_expression: (Rc<RefCell<ListExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .list_expression
-                    .lock()
-                    .insert(list_expression.0.lock().id, list_expression.clone());
+                    .borrow_mut()
+                    .insert(list_expression.0.borrow().id, list_expression.clone());
             }
         }
 
@@ -5390,11 +5482,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let literal: (Arc<Mutex<Literal>>, SystemTime) = serde_json::from_reader(reader)?;
+                let literal: (Rc<RefCell<Literal>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .literal
-                    .lock()
-                    .insert(literal.0.lock().id(), literal.clone());
+                    .borrow_mut()
+                    .insert(literal.0.borrow().id(), literal.clone());
             }
         }
 
@@ -5407,12 +5499,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let local_variable: (Arc<Mutex<LocalVariable>>, SystemTime) =
+                let local_variable: (Rc<RefCell<LocalVariable>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .local_variable
-                    .lock()
-                    .insert(local_variable.0.lock().id, local_variable.clone());
+                    .borrow_mut()
+                    .insert(local_variable.0.borrow().id, local_variable.clone());
             }
         }
 
@@ -5425,12 +5517,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let method_call: (Arc<Mutex<MethodCall>>, SystemTime) =
+                let method_call: (Rc<RefCell<MethodCall>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .method_call
-                    .lock()
-                    .insert(method_call.0.lock().id, method_call.clone());
+                    .borrow_mut()
+                    .insert(method_call.0.borrow().id, method_call.clone());
             }
         }
 
@@ -5443,11 +5535,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let negation: (Arc<Mutex<Negation>>, SystemTime) = serde_json::from_reader(reader)?;
+                let negation: (Rc<RefCell<Negation>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .negation
-                    .lock()
-                    .insert(negation.0.lock().id, negation.clone());
+                    .borrow_mut()
+                    .insert(negation.0.borrow().id, negation.clone());
             }
         }
 
@@ -5460,12 +5553,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let z_object_store: (Arc<Mutex<ZObjectStore>>, SystemTime) =
+                let z_object_store: (Rc<RefCell<ZObjectStore>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .z_object_store
-                    .lock()
-                    .insert(z_object_store.0.lock().id, z_object_store.clone());
+                    .borrow_mut()
+                    .insert(z_object_store.0.borrow().id, z_object_store.clone());
             }
         }
 
@@ -5478,11 +5571,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let operator: (Arc<Mutex<Operator>>, SystemTime) = serde_json::from_reader(reader)?;
+                let operator: (Rc<RefCell<Operator>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .operator
-                    .lock()
-                    .insert(operator.0.lock().id, operator.clone());
+                    .borrow_mut()
+                    .insert(operator.0.borrow().id, operator.clone());
             }
         }
 
@@ -5495,12 +5589,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let woog_option: (Arc<Mutex<WoogOption>>, SystemTime) =
+                let woog_option: (Rc<RefCell<WoogOption>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .woog_option
-                    .lock()
-                    .insert(woog_option.0.lock().id, woog_option.clone());
+                    .borrow_mut()
+                    .insert(woog_option.0.borrow().id, woog_option.clone());
             }
         }
 
@@ -5513,12 +5607,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let parameter: (Arc<Mutex<Parameter>>, SystemTime) =
+                let parameter: (Rc<RefCell<Parameter>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .parameter
-                    .lock()
-                    .insert(parameter.0.lock().id, parameter.clone());
+                    .borrow_mut()
+                    .insert(parameter.0.borrow().id, parameter.clone());
             }
         }
 
@@ -5531,8 +5625,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let print: (Arc<Mutex<Print>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.print.lock().insert(print.0.lock().id, print.clone());
+                let print: (Rc<RefCell<Print>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .print
+                    .borrow_mut()
+                    .insert(print.0.borrow().id, print.clone());
             }
         }
 
@@ -5545,12 +5642,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let range_expression: (Arc<Mutex<RangeExpression>>, SystemTime) =
+                let range_expression: (Rc<RefCell<RangeExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .range_expression
-                    .lock()
-                    .insert(range_expression.0.lock().id, range_expression.clone());
+                    .borrow_mut()
+                    .insert(range_expression.0.borrow().id, range_expression.clone());
             }
         }
 
@@ -5563,12 +5660,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let reference: (Arc<Mutex<Reference>>, SystemTime) =
+                let reference: (Rc<RefCell<Reference>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .reference
-                    .lock()
-                    .insert(reference.0.lock().id, reference.clone());
+                    .borrow_mut()
+                    .insert(reference.0.borrow().id, reference.clone());
             }
         }
 
@@ -5581,12 +5678,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let result_statement: (Arc<Mutex<ResultStatement>>, SystemTime) =
+                let result_statement: (Rc<RefCell<ResultStatement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .result_statement
-                    .lock()
-                    .insert(result_statement.0.lock().id, result_statement.clone());
+                    .borrow_mut()
+                    .insert(result_statement.0.borrow().id, result_statement.clone());
             }
         }
 
@@ -5599,11 +5696,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_return: (Arc<Mutex<XReturn>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_return: (Rc<RefCell<XReturn>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .x_return
-                    .lock()
-                    .insert(x_return.0.lock().id, x_return.clone());
+                    .borrow_mut()
+                    .insert(x_return.0.borrow().id, x_return.clone());
             }
         }
 
@@ -5616,11 +5713,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let z_some: (Arc<Mutex<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
+                let z_some: (Rc<RefCell<ZSome>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .z_some
-                    .lock()
-                    .insert(z_some.0.lock().id, z_some.clone());
+                    .borrow_mut()
+                    .insert(z_some.0.borrow().id, z_some.clone());
             }
         }
 
@@ -5633,8 +5730,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let span: (Arc<Mutex<Span>>, SystemTime) = serde_json::from_reader(reader)?;
-                store.span.lock().insert(span.0.lock().id, span.clone());
+                let span: (Rc<RefCell<Span>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .span
+                    .borrow_mut()
+                    .insert(span.0.borrow().id, span.clone());
             }
         }
 
@@ -5647,12 +5747,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let statement: (Arc<Mutex<Statement>>, SystemTime) =
+                let statement: (Rc<RefCell<Statement>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .statement
-                    .lock()
-                    .insert(statement.0.lock().id, statement.clone());
+                    .borrow_mut()
+                    .insert(statement.0.borrow().id, statement.clone());
             }
         }
 
@@ -5665,12 +5765,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let static_method_call: (Arc<Mutex<StaticMethodCall>>, SystemTime) =
+                let static_method_call: (Rc<RefCell<StaticMethodCall>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .static_method_call
-                    .lock()
-                    .insert(static_method_call.0.lock().id, static_method_call.clone());
+                    .borrow_mut()
+                    .insert(static_method_call.0.borrow().id, static_method_call.clone());
             }
         }
 
@@ -5683,12 +5783,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let string_literal: (Arc<Mutex<StringLiteral>>, SystemTime) =
+                let string_literal: (Rc<RefCell<StringLiteral>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .string_literal
-                    .lock()
-                    .insert(string_literal.0.lock().id, string_literal.clone());
+                    .borrow_mut()
+                    .insert(string_literal.0.borrow().id, string_literal.clone());
             }
         }
 
@@ -5701,16 +5801,16 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let woog_struct: (Arc<Mutex<WoogStruct>>, SystemTime) =
+                let woog_struct: (Rc<RefCell<WoogStruct>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store.woog_struct_id_by_name.lock().insert(
-                    woog_struct.0.lock().name.to_upper_camel_case(),
-                    (woog_struct.0.lock().id, woog_struct.1),
+                store.woog_struct_id_by_name.borrow_mut().insert(
+                    woog_struct.0.borrow().name.to_upper_camel_case(),
+                    (woog_struct.0.borrow().id, woog_struct.1),
                 );
                 store
                     .woog_struct
-                    .lock()
-                    .insert(woog_struct.0.lock().id, woog_struct.clone());
+                    .borrow_mut()
+                    .insert(woog_struct.0.borrow().id, woog_struct.clone());
             }
         }
 
@@ -5723,12 +5823,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let struct_expression: (Arc<Mutex<StructExpression>>, SystemTime) =
+                let struct_expression: (Rc<RefCell<StructExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .struct_expression
-                    .lock()
-                    .insert(struct_expression.0.lock().id, struct_expression.clone());
+                    .borrow_mut()
+                    .insert(struct_expression.0.borrow().id, struct_expression.clone());
             }
         }
 
@@ -5741,12 +5841,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let type_cast: (Arc<Mutex<TypeCast>>, SystemTime) =
+                let type_cast: (Rc<RefCell<TypeCast>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .type_cast
-                    .lock()
-                    .insert(type_cast.0.lock().id, type_cast.clone());
+                    .borrow_mut()
+                    .insert(type_cast.0.borrow().id, type_cast.clone());
             }
         }
 
@@ -5759,11 +5859,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_value: (Arc<Mutex<XValue>>, SystemTime) = serde_json::from_reader(reader)?;
+                let x_value: (Rc<RefCell<XValue>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .x_value
-                    .lock()
-                    .insert(x_value.0.lock().id, x_value.clone());
+                    .borrow_mut()
+                    .insert(x_value.0.borrow().id, x_value.clone());
             }
         }
 
@@ -5776,12 +5876,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let value_type: (Arc<Mutex<ValueType>>, SystemTime) =
+                let value_type: (Rc<RefCell<ValueType>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .value_type
-                    .lock()
-                    .insert(value_type.0.lock().id(), value_type.clone());
+                    .borrow_mut()
+                    .insert(value_type.0.borrow().id(), value_type.clone());
             }
         }
 
@@ -5794,11 +5894,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let variable: (Arc<Mutex<Variable>>, SystemTime) = serde_json::from_reader(reader)?;
+                let variable: (Rc<RefCell<Variable>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
                 store
                     .variable
-                    .lock()
-                    .insert(variable.0.lock().id, variable.clone());
+                    .borrow_mut()
+                    .insert(variable.0.borrow().id, variable.clone());
             }
         }
 
@@ -5811,12 +5912,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let variable_expression: (Arc<Mutex<VariableExpression>>, SystemTime) =
+                let variable_expression: (Rc<RefCell<VariableExpression>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store
-                    .variable_expression
-                    .lock()
-                    .insert(variable_expression.0.lock().id, variable_expression.clone());
+                store.variable_expression.borrow_mut().insert(
+                    variable_expression.0.borrow().id,
+                    variable_expression.clone(),
+                );
             }
         }
 

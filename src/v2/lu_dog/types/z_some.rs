@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"z_some-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -32,11 +33,11 @@ pub struct ZSome {
 impl ZSome {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-new"}}}
     /// Inter a new 'Some' in the store, and return it's `id`.
-    pub fn new(inner: &Arc<Mutex<XValue>>, store: &mut LuDogStore) -> Arc<Mutex<ZSome>> {
+    pub fn new(inner: &Rc<RefCell<XValue>>, store: &mut LuDogStore) -> Rc<RefCell<ZSome>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(ZSome {
+        let new = Rc::new(RefCell::new(ZSome {
             id,
-            inner: inner.lock().id,
+            inner: inner.borrow().id,
         }));
         store.inter_z_some(new.clone());
         new
@@ -44,23 +45,26 @@ impl ZSome {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-nav-forward-to-inner"}}}
     /// Navigate to [`XValue`] across R23(1-*)
-    pub fn r23_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XValue>>> {
+    pub fn r23_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r23_x_value");
         vec![store.exhume_x_value(&self.inner).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-impl-nav-subtype-to-supertype-woog_option"}}}
     // Navigate to [`WoogOption`] across R3(isa)
-    pub fn r3_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<WoogOption>>> {
+    pub fn r3_woog_option<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<WoogOption>>> {
+        span!("r3_woog_option");
         vec![store
             .iter_woog_option()
             .find(|woog_option| {
-                if let WoogOptionEnum::ZSome(id) = woog_option.lock().subtype {
+                if let WoogOptionEnum::ZSome(id) = woog_option.borrow().subtype {
                     id == self.id
                 } else {
                     false

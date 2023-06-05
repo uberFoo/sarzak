@@ -4,9 +4,10 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::function::Function;
-use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -27,12 +28,12 @@ pub enum FieldAccessTarget {
 impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-new-impl"}}}
     /// Create a new instance of FieldAccessTarget::Field
-    pub fn new_field(field: &Arc<Mutex<Field>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = field.lock().id;
+    pub fn new_field(field: &Rc<RefCell<Field>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = field.borrow().id;
         if let Some(field) = store.exhume_field_access_target(&id) {
             field
         } else {
-            let new = Arc::new(Mutex::new(Self::Field(id)));
+            let new = Rc::new(RefCell::new(Self::Field(id)));
             store.inter_field_access_target(new.clone());
             new
         }
@@ -40,14 +41,14 @@ impl FieldAccessTarget {
 
     /// Create a new instance of FieldAccessTarget::Function
     pub fn new_function(
-        function: &Arc<Mutex<Function>>,
+        function: &Rc<RefCell<Function>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = function.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = function.borrow().id;
         if let Some(function) = store.exhume_field_access_target(&id) {
             function
         } else {
-            let new = Arc::new(Mutex::new(Self::Function(id)));
+            let new = Rc::new(RefCell::new(Self::Function(id)));
             store.inter_field_access_target(new.clone());
             new
         }
@@ -64,10 +65,11 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-nav-backward-1_M-to-field_access"}}}
     /// Navigate to [`FieldAccess`] across R65(1-M)
-    pub fn r65_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<FieldAccess>>> {
+    pub fn r65_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FieldAccess>>> {
+        span!("r65_field_access");
         store
             .iter_field_access()
-            .filter(|field_access| field_access.lock().field == self.id())
+            .filter(|field_access| field_access.borrow().field == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

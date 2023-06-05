@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"let_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -34,15 +35,15 @@ impl LetStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-new"}}}
     /// Inter a new 'Let Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: &Arc<Mutex<Expression>>,
-        variable: &Arc<Mutex<LocalVariable>>,
+        expression: &Rc<RefCell<Expression>>,
+        variable: &Rc<RefCell<LocalVariable>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<LetStatement>> {
+    ) -> Rc<RefCell<LetStatement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(LetStatement {
+        let new = Rc::new(RefCell::new(LetStatement {
             id,
-            expression: expression.lock().id(),
-            variable: variable.lock().id,
+            expression: expression.borrow().id(),
+            variable: variable.borrow().id,
         }));
         store.inter_let_statement(new.clone());
         new
@@ -50,7 +51,8 @@ impl LetStatement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R20(1-*)
-    pub fn r20_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r20_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r20_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -59,17 +61,19 @@ impl LetStatement {
     pub fn r21_local_variable<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<LocalVariable>>> {
+    ) -> Vec<Rc<RefCell<LocalVariable>>> {
+        span!("r21_local_variable");
         vec![store.exhume_local_variable(&self.variable).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
-    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
+    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r16_statement");
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::LetStatement(id) = statement.lock().subtype {
+                if let StatementEnum::LetStatement(id) = statement.borrow().subtype {
                     id == self.id
                 } else {
                     false

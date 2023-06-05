@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"index-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -29,15 +30,15 @@ impl Index {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-struct-impl-new"}}}
     /// Inter a new 'Index' in the store, and return it's `id`.
     pub fn new(
-        index: &Arc<Mutex<Expression>>,
-        target: &Arc<Mutex<Expression>>,
+        index: &Rc<RefCell<Expression>>,
+        target: &Rc<RefCell<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Index>> {
+    ) -> Rc<RefCell<Index>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Index {
+        let new = Rc::new(RefCell::new(Index {
             id,
-            index: index.lock().id(),
-            target: target.lock().id(),
+            index: index.borrow().id(),
+            target: target.borrow().id(),
         }));
         store.inter_index(new.clone());
         new
@@ -45,19 +46,22 @@ impl Index {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-struct-impl-nav-forward-to-index"}}}
     /// Navigate to [`Expression`] across R56(1-*)
-    pub fn r56_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r56_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r56_expression");
         vec![store.exhume_expression(&self.index).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-struct-impl-nav-forward-to-target"}}}
     /// Navigate to [`Expression`] across R57(1-*)
-    pub fn r57_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r57_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r57_expression");
         vec![store.exhume_expression(&self.target).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -30,9 +30,10 @@ use crate::v2::lu_dog::types::x_value::XValue;
 use crate::v2::lu_dog::types::x_value::XValueEnum;
 use crate::v2::lu_dog::types::z_none::Z_NONE;
 use crate::v2::lu_dog::types::z_some::ZSome;
-use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -74,45 +75,45 @@ pub enum Expression {
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
-    pub fn new_block(block: &Arc<Mutex<Block>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = block.lock().id;
+    pub fn new_block(block: &Rc<RefCell<Block>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = block.borrow().id;
         if let Some(block) = store.exhume_expression(&id) {
             block
         } else {
-            let new = Arc::new(Mutex::new(Self::Block(id)));
+            let new = Rc::new(RefCell::new(Self::Block(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Call
-    pub fn new_call(call: &Arc<Mutex<Call>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = call.lock().id;
+    pub fn new_call(call: &Rc<RefCell<Call>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = call.borrow().id;
         if let Some(call) = store.exhume_expression(&id) {
             call
         } else {
-            let new = Arc::new(Mutex::new(Self::Call(id)));
+            let new = Rc::new(RefCell::new(Self::Call(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Debugger
-    pub fn new_debugger(store: &LuDogStore) -> Arc<Mutex<Self>> {
+    pub fn new_debugger(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
         store.exhume_expression(&DEBUGGER).unwrap()
     }
 
     /// Create a new instance of Expression::ErrorExpression
     pub fn new_error_expression(
-        error_expression: &Arc<Mutex<ErrorExpression>>,
+        error_expression: &Rc<RefCell<ErrorExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = error_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = error_expression.borrow().id;
         if let Some(error_expression) = store.exhume_expression(&id) {
             error_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::ErrorExpression(id)));
+            let new = Rc::new(RefCell::new(Self::ErrorExpression(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -120,14 +121,14 @@ impl Expression {
 
     /// Create a new instance of Expression::FieldAccess
     pub fn new_field_access(
-        field_access: &Arc<Mutex<FieldAccess>>,
+        field_access: &Rc<RefCell<FieldAccess>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = field_access.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = field_access.borrow().id;
         if let Some(field_access) = store.exhume_expression(&id) {
             field_access
         } else {
-            let new = Arc::new(Mutex::new(Self::FieldAccess(id)));
+            let new = Rc::new(RefCell::new(Self::FieldAccess(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -135,14 +136,14 @@ impl Expression {
 
     /// Create a new instance of Expression::FieldExpression
     pub fn new_field_expression(
-        field_expression: &Arc<Mutex<FieldExpression>>,
+        field_expression: &Rc<RefCell<FieldExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = field_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = field_expression.borrow().id;
         if let Some(field_expression) = store.exhume_expression(&id) {
             field_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::FieldExpression(id)));
+            let new = Rc::new(RefCell::new(Self::FieldExpression(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -150,50 +151,53 @@ impl Expression {
 
     /// Create a new instance of Expression::ForLoop
     pub fn new_for_loop(
-        for_loop: &Arc<Mutex<ForLoop>>,
+        for_loop: &Rc<RefCell<ForLoop>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = for_loop.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = for_loop.borrow().id;
         if let Some(for_loop) = store.exhume_expression(&id) {
             for_loop
         } else {
-            let new = Arc::new(Mutex::new(Self::ForLoop(id)));
+            let new = Rc::new(RefCell::new(Self::ForLoop(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Grouped
-    pub fn new_grouped(grouped: &Arc<Mutex<Grouped>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = grouped.lock().id;
+    pub fn new_grouped(
+        grouped: &Rc<RefCell<Grouped>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Self>> {
+        let id = grouped.borrow().id;
         if let Some(grouped) = store.exhume_expression(&id) {
             grouped
         } else {
-            let new = Arc::new(Mutex::new(Self::Grouped(id)));
+            let new = Rc::new(RefCell::new(Self::Grouped(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::XIf
-    pub fn new_x_if(x_if: &Arc<Mutex<XIf>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = x_if.lock().id;
+    pub fn new_x_if(x_if: &Rc<RefCell<XIf>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = x_if.borrow().id;
         if let Some(x_if) = store.exhume_expression(&id) {
             x_if
         } else {
-            let new = Arc::new(Mutex::new(Self::XIf(id)));
+            let new = Rc::new(RefCell::new(Self::XIf(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Index
-    pub fn new_index(index: &Arc<Mutex<Index>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = index.lock().id;
+    pub fn new_index(index: &Rc<RefCell<Index>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = index.borrow().id;
         if let Some(index) = store.exhume_expression(&id) {
             index
         } else {
-            let new = Arc::new(Mutex::new(Self::Index(id)));
+            let new = Rc::new(RefCell::new(Self::Index(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -201,14 +205,14 @@ impl Expression {
 
     /// Create a new instance of Expression::ListElement
     pub fn new_list_element(
-        list_element: &Arc<Mutex<ListElement>>,
+        list_element: &Rc<RefCell<ListElement>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = list_element.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = list_element.borrow().id;
         if let Some(list_element) = store.exhume_expression(&id) {
             list_element
         } else {
-            let new = Arc::new(Mutex::new(Self::ListElement(id)));
+            let new = Rc::new(RefCell::new(Self::ListElement(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -216,26 +220,29 @@ impl Expression {
 
     /// Create a new instance of Expression::ListExpression
     pub fn new_list_expression(
-        list_expression: &Arc<Mutex<ListExpression>>,
+        list_expression: &Rc<RefCell<ListExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = list_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = list_expression.borrow().id;
         if let Some(list_expression) = store.exhume_expression(&id) {
             list_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::ListExpression(id)));
+            let new = Rc::new(RefCell::new(Self::ListExpression(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Literal
-    pub fn new_literal(literal: &Arc<Mutex<Literal>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = literal.lock().id();
+    pub fn new_literal(
+        literal: &Rc<RefCell<Literal>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Self>> {
+        let id = literal.borrow().id();
         if let Some(literal) = store.exhume_expression(&id) {
             literal
         } else {
-            let new = Arc::new(Mutex::new(Self::Literal(id)));
+            let new = Rc::new(RefCell::new(Self::Literal(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -243,47 +250,47 @@ impl Expression {
 
     /// Create a new instance of Expression::Negation
     pub fn new_negation(
-        negation: &Arc<Mutex<Negation>>,
+        negation: &Rc<RefCell<Negation>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = negation.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = negation.borrow().id;
         if let Some(negation) = store.exhume_expression(&id) {
             negation
         } else {
-            let new = Arc::new(Mutex::new(Self::Negation(id)));
+            let new = Rc::new(RefCell::new(Self::Negation(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::ZNone
-    pub fn new_z_none(store: &LuDogStore) -> Arc<Mutex<Self>> {
+    pub fn new_z_none(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
         store.exhume_expression(&Z_NONE).unwrap()
     }
 
     /// Create a new instance of Expression::Operator
     pub fn new_operator(
-        operator: &Arc<Mutex<Operator>>,
+        operator: &Rc<RefCell<Operator>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = operator.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = operator.borrow().id;
         if let Some(operator) = store.exhume_expression(&id) {
             operator
         } else {
-            let new = Arc::new(Mutex::new(Self::Operator(id)));
+            let new = Rc::new(RefCell::new(Self::Operator(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::Print
-    pub fn new_print(print: &Arc<Mutex<Print>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = print.lock().id;
+    pub fn new_print(print: &Rc<RefCell<Print>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = print.borrow().id;
         if let Some(print) = store.exhume_expression(&id) {
             print
         } else {
-            let new = Arc::new(Mutex::new(Self::Print(id)));
+            let new = Rc::new(RefCell::new(Self::Print(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -291,14 +298,14 @@ impl Expression {
 
     /// Create a new instance of Expression::RangeExpression
     pub fn new_range_expression(
-        range_expression: &Arc<Mutex<RangeExpression>>,
+        range_expression: &Rc<RefCell<RangeExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = range_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = range_expression.borrow().id;
         if let Some(range_expression) = store.exhume_expression(&id) {
             range_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::RangeExpression(id)));
+            let new = Rc::new(RefCell::new(Self::RangeExpression(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -306,26 +313,26 @@ impl Expression {
 
     /// Create a new instance of Expression::XReturn
     pub fn new_x_return(
-        x_return: &Arc<Mutex<XReturn>>,
+        x_return: &Rc<RefCell<XReturn>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = x_return.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = x_return.borrow().id;
         if let Some(x_return) = store.exhume_expression(&id) {
             x_return
         } else {
-            let new = Arc::new(Mutex::new(Self::XReturn(id)));
+            let new = Rc::new(RefCell::new(Self::XReturn(id)));
             store.inter_expression(new.clone());
             new
         }
     }
 
     /// Create a new instance of Expression::ZSome
-    pub fn new_z_some(z_some: &Arc<Mutex<ZSome>>, store: &mut LuDogStore) -> Arc<Mutex<Self>> {
-        let id = z_some.lock().id;
+    pub fn new_z_some(z_some: &Rc<RefCell<ZSome>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = z_some.borrow().id;
         if let Some(z_some) = store.exhume_expression(&id) {
             z_some
         } else {
-            let new = Arc::new(Mutex::new(Self::ZSome(id)));
+            let new = Rc::new(RefCell::new(Self::ZSome(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -333,14 +340,14 @@ impl Expression {
 
     /// Create a new instance of Expression::StructExpression
     pub fn new_struct_expression(
-        struct_expression: &Arc<Mutex<StructExpression>>,
+        struct_expression: &Rc<RefCell<StructExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = struct_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = struct_expression.borrow().id;
         if let Some(struct_expression) = store.exhume_expression(&id) {
             struct_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::StructExpression(id)));
+            let new = Rc::new(RefCell::new(Self::StructExpression(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -348,14 +355,14 @@ impl Expression {
 
     /// Create a new instance of Expression::TypeCast
     pub fn new_type_cast(
-        type_cast: &Arc<Mutex<TypeCast>>,
+        type_cast: &Rc<RefCell<TypeCast>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = type_cast.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = type_cast.borrow().id;
         if let Some(type_cast) = store.exhume_expression(&id) {
             type_cast
         } else {
-            let new = Arc::new(Mutex::new(Self::TypeCast(id)));
+            let new = Rc::new(RefCell::new(Self::TypeCast(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -363,14 +370,14 @@ impl Expression {
 
     /// Create a new instance of Expression::VariableExpression
     pub fn new_variable_expression(
-        variable_expression: &Arc<Mutex<VariableExpression>>,
+        variable_expression: &Rc<RefCell<VariableExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = variable_expression.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = variable_expression.borrow().id;
         if let Some(variable_expression) = store.exhume_expression(&id) {
             variable_expression
         } else {
-            let new = Arc::new(Mutex::new(Self::VariableExpression(id)));
+            let new = Rc::new(RefCell::new(Self::VariableExpression(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -408,20 +415,22 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R37(1-M)
-    pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Argument>>> {
+    pub fn r37_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Argument>>> {
+        span!("r37_argument");
         store
             .iter_argument()
-            .filter(|argument| argument.lock().expression == self.id())
+            .filter(|argument| argument.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
     /// Navigate to [`Call`] across R29(1-Mc)
-    pub fn r29_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Call>>> {
+    pub fn r29_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Call>>> {
+        span!("r29_call");
         store
             .iter_call()
             .filter_map(|call| {
-                if call.lock().expression == Some(self.id()) {
+                if call.borrow().expression == Some(self.id()) {
                     Some(call)
                 } else {
                     None
@@ -435,19 +444,21 @@ impl Expression {
     pub fn r31_expression_statement<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<ExpressionStatement>>> {
+    ) -> Vec<Rc<RefCell<ExpressionStatement>>> {
+        span!("r31_expression_statement");
         store
             .iter_expression_statement()
-            .filter(|expression_statement| expression_statement.lock().expression == self.id())
+            .filter(|expression_statement| expression_statement.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-field_access"}}}
     /// Navigate to [`FieldAccess`] across R27(1-M)
-    pub fn r27_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<FieldAccess>>> {
+    pub fn r27_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FieldAccess>>> {
+        span!("r27_field_access");
         store
             .iter_field_access()
-            .filter(|field_access| field_access.lock().expression == self.id())
+            .filter(|field_access| field_access.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -456,55 +467,61 @@ impl Expression {
     pub fn r38_field_expression<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<FieldExpression>>> {
+    ) -> Vec<Rc<RefCell<FieldExpression>>> {
+        span!("r38_field_expression");
         store
             .iter_field_expression()
-            .filter(|field_expression| field_expression.lock().expression == self.id())
+            .filter(|field_expression| field_expression.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
     /// Navigate to [`ForLoop`] across R42(1-M)
-    pub fn r42_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ForLoop>>> {
+    pub fn r42_for_loop<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ForLoop>>> {
+        span!("r42_for_loop");
         store
             .iter_for_loop()
-            .filter(|for_loop| for_loop.lock().expression == self.id())
+            .filter(|for_loop| for_loop.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-grouped"}}}
     /// Navigate to [`Grouped`] across R61(1-M)
-    pub fn r61_grouped<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Grouped>>> {
+    pub fn r61_grouped<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Grouped>>> {
+        span!("r61_grouped");
         store
             .iter_grouped()
-            .filter(|grouped| grouped.lock().expression == self.id())
+            .filter(|grouped| grouped.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R44(1-M)
-    pub fn r44_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XIf>>> {
+    pub fn r44_x_if<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XIf>>> {
+        span!("r44_x_if");
         store
             .iter_x_if()
-            .filter(|x_if| x_if.lock().test == self.id())
+            .filter(|x_if| x_if.borrow().test == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R56(1-M)
-    pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Index>>> {
+    pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Index>>> {
+        span!("r56_index");
         store
             .iter_index()
-            .filter(|index| index.lock().index == self.id())
+            .filter(|index| index.borrow().index == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R57(1-M)
-    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Index>>> {
+    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Index>>> {
+        span!("r57_index");
         store
             .iter_index()
-            .filter(|index| index.lock().target == self.id())
+            .filter(|index| index.borrow().target == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -513,10 +530,11 @@ impl Expression {
     pub fn r20c_let_statement<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<LetStatement>>> {
+    ) -> Vec<Rc<RefCell<LetStatement>>> {
+        span!("r20_let_statement");
         let let_statement = store
             .iter_let_statement()
-            .find(|let_statement| let_statement.lock().expression == self.id());
+            .find(|let_statement| let_statement.borrow().expression == self.id());
         match let_statement {
             Some(ref let_statement) => vec![let_statement.clone()],
             None => Vec::new(),
@@ -525,54 +543,57 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-list_element"}}}
     /// Navigate to [`ListElement`] across R55(1-M)
-    pub fn r55_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ListElement>>> {
+    pub fn r55_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ListElement>>> {
+        span!("r55_list_element");
         store
             .iter_list_element()
-            .filter(|list_element| list_element.lock().expression == self.id())
+            .filter(|list_element| list_element.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-negation"}}}
     /// Navigate to [`Negation`] across R70(1-M)
-    pub fn r70_negation<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Negation>>> {
+    pub fn r70_negation<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Negation>>> {
+        span!("r70_negation");
         store
             .iter_negation()
-            .filter(|negation| negation.lock().expr == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-    /// Navigate to [`Operator`] across R50(1-M)
-    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Operator>>> {
-        store
-            .iter_operator()
-            .filter(|operator| operator.lock().lhs == self.id())
+            .filter(|negation| negation.borrow().expr == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
-    pub fn r51_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Operator>>> {
+    pub fn r51_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
+        span!("r51_operator");
         store
             .iter_operator()
             .filter_map(|operator| {
-                if operator.lock().rhs == Some(self.id()) {
+                if operator.borrow().rhs == Some(self.id()) {
                     Some(operator)
                 } else {
                     None
                 }
             })
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    /// Navigate to [`Operator`] across R50(1-M)
+    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
+        span!("r50_operator");
+        store
+            .iter_operator()
+            .filter(|operator| operator.borrow().lhs == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
     /// Navigate to [`Print`] across R32(1-M)
-    pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Print>>> {
+    pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Print>>> {
+        span!("r32_print");
         store
             .iter_print()
-            .filter(|print| print.lock().expression == self.id())
+            .filter(|print| print.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -581,11 +602,12 @@ impl Expression {
     pub fn r59_range_expression<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<RangeExpression>>> {
+    ) -> Vec<Rc<RefCell<RangeExpression>>> {
+        span!("r59_range_expression");
         store
             .iter_range_expression()
             .filter_map(|range_expression| {
-                if range_expression.lock().rhs == Some(self.id()) {
+                if range_expression.borrow().rhs == Some(self.id()) {
                     Some(range_expression)
                 } else {
                     None
@@ -599,11 +621,12 @@ impl Expression {
     pub fn r58_range_expression<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<RangeExpression>>> {
+    ) -> Vec<Rc<RefCell<RangeExpression>>> {
+        span!("r58_range_expression");
         store
             .iter_range_expression()
             .filter_map(|range_expression| {
-                if range_expression.lock().lhs == Some(self.id()) {
+                if range_expression.borrow().lhs == Some(self.id()) {
                     Some(range_expression)
                 } else {
                     None
@@ -617,38 +640,42 @@ impl Expression {
     pub fn r41_result_statement<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<ResultStatement>>> {
+    ) -> Vec<Rc<RefCell<ResultStatement>>> {
+        span!("r41_result_statement");
         store
             .iter_result_statement()
-            .filter(|result_statement| result_statement.lock().expression == self.id())
+            .filter(|result_statement| result_statement.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_return"}}}
     /// Navigate to [`XReturn`] across R45(1-M)
-    pub fn r45_x_return<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XReturn>>> {
+    pub fn r45_x_return<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XReturn>>> {
+        span!("r45_x_return");
         store
             .iter_x_return()
-            .filter(|x_return| x_return.lock().expression == self.id())
+            .filter(|x_return| x_return.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-type_cast"}}}
     /// Navigate to [`TypeCast`] across R68(1-M)
-    pub fn r68_type_cast<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<TypeCast>>> {
+    pub fn r68_type_cast<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<TypeCast>>> {
+        span!("r68_type_cast");
         store
             .iter_type_cast()
-            .filter(|type_cast| type_cast.lock().lhs == self.id())
+            .filter(|type_cast| type_cast.borrow().lhs == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R11(isa)
-    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XValue>>> {
+    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r11_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Expression(id) = x_value.lock().subtype {
+                if let XValueEnum::Expression(id) = x_value.borrow().subtype {
                     id == self.id()
                 } else {
                     false

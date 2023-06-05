@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"parameter-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
@@ -35,15 +36,15 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
-        function: &Arc<Mutex<Function>>,
-        next: Option<&Arc<Mutex<Parameter>>>,
+        function: &Rc<RefCell<Function>>,
+        next: Option<&Rc<RefCell<Parameter>>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Parameter>> {
+    ) -> Rc<RefCell<Parameter>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Parameter {
+        let new = Rc::new(RefCell::new(Parameter {
             id,
-            function: function.lock().id,
-            next: next.map(|parameter| parameter.lock().id),
+            function: function.borrow().id,
+            next: next.map(|parameter| parameter.borrow().id),
         }));
         store.inter_parameter(new.clone());
         new
@@ -51,13 +52,15 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Function`] across R13(1-*)
-    pub fn r13_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Function>>> {
+    pub fn r13_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
+        span!("r13_function");
         vec![store.exhume_function(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Parameter`] across R14(1-*c)
-    pub fn r14_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Parameter>>> {
+    pub fn r14_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
+        span!("r14_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(next).unwrap()],
             None => Vec::new(),
@@ -66,10 +69,11 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R14(1c-1c)
-    pub fn r14c_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Parameter>>> {
+    pub fn r14c_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
+        span!("r14_parameter");
         let parameter = store
             .iter_parameter()
-            .find(|parameter| parameter.lock().next == Some(self.id));
+            .find(|parameter| parameter.borrow().next == Some(self.id));
         match parameter {
             Some(ref parameter) => vec![parameter.clone()],
             None => Vec::new(),
@@ -78,11 +82,12 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
-    pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Variable>>> {
+    pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Variable>>> {
+        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::Parameter(id) = variable.lock().subtype {
+                if let VariableEnum::Parameter(id) = variable.borrow().subtype {
                     id == self.id
                 } else {
                     false

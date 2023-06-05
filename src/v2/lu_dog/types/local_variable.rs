@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"local_variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::let_statement::LetStatement;
@@ -29,29 +30,34 @@ pub struct LocalVariable {
 impl LocalVariable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-new"}}}
     /// Inter a new 'Local Variable' in the store, and return it's `id`.
-    pub fn new(bug: Uuid, store: &mut LuDogStore) -> Arc<Mutex<LocalVariable>> {
+    pub fn new(bug: Uuid, store: &mut LuDogStore) -> Rc<RefCell<LocalVariable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(LocalVariable { bug, id }));
+        let new = Rc::new(RefCell::new(LocalVariable { bug, id }));
         store.inter_local_variable(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-struct-impl-nav-backward-one-to-let_statement"}}}
     /// Navigate to [`LetStatement`] across R21(1-1)
-    pub fn r21_let_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<LetStatement>>> {
+    pub fn r21_let_statement<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Rc<RefCell<LetStatement>>> {
+        span!("r21_let_statement");
         vec![store
             .iter_let_statement()
-            .find(|let_statement| let_statement.lock().variable == self.id)
+            .find(|let_statement| let_statement.borrow().variable == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
-    pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Variable>>> {
+    pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Variable>>> {
+        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::LocalVariable(id) = variable.lock().subtype {
+                if let VariableEnum::LocalVariable(id) = variable.borrow().subtype {
                     id == self.id
                 } else {
                     false

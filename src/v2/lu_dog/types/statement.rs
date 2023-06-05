@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -45,16 +46,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
-        block: &Arc<Mutex<Block>>,
-        next: Option<&Arc<Mutex<Statement>>>,
-        subtype: &Arc<Mutex<ExpressionStatement>>,
+        block: &Rc<RefCell<Block>>,
+        next: Option<&Rc<RefCell<Statement>>>,
+        subtype: &Rc<RefCell<ExpressionStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Statement>> {
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Statement {
-            block: block.lock().id,
-            next: next.map(|statement| statement.lock().id),
-            subtype: StatementEnum::ExpressionStatement(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            next: next.map(|statement| statement.borrow().id),
+            subtype: StatementEnum::ExpressionStatement(subtype.borrow().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -64,14 +65,14 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
-        block: &Arc<Mutex<Block>>,
-        next: Option<&Arc<Mutex<Statement>>>,
+        block: &Rc<RefCell<Block>>,
+        next: Option<&Rc<RefCell<Statement>>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Statement>> {
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Statement {
-            block: block.lock().id,
-            next: next.map(|statement| statement.lock().id),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            next: next.map(|statement| statement.borrow().id),
             subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
             id,
         }));
@@ -82,16 +83,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
-        block: &Arc<Mutex<Block>>,
-        next: Option<&Arc<Mutex<Statement>>>,
-        subtype: &Arc<Mutex<LetStatement>>,
+        block: &Rc<RefCell<Block>>,
+        next: Option<&Rc<RefCell<Statement>>>,
+        subtype: &Rc<RefCell<LetStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Statement>> {
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Statement {
-            block: block.lock().id,
-            next: next.map(|statement| statement.lock().id),
-            subtype: StatementEnum::LetStatement(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            next: next.map(|statement| statement.borrow().id),
+            subtype: StatementEnum::LetStatement(subtype.borrow().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -101,16 +102,16 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
-        block: &Arc<Mutex<Block>>,
-        next: Option<&Arc<Mutex<Statement>>>,
-        subtype: &Arc<Mutex<ResultStatement>>,
+        block: &Rc<RefCell<Block>>,
+        next: Option<&Rc<RefCell<Statement>>>,
+        subtype: &Rc<RefCell<ResultStatement>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Statement>> {
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Statement {
-            block: block.lock().id,
-            next: next.map(|statement| statement.lock().id),
-            subtype: StatementEnum::ResultStatement(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            next: next.map(|statement| statement.borrow().id),
+            subtype: StatementEnum::ResultStatement(subtype.borrow().id),
             id,
         }));
         store.inter_statement(new.clone());
@@ -119,25 +120,41 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
-    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Block>>> {
+    pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
+        span!("r18_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Statement`] across R17(1-*c)
-    pub fn r17_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
+    pub fn r17_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r17_statement");
         match self.next {
             Some(ref next) => vec![store.exhume_statement(next).unwrap()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-block"}}}
+    /// Navigate to [`Block`] across R71(1c-1c)
+    pub fn r71c_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
+        span!("r71_block");
+        let block = store
+            .iter_block()
+            .find(|block| block.borrow().statement == Some(self.id));
+        match block {
+            Some(ref block) => vec![block.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
     /// Navigate to [`Statement`] across R17(1c-1c)
-    pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
+    pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r17_statement");
         let statement = store
             .iter_statement()
-            .find(|statement| statement.lock().next == Some(self.id));
+            .find(|statement| statement.borrow().next == Some(self.id));
         match statement {
             Some(ref statement) => vec![statement.clone()],
             None => Vec::new(),

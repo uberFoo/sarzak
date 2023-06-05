@@ -4,9 +4,10 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::false_literal::FALSE_LITERAL;
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::true_literal::TRUE_LITERAL;
-use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -27,13 +28,13 @@ pub enum BooleanLiteral {
 impl BooleanLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-new-impl"}}}
     /// Create a new instance of BooleanLiteral::FalseLiteral
-    pub fn new_false_literal(store: &LuDogStore) -> Arc<Mutex<Self>> {
+    pub fn new_false_literal(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
         store.exhume_boolean_literal(&FALSE_LITERAL).unwrap()
     }
 
     /// Create a new instance of BooleanLiteral::TrueLiteral
-    pub fn new_true_literal(store: &LuDogStore) -> Arc<Mutex<Self>> {
+    pub fn new_true_literal(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
         store.exhume_boolean_literal(&TRUE_LITERAL).unwrap()
     }
@@ -49,7 +50,8 @@ impl BooleanLiteral {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-impl-nav-subtype-to-supertype-literal"}}}
     // Navigate to [`Literal`] across R22(isa)
-    pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Literal>>> {
+    pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Literal>>> {
+        span!("r22_literal");
         vec![store.exhume_literal(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

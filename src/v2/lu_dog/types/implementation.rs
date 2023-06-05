@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"implementation-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
@@ -32,13 +33,13 @@ impl Implementation {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-new"}}}
     /// Inter a new 'Implementation' in the store, and return it's `id`.
     pub fn new(
-        model_type: &Arc<Mutex<WoogStruct>>,
+        model_type: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Implementation>> {
+    ) -> Rc<RefCell<Implementation>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Implementation {
+        let new = Rc::new(RefCell::new(Implementation {
             id,
-            model_type: model_type.lock().id,
+            model_type: model_type.borrow().id,
         }));
         store.inter_implementation(new.clone());
         new
@@ -46,17 +47,19 @@ impl Implementation {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-nav-forward-to-model_type"}}}
     /// Navigate to [`WoogStruct`] across R8(1-*)
-    pub fn r8_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<WoogStruct>>> {
+    pub fn r8_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<WoogStruct>>> {
+        span!("r8_woog_struct");
         vec![store.exhume_woog_struct(&self.model_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-struct-impl-nav-backward-1_Mc-to-function"}}}
     /// Navigate to [`Function`] across R9(1-Mc)
-    pub fn r9_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Function>>> {
+    pub fn r9_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
+        span!("r9_function");
         store
             .iter_function()
             .filter_map(|function| {
-                if function.lock().impl_block == Some(self.id) {
+                if function.borrow().impl_block == Some(self.id) {
                     Some(function)
                 } else {
                     None
@@ -67,11 +70,12 @@ impl Implementation {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
-    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Item>>> {
+    pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Item>>> {
+        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::Implementation(id) = item.lock().subtype {
+                if let ItemEnum::Implementation(id) = item.borrow().subtype {
                     id == self.id
                 } else {
                     false

@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"type_cast-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -32,15 +33,15 @@ impl TypeCast {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-new"}}}
     /// Inter a new 'Type Cast' in the store, and return it's `id`.
     pub fn new(
-        lhs: &Arc<Mutex<Expression>>,
-        ty: &Arc<Mutex<ValueType>>,
+        lhs: &Rc<RefCell<Expression>>,
+        ty: &Rc<RefCell<ValueType>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<TypeCast>> {
+    ) -> Rc<RefCell<TypeCast>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(TypeCast {
+        let new = Rc::new(RefCell::new(TypeCast {
             id,
-            lhs: lhs.lock().id(),
-            ty: ty.lock().id(),
+            lhs: lhs.borrow().id(),
+            ty: ty.borrow().id(),
         }));
         store.inter_type_cast(new.clone());
         new
@@ -48,19 +49,22 @@ impl TypeCast {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-nav-forward-to-lhs"}}}
     /// Navigate to [`Expression`] across R68(1-*)
-    pub fn r68_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r68_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r68_expression");
         vec![store.exhume_expression(&self.lhs).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R69(1-*)
-    pub fn r69_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
+    pub fn r69_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r69_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

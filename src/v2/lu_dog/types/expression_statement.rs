@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression_statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -29,13 +30,13 @@ impl ExpressionStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-new"}}}
     /// Inter a new 'Expression Statement' in the store, and return it's `id`.
     pub fn new(
-        expression: &Arc<Mutex<Expression>>,
+        expression: &Rc<RefCell<Expression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<ExpressionStatement>> {
+    ) -> Rc<RefCell<ExpressionStatement>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(ExpressionStatement {
+        let new = Rc::new(RefCell::new(ExpressionStatement {
             id,
-            expression: expression.lock().id(),
+            expression: expression.borrow().id(),
         }));
         store.inter_expression_statement(new.clone());
         new
@@ -43,17 +44,19 @@ impl ExpressionStatement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R31(1-*)
-    pub fn r31_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r31_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r31_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
-    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Statement>>> {
+    pub fn r16_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r16_statement");
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::ExpressionStatement(id) = statement.lock().subtype {
+                if let StatementEnum::ExpressionStatement(id) = statement.borrow().subtype {
                     id == self.id
                 } else {
                     false

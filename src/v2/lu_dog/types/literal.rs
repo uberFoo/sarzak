@@ -6,9 +6,10 @@ use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::float_literal::FloatLiteral;
 use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
-use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -32,14 +33,14 @@ impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
     /// Create a new instance of Literal::BooleanLiteral
     pub fn new_boolean_literal(
-        boolean_literal: &Arc<Mutex<BooleanLiteral>>,
+        boolean_literal: &Rc<RefCell<BooleanLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = boolean_literal.lock().id();
+    ) -> Rc<RefCell<Self>> {
+        let id = boolean_literal.borrow().id();
         if let Some(boolean_literal) = store.exhume_literal(&id) {
             boolean_literal
         } else {
-            let new = Arc::new(Mutex::new(Self::BooleanLiteral(id)));
+            let new = Rc::new(RefCell::new(Self::BooleanLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -47,14 +48,14 @@ impl Literal {
 
     /// Create a new instance of Literal::FloatLiteral
     pub fn new_float_literal(
-        float_literal: &Arc<Mutex<FloatLiteral>>,
+        float_literal: &Rc<RefCell<FloatLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = float_literal.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = float_literal.borrow().id;
         if let Some(float_literal) = store.exhume_literal(&id) {
             float_literal
         } else {
-            let new = Arc::new(Mutex::new(Self::FloatLiteral(id)));
+            let new = Rc::new(RefCell::new(Self::FloatLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -62,14 +63,14 @@ impl Literal {
 
     /// Create a new instance of Literal::IntegerLiteral
     pub fn new_integer_literal(
-        integer_literal: &Arc<Mutex<IntegerLiteral>>,
+        integer_literal: &Rc<RefCell<IntegerLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = integer_literal.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = integer_literal.borrow().id;
         if let Some(integer_literal) = store.exhume_literal(&id) {
             integer_literal
         } else {
-            let new = Arc::new(Mutex::new(Self::IntegerLiteral(id)));
+            let new = Rc::new(RefCell::new(Self::IntegerLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -77,14 +78,14 @@ impl Literal {
 
     /// Create a new instance of Literal::StringLiteral
     pub fn new_string_literal(
-        string_literal: &Arc<Mutex<StringLiteral>>,
+        string_literal: &Rc<RefCell<StringLiteral>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Self>> {
-        let id = string_literal.lock().id;
+    ) -> Rc<RefCell<Self>> {
+        let id = string_literal.borrow().id;
         if let Some(string_literal) = store.exhume_literal(&id) {
             string_literal
         } else {
-            let new = Arc::new(Mutex::new(Self::StringLiteral(id)));
+            let new = Rc::new(RefCell::new(Self::StringLiteral(id)));
             store.inter_literal(new.clone());
             new
         }
@@ -103,7 +104,8 @@ impl Literal {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

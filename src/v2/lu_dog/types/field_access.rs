@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field_access-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -35,17 +36,17 @@ impl FieldAccess {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-new"}}}
     /// Inter a new 'Field Access' in the store, and return it's `id`.
     pub fn new(
-        expression: &Arc<Mutex<Expression>>,
-        field: &Arc<Mutex<FieldAccessTarget>>,
-        woog_struct: &Arc<Mutex<WoogStruct>>,
+        expression: &Rc<RefCell<Expression>>,
+        field: &Rc<RefCell<FieldAccessTarget>>,
+        woog_struct: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<FieldAccess>> {
+    ) -> Rc<RefCell<FieldAccess>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(FieldAccess {
+        let new = Rc::new(RefCell::new(FieldAccess {
             id,
-            expression: expression.lock().id(),
-            field: field.lock().id(),
-            woog_struct: woog_struct.lock().id,
+            expression: expression.borrow().id(),
+            field: field.borrow().id(),
+            woog_struct: woog_struct.borrow().id,
         }));
         store.inter_field_access(new.clone());
         new
@@ -53,7 +54,8 @@ impl FieldAccess {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R27(1-*)
-    pub fn r27_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r27_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r27_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -62,19 +64,22 @@ impl FieldAccess {
     pub fn r65_field_access_target<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<FieldAccessTarget>>> {
+    ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
+        span!("r65_field_access_target");
         vec![store.exhume_field_access_target(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-woog_struct"}}}
     /// Navigate to [`WoogStruct`] across R66(1-*)
-    pub fn r66_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<WoogStruct>>> {
+    pub fn r66_woog_struct<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<WoogStruct>>> {
+        span!("r66_woog_struct");
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

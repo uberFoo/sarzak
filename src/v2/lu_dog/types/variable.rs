@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
@@ -42,13 +43,13 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(
         name: String,
-        subtype: &Arc<Mutex<LocalVariable>>,
+        subtype: &Rc<RefCell<LocalVariable>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Variable>> {
+    ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Variable {
+        let new = Rc::new(RefCell::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.lock().id),
+            subtype: VariableEnum::LocalVariable(subtype.borrow().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -59,13 +60,13 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
-        subtype: &Arc<Mutex<Parameter>>,
+        subtype: &Rc<RefCell<Parameter>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Variable>> {
+    ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Variable {
+        let new = Rc::new(RefCell::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.lock().id),
+            subtype: VariableEnum::Parameter(subtype.borrow().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -74,11 +75,12 @@ impl Variable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R11(isa)
-    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XValue>>> {
+    pub fn r11_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r11_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Variable(id) = x_value.lock().subtype {
+                if let XValueEnum::Variable(id) = x_value.borrow().subtype {
                     id == self.id
                 } else {
                     false

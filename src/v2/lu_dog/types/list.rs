@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"list-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -28,11 +29,11 @@ pub struct List {
 impl List {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-struct-impl-new"}}}
     /// Inter a new 'List' in the store, and return it's `id`.
-    pub fn new(ty: &Arc<Mutex<ValueType>>, store: &mut LuDogStore) -> Arc<Mutex<List>> {
+    pub fn new(ty: &Rc<RefCell<ValueType>>, store: &mut LuDogStore) -> Rc<RefCell<List>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(List {
+        let new = Rc::new(RefCell::new(List {
             id,
-            ty: ty.lock().id(),
+            ty: ty.borrow().id(),
         }));
         store.inter_list(new.clone());
         new
@@ -40,13 +41,15 @@ impl List {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R36(1-*)
-    pub fn r36_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
+    pub fn r36_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r36_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r1_value_type");
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

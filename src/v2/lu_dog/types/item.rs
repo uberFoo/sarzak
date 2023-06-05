@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"item-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::dwarf_source_file::DwarfSourceFile;
@@ -37,14 +38,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(
-        source: &Arc<Mutex<DwarfSourceFile>>,
-        subtype: &Arc<Mutex<Function>>,
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<Function>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Item>> {
+    ) -> Rc<RefCell<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Item {
-            source: source.lock().id,
-            subtype: ItemEnum::Function(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Item {
+            source: source.borrow().id,
+            subtype: ItemEnum::Function(subtype.borrow().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -54,14 +55,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_implementation(
-        source: &Arc<Mutex<DwarfSourceFile>>,
-        subtype: &Arc<Mutex<Implementation>>,
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<Implementation>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Item>> {
+    ) -> Rc<RefCell<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Item {
-            source: source.lock().id,
-            subtype: ItemEnum::Implementation(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Item {
+            source: source.borrow().id,
+            subtype: ItemEnum::Implementation(subtype.borrow().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -71,14 +72,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_import"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_import(
-        source: &Arc<Mutex<DwarfSourceFile>>,
-        subtype: &Arc<Mutex<Import>>,
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<Import>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Item>> {
+    ) -> Rc<RefCell<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Item {
-            source: source.lock().id,
-            subtype: ItemEnum::Import(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Item {
+            source: source.borrow().id,
+            subtype: ItemEnum::Import(subtype.borrow().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -88,14 +89,14 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_woog_struct"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_woog_struct(
-        source: &Arc<Mutex<DwarfSourceFile>>,
-        subtype: &Arc<Mutex<WoogStruct>>,
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Item>> {
+    ) -> Rc<RefCell<Item>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Item {
-            source: source.lock().id,
-            subtype: ItemEnum::WoogStruct(subtype.lock().id),
+        let new = Rc::new(RefCell::new(Item {
+            source: source.borrow().id,
+            subtype: ItemEnum::WoogStruct(subtype.borrow().id),
             id,
         }));
         store.inter_item(new.clone());
@@ -107,7 +108,8 @@ impl Item {
     pub fn r25_dwarf_source_file<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<DwarfSourceFile>>> {
+    ) -> Vec<Rc<RefCell<DwarfSourceFile>>> {
+        span!("r25_dwarf_source_file");
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

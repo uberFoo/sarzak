@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field_expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -34,16 +35,16 @@ impl FieldExpression {
     /// Inter a new 'Field Expression' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        expression: &Arc<Mutex<Expression>>,
-        woog_struct: &Arc<Mutex<StructExpression>>,
+        expression: &Rc<RefCell<Expression>>,
+        woog_struct: &Rc<RefCell<StructExpression>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<FieldExpression>> {
+    ) -> Rc<RefCell<FieldExpression>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(FieldExpression {
+        let new = Rc::new(RefCell::new(FieldExpression {
             id,
             name,
-            expression: expression.lock().id(),
-            woog_struct: woog_struct.lock().id,
+            expression: expression.borrow().id(),
+            woog_struct: woog_struct.borrow().id,
         }));
         store.inter_field_expression(new.clone());
         new
@@ -51,7 +52,8 @@ impl FieldExpression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R38(1-*)
-    pub fn r38_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r38_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r38_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -60,13 +62,15 @@ impl FieldExpression {
     pub fn r26_struct_expression<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<StructExpression>>> {
+    ) -> Vec<Rc<RefCell<StructExpression>>> {
+        span!("r26_struct_expression");
         vec![store.exhume_struct_expression(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Expression>>> {
+    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

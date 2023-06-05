@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"static_method_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::call::Call;
@@ -32,20 +33,21 @@ pub struct StaticMethodCall {
 impl StaticMethodCall {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-struct-impl-new"}}}
     /// Inter a new 'Static Method Call' in the store, and return it's `id`.
-    pub fn new(func: String, ty: String, store: &mut LuDogStore) -> Arc<Mutex<StaticMethodCall>> {
+    pub fn new(func: String, ty: String, store: &mut LuDogStore) -> Rc<RefCell<StaticMethodCall>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(StaticMethodCall { func, id, ty }));
+        let new = Rc::new(RefCell::new(StaticMethodCall { func, id, ty }));
         store.inter_static_method_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-impl-nav-subtype-to-supertype-call"}}}
     // Navigate to [`Call`] across R30(isa)
-    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<Call>>> {
+    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Call>>> {
+        span!("r30_call");
         vec![store
             .iter_call()
             .find(|call| {
-                if let CallEnum::StaticMethodCall(id) = call.lock().subtype {
+                if let CallEnum::StaticMethodCall(id) = call.borrow().subtype {
                     id == self.id
                 } else {
                     false

@@ -19,7 +19,13 @@ ansi_term = "0.12.1"
 clap = { version = "4.0.32", features = ["derive"] }
 heck = "0.4.1"
 pretty_env_logger = "0.4.0"
-parking_lot = { version = "0.12.1", features = ["serde", "hardware-lock-elision", "deadlock_detection"] }
+parking_lot = { version = "0.12.1", features = [
+    "serde",
+    "hardware-lock-elision",
+    "deadlock_detection",
+] }
+tracy-client = "0.15.2"
+cfg-if = "1.0.0"
 
 [lib]
 doctest = true
@@ -28,4 +34,7 @@ doctest = true
 env_logger = "0.10.0"
 
 [features]
-default = []
+default = ["lu-dog-none"]
+lu-dog-none = []
+lu-dog-rwlock = []
+lu-dog-pl-mutex = []

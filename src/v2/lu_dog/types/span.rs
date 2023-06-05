@@ -1,7 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"span-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-use-statements"}}}
-use parking_lot::Mutex;
-use std::sync::Arc;
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::dwarf_source_file::DwarfSourceFile;
@@ -41,19 +42,19 @@ impl Span {
     pub fn new(
         end: i64,
         start: i64,
-        source: &Arc<Mutex<DwarfSourceFile>>,
-        x_value: Option<&Arc<Mutex<XValue>>>,
-        ty: Option<&Arc<Mutex<ValueType>>>,
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        x_value: Option<&Rc<RefCell<XValue>>>,
+        ty: Option<&Rc<RefCell<ValueType>>>,
         store: &mut LuDogStore,
-    ) -> Arc<Mutex<Span>> {
+    ) -> Rc<RefCell<Span>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(Mutex::new(Span {
+        let new = Rc::new(RefCell::new(Span {
             end,
             id,
             start,
-            source: source.lock().id,
-            x_value: x_value.map(|x_value| x_value.lock().id),
-            ty: ty.map(|value_type| value_type.lock().id()),
+            source: source.borrow().id,
+            x_value: x_value.map(|x_value| x_value.borrow().id),
+            ty: ty.map(|value_type| value_type.borrow().id()),
         }));
         store.inter_span(new.clone());
         new
@@ -64,13 +65,15 @@ impl Span {
     pub fn r64_dwarf_source_file<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Arc<Mutex<DwarfSourceFile>>> {
+    ) -> Vec<Rc<RefCell<DwarfSourceFile>>> {
+        span!("r64_dwarf_source_file");
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-struct-impl-nav-forward-cond-to-x_value"}}}
     /// Navigate to [`XValue`] across R63(1-*c)
-    pub fn r63_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<XValue>>> {
+    pub fn r63_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r63_x_value");
         match self.x_value {
             Some(ref x_value) => vec![store.exhume_x_value(x_value).unwrap()],
             None => Vec::new(),
@@ -79,7 +82,8 @@ impl Span {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-struct-impl-nav-forward-cond-to-ty"}}}
     /// Navigate to [`ValueType`] across R62(1-*c)
-    pub fn r62_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Arc<Mutex<ValueType>>> {
+    pub fn r62_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r62_value_type");
         match self.ty {
             Some(ref ty) => vec![store.exhume_value_type(ty).unwrap()],
             None => Vec::new(),
