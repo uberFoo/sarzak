@@ -29,13 +29,15 @@ impl State {
     pub fn new(name: String, obj_id: &Object, store: &mut SarzakStore) -> State {
         let id = Uuid::new_v4();
         let new = State {
-            id: id,
-            name: name,
+            id,
+            name,
             obj_id: obj_id.id,
         };
         store.inter_state(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R18(1-*)
@@ -44,6 +46,7 @@ impl State {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-nav-backward-assoc_many-to-acknowledged_event"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-nav-backward-assoc-many-to-acknowledged_event"}}}
     /// Navigate to [`AcknowledgedEvent`] across R20(1-M)
     pub fn r20_acknowledged_event<'a>(&'a self, store: &'a SarzakStore) -> Vec<&AcknowledgedEvent> {
         store

@@ -5,6 +5,7 @@ use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
 use crate::v2::woog::types::value::Value;
+use crate::v2::woog::types::value::ValueEnum;
 use crate::v2::woog::types::x_let::XLet;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -14,10 +15,10 @@ use uuid::Uuid;
 /// An expression
 ///
 /// An expression produces a value. There are all sorts of expressions, and I'm only going to
-/// cover a very few for now.
+///  cover a very few for now.
 ///
 /// The expressions here roughly align with what's found in [rust](https://doc.rust-lang.org
-////reference/expressions.html).
+/// /reference/expressions.html).
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
@@ -66,20 +67,23 @@ impl Expression {
     pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
         store
             .iter_x_let()
-            .filter_map(|x_let| {
-                if x_let.expression == self.id() {
-                    Some(x_let)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_let| x_let.expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R7(isa)
     pub fn r7_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
-        vec![store.exhume_value(&self.id()).unwrap()]
+        vec![store
+            .iter_value()
+            .find(|value| {
+                if let ValueEnum::Expression(id) = value.subtype {
+                    id == self.id()
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

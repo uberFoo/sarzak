@@ -30,13 +30,15 @@ impl Subtype {
     pub fn new(isa: &Isa, obj_id: &Object, store: &mut SarzakStore) -> Subtype {
         let id = Uuid::new_v4();
         let new = Subtype {
-            id: id,
+            id,
             isa: isa.id,
             obj_id: obj_id.id,
         };
         store.inter_subtype(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtype-struct-impl-nav-forward-to-isa"}}}
     /// Navigate to [`Isa`] across R27(1-*)

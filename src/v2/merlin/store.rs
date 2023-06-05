@@ -19,11 +19,11 @@
 //! * [`RelationshipName`]
 //! * [`RelationshipPhrase`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-definition"}}}
+use std::sync::{Arc, RwLock};
 use std::{
     fs,
     io::{self, prelude::*},
     path::Path,
-    time::SystemTime,
 };
 
 use fnv::FnvHashMap as HashMap;
@@ -37,445 +37,522 @@ use crate::v2::merlin::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    anchor: HashMap<Uuid, (Anchor, SystemTime)>,
-    bisection: HashMap<Uuid, (Bisection, SystemTime)>,
-    x_box: HashMap<Uuid, (XBox, SystemTime)>,
-    edge: HashMap<Uuid, (Edge, SystemTime)>,
-    glyph: HashMap<Uuid, (Glyph, SystemTime)>,
-    line: HashMap<Uuid, (Line, SystemTime)>,
-    line_segment: HashMap<Uuid, (LineSegment, SystemTime)>,
-    line_segment_point: HashMap<Uuid, (LineSegmentPoint, SystemTime)>,
-    point: HashMap<Uuid, (Point, SystemTime)>,
-    relationship_name: HashMap<Uuid, (RelationshipName, SystemTime)>,
-    relationship_phrase: HashMap<Uuid, (RelationshipPhrase, SystemTime)>,
+    anchor: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Anchor>>>>>,
+    bisection: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Bisection>>>>>,
+    x_box: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XBox>>>>>,
+    edge: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Edge>>>>>,
+    glyph: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Glyph>>>>>,
+    line: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Line>>>>>,
+    line_segment: Arc<RwLock<HashMap<Uuid, Arc<RwLock<LineSegment>>>>>,
+    line_segment_point: Arc<RwLock<HashMap<Uuid, Arc<RwLock<LineSegmentPoint>>>>>,
+    point: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Point>>>>>,
+    relationship_name: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RelationshipName>>>>>,
+    relationship_phrase: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RelationshipPhrase>>>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            anchor: HashMap::default(),
-            bisection: HashMap::default(),
-            x_box: HashMap::default(),
-            edge: HashMap::default(),
-            glyph: HashMap::default(),
-            line: HashMap::default(),
-            line_segment: HashMap::default(),
-            line_segment_point: HashMap::default(),
-            point: HashMap::default(),
-            relationship_name: HashMap::default(),
-            relationship_phrase: HashMap::default(),
+            anchor: Arc::new(RwLock::new(HashMap::default())),
+            bisection: Arc::new(RwLock::new(HashMap::default())),
+            x_box: Arc::new(RwLock::new(HashMap::default())),
+            edge: Arc::new(RwLock::new(HashMap::default())),
+            glyph: Arc::new(RwLock::new(HashMap::default())),
+            line: Arc::new(RwLock::new(HashMap::default())),
+            line_segment: Arc::new(RwLock::new(HashMap::default())),
+            line_segment_point: Arc::new(RwLock::new(HashMap::default())),
+            point: Arc::new(RwLock::new(HashMap::default())),
+            relationship_name: Arc::new(RwLock::new(HashMap::default())),
+            relationship_phrase: Arc::new(RwLock::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
-        store.inter_edge(Edge::Bottom(BOTTOM));
-        store.inter_edge(Edge::Left(LEFT));
-        store.inter_edge(Edge::Right(RIGHT));
-        store.inter_edge(Edge::Top(TOP));
+        // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
+        // I remember having a bit of a struggle making it work. It's recursive, with
+        // a lot of special cases, and I think it calls other recursive functions...💥
+        store.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
 
         store
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-methods"}}}
-    /// Inter [`Anchor`] into the store.
+    /// Inter (insert) [`Anchor`] into the store.
     ///
-    pub fn inter_anchor(&mut self, anchor: Anchor) {
-        self.anchor.insert(anchor.id, (anchor, SystemTime::now()));
+    pub fn inter_anchor(&mut self, anchor: Arc<RwLock<Anchor>>) {
+        let read = anchor.read().unwrap();
+        self.anchor.write().unwrap().insert(read.id, anchor.clone());
     }
 
-    /// Exhume [`Anchor`] from the store.
+    /// Exhume (get) [`Anchor`] from the store.
     ///
-    pub fn exhume_anchor(&self, id: &Uuid) -> Option<&Anchor> {
-        self.anchor.get(id).map(|anchor| &anchor.0)
+    pub fn exhume_anchor(&self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
+        self.anchor
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|anchor| anchor.clone())
     }
 
-    /// Exhume [`Anchor`] from the store — mutably.
+    /// Exorcise (remove) [`Anchor`] from the store.
     ///
-    pub fn exhume_anchor_mut(&mut self, id: &Uuid) -> Option<&mut Anchor> {
-        self.anchor.get_mut(id).map(|anchor| &mut anchor.0)
+    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
+        self.anchor
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|anchor| anchor.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
-    pub fn iter_anchor(&self) -> impl Iterator<Item = &Anchor> {
-        self.anchor.values().map(|anchor| &anchor.0)
+    pub fn iter_anchor(&self) -> impl Iterator<Item = Arc<RwLock<Anchor>>> + '_ {
+        let values: Vec<Arc<RwLock<Anchor>>> = self
+            .anchor
+            .read()
+            .unwrap()
+            .values()
+            .map(|anchor| anchor.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Anchor.
+    /// Inter (insert) [`Bisection`] into the store.
     ///
-    pub fn anchor_timestamp(&self, anchor: &Anchor) -> SystemTime {
-        self.anchor
-            .get(&anchor.id)
-            .map(|anchor| anchor.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`Bisection`] into the store.
-    ///
-    pub fn inter_bisection(&mut self, bisection: Bisection) {
+    pub fn inter_bisection(&mut self, bisection: Arc<RwLock<Bisection>>) {
+        let read = bisection.read().unwrap();
         self.bisection
-            .insert(bisection.id, (bisection, SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, bisection.clone());
     }
 
-    /// Exhume [`Bisection`] from the store.
+    /// Exhume (get) [`Bisection`] from the store.
     ///
-    pub fn exhume_bisection(&self, id: &Uuid) -> Option<&Bisection> {
-        self.bisection.get(id).map(|bisection| &bisection.0)
+    pub fn exhume_bisection(&self, id: &Uuid) -> Option<Arc<RwLock<Bisection>>> {
+        self.bisection
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|bisection| bisection.clone())
     }
 
-    /// Exhume [`Bisection`] from the store — mutably.
+    /// Exorcise (remove) [`Bisection`] from the store.
     ///
-    pub fn exhume_bisection_mut(&mut self, id: &Uuid) -> Option<&mut Bisection> {
-        self.bisection.get_mut(id).map(|bisection| &mut bisection.0)
+    pub fn exorcise_bisection(&mut self, id: &Uuid) -> Option<Arc<RwLock<Bisection>>> {
+        self.bisection
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|bisection| bisection.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Bisection>`.
     ///
-    pub fn iter_bisection(&self) -> impl Iterator<Item = &Bisection> {
-        self.bisection.values().map(|bisection| &bisection.0)
+    pub fn iter_bisection(&self) -> impl Iterator<Item = Arc<RwLock<Bisection>>> + '_ {
+        let values: Vec<Arc<RwLock<Bisection>>> = self
+            .bisection
+            .read()
+            .unwrap()
+            .values()
+            .map(|bisection| bisection.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Bisection.
+    /// Inter (insert) [`XBox`] into the store.
     ///
-    pub fn bisection_timestamp(&self, bisection: &Bisection) -> SystemTime {
-        self.bisection
-            .get(&bisection.id)
-            .map(|bisection| bisection.1)
-            .unwrap_or(SystemTime::now())
+    pub fn inter_x_box(&mut self, x_box: Arc<RwLock<XBox>>) {
+        let read = x_box.read().unwrap();
+        self.x_box.write().unwrap().insert(read.id, x_box.clone());
     }
 
-    /// Inter [`XBox`] into the store.
+    /// Exhume (get) [`XBox`] from the store.
     ///
-    pub fn inter_x_box(&mut self, x_box: XBox) {
-        self.x_box.insert(x_box.id, (x_box, SystemTime::now()));
+    pub fn exhume_x_box(&self, id: &Uuid) -> Option<Arc<RwLock<XBox>>> {
+        self.x_box
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_box| x_box.clone())
     }
 
-    /// Exhume [`XBox`] from the store.
+    /// Exorcise (remove) [`XBox`] from the store.
     ///
-    pub fn exhume_x_box(&self, id: &Uuid) -> Option<&XBox> {
-        self.x_box.get(id).map(|x_box| &x_box.0)
-    }
-
-    /// Exhume [`XBox`] from the store — mutably.
-    ///
-    pub fn exhume_x_box_mut(&mut self, id: &Uuid) -> Option<&mut XBox> {
-        self.x_box.get_mut(id).map(|x_box| &mut x_box.0)
+    pub fn exorcise_x_box(&mut self, id: &Uuid) -> Option<Arc<RwLock<XBox>>> {
+        self.x_box
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|x_box| x_box.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XBox>`.
     ///
-    pub fn iter_x_box(&self) -> impl Iterator<Item = &XBox> {
-        self.x_box.values().map(|x_box| &x_box.0)
+    pub fn iter_x_box(&self) -> impl Iterator<Item = Arc<RwLock<XBox>>> + '_ {
+        let values: Vec<Arc<RwLock<XBox>>> = self
+            .x_box
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_box| x_box.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for XBox.
+    /// Inter (insert) [`Edge`] into the store.
     ///
-    pub fn x_box_timestamp(&self, x_box: &XBox) -> SystemTime {
-        self.x_box
-            .get(&x_box.id)
-            .map(|x_box| x_box.1)
-            .unwrap_or(SystemTime::now())
+    pub fn inter_edge(&mut self, edge: Arc<RwLock<Edge>>) {
+        let read = edge.read().unwrap();
+        self.edge.write().unwrap().insert(read.id(), edge.clone());
     }
 
-    /// Inter [`Edge`] into the store.
+    /// Exhume (get) [`Edge`] from the store.
     ///
-    pub fn inter_edge(&mut self, edge: Edge) {
-        self.edge.insert(edge.id(), (edge, SystemTime::now()));
+    pub fn exhume_edge(&self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
+        self.edge.read().unwrap().get(id).map(|edge| edge.clone())
     }
 
-    /// Exhume [`Edge`] from the store.
+    /// Exorcise (remove) [`Edge`] from the store.
     ///
-    pub fn exhume_edge(&self, id: &Uuid) -> Option<&Edge> {
-        self.edge.get(id).map(|edge| &edge.0)
-    }
-
-    /// Exhume [`Edge`] from the store — mutably.
-    ///
-    pub fn exhume_edge_mut(&mut self, id: &Uuid) -> Option<&mut Edge> {
-        self.edge.get_mut(id).map(|edge| &mut edge.0)
+    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
+        self.edge
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|edge| edge.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
-    pub fn iter_edge(&self) -> impl Iterator<Item = &Edge> {
-        self.edge.values().map(|edge| &edge.0)
+    pub fn iter_edge(&self) -> impl Iterator<Item = Arc<RwLock<Edge>>> + '_ {
+        let values: Vec<Arc<RwLock<Edge>>> = self
+            .edge
+            .read()
+            .unwrap()
+            .values()
+            .map(|edge| edge.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Edge.
+    /// Inter (insert) [`Glyph`] into the store.
     ///
-    pub fn edge_timestamp(&self, edge: &Edge) -> SystemTime {
-        self.edge
-            .get(&edge.id())
-            .map(|edge| edge.1)
-            .unwrap_or(SystemTime::now())
+    pub fn inter_glyph(&mut self, glyph: Arc<RwLock<Glyph>>) {
+        let read = glyph.read().unwrap();
+        self.glyph.write().unwrap().insert(read.id, glyph.clone());
     }
 
-    /// Inter [`Glyph`] into the store.
+    /// Exhume (get) [`Glyph`] from the store.
     ///
-    pub fn inter_glyph(&mut self, glyph: Glyph) {
-        self.glyph.insert(glyph.id, (glyph, SystemTime::now()));
+    pub fn exhume_glyph(&self, id: &Uuid) -> Option<Arc<RwLock<Glyph>>> {
+        self.glyph
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|glyph| glyph.clone())
     }
 
-    /// Exhume [`Glyph`] from the store.
+    /// Exorcise (remove) [`Glyph`] from the store.
     ///
-    pub fn exhume_glyph(&self, id: &Uuid) -> Option<&Glyph> {
-        self.glyph.get(id).map(|glyph| &glyph.0)
-    }
-
-    /// Exhume [`Glyph`] from the store — mutably.
-    ///
-    pub fn exhume_glyph_mut(&mut self, id: &Uuid) -> Option<&mut Glyph> {
-        self.glyph.get_mut(id).map(|glyph| &mut glyph.0)
+    pub fn exorcise_glyph(&mut self, id: &Uuid) -> Option<Arc<RwLock<Glyph>>> {
+        self.glyph
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|glyph| glyph.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Glyph>`.
     ///
-    pub fn iter_glyph(&self) -> impl Iterator<Item = &Glyph> {
-        self.glyph.values().map(|glyph| &glyph.0)
+    pub fn iter_glyph(&self) -> impl Iterator<Item = Arc<RwLock<Glyph>>> + '_ {
+        let values: Vec<Arc<RwLock<Glyph>>> = self
+            .glyph
+            .read()
+            .unwrap()
+            .values()
+            .map(|glyph| glyph.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Glyph.
+    /// Inter (insert) [`Line`] into the store.
     ///
-    pub fn glyph_timestamp(&self, glyph: &Glyph) -> SystemTime {
-        self.glyph
-            .get(&glyph.id)
-            .map(|glyph| glyph.1)
-            .unwrap_or(SystemTime::now())
+    pub fn inter_line(&mut self, line: Arc<RwLock<Line>>) {
+        let read = line.read().unwrap();
+        self.line.write().unwrap().insert(read.id, line.clone());
     }
 
-    /// Inter [`Line`] into the store.
+    /// Exhume (get) [`Line`] from the store.
     ///
-    pub fn inter_line(&mut self, line: Line) {
-        self.line.insert(line.id, (line, SystemTime::now()));
+    pub fn exhume_line(&self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
+        self.line.read().unwrap().get(id).map(|line| line.clone())
     }
 
-    /// Exhume [`Line`] from the store.
+    /// Exorcise (remove) [`Line`] from the store.
     ///
-    pub fn exhume_line(&self, id: &Uuid) -> Option<&Line> {
-        self.line.get(id).map(|line| &line.0)
-    }
-
-    /// Exhume [`Line`] from the store — mutably.
-    ///
-    pub fn exhume_line_mut(&mut self, id: &Uuid) -> Option<&mut Line> {
-        self.line.get_mut(id).map(|line| &mut line.0)
+    pub fn exorcise_line(&mut self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
+        self.line
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|line| line.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Line>`.
     ///
-    pub fn iter_line(&self) -> impl Iterator<Item = &Line> {
-        self.line.values().map(|line| &line.0)
+    pub fn iter_line(&self) -> impl Iterator<Item = Arc<RwLock<Line>>> + '_ {
+        let values: Vec<Arc<RwLock<Line>>> = self
+            .line
+            .read()
+            .unwrap()
+            .values()
+            .map(|line| line.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Line.
+    /// Inter (insert) [`LineSegment`] into the store.
     ///
-    pub fn line_timestamp(&self, line: &Line) -> SystemTime {
-        self.line
-            .get(&line.id)
-            .map(|line| line.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`LineSegment`] into the store.
-    ///
-    pub fn inter_line_segment(&mut self, line_segment: LineSegment) {
+    pub fn inter_line_segment(&mut self, line_segment: Arc<RwLock<LineSegment>>) {
+        let read = line_segment.read().unwrap();
         self.line_segment
-            .insert(line_segment.id, (line_segment, SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, line_segment.clone());
     }
 
-    /// Exhume [`LineSegment`] from the store.
+    /// Exhume (get) [`LineSegment`] from the store.
     ///
-    pub fn exhume_line_segment(&self, id: &Uuid) -> Option<&LineSegment> {
+    pub fn exhume_line_segment(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegment>>> {
         self.line_segment
+            .read()
+            .unwrap()
             .get(id)
-            .map(|line_segment| &line_segment.0)
+            .map(|line_segment| line_segment.clone())
     }
 
-    /// Exhume [`LineSegment`] from the store — mutably.
+    /// Exorcise (remove) [`LineSegment`] from the store.
     ///
-    pub fn exhume_line_segment_mut(&mut self, id: &Uuid) -> Option<&mut LineSegment> {
+    pub fn exorcise_line_segment(&mut self, id: &Uuid) -> Option<Arc<RwLock<LineSegment>>> {
         self.line_segment
-            .get_mut(id)
-            .map(|line_segment| &mut line_segment.0)
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|line_segment| line_segment.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegment>`.
     ///
-    pub fn iter_line_segment(&self) -> impl Iterator<Item = &LineSegment> {
-        self.line_segment
+    pub fn iter_line_segment(&self) -> impl Iterator<Item = Arc<RwLock<LineSegment>>> + '_ {
+        let values: Vec<Arc<RwLock<LineSegment>>> = self
+            .line_segment
+            .read()
+            .unwrap()
             .values()
-            .map(|line_segment| &line_segment.0)
+            .map(|line_segment| line_segment.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for LineSegment.
+    /// Inter (insert) [`LineSegmentPoint`] into the store.
     ///
-    pub fn line_segment_timestamp(&self, line_segment: &LineSegment) -> SystemTime {
-        self.line_segment
-            .get(&line_segment.id)
-            .map(|line_segment| line_segment.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`LineSegmentPoint`] into the store.
-    ///
-    pub fn inter_line_segment_point(&mut self, line_segment_point: LineSegmentPoint) {
-        self.line_segment_point.insert(
-            line_segment_point.id,
-            (line_segment_point, SystemTime::now()),
-        );
-    }
-
-    /// Exhume [`LineSegmentPoint`] from the store.
-    ///
-    pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<&LineSegmentPoint> {
+    pub fn inter_line_segment_point(&mut self, line_segment_point: Arc<RwLock<LineSegmentPoint>>) {
+        let read = line_segment_point.read().unwrap();
         self.line_segment_point
+            .write()
+            .unwrap()
+            .insert(read.id, line_segment_point.clone());
+    }
+
+    /// Exhume (get) [`LineSegmentPoint`] from the store.
+    ///
+    pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<Arc<RwLock<LineSegmentPoint>>> {
+        self.line_segment_point
+            .read()
+            .unwrap()
             .get(id)
-            .map(|line_segment_point| &line_segment_point.0)
+            .map(|line_segment_point| line_segment_point.clone())
     }
 
-    /// Exhume [`LineSegmentPoint`] from the store — mutably.
+    /// Exorcise (remove) [`LineSegmentPoint`] from the store.
     ///
-    pub fn exhume_line_segment_point_mut(&mut self, id: &Uuid) -> Option<&mut LineSegmentPoint> {
+    pub fn exorcise_line_segment_point(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<LineSegmentPoint>>> {
         self.line_segment_point
-            .get_mut(id)
-            .map(|line_segment_point| &mut line_segment_point.0)
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|line_segment_point| line_segment_point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegmentPoint>`.
     ///
-    pub fn iter_line_segment_point(&self) -> impl Iterator<Item = &LineSegmentPoint> {
-        self.line_segment_point
-            .values()
-            .map(|line_segment_point| &line_segment_point.0)
-    }
-
-    /// Get the timestamp for LineSegmentPoint.
-    ///
-    pub fn line_segment_point_timestamp(
+    pub fn iter_line_segment_point(
         &self,
-        line_segment_point: &LineSegmentPoint,
-    ) -> SystemTime {
-        self.line_segment_point
-            .get(&line_segment_point.id)
-            .map(|line_segment_point| line_segment_point.1)
-            .unwrap_or(SystemTime::now())
+    ) -> impl Iterator<Item = Arc<RwLock<LineSegmentPoint>>> + '_ {
+        let values: Vec<Arc<RwLock<LineSegmentPoint>>> = self
+            .line_segment_point
+            .read()
+            .unwrap()
+            .values()
+            .map(|line_segment_point| line_segment_point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter [`Point`] into the store.
+    /// Inter (insert) [`Point`] into the store.
     ///
-    pub fn inter_point(&mut self, point: Point) {
-        self.point.insert(point.id, (point, SystemTime::now()));
+    pub fn inter_point(&mut self, point: Arc<RwLock<Point>>) {
+        let read = point.read().unwrap();
+        self.point.write().unwrap().insert(read.id, point.clone());
     }
 
-    /// Exhume [`Point`] from the store.
+    /// Exhume (get) [`Point`] from the store.
     ///
-    pub fn exhume_point(&self, id: &Uuid) -> Option<&Point> {
-        self.point.get(id).map(|point| &point.0)
+    pub fn exhume_point(&self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
+        self.point
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|point| point.clone())
     }
 
-    /// Exhume [`Point`] from the store — mutably.
+    /// Exorcise (remove) [`Point`] from the store.
     ///
-    pub fn exhume_point_mut(&mut self, id: &Uuid) -> Option<&mut Point> {
-        self.point.get_mut(id).map(|point| &mut point.0)
+    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
+        self.point
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|point| point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
     ///
-    pub fn iter_point(&self) -> impl Iterator<Item = &Point> {
-        self.point.values().map(|point| &point.0)
+    pub fn iter_point(&self) -> impl Iterator<Item = Arc<RwLock<Point>>> + '_ {
+        let values: Vec<Arc<RwLock<Point>>> = self
+            .point
+            .read()
+            .unwrap()
+            .values()
+            .map(|point| point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for Point.
+    /// Inter (insert) [`RelationshipName`] into the store.
     ///
-    pub fn point_timestamp(&self, point: &Point) -> SystemTime {
-        self.point
-            .get(&point.id)
-            .map(|point| point.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`RelationshipName`] into the store.
-    ///
-    pub fn inter_relationship_name(&mut self, relationship_name: RelationshipName) {
+    pub fn inter_relationship_name(&mut self, relationship_name: Arc<RwLock<RelationshipName>>) {
+        let read = relationship_name.read().unwrap();
         self.relationship_name
-            .insert(relationship_name.id, (relationship_name, SystemTime::now()));
+            .write()
+            .unwrap()
+            .insert(read.id, relationship_name.clone());
     }
 
-    /// Exhume [`RelationshipName`] from the store.
+    /// Exhume (get) [`RelationshipName`] from the store.
     ///
-    pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<&RelationshipName> {
+    pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipName>>> {
         self.relationship_name
+            .read()
+            .unwrap()
             .get(id)
-            .map(|relationship_name| &relationship_name.0)
+            .map(|relationship_name| relationship_name.clone())
     }
 
-    /// Exhume [`RelationshipName`] from the store — mutably.
+    /// Exorcise (remove) [`RelationshipName`] from the store.
     ///
-    pub fn exhume_relationship_name_mut(&mut self, id: &Uuid) -> Option<&mut RelationshipName> {
+    pub fn exorcise_relationship_name(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<RelationshipName>>> {
         self.relationship_name
-            .get_mut(id)
-            .map(|relationship_name| &mut relationship_name.0)
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|relationship_name| relationship_name.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipName>`.
     ///
-    pub fn iter_relationship_name(&self) -> impl Iterator<Item = &RelationshipName> {
-        self.relationship_name
+    pub fn iter_relationship_name(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<RelationshipName>>> + '_ {
+        let values: Vec<Arc<RwLock<RelationshipName>>> = self
+            .relationship_name
+            .read()
+            .unwrap()
             .values()
-            .map(|relationship_name| &relationship_name.0)
+            .map(|relationship_name| relationship_name.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
-    /// Get the timestamp for RelationshipName.
+    /// Inter (insert) [`RelationshipPhrase`] into the store.
     ///
-    pub fn relationship_name_timestamp(&self, relationship_name: &RelationshipName) -> SystemTime {
-        self.relationship_name
-            .get(&relationship_name.id)
-            .map(|relationship_name| relationship_name.1)
-            .unwrap_or(SystemTime::now())
-    }
-
-    /// Inter [`RelationshipPhrase`] into the store.
-    ///
-    pub fn inter_relationship_phrase(&mut self, relationship_phrase: RelationshipPhrase) {
-        self.relationship_phrase.insert(
-            relationship_phrase.id,
-            (relationship_phrase, SystemTime::now()),
-        );
-    }
-
-    /// Exhume [`RelationshipPhrase`] from the store.
-    ///
-    pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<&RelationshipPhrase> {
+    pub fn inter_relationship_phrase(
+        &mut self,
+        relationship_phrase: Arc<RwLock<RelationshipPhrase>>,
+    ) {
+        let read = relationship_phrase.read().unwrap();
         self.relationship_phrase
+            .write()
+            .unwrap()
+            .insert(read.id, relationship_phrase.clone());
+    }
+
+    /// Exhume (get) [`RelationshipPhrase`] from the store.
+    ///
+    pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipPhrase>>> {
+        self.relationship_phrase
+            .read()
+            .unwrap()
             .get(id)
-            .map(|relationship_phrase| &relationship_phrase.0)
+            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
-    /// Exhume [`RelationshipPhrase`] from the store — mutably.
+    /// Exorcise (remove) [`RelationshipPhrase`] from the store.
     ///
-    pub fn exhume_relationship_phrase_mut(&mut self, id: &Uuid) -> Option<&mut RelationshipPhrase> {
+    pub fn exorcise_relationship_phrase(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<RelationshipPhrase>>> {
         self.relationship_phrase
-            .get_mut(id)
-            .map(|relationship_phrase| &mut relationship_phrase.0)
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipPhrase>`.
     ///
-    pub fn iter_relationship_phrase(&self) -> impl Iterator<Item = &RelationshipPhrase> {
-        self.relationship_phrase
-            .values()
-            .map(|relationship_phrase| &relationship_phrase.0)
-    }
-
-    /// Get the timestamp for RelationshipPhrase.
-    ///
-    pub fn relationship_phrase_timestamp(
+    pub fn iter_relationship_phrase(
         &self,
-        relationship_phrase: &RelationshipPhrase,
-    ) -> SystemTime {
-        self.relationship_phrase
-            .get(&relationship_phrase.id)
-            .map(|relationship_phrase| relationship_phrase.1)
-            .unwrap_or(SystemTime::now())
+    ) -> impl Iterator<Item = Arc<RwLock<RelationshipPhrase>>> + '_ {
+        let values: Vec<Arc<RwLock<RelationshipPhrase>>> = self
+            .relationship_phrase
+            .read()
+            .unwrap()
+            .values()
+            .map(|relationship_phrase| relationship_phrase.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -483,17 +560,23 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-persistence"}}}
     /// Persist the store.
     ///
-    /// The store is persisted as a directory of JSON files. The intention
-    /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automaagic git integration as an option.
-    pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+    /// The store is persisted as a a bincode file.
+    pub fn persist_bincode<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
-        fs::create_dir_all(&path)?;
-
-        let bin_path = path.clone().join("merlin.bin");
-        let mut bin_file = fs::File::create(bin_path)?;
+        let mut bin_file = fs::File::create(path)?;
         let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
         bin_file.write_all(&encoded)?;
+        Ok(())
+    }
+
+    /// Persist the store.
+    ///
+    /// The store is persisted as a directory of JSON files. The intention
+    /// is that this directory can be checked into version control.
+    /// In fact, I intend to add automagic git integration as an option.
+    pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
+        fs::create_dir_all(path)?;
 
         let path = path.join("merlin.json");
         fs::create_dir_all(&path)?;
@@ -502,33 +585,11 @@ impl ObjectStore {
         {
             let path = path.join("anchor");
             fs::create_dir_all(&path)?;
-            for anchor_tuple in self.anchor.values() {
-                let path = path.join(format!("{}.json", anchor_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Anchor, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != anchor_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.anchor.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for anchor in self.anchor.read().unwrap().values() {
+                let path = path.join(format!("{}.json", anchor.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &anchor)?;
             }
         }
 
@@ -536,33 +597,11 @@ impl ObjectStore {
         {
             let path = path.join("bisection");
             fs::create_dir_all(&path)?;
-            for bisection_tuple in self.bisection.values() {
-                let path = path.join(format!("{}.json", bisection_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Bisection, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != bisection_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &bisection_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &bisection_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.bisection.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for bisection in self.bisection.read().unwrap().values() {
+                let path = path.join(format!("{}.json", bisection.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &bisection)?;
             }
         }
 
@@ -570,33 +609,11 @@ impl ObjectStore {
         {
             let path = path.join("x_box");
             fs::create_dir_all(&path)?;
-            for x_box_tuple in self.x_box.values() {
-                let path = path.join(format!("{}.json", x_box_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (XBox, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != x_box_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &x_box_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &x_box_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.x_box.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for x_box in self.x_box.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_box.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_box)?;
             }
         }
 
@@ -604,33 +621,11 @@ impl ObjectStore {
         {
             let path = path.join("edge");
             fs::create_dir_all(&path)?;
-            for edge_tuple in self.edge.values() {
-                let path = path.join(format!("{}.json", edge_tuple.0.id()));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Edge, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != edge_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.edge.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for edge in self.edge.read().unwrap().values() {
+                let path = path.join(format!("{}.json", edge.read().unwrap().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &edge)?;
             }
         }
 
@@ -638,33 +633,11 @@ impl ObjectStore {
         {
             let path = path.join("glyph");
             fs::create_dir_all(&path)?;
-            for glyph_tuple in self.glyph.values() {
-                let path = path.join(format!("{}.json", glyph_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Glyph, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != glyph_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &glyph_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &glyph_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.glyph.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for glyph in self.glyph.read().unwrap().values() {
+                let path = path.join(format!("{}.json", glyph.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &glyph)?;
             }
         }
 
@@ -672,33 +645,11 @@ impl ObjectStore {
         {
             let path = path.join("line");
             fs::create_dir_all(&path)?;
-            for line_tuple in self.line.values() {
-                let path = path.join(format!("{}.json", line_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Line, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != line_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line in self.line.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line)?;
             }
         }
 
@@ -706,33 +657,11 @@ impl ObjectStore {
         {
             let path = path.join("line_segment");
             fs::create_dir_all(&path)?;
-            for line_segment_tuple in self.line_segment.values() {
-                let path = path.join(format!("{}.json", line_segment_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (LineSegment, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != line_segment_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_segment_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_segment_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line_segment.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line_segment in self.line_segment.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line_segment.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line_segment)?;
             }
         }
 
@@ -740,33 +669,11 @@ impl ObjectStore {
         {
             let path = path.join("line_segment_point");
             fs::create_dir_all(&path)?;
-            for line_segment_point_tuple in self.line_segment_point.values() {
-                let path = path.join(format!("{}.json", line_segment_point_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (LineSegmentPoint, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != line_segment_point_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &line_segment_point_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &line_segment_point_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.line_segment_point.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for line_segment_point in self.line_segment_point.read().unwrap().values() {
+                let path = path.join(format!("{}.json", line_segment_point.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &line_segment_point)?;
             }
         }
 
@@ -774,33 +681,11 @@ impl ObjectStore {
         {
             let path = path.join("point");
             fs::create_dir_all(&path)?;
-            for point_tuple in self.point.values() {
-                let path = path.join(format!("{}.json", point_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Point, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != point_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.point.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for point in self.point.read().unwrap().values() {
+                let path = path.join(format!("{}.json", point.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &point)?;
             }
         }
 
@@ -808,33 +693,11 @@ impl ObjectStore {
         {
             let path = path.join("relationship_name");
             fs::create_dir_all(&path)?;
-            for relationship_name_tuple in self.relationship_name.values() {
-                let path = path.join(format!("{}.json", relationship_name_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (RelationshipName, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != relationship_name_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &relationship_name_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &relationship_name_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.relationship_name.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for relationship_name in self.relationship_name.read().unwrap().values() {
+                let path = path.join(format!("{}.json", relationship_name.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &relationship_name)?;
             }
         }
 
@@ -842,34 +705,11 @@ impl ObjectStore {
         {
             let path = path.join("relationship_phrase");
             fs::create_dir_all(&path)?;
-            for relationship_phrase_tuple in self.relationship_phrase.values() {
-                let path = path.join(format!("{}.json", relationship_phrase_tuple.0.id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (RelationshipPhrase, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0 != relationship_phrase_tuple.0 {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &relationship_phrase_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &relationship_phrase_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.relationship_phrase.contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
+            for relationship_phrase in self.relationship_phrase.read().unwrap().values() {
+                let path = path.join(format!("{}.json", relationship_phrase.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &relationship_phrase)?;
             }
         }
 
@@ -878,9 +718,18 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    /// The store is as a bincode file.
+    pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path = path.as_ref();
+        let bin_file = fs::File::open(path)?;
+        Ok(bincode::deserialize_from(bin_file).unwrap())
+    }
+
+    /// Load the store.
+    ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automaagic git integration as an option.
+    /// In fact, I intend to add automagic git integration as an option.
     pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
         let path = path.join("merlin.json");
@@ -890,163 +739,198 @@ impl ObjectStore {
         // Load Anchor.
         {
             let path = path.join("anchor");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let anchor: (Anchor, SystemTime) = serde_json::from_reader(reader)?;
-                store.anchor.insert(anchor.0.id, anchor);
+                let anchor: Arc<RwLock<Anchor>> = serde_json::from_reader(reader)?;
+                store
+                    .anchor
+                    .write()
+                    .unwrap()
+                    .insert(anchor.read().unwrap().id, anchor.clone());
             }
         }
 
         // Load Bisection.
         {
             let path = path.join("bisection");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let bisection: (Bisection, SystemTime) = serde_json::from_reader(reader)?;
-                store.bisection.insert(bisection.0.id, bisection);
+                let bisection: Arc<RwLock<Bisection>> = serde_json::from_reader(reader)?;
+                store
+                    .bisection
+                    .write()
+                    .unwrap()
+                    .insert(bisection.read().unwrap().id, bisection.clone());
             }
         }
 
         // Load Box.
         {
             let path = path.join("x_box");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_box: (XBox, SystemTime) = serde_json::from_reader(reader)?;
-                store.x_box.insert(x_box.0.id, x_box);
+                let x_box: Arc<RwLock<XBox>> = serde_json::from_reader(reader)?;
+                store
+                    .x_box
+                    .write()
+                    .unwrap()
+                    .insert(x_box.read().unwrap().id, x_box.clone());
             }
         }
 
         // Load Edge.
         {
             let path = path.join("edge");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let edge: (Edge, SystemTime) = serde_json::from_reader(reader)?;
-                store.edge.insert(edge.0.id(), edge);
+                let edge: Arc<RwLock<Edge>> = serde_json::from_reader(reader)?;
+                store
+                    .edge
+                    .write()
+                    .unwrap()
+                    .insert(edge.read().unwrap().id(), edge.clone());
             }
         }
 
         // Load Glyph.
         {
             let path = path.join("glyph");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let glyph: (Glyph, SystemTime) = serde_json::from_reader(reader)?;
-                store.glyph.insert(glyph.0.id, glyph);
+                let glyph: Arc<RwLock<Glyph>> = serde_json::from_reader(reader)?;
+                store
+                    .glyph
+                    .write()
+                    .unwrap()
+                    .insert(glyph.read().unwrap().id, glyph.clone());
             }
         }
 
         // Load Line.
         {
             let path = path.join("line");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line: (Line, SystemTime) = serde_json::from_reader(reader)?;
-                store.line.insert(line.0.id, line);
+                let line: Arc<RwLock<Line>> = serde_json::from_reader(reader)?;
+                store
+                    .line
+                    .write()
+                    .unwrap()
+                    .insert(line.read().unwrap().id, line.clone());
             }
         }
 
         // Load Line Segment.
         {
             let path = path.join("line_segment");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment: (LineSegment, SystemTime) = serde_json::from_reader(reader)?;
-                store.line_segment.insert(line_segment.0.id, line_segment);
+                let line_segment: Arc<RwLock<LineSegment>> = serde_json::from_reader(reader)?;
+                store
+                    .line_segment
+                    .write()
+                    .unwrap()
+                    .insert(line_segment.read().unwrap().id, line_segment.clone());
             }
         }
 
         // Load Line Segment Point.
         {
             let path = path.join("line_segment_point");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment_point: (LineSegmentPoint, SystemTime) =
+                let line_segment_point: Arc<RwLock<LineSegmentPoint>> =
                     serde_json::from_reader(reader)?;
-                store
-                    .line_segment_point
-                    .insert(line_segment_point.0.id, line_segment_point);
+                store.line_segment_point.write().unwrap().insert(
+                    line_segment_point.read().unwrap().id,
+                    line_segment_point.clone(),
+                );
             }
         }
 
         // Load Point.
         {
             let path = path.join("point");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let point: (Point, SystemTime) = serde_json::from_reader(reader)?;
-                store.point.insert(point.0.id, point);
+                let point: Arc<RwLock<Point>> = serde_json::from_reader(reader)?;
+                store
+                    .point
+                    .write()
+                    .unwrap()
+                    .insert(point.read().unwrap().id, point.clone());
             }
         }
 
         // Load Relationship Name.
         {
             let path = path.join("relationship_name");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_name: (RelationshipName, SystemTime) =
+                let relationship_name: Arc<RwLock<RelationshipName>> =
                     serde_json::from_reader(reader)?;
-                store
-                    .relationship_name
-                    .insert(relationship_name.0.id, relationship_name);
+                store.relationship_name.write().unwrap().insert(
+                    relationship_name.read().unwrap().id,
+                    relationship_name.clone(),
+                );
             }
         }
 
         // Load Relationship Phrase.
         {
             let path = path.join("relationship_phrase");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_phrase: (RelationshipPhrase, SystemTime) =
+                let relationship_phrase: Arc<RwLock<RelationshipPhrase>> =
                     serde_json::from_reader(reader)?;
-                store
-                    .relationship_phrase
-                    .insert(relationship_phrase.0.id, relationship_phrase);
+                store.relationship_phrase.write().unwrap().insert(
+                    relationship_phrase.read().unwrap().id,
+                    relationship_phrase.clone(),
+                );
             }
         }
 

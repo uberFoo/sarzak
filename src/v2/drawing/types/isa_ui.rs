@@ -14,7 +14,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-documentation"}}}
 /// This represents additional data necessary to render an `Isa` relationship in the user interface
-///.
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-definition"}}}
@@ -34,11 +34,13 @@ impl IsaUi {
     pub fn new(from: &Anchor, isa: &Isa, store: &mut DrawingStore) -> IsaUi {
         let id = Uuid::new_v4();
         let new = IsaUi {
-            id: id,
+            id,
             from: from.id,
             isa: isa.id,
         };
         store.inter_isa_ui(new.clone());
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

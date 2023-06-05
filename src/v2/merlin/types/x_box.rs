@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_box-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -10,6 +12,15 @@ use crate::v2::merlin::store::ObjectStore as MerlinStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-documentation"}}}
+/// More than a box
+///
+/// This is the primary method of drawing an Object on the screen. I'm sure it'll be used for
+///  State's as well.
+///
+/// It's a rectangle with parameters.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct XBox {
@@ -33,17 +44,19 @@ impl XBox {
         y: i64,
         object: &Object,
         store: &mut MerlinStore,
-    ) -> XBox {
+    ) -> Arc<RwLock<XBox>> {
         let id = Uuid::new_v4();
-        let new = XBox {
-            height: height,
-            id: id,
-            width: width,
-            x: x,
-            y: y,
+        let new = Arc::new(RwLock::new(XBox {
+            height,
+            id,
+            width,
+            x,
+            y,
             object: object.id,
-        };
+        }));
         store.inter_x_box(new.clone());
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -54,12 +67,13 @@ impl XBox {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc_many-to-anchor"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc-many-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-M)
-    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
+    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
         store
             .iter_anchor()
             .filter_map(|anchor| {
-                if anchor.x_box == self.id {
+                if anchor.read().unwrap().x_box == self.id {
                     Some(anchor)
                 } else {
                     None

@@ -15,18 +15,16 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Value
 ///
 /// I consider a value as an abstraction for a chunk of memory. By upgrading some bytes to
-///a `Value` you gain meaning and utility.
+/// a `Value` you gain meaning and utility.
 ///
 /// The meaning comes from assigning type information to the ones and zeros. From a modeling
-/// perspective it is good enough to think in terms of [`Type`], which is just a general hint
-/// about the domain of the value. When we get to generating code we require lower level information
-///, which is why we have [`GraceType`].
+///  perspective it is good enough to think in terms of [`Type`], which is just a general hint
+///  about the domain of the value. When we get to generating code we require lower level information
+/// , which is why we have [`GraceType`].
 ///
 /// The utility are completely compiler/language level constructs. These are [`Mutability`]
-/// and [`Visibility`].
+///  and [`Visibility`].
 ///
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-enum-definition"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -48,7 +46,7 @@ pub enum ValueEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-implementation"}}}
 impl Value {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_expression"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_expression(
         access: &Access,
@@ -56,9 +54,7 @@ impl Value {
         subtype: &Expression,
         store: &mut WoogStore,
     ) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
+        let id = Uuid::new_v4();
         let new = Value {
             access: access.id,
             ty: ty.id(),
@@ -69,7 +65,7 @@ impl Value {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value-struct-impl-new_variable"}}}
     /// Inter a new Value in the store, and return it's `id`.
     pub fn new_variable(
         access: &Access,
@@ -77,9 +73,7 @@ impl Value {
         subtype: &Variable,
         store: &mut WoogStore,
     ) -> Value {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Value {
             access: access.id,
             ty: ty.id(),

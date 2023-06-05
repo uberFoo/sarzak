@@ -14,7 +14,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Field
 ///
 /// A field is a named part of a data structure (an [`Enumeration`] or a [`Structure`] of a
-/// given [`GraceType`].
+///  given [`GraceType`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-definition"}}}
@@ -33,8 +33,8 @@ impl Field {
     pub fn new(name: String, ty: &GraceType, store: &mut WoogStore) -> Field {
         let id = Uuid::new_v4();
         let new = Field {
-            id: id,
-            name: name,
+            id,
+            name,
             ty: ty.id(),
         };
         store.inter_field(new.clone());
@@ -47,10 +47,6 @@ impl Field {
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc_many-to-enumeration_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc_many-to-structure_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-1c)
     pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {
@@ -59,10 +55,6 @@ impl Field {
             .find(|structure_field| structure_field.woog_struct == self.id);
         match structure_field {
             Some(ref structure_field) => vec![structure_field],
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
             None => Vec::new(),
         }
     }

@@ -29,12 +29,14 @@ impl Supertype {
     pub fn new(obj_id: &Object, store: &mut SarzakStore) -> Supertype {
         let id = Uuid::new_v4();
         let new = Supertype {
-            id: id,
+            id,
             obj_id: obj_id.id,
         };
         store.inter_supertype(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R14(1-*)

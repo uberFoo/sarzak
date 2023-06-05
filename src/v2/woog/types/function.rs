@@ -33,7 +33,7 @@ pub enum FunctionEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-implementation"}}}
 impl Function {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new_object_method"}}}
     /// Inter a new Function in the store, and return it's `id`.
     pub fn new_object_method(
         description: String,
@@ -41,9 +41,7 @@ impl Function {
         subtype: &ObjectMethod,
         store: &mut WoogStore,
     ) -> Function {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Function {
             description: description,
             name: name,

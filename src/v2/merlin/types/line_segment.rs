@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"line_segment-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::merlin::types::bisection::Bisection;
@@ -13,7 +15,8 @@ use crate::v2::merlin::store::ObjectStore as MerlinStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-documentation"}}}
 /// Part of a Line
 ///
-/// A line segment is in fact a straight line. It is used to compose a (poly) [`Line`].
+/// A line segment is in fact a straight line between two points. It is used to compose a (poly
+/// ) [`Line`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-definition"}}}
@@ -28,42 +31,48 @@ pub struct LineSegment {
 impl LineSegment {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new"}}}
     /// Inter a new 'Line Segment' in the store, and return it's `id`.
-    pub fn new(line: &Line, store: &mut MerlinStore) -> LineSegment {
+    pub fn new(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<LineSegment>> {
         let id = Uuid::new_v4();
-        let new = LineSegment {
-            id: id,
-            line: line.id,
-        };
+        let new = Arc::new(RwLock::new(LineSegment {
+            id,
+            line: line.read().unwrap().id,
+        }));
         store.inter_line_segment(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new_"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-forward-to-line"}}}
     /// Navigate to [`Line`] across R4(1-*)
-    pub fn r4_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
+    pub fn r4_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Line>>> {
         vec![store.exhume_line(&self.line).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-cond-to-bisection"}}}
     /// Navigate to [`Bisection`] across R14(1-1c)
-    pub fn r14c_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Bisection> {
+    pub fn r14c_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Bisection>>> {
         let bisection = store
             .iter_bisection()
-            .find(|bisection| bisection.segment == self.id);
+            .find(|bisection| bisection.read().unwrap().segment == self.id);
         match bisection {
-            Some(ref bisection) => vec![bisection],
+            Some(ref bisection) => vec![bisection.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-one-to-point"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-assoc_many-to-line_segment_point"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-assoc-many-to-line_segment_point"}}}
     /// Navigate to [`LineSegmentPoint`] across R5(1-M)
-    pub fn r5_line_segment_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&LineSegmentPoint> {
+    pub fn r5_line_segment_point<'a>(
+        &'a self,
+        store: &'a MerlinStore,
+    ) -> Vec<Arc<RwLock<LineSegmentPoint>>> {
         store
             .iter_line_segment_point()
             .filter_map(|line_segment_point| {
-                if line_segment_point.segment == self.id {
+                if line_segment_point.read().unwrap().segment == self.id {
                     Some(line_segment_point)
                 } else {
                     None

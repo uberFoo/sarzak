@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"edge-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
 use crate::v2::merlin::types::anchor::Anchor;
 use crate::v2::merlin::types::bottom::BOTTOM;
@@ -23,27 +25,27 @@ pub enum Edge {
 impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
     /// Create a new instance of Edge::Bottom
-    pub fn new_bottom() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Bottom(BOTTOM)
+    pub fn new_bottom(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&BOTTOM).unwrap()
     }
 
     /// Create a new instance of Edge::Left
-    pub fn new_left() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Left(LEFT)
+    pub fn new_left(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&LEFT).unwrap()
     }
 
     /// Create a new instance of Edge::Right
-    pub fn new_right() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Right(RIGHT)
+    pub fn new_right(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&RIGHT).unwrap()
     }
 
     /// Create a new instance of Edge::Top
-    pub fn new_top() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Top(TOP)
+    pub fn new_top(store: &MerlinStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&TOP).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -59,16 +61,10 @@ impl Edge {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-1_M-to-anchor"}}}
     /// Navigate to [`Anchor`] across R9(1-M)
-    pub fn r9_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
+    pub fn r9_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
         store
             .iter_anchor()
-            .filter_map(|anchor| {
-                if anchor.edge == self.id() {
-                    Some(anchor)
-                } else {
-                    None
-                }
-            })
+            .filter(|anchor| anchor.read().unwrap().edge == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

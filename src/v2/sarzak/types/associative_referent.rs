@@ -15,7 +15,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 /// The other objects in an Associative Relationship
 ///
 /// This represents one of the two objects that are related in an [`Associative`] relationhip
-///.
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-definition"}}}
@@ -44,8 +44,8 @@ impl AssociativeReferent {
     ) -> AssociativeReferent {
         let id = Uuid::new_v4();
         let new = AssociativeReferent {
-            description: description,
-            id: id,
+            description,
+            id,
             cardinality: cardinality.id(),
             conditionality: conditionality.id(),
             obj_id: obj_id.id,
@@ -53,6 +53,8 @@ impl AssociativeReferent {
         store.inter_associative_referent(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-nav-forward-to-cardinality"}}}
     /// Navigate to [`Cardinality`] across R88(1-*)

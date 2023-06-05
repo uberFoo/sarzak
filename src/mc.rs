@@ -18,11 +18,15 @@ pub type Result<T, E = ModelCompilerError> = std::result::Result<T, E>;
 pub enum ModelCompilerError {
     #[snafu(display("ModelError: {}", description))]
     Model { description: String },
-    #[snafu(display("I/O Error caused by {}", source))]
-    IO { source: std::io::Error },
+    #[snafu(display("\n{}: {description}: {}:{}:{}\n  --> {source}", Colour::Red.bold().paint("error"), location.file, location.line, location.column))]
+    IO {
+        source: std::io::Error,
+        description: String,
+        location: Location,
+    },
     #[snafu(display("Format Error caused by {}", source))]
     Format { source: std::fmt::Error },
-    #[snafu(display("File Error: {}, caused by {}", path.display(), source))]
+    #[snafu(display("\n{backtrace}\n{}: {description}: {}:{}:{}\n  --> {source} ({})", Colour::Red.bold().paint("error"), location.file, location.line, location.column, path.display()))]
     File {
         backtrace: Backtrace,
         location: Location,
@@ -54,5 +58,5 @@ pub trait SarzakModelCompiler {
         src_path: P,
         options: Box<&dyn ModelCompilerOptions>,
         test: bool,
-    ) -> Result<(), ModelCompilerError>;
+    ) -> Result<usize, ModelCompilerError>;
 }

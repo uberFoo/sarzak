@@ -42,7 +42,7 @@ impl AssociativeUi {
     ) -> AssociativeUi {
         let id = Uuid::new_v4();
         let new = AssociativeUi {
-            id: id,
+            id,
             other: other.id,
             one: one.id,
             middle: middle.id,
@@ -52,6 +52,8 @@ impl AssociativeUi {
         store.inter_associative_ui(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}

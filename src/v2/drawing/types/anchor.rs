@@ -15,16 +15,16 @@ use crate::v2::drawing::store::ObjectStore as DrawingStore;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-documentation"}}}
 /// An anchor, or anchor point, is the location where an arrow from a relationship attached
-/// to an object.
+///  to an object.
 ///
 /// Rather than storing the `x` and `y` coordinates of where the anchor attaches, we are related
-/// to an [Edge], which is related to a box, which is related to the [Object] to which we are
-/// attached. This of course completes the circuit from the [Relationship] for which we are
-/// drawing the lines in the first place.
+///  to an [Edge], which is related to a box, which is related to the [Object] to which we are
+///  attached. This of course completes the circuit from the [Relationship] for which we are
+///  drawing the lines in the first place.
 ///
 /// Anchor also contains a direction, so that we know the orientation to draw the arrows. Finally
-///, there is an offset, which is a point that describes the offset from the anchor for the
-/// relationship phrase.
+/// , there is an offset, which is a point that describes the offset from the anchor for the
+///  relationship phrase.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-definition"}}}
@@ -46,7 +46,7 @@ impl Anchor {
     pub fn new(edge: &Edge, location: &Point, offset: &Point, store: &mut DrawingStore) -> Anchor {
         let id = Uuid::new_v4();
         let new = Anchor {
-            id: id,
+            id,
             edge: edge.id(),
             location: location.id,
             offset: offset.id,
@@ -54,6 +54,8 @@ impl Anchor {
         store.inter_anchor(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R3(1-*)
@@ -146,6 +148,7 @@ impl Anchor {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-assoc_many-to-subtype_anchors"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-assoc-many-to-subtype_anchors"}}}
     /// Navigate to [`SubtypeAnchors`] across R10(1-M)
     pub fn r10_subtype_anchors<'a>(&'a self, store: &'a DrawingStore) -> Vec<&SubtypeAnchors> {
         store

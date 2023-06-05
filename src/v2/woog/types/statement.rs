@@ -16,10 +16,8 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Statement
 ///
 /// There aren't all that many types of [statement in rust.](https://doc.rust-lang.org/reference
-////statements.html).
+/// /statements.html).
 ///
-// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-enum-definition"}}}
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -41,12 +39,10 @@ pub enum StatementEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-implementation"}}}
 impl Statement {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(block: &Block, store: &mut WoogStore) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = EXPRESSION_STATEMENT;
+        let id = Uuid::new_v4();
         let new = Statement {
             block: block.id,
             subtype: StatementEnum::ExpressionStatement(EXPRESSION_STATEMENT),
@@ -56,12 +52,10 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item(block: &Block, subtype: &Item, store: &mut WoogStore) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id();
+        let id = Uuid::new_v4();
         let new = Statement {
             block: block.id,
             subtype: StatementEnum::Item(subtype.id()),
@@ -71,12 +65,10 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_let"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_x_let(block: &Block, subtype: &XLet, store: &mut WoogStore) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Statement {
             block: block.id,
             subtype: StatementEnum::XLet(subtype.id),
@@ -86,12 +78,10 @@ impl Statement {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_macro"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_x_macro(block: &Block, store: &mut WoogStore) -> Statement {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = X_MACRO;
+        let id = Uuid::new_v4();
         let new = Statement {
             block: block.id,
             subtype: StatementEnum::XMacro(X_MACRO),

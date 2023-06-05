@@ -6,6 +6,7 @@ use crate::v2::sarzak::types::object::Object;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::function::Function;
+use crate::v2::woog::types::function::FunctionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
@@ -16,12 +17,12 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// Method
 ///
 /// This represents a function's signature. We don't (yet) care about the body of the function
-///. We are however very interested in it's type, which implies parameters and their types,
-/// as well as our return type.
+/// . We are however very interested in it's type, which implies parameters and their types,
+///  as well as our return type.
 ///
 /// Looking at this more closely, I think that this should be related to a parameter list, and
-/// the list related to the string of parameters. It may just be a nit, but it does bother me
-/// a bit. I'll come back and fix it once it's less troublesome to generate this domain.
+///  the list related to the string of parameters. It may just be a nit, but it does bother me
+///  a bit. I'll come back and fix it once it's less troublesome to generate this domain.
 ///
 /// The function in question is a method, hanging off of an [`Object`][o].
 ///
@@ -45,7 +46,7 @@ impl ObjectMethod {
     pub fn new(block: &Block, object: &Object, store: &mut WoogStore) -> ObjectMethod {
         let id = Uuid::new_v4();
         let new = ObjectMethod {
-            id: id,
+            id,
             block: block.id,
             object: object.id,
         };
@@ -70,21 +71,23 @@ impl ObjectMethod {
     pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<&Call> {
         store
             .iter_call()
-            .filter_map(|call| {
-                if call.method == self.id {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
+            .filter(|call| call.method == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-cond-to-parameter"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}
     // Navigate to [`Function`] across R25(isa)
     pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<&Function> {
-        vec![store.exhume_function(&self.id).unwrap()]
+        vec![store
+            .iter_function()
+            .find(|function| {
+                if let FunctionEnum::ObjectMethod(id) = function.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

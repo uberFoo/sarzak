@@ -37,7 +37,7 @@ impl StructureField {
     ) -> StructureField {
         let id = Uuid::new_v4();
         let new = StructureField {
-            id: id,
+            id,
             next: next.map(|structure_field| structure_field.id),
             woog_struct: woog_struct.id,
             field: field.id,
@@ -68,14 +68,12 @@ impl StructureField {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Field`] across R27(1-*)
     pub fn r27_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&Field> {
         vec![store.exhume_field(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
     /// Navigate to [`Structure`] across R27(1-*)
     pub fn r27_structure<'a>(&'a self, store: &'a WoogStore) -> Vec<&Structure> {
         vec![store.exhume_structure(&self.field).unwrap()]

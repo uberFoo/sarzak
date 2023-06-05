@@ -15,10 +15,10 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 /// Render a rectangle
 ///
 /// This represents additional information that is necessary to draw an Object in the user interface
-///.
+/// .
 ///
 /// Note that although we are logically related to [Edge] via `R14` we actually render our own
-/// edges. We use the svg rect primitive to do this.
+///  edges. We use the svg rect primitive to do this.
 ///
 /// I’m throwing this in for the fuck of it. I don’t know if it’ll be useful or not.
 ///
@@ -58,13 +58,15 @@ impl ObjectUi {
     ) -> ObjectUi {
         let id = Uuid::new_v4();
         let new = ObjectUi {
-            height: height,
-            id: id,
-            width: width,
+            height,
+            id,
+            width,
             object_id: object_id.id,
             origin: origin.id,
         };
         store.inter_object_ui(new.clone());
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -85,13 +87,7 @@ impl ObjectUi {
     pub fn r18_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&ObjectEdge> {
         store
             .iter_object_edge()
-            .filter_map(|object_edge| {
-                if object_edge.oui_id == self.id {
-                    Some(object_edge)
-                } else {
-                    None
-                }
-            })
+            .filter(|object_edge| object_edge.oui_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

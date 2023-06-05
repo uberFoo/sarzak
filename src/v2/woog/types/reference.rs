@@ -14,7 +14,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 /// A Reference
 ///
 /// Specifically this is a reference to something that was translated from an [`Object`]. In
-/// rust that's a `struct` or an `enum`.
+///  rust that's a `struct` or an `enum`.
 ///
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -33,7 +33,7 @@ impl Reference {
     pub fn new(object: &Object, store: &mut WoogStore) -> Reference {
         let id = Uuid::new_v4();
         let new = Reference {
-            id: id,
+            id,
             object: object.id,
         };
         store.inter_reference(new.clone());

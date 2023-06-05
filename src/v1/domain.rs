@@ -1,5 +1,7 @@
 //! Version 1 Sarzak Domain
 //!
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -19,6 +21,7 @@ pub struct Domain {
     drawing: DrawingStore,
     extents: [u16; 2],
     view: [i32; 2],
+    path: PathBuf,
 }
 
 impl Domain {
@@ -26,7 +29,12 @@ impl Domain {
     ///
     /// This is used by the [`DomainBuilder`] to initialize a domain. It's not
     /// a generally useful means of creating a domain.
-    pub(crate) fn new(model: SarzakModel, sarzak: SarzakStore, drawing: DrawingStore) -> Self {
+    pub(crate) fn new(
+        path: PathBuf,
+        model: SarzakModel,
+        sarzak: SarzakStore,
+        drawing: DrawingStore,
+    ) -> Self {
         let domain = Domain {
             version: VERSION.to_owned(),
             domain: model.domain,
@@ -36,6 +44,7 @@ impl Domain {
             drawing,
             extents: model.extents,
             view: model.view,
+            path,
         };
 
         domain
@@ -93,5 +102,9 @@ impl Domain {
     ///
     pub fn view(&self) -> &[i32; 2] {
         &self.view
+    }
+
+    pub fn path(&self) -> &PathBuf {
+        &self.path
     }
 }

@@ -1,5 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"relationship_name-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_name-use-statements"}}}
+use std::sync::{Arc, RwLock};
+
 use uuid::Uuid;
 
 use crate::v2::merlin::types::bisection::Bisection;
@@ -30,32 +32,34 @@ impl RelationshipName {
         text: String,
         x: i64,
         y: i64,
-        origin: &Bisection,
-        line: &Line,
+        origin: &Arc<RwLock<Bisection>>,
+        line: &Arc<RwLock<Line>>,
         store: &mut MerlinStore,
-    ) -> RelationshipName {
+    ) -> Arc<RwLock<RelationshipName>> {
         let id = Uuid::new_v4();
-        let new = RelationshipName {
-            id: id,
-            text: text,
-            x: x,
-            y: y,
-            origin: origin.id,
-            line: line.id,
-        };
+        let new = Arc::new(RwLock::new(RelationshipName {
+            id,
+            text,
+            x,
+            y,
+            origin: origin.read().unwrap().id,
+            line: line.read().unwrap().id,
+        }));
         store.inter_relationship_name(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_name-struct-impl-new_"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_name-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Bisection`] across R15(1-*)
-    pub fn r15_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Bisection> {
+    pub fn r15_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Bisection>>> {
         vec![store.exhume_bisection(&self.origin).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_name-struct-impl-nav-forward-to-line"}}}
     /// Navigate to [`Line`] across R11(1-*)
-    pub fn r11_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
+    pub fn r11_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Line>>> {
         vec![store.exhume_line(&self.line).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

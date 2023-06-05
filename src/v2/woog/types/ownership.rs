@@ -13,7 +13,7 @@ use uuid::Uuid;
 /// Type Ownership
 ///
 /// This is tied closely with Rust. There are tthree possible options: owned, mutable and borrowed
-///.
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-enum-definition"}}}
@@ -60,13 +60,7 @@ impl Ownership {
     pub fn r15_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
         store
             .iter_access()
-            .filter_map(|access| {
-                if access.ownership == self.id() {
-                    Some(access)
-                } else {
-                    None
-                }
-            })
+            .filter(|access| access.ownership == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

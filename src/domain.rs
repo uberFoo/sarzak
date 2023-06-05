@@ -2,7 +2,7 @@
 //!
 //! A Domain is a container for items that all participate in the same abstraction.
 //! Currently that means a model.
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use log;
 use nut::{
@@ -91,7 +91,7 @@ use crate::{
 /// [s]: crate::sarzak::State
 /// [e]: crate::sarzak::Event
 pub struct DomainBuilder {
-    nut_model: Option<FromModel>,
+    nut_model: Option<(PathBuf, FromModel)>,
     pre_load: Option<
         Box<dyn Fn(&FromSarzakStore, &FromDrawingStore, &mut SarzakV1Store, &mut DrawingV1Store)>,
     >,
@@ -117,7 +117,7 @@ impl DomainBuilder {
             path: path.as_ref(),
         })?;
 
-        self.nut_model = Some(nut_model);
+        self.nut_model = Some((path.as_ref().to_path_buf(), nut_model));
         Ok(self)
     }
 
@@ -152,7 +152,7 @@ impl DomainBuilder {
     }
 
     fn _build_v1(self) -> DomainV1 {
-        let model = self.nut_model.unwrap();
+        let (path, model) = self.nut_model.unwrap();
 
         let mut sarzak = SarzakV1Store::new();
         let mut drawing = DrawingV1Store::new();
@@ -173,7 +173,7 @@ impl DomainBuilder {
             func(&mut sarzak, &mut drawing);
         }
 
-        DomainV1::new(model, sarzak, drawing)
+        DomainV1::new(path, model, sarzak, drawing)
     }
 
     /// The final step

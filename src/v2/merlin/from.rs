@@ -8,20 +8,20 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
+use std::sync::{Arc, RwLock};
+
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
 use crate::v2::merlin::types::{
     Anchor, Bisection, Edge, Glyph, Line, LineSegment, LineSegmentPoint, Point, RelationshipName,
-    RelationshipPhrase, XBox, BOTTOM, LEFT, RIGHT, TOP,
+    XBox, BOTTOM, LEFT, RIGHT, TOP,
 };
 use crate::v2::merlin::ObjectStore;
 
-use crate::v2::drawing::types::{
-    Anchor as FromAnchor, BinaryUi, Edge as FromEdge, ObjectUi, Point as FromPoint,
-};
+use crate::v2::drawing::types::{Edge as FromEdge, ObjectUi, Point as FromPoint};
 use crate::v2::drawing::ObjectStore as DrawingStore;
 
-use crate::v2::sarzak::types::{Cardinality, Object};
+use crate::v2::sarzak::types::Cardinality;
 use crate::v2::sarzak::ObjectStore as SarzakStore;
 
 /// Convert a v1 Drawing format into a v2 Drawing format
@@ -49,9 +49,14 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
 
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
+
         for oui in drawing.iter_object_ui() {
             let instance = XBox::from((oui, drawing));
-            merlin.inter_x_box(instance);
+            merlin.inter_x_box(Arc::new(RwLock::new(instance)));
         }
 
         for bui in drawing.iter_binary_ui() {
@@ -108,7 +113,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &edge.into(),
+                &XyzzyEdge(edge, &merlin).into(),
                 &glyph,
                 &x_box,
                 &line,
@@ -153,7 +158,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &edge.into(),
+                &XyzzyEdge(edge, &merlin).into(),
                 &glyph,
                 &x_box,
                 &line,
@@ -165,11 +170,6 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
 
             // Create the "line segment point"
             LineSegmentPoint::new(&line_seg, &point, &mut merlin);
-        }
-
-        for instance in drawing.iter_edge() {
-            let instance = Edge::from(instance);
-            merlin.inter_edge(instance);
         }
 
         merlin
@@ -218,13 +218,18 @@ impl From<(&ObjectUi, &DrawingStore)> for XBox {
     }
 }
 
-impl From<&FromEdge> for Edge {
-    fn from(src: &FromEdge) -> Self {
+struct XyzzyEdge<'a>(&'a FromEdge, &'a ObjectStore);
+
+impl<'a> From<XyzzyEdge<'a>> for Arc<RwLock<Edge>> {
+    fn from(edge: XyzzyEdge<'a>) -> Self {
+        let src = edge.0;
+        let merlin = edge.1;
+
         match src {
-            FromEdge::Bottom(_) => Edge::Bottom(BOTTOM),
-            FromEdge::Left(_) => Edge::Left(LEFT),
-            FromEdge::Right(_) => Edge::Right(RIGHT),
-            FromEdge::Top(_) => Edge::Top(TOP),
+            FromEdge::Bottom(_) => merlin.exhume_edge(&BOTTOM).unwrap(),
+            FromEdge::Left(_) => merlin.exhume_edge(&LEFT).unwrap(),
+            FromEdge::Right(_) => merlin.exhume_edge(&RIGHT).unwrap(),
+            FromEdge::Top(_) => merlin.exhume_edge(&TOP).unwrap(),
         }
     }
 }

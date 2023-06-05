@@ -16,7 +16,7 @@ use crate::v2::sarzak::types::{
     AcknowledgedEvent, AnAssociativeReferent, Associative, AssociativeReferent,
     AssociativeReferrer, Attribute, Binary, Cardinality, Conditionality, Event, External, Isa,
     Object, Referent, Referrer, Relationship, State, Subtype, Supertype, Ty, BOOLEAN, CONDITIONAL,
-    FLOAT, INTEGER, MANY, ONE, STRING, UNCONDITIONAL, UUID,
+    FLOAT, INTEGER, MANY, ONE, S_STRING, S_UUID, UNCONDITIONAL,
 };
 use crate::v2::sarzak::ObjectStore;
 
@@ -45,7 +45,7 @@ impl From<&SarzakStore> for ObjectStore {
 
         // The order of the next two is important. We need the referents in the
         // store before the associative in order to create the AnAssociativeReferent
-        // instancs.
+        // instances.
         for (_, instance) in from.iter_associative_referent() {
             let instance = AssociativeReferent::from(instance);
             to.inter_associative_referent(instance);
@@ -211,7 +211,7 @@ impl From<&FromAttribute> for Attribute {
         Self {
             id: src.id,
             name: src.name.clone(),
-            obj_id: src.obj_id,
+            obj_id: src.obj_id.unwrap(),
             ty: from_const(&src.ty),
         }
     }
@@ -358,8 +358,8 @@ impl From<&FromTy> for Ty {
             FromTy::Float(_) => Ty::Float(FLOAT),
             FromTy::Integer(_) => Ty::Integer(INTEGER),
             FromTy::Object(src) => Ty::Object(src.clone()),
-            FromTy::String(_) => Ty::String(STRING),
-            FromTy::Uuid(_) => Ty::Uuid(UUID),
+            FromTy::String(_) => Ty::SString(S_STRING),
+            FromTy::Uuid(_) => Ty::SUuid(S_UUID),
         }
     }
 }
@@ -369,8 +369,8 @@ fn from_const(from: &Uuid) -> Uuid {
         FROM_BOOLEAN => BOOLEAN,
         FROM_FLOAT => FLOAT,
         FROM_INTEGER => INTEGER,
-        FROM_STRING => STRING,
-        FROM_UUID => UUID,
+        FROM_STRING => S_STRING,
+        FROM_UUID => S_UUID,
         FROM_CONDITIONAL => CONDITIONAL,
         FROM_UNCONDITIONAL => UNCONDITIONAL,
         FROM_MANY => MANY,

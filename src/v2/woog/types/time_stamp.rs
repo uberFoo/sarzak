@@ -11,7 +11,7 @@ use uuid::Uuid;
 /// A timestamp with nanosecond precision
 ///
 /// There are all sorts of caveats about using this in the documentation. I should include
-///a pointer to it here.
+/// a pointer to it here.
 ///
 /// 🐶 {"external_entity": {"name": "SystemTime", "ctor": "now", "path": "std::time"}}
 ///
@@ -25,7 +25,6 @@ pub struct TimeStamp {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-ee-impl"}}}
 impl TimeStamp {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-struct-impl-new"}}}
     pub fn new(store: &mut WoogStore) -> TimeStamp {
         let inner = SystemTime::now();
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", inner).as_bytes());
@@ -36,6 +35,5 @@ impl TimeStamp {
         store.inter_time_stamp(new.clone());
         new
     }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

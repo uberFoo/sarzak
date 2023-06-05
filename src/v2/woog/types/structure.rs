@@ -28,13 +28,12 @@ impl Structure {
     /// Inter a new 'Structure' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Structure {
         let id = Uuid::new_v4();
-        let new = Structure { id: id, name: name };
+        let new = Structure { id, name };
         store.inter_structure(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc_many-to-structure_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-struct-impl-nav-backward-assoc-many-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-M)
     pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {
         store

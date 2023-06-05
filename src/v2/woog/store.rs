@@ -59,15 +59,11 @@ pub struct ObjectStore {
     block: HashMap<Uuid, (Block, SystemTime)>,
     call: HashMap<Uuid, (Call, SystemTime)>,
     constant: HashMap<Uuid, (Constant, SystemTime)>,
-    constant_by_name: HashMap<String, (Constant, SystemTime)>,
     enumeration: HashMap<Uuid, (Enumeration, SystemTime)>,
-    enumeration_by_name: HashMap<String, (Enumeration, SystemTime)>,
     enumeration_field: HashMap<Uuid, (EnumerationField, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
     field: HashMap<Uuid, (Field, SystemTime)>,
-    field_by_name: HashMap<String, (Field, SystemTime)>,
     function: HashMap<Uuid, (Function, SystemTime)>,
-    function_by_name: HashMap<String, (Function, SystemTime)>,
     generation_unit: HashMap<Uuid, (GenerationUnit, SystemTime)>,
     grace_type: HashMap<Uuid, (GraceType, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
@@ -80,13 +76,11 @@ pub struct ObjectStore {
     reference: HashMap<Uuid, (Reference, SystemTime)>,
     statement: HashMap<Uuid, (Statement, SystemTime)>,
     structure: HashMap<Uuid, (Structure, SystemTime)>,
-    structure_by_name: HashMap<String, (Structure, SystemTime)>,
     structure_field: HashMap<Uuid, (StructureField, SystemTime)>,
     symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
     time_stamp: HashMap<Uuid, (TimeStamp, SystemTime)>,
     value: HashMap<Uuid, (Value, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
-    variable_by_name: HashMap<String, (Variable, SystemTime)>,
     visibility: HashMap<Uuid, (Visibility, SystemTime)>,
 }
 
@@ -97,15 +91,11 @@ impl ObjectStore {
             block: HashMap::default(),
             call: HashMap::default(),
             constant: HashMap::default(),
-            constant_by_name: HashMap::default(),
             enumeration: HashMap::default(),
-            enumeration_by_name: HashMap::default(),
             enumeration_field: HashMap::default(),
             expression: HashMap::default(),
             field: HashMap::default(),
-            field_by_name: HashMap::default(),
             function: HashMap::default(),
-            function_by_name: HashMap::default(),
             generation_unit: HashMap::default(),
             grace_type: HashMap::default(),
             item: HashMap::default(),
@@ -118,17 +108,18 @@ impl ObjectStore {
             reference: HashMap::default(),
             statement: HashMap::default(),
             structure: HashMap::default(),
-            structure_by_name: HashMap::default(),
             structure_field: HashMap::default(),
             symbol_table: HashMap::default(),
             time_stamp: HashMap::default(),
             value: HashMap::default(),
             variable: HashMap::default(),
-            variable_by_name: HashMap::default(),
             visibility: HashMap::default(),
         };
 
         // Initialize Singleton Subtypes
+        // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
+        // I remember having a bit of a struggle making it work. It's recursive, with
+        // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_expression(Expression::Literal(LITERAL));
         store.inter_item(Item::Implementation(IMPLEMENTATION));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
@@ -142,19 +133,25 @@ impl ObjectStore {
     }
 
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-methods"}}}
-    /// Inter [`Access`] into the store.
+    /// Inter (insert) [`Access`] into the store.
     ///
     pub fn inter_access(&mut self, access: Access) {
         self.access.insert(access.id, (access, SystemTime::now()));
     }
 
-    /// Exhume [`Access`] from the store.
+    /// Exhume (get) [`Access`] from the store.
     ///
     pub fn exhume_access(&self, id: &Uuid) -> Option<&Access> {
         self.access.get(id).map(|access| &access.0)
     }
 
-    /// Exhume [`Access`] from the store — mutably.
+    /// Exorcise (remove) [`Access`] from the store.
+    ///
+    pub fn exorcise_access(&mut self, id: &Uuid) -> Option<Access> {
+        self.access.remove(id).map(|access| access.0)
+    }
+
+    /// Exhume mut [`Access`] from the store — mutably.
     ///
     pub fn exhume_access_mut(&mut self, id: &Uuid) -> Option<&mut Access> {
         self.access.get_mut(id).map(|access| &mut access.0)
@@ -175,19 +172,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Block`] into the store.
+    /// Inter (insert) [`Block`] into the store.
     ///
     pub fn inter_block(&mut self, block: Block) {
         self.block.insert(block.id, (block, SystemTime::now()));
     }
 
-    /// Exhume [`Block`] from the store.
+    /// Exhume (get) [`Block`] from the store.
     ///
     pub fn exhume_block(&self, id: &Uuid) -> Option<&Block> {
         self.block.get(id).map(|block| &block.0)
     }
 
-    /// Exhume [`Block`] from the store — mutably.
+    /// Exorcise (remove) [`Block`] from the store.
+    ///
+    pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Block> {
+        self.block.remove(id).map(|block| block.0)
+    }
+
+    /// Exhume mut [`Block`] from the store — mutably.
     ///
     pub fn exhume_block_mut(&mut self, id: &Uuid) -> Option<&mut Block> {
         self.block.get_mut(id).map(|block| &mut block.0)
@@ -208,19 +211,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Call`] into the store.
+    /// Inter (insert) [`Call`] into the store.
     ///
     pub fn inter_call(&mut self, call: Call) {
         self.call.insert(call.id, (call, SystemTime::now()));
     }
 
-    /// Exhume [`Call`] from the store.
+    /// Exhume (get) [`Call`] from the store.
     ///
     pub fn exhume_call(&self, id: &Uuid) -> Option<&Call> {
         self.call.get(id).map(|call| &call.0)
     }
 
-    /// Exhume [`Call`] from the store — mutably.
+    /// Exorcise (remove) [`Call`] from the store.
+    ///
+    pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Call> {
+        self.call.remove(id).map(|call| call.0)
+    }
+
+    /// Exhume mut [`Call`] from the store — mutably.
     ///
     pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
         self.call.get_mut(id).map(|call| &mut call.0)
@@ -241,30 +250,29 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Constant`] into the store.
+    /// Inter (insert) [`Constant`] into the store.
     ///
     pub fn inter_constant(&mut self, constant: Constant) {
-        let value = (constant, SystemTime::now());
-        self.constant.insert(value.0.id, value.clone());
-        self.constant_by_name.insert(value.0.name.clone(), value);
+        self.constant
+            .insert(constant.id, (constant, SystemTime::now()));
     }
 
-    /// Exhume [`Constant`] from the store.
+    /// Exhume (get) [`Constant`] from the store.
     ///
     pub fn exhume_constant(&self, id: &Uuid) -> Option<&Constant> {
         self.constant.get(id).map(|constant| &constant.0)
     }
 
-    /// Exhume [`Constant`] from the store — mutably.
+    /// Exorcise (remove) [`Constant`] from the store.
+    ///
+    pub fn exorcise_constant(&mut self, id: &Uuid) -> Option<Constant> {
+        self.constant.remove(id).map(|constant| constant.0)
+    }
+
+    /// Exhume mut [`Constant`] from the store — mutably.
     ///
     pub fn exhume_constant_mut(&mut self, id: &Uuid) -> Option<&mut Constant> {
         self.constant.get_mut(id).map(|constant| &mut constant.0)
-    }
-
-    /// Exhume [`Constant`] from the store by name.
-    ///
-    pub fn exhume_constant_by_name(&self, name: &str) -> Option<&Constant> {
-        self.constant_by_name.get(name).map(|constant| &constant.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Constant>`.
@@ -282,34 +290,31 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Enumeration`] into the store.
+    /// Inter (insert) [`Enumeration`] into the store.
     ///
     pub fn inter_enumeration(&mut self, enumeration: Enumeration) {
-        let value = (enumeration, SystemTime::now());
-        self.enumeration.insert(value.0.id, value.clone());
-        self.enumeration_by_name.insert(value.0.name.clone(), value);
+        self.enumeration
+            .insert(enumeration.id, (enumeration, SystemTime::now()));
     }
 
-    /// Exhume [`Enumeration`] from the store.
+    /// Exhume (get) [`Enumeration`] from the store.
     ///
     pub fn exhume_enumeration(&self, id: &Uuid) -> Option<&Enumeration> {
         self.enumeration.get(id).map(|enumeration| &enumeration.0)
     }
 
-    /// Exhume [`Enumeration`] from the store — mutably.
+    /// Exorcise (remove) [`Enumeration`] from the store.
+    ///
+    pub fn exorcise_enumeration(&mut self, id: &Uuid) -> Option<Enumeration> {
+        self.enumeration.remove(id).map(|enumeration| enumeration.0)
+    }
+
+    /// Exhume mut [`Enumeration`] from the store — mutably.
     ///
     pub fn exhume_enumeration_mut(&mut self, id: &Uuid) -> Option<&mut Enumeration> {
         self.enumeration
             .get_mut(id)
             .map(|enumeration| &mut enumeration.0)
-    }
-
-    /// Exhume [`Enumeration`] from the store by name.
-    ///
-    pub fn exhume_enumeration_by_name(&self, name: &str) -> Option<&Enumeration> {
-        self.enumeration_by_name
-            .get(name)
-            .map(|enumeration| &enumeration.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
@@ -327,14 +332,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`EnumerationField`] into the store.
+    /// Inter (insert) [`EnumerationField`] into the store.
     ///
     pub fn inter_enumeration_field(&mut self, enumeration_field: EnumerationField) {
         self.enumeration_field
             .insert(enumeration_field.id, (enumeration_field, SystemTime::now()));
     }
 
-    /// Exhume [`EnumerationField`] from the store.
+    /// Exhume (get) [`EnumerationField`] from the store.
     ///
     pub fn exhume_enumeration_field(&self, id: &Uuid) -> Option<&EnumerationField> {
         self.enumeration_field
@@ -342,7 +347,15 @@ impl ObjectStore {
             .map(|enumeration_field| &enumeration_field.0)
     }
 
-    /// Exhume [`EnumerationField`] from the store — mutably.
+    /// Exorcise (remove) [`EnumerationField`] from the store.
+    ///
+    pub fn exorcise_enumeration_field(&mut self, id: &Uuid) -> Option<EnumerationField> {
+        self.enumeration_field
+            .remove(id)
+            .map(|enumeration_field| enumeration_field.0)
+    }
+
+    /// Exhume mut [`EnumerationField`] from the store — mutably.
     ///
     pub fn exhume_enumeration_field_mut(&mut self, id: &Uuid) -> Option<&mut EnumerationField> {
         self.enumeration_field
@@ -367,20 +380,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Expression`] into the store.
+    /// Inter (insert) [`Expression`] into the store.
     ///
     pub fn inter_expression(&mut self, expression: Expression) {
         self.expression
             .insert(expression.id(), (expression, SystemTime::now()));
     }
 
-    /// Exhume [`Expression`] from the store.
+    /// Exhume (get) [`Expression`] from the store.
     ///
     pub fn exhume_expression(&self, id: &Uuid) -> Option<&Expression> {
         self.expression.get(id).map(|expression| &expression.0)
     }
 
-    /// Exhume [`Expression`] from the store — mutably.
+    /// Exorcise (remove) [`Expression`] from the store.
+    ///
+    pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Expression> {
+        self.expression.remove(id).map(|expression| expression.0)
+    }
+
+    /// Exhume mut [`Expression`] from the store — mutably.
     ///
     pub fn exhume_expression_mut(&mut self, id: &Uuid) -> Option<&mut Expression> {
         self.expression
@@ -403,30 +422,28 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Field`] into the store.
+    /// Inter (insert) [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Field) {
-        let value = (field, SystemTime::now());
-        self.field.insert(value.0.id, value.clone());
-        self.field_by_name.insert(value.0.name.clone(), value);
+        self.field.insert(field.id, (field, SystemTime::now()));
     }
 
-    /// Exhume [`Field`] from the store.
+    /// Exhume (get) [`Field`] from the store.
     ///
     pub fn exhume_field(&self, id: &Uuid) -> Option<&Field> {
         self.field.get(id).map(|field| &field.0)
     }
 
-    /// Exhume [`Field`] from the store — mutably.
+    /// Exorcise (remove) [`Field`] from the store.
+    ///
+    pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Field> {
+        self.field.remove(id).map(|field| field.0)
+    }
+
+    /// Exhume mut [`Field`] from the store — mutably.
     ///
     pub fn exhume_field_mut(&mut self, id: &Uuid) -> Option<&mut Field> {
         self.field.get_mut(id).map(|field| &mut field.0)
-    }
-
-    /// Exhume [`Field`] from the store by name.
-    ///
-    pub fn exhume_field_by_name(&self, name: &str) -> Option<&Field> {
-        self.field_by_name.get(name).map(|field| &field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
@@ -444,30 +461,29 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Function`] into the store.
+    /// Inter (insert) [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Function) {
-        let value = (function, SystemTime::now());
-        self.function.insert(value.0.id, value.clone());
-        self.function_by_name.insert(value.0.name.clone(), value);
+        self.function
+            .insert(function.id, (function, SystemTime::now()));
     }
 
-    /// Exhume [`Function`] from the store.
+    /// Exhume (get) [`Function`] from the store.
     ///
     pub fn exhume_function(&self, id: &Uuid) -> Option<&Function> {
         self.function.get(id).map(|function| &function.0)
     }
 
-    /// Exhume [`Function`] from the store — mutably.
+    /// Exorcise (remove) [`Function`] from the store.
+    ///
+    pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Function> {
+        self.function.remove(id).map(|function| function.0)
+    }
+
+    /// Exhume mut [`Function`] from the store — mutably.
     ///
     pub fn exhume_function_mut(&mut self, id: &Uuid) -> Option<&mut Function> {
         self.function.get_mut(id).map(|function| &mut function.0)
-    }
-
-    /// Exhume [`Function`] from the store by name.
-    ///
-    pub fn exhume_function_by_name(&self, name: &str) -> Option<&Function> {
-        self.function_by_name.get(name).map(|function| &function.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
@@ -485,14 +501,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`GenerationUnit`] into the store.
+    /// Inter (insert) [`GenerationUnit`] into the store.
     ///
     pub fn inter_generation_unit(&mut self, generation_unit: GenerationUnit) {
         self.generation_unit
             .insert(generation_unit.id, (generation_unit, SystemTime::now()));
     }
 
-    /// Exhume [`GenerationUnit`] from the store.
+    /// Exhume (get) [`GenerationUnit`] from the store.
     ///
     pub fn exhume_generation_unit(&self, id: &Uuid) -> Option<&GenerationUnit> {
         self.generation_unit
@@ -500,7 +516,15 @@ impl ObjectStore {
             .map(|generation_unit| &generation_unit.0)
     }
 
-    /// Exhume [`GenerationUnit`] from the store — mutably.
+    /// Exorcise (remove) [`GenerationUnit`] from the store.
+    ///
+    pub fn exorcise_generation_unit(&mut self, id: &Uuid) -> Option<GenerationUnit> {
+        self.generation_unit
+            .remove(id)
+            .map(|generation_unit| generation_unit.0)
+    }
+
+    /// Exhume mut [`GenerationUnit`] from the store — mutably.
     ///
     pub fn exhume_generation_unit_mut(&mut self, id: &Uuid) -> Option<&mut GenerationUnit> {
         self.generation_unit
@@ -525,20 +549,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`GraceType`] into the store.
+    /// Inter (insert) [`GraceType`] into the store.
     ///
     pub fn inter_grace_type(&mut self, grace_type: GraceType) {
         self.grace_type
             .insert(grace_type.id(), (grace_type, SystemTime::now()));
     }
 
-    /// Exhume [`GraceType`] from the store.
+    /// Exhume (get) [`GraceType`] from the store.
     ///
     pub fn exhume_grace_type(&self, id: &Uuid) -> Option<&GraceType> {
         self.grace_type.get(id).map(|grace_type| &grace_type.0)
     }
 
-    /// Exhume [`GraceType`] from the store — mutably.
+    /// Exorcise (remove) [`GraceType`] from the store.
+    ///
+    pub fn exorcise_grace_type(&mut self, id: &Uuid) -> Option<GraceType> {
+        self.grace_type.remove(id).map(|grace_type| grace_type.0)
+    }
+
+    /// Exhume mut [`GraceType`] from the store — mutably.
     ///
     pub fn exhume_grace_type_mut(&mut self, id: &Uuid) -> Option<&mut GraceType> {
         self.grace_type
@@ -561,19 +591,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Item`] into the store.
+    /// Inter (insert) [`Item`] into the store.
     ///
     pub fn inter_item(&mut self, item: Item) {
         self.item.insert(item.id(), (item, SystemTime::now()));
     }
 
-    /// Exhume [`Item`] from the store.
+    /// Exhume (get) [`Item`] from the store.
     ///
     pub fn exhume_item(&self, id: &Uuid) -> Option<&Item> {
         self.item.get(id).map(|item| &item.0)
     }
 
-    /// Exhume [`Item`] from the store — mutably.
+    /// Exorcise (remove) [`Item`] from the store.
+    ///
+    pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Item> {
+        self.item.remove(id).map(|item| item.0)
+    }
+
+    /// Exhume mut [`Item`] from the store — mutably.
     ///
     pub fn exhume_item_mut(&mut self, id: &Uuid) -> Option<&mut Item> {
         self.item.get_mut(id).map(|item| &mut item.0)
@@ -594,19 +630,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`XLet`] into the store.
+    /// Inter (insert) [`XLet`] into the store.
     ///
     pub fn inter_x_let(&mut self, x_let: XLet) {
         self.x_let.insert(x_let.id, (x_let, SystemTime::now()));
     }
 
-    /// Exhume [`XLet`] from the store.
+    /// Exhume (get) [`XLet`] from the store.
     ///
     pub fn exhume_x_let(&self, id: &Uuid) -> Option<&XLet> {
         self.x_let.get(id).map(|x_let| &x_let.0)
     }
 
-    /// Exhume [`XLet`] from the store — mutably.
+    /// Exorcise (remove) [`XLet`] from the store.
+    ///
+    pub fn exorcise_x_let(&mut self, id: &Uuid) -> Option<XLet> {
+        self.x_let.remove(id).map(|x_let| x_let.0)
+    }
+
+    /// Exhume mut [`XLet`] from the store — mutably.
     ///
     pub fn exhume_x_let_mut(&mut self, id: &Uuid) -> Option<&mut XLet> {
         self.x_let.get_mut(id).map(|x_let| &mut x_let.0)
@@ -627,19 +669,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Local`] into the store.
+    /// Inter (insert) [`Local`] into the store.
     ///
     pub fn inter_local(&mut self, local: Local) {
         self.local.insert(local.id, (local, SystemTime::now()));
     }
 
-    /// Exhume [`Local`] from the store.
+    /// Exhume (get) [`Local`] from the store.
     ///
     pub fn exhume_local(&self, id: &Uuid) -> Option<&Local> {
         self.local.get(id).map(|local| &local.0)
     }
 
-    /// Exhume [`Local`] from the store — mutably.
+    /// Exorcise (remove) [`Local`] from the store.
+    ///
+    pub fn exorcise_local(&mut self, id: &Uuid) -> Option<Local> {
+        self.local.remove(id).map(|local| local.0)
+    }
+
+    /// Exhume mut [`Local`] from the store — mutably.
     ///
     pub fn exhume_local_mut(&mut self, id: &Uuid) -> Option<&mut Local> {
         self.local.get_mut(id).map(|local| &mut local.0)
@@ -660,14 +708,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`ObjectMethod`] into the store.
+    /// Inter (insert) [`ObjectMethod`] into the store.
     ///
     pub fn inter_object_method(&mut self, object_method: ObjectMethod) {
         self.object_method
             .insert(object_method.id, (object_method, SystemTime::now()));
     }
 
-    /// Exhume [`ObjectMethod`] from the store.
+    /// Exhume (get) [`ObjectMethod`] from the store.
     ///
     pub fn exhume_object_method(&self, id: &Uuid) -> Option<&ObjectMethod> {
         self.object_method
@@ -675,7 +723,15 @@ impl ObjectStore {
             .map(|object_method| &object_method.0)
     }
 
-    /// Exhume [`ObjectMethod`] from the store — mutably.
+    /// Exorcise (remove) [`ObjectMethod`] from the store.
+    ///
+    pub fn exorcise_object_method(&mut self, id: &Uuid) -> Option<ObjectMethod> {
+        self.object_method
+            .remove(id)
+            .map(|object_method| object_method.0)
+    }
+
+    /// Exhume mut [`ObjectMethod`] from the store — mutably.
     ///
     pub fn exhume_object_method_mut(&mut self, id: &Uuid) -> Option<&mut ObjectMethod> {
         self.object_method
@@ -700,20 +756,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`WoogOption`] into the store.
+    /// Inter (insert) [`WoogOption`] into the store.
     ///
     pub fn inter_woog_option(&mut self, woog_option: WoogOption) {
         self.woog_option
             .insert(woog_option.id, (woog_option, SystemTime::now()));
     }
 
-    /// Exhume [`WoogOption`] from the store.
+    /// Exhume (get) [`WoogOption`] from the store.
     ///
     pub fn exhume_woog_option(&self, id: &Uuid) -> Option<&WoogOption> {
         self.woog_option.get(id).map(|woog_option| &woog_option.0)
     }
 
-    /// Exhume [`WoogOption`] from the store — mutably.
+    /// Exorcise (remove) [`WoogOption`] from the store.
+    ///
+    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<WoogOption> {
+        self.woog_option.remove(id).map(|woog_option| woog_option.0)
+    }
+
+    /// Exhume mut [`WoogOption`] from the store — mutably.
     ///
     pub fn exhume_woog_option_mut(&mut self, id: &Uuid) -> Option<&mut WoogOption> {
         self.woog_option
@@ -736,20 +798,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Ownership`] into the store.
+    /// Inter (insert) [`Ownership`] into the store.
     ///
     pub fn inter_ownership(&mut self, ownership: Ownership) {
         self.ownership
             .insert(ownership.id(), (ownership, SystemTime::now()));
     }
 
-    /// Exhume [`Ownership`] from the store.
+    /// Exhume (get) [`Ownership`] from the store.
     ///
     pub fn exhume_ownership(&self, id: &Uuid) -> Option<&Ownership> {
         self.ownership.get(id).map(|ownership| &ownership.0)
     }
 
-    /// Exhume [`Ownership`] from the store — mutably.
+    /// Exorcise (remove) [`Ownership`] from the store.
+    ///
+    pub fn exorcise_ownership(&mut self, id: &Uuid) -> Option<Ownership> {
+        self.ownership.remove(id).map(|ownership| ownership.0)
+    }
+
+    /// Exhume mut [`Ownership`] from the store — mutably.
     ///
     pub fn exhume_ownership_mut(&mut self, id: &Uuid) -> Option<&mut Ownership> {
         self.ownership.get_mut(id).map(|ownership| &mut ownership.0)
@@ -770,20 +838,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Parameter`] into the store.
+    /// Inter (insert) [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Parameter) {
         self.parameter
             .insert(parameter.id, (parameter, SystemTime::now()));
     }
 
-    /// Exhume [`Parameter`] from the store.
+    /// Exhume (get) [`Parameter`] from the store.
     ///
     pub fn exhume_parameter(&self, id: &Uuid) -> Option<&Parameter> {
         self.parameter.get(id).map(|parameter| &parameter.0)
     }
 
-    /// Exhume [`Parameter`] from the store — mutably.
+    /// Exorcise (remove) [`Parameter`] from the store.
+    ///
+    pub fn exorcise_parameter(&mut self, id: &Uuid) -> Option<Parameter> {
+        self.parameter.remove(id).map(|parameter| parameter.0)
+    }
+
+    /// Exhume mut [`Parameter`] from the store — mutably.
     ///
     pub fn exhume_parameter_mut(&mut self, id: &Uuid) -> Option<&mut Parameter> {
         self.parameter.get_mut(id).map(|parameter| &mut parameter.0)
@@ -804,20 +878,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Reference`] into the store.
+    /// Inter (insert) [`Reference`] into the store.
     ///
     pub fn inter_reference(&mut self, reference: Reference) {
         self.reference
             .insert(reference.id, (reference, SystemTime::now()));
     }
 
-    /// Exhume [`Reference`] from the store.
+    /// Exhume (get) [`Reference`] from the store.
     ///
     pub fn exhume_reference(&self, id: &Uuid) -> Option<&Reference> {
         self.reference.get(id).map(|reference| &reference.0)
     }
 
-    /// Exhume [`Reference`] from the store — mutably.
+    /// Exorcise (remove) [`Reference`] from the store.
+    ///
+    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Reference> {
+        self.reference.remove(id).map(|reference| reference.0)
+    }
+
+    /// Exhume mut [`Reference`] from the store — mutably.
     ///
     pub fn exhume_reference_mut(&mut self, id: &Uuid) -> Option<&mut Reference> {
         self.reference.get_mut(id).map(|reference| &mut reference.0)
@@ -838,20 +918,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Statement`] into the store.
+    /// Inter (insert) [`Statement`] into the store.
     ///
     pub fn inter_statement(&mut self, statement: Statement) {
         self.statement
             .insert(statement.id, (statement, SystemTime::now()));
     }
 
-    /// Exhume [`Statement`] from the store.
+    /// Exhume (get) [`Statement`] from the store.
     ///
     pub fn exhume_statement(&self, id: &Uuid) -> Option<&Statement> {
         self.statement.get(id).map(|statement| &statement.0)
     }
 
-    /// Exhume [`Statement`] from the store — mutably.
+    /// Exorcise (remove) [`Statement`] from the store.
+    ///
+    pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Statement> {
+        self.statement.remove(id).map(|statement| statement.0)
+    }
+
+    /// Exhume mut [`Statement`] from the store — mutably.
     ///
     pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
         self.statement.get_mut(id).map(|statement| &mut statement.0)
@@ -872,32 +958,29 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Structure`] into the store.
+    /// Inter (insert) [`Structure`] into the store.
     ///
     pub fn inter_structure(&mut self, structure: Structure) {
-        let value = (structure, SystemTime::now());
-        self.structure.insert(value.0.id, value.clone());
-        self.structure_by_name.insert(value.0.name.clone(), value);
+        self.structure
+            .insert(structure.id, (structure, SystemTime::now()));
     }
 
-    /// Exhume [`Structure`] from the store.
+    /// Exhume (get) [`Structure`] from the store.
     ///
     pub fn exhume_structure(&self, id: &Uuid) -> Option<&Structure> {
         self.structure.get(id).map(|structure| &structure.0)
     }
 
-    /// Exhume [`Structure`] from the store — mutably.
+    /// Exorcise (remove) [`Structure`] from the store.
+    ///
+    pub fn exorcise_structure(&mut self, id: &Uuid) -> Option<Structure> {
+        self.structure.remove(id).map(|structure| structure.0)
+    }
+
+    /// Exhume mut [`Structure`] from the store — mutably.
     ///
     pub fn exhume_structure_mut(&mut self, id: &Uuid) -> Option<&mut Structure> {
         self.structure.get_mut(id).map(|structure| &mut structure.0)
-    }
-
-    /// Exhume [`Structure`] from the store by name.
-    ///
-    pub fn exhume_structure_by_name(&self, name: &str) -> Option<&Structure> {
-        self.structure_by_name
-            .get(name)
-            .map(|structure| &structure.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Structure>`.
@@ -915,14 +998,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`StructureField`] into the store.
+    /// Inter (insert) [`StructureField`] into the store.
     ///
     pub fn inter_structure_field(&mut self, structure_field: StructureField) {
         self.structure_field
             .insert(structure_field.id, (structure_field, SystemTime::now()));
     }
 
-    /// Exhume [`StructureField`] from the store.
+    /// Exhume (get) [`StructureField`] from the store.
     ///
     pub fn exhume_structure_field(&self, id: &Uuid) -> Option<&StructureField> {
         self.structure_field
@@ -930,7 +1013,15 @@ impl ObjectStore {
             .map(|structure_field| &structure_field.0)
     }
 
-    /// Exhume [`StructureField`] from the store — mutably.
+    /// Exorcise (remove) [`StructureField`] from the store.
+    ///
+    pub fn exorcise_structure_field(&mut self, id: &Uuid) -> Option<StructureField> {
+        self.structure_field
+            .remove(id)
+            .map(|structure_field| structure_field.0)
+    }
+
+    /// Exhume mut [`StructureField`] from the store — mutably.
     ///
     pub fn exhume_structure_field_mut(&mut self, id: &Uuid) -> Option<&mut StructureField> {
         self.structure_field
@@ -955,14 +1046,14 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`SymbolTable`] into the store.
+    /// Inter (insert) [`SymbolTable`] into the store.
     ///
     pub fn inter_symbol_table(&mut self, symbol_table: SymbolTable) {
         self.symbol_table
             .insert(symbol_table.id, (symbol_table, SystemTime::now()));
     }
 
-    /// Exhume [`SymbolTable`] from the store.
+    /// Exhume (get) [`SymbolTable`] from the store.
     ///
     pub fn exhume_symbol_table(&self, id: &Uuid) -> Option<&SymbolTable> {
         self.symbol_table
@@ -970,7 +1061,15 @@ impl ObjectStore {
             .map(|symbol_table| &symbol_table.0)
     }
 
-    /// Exhume [`SymbolTable`] from the store — mutably.
+    /// Exorcise (remove) [`SymbolTable`] from the store.
+    ///
+    pub fn exorcise_symbol_table(&mut self, id: &Uuid) -> Option<SymbolTable> {
+        self.symbol_table
+            .remove(id)
+            .map(|symbol_table| symbol_table.0)
+    }
+
+    /// Exhume mut [`SymbolTable`] from the store — mutably.
     ///
     pub fn exhume_symbol_table_mut(&mut self, id: &Uuid) -> Option<&mut SymbolTable> {
         self.symbol_table
@@ -995,20 +1094,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`TimeStamp`] into the store.
+    /// Inter (insert) [`TimeStamp`] into the store.
     ///
     pub fn inter_time_stamp(&mut self, time_stamp: TimeStamp) {
         self.time_stamp
             .insert(time_stamp.id, (time_stamp, SystemTime::now()));
     }
 
-    /// Exhume [`TimeStamp`] from the store.
+    /// Exhume (get) [`TimeStamp`] from the store.
     ///
     pub fn exhume_time_stamp(&self, id: &Uuid) -> Option<&TimeStamp> {
         self.time_stamp.get(id).map(|time_stamp| &time_stamp.0)
     }
 
-    /// Exhume [`TimeStamp`] from the store — mutably.
+    /// Exorcise (remove) [`TimeStamp`] from the store.
+    ///
+    pub fn exorcise_time_stamp(&mut self, id: &Uuid) -> Option<TimeStamp> {
+        self.time_stamp.remove(id).map(|time_stamp| time_stamp.0)
+    }
+
+    /// Exhume mut [`TimeStamp`] from the store — mutably.
     ///
     pub fn exhume_time_stamp_mut(&mut self, id: &Uuid) -> Option<&mut TimeStamp> {
         self.time_stamp
@@ -1031,19 +1136,25 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Value`] into the store.
+    /// Inter (insert) [`Value`] into the store.
     ///
     pub fn inter_value(&mut self, value: Value) {
         self.value.insert(value.id, (value, SystemTime::now()));
     }
 
-    /// Exhume [`Value`] from the store.
+    /// Exhume (get) [`Value`] from the store.
     ///
     pub fn exhume_value(&self, id: &Uuid) -> Option<&Value> {
         self.value.get(id).map(|value| &value.0)
     }
 
-    /// Exhume [`Value`] from the store — mutably.
+    /// Exorcise (remove) [`Value`] from the store.
+    ///
+    pub fn exorcise_value(&mut self, id: &Uuid) -> Option<Value> {
+        self.value.remove(id).map(|value| value.0)
+    }
+
+    /// Exhume mut [`Value`] from the store — mutably.
     ///
     pub fn exhume_value_mut(&mut self, id: &Uuid) -> Option<&mut Value> {
         self.value.get_mut(id).map(|value| &mut value.0)
@@ -1064,30 +1175,29 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Variable`] into the store.
+    /// Inter (insert) [`Variable`] into the store.
     ///
     pub fn inter_variable(&mut self, variable: Variable) {
-        let value = (variable, SystemTime::now());
-        self.variable.insert(value.0.id, value.clone());
-        self.variable_by_name.insert(value.0.name.clone(), value);
+        self.variable
+            .insert(variable.id, (variable, SystemTime::now()));
     }
 
-    /// Exhume [`Variable`] from the store.
+    /// Exhume (get) [`Variable`] from the store.
     ///
     pub fn exhume_variable(&self, id: &Uuid) -> Option<&Variable> {
         self.variable.get(id).map(|variable| &variable.0)
     }
 
-    /// Exhume [`Variable`] from the store — mutably.
+    /// Exorcise (remove) [`Variable`] from the store.
+    ///
+    pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Variable> {
+        self.variable.remove(id).map(|variable| variable.0)
+    }
+
+    /// Exhume mut [`Variable`] from the store — mutably.
     ///
     pub fn exhume_variable_mut(&mut self, id: &Uuid) -> Option<&mut Variable> {
         self.variable.get_mut(id).map(|variable| &mut variable.0)
-    }
-
-    /// Exhume [`Variable`] from the store by name.
-    ///
-    pub fn exhume_variable_by_name(&self, name: &str) -> Option<&Variable> {
-        self.variable_by_name.get(name).map(|variable| &variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -1105,20 +1215,26 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter [`Visibility`] into the store.
+    /// Inter (insert) [`Visibility`] into the store.
     ///
     pub fn inter_visibility(&mut self, visibility: Visibility) {
         self.visibility
             .insert(visibility.id(), (visibility, SystemTime::now()));
     }
 
-    /// Exhume [`Visibility`] from the store.
+    /// Exhume (get) [`Visibility`] from the store.
     ///
     pub fn exhume_visibility(&self, id: &Uuid) -> Option<&Visibility> {
         self.visibility.get(id).map(|visibility| &visibility.0)
     }
 
-    /// Exhume [`Visibility`] from the store — mutably.
+    /// Exorcise (remove) [`Visibility`] from the store.
+    ///
+    pub fn exorcise_visibility(&mut self, id: &Uuid) -> Option<Visibility> {
+        self.visibility.remove(id).map(|visibility| visibility.0)
+    }
+
+    /// Exhume mut [`Visibility`] from the store — mutably.
     ///
     pub fn exhume_visibility_mut(&mut self, id: &Uuid) -> Option<&mut Visibility> {
         self.visibility
@@ -1146,17 +1262,23 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-persistence"}}}
     /// Persist the store.
     ///
-    /// The store is persisted as a directory of JSON files. The intention
-    /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automaagic git integration as an option.
-    pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+    /// The store is persisted as a a bincode file.
+    pub fn persist_bincode<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let path = path.as_ref();
-        fs::create_dir_all(&path)?;
-
-        let bin_path = path.clone().join("woog.bin");
-        let mut bin_file = fs::File::create(bin_path)?;
+        let mut bin_file = fs::File::create(path)?;
         let encoded: Vec<u8> = bincode::serialize(&self).unwrap();
         bin_file.write_all(&encoded)?;
+        Ok(())
+    }
+
+    /// Persist the store.
+    ///
+    /// The store is persisted as a directory of JSON files. The intention
+    /// is that this directory can be checked into version control.
+    /// In fact, I intend to add automagic git integration as an option.
+    pub fn persist<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+        let path = path.as_ref();
+        fs::create_dir_all(path)?;
 
         let path = path.join("woog.json");
         fs::create_dir_all(&path)?;
@@ -1186,7 +1308,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.access.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1220,7 +1342,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.block.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1254,7 +1376,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.call.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1288,7 +1410,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.constant.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1322,7 +1444,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.enumeration.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1356,7 +1478,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.enumeration_field.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1390,7 +1512,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.expression.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1424,7 +1546,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.field.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1458,7 +1580,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.function.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1492,7 +1614,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.generation_unit.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1526,7 +1648,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.grace_type.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1560,7 +1682,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.item.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1594,7 +1716,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.x_let.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1628,7 +1750,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.local.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1662,7 +1784,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.object_method.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1696,7 +1818,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.woog_option.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1730,7 +1852,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.ownership.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1764,7 +1886,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.parameter.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1798,7 +1920,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.reference.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1832,7 +1954,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.statement.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1866,7 +1988,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.structure.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1900,7 +2022,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.structure_field.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1934,7 +2056,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.symbol_table.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -1968,7 +2090,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.time_stamp.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -2002,7 +2124,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.value.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -2036,7 +2158,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.variable.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -2070,7 +2192,7 @@ impl ObjectStore {
                 let file = file?;
                 let path = file.path();
                 let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split(".").next().unwrap();
+                let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.visibility.contains_key(&id) {
                         fs::remove_file(path)?;
@@ -2084,9 +2206,18 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    /// The store is as a bincode file.
+    pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path = path.as_ref();
+        let bin_file = fs::File::open(path)?;
+        Ok(bincode::deserialize_from(bin_file).unwrap())
+    }
+
+    /// Load the store.
+    ///
     /// The store is persisted as a directory of JSON files. The intention
     /// is that this directory can be checked into version control.
-    /// In fact, I intend to add automaagic git integration as an option.
+    /// In fact, I intend to add automagic git integration as an option.
     pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
         let path = path.join("woog.json");
@@ -2096,8 +2227,8 @@ impl ObjectStore {
         // Load Access.
         {
             let path = path.join("access");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2110,8 +2241,8 @@ impl ObjectStore {
         // Load Block.
         {
             let path = path.join("block");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2124,8 +2255,8 @@ impl ObjectStore {
         // Load Call.
         {
             let path = path.join("call");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2138,16 +2269,13 @@ impl ObjectStore {
         // Load Constant.
         {
             let path = path.join("constant");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let constant: (Constant, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .constant_by_name
-                    .insert(constant.0.name.clone(), constant.clone());
                 store.constant.insert(constant.0.id, constant);
             }
         }
@@ -2155,16 +2283,13 @@ impl ObjectStore {
         // Load Enumeration.
         {
             let path = path.join("enumeration");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: (Enumeration, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .enumeration_by_name
-                    .insert(enumeration.0.name.clone(), enumeration.clone());
                 store.enumeration.insert(enumeration.0.id, enumeration);
             }
         }
@@ -2172,8 +2297,8 @@ impl ObjectStore {
         // Load Enumeration Field.
         {
             let path = path.join("enumeration_field");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2189,8 +2314,8 @@ impl ObjectStore {
         // Load Expression.
         {
             let path = path.join("expression");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2203,16 +2328,13 @@ impl ObjectStore {
         // Load Field.
         {
             let path = path.join("field");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .field_by_name
-                    .insert(field.0.name.clone(), field.clone());
                 store.field.insert(field.0.id, field);
             }
         }
@@ -2220,16 +2342,13 @@ impl ObjectStore {
         // Load Function.
         {
             let path = path.join("function");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .function_by_name
-                    .insert(function.0.name.clone(), function.clone());
                 store.function.insert(function.0.id, function);
             }
         }
@@ -2237,8 +2356,8 @@ impl ObjectStore {
         // Load Generation Unit.
         {
             let path = path.join("generation_unit");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2254,8 +2373,8 @@ impl ObjectStore {
         // Load Grace Type.
         {
             let path = path.join("grace_type");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2268,8 +2387,8 @@ impl ObjectStore {
         // Load Item.
         {
             let path = path.join("item");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2282,8 +2401,8 @@ impl ObjectStore {
         // Load Let.
         {
             let path = path.join("x_let");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2296,8 +2415,8 @@ impl ObjectStore {
         // Load Local.
         {
             let path = path.join("local");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2310,8 +2429,8 @@ impl ObjectStore {
         // Load Object Method.
         {
             let path = path.join("object_method");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2326,8 +2445,8 @@ impl ObjectStore {
         // Load Option.
         {
             let path = path.join("woog_option");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2340,8 +2459,8 @@ impl ObjectStore {
         // Load Ownership.
         {
             let path = path.join("ownership");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2354,8 +2473,8 @@ impl ObjectStore {
         // Load Parameter.
         {
             let path = path.join("parameter");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2368,8 +2487,8 @@ impl ObjectStore {
         // Load Reference.
         {
             let path = path.join("reference");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2382,8 +2501,8 @@ impl ObjectStore {
         // Load Statement.
         {
             let path = path.join("statement");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2396,16 +2515,13 @@ impl ObjectStore {
         // Load Structure.
         {
             let path = path.join("structure");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let structure: (Structure, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .structure_by_name
-                    .insert(structure.0.name.clone(), structure.clone());
                 store.structure.insert(structure.0.id, structure);
             }
         }
@@ -2413,8 +2529,8 @@ impl ObjectStore {
         // Load Structure Field.
         {
             let path = path.join("structure_field");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2430,8 +2546,8 @@ impl ObjectStore {
         // Load Symbol Table.
         {
             let path = path.join("symbol_table");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2444,8 +2560,8 @@ impl ObjectStore {
         // Load Time Stamp.
         {
             let path = path.join("time_stamp");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2458,8 +2574,8 @@ impl ObjectStore {
         // Load Value.
         {
             let path = path.join("value");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
@@ -2472,16 +2588,13 @@ impl ObjectStore {
         // Load Variable.
         {
             let path = path.join("variable");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let variable: (Variable, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .variable_by_name
-                    .insert(variable.0.name.clone(), variable.clone());
                 store.variable.insert(variable.0.id, variable);
             }
         }
@@ -2489,8 +2602,8 @@ impl ObjectStore {
         // Load Visibility.
         {
             let path = path.join("visibility");
-            let mut entries = fs::read_dir(path)?;
-            while let Some(entry) = entries.next() {
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;

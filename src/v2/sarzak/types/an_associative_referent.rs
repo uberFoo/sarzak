@@ -32,14 +32,16 @@ impl AnAssociativeReferent {
     ) -> AnAssociativeReferent {
         let id = Uuid::new_v4();
         let new = AnAssociativeReferent {
-            id: id,
-            referential_attribute: referential_attribute,
+            id,
+            referential_attribute,
             associative: associative.id,
             referent: referent.id,
         };
         store.inter_an_associative_referent(new.clone());
         new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-new_"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-nav-forward-assoc-to-associative"}}}
     /// Navigate to [`Associative`] across R22(1-*)

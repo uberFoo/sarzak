@@ -6,21 +6,20 @@ use crate::v2::woog::types::enumeration::Enumeration;
 use crate::v2::woog::types::function::Function;
 use crate::v2::woog::types::implementation::IMPLEMENTATION;
 use crate::v2::woog::types::statement::Statement;
+use crate::v2::woog::types::statement::StatementEnum;
 use crate::v2::woog::types::structure::Structure;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-const-documentation"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-enum-documentation"}}}
 /// An Item
 ///
 /// This [entails a lot](https://doc.rust-lang.org/reference/items.html) of  syntax that I'm
-/// just rolling up into one for now. We'll see for how long I can manage to get away with this
-///. 😎
+///  just rolling up into one for now. We'll see for how long I can manage to get away with this
+/// . 😎
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-const-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Item {
@@ -83,7 +82,16 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R11(isa)
     pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
-        vec![store.exhume_statement(&self.id()).unwrap()]
+        vec![store
+            .iter_statement()
+            .find(|statement| {
+                if let StatementEnum::Item(id) = statement.subtype {
+                    id == self.id()
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

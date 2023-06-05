@@ -13,7 +13,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referrer-struct-documentation"}}}
 /// This is the side of a binary relationship that is doing the pointing, thus it contains the
-/// referential attribute. It is connected to the “from” side of a binary relationship.
+///  referential attribute. It is connected to the “from” side of a binary relationship.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referrer-struct-definition"}}}
@@ -44,14 +44,16 @@ impl Referrer {
     ) -> Referrer {
         let id = Uuid::new_v4();
         let new = Referrer {
-            description: description,
-            id: id,
-            referential_attribute: referential_attribute,
+            description,
+            id,
+            referential_attribute,
             cardinality: cardinality.id(),
             conditionality: conditionality.id(),
             obj_id: obj_id.id,
         };
         store.inter_referrer(new.clone());
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referrer-struct-impl-new_"}}}
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

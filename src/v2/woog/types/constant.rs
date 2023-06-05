@@ -27,7 +27,7 @@ impl Constant {
     /// Inter a new 'Constant' in the store, and return it's `id`.
     pub fn new(name: String, store: &mut WoogStore) -> Constant {
         let id = Uuid::new_v4();
-        let new = Constant { id: id, name: name };
+        let new = Constant { id, name };
         store.inter_constant(new.clone());
         new
     }

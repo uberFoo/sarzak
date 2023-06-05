@@ -10,3 +10,13 @@ pub use v2::drawing;
 pub use v2::merlin;
 pub use v2::sarzak;
 pub use v2::woog;
+
+cfg_if::cfg_if! {
+    if #[cfg(feature = "lu-dog-none")] {
+        pub use v2::lu_dog;
+    } else if #[cfg(feature = "lu-dog-rwlock")] {
+        pub use v2::lu_dog_rwlock as lu_dog;
+    } else if #[cfg(feature = "lu-dog-pl-mutex")] {
+        pub use v2::lu_dog_pl_mutex as lu_dog;
+    }
+}

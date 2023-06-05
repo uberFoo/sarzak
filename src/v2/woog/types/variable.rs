@@ -6,20 +6,19 @@ use crate::v2::woog::types::local::Local;
 use crate::v2::woog::types::parameter::Parameter;
 use crate::v2::woog::types::symbol_table::SymbolTable;
 use crate::v2::woog::types::value::Value;
+use crate::v2::woog::types::value::ValueEnum;
 use crate::v2::woog::types::x_let::XLet;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-enum-documentation"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-hybrid-documentation"}}}
 /// A Variable
 ///
 /// Basically a name given to some memory.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-enum-definition"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Variable {
@@ -39,8 +38,7 @@ pub enum VariableEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-implementation"}}}
 impl Variable {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-new-impl"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local(
         name: String,
@@ -48,9 +46,7 @@ impl Variable {
         subtype: &Local,
         store: &mut WoogStore,
     ) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Variable {
             name: name,
             symbol_table: symbol_table.id,
@@ -61,7 +57,7 @@ impl Variable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_parameter"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
@@ -69,9 +65,7 @@ impl Variable {
         subtype: &Parameter,
         store: &mut WoogStore,
     ) -> Variable {
-        // 🚧 I'm not using id below with subtype because that's rendered where it doesn't know
-        // about this local. This should be fixed in the near future.
-        let id = subtype.id;
+        let id = Uuid::new_v4();
         let new = Variable {
             name: name,
             symbol_table: symbol_table.id,
@@ -82,7 +76,6 @@ impl Variable {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-get-id-impl"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-forward-to-symbol_table"}}}
     /// Navigate to [`SymbolTable`] across R20(1-*)
     pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
@@ -94,20 +87,23 @@ impl Variable {
     pub fn r17_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
         store
             .iter_x_let()
-            .filter_map(|x_let| {
-                if x_let.variable == self.id {
-                    Some(x_let)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_let| x_let.variable == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
     // Navigate to [`Value`] across R7(isa)
     pub fn r7_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
-        vec![store.exhume_value(&self.id).unwrap()]
+        vec![store
+            .iter_value()
+            .find(|value| {
+                if let ValueEnum::Variable(id) = value.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

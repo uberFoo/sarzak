@@ -7,8 +7,8 @@ use crate::v2::sarzak::types::external::External;
 use crate::v2::sarzak::types::float::FLOAT;
 use crate::v2::sarzak::types::integer::INTEGER;
 use crate::v2::sarzak::types::object::Object;
-use crate::v2::sarzak::types::string::STRING;
-use crate::v2::sarzak::types::uuid::UUID;
+use crate::v2::sarzak::types::s_string::S_STRING;
+use crate::v2::sarzak::types::s_uuid::S_UUID;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -17,7 +17,7 @@ use uuid::Uuid;
 /// The type of a value
 ///
 /// There are several values available: [Integer], [Boolean], [Float], [String], and [UUID]
-///.
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-enum-definition"}}}
@@ -28,8 +28,8 @@ pub enum Ty {
     Float(Uuid),
     Integer(Uuid),
     Object(Uuid),
-    String(Uuid),
-    Uuid(Uuid),
+    SString(Uuid),
+    SUuid(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-implementation"}}}
@@ -67,16 +67,16 @@ impl Ty {
         new
     }
 
-    /// Create a new instance of Ty::String
-    pub fn new_string() -> Self {
+    /// Create a new instance of Ty::SString
+    pub fn new_s_string() -> Self {
         // This is already in the store, see associated function `new` above.
-        Self::String(STRING)
+        Self::SString(S_STRING)
     }
 
-    /// Create a new instance of Ty::Uuid
-    pub fn new_uuid() -> Self {
+    /// Create a new instance of Ty::SUuid
+    pub fn new_s_uuid() -> Self {
         // This is already in the store, see associated function `new` above.
-        Self::Uuid(UUID)
+        Self::SUuid(S_UUID)
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -88,8 +88,8 @@ impl Ty {
             Ty::Float(id) => *id,
             Ty::Integer(id) => *id,
             Ty::Object(id) => *id,
-            Ty::String(id) => *id,
-            Ty::Uuid(id) => *id,
+            Ty::SString(id) => *id,
+            Ty::SUuid(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

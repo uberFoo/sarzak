@@ -30,7 +30,7 @@ impl SymbolTable {
     pub fn new(block: &Block, store: &mut WoogStore) -> SymbolTable {
         let id = Uuid::new_v4();
         let new = SymbolTable {
-            id: id,
+            id,
             block: block.id,
         };
         store.inter_symbol_table(new.clone());
@@ -40,8 +40,6 @@ impl SymbolTable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R24(1-*)
     pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -50,13 +48,7 @@ impl SymbolTable {
     pub fn r20_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
         store
             .iter_variable()
-            .filter_map(|variable| {
-                if variable.symbol_table == self.id {
-                    Some(variable)
-                } else {
-                    None
-                }
-            })
+            .filter(|variable| variable.symbol_table == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
