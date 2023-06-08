@@ -3,6 +3,7 @@
 use crate::v2::lu_dog_pl_mutex::store::ObjectStore as LuDogPlMutexStore;
 use crate::v2::lu_dog_pl_mutex::types::addition::ADDITION;
 use crate::v2::lu_dog_pl_mutex::types::assignment::ASSIGNMENT;
+use crate::v2::lu_dog_pl_mutex::types::boolean_operator::BooleanOperator;
 use crate::v2::lu_dog_pl_mutex::types::division::DIVISION;
 use crate::v2::lu_dog_pl_mutex::types::multiplication::MULTIPLICATION;
 use crate::v2::lu_dog_pl_mutex::types::operator::Operator;
@@ -26,6 +27,7 @@ use uuid::Uuid;
 pub enum Binary {
     Addition(Uuid),
     Assignment(Uuid),
+    BooleanOperator(Uuid),
     Division(Uuid),
     Multiplication(Uuid),
     Subtraction(Uuid),
@@ -44,6 +46,21 @@ impl Binary {
     pub fn new_assignment(store: &LuDogPlMutexStore) -> Arc<Mutex<Self>> {
         // This is already in the store.
         store.exhume_binary(&ASSIGNMENT).unwrap()
+    }
+
+    /// Create a new instance of Binary::BooleanOperator
+    pub fn new_boolean_operator(
+        boolean_operator: &Arc<Mutex<BooleanOperator>>,
+        store: &mut LuDogPlMutexStore,
+    ) -> Arc<Mutex<Self>> {
+        let id = boolean_operator.lock().id();
+        if let Some(boolean_operator) = store.exhume_binary(&id) {
+            boolean_operator
+        } else {
+            let new = Arc::new(Mutex::new(Self::BooleanOperator(id)));
+            store.inter_binary(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Binary::Division
@@ -70,6 +87,7 @@ impl Binary {
         match self {
             Binary::Addition(id) => *id,
             Binary::Assignment(id) => *id,
+            Binary::BooleanOperator(id) => *id,
             Binary::Division(id) => *id,
             Binary::Multiplication(id) => *id,
             Binary::Subtraction(id) => *id,

@@ -68,7 +68,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
 
             // Default to putting the relationship at the midpoint of the line,
             let bisection = Bisection::new(0.5, &line_seg, &mut merlin);
-            let name = RelationshipName::new(
+            let _name = RelationshipName::new(
                 format!("R{}", binary.number),
                 0,
                 0,

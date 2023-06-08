@@ -93,14 +93,6 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
-    /// Navigate to [`XIf`] across R46(1-M)
-    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<XIf>>> {
-        span!("r46_x_if");
-        store
-            .iter_x_if()
-            .filter(|x_if| x_if.lock().true_block == self.id)
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
     /// Navigate to [`XIf`] across R52(1-Mc)
@@ -118,23 +110,23 @@ impl Block {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R46(1-M)
+    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<XIf>>> {
+        span!("r46_x_if");
+        store
+            .iter_x_if()
+            .filter(|x_if| x_if.lock().true_block == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R18(1-M)
     pub fn r18_statement<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<Statement>>> {
         span!("r18_statement");
-        dbg!(&self.id);
-        dbg!(store.iter_statement().count());
-        for stmt in store.iter_statement() {
-            dbg!(&stmt);
-        }
-
         store
             .iter_statement()
-            .filter(|statement| {
-                // dbg!(&statement);
-                // dbg!(&statement.lock().block);
-                statement.lock().block == self.id
-            })
+            .filter(|statement| statement.lock().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

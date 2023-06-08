@@ -3,6 +3,7 @@
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 use crate::v2::lu_dog_rwlock::types::addition::ADDITION;
 use crate::v2::lu_dog_rwlock::types::assignment::ASSIGNMENT;
+use crate::v2::lu_dog_rwlock::types::boolean_operator::BooleanOperator;
 use crate::v2::lu_dog_rwlock::types::division::DIVISION;
 use crate::v2::lu_dog_rwlock::types::multiplication::MULTIPLICATION;
 use crate::v2::lu_dog_rwlock::types::operator::Operator;
@@ -26,6 +27,7 @@ use uuid::Uuid;
 pub enum Binary {
     Addition(Uuid),
     Assignment(Uuid),
+    BooleanOperator(Uuid),
     Division(Uuid),
     Multiplication(Uuid),
     Subtraction(Uuid),
@@ -44,6 +46,21 @@ impl Binary {
     pub fn new_assignment(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_binary(&ASSIGNMENT).unwrap()
+    }
+
+    /// Create a new instance of Binary::BooleanOperator
+    pub fn new_boolean_operator(
+        boolean_operator: &Arc<RwLock<BooleanOperator>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = boolean_operator.read().unwrap().id();
+        if let Some(boolean_operator) = store.exhume_binary(&id) {
+            boolean_operator
+        } else {
+            let new = Arc::new(RwLock::new(Self::BooleanOperator(id)));
+            store.inter_binary(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Binary::Division
@@ -70,6 +87,7 @@ impl Binary {
         match self {
             Binary::Addition(id) => *id,
             Binary::Assignment(id) => *id,
+            Binary::BooleanOperator(id) => *id,
             Binary::Division(id) => *id,
             Binary::Multiplication(id) => *id,
             Binary::Subtraction(id) => *id,

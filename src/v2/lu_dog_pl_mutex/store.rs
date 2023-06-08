@@ -11,6 +11,7 @@
 //! * [`Binary`]
 //! * [`Block`]
 //! * [`BooleanLiteral`]
+//! * [`BooleanOperator`]
 //! * [`Call`]
 //! * [`Comparison`]
 //! * [`DwarfSourceFile`]
@@ -39,7 +40,6 @@
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`MethodCall`]
-//! * [`Negation`]
 //! * [`ZObjectStore`]
 //! * [`Operator`]
 //! * [`WoogOption`]
@@ -57,6 +57,7 @@
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
 //! * [`TypeCast`]
+//! * [`Unary`]
 //! * [`XValue`]
 //! * [`ValueType`]
 //! * [`Variable`]
@@ -77,16 +78,16 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_pl_mutex::types::{
-    Argument, Binary, Block, BooleanLiteral, Call, Comparison, DwarfSourceFile, Error,
-    ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
+    Argument, Binary, Block, BooleanLiteral, BooleanOperator, Call, Comparison, DwarfSourceFile,
+    Error, ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index,
     IntegerLiteral, Item, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, Negation, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement,
-    Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, ValueType,
+    MethodCall, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement, Span,
+    Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
     Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, XValue, ZObjectStore,
-    ZSome, ADDITION, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, GREATER_THAN,
-    GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, RANGE, SUBTRACTION, TRUE_LITERAL,
-    UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL,
+    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, RANGE,
+    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -95,6 +96,7 @@ pub struct ObjectStore {
     binary: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Binary>>, SystemTime)>>>,
     block: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Block>>, SystemTime)>>>,
     boolean_literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<BooleanLiteral>>, SystemTime)>>>,
+    boolean_operator: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<BooleanOperator>>, SystemTime)>>>,
     call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Call>>, SystemTime)>>>,
     comparison: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Comparison>>, SystemTime)>>>,
     dwarf_source_file: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<DwarfSourceFile>>, SystemTime)>>>,
@@ -125,7 +127,6 @@ pub struct ObjectStore {
     literal: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Literal>>, SystemTime)>>>,
     local_variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<LocalVariable>>, SystemTime)>>>,
     method_call: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<MethodCall>>, SystemTime)>>>,
-    negation: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Negation>>, SystemTime)>>>,
     z_object_store: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ZObjectStore>>, SystemTime)>>>,
     operator: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Operator>>, SystemTime)>>>,
     woog_option: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<WoogOption>>, SystemTime)>>>,
@@ -144,6 +145,7 @@ pub struct ObjectStore {
     woog_struct_id_by_name: Arc<Mutex<HashMap<String, (Uuid, SystemTime)>>>,
     struct_expression: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<StructExpression>>, SystemTime)>>>,
     type_cast: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<TypeCast>>, SystemTime)>>>,
+    unary: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Unary>>, SystemTime)>>>,
     x_value: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<XValue>>, SystemTime)>>>,
     value_type: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<ValueType>>, SystemTime)>>>,
     variable: Arc<Mutex<HashMap<Uuid, (Arc<Mutex<Variable>>, SystemTime)>>>,
@@ -157,6 +159,7 @@ impl ObjectStore {
             binary: Arc::new(Mutex::new(HashMap::default())),
             block: Arc::new(Mutex::new(HashMap::default())),
             boolean_literal: Arc::new(Mutex::new(HashMap::default())),
+            boolean_operator: Arc::new(Mutex::new(HashMap::default())),
             call: Arc::new(Mutex::new(HashMap::default())),
             comparison: Arc::new(Mutex::new(HashMap::default())),
             dwarf_source_file: Arc::new(Mutex::new(HashMap::default())),
@@ -187,7 +190,6 @@ impl ObjectStore {
             literal: Arc::new(Mutex::new(HashMap::default())),
             local_variable: Arc::new(Mutex::new(HashMap::default())),
             method_call: Arc::new(Mutex::new(HashMap::default())),
-            negation: Arc::new(Mutex::new(HashMap::default())),
             z_object_store: Arc::new(Mutex::new(HashMap::default())),
             operator: Arc::new(Mutex::new(HashMap::default())),
             woog_option: Arc::new(Mutex::new(HashMap::default())),
@@ -206,6 +208,7 @@ impl ObjectStore {
             woog_struct_id_by_name: Arc::new(Mutex::new(HashMap::default())),
             struct_expression: Arc::new(Mutex::new(HashMap::default())),
             type_cast: Arc::new(Mutex::new(HashMap::default())),
+            unary: Arc::new(Mutex::new(HashMap::default())),
             x_value: Arc::new(Mutex::new(HashMap::default())),
             value_type: Arc::new(Mutex::new(HashMap::default())),
             variable: Arc::new(Mutex::new(HashMap::default())),
@@ -218,6 +221,9 @@ impl ObjectStore {
         // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_binary(Arc::new(Mutex::new(Binary::Addition(ADDITION))));
         store.inter_binary(Arc::new(Mutex::new(Binary::Assignment(ASSIGNMENT))));
+        store.inter_binary(Arc::new(Mutex::new(Binary::BooleanOperator(
+            BooleanOperator::And(AND).id(),
+        ))));
         store.inter_binary(Arc::new(Mutex::new(Binary::Division(DIVISION))));
         store.inter_binary(Arc::new(Mutex::new(Binary::Multiplication(MULTIPLICATION))));
         store.inter_binary(Arc::new(Mutex::new(Binary::Subtraction(SUBTRACTION))));
@@ -227,6 +233,7 @@ impl ObjectStore {
         store.inter_boolean_literal(Arc::new(Mutex::new(BooleanLiteral::TrueLiteral(
             TRUE_LITERAL,
         ))));
+        store.inter_boolean_operator(Arc::new(Mutex::new(BooleanOperator::And(AND))));
         store.inter_comparison(Arc::new(Mutex::new(Comparison::Equal(EQUAL))));
         store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThan(GREATER_THAN))));
         store.inter_comparison(Arc::new(Mutex::new(Comparison::GreaterThanOrEqual(
@@ -252,6 +259,8 @@ impl ObjectStore {
         store.inter_literal(Arc::new(Mutex::new(Literal::BooleanLiteral(
             BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
         ))));
+        store.inter_unary(Arc::new(Mutex::new(Unary::Negation(NEGATION))));
+        store.inter_unary(Arc::new(Mutex::new(Unary::Not(NOT))));
         store.inter_value_type(Arc::new(Mutex::new(ValueType::Empty(EMPTY))));
         store.inter_value_type(Arc::new(Mutex::new(ValueType::Error(
             Error::UnknownVariable(UNKNOWN_VARIABLE).id(),
@@ -448,6 +457,56 @@ impl ObjectStore {
             .lock()
             .get(&boolean_literal.id())
             .map(|boolean_literal| boolean_literal.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`BooleanOperator`] into the store.
+    ///
+    pub fn inter_boolean_operator(&mut self, boolean_operator: Arc<Mutex<BooleanOperator>>) {
+        let read = boolean_operator.lock();
+        self.boolean_operator
+            .lock()
+            .insert(read.id(), (boolean_operator.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`BooleanOperator`] from the store.
+    ///
+    pub fn exhume_boolean_operator(&self, id: &Uuid) -> Option<Arc<Mutex<BooleanOperator>>> {
+        self.boolean_operator
+            .lock()
+            .get(id)
+            .map(|boolean_operator| boolean_operator.0.clone())
+    }
+
+    /// Exorcise (remove) [`BooleanOperator`] from the store.
+    ///
+    pub fn exorcise_boolean_operator(&mut self, id: &Uuid) -> Option<Arc<Mutex<BooleanOperator>>> {
+        self.boolean_operator
+            .lock()
+            .remove(id)
+            .map(|boolean_operator| boolean_operator.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
+    ///
+    pub fn iter_boolean_operator(&self) -> impl Iterator<Item = Arc<Mutex<BooleanOperator>>> + '_ {
+        let values: Vec<Arc<Mutex<BooleanOperator>>> = self
+            .boolean_operator
+            .lock()
+            .values()
+            .map(|boolean_operator| boolean_operator.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for BooleanOperator.
+    ///
+    pub fn boolean_operator_timestamp(&self, boolean_operator: &BooleanOperator) -> SystemTime {
+        self.boolean_operator
+            .lock()
+            .get(&boolean_operator.id())
+            .map(|boolean_operator| boolean_operator.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1841,56 +1900,6 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter (insert) [`Negation`] into the store.
-    ///
-    pub fn inter_negation(&mut self, negation: Arc<Mutex<Negation>>) {
-        let read = negation.lock();
-        self.negation
-            .lock()
-            .insert(read.id, (negation.clone(), SystemTime::now()));
-    }
-
-    /// Exhume (get) [`Negation`] from the store.
-    ///
-    pub fn exhume_negation(&self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
-        self.negation
-            .lock()
-            .get(id)
-            .map(|negation| negation.0.clone())
-    }
-
-    /// Exorcise (remove) [`Negation`] from the store.
-    ///
-    pub fn exorcise_negation(&mut self, id: &Uuid) -> Option<Arc<Mutex<Negation>>> {
-        self.negation
-            .lock()
-            .remove(id)
-            .map(|negation| negation.0.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Negation>`.
-    ///
-    pub fn iter_negation(&self) -> impl Iterator<Item = Arc<Mutex<Negation>>> + '_ {
-        let values: Vec<Arc<Mutex<Negation>>> = self
-            .negation
-            .lock()
-            .values()
-            .map(|negation| negation.0.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Get the timestamp for Negation.
-    ///
-    pub fn negation_timestamp(&self, negation: &Negation) -> SystemTime {
-        self.negation
-            .lock()
-            .get(&negation.id)
-            .map(|negation| negation.1)
-            .unwrap_or(SystemTime::now())
-    }
-
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Arc<Mutex<ZObjectStore>>) {
@@ -2747,6 +2756,50 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
+    /// Inter (insert) [`Unary`] into the store.
+    ///
+    pub fn inter_unary(&mut self, unary: Arc<Mutex<Unary>>) {
+        let read = unary.lock();
+        self.unary
+            .lock()
+            .insert(read.id(), (unary.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`Unary`] from the store.
+    ///
+    pub fn exhume_unary(&self, id: &Uuid) -> Option<Arc<Mutex<Unary>>> {
+        self.unary.lock().get(id).map(|unary| unary.0.clone())
+    }
+
+    /// Exorcise (remove) [`Unary`] from the store.
+    ///
+    pub fn exorcise_unary(&mut self, id: &Uuid) -> Option<Arc<Mutex<Unary>>> {
+        self.unary.lock().remove(id).map(|unary| unary.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
+    ///
+    pub fn iter_unary(&self) -> impl Iterator<Item = Arc<Mutex<Unary>>> + '_ {
+        let values: Vec<Arc<Mutex<Unary>>> = self
+            .unary
+            .lock()
+            .values()
+            .map(|unary| unary.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for Unary.
+    ///
+    pub fn unary_timestamp(&self, unary: &Unary) -> SystemTime {
+        self.unary
+            .lock()
+            .get(&unary.id())
+            .map(|unary| unary.1)
+            .unwrap_or(SystemTime::now())
+    }
+
     /// Inter (insert) [`XValue`] into the store.
     ///
     pub fn inter_x_value(&mut self, x_value: Arc<Mutex<XValue>>) {
@@ -3114,6 +3167,41 @@ impl ObjectStore {
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
                     if !self.boolean_literal.lock().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
+        // Persist Boolean Operator.
+        {
+            let path = path.join("boolean_operator");
+            fs::create_dir_all(&path)?;
+            for boolean_operator_tuple in self.boolean_operator.lock().values() {
+                let path = path.join(format!("{}.json", boolean_operator_tuple.0.lock().id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<Mutex<BooleanOperator>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != boolean_operator_tuple.0.lock().to_owned() {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &boolean_operator_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &boolean_operator_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.boolean_operator.lock().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -4095,41 +4183,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Negation.
-        {
-            let path = path.join("negation");
-            fs::create_dir_all(&path)?;
-            for negation_tuple in self.negation.lock().values() {
-                let path = path.join(format!("{}.json", negation_tuple.0.lock().id));
-                if path.exists() {
-                    let file = fs::File::open(&path)?;
-                    let reader = io::BufReader::new(file);
-                    let on_disk: (Arc<Mutex<Negation>>, SystemTime) =
-                        serde_json::from_reader(reader)?;
-                    if on_disk.0.lock().to_owned() != negation_tuple.0.lock().to_owned() {
-                        let file = fs::File::create(path)?;
-                        let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &negation_tuple)?;
-                    }
-                } else {
-                    let file = fs::File::create(&path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &negation_tuple)?;
-                }
-            }
-            for file in fs::read_dir(&path)? {
-                let file = file?;
-                let path = file.path();
-                let file_name = path.file_name().unwrap().to_str().unwrap();
-                let id = file_name.split('.').next().unwrap();
-                if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.negation.lock().contains_key(&id) {
-                        fs::remove_file(path)?;
-                    }
-                }
-            }
-        }
-
         // Persist Object Store.
         {
             let path = path.join("z_object_store");
@@ -4722,6 +4775,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist Unary.
+        {
+            let path = path.join("unary");
+            fs::create_dir_all(&path)?;
+            for unary_tuple in self.unary.lock().values() {
+                let path = path.join(format!("{}.json", unary_tuple.0.lock().id()));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<Mutex<Unary>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.lock().to_owned() != unary_tuple.0.lock().to_owned() {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &unary_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &unary_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.unary.lock().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Value.
         {
             let path = path.join("x_value");
@@ -4949,6 +5036,24 @@ impl ObjectStore {
                     .boolean_literal
                     .lock()
                     .insert(boolean_literal.0.lock().id(), boolean_literal.clone());
+            }
+        }
+
+        // Load Boolean Operator.
+        {
+            let path = path.join("boolean_operator");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let boolean_operator: (Arc<Mutex<BooleanOperator>>, SystemTime) =
+                    serde_json::from_reader(reader)?;
+                store
+                    .boolean_operator
+                    .lock()
+                    .insert(boolean_operator.0.lock().id(), boolean_operator.clone());
             }
         }
 
@@ -5434,23 +5539,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Negation.
-        {
-            let path = path.join("negation");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let negation: (Arc<Mutex<Negation>>, SystemTime) = serde_json::from_reader(reader)?;
-                store
-                    .negation
-                    .lock()
-                    .insert(negation.0.lock().id, negation.clone());
-            }
-        }
-
         // Load Object Store.
         {
             let path = path.join("z_object_store");
@@ -5747,6 +5835,23 @@ impl ObjectStore {
                     .type_cast
                     .lock()
                     .insert(type_cast.0.lock().id, type_cast.clone());
+            }
+        }
+
+        // Load Unary.
+        {
+            let path = path.join("unary");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unary: (Arc<Mutex<Unary>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .unary
+                    .lock()
+                    .insert(unary.0.lock().id(), unary.clone());
             }
         }
 

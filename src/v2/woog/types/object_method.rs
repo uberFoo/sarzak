@@ -81,11 +81,8 @@ impl ObjectMethod {
         vec![store
             .iter_function()
             .find(|function| {
-                if let FunctionEnum::ObjectMethod(id) = function.subtype {
-                    id == self.id
-                } else {
-                    false
-                }
+                let FunctionEnum::ObjectMethod(id) = function.subtype;
+                id == self.id
             })
             .unwrap()]
     }

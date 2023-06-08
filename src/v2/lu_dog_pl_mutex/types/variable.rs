@@ -77,53 +77,16 @@ impl Variable {
     // Navigate to [`XValue`] across R11(isa)
     pub fn r11_x_value<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<XValue>>> {
         span!("r11_x_value");
-        dbg!(&self.id);
-        dbg!(store.iter_x_value().count());
-        let mut values = store.iter_x_value();
-        let mut value = values.next();
-        loop {
-            if let Some(v) = value.clone() {
-                dbg!(&value);
-                // let value = value.lock();
-                if let XValueEnum::Variable(id) = v.lock().subtype {
-                    dbg!(&v);
-                    if id == self.id {
-                        dbg!(&v);
-                        return vec![v.clone()];
-                    } else {
-                        value = values.next();
-                    }
+        vec![store
+            .iter_x_value()
+            .find(|x_value| {
+                if let XValueEnum::Variable(id) = x_value.lock().subtype {
+                    id == self.id
                 } else {
-                    value = values.next();
+                    false
                 }
-            } else {
-                break;
-            }
-        }
-
-        vec![]
-
-        // for x_value in store.iter_x_value() {
-        //     dbg!(&x_value);
-        //     // let x_value_read = x_value.lock();
-        //     if let XValueEnum::Variable(id) = x_value.lock().subtype {
-        //         if id == self.id {
-        //             dbg!("found");
-        //             return vec![x_value.clone()];
-        //         }
-        //     }
-        // }
-        // vec![store
-        //     .iter_x_value()
-        //     .find(|x_value| {
-        //         let subtype = x_value.lock().subtype.clone();
-        //         if let XValueEnum::Variable(id) = subtype {
-        //             id == self.id
-        //         } else {
-        //             false
-        //         }
-        //     })
-        //     .unwrap()]
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

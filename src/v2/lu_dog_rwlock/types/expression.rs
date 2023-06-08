@@ -16,7 +16,6 @@ use crate::v2::lu_dog_rwlock::types::let_statement::LetStatement;
 use crate::v2::lu_dog_rwlock::types::list_element::ListElement;
 use crate::v2::lu_dog_rwlock::types::list_expression::ListExpression;
 use crate::v2::lu_dog_rwlock::types::literal::Literal;
-use crate::v2::lu_dog_rwlock::types::negation::Negation;
 use crate::v2::lu_dog_rwlock::types::operator::Operator;
 use crate::v2::lu_dog_rwlock::types::print::Print;
 use crate::v2::lu_dog_rwlock::types::range_expression::RangeExpression;
@@ -59,7 +58,6 @@ pub enum Expression {
     ListElement(Uuid),
     ListExpression(Uuid),
     Literal(Uuid),
-    Negation(Uuid),
     ZNone(Uuid),
     Operator(Uuid),
     Print(Uuid),
@@ -254,21 +252,6 @@ impl Expression {
         }
     }
 
-    /// Create a new instance of Expression::Negation
-    pub fn new_negation(
-        negation: &Arc<RwLock<Negation>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = negation.read().unwrap().id;
-        if let Some(negation) = store.exhume_expression(&id) {
-            negation
-        } else {
-            let new = Arc::new(RwLock::new(Self::Negation(id)));
-            store.inter_expression(new.clone());
-            new
-        }
-    }
-
     /// Create a new instance of Expression::ZNone
     pub fn new_z_none(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
@@ -412,7 +395,6 @@ impl Expression {
             Expression::ListElement(id) => *id,
             Expression::ListExpression(id) => *id,
             Expression::Literal(id) => *id,
-            Expression::Negation(id) => *id,
             Expression::ZNone(id) => *id,
             Expression::Operator(id) => *id,
             Expression::Print(id) => *id,
@@ -572,12 +554,13 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-negation"}}}
-    /// Navigate to [`Negation`] across R70(1-M)
-    pub fn r70_negation<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Negation>>> {
-        span!("r70_negation");
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    /// Navigate to [`Operator`] across R50(1-M)
+    pub fn r50_operator<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Operator>>> {
+        span!("r50_operator");
         store
-            .iter_negation()
-            .filter(|negation| negation.read().unwrap().expr == self.id())
+            .iter_operator()
+            .filter(|operator| operator.read().unwrap().lhs == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -594,16 +577,8 @@ impl Expression {
                     None
                 }
             })
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-    /// Navigate to [`Operator`] across R50(1-M)
-    pub fn r50_operator<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r50_operator");
-        store
-            .iter_operator()
-            .filter(|operator| operator.read().unwrap().lhs == self.id())
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
