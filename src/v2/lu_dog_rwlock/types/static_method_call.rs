@@ -18,7 +18,9 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 /// This is when you call a function on the type (struct) itself. There is no instance involved
 ///  in this, although it may return an instance.
 ///
-/// The name attribute is the name of the static method.
+/// The `type` attribute is the name of the Type to which the method belongs.
+///
+/// The `func` attribute is the name of the method, or function, itself.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-struct-definition"}}}

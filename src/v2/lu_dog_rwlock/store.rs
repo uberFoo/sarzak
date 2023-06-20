@@ -5485,15 +5485,15 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
+        Ok(bincode::deserialize(code).unwrap())
+    }
+
     /// The store is as a bincode file.
     pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
         let bin_file = fs::File::open(path)?;
         Ok(bincode::deserialize_from(bin_file).unwrap())
-    }
-
-    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
-        Ok(bincode::deserialize(code).unwrap())
     }
 
     /// Load the store.
