@@ -43,7 +43,7 @@ impl Block {
             .iter_object_method()
             .find(|object_method| object_method.block == self.id);
         match object_method {
-            Some(ref object_method) => vec![object_method],
+            Some(object_method) => vec![object_method],
             None => Vec::new(),
         }
     }

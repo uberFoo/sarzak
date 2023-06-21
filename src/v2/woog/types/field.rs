@@ -54,7 +54,7 @@ impl Field {
             .iter_structure_field()
             .find(|structure_field| structure_field.woog_struct == self.id);
         match structure_field {
-            Some(ref structure_field) => vec![structure_field],
+            Some(structure_field) => vec![structure_field],
             None => Vec::new(),
         }
     }
@@ -66,7 +66,7 @@ impl Field {
             .iter_enumeration_field()
             .find(|enumeration_field| enumeration_field.woog_enum == self.id);
         match enumeration_field {
-            Some(ref enumeration_field) => vec![enumeration_field],
+            Some(enumeration_field) => vec![enumeration_field],
             None => Vec::new(),
         }
     }

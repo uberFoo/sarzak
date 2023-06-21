@@ -46,7 +46,7 @@ impl Call {
     ) -> Call {
         let id = Uuid::new_v4();
         let new = Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
@@ -65,7 +65,7 @@ impl Call {
     ) -> Call {
         let id = Uuid::new_v4();
         let new = Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.id()),
             subtype: CallEnum::MethodCall(subtype.id),
             id,
@@ -84,7 +84,7 @@ impl Call {
     ) -> Call {
         let id = Uuid::new_v4();
         let new = Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.id()),
             subtype: CallEnum::StaticMethodCall(subtype.id),
             id,

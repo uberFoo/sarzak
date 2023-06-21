@@ -49,8 +49,8 @@ impl Point {
     ) -> Arc<RwLock<Point>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
-            x: x,
-            y: y,
+            x,
+            y,
             subtype: PointEnum::Anchor(subtype.read().unwrap().id),
             id,
         }));
@@ -71,8 +71,8 @@ impl Point {
     ) -> Arc<RwLock<Point>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
-            x: x,
-            y: y,
+            x,
+            y,
             subtype: PointEnum::Bisection(subtype.read().unwrap().id),
             id,
         }));
@@ -88,8 +88,8 @@ impl Point {
     pub fn new_inflection(x: i64, y: i64, store: &mut MerlinStore) -> Arc<RwLock<Point>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Point {
-            x: x,
-            y: y,
+            x,
+            y,
             subtype: PointEnum::Inflection(INFLECTION),
             id,
         }));

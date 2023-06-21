@@ -529,7 +529,7 @@ impl Extrude<nut::sarzak::Attribute, Context<'_>> for Attribute {
         let obj_id = loop {
             if let Some((_, obj)) = obj_iter.next() {
                 let mut attr_iter = obj.attributes.iter();
-                if let Some(_) = loop {
+                if loop {
                     if let Some((_, attr_id)) = attr_iter.next() {
                         if attr_id == &orig.id {
                             break Some(true);
@@ -537,7 +537,7 @@ impl Extrude<nut::sarzak::Attribute, Context<'_>> for Attribute {
                     } else {
                         break None;
                     }
-                } {
+                }.is_some() {
                     break obj.id;
                 }
             }
@@ -1498,7 +1498,7 @@ impl Extrude<nut::sarzak::Subtype, Context<'_>> for Subtype {
         let isa_id = loop {
             if let Some((_, isa)) = isa_iter.next() {
                 let mut sub_iter = isa.subtypes.iter();
-                if let Some(_) = loop {
+                if loop {
                     if let Some(sub_id) = sub_iter.next() {
                         if sub_id == &orig.id {
                             break Some(true);
@@ -1506,7 +1506,7 @@ impl Extrude<nut::sarzak::Subtype, Context<'_>> for Subtype {
                     } else {
                         break None;
                     }
-                } {
+                }.is_some() {
                     break isa.id;
                 }
             }

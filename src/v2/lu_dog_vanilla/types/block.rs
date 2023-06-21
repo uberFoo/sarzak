@@ -77,7 +77,7 @@ impl Block {
             .iter_function()
             .find(|function| function.block == self.id);
         match function {
-            Some(ref function) => vec![function],
+            Some(function) => vec![function],
             None => Vec::new(),
         }
     }

@@ -233,7 +233,6 @@ fn extrude_cuckoo_domain(
     // We are doing all the cloning so that we can mutably borrow `context.to`.
     let objects: Vec<(Uuid, Object)> = sarzak_to
         .iter_object()
-        .into_iter()
         .map(|(u, o)| (*u, o.clone()))
         .collect();
     for (_id, obj) in &objects {

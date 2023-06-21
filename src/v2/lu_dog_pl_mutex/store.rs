@@ -296,7 +296,7 @@ impl ObjectStore {
         self.argument
             .lock()
             .remove(id)
-            .map(|argument| argument.0.clone())
+            .map(|argument| argument.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
@@ -340,7 +340,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Binary`] from the store.
     ///
     pub fn exorcise_binary(&mut self, id: &Uuid) -> Option<Arc<Mutex<Binary>>> {
-        self.binary.lock().remove(id).map(|binary| binary.0.clone())
+        self.binary.lock().remove(id).map(|binary| binary.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
@@ -384,7 +384,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Block`] from the store.
     ///
     pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Arc<Mutex<Block>>> {
-        self.block.lock().remove(id).map(|block| block.0.clone())
+        self.block.lock().remove(id).map(|block| block.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
@@ -434,7 +434,7 @@ impl ObjectStore {
         self.boolean_literal
             .lock()
             .remove(id)
-            .map(|boolean_literal| boolean_literal.0.clone())
+            .map(|boolean_literal| boolean_literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
@@ -484,7 +484,7 @@ impl ObjectStore {
         self.boolean_operator
             .lock()
             .remove(id)
-            .map(|boolean_operator| boolean_operator.0.clone())
+            .map(|boolean_operator| boolean_operator.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
@@ -528,7 +528,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Call`] from the store.
     ///
     pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Arc<Mutex<Call>>> {
-        self.call.lock().remove(id).map(|call| call.0.clone())
+        self.call.lock().remove(id).map(|call| call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
@@ -578,7 +578,7 @@ impl ObjectStore {
         self.comparison
             .lock()
             .remove(id)
-            .map(|comparison| comparison.0.clone())
+            .map(|comparison| comparison.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
@@ -628,7 +628,7 @@ impl ObjectStore {
         self.dwarf_source_file
             .lock()
             .remove(id)
-            .map(|dwarf_source_file| dwarf_source_file.0.clone())
+            .map(|dwarf_source_file| dwarf_source_file.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
@@ -672,7 +672,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Error`] from the store.
     ///
     pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Arc<Mutex<Error>>> {
-        self.error.lock().remove(id).map(|error| error.0.clone())
+        self.error.lock().remove(id).map(|error| error.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
@@ -722,7 +722,7 @@ impl ObjectStore {
         self.error_expression
             .lock()
             .remove(id)
-            .map(|error_expression| error_expression.0.clone())
+            .map(|error_expression| error_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
@@ -772,7 +772,7 @@ impl ObjectStore {
         self.expression
             .lock()
             .remove(id)
-            .map(|expression| expression.0.clone())
+            .map(|expression| expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
@@ -831,7 +831,7 @@ impl ObjectStore {
         self.expression_statement
             .lock()
             .remove(id)
-            .map(|expression_statement| expression_statement.0.clone())
+            .map(|expression_statement| expression_statement.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
@@ -882,7 +882,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Field`] from the store.
     ///
     pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Arc<Mutex<Field>>> {
-        self.field.lock().remove(id).map(|field| field.0.clone())
+        self.field.lock().remove(id).map(|field| field.0)
     }
 
     /// Exhume [`Field`] id from the store by name.
@@ -938,7 +938,7 @@ impl ObjectStore {
         self.field_access
             .lock()
             .remove(id)
-            .map(|field_access| field_access.0.clone())
+            .map(|field_access| field_access.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
@@ -994,7 +994,7 @@ impl ObjectStore {
         self.field_access_target
             .lock()
             .remove(id)
-            .map(|field_access_target| field_access_target.0.clone())
+            .map(|field_access_target| field_access_target.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccessTarget>`.
@@ -1049,7 +1049,7 @@ impl ObjectStore {
         self.field_expression
             .lock()
             .remove(id)
-            .map(|field_expression| field_expression.0.clone())
+            .map(|field_expression| field_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
@@ -1099,7 +1099,7 @@ impl ObjectStore {
         self.float_literal
             .lock()
             .remove(id)
-            .map(|float_literal| float_literal.0.clone())
+            .map(|float_literal| float_literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
@@ -1149,7 +1149,7 @@ impl ObjectStore {
         self.for_loop
             .lock()
             .remove(id)
-            .map(|for_loop| for_loop.0.clone())
+            .map(|for_loop| for_loop.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
@@ -1201,7 +1201,7 @@ impl ObjectStore {
         self.function
             .lock()
             .remove(id)
-            .map(|function| function.0.clone())
+            .map(|function| function.0)
     }
 
     /// Exhume [`Function`] id from the store by name.
@@ -1257,7 +1257,7 @@ impl ObjectStore {
         self.grouped
             .lock()
             .remove(id)
-            .map(|grouped| grouped.0.clone())
+            .map(|grouped| grouped.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
@@ -1301,7 +1301,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XIf`] from the store.
     ///
     pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Arc<Mutex<XIf>>> {
-        self.x_if.lock().remove(id).map(|x_if| x_if.0.clone())
+        self.x_if.lock().remove(id).map(|x_if| x_if.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
@@ -1351,7 +1351,7 @@ impl ObjectStore {
         self.implementation
             .lock()
             .remove(id)
-            .map(|implementation| implementation.0.clone())
+            .map(|implementation| implementation.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
@@ -1395,7 +1395,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Import`] from the store.
     ///
     pub fn exorcise_import(&mut self, id: &Uuid) -> Option<Arc<Mutex<Import>>> {
-        self.import.lock().remove(id).map(|import| import.0.clone())
+        self.import.lock().remove(id).map(|import| import.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
@@ -1439,7 +1439,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Index`] from the store.
     ///
     pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Arc<Mutex<Index>>> {
-        self.index.lock().remove(id).map(|index| index.0.clone())
+        self.index.lock().remove(id).map(|index| index.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
@@ -1489,7 +1489,7 @@ impl ObjectStore {
         self.integer_literal
             .lock()
             .remove(id)
-            .map(|integer_literal| integer_literal.0.clone())
+            .map(|integer_literal| integer_literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
@@ -1533,7 +1533,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Item`] from the store.
     ///
     pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Arc<Mutex<Item>>> {
-        self.item.lock().remove(id).map(|item| item.0.clone())
+        self.item.lock().remove(id).map(|item| item.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
@@ -1583,7 +1583,7 @@ impl ObjectStore {
         self.let_statement
             .lock()
             .remove(id)
-            .map(|let_statement| let_statement.0.clone())
+            .map(|let_statement| let_statement.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
@@ -1627,7 +1627,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`List`] from the store.
     ///
     pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Arc<Mutex<List>>> {
-        self.list.lock().remove(id).map(|list| list.0.clone())
+        self.list.lock().remove(id).map(|list| list.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
@@ -1677,7 +1677,7 @@ impl ObjectStore {
         self.list_element
             .lock()
             .remove(id)
-            .map(|list_element| list_element.0.clone())
+            .map(|list_element| list_element.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
@@ -1727,7 +1727,7 @@ impl ObjectStore {
         self.list_expression
             .lock()
             .remove(id)
-            .map(|list_expression| list_expression.0.clone())
+            .map(|list_expression| list_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
@@ -1774,7 +1774,7 @@ impl ObjectStore {
         self.literal
             .lock()
             .remove(id)
-            .map(|literal| literal.0.clone())
+            .map(|literal| literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
@@ -1824,7 +1824,7 @@ impl ObjectStore {
         self.local_variable
             .lock()
             .remove(id)
-            .map(|local_variable| local_variable.0.clone())
+            .map(|local_variable| local_variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
@@ -1874,7 +1874,7 @@ impl ObjectStore {
         self.method_call
             .lock()
             .remove(id)
-            .map(|method_call| method_call.0.clone())
+            .map(|method_call| method_call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
@@ -1924,7 +1924,7 @@ impl ObjectStore {
         self.z_object_store
             .lock()
             .remove(id)
-            .map(|z_object_store| z_object_store.0.clone())
+            .map(|z_object_store| z_object_store.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -1974,7 +1974,7 @@ impl ObjectStore {
         self.operator
             .lock()
             .remove(id)
-            .map(|operator| operator.0.clone())
+            .map(|operator| operator.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
@@ -2024,7 +2024,7 @@ impl ObjectStore {
         self.woog_option
             .lock()
             .remove(id)
-            .map(|woog_option| woog_option.0.clone())
+            .map(|woog_option| woog_option.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
@@ -2074,7 +2074,7 @@ impl ObjectStore {
         self.parameter
             .lock()
             .remove(id)
-            .map(|parameter| parameter.0.clone())
+            .map(|parameter| parameter.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
@@ -2118,7 +2118,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Print`] from the store.
     ///
     pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Arc<Mutex<Print>>> {
-        self.print.lock().remove(id).map(|print| print.0.clone())
+        self.print.lock().remove(id).map(|print| print.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
@@ -2168,7 +2168,7 @@ impl ObjectStore {
         self.range_expression
             .lock()
             .remove(id)
-            .map(|range_expression| range_expression.0.clone())
+            .map(|range_expression| range_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
@@ -2218,7 +2218,7 @@ impl ObjectStore {
         self.reference
             .lock()
             .remove(id)
-            .map(|reference| reference.0.clone())
+            .map(|reference| reference.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
@@ -2268,7 +2268,7 @@ impl ObjectStore {
         self.result_statement
             .lock()
             .remove(id)
-            .map(|result_statement| result_statement.0.clone())
+            .map(|result_statement| result_statement.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
@@ -2318,7 +2318,7 @@ impl ObjectStore {
         self.x_return
             .lock()
             .remove(id)
-            .map(|x_return| x_return.0.clone())
+            .map(|x_return| x_return.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
@@ -2362,7 +2362,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ZSome`] from the store.
     ///
     pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<Mutex<ZSome>>> {
-        self.z_some.lock().remove(id).map(|z_some| z_some.0.clone())
+        self.z_some.lock().remove(id).map(|z_some| z_some.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
@@ -2406,7 +2406,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Span`] from the store.
     ///
     pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Arc<Mutex<Span>>> {
-        self.span.lock().remove(id).map(|span| span.0.clone())
+        self.span.lock().remove(id).map(|span| span.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
@@ -2456,7 +2456,7 @@ impl ObjectStore {
         self.statement
             .lock()
             .remove(id)
-            .map(|statement| statement.0.clone())
+            .map(|statement| statement.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
@@ -2509,7 +2509,7 @@ impl ObjectStore {
         self.static_method_call
             .lock()
             .remove(id)
-            .map(|static_method_call| static_method_call.0.clone())
+            .map(|static_method_call| static_method_call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StaticMethodCall>`.
@@ -2564,7 +2564,7 @@ impl ObjectStore {
         self.string_literal
             .lock()
             .remove(id)
-            .map(|string_literal| string_literal.0.clone())
+            .map(|string_literal| string_literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
@@ -2616,7 +2616,7 @@ impl ObjectStore {
         self.woog_struct
             .lock()
             .remove(id)
-            .map(|woog_struct| woog_struct.0.clone())
+            .map(|woog_struct| woog_struct.0)
     }
 
     /// Exhume [`WoogStruct`] id from the store by name.
@@ -2678,7 +2678,7 @@ impl ObjectStore {
         self.struct_expression
             .lock()
             .remove(id)
-            .map(|struct_expression| struct_expression.0.clone())
+            .map(|struct_expression| struct_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
@@ -2730,7 +2730,7 @@ impl ObjectStore {
         self.type_cast
             .lock()
             .remove(id)
-            .map(|type_cast| type_cast.0.clone())
+            .map(|type_cast| type_cast.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
@@ -2774,7 +2774,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Unary`] from the store.
     ///
     pub fn exorcise_unary(&mut self, id: &Uuid) -> Option<Arc<Mutex<Unary>>> {
-        self.unary.lock().remove(id).map(|unary| unary.0.clone())
+        self.unary.lock().remove(id).map(|unary| unary.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
@@ -2821,7 +2821,7 @@ impl ObjectStore {
         self.x_value
             .lock()
             .remove(id)
-            .map(|x_value| x_value.0.clone())
+            .map(|x_value| x_value.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
@@ -2871,7 +2871,7 @@ impl ObjectStore {
         self.value_type
             .lock()
             .remove(id)
-            .map(|value_type| value_type.0.clone())
+            .map(|value_type| value_type.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
@@ -2921,7 +2921,7 @@ impl ObjectStore {
         self.variable
             .lock()
             .remove(id)
-            .map(|variable| variable.0.clone())
+            .map(|variable| variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -2977,7 +2977,7 @@ impl ObjectStore {
         self.variable_expression
             .lock()
             .remove(id)
-            .map(|variable_expression| variable_expression.0.clone())
+            .map(|variable_expression| variable_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
@@ -4971,7 +4971,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("lu_dog.json");
 
-        let mut store = Self::new();
+        let store = Self::new();
 
         // Load Argument.
         {

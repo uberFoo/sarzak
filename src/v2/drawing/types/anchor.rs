@@ -84,7 +84,7 @@ impl Anchor {
             .iter_associative_ui()
             .find(|associative_ui| associative_ui.other == self.id);
         match associative_ui {
-            Some(ref associative_ui) => vec![associative_ui],
+            Some(associative_ui) => vec![associative_ui],
             None => Vec::new(),
         }
     }
@@ -96,7 +96,7 @@ impl Anchor {
             .iter_associative_ui()
             .find(|associative_ui| associative_ui.one == self.id);
         match associative_ui {
-            Some(ref associative_ui) => vec![associative_ui],
+            Some(associative_ui) => vec![associative_ui],
             None => Vec::new(),
         }
     }
@@ -108,7 +108,7 @@ impl Anchor {
             .iter_associative_ui()
             .find(|associative_ui| associative_ui.middle == self.id);
         match associative_ui {
-            Some(ref associative_ui) => vec![associative_ui],
+            Some(associative_ui) => vec![associative_ui],
             None => Vec::new(),
         }
     }
@@ -120,7 +120,7 @@ impl Anchor {
             .iter_binary_ui()
             .find(|binary_ui| binary_ui.from == self.id);
         match binary_ui {
-            Some(ref binary_ui) => vec![binary_ui],
+            Some(binary_ui) => vec![binary_ui],
             None => Vec::new(),
         }
     }
@@ -132,7 +132,7 @@ impl Anchor {
             .iter_binary_ui()
             .find(|binary_ui| binary_ui.to == self.id);
         match binary_ui {
-            Some(ref binary_ui) => vec![binary_ui],
+            Some(binary_ui) => vec![binary_ui],
             None => Vec::new(),
         }
     }
@@ -142,7 +142,7 @@ impl Anchor {
     pub fn r9c_isa_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<&IsaUi> {
         let isa_ui = store.iter_isa_ui().find(|isa_ui| isa_ui.from == self.id);
         match isa_ui {
-            Some(ref isa_ui) => vec![isa_ui],
+            Some(isa_ui) => vec![isa_ui],
             None => Vec::new(),
         }
     }

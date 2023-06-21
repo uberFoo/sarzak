@@ -142,7 +142,7 @@ impl Extrude<nut::drawing::Anchor, Context<'_>> for Anchor {
         }
 
         let edge = context.from.exhume_edge(&orig.edge).unwrap();
-        let edge = Edge::get_edge_from_nut(&edge);
+        let edge = Edge::get_edge_from_nut(edge);
 
         Self {
             id: orig.id,
@@ -523,7 +523,7 @@ impl Extrude<nut::drawing::IsaUI, Context<'_>> for IsaUi {
         // In nut the to anchors are stored in a Vec. We break those out to
         // SubtypeAnchors here.
         for to in orig.to.iter() {
-            let anchor = context.from.exhume_anchor(&to).unwrap();
+            let anchor = context.from.exhume_anchor(to).unwrap();
             let anchor = Anchor::extrude(anchor.clone(), context);
 
             SubtypeAnchors::new(context.to, &anchor, &isa_ui);

@@ -48,7 +48,7 @@ impl Variable {
     ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Variable {
-            name: name,
+            name,
             subtype: VariableEnum::LocalVariable(subtype.borrow().id),
             id,
         }));
@@ -65,7 +65,7 @@ impl Variable {
     ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Variable {
-            name: name,
+            name,
             subtype: VariableEnum::Parameter(subtype.borrow().id),
             id,
         }));

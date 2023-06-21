@@ -83,7 +83,7 @@ impl Edge {
     pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         let anchor = store.iter_anchor().find(|anchor| anchor.edge == self.id());
         match anchor {
-            Some(ref anchor) => vec![anchor],
+            Some(anchor) => vec![anchor],
             None => Vec::new(),
         }
     }
@@ -95,7 +95,7 @@ impl Edge {
             .iter_object_edge()
             .find(|object_edge| object_edge.edge == self.id());
         match object_edge {
-            Some(ref object_edge) => vec![object_edge],
+            Some(object_edge) => vec![object_edge],
             None => Vec::new(),
         }
     }

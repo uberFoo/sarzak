@@ -315,9 +315,9 @@ impl From<&FromReferrer> for Referrer {
 impl From<&FromRelationship> for Relationship {
     fn from(src: &FromRelationship) -> Self {
         match src {
-            FromRelationship::Associative(src) => Relationship::Associative(src.clone()),
-            FromRelationship::Binary(src) => Relationship::Binary(src.clone()),
-            FromRelationship::Isa(src) => Relationship::Isa(src.clone()),
+            FromRelationship::Associative(src) => Relationship::Associative(*src),
+            FromRelationship::Binary(src) => Relationship::Binary(*src),
+            FromRelationship::Isa(src) => Relationship::Isa(*src),
         }
     }
 }
@@ -354,10 +354,10 @@ impl From<&FromTy> for Ty {
     fn from(src: &FromTy) -> Self {
         match src {
             FromTy::Boolean(_) => Ty::Boolean(BOOLEAN),
-            FromTy::External(src) => Ty::External(src.clone()),
+            FromTy::External(src) => Ty::External(*src),
             FromTy::Float(_) => Ty::Float(FLOAT),
             FromTy::Integer(_) => Ty::Integer(INTEGER),
-            FromTy::Object(src) => Ty::Object(src.clone()),
+            FromTy::Object(src) => Ty::Object(*src),
             FromTy::String(_) => Ty::SString(S_STRING),
             FromTy::Uuid(_) => Ty::SUuid(S_UUID),
         }

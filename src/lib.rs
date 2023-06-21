@@ -20,8 +20,8 @@ cfg_if::cfg_if! {
         pub use v2::lu_dog_pl_mutex as lu_dog;
     } else if #[cfg(feature = "lu-dog-vanilla")] {
         pub use v2::lu_dog_vanilla as lu_dog;
-    } else if #[cfg(feature = "lu-dog-async")] {
-        pub use v2::lu_dog_async as lu_dog;
+    // } else if #[cfg(feature = "lu-dog-async")] {
+        // pub use v2::lu_dog_async as lu_dog;
     // } else if #[cfg(feature = "lu-dog-no-deadlocks")] {
         // pub use v2::lu_dog_no_deadlocks as lu_dog;
     }

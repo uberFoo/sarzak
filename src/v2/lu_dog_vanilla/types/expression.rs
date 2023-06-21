@@ -377,7 +377,7 @@ impl Expression {
             .iter_let_statement()
             .find(|let_statement| let_statement.expression == self.id());
         match let_statement {
-            Some(ref let_statement) => vec![let_statement],
+            Some(let_statement) => vec![let_statement],
             None => Vec::new(),
         }
     }

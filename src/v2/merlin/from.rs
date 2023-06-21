@@ -63,7 +63,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             let binary = bui.r12_binary(sarzak)[0];
             let rel = binary.r4_relationship(sarzak)[0];
 
-            let line = Line::new(&rel, &mut merlin);
+            let line = Line::new(rel, &mut merlin);
             let line_seg = LineSegment::new(&line, &mut merlin);
 
             // Default to putting the relationship at the midpoint of the line,
@@ -92,11 +92,11 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Get what we need to build the offset to which the line connects.
             let point = from_anchor.r4_point(drawing)[0];
             let edge = from_anchor.r3_edge(drawing)[0];
-            let (x, y) = get_anchor_offset(&point, &edge);
+            let (x, y) = get_anchor_offset(point, edge);
 
             // Sort out how far along the edge the arrow should be drawn.
             let origin = from_obj_ui.r13_point(drawing)[0];
-            let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
+            let offset = get_anchor_line_offset(edge, point, from_obj_ui, origin);
 
             // Sort out the glyph.
             let card = referrer.r9_cardinality(sarzak)[0];
@@ -137,11 +137,11 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Get what we need to build the offset to which the line connects.
             let point = to_anchor.r4_point(drawing)[0];
             let edge = to_anchor.r3_edge(drawing)[0];
-            let (x, y) = get_anchor_offset(&point, &edge);
+            let (x, y) = get_anchor_offset(point, edge);
 
             // Sort out how far along the edge the arrow should be drawn.
             let origin = from_obj_ui.r13_point(drawing)[0];
-            let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
+            let offset = get_anchor_line_offset(edge, point, from_obj_ui, origin);
 
             // Sort out the glyph.
             let card = referent.r8_cardinality(sarzak)[0];

@@ -74,7 +74,7 @@ impl Argument {
             .iter_argument()
             .find(|argument| argument.next == Some(self.id));
         match argument {
-            Some(ref argument) => vec![argument],
+            Some(argument) => vec![argument],
             None => Vec::new(),
         }
     }

@@ -40,7 +40,7 @@ impl Point {
     pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
         let anchor = store.iter_anchor().find(|anchor| anchor.offset == self.id);
         match anchor {
-            Some(ref anchor) => vec![anchor],
+            Some(anchor) => vec![anchor],
             None => Vec::new(),
         }
     }
@@ -52,7 +52,7 @@ impl Point {
             .iter_anchor()
             .find(|anchor| anchor.location == self.id);
         match anchor {
-            Some(ref anchor) => vec![anchor],
+            Some(anchor) => vec![anchor],
             None => Vec::new(),
         }
     }
@@ -64,7 +64,7 @@ impl Point {
             .iter_associative_ui()
             .find(|associative_ui| associative_ui.from == self.id);
         match associative_ui {
-            Some(ref associative_ui) => vec![associative_ui],
+            Some(associative_ui) => vec![associative_ui],
             None => Vec::new(),
         }
     }
@@ -76,7 +76,7 @@ impl Point {
             .iter_object_ui()
             .find(|object_ui| object_ui.origin == self.id);
         match object_ui {
-            Some(ref object_ui) => vec![object_ui],
+            Some(object_ui) => vec![object_ui],
             None => Vec::new(),
         }
     }

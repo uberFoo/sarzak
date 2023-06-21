@@ -488,22 +488,22 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
-    /// Navigate to [`Index`] across R57(1-M)
-    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Index>>> {
-        span!("r57_index");
-        store
-            .iter_index()
-            .filter(|index| index.borrow().target == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R56(1-M)
     pub fn r56_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Index>>> {
         span!("r56_index");
         store
             .iter_index()
             .filter(|index| index.borrow().index == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
+    /// Navigate to [`Index`] across R57(1-M)
+    pub fn r57_index<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Index>>> {
+        span!("r57_index");
+        store
+            .iter_index()
+            .filter(|index| index.borrow().target == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -535,6 +535,16 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    /// Navigate to [`Operator`] across R50(1-M)
+    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
+        span!("r50_operator");
+        store
+            .iter_operator()
+            .filter(|operator| operator.borrow().lhs == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
     pub fn r51_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
@@ -548,16 +558,8 @@ impl Expression {
                     None
                 }
             })
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-    /// Navigate to [`Operator`] across R50(1-M)
-    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
-        span!("r50_operator");
-        store
-            .iter_operator()
-            .filter(|operator| operator.borrow().lhs == self.id())
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

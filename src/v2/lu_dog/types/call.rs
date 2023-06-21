@@ -49,7 +49,7 @@ impl Call {
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
@@ -68,7 +68,7 @@ impl Call {
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::MethodCall(subtype.borrow().id),
             id,
@@ -87,7 +87,7 @@ impl Call {
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::StaticMethodCall(subtype.borrow().id),
             id,

@@ -92,8 +92,7 @@ impl ObjectStore {
         self.anchor
             .read()
             .unwrap()
-            .get(id)
-            .map(|anchor| anchor.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`Anchor`] from the store.
@@ -103,7 +102,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|anchor| anchor.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
@@ -113,8 +111,7 @@ impl ObjectStore {
             .anchor
             .read()
             .unwrap()
-            .values()
-            .map(|anchor| anchor.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -136,8 +133,7 @@ impl ObjectStore {
         self.bisection
             .read()
             .unwrap()
-            .get(id)
-            .map(|bisection| bisection.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`Bisection`] from the store.
@@ -147,7 +143,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|bisection| bisection.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Bisection>`.
@@ -157,8 +152,7 @@ impl ObjectStore {
             .bisection
             .read()
             .unwrap()
-            .values()
-            .map(|bisection| bisection.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -177,8 +171,7 @@ impl ObjectStore {
         self.x_box
             .read()
             .unwrap()
-            .get(id)
-            .map(|x_box| x_box.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`XBox`] from the store.
@@ -188,7 +181,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|x_box| x_box.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XBox>`.
@@ -198,8 +190,7 @@ impl ObjectStore {
             .x_box
             .read()
             .unwrap()
-            .values()
-            .map(|x_box| x_box.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -215,7 +206,7 @@ impl ObjectStore {
     /// Exhume (get) [`Edge`] from the store.
     ///
     pub fn exhume_edge(&self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
-        self.edge.read().unwrap().get(id).map(|edge| edge.clone())
+        self.edge.read().unwrap().get(id).cloned()
     }
 
     /// Exorcise (remove) [`Edge`] from the store.
@@ -225,7 +216,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|edge| edge.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
@@ -235,8 +225,7 @@ impl ObjectStore {
             .edge
             .read()
             .unwrap()
-            .values()
-            .map(|edge| edge.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -255,8 +244,7 @@ impl ObjectStore {
         self.glyph
             .read()
             .unwrap()
-            .get(id)
-            .map(|glyph| glyph.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`Glyph`] from the store.
@@ -266,7 +254,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|glyph| glyph.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Glyph>`.
@@ -276,8 +263,7 @@ impl ObjectStore {
             .glyph
             .read()
             .unwrap()
-            .values()
-            .map(|glyph| glyph.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -293,7 +279,7 @@ impl ObjectStore {
     /// Exhume (get) [`Line`] from the store.
     ///
     pub fn exhume_line(&self, id: &Uuid) -> Option<Arc<RwLock<Line>>> {
-        self.line.read().unwrap().get(id).map(|line| line.clone())
+        self.line.read().unwrap().get(id).cloned()
     }
 
     /// Exorcise (remove) [`Line`] from the store.
@@ -303,7 +289,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|line| line.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Line>`.
@@ -313,8 +298,7 @@ impl ObjectStore {
             .line
             .read()
             .unwrap()
-            .values()
-            .map(|line| line.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -336,8 +320,7 @@ impl ObjectStore {
         self.line_segment
             .read()
             .unwrap()
-            .get(id)
-            .map(|line_segment| line_segment.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`LineSegment`] from the store.
@@ -347,7 +330,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|line_segment| line_segment.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegment>`.
@@ -357,8 +339,7 @@ impl ObjectStore {
             .line_segment
             .read()
             .unwrap()
-            .values()
-            .map(|line_segment| line_segment.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -380,8 +361,7 @@ impl ObjectStore {
         self.line_segment_point
             .read()
             .unwrap()
-            .get(id)
-            .map(|line_segment_point| line_segment_point.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`LineSegmentPoint`] from the store.
@@ -394,7 +374,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|line_segment_point| line_segment_point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegmentPoint>`.
@@ -406,8 +385,7 @@ impl ObjectStore {
             .line_segment_point
             .read()
             .unwrap()
-            .values()
-            .map(|line_segment_point| line_segment_point.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -426,8 +404,7 @@ impl ObjectStore {
         self.point
             .read()
             .unwrap()
-            .get(id)
-            .map(|point| point.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`Point`] from the store.
@@ -437,7 +414,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|point| point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
@@ -447,8 +423,7 @@ impl ObjectStore {
             .point
             .read()
             .unwrap()
-            .values()
-            .map(|point| point.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -470,8 +445,7 @@ impl ObjectStore {
         self.relationship_name
             .read()
             .unwrap()
-            .get(id)
-            .map(|relationship_name| relationship_name.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`RelationshipName`] from the store.
@@ -484,7 +458,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|relationship_name| relationship_name.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipName>`.
@@ -496,8 +469,7 @@ impl ObjectStore {
             .relationship_name
             .read()
             .unwrap()
-            .values()
-            .map(|relationship_name| relationship_name.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -522,8 +494,7 @@ impl ObjectStore {
         self.relationship_phrase
             .read()
             .unwrap()
-            .get(id)
-            .map(|relationship_phrase| relationship_phrase.clone())
+            .get(id).cloned()
     }
 
     /// Exorcise (remove) [`RelationshipPhrase`] from the store.
@@ -536,7 +507,6 @@ impl ObjectStore {
             .write()
             .unwrap()
             .remove(id)
-            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipPhrase>`.
@@ -548,8 +518,7 @@ impl ObjectStore {
             .relationship_phrase
             .read()
             .unwrap()
-            .values()
-            .map(|relationship_phrase| relationship_phrase.clone())
+            .values().cloned()
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -734,7 +703,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("merlin.json");
 
-        let mut store = Self::new();
+        let store = Self::new();
 
         // Load Anchor.
         {

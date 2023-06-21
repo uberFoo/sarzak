@@ -49,7 +49,7 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
@@ -68,7 +68,7 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
             id,
@@ -87,7 +87,7 @@ impl Call {
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.read().unwrap().id()),
             subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
             id,

@@ -185,9 +185,9 @@ impl From<&FromPoint> for Point {
 impl From<&FromRelationshipUi> for RelationshipUi {
     fn from(src: &FromRelationshipUi) -> Self {
         match src {
-            FromRelationshipUi::AssociativeUi(src) => RelationshipUi::AssociativeUi(src.clone()),
-            FromRelationshipUi::BinaryUi(src) => RelationshipUi::BinaryUi(src.clone()),
-            FromRelationshipUi::IsaUi(src) => RelationshipUi::IsaUi(src.clone()),
+            FromRelationshipUi::AssociativeUi(src) => RelationshipUi::AssociativeUi(*src),
+            FromRelationshipUi::BinaryUi(src) => RelationshipUi::BinaryUi(*src),
+            FromRelationshipUi::IsaUi(src) => RelationshipUi::IsaUi(*src),
         }
     }
 }

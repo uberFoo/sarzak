@@ -49,7 +49,7 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
@@ -68,7 +68,7 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::MethodCall(subtype.lock().id),
             id,
@@ -87,7 +87,7 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check: arg_check,
+            arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::StaticMethodCall(subtype.lock().id),
             id,

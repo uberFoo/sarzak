@@ -35,7 +35,9 @@ impl Domain {
         sarzak: SarzakStore,
         drawing: DrawingStore,
     ) -> Self {
-        let domain = Domain {
+        
+
+        Domain {
             version: VERSION.to_owned(),
             domain: model.domain,
             id: model.id,
@@ -45,9 +47,7 @@ impl Domain {
             extents: model.extents,
             view: model.view,
             path,
-        };
-
-        domain
+        }
     }
 
     /// Return the name of the domain

@@ -101,8 +101,8 @@ impl Domain {
     pub fn load<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
 
-        let sarzak = SarzakStore::load(&path)?;
-        let merlin = MerlinStore::load(&path)?;
+        let sarzak = SarzakStore::load(path)?;
+        let merlin = MerlinStore::load(path)?;
 
         let file = fs::File::open(path.join("metadata.json"))?;
         let reader = io::BufReader::new(file);
@@ -121,8 +121,8 @@ impl Domain {
         let path = path.as_ref();
         fs::create_dir_all(path.parent().unwrap())?;
 
-        self.sarzak.persist(&path)?;
-        self.merlin.persist(&path)?;
+        self.sarzak.persist(path)?;
+        self.merlin.persist(path)?;
 
         let path = path.join("metadata.json");
         let file = fs::File::create(path)?;
@@ -136,7 +136,7 @@ impl Domain {
         let path = path.as_ref();
         fs::create_dir_all(path.parent().unwrap())?;
 
-        self.sarzak.persist_bincode(&path)?;
+        self.sarzak.persist_bincode(path)?;
 
         Ok(())
     }

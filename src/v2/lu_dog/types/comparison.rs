@@ -5,6 +5,7 @@ use crate::v2::lu_dog::types::equal::EQUAL;
 use crate::v2::lu_dog::types::greater_than::GREATER_THAN;
 use crate::v2::lu_dog::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::less_than_or_equal::LESS_THAN_OR_EQUAL;
+use crate::v2::lu_dog::types::not_equal::NOT_EQUAL;
 use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
 use serde::{Deserialize, Serialize};
@@ -27,6 +28,7 @@ pub enum Comparison {
     GreaterThan(Uuid),
     GreaterThanOrEqual(Uuid),
     LessThanOrEqual(Uuid),
+    NotEqual(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-implementation"}}}
@@ -56,6 +58,12 @@ impl Comparison {
         store.exhume_comparison(&LESS_THAN_OR_EQUAL).unwrap()
     }
 
+    /// Create a new instance of Comparison::NotEqual
+    pub fn new_not_equal(store: &LuDogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&NOT_EQUAL).unwrap()
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
@@ -64,6 +72,7 @@ impl Comparison {
             Comparison::GreaterThan(id) => *id,
             Comparison::GreaterThanOrEqual(id) => *id,
             Comparison::LessThanOrEqual(id) => *id,
+            Comparison::NotEqual(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

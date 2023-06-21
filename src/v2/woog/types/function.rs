@@ -43,8 +43,8 @@ impl Function {
     ) -> Function {
         let id = Uuid::new_v4();
         let new = Function {
-            description: description,
-            name: name,
+            description,
+            name,
             subtype: FunctionEnum::ObjectMethod(subtype.id),
             id,
         };
@@ -59,7 +59,7 @@ impl Function {
             .iter_parameter()
             .find(|parameter| parameter.function == Some(self.id));
         match parameter {
-            Some(ref parameter) => vec![parameter],
+            Some(parameter) => vec![parameter],
             None => Vec::new(),
         }
     }
