@@ -43,7 +43,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
     Block(Uuid),
     Call(Uuid),
@@ -411,13 +411,7 @@ impl Expression {
         span!("r29_call");
         store
             .iter_call()
-            .filter_map(|call| {
-                if call.borrow().expression == Some(self.id()) {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
+            .filter(|call| call.borrow().expression == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -551,15 +545,9 @@ impl Expression {
         span!("r51_operator");
         store
             .iter_operator()
-            .filter_map(|operator| {
-                if operator.borrow().rhs == Some(self.id()) {
-                    Some(operator)
-                } else {
-                    None
-                }
-            })
             // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
             // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+            .filter(|operator| operator.borrow().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -582,13 +570,7 @@ impl Expression {
         span!("r59_range_expression");
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.borrow().rhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.borrow().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -601,13 +583,7 @@ impl Expression {
         span!("r58_range_expression");
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.borrow().lhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.borrow().lhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

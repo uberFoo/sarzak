@@ -10,6 +10,7 @@ use crate::v2::lu_dog_pl_mutex::types::function::Function;
 use crate::v2::lu_dog_pl_mutex::types::implementation::Implementation;
 use crate::v2::lu_dog_pl_mutex::types::import::Import;
 use crate::v2::lu_dog_pl_mutex::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_pl_mutex::types::x_macro::XMacro;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_pl_mutex::store::ObjectStore as LuDogPlMutexStore;
@@ -30,6 +31,7 @@ pub enum ItemEnum {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
+    XMacro(Uuid),
     WoogStruct(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -80,6 +82,23 @@ impl Item {
         let new = Arc::new(Mutex::new(Item {
             source: source.lock().id,
             subtype: ItemEnum::Import(subtype.lock().id),
+            id,
+        }));
+        store.inter_item(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_x_macro"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_x_macro(
+        source: &Arc<Mutex<DwarfSourceFile>>,
+        subtype: &Arc<Mutex<XMacro>>,
+        store: &mut LuDogPlMutexStore,
+    ) -> Arc<Mutex<Item>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(Mutex::new(Item {
+            source: source.lock().id,
+            subtype: ItemEnum::XMacro(subtype.lock().id),
             id,
         }));
         store.inter_item(new.clone());

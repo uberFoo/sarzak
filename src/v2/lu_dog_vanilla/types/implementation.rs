@@ -50,13 +50,7 @@ impl Implementation {
     pub fn r9_function<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&Function> {
         store
             .iter_function()
-            .filter_map(|function| {
-                if function.impl_block == Some(self.id) {
-                    Some(function)
-                } else {
-                    None
-                }
-            })
+            .filter(|function| function.impl_block == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

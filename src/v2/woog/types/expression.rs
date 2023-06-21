@@ -4,9 +4,9 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 use crate::v2::woog::types::block::Block;
 use crate::v2::woog::types::call::Call;
 use crate::v2::woog::types::literal::LITERAL;
-use crate::v2::woog::types::value::Value;
-use crate::v2::woog::types::value::ValueEnum;
 use crate::v2::woog::types::x_let::XLet;
+use crate::v2::woog::types::x_value::XValue;
+use crate::v2::woog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -22,7 +22,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
     Block(Uuid),
     Call(Uuid),
@@ -72,12 +72,13 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
-    // Navigate to [`Value`] across R7(isa)
-    pub fn r7_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
+    // Navigate to [`XValue`] across R7(isa)
+    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
         vec![store
-            .iter_value()
-            .find(|value| {
-                if let ValueEnum::Expression(id) = value.subtype {
+            .iter_x_value()
+            .find(|x_value| {
+                if let XValueEnum::Expression(id) = x_value.subtype {
                     id == self.id()
                 } else {
                     false

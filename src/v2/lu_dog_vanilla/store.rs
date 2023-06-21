@@ -39,6 +39,7 @@
 //! * [`ListExpression`]
 //! * [`Literal`]
 //! * [`LocalVariable`]
+//! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
 //! * [`Operator`]
@@ -82,10 +83,10 @@ use crate::v2::lu_dog_vanilla::types::{
     IntegerLiteral, Item, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement, Span,
     Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
-    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, XValue, ZObjectStore,
-    ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, RANGE,
-    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
+    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION,
+    NEGATION, NOT, NOT_EQUAL, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,6 +125,7 @@ pub struct ObjectStore {
     list_expression: HashMap<Uuid, (ListExpression, SystemTime)>,
     literal: HashMap<Uuid, (Literal, SystemTime)>,
     local_variable: HashMap<Uuid, (LocalVariable, SystemTime)>,
+    x_macro: HashMap<Uuid, (XMacro, SystemTime)>,
     method_call: HashMap<Uuid, (MethodCall, SystemTime)>,
     z_object_store: HashMap<Uuid, (ZObjectStore, SystemTime)>,
     operator: HashMap<Uuid, (Operator, SystemTime)>,
@@ -187,6 +189,7 @@ impl ObjectStore {
             list_expression: HashMap::default(),
             literal: HashMap::default(),
             local_variable: HashMap::default(),
+            x_macro: HashMap::default(),
             method_call: HashMap::default(),
             z_object_store: HashMap::default(),
             operator: HashMap::default(),
@@ -230,6 +233,7 @@ impl ObjectStore {
         store.inter_comparison(Comparison::GreaterThan(GREATER_THAN));
         store.inter_comparison(Comparison::GreaterThanOrEqual(GREATER_THAN_OR_EQUAL));
         store.inter_comparison(Comparison::LessThanOrEqual(LESS_THAN_OR_EQUAL));
+        store.inter_comparison(Comparison::NotEqual(NOT_EQUAL));
         store.inter_error(Error::UnknownVariable(UNKNOWN_VARIABLE));
         store.inter_expression(Expression::Debugger(DEBUGGER));
         store.inter_expression(Expression::Literal(
@@ -277,12 +281,6 @@ impl ObjectStore {
         self.argument.remove(id).map(|argument| argument.0)
     }
 
-    /// Exhume mut [`Argument`] from the store — mutably.
-    ///
-    pub fn exhume_argument_mut(&mut self, id: &Uuid) -> Option<&mut Argument> {
-        self.argument.get_mut(id).map(|argument| &mut argument.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
     ///
     pub fn iter_argument(&self) -> impl Iterator<Item = &Argument> {
@@ -316,12 +314,6 @@ impl ObjectStore {
         self.binary.remove(id).map(|binary| binary.0)
     }
 
-    /// Exhume mut [`Binary`] from the store — mutably.
-    ///
-    pub fn exhume_binary_mut(&mut self, id: &Uuid) -> Option<&mut Binary> {
-        self.binary.get_mut(id).map(|binary| &mut binary.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
     pub fn iter_binary(&self) -> impl Iterator<Item = &Binary> {
@@ -353,12 +345,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_block(&mut self, id: &Uuid) -> Option<Block> {
         self.block.remove(id).map(|block| block.0)
-    }
-
-    /// Exhume mut [`Block`] from the store — mutably.
-    ///
-    pub fn exhume_block_mut(&mut self, id: &Uuid) -> Option<&mut Block> {
-        self.block.get_mut(id).map(|block| &mut block.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
@@ -397,14 +383,6 @@ impl ObjectStore {
         self.boolean_literal
             .remove(id)
             .map(|boolean_literal| boolean_literal.0)
-    }
-
-    /// Exhume mut [`BooleanLiteral`] from the store — mutably.
-    ///
-    pub fn exhume_boolean_literal_mut(&mut self, id: &Uuid) -> Option<&mut BooleanLiteral> {
-        self.boolean_literal
-            .get_mut(id)
-            .map(|boolean_literal| &mut boolean_literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
@@ -447,14 +425,6 @@ impl ObjectStore {
             .map(|boolean_operator| boolean_operator.0)
     }
 
-    /// Exhume mut [`BooleanOperator`] from the store — mutably.
-    ///
-    pub fn exhume_boolean_operator_mut(&mut self, id: &Uuid) -> Option<&mut BooleanOperator> {
-        self.boolean_operator
-            .get_mut(id)
-            .map(|boolean_operator| &mut boolean_operator.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
     ///
     pub fn iter_boolean_operator(&self) -> impl Iterator<Item = &BooleanOperator> {
@@ -490,12 +460,6 @@ impl ObjectStore {
         self.call.remove(id).map(|call| call.0)
     }
 
-    /// Exhume mut [`Call`] from the store — mutably.
-    ///
-    pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
-        self.call.get_mut(id).map(|call| &mut call.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
     pub fn iter_call(&self) -> impl Iterator<Item = &Call> {
@@ -528,14 +492,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_comparison(&mut self, id: &Uuid) -> Option<Comparison> {
         self.comparison.remove(id).map(|comparison| comparison.0)
-    }
-
-    /// Exhume mut [`Comparison`] from the store — mutably.
-    ///
-    pub fn exhume_comparison_mut(&mut self, id: &Uuid) -> Option<&mut Comparison> {
-        self.comparison
-            .get_mut(id)
-            .map(|comparison| &mut comparison.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
@@ -576,14 +532,6 @@ impl ObjectStore {
             .map(|dwarf_source_file| dwarf_source_file.0)
     }
 
-    /// Exhume mut [`DwarfSourceFile`] from the store — mutably.
-    ///
-    pub fn exhume_dwarf_source_file_mut(&mut self, id: &Uuid) -> Option<&mut DwarfSourceFile> {
-        self.dwarf_source_file
-            .get_mut(id)
-            .map(|dwarf_source_file| &mut dwarf_source_file.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
     ///
     pub fn iter_dwarf_source_file(&self) -> impl Iterator<Item = &DwarfSourceFile> {
@@ -617,12 +565,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_error(&mut self, id: &Uuid) -> Option<Error> {
         self.error.remove(id).map(|error| error.0)
-    }
-
-    /// Exhume mut [`Error`] from the store — mutably.
-    ///
-    pub fn exhume_error_mut(&mut self, id: &Uuid) -> Option<&mut Error> {
-        self.error.get_mut(id).map(|error| &mut error.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
@@ -663,14 +605,6 @@ impl ObjectStore {
             .map(|error_expression| error_expression.0)
     }
 
-    /// Exhume mut [`ErrorExpression`] from the store — mutably.
-    ///
-    pub fn exhume_error_expression_mut(&mut self, id: &Uuid) -> Option<&mut ErrorExpression> {
-        self.error_expression
-            .get_mut(id)
-            .map(|error_expression| &mut error_expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
     ///
     pub fn iter_error_expression(&self) -> impl Iterator<Item = &ErrorExpression> {
@@ -705,14 +639,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_expression(&mut self, id: &Uuid) -> Option<Expression> {
         self.expression.remove(id).map(|expression| expression.0)
-    }
-
-    /// Exhume mut [`Expression`] from the store — mutably.
-    ///
-    pub fn exhume_expression_mut(&mut self, id: &Uuid) -> Option<&mut Expression> {
-        self.expression
-            .get_mut(id)
-            .map(|expression| &mut expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
@@ -755,17 +681,6 @@ impl ObjectStore {
             .map(|expression_statement| expression_statement.0)
     }
 
-    /// Exhume mut [`ExpressionStatement`] from the store — mutably.
-    ///
-    pub fn exhume_expression_statement_mut(
-        &mut self,
-        id: &Uuid,
-    ) -> Option<&mut ExpressionStatement> {
-        self.expression_statement
-            .get_mut(id)
-            .map(|expression_statement| &mut expression_statement.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
     ///
     pub fn iter_expression_statement(&self) -> impl Iterator<Item = &ExpressionStatement> {
@@ -805,12 +720,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_field(&mut self, id: &Uuid) -> Option<Field> {
         self.field.remove(id).map(|field| field.0)
-    }
-
-    /// Exhume mut [`Field`] from the store — mutably.
-    ///
-    pub fn exhume_field_mut(&mut self, id: &Uuid) -> Option<&mut Field> {
-        self.field.get_mut(id).map(|field| &mut field.0)
     }
 
     /// Exhume [`Field`] id from the store by name.
@@ -857,14 +766,6 @@ impl ObjectStore {
             .map(|field_access| field_access.0)
     }
 
-    /// Exhume mut [`FieldAccess`] from the store — mutably.
-    ///
-    pub fn exhume_field_access_mut(&mut self, id: &Uuid) -> Option<&mut FieldAccess> {
-        self.field_access
-            .get_mut(id)
-            .map(|field_access| &mut field_access.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
     ///
     pub fn iter_field_access(&self) -> impl Iterator<Item = &FieldAccess> {
@@ -905,14 +806,6 @@ impl ObjectStore {
         self.field_access_target
             .remove(id)
             .map(|field_access_target| field_access_target.0)
-    }
-
-    /// Exhume mut [`FieldAccessTarget`] from the store — mutably.
-    ///
-    pub fn exhume_field_access_target_mut(&mut self, id: &Uuid) -> Option<&mut FieldAccessTarget> {
-        self.field_access_target
-            .get_mut(id)
-            .map(|field_access_target| &mut field_access_target.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccessTarget>`.
@@ -958,14 +851,6 @@ impl ObjectStore {
             .map(|field_expression| field_expression.0)
     }
 
-    /// Exhume mut [`FieldExpression`] from the store — mutably.
-    ///
-    pub fn exhume_field_expression_mut(&mut self, id: &Uuid) -> Option<&mut FieldExpression> {
-        self.field_expression
-            .get_mut(id)
-            .map(|field_expression| &mut field_expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
     ///
     pub fn iter_field_expression(&self) -> impl Iterator<Item = &FieldExpression> {
@@ -1006,14 +891,6 @@ impl ObjectStore {
             .map(|float_literal| float_literal.0)
     }
 
-    /// Exhume mut [`FloatLiteral`] from the store — mutably.
-    ///
-    pub fn exhume_float_literal_mut(&mut self, id: &Uuid) -> Option<&mut FloatLiteral> {
-        self.float_literal
-            .get_mut(id)
-            .map(|float_literal| &mut float_literal.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
     ///
     pub fn iter_float_literal(&self) -> impl Iterator<Item = &FloatLiteral> {
@@ -1050,12 +927,6 @@ impl ObjectStore {
         self.for_loop.remove(id).map(|for_loop| for_loop.0)
     }
 
-    /// Exhume mut [`ForLoop`] from the store — mutably.
-    ///
-    pub fn exhume_for_loop_mut(&mut self, id: &Uuid) -> Option<&mut ForLoop> {
-        self.for_loop.get_mut(id).map(|for_loop| &mut for_loop.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
     ///
     pub fn iter_for_loop(&self) -> impl Iterator<Item = &ForLoop> {
@@ -1090,12 +961,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_function(&mut self, id: &Uuid) -> Option<Function> {
         self.function.remove(id).map(|function| function.0)
-    }
-
-    /// Exhume mut [`Function`] from the store — mutably.
-    ///
-    pub fn exhume_function_mut(&mut self, id: &Uuid) -> Option<&mut Function> {
-        self.function.get_mut(id).map(|function| &mut function.0)
     }
 
     /// Exhume [`Function`] id from the store by name.
@@ -1140,12 +1005,6 @@ impl ObjectStore {
         self.grouped.remove(id).map(|grouped| grouped.0)
     }
 
-    /// Exhume mut [`Grouped`] from the store — mutably.
-    ///
-    pub fn exhume_grouped_mut(&mut self, id: &Uuid) -> Option<&mut Grouped> {
-        self.grouped.get_mut(id).map(|grouped| &mut grouped.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
     ///
     pub fn iter_grouped(&self) -> impl Iterator<Item = &Grouped> {
@@ -1177,12 +1036,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<XIf> {
         self.x_if.remove(id).map(|x_if| x_if.0)
-    }
-
-    /// Exhume mut [`XIf`] from the store — mutably.
-    ///
-    pub fn exhume_x_if_mut(&mut self, id: &Uuid) -> Option<&mut XIf> {
-        self.x_if.get_mut(id).map(|x_if| &mut x_if.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
@@ -1223,14 +1076,6 @@ impl ObjectStore {
             .map(|implementation| implementation.0)
     }
 
-    /// Exhume mut [`Implementation`] from the store — mutably.
-    ///
-    pub fn exhume_implementation_mut(&mut self, id: &Uuid) -> Option<&mut Implementation> {
-        self.implementation
-            .get_mut(id)
-            .map(|implementation| &mut implementation.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
     ///
     pub fn iter_implementation(&self) -> impl Iterator<Item = &Implementation> {
@@ -1266,12 +1111,6 @@ impl ObjectStore {
         self.import.remove(id).map(|import| import.0)
     }
 
-    /// Exhume mut [`Import`] from the store — mutably.
-    ///
-    pub fn exhume_import_mut(&mut self, id: &Uuid) -> Option<&mut Import> {
-        self.import.get_mut(id).map(|import| &mut import.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
     ///
     pub fn iter_import(&self) -> impl Iterator<Item = &Import> {
@@ -1303,12 +1142,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_index(&mut self, id: &Uuid) -> Option<Index> {
         self.index.remove(id).map(|index| index.0)
-    }
-
-    /// Exhume mut [`Index`] from the store — mutably.
-    ///
-    pub fn exhume_index_mut(&mut self, id: &Uuid) -> Option<&mut Index> {
-        self.index.get_mut(id).map(|index| &mut index.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
@@ -1349,14 +1182,6 @@ impl ObjectStore {
             .map(|integer_literal| integer_literal.0)
     }
 
-    /// Exhume mut [`IntegerLiteral`] from the store — mutably.
-    ///
-    pub fn exhume_integer_literal_mut(&mut self, id: &Uuid) -> Option<&mut IntegerLiteral> {
-        self.integer_literal
-            .get_mut(id)
-            .map(|integer_literal| &mut integer_literal.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
     ///
     pub fn iter_integer_literal(&self) -> impl Iterator<Item = &IntegerLiteral> {
@@ -1390,12 +1215,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Item> {
         self.item.remove(id).map(|item| item.0)
-    }
-
-    /// Exhume mut [`Item`] from the store — mutably.
-    ///
-    pub fn exhume_item_mut(&mut self, id: &Uuid) -> Option<&mut Item> {
-        self.item.get_mut(id).map(|item| &mut item.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
@@ -1436,14 +1255,6 @@ impl ObjectStore {
             .map(|let_statement| let_statement.0)
     }
 
-    /// Exhume mut [`LetStatement`] from the store — mutably.
-    ///
-    pub fn exhume_let_statement_mut(&mut self, id: &Uuid) -> Option<&mut LetStatement> {
-        self.let_statement
-            .get_mut(id)
-            .map(|let_statement| &mut let_statement.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
     ///
     pub fn iter_let_statement(&self) -> impl Iterator<Item = &LetStatement> {
@@ -1477,12 +1288,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_list(&mut self, id: &Uuid) -> Option<List> {
         self.list.remove(id).map(|list| list.0)
-    }
-
-    /// Exhume mut [`List`] from the store — mutably.
-    ///
-    pub fn exhume_list_mut(&mut self, id: &Uuid) -> Option<&mut List> {
-        self.list.get_mut(id).map(|list| &mut list.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
@@ -1521,14 +1326,6 @@ impl ObjectStore {
         self.list_element
             .remove(id)
             .map(|list_element| list_element.0)
-    }
-
-    /// Exhume mut [`ListElement`] from the store — mutably.
-    ///
-    pub fn exhume_list_element_mut(&mut self, id: &Uuid) -> Option<&mut ListElement> {
-        self.list_element
-            .get_mut(id)
-            .map(|list_element| &mut list_element.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
@@ -1571,14 +1368,6 @@ impl ObjectStore {
             .map(|list_expression| list_expression.0)
     }
 
-    /// Exhume mut [`ListExpression`] from the store — mutably.
-    ///
-    pub fn exhume_list_expression_mut(&mut self, id: &Uuid) -> Option<&mut ListExpression> {
-        self.list_expression
-            .get_mut(id)
-            .map(|list_expression| &mut list_expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
     ///
     pub fn iter_list_expression(&self) -> impl Iterator<Item = &ListExpression> {
@@ -1613,12 +1402,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_literal(&mut self, id: &Uuid) -> Option<Literal> {
         self.literal.remove(id).map(|literal| literal.0)
-    }
-
-    /// Exhume mut [`Literal`] from the store — mutably.
-    ///
-    pub fn exhume_literal_mut(&mut self, id: &Uuid) -> Option<&mut Literal> {
-        self.literal.get_mut(id).map(|literal| &mut literal.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
@@ -1659,14 +1442,6 @@ impl ObjectStore {
             .map(|local_variable| local_variable.0)
     }
 
-    /// Exhume mut [`LocalVariable`] from the store — mutably.
-    ///
-    pub fn exhume_local_variable_mut(&mut self, id: &Uuid) -> Option<&mut LocalVariable> {
-        self.local_variable
-            .get_mut(id)
-            .map(|local_variable| &mut local_variable.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
     ///
     pub fn iter_local_variable(&self) -> impl Iterator<Item = &LocalVariable> {
@@ -1681,6 +1456,40 @@ impl ObjectStore {
         self.local_variable
             .get(&local_variable.id)
             .map(|local_variable| local_variable.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`XMacro`] into the store.
+    ///
+    pub fn inter_x_macro(&mut self, x_macro: XMacro) {
+        self.x_macro
+            .insert(x_macro.id, (x_macro, SystemTime::now()));
+    }
+
+    /// Exhume (get) [`XMacro`] from the store.
+    ///
+    pub fn exhume_x_macro(&self, id: &Uuid) -> Option<&XMacro> {
+        self.x_macro.get(id).map(|x_macro| &x_macro.0)
+    }
+
+    /// Exorcise (remove) [`XMacro`] from the store.
+    ///
+    pub fn exorcise_x_macro(&mut self, id: &Uuid) -> Option<XMacro> {
+        self.x_macro.remove(id).map(|x_macro| x_macro.0)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XMacro>`.
+    ///
+    pub fn iter_x_macro(&self) -> impl Iterator<Item = &XMacro> {
+        self.x_macro.values().map(|x_macro| &x_macro.0)
+    }
+
+    /// Get the timestamp for XMacro.
+    ///
+    pub fn x_macro_timestamp(&self, x_macro: &XMacro) -> SystemTime {
+        self.x_macro
+            .get(&x_macro.id)
+            .map(|x_macro| x_macro.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1701,14 +1510,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_method_call(&mut self, id: &Uuid) -> Option<MethodCall> {
         self.method_call.remove(id).map(|method_call| method_call.0)
-    }
-
-    /// Exhume mut [`MethodCall`] from the store — mutably.
-    ///
-    pub fn exhume_method_call_mut(&mut self, id: &Uuid) -> Option<&mut MethodCall> {
-        self.method_call
-            .get_mut(id)
-            .map(|method_call| &mut method_call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
@@ -1749,14 +1550,6 @@ impl ObjectStore {
             .map(|z_object_store| z_object_store.0)
     }
 
-    /// Exhume mut [`ZObjectStore`] from the store — mutably.
-    ///
-    pub fn exhume_z_object_store_mut(&mut self, id: &Uuid) -> Option<&mut ZObjectStore> {
-        self.z_object_store
-            .get_mut(id)
-            .map(|z_object_store| &mut z_object_store.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
     ///
     pub fn iter_z_object_store(&self) -> impl Iterator<Item = &ZObjectStore> {
@@ -1793,12 +1586,6 @@ impl ObjectStore {
         self.operator.remove(id).map(|operator| operator.0)
     }
 
-    /// Exhume mut [`Operator`] from the store — mutably.
-    ///
-    pub fn exhume_operator_mut(&mut self, id: &Uuid) -> Option<&mut Operator> {
-        self.operator.get_mut(id).map(|operator| &mut operator.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
     ///
     pub fn iter_operator(&self) -> impl Iterator<Item = &Operator> {
@@ -1831,14 +1618,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<WoogOption> {
         self.woog_option.remove(id).map(|woog_option| woog_option.0)
-    }
-
-    /// Exhume mut [`WoogOption`] from the store — mutably.
-    ///
-    pub fn exhume_woog_option_mut(&mut self, id: &Uuid) -> Option<&mut WoogOption> {
-        self.woog_option
-            .get_mut(id)
-            .map(|woog_option| &mut woog_option.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
@@ -1875,12 +1654,6 @@ impl ObjectStore {
         self.parameter.remove(id).map(|parameter| parameter.0)
     }
 
-    /// Exhume mut [`Parameter`] from the store — mutably.
-    ///
-    pub fn exhume_parameter_mut(&mut self, id: &Uuid) -> Option<&mut Parameter> {
-        self.parameter.get_mut(id).map(|parameter| &mut parameter.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
     pub fn iter_parameter(&self) -> impl Iterator<Item = &Parameter> {
@@ -1912,12 +1685,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_print(&mut self, id: &Uuid) -> Option<Print> {
         self.print.remove(id).map(|print| print.0)
-    }
-
-    /// Exhume mut [`Print`] from the store — mutably.
-    ///
-    pub fn exhume_print_mut(&mut self, id: &Uuid) -> Option<&mut Print> {
-        self.print.get_mut(id).map(|print| &mut print.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
@@ -1958,14 +1725,6 @@ impl ObjectStore {
             .map(|range_expression| range_expression.0)
     }
 
-    /// Exhume mut [`RangeExpression`] from the store — mutably.
-    ///
-    pub fn exhume_range_expression_mut(&mut self, id: &Uuid) -> Option<&mut RangeExpression> {
-        self.range_expression
-            .get_mut(id)
-            .map(|range_expression| &mut range_expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
     ///
     pub fn iter_range_expression(&self) -> impl Iterator<Item = &RangeExpression> {
@@ -2000,12 +1759,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Reference> {
         self.reference.remove(id).map(|reference| reference.0)
-    }
-
-    /// Exhume mut [`Reference`] from the store — mutably.
-    ///
-    pub fn exhume_reference_mut(&mut self, id: &Uuid) -> Option<&mut Reference> {
-        self.reference.get_mut(id).map(|reference| &mut reference.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
@@ -2046,14 +1799,6 @@ impl ObjectStore {
             .map(|result_statement| result_statement.0)
     }
 
-    /// Exhume mut [`ResultStatement`] from the store — mutably.
-    ///
-    pub fn exhume_result_statement_mut(&mut self, id: &Uuid) -> Option<&mut ResultStatement> {
-        self.result_statement
-            .get_mut(id)
-            .map(|result_statement| &mut result_statement.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
     ///
     pub fn iter_result_statement(&self) -> impl Iterator<Item = &ResultStatement> {
@@ -2090,12 +1835,6 @@ impl ObjectStore {
         self.x_return.remove(id).map(|x_return| x_return.0)
     }
 
-    /// Exhume mut [`XReturn`] from the store — mutably.
-    ///
-    pub fn exhume_x_return_mut(&mut self, id: &Uuid) -> Option<&mut XReturn> {
-        self.x_return.get_mut(id).map(|x_return| &mut x_return.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
     ///
     pub fn iter_x_return(&self) -> impl Iterator<Item = &XReturn> {
@@ -2127,12 +1866,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<ZSome> {
         self.z_some.remove(id).map(|z_some| z_some.0)
-    }
-
-    /// Exhume mut [`ZSome`] from the store — mutably.
-    ///
-    pub fn exhume_z_some_mut(&mut self, id: &Uuid) -> Option<&mut ZSome> {
-        self.z_some.get_mut(id).map(|z_some| &mut z_some.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
@@ -2168,12 +1901,6 @@ impl ObjectStore {
         self.span.remove(id).map(|span| span.0)
     }
 
-    /// Exhume mut [`Span`] from the store — mutably.
-    ///
-    pub fn exhume_span_mut(&mut self, id: &Uuid) -> Option<&mut Span> {
-        self.span.get_mut(id).map(|span| &mut span.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
     ///
     pub fn iter_span(&self) -> impl Iterator<Item = &Span> {
@@ -2206,12 +1933,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_statement(&mut self, id: &Uuid) -> Option<Statement> {
         self.statement.remove(id).map(|statement| statement.0)
-    }
-
-    /// Exhume mut [`Statement`] from the store — mutably.
-    ///
-    pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
-        self.statement.get_mut(id).map(|statement| &mut statement.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
@@ -2252,14 +1973,6 @@ impl ObjectStore {
         self.static_method_call
             .remove(id)
             .map(|static_method_call| static_method_call.0)
-    }
-
-    /// Exhume mut [`StaticMethodCall`] from the store — mutably.
-    ///
-    pub fn exhume_static_method_call_mut(&mut self, id: &Uuid) -> Option<&mut StaticMethodCall> {
-        self.static_method_call
-            .get_mut(id)
-            .map(|static_method_call| &mut static_method_call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StaticMethodCall>`.
@@ -2305,14 +2018,6 @@ impl ObjectStore {
             .map(|string_literal| string_literal.0)
     }
 
-    /// Exhume mut [`StringLiteral`] from the store — mutably.
-    ///
-    pub fn exhume_string_literal_mut(&mut self, id: &Uuid) -> Option<&mut StringLiteral> {
-        self.string_literal
-            .get_mut(id)
-            .map(|string_literal| &mut string_literal.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
     ///
     pub fn iter_string_literal(&self) -> impl Iterator<Item = &StringLiteral> {
@@ -2349,14 +2054,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_woog_struct(&mut self, id: &Uuid) -> Option<WoogStruct> {
         self.woog_struct.remove(id).map(|woog_struct| woog_struct.0)
-    }
-
-    /// Exhume mut [`WoogStruct`] from the store — mutably.
-    ///
-    pub fn exhume_woog_struct_mut(&mut self, id: &Uuid) -> Option<&mut WoogStruct> {
-        self.woog_struct
-            .get_mut(id)
-            .map(|woog_struct| &mut woog_struct.0)
     }
 
     /// Exhume [`WoogStruct`] id from the store by name.
@@ -2405,14 +2102,6 @@ impl ObjectStore {
             .map(|struct_expression| struct_expression.0)
     }
 
-    /// Exhume mut [`StructExpression`] from the store — mutably.
-    ///
-    pub fn exhume_struct_expression_mut(&mut self, id: &Uuid) -> Option<&mut StructExpression> {
-        self.struct_expression
-            .get_mut(id)
-            .map(|struct_expression| &mut struct_expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
     ///
     pub fn iter_struct_expression(&self) -> impl Iterator<Item = &StructExpression> {
@@ -2449,12 +2138,6 @@ impl ObjectStore {
         self.type_cast.remove(id).map(|type_cast| type_cast.0)
     }
 
-    /// Exhume mut [`TypeCast`] from the store — mutably.
-    ///
-    pub fn exhume_type_cast_mut(&mut self, id: &Uuid) -> Option<&mut TypeCast> {
-        self.type_cast.get_mut(id).map(|type_cast| &mut type_cast.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
     ///
     pub fn iter_type_cast(&self) -> impl Iterator<Item = &TypeCast> {
@@ -2486,12 +2169,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_unary(&mut self, id: &Uuid) -> Option<Unary> {
         self.unary.remove(id).map(|unary| unary.0)
-    }
-
-    /// Exhume mut [`Unary`] from the store — mutably.
-    ///
-    pub fn exhume_unary_mut(&mut self, id: &Uuid) -> Option<&mut Unary> {
-        self.unary.get_mut(id).map(|unary| &mut unary.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
@@ -2528,12 +2205,6 @@ impl ObjectStore {
         self.x_value.remove(id).map(|x_value| x_value.0)
     }
 
-    /// Exhume mut [`XValue`] from the store — mutably.
-    ///
-    pub fn exhume_x_value_mut(&mut self, id: &Uuid) -> Option<&mut XValue> {
-        self.x_value.get_mut(id).map(|x_value| &mut x_value.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
     pub fn iter_x_value(&self) -> impl Iterator<Item = &XValue> {
@@ -2568,14 +2239,6 @@ impl ObjectStore {
         self.value_type.remove(id).map(|value_type| value_type.0)
     }
 
-    /// Exhume mut [`ValueType`] from the store — mutably.
-    ///
-    pub fn exhume_value_type_mut(&mut self, id: &Uuid) -> Option<&mut ValueType> {
-        self.value_type
-            .get_mut(id)
-            .map(|value_type| &mut value_type.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
     ///
     pub fn iter_value_type(&self) -> impl Iterator<Item = &ValueType> {
@@ -2608,12 +2271,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Variable> {
         self.variable.remove(id).map(|variable| variable.0)
-    }
-
-    /// Exhume mut [`Variable`] from the store — mutably.
-    ///
-    pub fn exhume_variable_mut(&mut self, id: &Uuid) -> Option<&mut Variable> {
-        self.variable.get_mut(id).map(|variable| &mut variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -2654,14 +2311,6 @@ impl ObjectStore {
         self.variable_expression
             .remove(id)
             .map(|variable_expression| variable_expression.0)
-    }
-
-    /// Exhume mut [`VariableExpression`] from the store — mutably.
-    ///
-    pub fn exhume_variable_expression_mut(&mut self, id: &Uuid) -> Option<&mut VariableExpression> {
-        self.variable_expression
-            .get_mut(id)
-            .map(|variable_expression| &mut variable_expression.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
@@ -3799,6 +3448,40 @@ impl ObjectStore {
             }
         }
 
+        // Persist Macro.
+        {
+            let path = path.join("x_macro");
+            fs::create_dir_all(&path)?;
+            for x_macro_tuple in self.x_macro.values() {
+                let path = path.join(format!("{}.json", x_macro_tuple.0.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (XMacro, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != x_macro_tuple.0 {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &x_macro_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_macro_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_macro.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Method Call.
         {
             let path = path.join("method_call");
@@ -4587,6 +4270,10 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
+        Ok(bincode::deserialize(code).unwrap())
+    }
+
     /// The store is as a bincode file.
     pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
@@ -5092,6 +4779,20 @@ impl ObjectStore {
                 store
                     .local_variable
                     .insert(local_variable.0.id, local_variable);
+            }
+        }
+
+        // Load Macro.
+        {
+            let path = path.join("x_macro");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_macro: (XMacro, SystemTime) = serde_json::from_reader(reader)?;
+                store.x_macro.insert(x_macro.0.id, x_macro);
             }
         }
 

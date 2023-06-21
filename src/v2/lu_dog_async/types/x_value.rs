@@ -115,16 +115,11 @@ impl XValue {
     pub async fn r63_span<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Span>>> {
         use futures::stream::{self, StreamExt};
         span!("r63_span");
-        stream::iter(store.iter_span().await.collect::<Vec<Arc<RwLock<Span>>>>())
-            .filter_map(|span: Arc<RwLock<Span>>| async move {
-                if span.read().await.x_value == Some(self.id) {
-                    Some(span.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        stream::iter(store.iter_span().await.collect::<Vec<Arc<RwLock<Span>>>>()).filter(
+            |span: Arc<RwLock<Span>>| async move {
+                span.read().await.x_value == Some(self.id).collect().await
+            },
+        )
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

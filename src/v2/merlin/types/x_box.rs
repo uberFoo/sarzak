@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_box-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-use-statements"}}}
-use std::sync::{Arc, RwLock};
-
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -44,16 +42,16 @@ impl XBox {
         y: i64,
         object: &Object,
         store: &mut MerlinStore,
-    ) -> Arc<RwLock<XBox>> {
+    ) -> XBox {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(XBox {
+        let new = XBox {
             height,
             id,
             width,
             x,
             y,
             object: object.id,
-        }));
+        };
         store.inter_x_box(new.clone());
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
@@ -69,16 +67,10 @@ impl XBox {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc_many-to-anchor"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc-many-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-M)
-    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
+    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
         store
             .iter_anchor()
-            .filter_map(|anchor| {
-                if anchor.read().unwrap().x_box == self.id {
-                    Some(anchor)
-                } else {
-                    None
-                }
-            })
+            .filter(|anchor| anchor.x_box == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"line_segment-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-use-statements"}}}
-use std::sync::{Arc, RwLock};
-
 use uuid::Uuid;
 
 use crate::v2::merlin::types::bisection::Bisection;
@@ -31,12 +29,9 @@ pub struct LineSegment {
 impl LineSegment {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-new"}}}
     /// Inter a new 'Line Segment' in the store, and return it's `id`.
-    pub fn new(line: &Arc<RwLock<Line>>, store: &mut MerlinStore) -> Arc<RwLock<LineSegment>> {
+    pub fn new(line: &Line, store: &mut MerlinStore) -> LineSegment {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(LineSegment {
-            id,
-            line: line.read().unwrap().id,
-        }));
+        let new = LineSegment { id, line: line.id };
         store.inter_line_segment(new.clone());
         new
     }
@@ -45,18 +40,18 @@ impl LineSegment {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-forward-to-line"}}}
     /// Navigate to [`Line`] across R4(1-*)
-    pub fn r4_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Line>>> {
+    pub fn r4_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
         vec![store.exhume_line(&self.line).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-cond-to-bisection"}}}
     /// Navigate to [`Bisection`] across R14(1-1c)
-    pub fn r14c_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Bisection>>> {
+    pub fn r14c_bisection<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Bisection> {
         let bisection = store
             .iter_bisection()
-            .find(|bisection| bisection.read().unwrap().segment == self.id);
+            .find(|bisection| bisection.segment == self.id);
         match bisection {
-            Some(ref bisection) => vec![bisection.clone()],
+            Some(ref bisection) => vec![bisection],
             None => Vec::new(),
         }
     }
@@ -65,19 +60,10 @@ impl LineSegment {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-assoc_many-to-line_segment_point"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line_segment-struct-impl-nav-backward-assoc-many-to-line_segment_point"}}}
     /// Navigate to [`LineSegmentPoint`] across R5(1-M)
-    pub fn r5_line_segment_point<'a>(
-        &'a self,
-        store: &'a MerlinStore,
-    ) -> Vec<Arc<RwLock<LineSegmentPoint>>> {
+    pub fn r5_line_segment_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&LineSegmentPoint> {
         store
             .iter_line_segment_point()
-            .filter_map(|line_segment_point| {
-                if line_segment_point.read().unwrap().segment == self.id {
-                    Some(line_segment_point)
-                } else {
-                    None
-                }
-            })
+            .filter(|line_segment_point| line_segment_point.segment == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

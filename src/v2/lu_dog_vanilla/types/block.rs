@@ -77,7 +77,7 @@ impl Block {
             .iter_function()
             .find(|function| function.block == self.id);
         match function {
-            Some(function) => vec![function],
+            Some(ref function) => vec![function],
             None => Vec::new(),
         }
     }
@@ -87,13 +87,7 @@ impl Block {
     pub fn r52_x_if<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&XIf> {
         store
             .iter_x_if()
-            .filter_map(|x_if| {
-                if x_if.false_block == Some(self.id) {
-                    Some(x_if)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_if| x_if.false_block == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -63,7 +63,7 @@ impl IsaUi {
             .iter_subtype_anchors()
             .find(|subtype_anchors| subtype_anchors.isaui_id == self.id);
         match subtype_anchors {
-            Some(subtype_anchors) => vec![subtype_anchors],
+            Some(ref subtype_anchors) => vec![subtype_anchors],
             None => Vec::new(),
         }
     }

@@ -94,12 +94,6 @@ impl ObjectStore {
         self.anchor.remove(id).map(|anchor| anchor.0)
     }
 
-    /// Exhume mut [`Anchor`] from the store — mutably.
-    ///
-    pub fn exhume_anchor_mut(&mut self, id: &Uuid) -> Option<&mut Anchor> {
-        self.anchor.get_mut(id).map(|anchor| &mut anchor.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
     pub fn iter_anchor(&self) -> impl Iterator<Item = &Anchor> {
@@ -138,14 +132,6 @@ impl ObjectStore {
             .map(|associative_ui| associative_ui.0)
     }
 
-    /// Exhume mut [`AssociativeUi`] from the store — mutably.
-    ///
-    pub fn exhume_associative_ui_mut(&mut self, id: &Uuid) -> Option<&mut AssociativeUi> {
-        self.associative_ui
-            .get_mut(id)
-            .map(|associative_ui| &mut associative_ui.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeUi>`.
     ///
     pub fn iter_associative_ui(&self) -> impl Iterator<Item = &AssociativeUi> {
@@ -182,12 +168,6 @@ impl ObjectStore {
         self.binary_ui.remove(id).map(|binary_ui| binary_ui.0)
     }
 
-    /// Exhume mut [`BinaryUi`] from the store — mutably.
-    ///
-    pub fn exhume_binary_ui_mut(&mut self, id: &Uuid) -> Option<&mut BinaryUi> {
-        self.binary_ui.get_mut(id).map(|binary_ui| &mut binary_ui.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, BinaryUi>`.
     ///
     pub fn iter_binary_ui(&self) -> impl Iterator<Item = &BinaryUi> {
@@ -221,12 +201,6 @@ impl ObjectStore {
         self.edge.remove(id).map(|edge| edge.0)
     }
 
-    /// Exhume mut [`Edge`] from the store — mutably.
-    ///
-    pub fn exhume_edge_mut(&mut self, id: &Uuid) -> Option<&mut Edge> {
-        self.edge.get_mut(id).map(|edge| &mut edge.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
     pub fn iter_edge(&self) -> impl Iterator<Item = &Edge> {
@@ -258,12 +232,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_isa_ui(&mut self, id: &Uuid) -> Option<IsaUi> {
         self.isa_ui.remove(id).map(|isa_ui| isa_ui.0)
-    }
-
-    /// Exhume mut [`IsaUi`] from the store — mutably.
-    ///
-    pub fn exhume_isa_ui_mut(&mut self, id: &Uuid) -> Option<&mut IsaUi> {
-        self.isa_ui.get_mut(id).map(|isa_ui| &mut isa_ui.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IsaUi>`.
@@ -300,14 +268,6 @@ impl ObjectStore {
         self.object_edge.remove(id).map(|object_edge| object_edge.0)
     }
 
-    /// Exhume mut [`ObjectEdge`] from the store — mutably.
-    ///
-    pub fn exhume_object_edge_mut(&mut self, id: &Uuid) -> Option<&mut ObjectEdge> {
-        self.object_edge
-            .get_mut(id)
-            .map(|object_edge| &mut object_edge.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectEdge>`.
     ///
     pub fn iter_object_edge(&self) -> impl Iterator<Item = &ObjectEdge> {
@@ -342,12 +302,6 @@ impl ObjectStore {
         self.object_ui.remove(id).map(|object_ui| object_ui.0)
     }
 
-    /// Exhume mut [`ObjectUi`] from the store — mutably.
-    ///
-    pub fn exhume_object_ui_mut(&mut self, id: &Uuid) -> Option<&mut ObjectUi> {
-        self.object_ui.get_mut(id).map(|object_ui| &mut object_ui.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectUi>`.
     ///
     pub fn iter_object_ui(&self) -> impl Iterator<Item = &ObjectUi> {
@@ -379,12 +333,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Point> {
         self.point.remove(id).map(|point| point.0)
-    }
-
-    /// Exhume mut [`Point`] from the store — mutably.
-    ///
-    pub fn exhume_point_mut(&mut self, id: &Uuid) -> Option<&mut Point> {
-        self.point.get_mut(id).map(|point| &mut point.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
@@ -425,14 +373,6 @@ impl ObjectStore {
             .map(|relationship_ui| relationship_ui.0)
     }
 
-    /// Exhume mut [`RelationshipUi`] from the store — mutably.
-    ///
-    pub fn exhume_relationship_ui_mut(&mut self, id: &Uuid) -> Option<&mut RelationshipUi> {
-        self.relationship_ui
-            .get_mut(id)
-            .map(|relationship_ui| &mut relationship_ui.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipUi>`.
     ///
     pub fn iter_relationship_ui(&self) -> impl Iterator<Item = &RelationshipUi> {
@@ -471,14 +411,6 @@ impl ObjectStore {
         self.subtype_anchors
             .remove(id)
             .map(|subtype_anchors| subtype_anchors.0)
-    }
-
-    /// Exhume mut [`SubtypeAnchors`] from the store — mutably.
-    ///
-    pub fn exhume_subtype_anchors_mut(&mut self, id: &Uuid) -> Option<&mut SubtypeAnchors> {
-        self.subtype_anchors
-            .get_mut(id)
-            .map(|subtype_anchors| &mut subtype_anchors.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, SubtypeAnchors>`.
@@ -869,6 +801,10 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
+        Ok(bincode::deserialize(code).unwrap())
+    }
+
     /// The store is as a bincode file.
     pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();

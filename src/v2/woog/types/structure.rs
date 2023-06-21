@@ -38,13 +38,7 @@ impl Structure {
     pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {
         store
             .iter_structure_field()
-            .filter_map(|structure_field| {
-                if structure_field.field == self.id {
-                    Some(structure_field)
-                } else {
-                    None
-                }
-            })
+            .filter(|structure_field| structure_field.field == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

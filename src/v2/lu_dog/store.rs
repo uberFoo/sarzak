@@ -39,6 +39,7 @@
 //! * [`ListExpression`]
 //! * [`Literal`]
 //! * [`LocalVariable`]
+//! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
 //! * [`Operator`]
@@ -84,10 +85,10 @@ use crate::v2::lu_dog::types::{
     IntegerLiteral, Item, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement, Span,
     Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
-    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, XValue, ZObjectStore,
-    ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
+    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION,
+    NEGATION, NOT, NOT_EQUAL, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -127,6 +128,7 @@ pub struct ObjectStore {
     list_expression: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ListExpression>>, SystemTime)>>>,
     literal: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Literal>>, SystemTime)>>>,
     local_variable: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<LocalVariable>>, SystemTime)>>>,
+    x_macro: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<XMacro>>, SystemTime)>>>,
     method_call: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<MethodCall>>, SystemTime)>>>,
     z_object_store: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ZObjectStore>>, SystemTime)>>>,
     operator: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Operator>>, SystemTime)>>>,
@@ -190,6 +192,7 @@ impl ObjectStore {
             list_expression: Rc::new(RefCell::new(HashMap::default())),
             literal: Rc::new(RefCell::new(HashMap::default())),
             local_variable: Rc::new(RefCell::new(HashMap::default())),
+            x_macro: Rc::new(RefCell::new(HashMap::default())),
             method_call: Rc::new(RefCell::new(HashMap::default())),
             z_object_store: Rc::new(RefCell::new(HashMap::default())),
             operator: Rc::new(RefCell::new(HashMap::default())),
@@ -300,7 +303,7 @@ impl ObjectStore {
         self.argument
             .borrow_mut()
             .remove(id)
-            .map(|argument| argument.0)
+            .map(|argument| argument.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
@@ -347,7 +350,7 @@ impl ObjectStore {
         self.binary
             .borrow_mut()
             .remove(id)
-            .map(|binary| binary.0)
+            .map(|binary| binary.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
@@ -394,7 +397,7 @@ impl ObjectStore {
         self.block
             .borrow_mut()
             .remove(id)
-            .map(|block| block.0)
+            .map(|block| block.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
@@ -444,7 +447,7 @@ impl ObjectStore {
         self.boolean_literal
             .borrow_mut()
             .remove(id)
-            .map(|boolean_literal| boolean_literal.0)
+            .map(|boolean_literal| boolean_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
@@ -494,7 +497,7 @@ impl ObjectStore {
         self.boolean_operator
             .borrow_mut()
             .remove(id)
-            .map(|boolean_operator| boolean_operator.0)
+            .map(|boolean_operator| boolean_operator.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
@@ -538,7 +541,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Call`] from the store.
     ///
     pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Rc<RefCell<Call>>> {
-        self.call.borrow_mut().remove(id).map(|call| call.0)
+        self.call.borrow_mut().remove(id).map(|call| call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
@@ -588,7 +591,7 @@ impl ObjectStore {
         self.comparison
             .borrow_mut()
             .remove(id)
-            .map(|comparison| comparison.0)
+            .map(|comparison| comparison.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
@@ -641,7 +644,7 @@ impl ObjectStore {
         self.dwarf_source_file
             .borrow_mut()
             .remove(id)
-            .map(|dwarf_source_file| dwarf_source_file.0)
+            .map(|dwarf_source_file| dwarf_source_file.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
@@ -690,7 +693,7 @@ impl ObjectStore {
         self.error
             .borrow_mut()
             .remove(id)
-            .map(|error| error.0)
+            .map(|error| error.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
@@ -740,7 +743,7 @@ impl ObjectStore {
         self.error_expression
             .borrow_mut()
             .remove(id)
-            .map(|error_expression| error_expression.0)
+            .map(|error_expression| error_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
@@ -790,7 +793,7 @@ impl ObjectStore {
         self.expression
             .borrow_mut()
             .remove(id)
-            .map(|expression| expression.0)
+            .map(|expression| expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
@@ -849,7 +852,7 @@ impl ObjectStore {
         self.expression_statement
             .borrow_mut()
             .remove(id)
-            .map(|expression_statement| expression_statement.0)
+            .map(|expression_statement| expression_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
@@ -903,7 +906,7 @@ impl ObjectStore {
         self.field
             .borrow_mut()
             .remove(id)
-            .map(|field| field.0)
+            .map(|field| field.0.clone())
     }
 
     /// Exhume [`Field`] id from the store by name.
@@ -962,7 +965,7 @@ impl ObjectStore {
         self.field_access
             .borrow_mut()
             .remove(id)
-            .map(|field_access| field_access.0)
+            .map(|field_access| field_access.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
@@ -1018,7 +1021,7 @@ impl ObjectStore {
         self.field_access_target
             .borrow_mut()
             .remove(id)
-            .map(|field_access_target| field_access_target.0)
+            .map(|field_access_target| field_access_target.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccessTarget>`.
@@ -1073,7 +1076,7 @@ impl ObjectStore {
         self.field_expression
             .borrow_mut()
             .remove(id)
-            .map(|field_expression| field_expression.0)
+            .map(|field_expression| field_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
@@ -1123,7 +1126,7 @@ impl ObjectStore {
         self.float_literal
             .borrow_mut()
             .remove(id)
-            .map(|float_literal| float_literal.0)
+            .map(|float_literal| float_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
@@ -1173,7 +1176,7 @@ impl ObjectStore {
         self.for_loop
             .borrow_mut()
             .remove(id)
-            .map(|for_loop| for_loop.0)
+            .map(|for_loop| for_loop.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
@@ -1225,7 +1228,7 @@ impl ObjectStore {
         self.function
             .borrow_mut()
             .remove(id)
-            .map(|function| function.0)
+            .map(|function| function.0.clone())
     }
 
     /// Exhume [`Function`] id from the store by name.
@@ -1284,7 +1287,7 @@ impl ObjectStore {
         self.grouped
             .borrow_mut()
             .remove(id)
-            .map(|grouped| grouped.0)
+            .map(|grouped| grouped.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
@@ -1328,7 +1331,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XIf`] from the store.
     ///
     pub fn exorcise_x_if(&mut self, id: &Uuid) -> Option<Rc<RefCell<XIf>>> {
-        self.x_if.borrow_mut().remove(id).map(|x_if| x_if.0)
+        self.x_if.borrow_mut().remove(id).map(|x_if| x_if.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
@@ -1378,7 +1381,7 @@ impl ObjectStore {
         self.implementation
             .borrow_mut()
             .remove(id)
-            .map(|implementation| implementation.0)
+            .map(|implementation| implementation.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
@@ -1425,7 +1428,7 @@ impl ObjectStore {
         self.import
             .borrow_mut()
             .remove(id)
-            .map(|import| import.0)
+            .map(|import| import.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
@@ -1472,7 +1475,7 @@ impl ObjectStore {
         self.index
             .borrow_mut()
             .remove(id)
-            .map(|index| index.0)
+            .map(|index| index.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
@@ -1522,7 +1525,7 @@ impl ObjectStore {
         self.integer_literal
             .borrow_mut()
             .remove(id)
-            .map(|integer_literal| integer_literal.0)
+            .map(|integer_literal| integer_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
@@ -1566,7 +1569,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Item`] from the store.
     ///
     pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Rc<RefCell<Item>>> {
-        self.item.borrow_mut().remove(id).map(|item| item.0)
+        self.item.borrow_mut().remove(id).map(|item| item.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
@@ -1616,7 +1619,7 @@ impl ObjectStore {
         self.let_statement
             .borrow_mut()
             .remove(id)
-            .map(|let_statement| let_statement.0)
+            .map(|let_statement| let_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
@@ -1660,7 +1663,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`List`] from the store.
     ///
     pub fn exorcise_list(&mut self, id: &Uuid) -> Option<Rc<RefCell<List>>> {
-        self.list.borrow_mut().remove(id).map(|list| list.0)
+        self.list.borrow_mut().remove(id).map(|list| list.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
@@ -1710,7 +1713,7 @@ impl ObjectStore {
         self.list_element
             .borrow_mut()
             .remove(id)
-            .map(|list_element| list_element.0)
+            .map(|list_element| list_element.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
@@ -1760,7 +1763,7 @@ impl ObjectStore {
         self.list_expression
             .borrow_mut()
             .remove(id)
-            .map(|list_expression| list_expression.0)
+            .map(|list_expression| list_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
@@ -1810,7 +1813,7 @@ impl ObjectStore {
         self.literal
             .borrow_mut()
             .remove(id)
-            .map(|literal| literal.0)
+            .map(|literal| literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
@@ -1860,7 +1863,7 @@ impl ObjectStore {
         self.local_variable
             .borrow_mut()
             .remove(id)
-            .map(|local_variable| local_variable.0)
+            .map(|local_variable| local_variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
@@ -1883,6 +1886,56 @@ impl ObjectStore {
             .borrow()
             .get(&local_variable.id)
             .map(|local_variable| local_variable.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`XMacro`] into the store.
+    ///
+    pub fn inter_x_macro(&mut self, x_macro: Rc<RefCell<XMacro>>) {
+        let read = x_macro.borrow();
+        self.x_macro
+            .borrow_mut()
+            .insert(read.id, (x_macro.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`XMacro`] from the store.
+    ///
+    pub fn exhume_x_macro(&self, id: &Uuid) -> Option<Rc<RefCell<XMacro>>> {
+        self.x_macro
+            .borrow()
+            .get(id)
+            .map(|x_macro| x_macro.0.clone())
+    }
+
+    /// Exorcise (remove) [`XMacro`] from the store.
+    ///
+    pub fn exorcise_x_macro(&mut self, id: &Uuid) -> Option<Rc<RefCell<XMacro>>> {
+        self.x_macro
+            .borrow_mut()
+            .remove(id)
+            .map(|x_macro| x_macro.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XMacro>`.
+    ///
+    pub fn iter_x_macro(&self) -> impl Iterator<Item = Rc<RefCell<XMacro>>> + '_ {
+        let values: Vec<Rc<RefCell<XMacro>>> = self
+            .x_macro
+            .borrow()
+            .values()
+            .map(|x_macro| x_macro.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for XMacro.
+    ///
+    pub fn x_macro_timestamp(&self, x_macro: &XMacro) -> SystemTime {
+        self.x_macro
+            .borrow()
+            .get(&x_macro.id)
+            .map(|x_macro| x_macro.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1910,7 +1963,7 @@ impl ObjectStore {
         self.method_call
             .borrow_mut()
             .remove(id)
-            .map(|method_call| method_call.0)
+            .map(|method_call| method_call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
@@ -1960,7 +2013,7 @@ impl ObjectStore {
         self.z_object_store
             .borrow_mut()
             .remove(id)
-            .map(|z_object_store| z_object_store.0)
+            .map(|z_object_store| z_object_store.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -2010,7 +2063,7 @@ impl ObjectStore {
         self.operator
             .borrow_mut()
             .remove(id)
-            .map(|operator| operator.0)
+            .map(|operator| operator.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
@@ -2060,7 +2113,7 @@ impl ObjectStore {
         self.woog_option
             .borrow_mut()
             .remove(id)
-            .map(|woog_option| woog_option.0)
+            .map(|woog_option| woog_option.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
@@ -2110,7 +2163,7 @@ impl ObjectStore {
         self.parameter
             .borrow_mut()
             .remove(id)
-            .map(|parameter| parameter.0)
+            .map(|parameter| parameter.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
@@ -2157,7 +2210,7 @@ impl ObjectStore {
         self.print
             .borrow_mut()
             .remove(id)
-            .map(|print| print.0)
+            .map(|print| print.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
@@ -2207,7 +2260,7 @@ impl ObjectStore {
         self.range_expression
             .borrow_mut()
             .remove(id)
-            .map(|range_expression| range_expression.0)
+            .map(|range_expression| range_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
@@ -2257,7 +2310,7 @@ impl ObjectStore {
         self.reference
             .borrow_mut()
             .remove(id)
-            .map(|reference| reference.0)
+            .map(|reference| reference.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
@@ -2307,7 +2360,7 @@ impl ObjectStore {
         self.result_statement
             .borrow_mut()
             .remove(id)
-            .map(|result_statement| result_statement.0)
+            .map(|result_statement| result_statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
@@ -2357,7 +2410,7 @@ impl ObjectStore {
         self.x_return
             .borrow_mut()
             .remove(id)
-            .map(|x_return| x_return.0)
+            .map(|x_return| x_return.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
@@ -2404,7 +2457,7 @@ impl ObjectStore {
         self.z_some
             .borrow_mut()
             .remove(id)
-            .map(|z_some| z_some.0)
+            .map(|z_some| z_some.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
@@ -2448,7 +2501,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Span`] from the store.
     ///
     pub fn exorcise_span(&mut self, id: &Uuid) -> Option<Rc<RefCell<Span>>> {
-        self.span.borrow_mut().remove(id).map(|span| span.0)
+        self.span.borrow_mut().remove(id).map(|span| span.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
@@ -2498,7 +2551,7 @@ impl ObjectStore {
         self.statement
             .borrow_mut()
             .remove(id)
-            .map(|statement| statement.0)
+            .map(|statement| statement.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
@@ -2551,7 +2604,7 @@ impl ObjectStore {
         self.static_method_call
             .borrow_mut()
             .remove(id)
-            .map(|static_method_call| static_method_call.0)
+            .map(|static_method_call| static_method_call.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StaticMethodCall>`.
@@ -2606,7 +2659,7 @@ impl ObjectStore {
         self.string_literal
             .borrow_mut()
             .remove(id)
-            .map(|string_literal| string_literal.0)
+            .map(|string_literal| string_literal.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
@@ -2658,7 +2711,7 @@ impl ObjectStore {
         self.woog_struct
             .borrow_mut()
             .remove(id)
-            .map(|woog_struct| woog_struct.0)
+            .map(|woog_struct| woog_struct.0.clone())
     }
 
     /// Exhume [`WoogStruct`] id from the store by name.
@@ -2720,7 +2773,7 @@ impl ObjectStore {
         self.struct_expression
             .borrow_mut()
             .remove(id)
-            .map(|struct_expression| struct_expression.0)
+            .map(|struct_expression| struct_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
@@ -2772,7 +2825,7 @@ impl ObjectStore {
         self.type_cast
             .borrow_mut()
             .remove(id)
-            .map(|type_cast| type_cast.0)
+            .map(|type_cast| type_cast.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
@@ -2819,7 +2872,7 @@ impl ObjectStore {
         self.unary
             .borrow_mut()
             .remove(id)
-            .map(|unary| unary.0)
+            .map(|unary| unary.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
@@ -2869,7 +2922,7 @@ impl ObjectStore {
         self.x_value
             .borrow_mut()
             .remove(id)
-            .map(|x_value| x_value.0)
+            .map(|x_value| x_value.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
@@ -2919,7 +2972,7 @@ impl ObjectStore {
         self.value_type
             .borrow_mut()
             .remove(id)
-            .map(|value_type| value_type.0)
+            .map(|value_type| value_type.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
@@ -2969,7 +3022,7 @@ impl ObjectStore {
         self.variable
             .borrow_mut()
             .remove(id)
-            .map(|variable| variable.0)
+            .map(|variable| variable.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -3025,7 +3078,7 @@ impl ObjectStore {
         self.variable_expression
             .borrow_mut()
             .remove(id)
-            .map(|variable_expression| variable_expression.0)
+            .map(|variable_expression| variable_expression.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
@@ -4213,6 +4266,41 @@ impl ObjectStore {
             }
         }
 
+        // Persist Macro.
+        {
+            let path = path.join("x_macro");
+            fs::create_dir_all(&path)?;
+            for x_macro_tuple in self.x_macro.borrow().values() {
+                let path = path.join(format!("{}.json", x_macro_tuple.0.borrow().id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Rc<RefCell<XMacro>>, SystemTime) =
+                        serde_json::from_reader(reader)?;
+                    if on_disk.0.borrow().to_owned() != x_macro_tuple.0.borrow().to_owned() {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(&mut writer, &x_macro_tuple)?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_macro_tuple)?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_macro.borrow().contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Method Call.
         {
             let path = path.join("method_call");
@@ -5050,7 +5138,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("lu_dog.json");
 
-        let store = Self::new();
+        let mut store = Self::new();
 
         // Load Argument.
         {
@@ -5620,6 +5708,23 @@ impl ObjectStore {
                     .local_variable
                     .borrow_mut()
                     .insert(local_variable.0.borrow().id, local_variable.clone());
+            }
+        }
+
+        // Load Macro.
+        {
+            let path = path.join("x_macro");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_macro: (Rc<RefCell<XMacro>>, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .x_macro
+                    .borrow_mut()
+                    .insert(x_macro.0.borrow().id, x_macro.clone());
             }
         }
 

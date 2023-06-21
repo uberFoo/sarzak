@@ -5,6 +5,7 @@ use crate::v2::lu_dog_async::types::equal::EQUAL;
 use crate::v2::lu_dog_async::types::greater_than::GREATER_THAN;
 use crate::v2::lu_dog_async::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
 use crate::v2::lu_dog_async::types::less_than_or_equal::LESS_THAN_OR_EQUAL;
+use crate::v2::lu_dog_async::types::not_equal::NOT_EQUAL;
 use crate::v2::lu_dog_async::types::operator::Operator;
 use crate::v2::lu_dog_async::types::operator::OperatorEnum;
 use async_std::sync::Arc;
@@ -21,12 +22,13 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Comparison {
     Equal(Uuid),
     GreaterThan(Uuid),
     GreaterThanOrEqual(Uuid),
     LessThanOrEqual(Uuid),
+    NotEqual(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-implementation"}}}
@@ -59,6 +61,12 @@ impl Comparison {
         store.exhume_comparison(&LESS_THAN_OR_EQUAL).await.unwrap()
     }
 
+    /// Create a new instance of Comparison::NotEqual
+    pub async fn new_not_equal(store: &LuDogAsyncStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&NOT_EQUAL).await.unwrap()
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
@@ -67,6 +75,7 @@ impl Comparison {
             Comparison::GreaterThan(id) => *id,
             Comparison::GreaterThanOrEqual(id) => *id,
             Comparison::LessThanOrEqual(id) => *id,
+            Comparison::NotEqual(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

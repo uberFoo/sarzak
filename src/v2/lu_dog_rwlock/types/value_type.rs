@@ -45,7 +45,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueType {
     Empty(Uuid),
     Error(Uuid),
@@ -289,13 +289,7 @@ impl ValueType {
         span!("r62_span");
         store
             .iter_span()
-            .filter_map(|span| {
-                if span.read().unwrap().ty == Some(self.id()) {
-                    Some(span)
-                } else {
-                    None
-                }
-            })
+            .filter(|span| span.read().unwrap().ty == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

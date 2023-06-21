@@ -10,6 +10,7 @@ use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::implementation::Implementation;
 use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog::types::x_macro::XMacro;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -30,6 +31,7 @@ pub enum ItemEnum {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
+    XMacro(Uuid),
     WoogStruct(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -80,6 +82,23 @@ impl Item {
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
             subtype: ItemEnum::Import(subtype.borrow().id),
+            id,
+        }));
+        store.inter_item(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_x_macro"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_x_macro(
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<XMacro>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Item>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Item {
+            source: source.borrow().id,
+            subtype: ItemEnum::XMacro(subtype.borrow().id),
             id,
         }));
         store.inter_item(new.clone());

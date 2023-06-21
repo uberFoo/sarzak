@@ -69,15 +69,9 @@ impl Implementation {
                 .await
                 .collect::<Vec<Arc<RwLock<Function>>>>(),
         )
-        .filter_map(|function: Arc<RwLock<Function>>| async move {
-            if function.read().await.impl_block == Some(self.id) {
-                Some(function.clone())
-            } else {
-                None
-            }
+        .filter(|function: Arc<RwLock<Function>>| async move {
+            function.read().await.impl_block == Some(self.id).collect().await
         })
-        .collect()
-        .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation-impl-nav-subtype-to-supertype-item"}}}

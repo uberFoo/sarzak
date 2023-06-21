@@ -31,7 +31,7 @@
 //! * [`StructureField`]
 //! * [`SymbolTable`]
 //! * [`TimeStamp`]
-//! * [`Value`]
+//! * [`XValue`]
 //! * [`Variable`]
 //! * [`Visibility`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::woog-object-store-definition"}}}
@@ -43,14 +43,15 @@ use std::{
 };
 
 use fnv::FnvHashMap as HashMap;
+use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::woog::types::{
     Access, Block, Call, Constant, Enumeration, EnumerationField, Expression, Field, Function,
     GenerationUnit, GraceType, Item, Local, ObjectMethod, Ownership, Parameter, Reference,
-    Statement, Structure, StructureField, SymbolTable, TimeStamp, Value, Variable, Visibility,
-    WoogOption, XLet, BORROWED, IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
+    Statement, Structure, StructureField, SymbolTable, TimeStamp, Variable, Visibility, WoogOption,
+    XLet, XValue, BORROWED, IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -63,7 +64,9 @@ pub struct ObjectStore {
     enumeration_field: HashMap<Uuid, (EnumerationField, SystemTime)>,
     expression: HashMap<Uuid, (Expression, SystemTime)>,
     field: HashMap<Uuid, (Field, SystemTime)>,
+    field_id_by_name: HashMap<String, (Uuid, SystemTime)>,
     function: HashMap<Uuid, (Function, SystemTime)>,
+    function_id_by_name: HashMap<String, (Uuid, SystemTime)>,
     generation_unit: HashMap<Uuid, (GenerationUnit, SystemTime)>,
     grace_type: HashMap<Uuid, (GraceType, SystemTime)>,
     item: HashMap<Uuid, (Item, SystemTime)>,
@@ -79,7 +82,7 @@ pub struct ObjectStore {
     structure_field: HashMap<Uuid, (StructureField, SystemTime)>,
     symbol_table: HashMap<Uuid, (SymbolTable, SystemTime)>,
     time_stamp: HashMap<Uuid, (TimeStamp, SystemTime)>,
-    value: HashMap<Uuid, (Value, SystemTime)>,
+    x_value: HashMap<Uuid, (XValue, SystemTime)>,
     variable: HashMap<Uuid, (Variable, SystemTime)>,
     visibility: HashMap<Uuid, (Visibility, SystemTime)>,
 }
@@ -95,7 +98,9 @@ impl ObjectStore {
             enumeration_field: HashMap::default(),
             expression: HashMap::default(),
             field: HashMap::default(),
+            field_id_by_name: HashMap::default(),
             function: HashMap::default(),
+            function_id_by_name: HashMap::default(),
             generation_unit: HashMap::default(),
             grace_type: HashMap::default(),
             item: HashMap::default(),
@@ -111,7 +116,7 @@ impl ObjectStore {
             structure_field: HashMap::default(),
             symbol_table: HashMap::default(),
             time_stamp: HashMap::default(),
-            value: HashMap::default(),
+            x_value: HashMap::default(),
             variable: HashMap::default(),
             visibility: HashMap::default(),
         };
@@ -151,12 +156,6 @@ impl ObjectStore {
         self.access.remove(id).map(|access| access.0)
     }
 
-    /// Exhume mut [`Access`] from the store — mutably.
-    ///
-    pub fn exhume_access_mut(&mut self, id: &Uuid) -> Option<&mut Access> {
-        self.access.get_mut(id).map(|access| &mut access.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Access>`.
     ///
     pub fn iter_access(&self) -> impl Iterator<Item = &Access> {
@@ -190,12 +189,6 @@ impl ObjectStore {
         self.block.remove(id).map(|block| block.0)
     }
 
-    /// Exhume mut [`Block`] from the store — mutably.
-    ///
-    pub fn exhume_block_mut(&mut self, id: &Uuid) -> Option<&mut Block> {
-        self.block.get_mut(id).map(|block| &mut block.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
     pub fn iter_block(&self) -> impl Iterator<Item = &Block> {
@@ -227,12 +220,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_call(&mut self, id: &Uuid) -> Option<Call> {
         self.call.remove(id).map(|call| call.0)
-    }
-
-    /// Exhume mut [`Call`] from the store — mutably.
-    ///
-    pub fn exhume_call_mut(&mut self, id: &Uuid) -> Option<&mut Call> {
-        self.call.get_mut(id).map(|call| &mut call.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
@@ -269,12 +256,6 @@ impl ObjectStore {
         self.constant.remove(id).map(|constant| constant.0)
     }
 
-    /// Exhume mut [`Constant`] from the store — mutably.
-    ///
-    pub fn exhume_constant_mut(&mut self, id: &Uuid) -> Option<&mut Constant> {
-        self.constant.get_mut(id).map(|constant| &mut constant.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Constant>`.
     ///
     pub fn iter_constant(&self) -> impl Iterator<Item = &Constant> {
@@ -307,14 +288,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_enumeration(&mut self, id: &Uuid) -> Option<Enumeration> {
         self.enumeration.remove(id).map(|enumeration| enumeration.0)
-    }
-
-    /// Exhume mut [`Enumeration`] from the store — mutably.
-    ///
-    pub fn exhume_enumeration_mut(&mut self, id: &Uuid) -> Option<&mut Enumeration> {
-        self.enumeration
-            .get_mut(id)
-            .map(|enumeration| &mut enumeration.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
@@ -355,14 +328,6 @@ impl ObjectStore {
             .map(|enumeration_field| enumeration_field.0)
     }
 
-    /// Exhume mut [`EnumerationField`] from the store — mutably.
-    ///
-    pub fn exhume_enumeration_field_mut(&mut self, id: &Uuid) -> Option<&mut EnumerationField> {
-        self.enumeration_field
-            .get_mut(id)
-            .map(|enumeration_field| &mut enumeration_field.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, EnumerationField>`.
     ///
     pub fn iter_enumeration_field(&self) -> impl Iterator<Item = &EnumerationField> {
@@ -399,14 +364,6 @@ impl ObjectStore {
         self.expression.remove(id).map(|expression| expression.0)
     }
 
-    /// Exhume mut [`Expression`] from the store — mutably.
-    ///
-    pub fn exhume_expression_mut(&mut self, id: &Uuid) -> Option<&mut Expression> {
-        self.expression
-            .get_mut(id)
-            .map(|expression| &mut expression.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
     pub fn iter_expression(&self) -> impl Iterator<Item = &Expression> {
@@ -425,7 +382,10 @@ impl ObjectStore {
     /// Inter (insert) [`Field`] into the store.
     ///
     pub fn inter_field(&mut self, field: Field) {
-        self.field.insert(field.id, (field, SystemTime::now()));
+        let value = (field, SystemTime::now());
+        self.field_id_by_name
+            .insert(value.0.name.to_upper_camel_case(), (value.0.id, value.1));
+        self.field.insert(value.0.id, value);
     }
 
     /// Exhume (get) [`Field`] from the store.
@@ -440,10 +400,10 @@ impl ObjectStore {
         self.field.remove(id).map(|field| field.0)
     }
 
-    /// Exhume mut [`Field`] from the store — mutably.
+    /// Exhume [`Field`] id from the store by name.
     ///
-    pub fn exhume_field_mut(&mut self, id: &Uuid) -> Option<&mut Field> {
-        self.field.get_mut(id).map(|field| &mut field.0)
+    pub fn exhume_field_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.field_id_by_name.get(name).map(|field| field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
@@ -464,8 +424,10 @@ impl ObjectStore {
     /// Inter (insert) [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Function) {
-        self.function
-            .insert(function.id, (function, SystemTime::now()));
+        let value = (function, SystemTime::now());
+        self.function_id_by_name
+            .insert(value.0.name.to_upper_camel_case(), (value.0.id, value.1));
+        self.function.insert(value.0.id, value);
     }
 
     /// Exhume (get) [`Function`] from the store.
@@ -480,10 +442,12 @@ impl ObjectStore {
         self.function.remove(id).map(|function| function.0)
     }
 
-    /// Exhume mut [`Function`] from the store — mutably.
+    /// Exhume [`Function`] id from the store by name.
     ///
-    pub fn exhume_function_mut(&mut self, id: &Uuid) -> Option<&mut Function> {
-        self.function.get_mut(id).map(|function| &mut function.0)
+    pub fn exhume_function_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.function_id_by_name
+            .get(name)
+            .map(|function| function.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
@@ -524,14 +488,6 @@ impl ObjectStore {
             .map(|generation_unit| generation_unit.0)
     }
 
-    /// Exhume mut [`GenerationUnit`] from the store — mutably.
-    ///
-    pub fn exhume_generation_unit_mut(&mut self, id: &Uuid) -> Option<&mut GenerationUnit> {
-        self.generation_unit
-            .get_mut(id)
-            .map(|generation_unit| &mut generation_unit.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, GenerationUnit>`.
     ///
     pub fn iter_generation_unit(&self) -> impl Iterator<Item = &GenerationUnit> {
@@ -568,14 +524,6 @@ impl ObjectStore {
         self.grace_type.remove(id).map(|grace_type| grace_type.0)
     }
 
-    /// Exhume mut [`GraceType`] from the store — mutably.
-    ///
-    pub fn exhume_grace_type_mut(&mut self, id: &Uuid) -> Option<&mut GraceType> {
-        self.grace_type
-            .get_mut(id)
-            .map(|grace_type| &mut grace_type.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, GraceType>`.
     ///
     pub fn iter_grace_type(&self) -> impl Iterator<Item = &GraceType> {
@@ -607,12 +555,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_item(&mut self, id: &Uuid) -> Option<Item> {
         self.item.remove(id).map(|item| item.0)
-    }
-
-    /// Exhume mut [`Item`] from the store — mutably.
-    ///
-    pub fn exhume_item_mut(&mut self, id: &Uuid) -> Option<&mut Item> {
-        self.item.get_mut(id).map(|item| &mut item.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
@@ -648,12 +590,6 @@ impl ObjectStore {
         self.x_let.remove(id).map(|x_let| x_let.0)
     }
 
-    /// Exhume mut [`XLet`] from the store — mutably.
-    ///
-    pub fn exhume_x_let_mut(&mut self, id: &Uuid) -> Option<&mut XLet> {
-        self.x_let.get_mut(id).map(|x_let| &mut x_let.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, XLet>`.
     ///
     pub fn iter_x_let(&self) -> impl Iterator<Item = &XLet> {
@@ -685,12 +621,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_local(&mut self, id: &Uuid) -> Option<Local> {
         self.local.remove(id).map(|local| local.0)
-    }
-
-    /// Exhume mut [`Local`] from the store — mutably.
-    ///
-    pub fn exhume_local_mut(&mut self, id: &Uuid) -> Option<&mut Local> {
-        self.local.get_mut(id).map(|local| &mut local.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Local>`.
@@ -731,14 +661,6 @@ impl ObjectStore {
             .map(|object_method| object_method.0)
     }
 
-    /// Exhume mut [`ObjectMethod`] from the store — mutably.
-    ///
-    pub fn exhume_object_method_mut(&mut self, id: &Uuid) -> Option<&mut ObjectMethod> {
-        self.object_method
-            .get_mut(id)
-            .map(|object_method| &mut object_method.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectMethod>`.
     ///
     pub fn iter_object_method(&self) -> impl Iterator<Item = &ObjectMethod> {
@@ -775,14 +697,6 @@ impl ObjectStore {
         self.woog_option.remove(id).map(|woog_option| woog_option.0)
     }
 
-    /// Exhume mut [`WoogOption`] from the store — mutably.
-    ///
-    pub fn exhume_woog_option_mut(&mut self, id: &Uuid) -> Option<&mut WoogOption> {
-        self.woog_option
-            .get_mut(id)
-            .map(|woog_option| &mut woog_option.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
     ///
     pub fn iter_woog_option(&self) -> impl Iterator<Item = &WoogOption> {
@@ -815,12 +729,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_ownership(&mut self, id: &Uuid) -> Option<Ownership> {
         self.ownership.remove(id).map(|ownership| ownership.0)
-    }
-
-    /// Exhume mut [`Ownership`] from the store — mutably.
-    ///
-    pub fn exhume_ownership_mut(&mut self, id: &Uuid) -> Option<&mut Ownership> {
-        self.ownership.get_mut(id).map(|ownership| &mut ownership.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Ownership>`.
@@ -857,12 +765,6 @@ impl ObjectStore {
         self.parameter.remove(id).map(|parameter| parameter.0)
     }
 
-    /// Exhume mut [`Parameter`] from the store — mutably.
-    ///
-    pub fn exhume_parameter_mut(&mut self, id: &Uuid) -> Option<&mut Parameter> {
-        self.parameter.get_mut(id).map(|parameter| &mut parameter.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
     pub fn iter_parameter(&self) -> impl Iterator<Item = &Parameter> {
@@ -895,12 +797,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Reference> {
         self.reference.remove(id).map(|reference| reference.0)
-    }
-
-    /// Exhume mut [`Reference`] from the store — mutably.
-    ///
-    pub fn exhume_reference_mut(&mut self, id: &Uuid) -> Option<&mut Reference> {
-        self.reference.get_mut(id).map(|reference| &mut reference.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
@@ -937,12 +833,6 @@ impl ObjectStore {
         self.statement.remove(id).map(|statement| statement.0)
     }
 
-    /// Exhume mut [`Statement`] from the store — mutably.
-    ///
-    pub fn exhume_statement_mut(&mut self, id: &Uuid) -> Option<&mut Statement> {
-        self.statement.get_mut(id).map(|statement| &mut statement.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
     pub fn iter_statement(&self) -> impl Iterator<Item = &Statement> {
@@ -975,12 +865,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_structure(&mut self, id: &Uuid) -> Option<Structure> {
         self.structure.remove(id).map(|structure| structure.0)
-    }
-
-    /// Exhume mut [`Structure`] from the store — mutably.
-    ///
-    pub fn exhume_structure_mut(&mut self, id: &Uuid) -> Option<&mut Structure> {
-        self.structure.get_mut(id).map(|structure| &mut structure.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Structure>`.
@@ -1019,14 +903,6 @@ impl ObjectStore {
         self.structure_field
             .remove(id)
             .map(|structure_field| structure_field.0)
-    }
-
-    /// Exhume mut [`StructureField`] from the store — mutably.
-    ///
-    pub fn exhume_structure_field_mut(&mut self, id: &Uuid) -> Option<&mut StructureField> {
-        self.structure_field
-            .get_mut(id)
-            .map(|structure_field| &mut structure_field.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructureField>`.
@@ -1069,14 +945,6 @@ impl ObjectStore {
             .map(|symbol_table| symbol_table.0)
     }
 
-    /// Exhume mut [`SymbolTable`] from the store — mutably.
-    ///
-    pub fn exhume_symbol_table_mut(&mut self, id: &Uuid) -> Option<&mut SymbolTable> {
-        self.symbol_table
-            .get_mut(id)
-            .map(|symbol_table| &mut symbol_table.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, SymbolTable>`.
     ///
     pub fn iter_symbol_table(&self) -> impl Iterator<Item = &SymbolTable> {
@@ -1113,14 +981,6 @@ impl ObjectStore {
         self.time_stamp.remove(id).map(|time_stamp| time_stamp.0)
     }
 
-    /// Exhume mut [`TimeStamp`] from the store — mutably.
-    ///
-    pub fn exhume_time_stamp_mut(&mut self, id: &Uuid) -> Option<&mut TimeStamp> {
-        self.time_stamp
-            .get_mut(id)
-            .map(|time_stamp| &mut time_stamp.0)
-    }
-
     /// Get an iterator over the internal `HashMap<&Uuid, TimeStamp>`.
     ///
     pub fn iter_time_stamp(&self) -> impl Iterator<Item = &TimeStamp> {
@@ -1136,42 +996,37 @@ impl ObjectStore {
             .unwrap_or(SystemTime::now())
     }
 
-    /// Inter (insert) [`Value`] into the store.
+    /// Inter (insert) [`XValue`] into the store.
     ///
-    pub fn inter_value(&mut self, value: Value) {
-        self.value.insert(value.id, (value, SystemTime::now()));
+    pub fn inter_x_value(&mut self, x_value: XValue) {
+        self.x_value
+            .insert(x_value.id, (x_value, SystemTime::now()));
     }
 
-    /// Exhume (get) [`Value`] from the store.
+    /// Exhume (get) [`XValue`] from the store.
     ///
-    pub fn exhume_value(&self, id: &Uuid) -> Option<&Value> {
-        self.value.get(id).map(|value| &value.0)
+    pub fn exhume_x_value(&self, id: &Uuid) -> Option<&XValue> {
+        self.x_value.get(id).map(|x_value| &x_value.0)
     }
 
-    /// Exorcise (remove) [`Value`] from the store.
+    /// Exorcise (remove) [`XValue`] from the store.
     ///
-    pub fn exorcise_value(&mut self, id: &Uuid) -> Option<Value> {
-        self.value.remove(id).map(|value| value.0)
+    pub fn exorcise_x_value(&mut self, id: &Uuid) -> Option<XValue> {
+        self.x_value.remove(id).map(|x_value| x_value.0)
     }
 
-    /// Exhume mut [`Value`] from the store — mutably.
+    /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
-    pub fn exhume_value_mut(&mut self, id: &Uuid) -> Option<&mut Value> {
-        self.value.get_mut(id).map(|value| &mut value.0)
+    pub fn iter_x_value(&self) -> impl Iterator<Item = &XValue> {
+        self.x_value.values().map(|x_value| &x_value.0)
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Value>`.
+    /// Get the timestamp for XValue.
     ///
-    pub fn iter_value(&self) -> impl Iterator<Item = &Value> {
-        self.value.values().map(|value| &value.0)
-    }
-
-    /// Get the timestamp for Value.
-    ///
-    pub fn value_timestamp(&self, value: &Value) -> SystemTime {
-        self.value
-            .get(&value.id)
-            .map(|value| value.1)
+    pub fn x_value_timestamp(&self, x_value: &XValue) -> SystemTime {
+        self.x_value
+            .get(&x_value.id)
+            .map(|x_value| x_value.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -1192,12 +1047,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_variable(&mut self, id: &Uuid) -> Option<Variable> {
         self.variable.remove(id).map(|variable| variable.0)
-    }
-
-    /// Exhume mut [`Variable`] from the store — mutably.
-    ///
-    pub fn exhume_variable_mut(&mut self, id: &Uuid) -> Option<&mut Variable> {
-        self.variable.get_mut(id).map(|variable| &mut variable.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
@@ -1232,14 +1081,6 @@ impl ObjectStore {
     ///
     pub fn exorcise_visibility(&mut self, id: &Uuid) -> Option<Visibility> {
         self.visibility.remove(id).map(|visibility| visibility.0)
-    }
-
-    /// Exhume mut [`Visibility`] from the store — mutably.
-    ///
-    pub fn exhume_visibility_mut(&mut self, id: &Uuid) -> Option<&mut Visibility> {
-        self.visibility
-            .get_mut(id)
-            .map(|visibility| &mut visibility.0)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Visibility>`.
@@ -2101,23 +1942,23 @@ impl ObjectStore {
 
         // Persist Value.
         {
-            let path = path.join("value");
+            let path = path.join("x_value");
             fs::create_dir_all(&path)?;
-            for value_tuple in self.value.values() {
-                let path = path.join(format!("{}.json", value_tuple.0.id));
+            for x_value_tuple in self.x_value.values() {
+                let path = path.join(format!("{}.json", x_value_tuple.0.id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Value, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0 != value_tuple.0 {
+                    let on_disk: (XValue, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0 != x_value_tuple.0 {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
-                        serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
+                        serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
                     }
                 } else {
                     let file = fs::File::create(&path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &value_tuple)?;
+                    serde_json::to_writer_pretty(&mut writer, &x_value_tuple)?;
                 }
             }
             for file in fs::read_dir(&path)? {
@@ -2126,7 +1967,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.value.contains_key(&id) {
+                    if !self.x_value.contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -2206,6 +2047,10 @@ impl ObjectStore {
 
     /// Load the store.
     ///
+    pub fn from_bincode(code: &[u8]) -> io::Result<Self> {
+        Ok(bincode::deserialize(code).unwrap())
+    }
+
     /// The store is as a bincode file.
     pub fn load_bincode<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let path = path.as_ref();
@@ -2335,6 +2180,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let field: (Field, SystemTime) = serde_json::from_reader(reader)?;
+                store
+                    .field_id_by_name
+                    .insert(field.0.name.to_upper_camel_case(), (field.0.id, field.1));
                 store.field.insert(field.0.id, field);
             }
         }
@@ -2349,6 +2197,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let function: (Function, SystemTime) = serde_json::from_reader(reader)?;
+                store.function_id_by_name.insert(
+                    function.0.name.to_upper_camel_case(),
+                    (function.0.id, function.1),
+                );
                 store.function.insert(function.0.id, function);
             }
         }
@@ -2573,15 +2425,15 @@ impl ObjectStore {
 
         // Load Value.
         {
-            let path = path.join("value");
+            let path = path.join("x_value");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let value: (Value, SystemTime) = serde_json::from_reader(reader)?;
-                store.value.insert(value.0.id, value);
+                let x_value: (XValue, SystemTime) = serde_json::from_reader(reader)?;
+                store.x_value.insert(x_value.0.id, x_value);
             }
         }
 

@@ -58,13 +58,7 @@ impl Implementation {
         span!("r9_function");
         store
             .iter_function()
-            .filter_map(|function| {
-                if function.borrow().impl_block == Some(self.id) {
-                    Some(function)
-                } else {
-                    None
-                }
-            })
+            .filter(|function| function.borrow().impl_block == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

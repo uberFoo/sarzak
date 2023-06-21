@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"relationship_phrase-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-use-statements"}}}
-use std::sync::{Arc, RwLock};
-
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -32,19 +30,19 @@ impl RelationshipPhrase {
         text: String,
         x: i64,
         y: i64,
-        origin: &Arc<RwLock<Anchor>>,
-        line: &Arc<RwLock<Line>>,
+        origin: &Anchor,
+        line: &Line,
         store: &mut MerlinStore,
-    ) -> Arc<RwLock<RelationshipPhrase>> {
+    ) -> RelationshipPhrase {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(RelationshipPhrase {
+        let new = RelationshipPhrase {
             id,
             text,
             x,
             y,
-            origin: origin.read().unwrap().id,
-            line: line.read().unwrap().id,
-        }));
+            origin: origin.id,
+            line: line.id,
+        };
         store.inter_relationship_phrase(new.clone());
         new
     }
@@ -53,13 +51,13 @@ impl RelationshipPhrase {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Anchor`] across R13(1-*)
-    pub fn r13_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
+    pub fn r13_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
         vec![store.exhume_anchor(&self.origin).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-line"}}}
     /// Navigate to [`Line`] across R12(1-*)
-    pub fn r12_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Line>>> {
+    pub fn r12_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
         vec![store.exhume_line(&self.line).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

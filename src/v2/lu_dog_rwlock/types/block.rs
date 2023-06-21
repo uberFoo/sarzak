@@ -98,13 +98,7 @@ impl Block {
         span!("r52_x_if");
         store
             .iter_x_if()
-            .filter_map(|x_if| {
-                if x_if.read().unwrap().false_block == Some(self.id) {
-                    Some(x_if)
-                } else {
-                    None
-                }
-            })
+            .filter(|x_if| x_if.read().unwrap().false_block == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -60,7 +60,7 @@ impl ListElement {
             .iter_list_element()
             .find(|list_element| list_element.next == Some(self.id));
         match list_element {
-            Some(list_element) => vec![list_element],
+            Some(ref list_element) => vec![list_element],
             None => Vec::new(),
         }
     }

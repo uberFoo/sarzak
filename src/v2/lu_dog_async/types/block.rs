@@ -112,16 +112,11 @@ impl Block {
     pub async fn r52_x_if<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XIf>>> {
         use futures::stream::{self, StreamExt};
         span!("r52_x_if");
-        stream::iter(store.iter_x_if().await.collect::<Vec<Arc<RwLock<XIf>>>>())
-            .filter_map(|x_if: Arc<RwLock<XIf>>| async move {
-                if x_if.read().await.false_block == Some(self.id) {
-                    Some(x_if.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        stream::iter(store.iter_x_if().await.collect::<Vec<Arc<RwLock<XIf>>>>()).filter(
+            |x_if: Arc<RwLock<XIf>>| async move {
+                x_if.read().await.false_block == Some(self.id).collect().await
+            },
+        )
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}

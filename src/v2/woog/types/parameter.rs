@@ -73,7 +73,7 @@ impl Parameter {
             .iter_parameter()
             .find(|parameter| parameter.next == Some(self.id));
         match parameter {
-            Some(parameter) => vec![parameter],
+            Some(ref parameter) => vec![parameter],
             None => Vec::new(),
         }
     }

@@ -103,13 +103,7 @@ impl XValue {
     pub fn r63_span<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&Span> {
         store
             .iter_span()
-            .filter_map(|span| {
-                if span.x_value == Some(self.id) {
-                    Some(span)
-                } else {
-                    None
-                }
-            })
+            .filter(|span| span.x_value == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

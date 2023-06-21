@@ -48,7 +48,7 @@ impl Variable {
     ) -> Arc<Mutex<Variable>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Variable {
-            name,
+            name: name,
             subtype: VariableEnum::LocalVariable(subtype.lock().id),
             id,
         }));
@@ -65,7 +65,7 @@ impl Variable {
     ) -> Arc<Mutex<Variable>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Variable {
-            name,
+            name: name,
             subtype: VariableEnum::Parameter(subtype.lock().id),
             id,
         }));

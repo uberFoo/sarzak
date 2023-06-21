@@ -43,7 +43,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
     Block(Uuid),
     Call(Uuid),
@@ -434,16 +434,11 @@ impl Expression {
     pub async fn r29_call<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Call>>> {
         use futures::stream::{self, StreamExt};
         span!("r29_call");
-        stream::iter(store.iter_call().await.collect::<Vec<Arc<RwLock<Call>>>>())
-            .filter_map(|call: Arc<RwLock<Call>>| async move {
-                if call.read().await.expression == Some(self.id()) {
-                    Some(call.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        stream::iter(store.iter_call().await.collect::<Vec<Arc<RwLock<Call>>>>()).filter(
+            |call: Arc<RwLock<Call>>| async move {
+                call.read().await.expression == Some(self.id()).collect().await
+            },
+        )
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-expression_statement"}}}
@@ -627,35 +622,9 @@ impl Expression {
                 .await
                 .collect::<Vec<Arc<RwLock<Operator>>>>(),
         )
-        .filter_map(|operator: Arc<RwLock<Operator>>| async move {
-            if operator.read().await.rhs == Some(self.id()) {
-                Some(operator.clone())
-            } else {
-                None
-            }
+        .filter(|operator: Arc<RwLock<Operator>>| async move {
+            operator.read().await.rhs == Some(self.id()).collect().await
         })
-        .collect()
-        .await
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
@@ -685,17 +654,11 @@ impl Expression {
                 .await
                 .collect::<Vec<Arc<RwLock<RangeExpression>>>>(),
         )
-        .filter_map(
+        .filter(
             |range_expression: Arc<RwLock<RangeExpression>>| async move {
-                if range_expression.read().await.rhs == Some(self.id()) {
-                    Some(range_expression.clone())
-                } else {
-                    None
-                }
+                range_expression.read().await.rhs == Some(self.id()).collect().await
             },
         )
-        .collect()
-        .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
@@ -712,17 +675,11 @@ impl Expression {
                 .await
                 .collect::<Vec<Arc<RwLock<RangeExpression>>>>(),
         )
-        .filter_map(
+        .filter(
             |range_expression: Arc<RwLock<RangeExpression>>| async move {
-                if range_expression.read().await.lhs == Some(self.id()) {
-                    Some(range_expression.clone())
-                } else {
-                    None
-                }
+                range_expression.read().await.lhs == Some(self.id()).collect().await
             },
         )
-        .collect()
-        .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-result_statement"}}}

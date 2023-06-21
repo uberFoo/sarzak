@@ -45,7 +45,7 @@ impl Variable {
     ) -> Variable {
         let id = Uuid::new_v4();
         let new = Variable {
-            name,
+            name: name,
             subtype: VariableEnum::LocalVariable(subtype.id),
             id,
         };
@@ -62,7 +62,7 @@ impl Variable {
     ) -> Variable {
         let id = Uuid::new_v4();
         let new = Variable {
-            name,
+            name: name,
             subtype: VariableEnum::Parameter(subtype.id),
             id,
         };

@@ -137,7 +137,7 @@ impl Statement {
             .iter_block()
             .find(|block| block.statement == Some(self.id));
         match block {
-            Some(block) => vec![block],
+            Some(ref block) => vec![block],
             None => Vec::new(),
         }
     }
@@ -149,7 +149,7 @@ impl Statement {
             .iter_statement()
             .find(|statement| statement.next == Some(self.id));
         match statement {
-            Some(statement) => vec![statement],
+            Some(ref statement) => vec![statement],
             None => Vec::new(),
         }
     }

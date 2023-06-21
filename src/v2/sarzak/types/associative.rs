@@ -32,14 +32,6 @@ impl Associative {
         };
         store.inter_associative(new.clone());
         new
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-other"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-one"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-one"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-other"}}}
-        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-new_"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-forward-to-from"}}}
@@ -51,7 +43,6 @@ impl Associative {
         vec![store.exhume_associative_referrer(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-backward-assoc_many-to-an_associative_referent"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative-struct-impl-nav-backward-assoc-many-to-an_associative_referent"}}}
     /// Navigate to [`AnAssociativeReferent`] across R22(1-M)
     pub fn r22_an_associative_referent<'a>(
@@ -60,13 +51,7 @@ impl Associative {
     ) -> Vec<&AnAssociativeReferent> {
         store
             .iter_an_associative_referent()
-            .filter_map(|an_associative_referent| {
-                if an_associative_referent.associative == self.id {
-                    Some(an_associative_referent)
-                } else {
-                    None
-                }
-            })
+            .filter(|an_associative_referent| an_associative_referent.associative == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

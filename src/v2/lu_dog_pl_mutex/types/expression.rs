@@ -43,7 +43,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
     Block(Uuid),
     Call(Uuid),
@@ -414,13 +414,7 @@ impl Expression {
         span!("r29_call");
         store
             .iter_call()
-            .filter_map(|call| {
-                if call.lock().expression == Some(self.id()) {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
+            .filter(|call| call.lock().expression == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -543,6 +537,8 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-negation"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
     /// Navigate to [`Operator`] across R50(1-M)
     pub fn r50_operator<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<Operator>>> {
@@ -554,20 +550,14 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
     pub fn r51_operator<'a>(&'a self, store: &'a LuDogPlMutexStore) -> Vec<Arc<Mutex<Operator>>> {
         span!("r51_operator");
         store
             .iter_operator()
-            .filter_map(|operator| {
-                if operator.lock().rhs == Some(self.id()) {
-                    Some(operator)
-                } else {
-                    None
-                }
-            })
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+            .filter(|operator| operator.lock().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -590,13 +580,7 @@ impl Expression {
         span!("r59_range_expression");
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.lock().rhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.lock().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -609,13 +593,7 @@ impl Expression {
         span!("r58_range_expression");
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.lock().lhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.lock().lhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

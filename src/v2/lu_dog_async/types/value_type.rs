@@ -45,7 +45,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueType {
     Empty(Uuid),
     Error(Uuid),
@@ -312,16 +312,11 @@ impl ValueType {
     pub async fn r62_span<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Span>>> {
         use futures::stream::{self, StreamExt};
         span!("r62_span");
-        stream::iter(store.iter_span().await.collect::<Vec<Arc<RwLock<Span>>>>())
-            .filter_map(|span: Arc<RwLock<Span>>| async move {
-                if span.read().await.ty == Some(self.id()) {
-                    Some(span.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        stream::iter(store.iter_span().await.collect::<Vec<Arc<RwLock<Span>>>>()).filter(
+            |span: Arc<RwLock<Span>>| async move {
+                span.read().await.ty == Some(self.id()).collect().await
+            },
+        )
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-type_cast"}}}

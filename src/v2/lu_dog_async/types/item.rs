@@ -10,6 +10,7 @@ use crate::v2::lu_dog_async::types::function::Function;
 use crate::v2::lu_dog_async::types::implementation::Implementation;
 use crate::v2::lu_dog_async::types::import::Import;
 use crate::v2::lu_dog_async::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_async::types::x_macro::XMacro;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -30,6 +31,7 @@ pub enum ItemEnum {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
+    XMacro(Uuid),
     WoogStruct(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -80,6 +82,23 @@ impl Item {
         let new = Arc::new(RwLock::new(Item {
             source: source.read().await.id,
             subtype: ItemEnum::Import(subtype.read().await.id),
+            id,
+        }));
+        store.inter_item(new.clone()).await;
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_x_macro"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub async fn new_x_macro(
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<XMacro>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<Item>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().await.id,
+            subtype: ItemEnum::XMacro(subtype.read().await.id),
             id,
         }));
         store.inter_item(new.clone()).await;

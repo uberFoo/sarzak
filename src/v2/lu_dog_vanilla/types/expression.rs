@@ -40,7 +40,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
     Block(Uuid),
     Call(Uuid),
@@ -282,13 +282,7 @@ impl Expression {
     pub fn r29_call<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&Call> {
         store
             .iter_call()
-            .filter_map(|call| {
-                if call.expression == Some(self.id()) {
-                    Some(call)
-                } else {
-                    None
-                }
-            })
+            .filter(|call| call.expression == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -377,7 +371,7 @@ impl Expression {
             .iter_let_statement()
             .find(|let_statement| let_statement.expression == self.id());
         match let_statement {
-            Some(let_statement) => vec![let_statement],
+            Some(ref let_statement) => vec![let_statement],
             None => Vec::new(),
         }
     }
@@ -405,13 +399,7 @@ impl Expression {
     pub fn r51_operator<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&Operator> {
         store
             .iter_operator()
-            .filter_map(|operator| {
-                if operator.rhs == Some(self.id()) {
-                    Some(operator)
-                } else {
-                    None
-                }
-            })
+            .filter(|operator| operator.rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -432,13 +420,7 @@ impl Expression {
     ) -> Vec<&RangeExpression> {
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.rhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -450,13 +432,7 @@ impl Expression {
     ) -> Vec<&RangeExpression> {
         store
             .iter_range_expression()
-            .filter_map(|range_expression| {
-                if range_expression.lhs == Some(self.id()) {
-                    Some(range_expression)
-                } else {
-                    None
-                }
-            })
+            .filter(|range_expression| range_expression.lhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -3,8 +3,8 @@
 use uuid::Uuid;
 
 use crate::v2::woog::types::ownership::Ownership;
-use crate::v2::woog::types::value::Value;
 use crate::v2::woog::types::visibility::Visibility;
+use crate::v2::woog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
@@ -54,11 +54,12 @@ impl Access {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-backward-1_M-to-value"}}}
-    /// Navigate to [`Value`] across R16(1-M)
-    pub fn r16_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-backward-1_M-to-x_value"}}}
+    /// Navigate to [`XValue`] across R16(1-M)
+    pub fn r16_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
         store
-            .iter_value()
-            .filter(|value| value.access == self.id)
+            .iter_x_value()
+            .filter(|x_value| x_value.access == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

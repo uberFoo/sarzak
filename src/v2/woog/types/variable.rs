@@ -5,9 +5,9 @@ use uuid::Uuid;
 use crate::v2::woog::types::local::Local;
 use crate::v2::woog::types::parameter::Parameter;
 use crate::v2::woog::types::symbol_table::SymbolTable;
-use crate::v2::woog::types::value::Value;
-use crate::v2::woog::types::value::ValueEnum;
 use crate::v2::woog::types::x_let::XLet;
+use crate::v2::woog::types::x_value::XValue;
+use crate::v2::woog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::woog::store::ObjectStore as WoogStore;
@@ -48,7 +48,7 @@ impl Variable {
     ) -> Variable {
         let id = Uuid::new_v4();
         let new = Variable {
-            name,
+            name: name,
             symbol_table: symbol_table.id,
             subtype: VariableEnum::Local(subtype.id),
             id,
@@ -67,7 +67,7 @@ impl Variable {
     ) -> Variable {
         let id = Uuid::new_v4();
         let new = Variable {
-            name,
+            name: name,
             symbol_table: symbol_table.id,
             subtype: VariableEnum::Parameter(subtype.id),
             id,
@@ -92,12 +92,13 @@ impl Variable {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
-    // Navigate to [`Value`] across R7(isa)
-    pub fn r7_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
+    // Navigate to [`XValue`] across R7(isa)
+    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
         vec![store
-            .iter_value()
-            .find(|value| {
-                if let ValueEnum::Variable(id) = value.subtype {
+            .iter_x_value()
+            .find(|x_value| {
+                if let XValueEnum::Variable(id) = x_value.subtype {
                     id == self.id
                 } else {
                     false

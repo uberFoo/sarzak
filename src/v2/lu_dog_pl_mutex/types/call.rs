@@ -8,6 +8,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog_pl_mutex::types::argument::Argument;
 use crate::v2::lu_dog_pl_mutex::types::expression::Expression;
 use crate::v2::lu_dog_pl_mutex::types::function_call::FUNCTION_CALL;
+use crate::v2::lu_dog_pl_mutex::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog_pl_mutex::types::method_call::MethodCall;
 use crate::v2::lu_dog_pl_mutex::types::static_method_call::StaticMethodCall;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ pub struct Call {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum CallEnum {
     FunctionCall(Uuid),
+    MacroCall(Uuid),
     MethodCall(Uuid),
     StaticMethodCall(Uuid),
 }
@@ -49,9 +51,27 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check,
+            arg_check: arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
+            id,
+        }));
+        store.inter_call(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new_macro_call"}}}
+    /// Inter a new Call in the store, and return it's `id`.
+    pub fn new_macro_call(
+        arg_check: bool,
+        expression: Option<&Arc<Mutex<Expression>>>,
+        store: &mut LuDogPlMutexStore,
+    ) -> Arc<Mutex<Call>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(Mutex::new(Call {
+            arg_check: arg_check,
+            expression: expression.map(|expression| expression.lock().id()),
+            subtype: CallEnum::MacroCall(MACRO_CALL),
             id,
         }));
         store.inter_call(new.clone());
@@ -68,7 +88,7 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check,
+            arg_check: arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::MethodCall(subtype.lock().id),
             id,
@@ -87,7 +107,7 @@ impl Call {
     ) -> Arc<Mutex<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(Mutex::new(Call {
-            arg_check,
+            arg_check: arg_check,
             expression: expression.map(|expression| expression.lock().id()),
             subtype: CallEnum::StaticMethodCall(subtype.lock().id),
             id,

@@ -113,13 +113,7 @@ impl XValue {
         span!("r63_span");
         store
             .iter_span()
-            .filter_map(|span| {
-                if span.lock().x_value == Some(self.id) {
-                    Some(span)
-                } else {
-                    None
-                }
-            })
+            .filter(|span| span.lock().x_value == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

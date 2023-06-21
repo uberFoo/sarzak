@@ -49,14 +49,14 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
 
-        merlin.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
-        merlin.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
-        merlin.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
-        merlin.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
+        merlin.inter_edge(Edge::Bottom(BOTTOM));
+        merlin.inter_edge(Edge::Left(LEFT));
+        merlin.inter_edge(Edge::Right(RIGHT));
+        merlin.inter_edge(Edge::Top(TOP));
 
         for oui in drawing.iter_object_ui() {
             let instance = XBox::from((oui, drawing));
-            merlin.inter_x_box(Arc::new(RwLock::new(instance)));
+            merlin.inter_x_box(instance);
         }
 
         for bui in drawing.iter_binary_ui() {
@@ -220,23 +220,23 @@ impl From<(&ObjectUi, &DrawingStore)> for XBox {
 
 struct XyzzyEdge<'a>(&'a FromEdge, &'a ObjectStore);
 
-impl<'a> From<XyzzyEdge<'a>> for Arc<RwLock<Edge>> {
+impl<'a> From<XyzzyEdge<'a>> for Edge {
     fn from(edge: XyzzyEdge<'a>) -> Self {
         let src = edge.0;
         let merlin = edge.1;
 
         match src {
-            FromEdge::Bottom(_) => merlin.exhume_edge(&BOTTOM).unwrap(),
-            FromEdge::Left(_) => merlin.exhume_edge(&LEFT).unwrap(),
-            FromEdge::Right(_) => merlin.exhume_edge(&RIGHT).unwrap(),
-            FromEdge::Top(_) => merlin.exhume_edge(&TOP).unwrap(),
+            FromEdge::Bottom(_) => *merlin.exhume_edge(&BOTTOM).unwrap(),
+            FromEdge::Left(_) => *merlin.exhume_edge(&LEFT).unwrap(),
+            FromEdge::Right(_) => *merlin.exhume_edge(&RIGHT).unwrap(),
+            FromEdge::Top(_) => *merlin.exhume_edge(&TOP).unwrap(),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    
+
     use crate::domain::DomainBuilder;
 
     #[test]

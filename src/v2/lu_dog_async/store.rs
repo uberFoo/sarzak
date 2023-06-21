@@ -39,6 +39,7 @@
 //! * [`ListExpression`]
 //! * [`Literal`]
 //! * [`LocalVariable`]
+//! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
 //! * [`Operator`]
@@ -90,10 +91,10 @@ use crate::v2::lu_dog_async::types::{
     IntegerLiteral, Item, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement, Span,
     Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
-    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XReturn, XValue, ZObjectStore,
-    ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, RANGE,
-    SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
+    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION,
+    NEGATION, NOT, NOT_EQUAL, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Clone, Debug)]
@@ -133,6 +134,7 @@ pub struct ObjectStore {
     list_expression: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ListExpression>>, SystemTime)>>>,
     literal: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Literal>>, SystemTime)>>>,
     local_variable: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<LocalVariable>>, SystemTime)>>>,
+    x_macro: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XMacro>>, SystemTime)>>>,
     method_call: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<MethodCall>>, SystemTime)>>>,
     z_object_store: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ZObjectStore>>, SystemTime)>>>,
     operator: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Operator>>, SystemTime)>>>,
@@ -177,740 +179,753 @@ impl Serialize for ObjectStore {
         }
         let result = map.end();
 
-        // let binary = (*futures::executor::block_on(async { self.binary.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(binary.len()))?;
-        // for (k, v) in binary {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let binary = (*futures::executor::block_on(async { self.binary.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(binary.len()))?;
+        for (k, v) in binary {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let block = (*futures::executor::block_on(async { self.block.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(block.len()))?;
-        // for (k, v) in block {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let block = (*futures::executor::block_on(async { self.block.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(block.len()))?;
+        for (k, v) in block {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let boolean_literal =
-        //     (*futures::executor::block_on(async { self.boolean_literal.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(boolean_literal.len()))?;
-        // for (k, v) in boolean_literal {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let boolean_literal =
+            (*futures::executor::block_on(async { self.boolean_literal.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(boolean_literal.len()))?;
+        for (k, v) in boolean_literal {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let boolean_operator =
-        //     (*futures::executor::block_on(async { self.boolean_operator.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(boolean_operator.len()))?;
-        // for (k, v) in boolean_operator {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let boolean_operator =
+            (*futures::executor::block_on(async { self.boolean_operator.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(boolean_operator.len()))?;
+        for (k, v) in boolean_operator {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let call = (*futures::executor::block_on(async { self.call.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(call.len()))?;
-        // for (k, v) in call {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let call = (*futures::executor::block_on(async { self.call.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(call.len()))?;
+        for (k, v) in call {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let comparison =
-        //     (*futures::executor::block_on(async { self.comparison.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(comparison.len()))?;
-        // for (k, v) in comparison {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let comparison =
+            (*futures::executor::block_on(async { self.comparison.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(comparison.len()))?;
+        for (k, v) in comparison {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let dwarf_source_file =
-        //     (*futures::executor::block_on(async { self.dwarf_source_file.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(dwarf_source_file.len()))?;
-        // for (k, v) in dwarf_source_file {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let dwarf_source_file =
+            (*futures::executor::block_on(async { self.dwarf_source_file.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(dwarf_source_file.len()))?;
+        for (k, v) in dwarf_source_file {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let error = (*futures::executor::block_on(async { self.error.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(error.len()))?;
-        // for (k, v) in error {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let error = (*futures::executor::block_on(async { self.error.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(error.len()))?;
+        for (k, v) in error {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let error_expression =
-        //     (*futures::executor::block_on(async { self.error_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(error_expression.len()))?;
-        // for (k, v) in error_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let error_expression =
+            (*futures::executor::block_on(async { self.error_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(error_expression.len()))?;
+        for (k, v) in error_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let expression =
-        //     (*futures::executor::block_on(async { self.expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(expression.len()))?;
-        // for (k, v) in expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let expression =
+            (*futures::executor::block_on(async { self.expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(expression.len()))?;
+        for (k, v) in expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let expression_statement =
-        //     (*futures::executor::block_on(async { self.expression_statement.read().await }))
-        //         .clone();
-        // let mut map = serializer.serialize_map(Some(expression_statement.len()))?;
-        // for (k, v) in expression_statement {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let expression_statement =
+            (*futures::executor::block_on(async { self.expression_statement.read().await }))
+                .clone();
+        let mut map = serializer.serialize_map(Some(expression_statement.len()))?;
+        for (k, v) in expression_statement {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let field = (*futures::executor::block_on(async { self.field.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(field.len()))?;
-        // for (k, v) in field {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let field = (*futures::executor::block_on(async { self.field.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(field.len()))?;
+        for (k, v) in field {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let field_access =
-        //     (*futures::executor::block_on(async { self.field_access.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(field_access.len()))?;
-        // for (k, v) in field_access {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let field_access =
+            (*futures::executor::block_on(async { self.field_access.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(field_access.len()))?;
+        for (k, v) in field_access {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let field_access_target =
-        //     (*futures::executor::block_on(async { self.field_access_target.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(field_access_target.len()))?;
-        // for (k, v) in field_access_target {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let field_access_target =
+            (*futures::executor::block_on(async { self.field_access_target.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(field_access_target.len()))?;
+        for (k, v) in field_access_target {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let field_expression =
-        //     (*futures::executor::block_on(async { self.field_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(field_expression.len()))?;
-        // for (k, v) in field_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let field_expression =
+            (*futures::executor::block_on(async { self.field_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(field_expression.len()))?;
+        for (k, v) in field_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let float_literal =
-        //     (*futures::executor::block_on(async { self.float_literal.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(float_literal.len()))?;
-        // for (k, v) in float_literal {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let float_literal =
+            (*futures::executor::block_on(async { self.float_literal.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(float_literal.len()))?;
+        for (k, v) in float_literal {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let for_loop = (*futures::executor::block_on(async { self.for_loop.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(for_loop.len()))?;
-        // for (k, v) in for_loop {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let for_loop = (*futures::executor::block_on(async { self.for_loop.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(for_loop.len()))?;
+        for (k, v) in for_loop {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let function = (*futures::executor::block_on(async { self.function.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(function.len()))?;
-        // for (k, v) in function {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let function = (*futures::executor::block_on(async { self.function.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(function.len()))?;
+        for (k, v) in function {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let grouped = (*futures::executor::block_on(async { self.grouped.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(grouped.len()))?;
-        // for (k, v) in grouped {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let grouped = (*futures::executor::block_on(async { self.grouped.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(grouped.len()))?;
+        for (k, v) in grouped {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let x_if = (*futures::executor::block_on(async { self.x_if.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(x_if.len()))?;
-        // for (k, v) in x_if {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let x_if = (*futures::executor::block_on(async { self.x_if.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(x_if.len()))?;
+        for (k, v) in x_if {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let implementation =
-        //     (*futures::executor::block_on(async { self.implementation.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(implementation.len()))?;
-        // for (k, v) in implementation {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let implementation =
+            (*futures::executor::block_on(async { self.implementation.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(implementation.len()))?;
+        for (k, v) in implementation {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let import = (*futures::executor::block_on(async { self.import.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(import.len()))?;
-        // for (k, v) in import {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let import = (*futures::executor::block_on(async { self.import.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(import.len()))?;
+        for (k, v) in import {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let index = (*futures::executor::block_on(async { self.index.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(index.len()))?;
-        // for (k, v) in index {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let index = (*futures::executor::block_on(async { self.index.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(index.len()))?;
+        for (k, v) in index {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let integer_literal =
-        //     (*futures::executor::block_on(async { self.integer_literal.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(integer_literal.len()))?;
-        // for (k, v) in integer_literal {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let integer_literal =
+            (*futures::executor::block_on(async { self.integer_literal.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(integer_literal.len()))?;
+        for (k, v) in integer_literal {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let item = (*futures::executor::block_on(async { self.item.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(item.len()))?;
-        // for (k, v) in item {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let item = (*futures::executor::block_on(async { self.item.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(item.len()))?;
+        for (k, v) in item {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let let_statement =
-        //     (*futures::executor::block_on(async { self.let_statement.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(let_statement.len()))?;
-        // for (k, v) in let_statement {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let let_statement =
+            (*futures::executor::block_on(async { self.let_statement.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(let_statement.len()))?;
+        for (k, v) in let_statement {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let list = (*futures::executor::block_on(async { self.list.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(list.len()))?;
-        // for (k, v) in list {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let list = (*futures::executor::block_on(async { self.list.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(list.len()))?;
+        for (k, v) in list {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let list_element =
-        //     (*futures::executor::block_on(async { self.list_element.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(list_element.len()))?;
-        // for (k, v) in list_element {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let list_element =
+            (*futures::executor::block_on(async { self.list_element.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(list_element.len()))?;
+        for (k, v) in list_element {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let list_expression =
-        //     (*futures::executor::block_on(async { self.list_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(list_expression.len()))?;
-        // for (k, v) in list_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let list_expression =
+            (*futures::executor::block_on(async { self.list_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(list_expression.len()))?;
+        for (k, v) in list_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let literal = (*futures::executor::block_on(async { self.literal.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(literal.len()))?;
-        // for (k, v) in literal {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let literal = (*futures::executor::block_on(async { self.literal.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(literal.len()))?;
+        for (k, v) in literal {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let local_variable =
-        //     (*futures::executor::block_on(async { self.local_variable.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(local_variable.len()))?;
-        // for (k, v) in local_variable {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let local_variable =
+            (*futures::executor::block_on(async { self.local_variable.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(local_variable.len()))?;
+        for (k, v) in local_variable {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let method_call =
-        //     (*futures::executor::block_on(async { self.method_call.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(method_call.len()))?;
-        // for (k, v) in method_call {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let x_macro = (*futures::executor::block_on(async { self.x_macro.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(x_macro.len()))?;
+        for (k, v) in x_macro {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let z_object_store =
-        //     (*futures::executor::block_on(async { self.z_object_store.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(z_object_store.len()))?;
-        // for (k, v) in z_object_store {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let method_call =
+            (*futures::executor::block_on(async { self.method_call.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(method_call.len()))?;
+        for (k, v) in method_call {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let operator = (*futures::executor::block_on(async { self.operator.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(operator.len()))?;
-        // for (k, v) in operator {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let z_object_store =
+            (*futures::executor::block_on(async { self.z_object_store.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(z_object_store.len()))?;
+        for (k, v) in z_object_store {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let woog_option =
-        //     (*futures::executor::block_on(async { self.woog_option.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(woog_option.len()))?;
-        // for (k, v) in woog_option {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let operator = (*futures::executor::block_on(async { self.operator.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(operator.len()))?;
+        for (k, v) in operator {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let parameter =
-        //     (*futures::executor::block_on(async { self.parameter.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(parameter.len()))?;
-        // for (k, v) in parameter {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let woog_option =
+            (*futures::executor::block_on(async { self.woog_option.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(woog_option.len()))?;
+        for (k, v) in woog_option {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let print = (*futures::executor::block_on(async { self.print.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(print.len()))?;
-        // for (k, v) in print {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let parameter =
+            (*futures::executor::block_on(async { self.parameter.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(parameter.len()))?;
+        for (k, v) in parameter {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let range_expression =
-        //     (*futures::executor::block_on(async { self.range_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(range_expression.len()))?;
-        // for (k, v) in range_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let print = (*futures::executor::block_on(async { self.print.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(print.len()))?;
+        for (k, v) in print {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let reference =
-        //     (*futures::executor::block_on(async { self.reference.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(reference.len()))?;
-        // for (k, v) in reference {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let range_expression =
+            (*futures::executor::block_on(async { self.range_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(range_expression.len()))?;
+        for (k, v) in range_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let result_statement =
-        //     (*futures::executor::block_on(async { self.result_statement.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(result_statement.len()))?;
-        // for (k, v) in result_statement {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let reference =
+            (*futures::executor::block_on(async { self.reference.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(reference.len()))?;
+        for (k, v) in reference {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let x_return = (*futures::executor::block_on(async { self.x_return.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(x_return.len()))?;
-        // for (k, v) in x_return {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let result_statement =
+            (*futures::executor::block_on(async { self.result_statement.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(result_statement.len()))?;
+        for (k, v) in result_statement {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let z_some = (*futures::executor::block_on(async { self.z_some.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(z_some.len()))?;
-        // for (k, v) in z_some {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let x_return = (*futures::executor::block_on(async { self.x_return.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(x_return.len()))?;
+        for (k, v) in x_return {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let span = (*futures::executor::block_on(async { self.span.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(span.len()))?;
-        // for (k, v) in span {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let z_some = (*futures::executor::block_on(async { self.z_some.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(z_some.len()))?;
+        for (k, v) in z_some {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let statement =
-        //     (*futures::executor::block_on(async { self.statement.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(statement.len()))?;
-        // for (k, v) in statement {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let span = (*futures::executor::block_on(async { self.span.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(span.len()))?;
+        for (k, v) in span {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let static_method_call =
-        //     (*futures::executor::block_on(async { self.static_method_call.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(static_method_call.len()))?;
-        // for (k, v) in static_method_call {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let statement =
+            (*futures::executor::block_on(async { self.statement.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(statement.len()))?;
+        for (k, v) in statement {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let string_literal =
-        //     (*futures::executor::block_on(async { self.string_literal.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(string_literal.len()))?;
-        // for (k, v) in string_literal {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let static_method_call =
+            (*futures::executor::block_on(async { self.static_method_call.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(static_method_call.len()))?;
+        for (k, v) in static_method_call {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let woog_struct =
-        //     (*futures::executor::block_on(async { self.woog_struct.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(woog_struct.len()))?;
-        // for (k, v) in woog_struct {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let string_literal =
+            (*futures::executor::block_on(async { self.string_literal.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(string_literal.len()))?;
+        for (k, v) in string_literal {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let struct_expression =
-        //     (*futures::executor::block_on(async { self.struct_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(struct_expression.len()))?;
-        // for (k, v) in struct_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let woog_struct =
+            (*futures::executor::block_on(async { self.woog_struct.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(woog_struct.len()))?;
+        for (k, v) in woog_struct {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let type_cast =
-        //     (*futures::executor::block_on(async { self.type_cast.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(type_cast.len()))?;
-        // for (k, v) in type_cast {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let struct_expression =
+            (*futures::executor::block_on(async { self.struct_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(struct_expression.len()))?;
+        for (k, v) in struct_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let unary = (*futures::executor::block_on(async { self.unary.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(unary.len()))?;
-        // for (k, v) in unary {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let type_cast =
+            (*futures::executor::block_on(async { self.type_cast.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(type_cast.len()))?;
+        for (k, v) in type_cast {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let x_value = (*futures::executor::block_on(async { self.x_value.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(x_value.len()))?;
-        // for (k, v) in x_value {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let unary = (*futures::executor::block_on(async { self.unary.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(unary.len()))?;
+        for (k, v) in unary {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let value_type =
-        //     (*futures::executor::block_on(async { self.value_type.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(value_type.len()))?;
-        // for (k, v) in value_type {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let x_value = (*futures::executor::block_on(async { self.x_value.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(x_value.len()))?;
+        for (k, v) in x_value {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let variable = (*futures::executor::block_on(async { self.variable.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(variable.len()))?;
-        // for (k, v) in variable {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let value_type =
+            (*futures::executor::block_on(async { self.value_type.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(value_type.len()))?;
+        for (k, v) in value_type {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
-        // let variable_expression =
-        //     (*futures::executor::block_on(async { self.variable_expression.read().await })).clone();
-        // let mut map = serializer.serialize_map(Some(variable_expression.len()))?;
-        // for (k, v) in variable_expression {
-        //     map.serialize_entry(
-        //         &k,
-        //         &(
-        //             (*futures::executor::block_on(async { v.0.read().await })).clone(),
-        //             v.1,
-        //         ),
-        //     )?;
-        // }
-        // let result = map.end();
+        let variable = (*futures::executor::block_on(async { self.variable.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(variable.len()))?;
+        for (k, v) in variable {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
+
+        let variable_expression =
+            (*futures::executor::block_on(async { self.variable_expression.read().await })).clone();
+        let mut map = serializer.serialize_map(Some(variable_expression.len()))?;
+        for (k, v) in variable_expression {
+            map.serialize_entry(
+                &k,
+                &(
+                    (*futures::executor::block_on(async { v.0.read().await })).clone(),
+                    v.1,
+                ),
+            )?;
+        }
+        let result = map.end();
 
         result
     }
@@ -954,6 +969,7 @@ impl<'de> Deserialize<'de> for ObjectStore {
             ListExpression,
             Literal,
             LocalVariable,
+            XMacro,
             MethodCall,
             ZObjectStore,
             Operator,
@@ -1026,6 +1042,7 @@ impl<'de> Deserialize<'de> for ObjectStore {
                             "list_expression" => Ok(Field::ListExpression),
                             "literal" => Ok(Field::Literal),
                             "local_variable" => Ok(Field::LocalVariable),
+                            "x_macro" => Ok(Field::XMacro),
                             "method_call" => Ok(Field::MethodCall),
                             "z_object_store" => Ok(Field::ZObjectStore),
                             "operator" => Ok(Field::Operator),
@@ -1062,196 +1079,89 @@ impl<'de> Deserialize<'de> for ObjectStore {
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("struct ObjectStore")
             }
-            // fn visit_map<A>(self, mut map: A) -> Result<ObjectStore, A::Error>
-            // where
-            //     A: MapAccess<'de>,
-            // {
-            //     let mut result = ObjectStore::new();
-            //     while let Some(key) = map.next_key()? {
-            //         match key {
-            //             Field::Argument => result.argument = map.next_value()?,
-            //             Field::Binary => result.binary = map.next_value()?,
-            //             Field::Block => result.block = map.next_value()?,
-            //             Field::BooleanLiteral => result.boolean_literal = map.next_value()?,
-            //             Field::BooleanOperator => result.boolean_operator = map.next_value()?,
-            //             Field::Call => result.call = map.next_value()?,
-            //             Field::Comparison => result.comparison = map.next_value()?,
-            //             Field::DwarfSourceFile => result.dwarf_source_file = map.next_value()?,
-            //             Field::Error => result.error = map.next_value()?,
-            //             Field::ErrorExpression => result.error_expression = map.next_value()?,
-            //             Field::Expression => result.expression = map.next_value()?,
-            //             Field::ExpressionStatement => {
-            //                 result.expression_statement = map.next_value()?
-            //             }
-            //             Field::Field => result.field = map.next_value()?,
-            //             Field::FieldAccess => result.field_access = map.next_value()?,
-            //             Field::FieldAccessTarget => {
-            //                 result.field_access_target = map.next_value()?
-            //             }
-            //             Field::FieldExpression => result.field_expression = map.next_value()?,
-            //             Field::FloatLiteral => result.float_literal = map.next_value()?,
-            //             Field::ForLoop => result.for_loop = map.next_value()?,
-            //             Field::Function => result.function = map.next_value()?,
-            //             Field::Grouped => result.grouped = map.next_value()?,
-            //             Field::XIf => result.x_if = map.next_value()?,
-            //             Field::Implementation => result.implementation = map.next_value()?,
-            //             Field::Import => result.import = map.next_value()?,
-            //             Field::Index => result.index = map.next_value()?,
-            //             Field::IntegerLiteral => result.integer_literal = map.next_value()?,
-            //             Field::Item => result.item = map.next_value()?,
-            //             Field::LetStatement => result.let_statement = map.next_value()?,
-            //             Field::List => result.list = map.next_value()?,
-            //             Field::ListElement => result.list_element = map.next_value()?,
-            //             Field::ListExpression => result.list_expression = map.next_value()?,
-            //             Field::Literal => result.literal = map.next_value()?,
-            //             Field::LocalVariable => result.local_variable = map.next_value()?,
-            //             Field::MethodCall => result.method_call = map.next_value()?,
-            //             Field::ZObjectStore => result.z_object_store = map.next_value()?,
-            //             Field::Operator => result.operator = map.next_value()?,
-            //             Field::WoogOption => result.woog_option = map.next_value()?,
-            //             Field::Parameter => result.parameter = map.next_value()?,
-            //             Field::Print => result.print = map.next_value()?,
-            //             Field::RangeExpression => result.range_expression = map.next_value()?,
-            //             Field::Reference => result.reference = map.next_value()?,
-            //             Field::ResultStatement => result.result_statement = map.next_value()?,
-            //             Field::XReturn => result.x_return = map.next_value()?,
-            //             Field::ZSome => result.z_some = map.next_value()?,
-            //             Field::Span => result.span = map.next_value()?,
-            //             Field::Statement => result.statement = map.next_value()?,
-            //             Field::StaticMethodCall => result.static_method_call = map.next_value()?,
-            //             Field::StringLiteral => result.string_literal = map.next_value()?,
-            //             Field::WoogStruct => result.woog_struct = map.next_value()?,
-            //             Field::StructExpression => result.struct_expression = map.next_value()?,
-            //             Field::TypeCast => result.type_cast = map.next_value()?,
-            //             Field::Unary => result.unary = map.next_value()?,
-            //             Field::XValue => result.x_value = map.next_value()?,
-            //             Field::ValueType => result.value_type = map.next_value()?,
-            //             Field::Variable => result.variable = map.next_value()?,
-            //             Field::VariableExpression => {
-            //                 result.variable_expression = map.next_value()?
-            //             }
-            //         }
-            //     }
-            //     Ok(result)
-            // }
+            fn visit_map<A>(self, mut map: A) -> Result<ObjectStore, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
+                let mut result = ObjectStore::new();
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        Field::Argument => result.argument = map.next_value()?,
+                        Field::Binary => result.binary = map.next_value()?,
+                        Field::Block => result.block = map.next_value()?,
+                        Field::BooleanLiteral => result.boolean_literal = map.next_value()?,
+                        Field::BooleanOperator => result.boolean_operator = map.next_value()?,
+                        Field::Call => result.call = map.next_value()?,
+                        Field::Comparison => result.comparison = map.next_value()?,
+                        Field::DwarfSourceFile => result.dwarf_source_file = map.next_value()?,
+                        Field::Error => result.error = map.next_value()?,
+                        Field::ErrorExpression => result.error_expression = map.next_value()?,
+                        Field::Expression => result.expression = map.next_value()?,
+                        Field::ExpressionStatement => {
+                            result.expression_statement = map.next_value()?
+                        }
+                        Field::Field => result.field = map.next_value()?,
+                        Field::FieldAccess => result.field_access = map.next_value()?,
+                        Field::FieldAccessTarget => {
+                            result.field_access_target = map.next_value()?
+                        }
+                        Field::FieldExpression => result.field_expression = map.next_value()?,
+                        Field::FloatLiteral => result.float_literal = map.next_value()?,
+                        Field::ForLoop => result.for_loop = map.next_value()?,
+                        Field::Function => result.function = map.next_value()?,
+                        Field::Grouped => result.grouped = map.next_value()?,
+                        Field::XIf => result.x_if = map.next_value()?,
+                        Field::Implementation => result.implementation = map.next_value()?,
+                        Field::Import => result.import = map.next_value()?,
+                        Field::Index => result.index = map.next_value()?,
+                        Field::IntegerLiteral => result.integer_literal = map.next_value()?,
+                        Field::Item => result.item = map.next_value()?,
+                        Field::LetStatement => result.let_statement = map.next_value()?,
+                        Field::List => result.list = map.next_value()?,
+                        Field::ListElement => result.list_element = map.next_value()?,
+                        Field::ListExpression => result.list_expression = map.next_value()?,
+                        Field::Literal => result.literal = map.next_value()?,
+                        Field::LocalVariable => result.local_variable = map.next_value()?,
+                        Field::XMacro => result.x_macro = map.next_value()?,
+                        Field::MethodCall => result.method_call = map.next_value()?,
+                        Field::ZObjectStore => result.z_object_store = map.next_value()?,
+                        Field::Operator => result.operator = map.next_value()?,
+                        Field::WoogOption => result.woog_option = map.next_value()?,
+                        Field::Parameter => result.parameter = map.next_value()?,
+                        Field::Print => result.print = map.next_value()?,
+                        Field::RangeExpression => result.range_expression = map.next_value()?,
+                        Field::Reference => result.reference = map.next_value()?,
+                        Field::ResultStatement => result.result_statement = map.next_value()?,
+                        Field::XReturn => result.x_return = map.next_value()?,
+                        Field::ZSome => result.z_some = map.next_value()?,
+                        Field::Span => result.span = map.next_value()?,
+                        Field::Statement => result.statement = map.next_value()?,
+                        Field::StaticMethodCall => result.static_method_call = map.next_value()?,
+                        Field::StringLiteral => result.string_literal = map.next_value()?,
+                        Field::WoogStruct => result.woog_struct = map.next_value()?,
+                        Field::StructExpression => result.struct_expression = map.next_value()?,
+                        Field::TypeCast => result.type_cast = map.next_value()?,
+                        Field::Unary => result.unary = map.next_value()?,
+                        Field::XValue => result.x_value = map.next_value()?,
+                        Field::ValueType => result.value_type = map.next_value()?,
+                        Field::Variable => result.variable = map.next_value()?,
+                        Field::VariableExpression => {
+                            result.variable_expression = map.next_value()?
+                        }
+                    }
+                }
+                Ok(result)
+            }
 
-            // fn visit_seq<A>(self, mut seq: A) -> Result<ObjectStore, A::Error>
-            // where
-            //     A: SeqAccess<'de>,
-            // {
-            //     let mut result = ObjectStore::new();
-            //     result.argument = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-            //     result.binary = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(1, &self))?;
-            //     result.block = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(2, &self))?;
-            //     result.boolean_literal = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(3, &self))?;
-            //     result.boolean_operator = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(4, &self))?;
-            //     result.call = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(5, &self))?;
-            //     result.comparison = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(6, &self))?;
-            //     result.dwarf_source_file = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(7, &self))?;
-            //     result.error = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(8, &self))?;
-            //     result.error_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(9, &self))?;
-            //     result.expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(10, &self))?;
-            //     result.expression_statement = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(11, &self))?;
-            //     result.field = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(12, &self))?;
-            //     result.field_access = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(13, &self))?;
-            //     result.field_access_target = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(14, &self))?;
-            //     result.field_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(15, &self))?;
-            //     result.float_literal = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(16, &self))?;
-            //     result.for_loop = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(17, &self))?;
-            //     result.function = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(18, &self))?;
-            //     result.grouped = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(19, &self))?;
-            //     result.x_if = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(20, &self))?;
-            //     result.implementation = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(21, &self))?;
-            //     result.import = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(22, &self))?;
-            //     result.index = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(23, &self))?;
-            //     result.integer_literal = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(24, &self))?;
-            //     result.item = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(25, &self))?;
-            //     result.let_statement = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(26, &self))?;
-            //     result.list = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(27, &self))?;
-            //     result.list_element = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(28, &self))?;
-            //     result.list_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(29, &self))?;
-            //     result.literal = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(30, &self))?;
-            //     result.local_variable = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(31, &self))?;
-            //     result.method_call = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(32, &self))?;
-            //     result.z_object_store = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(33, &self))?;
-            //     result.operator = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(34, &self))?;
-            //     result.woog_option = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(35, &self))?;
-            //     result.parameter = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(36, &self))?;
-            //     result.print = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(37, &self))?;
-            //     result.range_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(38, &self))?;
-            //     result.reference = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(39, &self))?;
-            //     result.result_statement = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(40, &self))?;
-            //     result.x_return = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(41, &self))?;
-            //     result.z_some = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(42, &self))?;
-            //     result.span = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(43, &self))?;
-            //     result.statement = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(44, &self))?;
-            //     result.static_method_call = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(45, &self))?;
-            //     result.string_literal = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(46, &self))?;
-            //     result.woog_struct = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(47, &self))?;
-            //     result.struct_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(48, &self))?;
-            //     result.type_cast = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(49, &self))?;
-            //     result.unary = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(50, &self))?;
-            //     result.x_value = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(51, &self))?;
-            //     result.value_type = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(52, &self))?;
-            //     result.variable = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(53, &self))?;
-            //     result.variable_expression = Arc::new(RwLock::new(seq.next_element()?))
-            //         .ok_or_else(|| de::Error::invalid_length(54, &self))?;
-            //     Ok(result)
-            // }
+            fn visit_seq<A>(self, mut seq: A) -> Result<ObjectStore, A::Error>
+            where
+                A: SeqAccess<'de>,
+            {
+                let mut result = ObjectStore::new();
+                result.argument = Arc::new(RwLock::new(seq.next_element()?))
+                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
+                Ok(result)
+            }
         }
 
         struct ArgumentVisitor;
@@ -1868,6 +1778,24 @@ impl<'de> Deserialize<'de> for ObjectStore {
             }
         }
 
+        struct XMacroVisitor;
+        impl<'de> Visitor<'de> for XMacroVisitor {
+            type Value = Arc<RwLock<HashMap<Uuid, (Arc<RwLock<XMacro>>, SystemTime)>>>;
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("XMacro map")
+            }
+            fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+            where
+                M: MapAccess<'de>,
+            {
+                let mut map = HashMap::default();
+                while let Some((key, value)) = access.next_entry::<Uuid, (XMacro, SystemTime)>()? {
+                    map.insert(key, (Arc::new(RwLock::new(value.0)), value.1));
+                }
+                Ok(Arc::new(RwLock::new(map)))
+            }
+        }
+
         struct MethodCallVisitor;
         impl<'de> Visitor<'de> for MethodCallVisitor {
             type Value = Arc<RwLock<HashMap<Uuid, (Arc<RwLock<MethodCall>>, SystemTime)>>>;
@@ -2349,6 +2277,7 @@ impl<'de> Deserialize<'de> for ObjectStore {
             "list_expression",
             "literal",
             "local_variable",
+            "x_macro",
             "method_call",
             "z_object_store",
             "operator",
@@ -2378,7 +2307,7 @@ impl<'de> Deserialize<'de> for ObjectStore {
 }
 
 impl ObjectStore {
-    pub async fn new() -> Self {
+    pub fn new() -> Self {
         let mut store = Self {
             argument: Arc::new(RwLock::new(HashMap::default())),
             binary: Arc::new(RwLock::new(HashMap::default())),
@@ -2414,6 +2343,7 @@ impl ObjectStore {
             list_expression: Arc::new(RwLock::new(HashMap::default())),
             literal: Arc::new(RwLock::new(HashMap::default())),
             local_variable: Arc::new(RwLock::new(HashMap::default())),
+            x_macro: Arc::new(RwLock::new(HashMap::default())),
             method_call: Arc::new(RwLock::new(HashMap::default())),
             z_object_store: Arc::new(RwLock::new(HashMap::default())),
             operator: Arc::new(RwLock::new(HashMap::default())),
@@ -2494,6 +2424,9 @@ impl ObjectStore {
             .inter_comparison(Arc::new(RwLock::new(Comparison::LessThanOrEqual(
                 LESS_THAN_OR_EQUAL,
             ))))
+            .await;
+        store
+            .inter_comparison(Arc::new(RwLock::new(Comparison::NotEqual(NOT_EQUAL))))
             .await;
         store
             .inter_error(Arc::new(RwLock::new(Error::UnknownVariable(
@@ -4391,6 +4324,61 @@ impl ObjectStore {
             .await
             .get(&local_variable.id)
             .map(|local_variable| local_variable.1)
+            .unwrap_or(SystemTime::now())
+    }
+
+    /// Inter (insert) [`XMacro`] into the store.
+    ///
+    pub async fn inter_x_macro(&mut self, x_macro: Arc<RwLock<XMacro>>) {
+        let read = x_macro.read().await;
+        self.x_macro
+            .write()
+            .await
+            .insert(read.id, (x_macro.clone(), SystemTime::now()));
+    }
+
+    /// Exhume (get) [`XMacro`] from the store.
+    ///
+    pub async fn exhume_x_macro(&self, id: &Uuid) -> Option<Arc<RwLock<XMacro>>> {
+        self.x_macro
+            .read()
+            .await
+            .get(id)
+            .map(|x_macro| x_macro.0.clone())
+    }
+
+    /// Exorcise (remove) [`XMacro`] from the store.
+    ///
+    pub async fn exorcise_x_macro(&mut self, id: &Uuid) -> Option<Arc<RwLock<XMacro>>> {
+        self.x_macro
+            .write()
+            .await
+            .remove(id)
+            .map(|x_macro| x_macro.0.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XMacro>`.
+    ///
+    pub async fn iter_x_macro(&self) -> impl Iterator<Item = Arc<RwLock<XMacro>>> + '_ {
+        let values: Vec<Arc<RwLock<XMacro>>> = self
+            .x_macro
+            .read()
+            .await
+            .values()
+            .map(|x_macro| x_macro.0.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Get the timestamp for XMacro.
+    ///
+    pub async fn x_macro_timestamp(&self, x_macro: &XMacro) -> SystemTime {
+        self.x_macro
+            .read()
+            .await
+            .get(&x_macro.id)
+            .map(|x_macro| x_macro.1)
             .unwrap_or(SystemTime::now())
     }
 
@@ -7246,6 +7234,49 @@ impl ObjectStore {
             }
         }
 
+        // Persist Macro.
+        {
+            let path = path.join("x_macro");
+            fs::create_dir_all(&path)?;
+            for x_macro_tuple in self.x_macro.read().await.values() {
+                let path = path.join(format!("{}.json", x_macro_tuple.0.read().await.id));
+                if path.exists() {
+                    let file = fs::File::open(&path)?;
+                    let reader = io::BufReader::new(file);
+                    let on_disk: (Arc<RwLock<XMacro>>, SystemTime) =
+                        serde_json::from_reader(reader)
+                            .map(|(a, b)| (Arc::new(RwLock::new(a)), b))?;
+                    if on_disk.0.read().await.to_owned() != x_macro_tuple.0.read().await.to_owned()
+                    {
+                        let file = fs::File::create(path)?;
+                        let mut writer = io::BufWriter::new(file);
+                        serde_json::to_writer_pretty(
+                            &mut writer,
+                            &(&x_macro_tuple.0.read().await.to_owned(), &x_macro_tuple.1),
+                        )?;
+                    }
+                } else {
+                    let file = fs::File::create(&path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(
+                        &mut writer,
+                        &(&x_macro_tuple.0.read().await.to_owned(), &x_macro_tuple.1),
+                    )?;
+                }
+            }
+            for file in fs::read_dir(&path)? {
+                let file = file?;
+                let path = file.path();
+                let file_name = path.file_name().unwrap().to_str().unwrap();
+                let id = file_name.split('.').next().unwrap();
+                if let Ok(id) = Uuid::parse_str(id) {
+                    if !self.x_macro.read().await.contains_key(&id) {
+                        fs::remove_file(path)?;
+                    }
+                }
+            }
+        }
+
         // Persist Method Call.
         {
             let path = path.join("method_call");
@@ -8366,7 +8397,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("lu_dog.json");
 
-        let mut store = Self::new().await;
+        let mut store = Self::new();
 
         // Load Argument.
         {
@@ -8977,6 +9008,25 @@ impl ObjectStore {
                     .write()
                     .await
                     .insert(local_variable.0.read().await.id, local_variable.clone());
+            }
+        }
+
+        // Load Macro.
+        {
+            let path = path.join("x_macro");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_macro: (Arc<RwLock<XMacro>>, SystemTime) =
+                    serde_json::from_reader(reader).map(|(a, b)| (Arc::new(RwLock::new(a)), b))?;
+                store
+                    .x_macro
+                    .write()
+                    .await
+                    .insert(x_macro.0.read().await.id, x_macro.clone());
             }
         }
 

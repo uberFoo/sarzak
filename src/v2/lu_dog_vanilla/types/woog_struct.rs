@@ -80,7 +80,7 @@ impl WoogStruct {
             .iter_implementation()
             .find(|implementation| implementation.model_type == self.id);
         match implementation {
-            Some(implementation) => vec![implementation],
+            Some(ref implementation) => vec![implementation],
             None => Vec::new(),
         }
     }

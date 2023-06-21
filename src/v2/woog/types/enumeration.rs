@@ -40,13 +40,7 @@ impl Enumeration {
     pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {
         store
             .iter_enumeration_field()
-            .filter_map(|enumeration_field| {
-                if enumeration_field.field == self.id {
-                    Some(enumeration_field)
-                } else {
-                    None
-                }
-            })
+            .filter(|enumeration_field| enumeration_field.field == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

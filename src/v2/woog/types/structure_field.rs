@@ -62,7 +62,7 @@ impl StructureField {
             .iter_structure_field()
             .find(|structure_field| structure_field.next == Some(self.id));
         match structure_field {
-            Some(structure_field) => vec![structure_field],
+            Some(ref structure_field) => vec![structure_field],
             None => Vec::new(),
         }
     }

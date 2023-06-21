@@ -48,7 +48,7 @@ impl Variable {
     ) -> Arc<RwLock<Variable>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
-            name,
+            name: name,
             subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
             id,
         }));
@@ -65,7 +65,7 @@ impl Variable {
     ) -> Arc<RwLock<Variable>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
-            name,
+            name: name,
             subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
             id,
         }));

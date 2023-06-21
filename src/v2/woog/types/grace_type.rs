@@ -5,8 +5,8 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 use crate::v2::woog::types::field::Field;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::time_stamp::TimeStamp;
-use crate::v2::woog::types::value::Value;
 use crate::v2::woog::types::woog_option::WoogOption;
+use crate::v2::woog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -22,7 +22,7 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum GraceType {
     WoogOption(Uuid),
     Reference(Uuid),
@@ -91,11 +91,12 @@ impl GraceType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-value"}}}
-    /// Navigate to [`Value`] across R3(1-M)
-    pub fn r3_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&Value> {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-x_value"}}}
+    /// Navigate to [`XValue`] across R3(1-M)
+    pub fn r3_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
         store
-            .iter_value()
-            .filter(|value| value.ty == self.id())
+            .iter_x_value()
+            .filter(|x_value| x_value.ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

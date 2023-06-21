@@ -7,6 +7,7 @@ use crate::v2::lu_dog_vanilla::types::function::Function;
 use crate::v2::lu_dog_vanilla::types::implementation::Implementation;
 use crate::v2::lu_dog_vanilla::types::import::Import;
 use crate::v2::lu_dog_vanilla::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_vanilla::types::x_macro::XMacro;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_vanilla::store::ObjectStore as LuDogVanillaStore;
@@ -27,6 +28,7 @@ pub enum ItemEnum {
     Function(Uuid),
     Implementation(Uuid),
     Import(Uuid),
+    XMacro(Uuid),
     WoogStruct(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -77,6 +79,23 @@ impl Item {
         let new = Item {
             source: source.id,
             subtype: ItemEnum::Import(subtype.id),
+            id,
+        };
+        store.inter_item(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_x_macro"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_x_macro(
+        source: &DwarfSourceFile,
+        subtype: &XMacro,
+        store: &mut LuDogVanillaStore,
+    ) -> Item {
+        let id = Uuid::new_v4();
+        let new = Item {
+            source: source.id,
+            subtype: ItemEnum::XMacro(subtype.id),
             id,
         };
         store.inter_item(new.clone());
