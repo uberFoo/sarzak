@@ -236,7 +236,7 @@ impl<'a> From<XyzzyEdge<'a>> for Arc<RwLock<Edge>> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
     use crate::domain::DomainBuilder;
 
     #[test]
