@@ -2,8 +2,22 @@
 name = "sarzak"
 version = "2.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Keith T. Star <uberfoo@me.com>"]
+copyright = "Copyright © 2023 Keith T. Star. All rights reserved."
+categories = ["compilers", "memory-management"]
+description = ""
+documentation = "https://uberfoo.github.io/assets/docs/dwarf/introduction.html"
+homepage = "https://uberfoo.github.io/assets/docs/dwarf/introduction.html"
+include = [
+    "build.rs",
+    "src/**/*.rs",
+    "README.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+]
+keywords = ["dwarf", "sarzak", "arena"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/uberfoo/sarzak"
 
 [dependencies]
 ansi_term = "0.12.1"
@@ -15,10 +29,8 @@ fnv = "1.0.7"
 futures = "0.3.28"
 heck = "0.4.1"
 log = "0.4.17"
-# no_deadlocks = "1.3.0"
-no_deadlocks = { path = "../../github/no-deadlocks" }
-# nut = { path = "../nut" }
-nut = { git = "https://gitlab-runner:7kzem8nVeizSJQnLPWFY@git.uberfoo.com/sarzak/nut.git", branch = "develop" }
+no_deadlocks = { git = "https://github.com/uberFoo/no-deadlocks" }
+nut = { git = "https://github.com/uberFoo/nut" }
 parking_lot = { version = "0.12.1", features = [
     "serde",
     "hardware-lock-elision",

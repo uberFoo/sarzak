@@ -1,19 +1,9 @@
 # Sarzak Tool Suite
 
-[![coverage report](https://git.uberfoo.com/sarzak/sarzak/badges/develop/coverage.svg)](https://git.uberfoo.com/sarzak/sarzak/-/commits/develop)
-
 Sarzak is a collection of tools, and perhaps most importantly, models.
 
-## Dwarf
+## License
 
-These are notes on the dwarf language, as it evolves.
-Thus far, it's very rust-like.
+dwarfr is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 
-Here is a list of "stuff":
- * no enums
- * no traits
- * struct expression fields don't support shorthand
-
- `sarzak gen -m v2/lu_dog grace dwarf -s target/sarzak/merlin/lu_dog.json`
-
- `RUST_LOG=trace dwarfc target/sarzak/lu_dog/lu_dog.tao --sarzak models/sarzak.json`
+See [LICENSE-APACHE](LICENSE-APACHE), [LICENSE-MIT](LICENSE-MIT) for details.
