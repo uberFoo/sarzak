@@ -1,5 +1,8 @@
 # Sarzak Tool Suite
 
+[![Build Status](https://github.com/uberFoo/sarzak/workflows/Rust/badge.svg)](https://github.com/uberFoo/sarzak/actions)
+[![Coverage Status](https://img.shields.io/badge/coverage-<coverage>%25-brightgreen)](./coverage.xml)
+
 Sarzak is a collection of tools, and perhaps most importantly, models.
 
 ## License
