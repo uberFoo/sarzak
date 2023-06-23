@@ -20,6 +20,8 @@ jobs:
                   toolchain: nightly
             - name: Install grcov
               run: cargo install grcov
+            - name: Install llvm-tools-preview
+              run: rustup component add llvm-tools-preview
             - name: Build and run tests with coverage
               run: |
                   CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' RUSTDOCFLAGS='-Cinstrument-coverage -Z unstable-options --persist-doctests target/debug/doctestbins' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo +nightly test
