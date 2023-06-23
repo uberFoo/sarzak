@@ -29,6 +29,8 @@ jobs:
                   grcov . --binary-path ./target/debug/doctestbins -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o coverage.lcov
             - name: Install lcov
               run: sudo apt-get install lcov
+            - name: Install lcov_cobertura
+              run: pip install lcov_cobertura
             - name: Generate coverage report
               run: |
                   lcov --summary coverage.lcov
