@@ -46,6 +46,8 @@ jobs:
                       coverage.lcov
                       coverage.xml
             - name: Comment coverage percentage
-              uses: unsplash/comment-on-pr@v1
+              uses: unsplash/comment-on-pr@v1.3.0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  message: 'Coverage: ${{ job.steps[3].outputs.coverage }}'
+                  msg: 'Coverage: ${{ job.steps[3].outputs.coverage }}'
