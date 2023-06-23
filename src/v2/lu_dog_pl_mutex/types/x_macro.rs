@@ -21,7 +21,7 @@ use crate::v2::lu_dog_pl_mutex::store::ObjectStore as LuDogPlMutexStore;
 ///
 /// OK, so that means something like this:
 ///
-/// ```
+/// ```no-test
 /// macro_rules! `ident` {
 ///     ($[ ( | `ident`]<,)*>[,$ident]*) => {
 ///     }

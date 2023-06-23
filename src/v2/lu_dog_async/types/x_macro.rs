@@ -21,7 +21,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 ///
 /// OK, so that means something like this:
 ///
-/// ```
+/// ```no-test
 /// macro_rules! `ident` {
 ///     ($[ ( | `ident`]<,)*>[,$ident]*) => {
 ///     }
