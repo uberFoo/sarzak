@@ -5,7 +5,7 @@ pub mod lu_dog;
 // pub mod lu_dog_no_deadlocks;
 pub mod lu_dog_pl_mutex;
 pub mod lu_dog_rwlock;
-pub mod lu_dog_vanilla;
+// pub mod lu_dog_vanilla;
 pub mod merlin;
 pub mod sarzak;
 pub mod woog;
