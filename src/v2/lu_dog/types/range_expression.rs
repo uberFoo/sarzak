@@ -145,6 +145,8 @@ impl RangeExpression {
         span!("r59_expression");
         match self.rhs {
             Some(ref rhs) => vec![store.exhume_expression(rhs).unwrap()],
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-lhs"}}}
             None => Vec::new(),
         }
     }

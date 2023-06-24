@@ -86,7 +86,8 @@ use crate::v2::lu_dog_vanilla::types::{
     Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
     ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL,
     FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION,
-    NEGATION, NOT, NOT_EQUAL, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Z_NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -223,12 +224,14 @@ impl ObjectStore {
         store.inter_binary(Binary::Addition(ADDITION));
         store.inter_binary(Binary::Assignment(ASSIGNMENT));
         store.inter_binary(Binary::BooleanOperator(BooleanOperator::And(AND).id()));
+        store.inter_binary(Binary::BooleanOperator(BooleanOperator::Or(OR).id()));
         store.inter_binary(Binary::Division(DIVISION));
         store.inter_binary(Binary::Multiplication(MULTIPLICATION));
         store.inter_binary(Binary::Subtraction(SUBTRACTION));
         store.inter_boolean_literal(BooleanLiteral::FalseLiteral(FALSE_LITERAL));
         store.inter_boolean_literal(BooleanLiteral::TrueLiteral(TRUE_LITERAL));
         store.inter_boolean_operator(BooleanOperator::And(AND));
+        store.inter_boolean_operator(BooleanOperator::Or(OR));
         store.inter_comparison(Comparison::Equal(EQUAL));
         store.inter_comparison(Comparison::GreaterThan(GREATER_THAN));
         store.inter_comparison(Comparison::GreaterThanOrEqual(GREATER_THAN_OR_EQUAL));
@@ -4290,7 +4293,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("lu_dog.json");
 
-        let mut store = Self::new();
+        let store = Self::new();
 
         // Load Argument.
         {

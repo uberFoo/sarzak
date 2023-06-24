@@ -25,7 +25,6 @@ jobs:
             - name: Build and run tests with coverage
               run: |
                   CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' RUSTDOCFLAGS='-Cinstrument-coverage -Z unstable-options --persist-doctests target/debug/doctestbins' LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw' cargo +nightly test
-                  grcov . --binary-path ./target/debug/doctestbins -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./coverage/
                   grcov . --binary-path ./target/debug/doctestbins -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o coverage.lcov
             - name: Install lcov
               run: sudo apt-get install lcov

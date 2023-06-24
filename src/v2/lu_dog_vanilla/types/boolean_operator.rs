@@ -3,6 +3,7 @@
 use crate::v2::lu_dog_vanilla::store::ObjectStore as LuDogVanillaStore;
 use crate::v2::lu_dog_vanilla::types::and::AND;
 use crate::v2::lu_dog_vanilla::types::binary::Binary;
+use crate::v2::lu_dog_vanilla::types::or::OR;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -17,6 +18,7 @@ use uuid::Uuid;
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum BooleanOperator {
     And(Uuid),
+    Or(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-implementation"}}}
@@ -28,11 +30,18 @@ impl BooleanOperator {
         Self::And(AND)
     }
 
+    /// Create a new instance of BooleanOperator::Or
+    pub fn new_or() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Or(OR)
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
             BooleanOperator::And(id) => *id,
+            BooleanOperator::Or(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

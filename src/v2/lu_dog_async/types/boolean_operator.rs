@@ -3,6 +3,7 @@
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 use crate::v2::lu_dog_async::types::and::AND;
 use crate::v2::lu_dog_async::types::binary::Binary;
+use crate::v2::lu_dog_async::types::or::OR;
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use serde::{Deserialize, Serialize};
@@ -20,6 +21,7 @@ use uuid::Uuid;
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum BooleanOperator {
     And(Uuid),
+    Or(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-implementation"}}}
@@ -31,11 +33,18 @@ impl BooleanOperator {
         store.exhume_boolean_operator(&AND).await.unwrap()
     }
 
+    /// Create a new instance of BooleanOperator::Or
+    pub async fn new_or(store: &LuDogAsyncStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_boolean_operator(&OR).await.unwrap()
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
             BooleanOperator::And(id) => *id,
+            BooleanOperator::Or(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

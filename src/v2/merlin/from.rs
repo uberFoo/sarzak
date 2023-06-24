@@ -8,7 +8,6 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
-use std::sync::{Arc, RwLock};
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}

@@ -548,6 +548,8 @@ impl Expression {
             // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
             // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
             .filter(|operator| operator.borrow().rhs == Some(self.id()))
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

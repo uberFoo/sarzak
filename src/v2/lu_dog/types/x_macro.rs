@@ -21,7 +21,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 ///
 /// OK, so that means something like this:
 ///
-/// ```no_test
+/// ```no-test
 /// macro_rules! `ident` {
 ///     ($[ ( | `ident`]<,)*>[,$ident]*) => {
 ///     }

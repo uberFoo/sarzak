@@ -3,6 +3,7 @@
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 use crate::v2::lu_dog_rwlock::types::and::AND;
 use crate::v2::lu_dog_rwlock::types::binary::Binary;
+use crate::v2::lu_dog_rwlock::types::or::OR;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -20,6 +21,7 @@ use uuid::Uuid;
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum BooleanOperator {
     And(Uuid),
+    Or(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-implementation"}}}
@@ -31,11 +33,18 @@ impl BooleanOperator {
         store.exhume_boolean_operator(&AND).unwrap()
     }
 
+    /// Create a new instance of BooleanOperator::Or
+    pub fn new_or(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_boolean_operator(&OR).unwrap()
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
             BooleanOperator::And(id) => *id,
+            BooleanOperator::Or(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
