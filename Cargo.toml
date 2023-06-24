@@ -51,7 +51,7 @@ env_logger = "0.10.0"
 
 [features]
 default = ["lu-dog-rc"]
-# lu-dog-async = []
+lu-dog-async = []
 lu-dog-rc = []
 lu-dog-rwlock = []
 lu-dog-pl-mutex = []
