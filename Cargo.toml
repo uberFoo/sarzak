@@ -47,8 +47,6 @@ doctest = true
 crate-type = ["lib", "staticlib"]
 
 [dev-dependencies]
-dwarf = { path = "../dwarf" }
-# dwarf = { git = "https://github.com/uberFoo/dwarf" }
 env_logger = "0.10.0"
 
 [features]
