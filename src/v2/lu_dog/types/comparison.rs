@@ -4,6 +4,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::equal::EQUAL;
 use crate::v2::lu_dog::types::greater_than::GREATER_THAN;
 use crate::v2::lu_dog::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
+use crate::v2::lu_dog::types::less_than::LESS_THAN;
 use crate::v2::lu_dog::types::less_than_or_equal::LESS_THAN_OR_EQUAL;
 use crate::v2::lu_dog::types::not_equal::NOT_EQUAL;
 use crate::v2::lu_dog::types::operator::Operator;
@@ -27,6 +28,7 @@ pub enum Comparison {
     Equal(Uuid),
     GreaterThan(Uuid),
     GreaterThanOrEqual(Uuid),
+    LessThan(Uuid),
     LessThanOrEqual(Uuid),
     NotEqual(Uuid),
 }
@@ -52,6 +54,12 @@ impl Comparison {
         store.exhume_comparison(&GREATER_THAN_OR_EQUAL).unwrap()
     }
 
+    /// Create a new instance of Comparison::LessThan
+    pub fn new_less_than(store: &LuDogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_comparison(&LESS_THAN).unwrap()
+    }
+
     /// Create a new instance of Comparison::LessThanOrEqual
     pub fn new_less_than_or_equal(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
@@ -71,6 +79,7 @@ impl Comparison {
             Comparison::Equal(id) => *id,
             Comparison::GreaterThan(id) => *id,
             Comparison::GreaterThanOrEqual(id) => *id,
+            Comparison::LessThan(id) => *id,
             Comparison::LessThanOrEqual(id) => *id,
             Comparison::NotEqual(id) => *id,
         }

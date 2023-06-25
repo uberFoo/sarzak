@@ -87,9 +87,9 @@ use crate::v2::lu_dog::types::{
     Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
     Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
     ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, DEBUGGER, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN_OR_EQUAL, MULTIPLICATION,
-    NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
+    FALSE_LITERAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL,
+    MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN,
+    UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -250,6 +250,7 @@ impl ObjectStore {
         store.inter_comparison(Rc::new(RefCell::new(Comparison::GreaterThanOrEqual(
             GREATER_THAN_OR_EQUAL,
         ))));
+        store.inter_comparison(Rc::new(RefCell::new(Comparison::LessThan(LESS_THAN))));
         store.inter_comparison(Rc::new(RefCell::new(Comparison::LessThanOrEqual(
             LESS_THAN_OR_EQUAL,
         ))));
