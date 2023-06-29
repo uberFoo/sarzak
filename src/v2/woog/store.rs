@@ -51,7 +51,7 @@ use crate::v2::woog::types::{
     Access, Block, Call, Constant, Enumeration, EnumerationField, Expression, Field, Function,
     GenerationUnit, GraceType, Item, Local, ObjectMethod, Ownership, Parameter, Reference,
     Statement, Structure, StructureField, SymbolTable, TimeStamp, Variable, Visibility, WoogOption,
-    XLet, XValue, BORROWED, IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC,
+    XLet, XValue, BORROWED, IMPLEMENTATION, KRATE, LITERAL, MUTABLE, OWNED, PRIVATE, PUBLIC, USIZE,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -126,6 +126,7 @@ impl ObjectStore {
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
         store.inter_expression(Expression::Literal(LITERAL));
+        store.inter_grace_type(GraceType::Usize(USIZE));
         store.inter_item(Item::Implementation(IMPLEMENTATION));
         store.inter_ownership(Ownership::Borrowed(BORROWED));
         store.inter_ownership(Ownership::Mutable(MUTABLE));

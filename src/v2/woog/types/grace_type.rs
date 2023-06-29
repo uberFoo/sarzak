@@ -5,6 +5,7 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 use crate::v2::woog::types::field::Field;
 use crate::v2::woog::types::reference::Reference;
 use crate::v2::woog::types::time_stamp::TimeStamp;
+use crate::v2::woog::types::usize::USIZE;
 use crate::v2::woog::types::woog_option::WoogOption;
 use crate::v2::woog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
@@ -28,6 +29,7 @@ pub enum GraceType {
     Reference(Uuid),
     TimeStamp(Uuid),
     Ty(Uuid),
+    Usize(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-implementation"}}}
@@ -61,6 +63,12 @@ impl GraceType {
         new
     }
 
+    /// Create a new instance of GraceType::Usize
+    pub fn new_usize() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Usize(USIZE)
+    }
+
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
@@ -69,6 +77,7 @@ impl GraceType {
             GraceType::Reference(id) => *id,
             GraceType::TimeStamp(id) => *id,
             GraceType::Ty(id) => *id,
+            GraceType::Usize(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
