@@ -33,6 +33,8 @@
 //! * [`Index`]
 //! * [`IntegerLiteral`]
 //! * [`Item`]
+//! * [`Lambda`]
+//! * [`LambdaParameter`]
 //! * [`LetStatement`]
 //! * [`List`]
 //! * [`ListElement`]
@@ -81,11 +83,11 @@ use crate::v2::lu_dog_vec::types::{
     Argument, Binary, Block, BooleanLiteral, BooleanOperator, Call, Comparison, DwarfSourceFile,
     Error, ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index,
-    IntegerLiteral, Item, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, Operator, Parameter, Print, RangeExpression, Reference, ResultStatement, Span,
-    Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast, Unary, ValueType,
-    Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue,
-    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, Operator, Parameter, Print, RangeExpression, Reference,
+    ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
+    Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
+    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
     FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
     ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
     NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
@@ -94,240 +96,248 @@ use crate::v2::lu_dog_vec::types::{
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    argument_free_list: std::sync::Mutex<Vec<usize>>,
+    argument_free_list: Vec<usize>,
     argument: Vec<Option<Rc<RefCell<Argument>>>>,
-    binary_free_list: std::sync::Mutex<Vec<usize>>,
+    binary_free_list: Vec<usize>,
     binary: Vec<Option<Rc<RefCell<Binary>>>>,
-    block_free_list: std::sync::Mutex<Vec<usize>>,
+    block_free_list: Vec<usize>,
     block: Vec<Option<Rc<RefCell<Block>>>>,
-    boolean_literal_free_list: std::sync::Mutex<Vec<usize>>,
+    boolean_literal_free_list: Vec<usize>,
     boolean_literal: Vec<Option<Rc<RefCell<BooleanLiteral>>>>,
-    boolean_operator_free_list: std::sync::Mutex<Vec<usize>>,
+    boolean_operator_free_list: Vec<usize>,
     boolean_operator: Vec<Option<Rc<RefCell<BooleanOperator>>>>,
-    call_free_list: std::sync::Mutex<Vec<usize>>,
+    call_free_list: Vec<usize>,
     call: Vec<Option<Rc<RefCell<Call>>>>,
-    comparison_free_list: std::sync::Mutex<Vec<usize>>,
+    comparison_free_list: Vec<usize>,
     comparison: Vec<Option<Rc<RefCell<Comparison>>>>,
-    dwarf_source_file_free_list: std::sync::Mutex<Vec<usize>>,
+    dwarf_source_file_free_list: Vec<usize>,
     dwarf_source_file: Vec<Option<Rc<RefCell<DwarfSourceFile>>>>,
-    error_free_list: std::sync::Mutex<Vec<usize>>,
+    error_free_list: Vec<usize>,
     error: Vec<Option<Rc<RefCell<Error>>>>,
-    error_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    error_expression_free_list: Vec<usize>,
     error_expression: Vec<Option<Rc<RefCell<ErrorExpression>>>>,
-    expression_free_list: std::sync::Mutex<Vec<usize>>,
+    expression_free_list: Vec<usize>,
     expression: Vec<Option<Rc<RefCell<Expression>>>>,
-    expression_statement_free_list: std::sync::Mutex<Vec<usize>>,
+    expression_statement_free_list: Vec<usize>,
     expression_statement: Vec<Option<Rc<RefCell<ExpressionStatement>>>>,
-    field_free_list: std::sync::Mutex<Vec<usize>>,
+    field_free_list: Vec<usize>,
     field: Vec<Option<Rc<RefCell<Field>>>>,
     field_id_by_name: HashMap<String, usize>,
-    field_access_free_list: std::sync::Mutex<Vec<usize>>,
+    field_access_free_list: Vec<usize>,
     field_access: Vec<Option<Rc<RefCell<FieldAccess>>>>,
-    field_access_target_free_list: std::sync::Mutex<Vec<usize>>,
+    field_access_target_free_list: Vec<usize>,
     field_access_target: Vec<Option<Rc<RefCell<FieldAccessTarget>>>>,
-    field_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    field_expression_free_list: Vec<usize>,
     field_expression: Vec<Option<Rc<RefCell<FieldExpression>>>>,
-    float_literal_free_list: std::sync::Mutex<Vec<usize>>,
+    float_literal_free_list: Vec<usize>,
     float_literal: Vec<Option<Rc<RefCell<FloatLiteral>>>>,
-    for_loop_free_list: std::sync::Mutex<Vec<usize>>,
+    for_loop_free_list: Vec<usize>,
     for_loop: Vec<Option<Rc<RefCell<ForLoop>>>>,
-    function_free_list: std::sync::Mutex<Vec<usize>>,
+    function_free_list: Vec<usize>,
     function: Vec<Option<Rc<RefCell<Function>>>>,
     function_id_by_name: HashMap<String, usize>,
-    grouped_free_list: std::sync::Mutex<Vec<usize>>,
+    grouped_free_list: Vec<usize>,
     grouped: Vec<Option<Rc<RefCell<Grouped>>>>,
-    x_if_free_list: std::sync::Mutex<Vec<usize>>,
+    x_if_free_list: Vec<usize>,
     x_if: Vec<Option<Rc<RefCell<XIf>>>>,
-    implementation_free_list: std::sync::Mutex<Vec<usize>>,
+    implementation_free_list: Vec<usize>,
     implementation: Vec<Option<Rc<RefCell<Implementation>>>>,
-    import_free_list: std::sync::Mutex<Vec<usize>>,
+    import_free_list: Vec<usize>,
     import: Vec<Option<Rc<RefCell<Import>>>>,
-    index_free_list: std::sync::Mutex<Vec<usize>>,
+    index_free_list: Vec<usize>,
     index: Vec<Option<Rc<RefCell<Index>>>>,
-    integer_literal_free_list: std::sync::Mutex<Vec<usize>>,
+    integer_literal_free_list: Vec<usize>,
     integer_literal: Vec<Option<Rc<RefCell<IntegerLiteral>>>>,
-    item_free_list: std::sync::Mutex<Vec<usize>>,
+    item_free_list: Vec<usize>,
     item: Vec<Option<Rc<RefCell<Item>>>>,
-    let_statement_free_list: std::sync::Mutex<Vec<usize>>,
+    lambda_free_list: Vec<usize>,
+    lambda: Vec<Option<Rc<RefCell<Lambda>>>>,
+    lambda_parameter_free_list: Vec<usize>,
+    lambda_parameter: Vec<Option<Rc<RefCell<LambdaParameter>>>>,
+    let_statement_free_list: Vec<usize>,
     let_statement: Vec<Option<Rc<RefCell<LetStatement>>>>,
-    list_free_list: std::sync::Mutex<Vec<usize>>,
+    list_free_list: Vec<usize>,
     list: Vec<Option<Rc<RefCell<List>>>>,
-    list_element_free_list: std::sync::Mutex<Vec<usize>>,
+    list_element_free_list: Vec<usize>,
     list_element: Vec<Option<Rc<RefCell<ListElement>>>>,
-    list_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    list_expression_free_list: Vec<usize>,
     list_expression: Vec<Option<Rc<RefCell<ListExpression>>>>,
-    literal_free_list: std::sync::Mutex<Vec<usize>>,
+    literal_free_list: Vec<usize>,
     literal: Vec<Option<Rc<RefCell<Literal>>>>,
-    local_variable_free_list: std::sync::Mutex<Vec<usize>>,
+    local_variable_free_list: Vec<usize>,
     local_variable: Vec<Option<Rc<RefCell<LocalVariable>>>>,
-    x_macro_free_list: std::sync::Mutex<Vec<usize>>,
+    x_macro_free_list: Vec<usize>,
     x_macro: Vec<Option<Rc<RefCell<XMacro>>>>,
-    method_call_free_list: std::sync::Mutex<Vec<usize>>,
+    method_call_free_list: Vec<usize>,
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
-    z_object_store_free_list: std::sync::Mutex<Vec<usize>>,
+    z_object_store_free_list: Vec<usize>,
     z_object_store: Vec<Option<Rc<RefCell<ZObjectStore>>>>,
-    operator_free_list: std::sync::Mutex<Vec<usize>>,
+    operator_free_list: Vec<usize>,
     operator: Vec<Option<Rc<RefCell<Operator>>>>,
-    woog_option_free_list: std::sync::Mutex<Vec<usize>>,
+    woog_option_free_list: Vec<usize>,
     woog_option: Vec<Option<Rc<RefCell<WoogOption>>>>,
-    parameter_free_list: std::sync::Mutex<Vec<usize>>,
+    parameter_free_list: Vec<usize>,
     parameter: Vec<Option<Rc<RefCell<Parameter>>>>,
-    print_free_list: std::sync::Mutex<Vec<usize>>,
+    print_free_list: Vec<usize>,
     print: Vec<Option<Rc<RefCell<Print>>>>,
-    range_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    range_expression_free_list: Vec<usize>,
     range_expression: Vec<Option<Rc<RefCell<RangeExpression>>>>,
-    reference_free_list: std::sync::Mutex<Vec<usize>>,
+    reference_free_list: Vec<usize>,
     reference: Vec<Option<Rc<RefCell<Reference>>>>,
-    result_statement_free_list: std::sync::Mutex<Vec<usize>>,
+    result_statement_free_list: Vec<usize>,
     result_statement: Vec<Option<Rc<RefCell<ResultStatement>>>>,
-    x_return_free_list: std::sync::Mutex<Vec<usize>>,
+    x_return_free_list: Vec<usize>,
     x_return: Vec<Option<Rc<RefCell<XReturn>>>>,
-    z_some_free_list: std::sync::Mutex<Vec<usize>>,
+    z_some_free_list: Vec<usize>,
     z_some: Vec<Option<Rc<RefCell<ZSome>>>>,
-    span_free_list: std::sync::Mutex<Vec<usize>>,
+    span_free_list: Vec<usize>,
     span: Vec<Option<Rc<RefCell<Span>>>>,
-    statement_free_list: std::sync::Mutex<Vec<usize>>,
+    statement_free_list: Vec<usize>,
     statement: Vec<Option<Rc<RefCell<Statement>>>>,
-    static_method_call_free_list: std::sync::Mutex<Vec<usize>>,
+    static_method_call_free_list: Vec<usize>,
     static_method_call: Vec<Option<Rc<RefCell<StaticMethodCall>>>>,
-    string_literal_free_list: std::sync::Mutex<Vec<usize>>,
+    string_literal_free_list: Vec<usize>,
     string_literal: Vec<Option<Rc<RefCell<StringLiteral>>>>,
-    woog_struct_free_list: std::sync::Mutex<Vec<usize>>,
+    woog_struct_free_list: Vec<usize>,
     woog_struct: Vec<Option<Rc<RefCell<WoogStruct>>>>,
     woog_struct_id_by_name: HashMap<String, usize>,
-    struct_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    struct_expression_free_list: Vec<usize>,
     struct_expression: Vec<Option<Rc<RefCell<StructExpression>>>>,
-    type_cast_free_list: std::sync::Mutex<Vec<usize>>,
+    type_cast_free_list: Vec<usize>,
     type_cast: Vec<Option<Rc<RefCell<TypeCast>>>>,
-    unary_free_list: std::sync::Mutex<Vec<usize>>,
+    unary_free_list: Vec<usize>,
     unary: Vec<Option<Rc<RefCell<Unary>>>>,
-    x_value_free_list: std::sync::Mutex<Vec<usize>>,
+    x_value_free_list: Vec<usize>,
     x_value: Vec<Option<Rc<RefCell<XValue>>>>,
-    value_type_free_list: std::sync::Mutex<Vec<usize>>,
+    value_type_free_list: Vec<usize>,
     value_type: Vec<Option<Rc<RefCell<ValueType>>>>,
-    variable_free_list: std::sync::Mutex<Vec<usize>>,
+    variable_free_list: Vec<usize>,
     variable: Vec<Option<Rc<RefCell<Variable>>>>,
-    variable_expression_free_list: std::sync::Mutex<Vec<usize>>,
+    variable_expression_free_list: Vec<usize>,
     variable_expression: Vec<Option<Rc<RefCell<VariableExpression>>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            argument_free_list: std::sync::Mutex::new(Vec::new()),
+            argument_free_list: Vec::new(),
             argument: Vec::new(),
-            binary_free_list: std::sync::Mutex::new(Vec::new()),
+            binary_free_list: Vec::new(),
             binary: Vec::new(),
-            block_free_list: std::sync::Mutex::new(Vec::new()),
+            block_free_list: Vec::new(),
             block: Vec::new(),
-            boolean_literal_free_list: std::sync::Mutex::new(Vec::new()),
+            boolean_literal_free_list: Vec::new(),
             boolean_literal: Vec::new(),
-            boolean_operator_free_list: std::sync::Mutex::new(Vec::new()),
+            boolean_operator_free_list: Vec::new(),
             boolean_operator: Vec::new(),
-            call_free_list: std::sync::Mutex::new(Vec::new()),
+            call_free_list: Vec::new(),
             call: Vec::new(),
-            comparison_free_list: std::sync::Mutex::new(Vec::new()),
+            comparison_free_list: Vec::new(),
             comparison: Vec::new(),
-            dwarf_source_file_free_list: std::sync::Mutex::new(Vec::new()),
+            dwarf_source_file_free_list: Vec::new(),
             dwarf_source_file: Vec::new(),
-            error_free_list: std::sync::Mutex::new(Vec::new()),
+            error_free_list: Vec::new(),
             error: Vec::new(),
-            error_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            error_expression_free_list: Vec::new(),
             error_expression: Vec::new(),
-            expression_free_list: std::sync::Mutex::new(Vec::new()),
+            expression_free_list: Vec::new(),
             expression: Vec::new(),
-            expression_statement_free_list: std::sync::Mutex::new(Vec::new()),
+            expression_statement_free_list: Vec::new(),
             expression_statement: Vec::new(),
-            field_free_list: std::sync::Mutex::new(Vec::new()),
+            field_free_list: Vec::new(),
             field: Vec::new(),
             field_id_by_name: HashMap::default(),
-            field_access_free_list: std::sync::Mutex::new(Vec::new()),
+            field_access_free_list: Vec::new(),
             field_access: Vec::new(),
-            field_access_target_free_list: std::sync::Mutex::new(Vec::new()),
+            field_access_target_free_list: Vec::new(),
             field_access_target: Vec::new(),
-            field_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            field_expression_free_list: Vec::new(),
             field_expression: Vec::new(),
-            float_literal_free_list: std::sync::Mutex::new(Vec::new()),
+            float_literal_free_list: Vec::new(),
             float_literal: Vec::new(),
-            for_loop_free_list: std::sync::Mutex::new(Vec::new()),
+            for_loop_free_list: Vec::new(),
             for_loop: Vec::new(),
-            function_free_list: std::sync::Mutex::new(Vec::new()),
+            function_free_list: Vec::new(),
             function: Vec::new(),
             function_id_by_name: HashMap::default(),
-            grouped_free_list: std::sync::Mutex::new(Vec::new()),
+            grouped_free_list: Vec::new(),
             grouped: Vec::new(),
-            x_if_free_list: std::sync::Mutex::new(Vec::new()),
+            x_if_free_list: Vec::new(),
             x_if: Vec::new(),
-            implementation_free_list: std::sync::Mutex::new(Vec::new()),
+            implementation_free_list: Vec::new(),
             implementation: Vec::new(),
-            import_free_list: std::sync::Mutex::new(Vec::new()),
+            import_free_list: Vec::new(),
             import: Vec::new(),
-            index_free_list: std::sync::Mutex::new(Vec::new()),
+            index_free_list: Vec::new(),
             index: Vec::new(),
-            integer_literal_free_list: std::sync::Mutex::new(Vec::new()),
+            integer_literal_free_list: Vec::new(),
             integer_literal: Vec::new(),
-            item_free_list: std::sync::Mutex::new(Vec::new()),
+            item_free_list: Vec::new(),
             item: Vec::new(),
-            let_statement_free_list: std::sync::Mutex::new(Vec::new()),
+            lambda_free_list: Vec::new(),
+            lambda: Vec::new(),
+            lambda_parameter_free_list: Vec::new(),
+            lambda_parameter: Vec::new(),
+            let_statement_free_list: Vec::new(),
             let_statement: Vec::new(),
-            list_free_list: std::sync::Mutex::new(Vec::new()),
+            list_free_list: Vec::new(),
             list: Vec::new(),
-            list_element_free_list: std::sync::Mutex::new(Vec::new()),
+            list_element_free_list: Vec::new(),
             list_element: Vec::new(),
-            list_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            list_expression_free_list: Vec::new(),
             list_expression: Vec::new(),
-            literal_free_list: std::sync::Mutex::new(Vec::new()),
+            literal_free_list: Vec::new(),
             literal: Vec::new(),
-            local_variable_free_list: std::sync::Mutex::new(Vec::new()),
+            local_variable_free_list: Vec::new(),
             local_variable: Vec::new(),
-            x_macro_free_list: std::sync::Mutex::new(Vec::new()),
+            x_macro_free_list: Vec::new(),
             x_macro: Vec::new(),
-            method_call_free_list: std::sync::Mutex::new(Vec::new()),
+            method_call_free_list: Vec::new(),
             method_call: Vec::new(),
-            z_object_store_free_list: std::sync::Mutex::new(Vec::new()),
+            z_object_store_free_list: Vec::new(),
             z_object_store: Vec::new(),
-            operator_free_list: std::sync::Mutex::new(Vec::new()),
+            operator_free_list: Vec::new(),
             operator: Vec::new(),
-            woog_option_free_list: std::sync::Mutex::new(Vec::new()),
+            woog_option_free_list: Vec::new(),
             woog_option: Vec::new(),
-            parameter_free_list: std::sync::Mutex::new(Vec::new()),
+            parameter_free_list: Vec::new(),
             parameter: Vec::new(),
-            print_free_list: std::sync::Mutex::new(Vec::new()),
+            print_free_list: Vec::new(),
             print: Vec::new(),
-            range_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            range_expression_free_list: Vec::new(),
             range_expression: Vec::new(),
-            reference_free_list: std::sync::Mutex::new(Vec::new()),
+            reference_free_list: Vec::new(),
             reference: Vec::new(),
-            result_statement_free_list: std::sync::Mutex::new(Vec::new()),
+            result_statement_free_list: Vec::new(),
             result_statement: Vec::new(),
-            x_return_free_list: std::sync::Mutex::new(Vec::new()),
+            x_return_free_list: Vec::new(),
             x_return: Vec::new(),
-            z_some_free_list: std::sync::Mutex::new(Vec::new()),
+            z_some_free_list: Vec::new(),
             z_some: Vec::new(),
-            span_free_list: std::sync::Mutex::new(Vec::new()),
+            span_free_list: Vec::new(),
             span: Vec::new(),
-            statement_free_list: std::sync::Mutex::new(Vec::new()),
+            statement_free_list: Vec::new(),
             statement: Vec::new(),
-            static_method_call_free_list: std::sync::Mutex::new(Vec::new()),
+            static_method_call_free_list: Vec::new(),
             static_method_call: Vec::new(),
-            string_literal_free_list: std::sync::Mutex::new(Vec::new()),
+            string_literal_free_list: Vec::new(),
             string_literal: Vec::new(),
-            woog_struct_free_list: std::sync::Mutex::new(Vec::new()),
+            woog_struct_free_list: Vec::new(),
             woog_struct: Vec::new(),
             woog_struct_id_by_name: HashMap::default(),
-            struct_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            struct_expression_free_list: Vec::new(),
             struct_expression: Vec::new(),
-            type_cast_free_list: std::sync::Mutex::new(Vec::new()),
+            type_cast_free_list: Vec::new(),
             type_cast: Vec::new(),
-            unary_free_list: std::sync::Mutex::new(Vec::new()),
+            unary_free_list: Vec::new(),
             unary: Vec::new(),
-            x_value_free_list: std::sync::Mutex::new(Vec::new()),
+            x_value_free_list: Vec::new(),
             x_value: Vec::new(),
-            value_type_free_list: std::sync::Mutex::new(Vec::new()),
+            value_type_free_list: Vec::new(),
             value_type: Vec::new(),
-            variable_free_list: std::sync::Mutex::new(Vec::new()),
+            variable_free_list: Vec::new(),
             variable: Vec::new(),
-            variable_expression_free_list: std::sync::Mutex::new(Vec::new()),
+            variable_expression_free_list: Vec::new(),
             variable_expression: Vec::new(),
         };
 
@@ -490,7 +500,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Argument>>,
     {
-        if let Some(_index) = self.argument_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.argument_free_list.pop() {
             let argument = argument(_index);
             self.argument[_index] = Some(argument.clone());
             argument
@@ -515,7 +525,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_argument(&mut self, id: &usize) -> Option<Rc<RefCell<Argument>>> {
         let result = self.argument[*id].take();
-        self.argument_free_list.lock().unwrap().push(*id);
+        self.argument_free_list.push(*id);
         result
     }
 
@@ -537,7 +547,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Binary>>,
     {
-        if let Some(_index) = self.binary_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.binary_free_list.pop() {
             let binary = binary(_index);
             self.binary[_index] = Some(binary.clone());
             binary
@@ -562,7 +572,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_binary(&mut self, id: &usize) -> Option<Rc<RefCell<Binary>>> {
         let result = self.binary[*id].take();
-        self.binary_free_list.lock().unwrap().push(*id);
+        self.binary_free_list.push(*id);
         result
     }
 
@@ -584,7 +594,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Block>>,
     {
-        if let Some(_index) = self.block_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.block_free_list.pop() {
             let block = block(_index);
             self.block[_index] = Some(block.clone());
             block
@@ -609,7 +619,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_block(&mut self, id: &usize) -> Option<Rc<RefCell<Block>>> {
         let result = self.block[*id].take();
-        self.block_free_list.lock().unwrap().push(*id);
+        self.block_free_list.push(*id);
         result
     }
 
@@ -626,7 +636,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<BooleanLiteral>>,
     {
-        if let Some(_index) = self.boolean_literal_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.boolean_literal_free_list.pop() {
             let boolean_literal = boolean_literal(_index);
             self.boolean_literal[_index] = Some(boolean_literal.clone());
             boolean_literal
@@ -651,7 +661,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_boolean_literal(&mut self, id: &usize) -> Option<Rc<RefCell<BooleanLiteral>>> {
         let result = self.boolean_literal[*id].take();
-        self.boolean_literal_free_list.lock().unwrap().push(*id);
+        self.boolean_literal_free_list.push(*id);
         result
     }
 
@@ -673,7 +683,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<BooleanOperator>>,
     {
-        if let Some(_index) = self.boolean_operator_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.boolean_operator_free_list.pop() {
             let boolean_operator = boolean_operator(_index);
             self.boolean_operator[_index] = Some(boolean_operator.clone());
             boolean_operator
@@ -701,7 +711,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<BooleanOperator>>> {
         let result = self.boolean_operator[*id].take();
-        self.boolean_operator_free_list.lock().unwrap().push(*id);
+        self.boolean_operator_free_list.push(*id);
         result
     }
 
@@ -723,7 +733,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Call>>,
     {
-        if let Some(_index) = self.call_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.call_free_list.pop() {
             let call = call(_index);
             self.call[_index] = Some(call.clone());
             call
@@ -748,7 +758,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_call(&mut self, id: &usize) -> Option<Rc<RefCell<Call>>> {
         let result = self.call[*id].take();
-        self.call_free_list.lock().unwrap().push(*id);
+        self.call_free_list.push(*id);
         result
     }
 
@@ -765,7 +775,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Comparison>>,
     {
-        if let Some(_index) = self.comparison_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.comparison_free_list.pop() {
             let comparison = comparison(_index);
             self.comparison[_index] = Some(comparison.clone());
             comparison
@@ -790,7 +800,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_comparison(&mut self, id: &usize) -> Option<Rc<RefCell<Comparison>>> {
         let result = self.comparison[*id].take();
-        self.comparison_free_list.lock().unwrap().push(*id);
+        self.comparison_free_list.push(*id);
         result
     }
 
@@ -815,7 +825,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<DwarfSourceFile>>,
     {
-        if let Some(_index) = self.dwarf_source_file_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.dwarf_source_file_free_list.pop() {
             let dwarf_source_file = dwarf_source_file(_index);
             self.dwarf_source_file[_index] = Some(dwarf_source_file.clone());
             dwarf_source_file
@@ -843,7 +853,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<DwarfSourceFile>>> {
         let result = self.dwarf_source_file[*id].take();
-        self.dwarf_source_file_free_list.lock().unwrap().push(*id);
+        self.dwarf_source_file_free_list.push(*id);
         result
     }
 
@@ -867,7 +877,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Error>>,
     {
-        if let Some(_index) = self.error_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.error_free_list.pop() {
             let error = error(_index);
             self.error[_index] = Some(error.clone());
             error
@@ -892,7 +902,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_error(&mut self, id: &usize) -> Option<Rc<RefCell<Error>>> {
         let result = self.error[*id].take();
-        self.error_free_list.lock().unwrap().push(*id);
+        self.error_free_list.push(*id);
         result
     }
 
@@ -909,7 +919,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ErrorExpression>>,
     {
-        if let Some(_index) = self.error_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.error_expression_free_list.pop() {
             let error_expression = error_expression(_index);
             self.error_expression[_index] = Some(error_expression.clone());
             error_expression
@@ -937,7 +947,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<ErrorExpression>>> {
         let result = self.error_expression[*id].take();
-        self.error_expression_free_list.lock().unwrap().push(*id);
+        self.error_expression_free_list.push(*id);
         result
     }
 
@@ -959,7 +969,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Expression>>,
     {
-        if let Some(_index) = self.expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.expression_free_list.pop() {
             let expression = expression(_index);
             self.expression[_index] = Some(expression.clone());
             expression
@@ -984,7 +994,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_expression(&mut self, id: &usize) -> Option<Rc<RefCell<Expression>>> {
         let result = self.expression[*id].take();
-        self.expression_free_list.lock().unwrap().push(*id);
+        self.expression_free_list.push(*id);
         result
     }
 
@@ -1009,7 +1019,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ExpressionStatement>>,
     {
-        if let Some(_index) = self.expression_statement_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.expression_statement_free_list.pop() {
             let expression_statement = expression_statement(_index);
             self.expression_statement[_index] = Some(expression_statement.clone());
             expression_statement
@@ -1041,10 +1051,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<ExpressionStatement>>> {
         let result = self.expression_statement[*id].take();
-        self.expression_statement_free_list
-            .lock()
-            .unwrap()
-            .push(*id);
+        self.expression_statement_free_list.push(*id);
         result
     }
 
@@ -1068,7 +1075,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Field>>,
     {
-        let field = if let Some(_index) = self.field_free_list.lock().unwrap().pop() {
+        let field = if let Some(_index) = self.field_free_list.pop() {
             let field = field(_index);
             self.field[_index] = Some(field.clone());
             field
@@ -1096,7 +1103,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_field(&mut self, id: &usize) -> Option<Rc<RefCell<Field>>> {
         let result = self.field[*id].take();
-        self.field_free_list.lock().unwrap().push(*id);
+        self.field_free_list.push(*id);
         result
     }
 
@@ -1119,7 +1126,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<FieldAccess>>,
     {
-        if let Some(_index) = self.field_access_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.field_access_free_list.pop() {
             let field_access = field_access(_index);
             self.field_access[_index] = Some(field_access.clone());
             field_access
@@ -1144,7 +1151,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_field_access(&mut self, id: &usize) -> Option<Rc<RefCell<FieldAccess>>> {
         let result = self.field_access[*id].take();
-        self.field_access_free_list.lock().unwrap().push(*id);
+        self.field_access_free_list.push(*id);
         result
     }
 
@@ -1169,7 +1176,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<FieldAccessTarget>>,
     {
-        if let Some(_index) = self.field_access_target_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.field_access_target_free_list.pop() {
             let field_access_target = field_access_target(_index);
             self.field_access_target[_index] = Some(field_access_target.clone());
             field_access_target
@@ -1198,7 +1205,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<FieldAccessTarget>>> {
         let result = self.field_access_target[*id].take();
-        self.field_access_target_free_list.lock().unwrap().push(*id);
+        self.field_access_target_free_list.push(*id);
         result
     }
 
@@ -1222,7 +1229,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<FieldExpression>>,
     {
-        if let Some(_index) = self.field_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.field_expression_free_list.pop() {
             let field_expression = field_expression(_index);
             self.field_expression[_index] = Some(field_expression.clone());
             field_expression
@@ -1250,7 +1257,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<FieldExpression>>> {
         let result = self.field_expression[*id].take();
-        self.field_expression_free_list.lock().unwrap().push(*id);
+        self.field_expression_free_list.push(*id);
         result
     }
 
@@ -1272,7 +1279,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<FloatLiteral>>,
     {
-        if let Some(_index) = self.float_literal_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.float_literal_free_list.pop() {
             let float_literal = float_literal(_index);
             self.float_literal[_index] = Some(float_literal.clone());
             float_literal
@@ -1297,7 +1304,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_float_literal(&mut self, id: &usize) -> Option<Rc<RefCell<FloatLiteral>>> {
         let result = self.float_literal[*id].take();
-        self.float_literal_free_list.lock().unwrap().push(*id);
+        self.float_literal_free_list.push(*id);
         result
     }
 
@@ -1319,7 +1326,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ForLoop>>,
     {
-        if let Some(_index) = self.for_loop_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.for_loop_free_list.pop() {
             let for_loop = for_loop(_index);
             self.for_loop[_index] = Some(for_loop.clone());
             for_loop
@@ -1344,7 +1351,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_for_loop(&mut self, id: &usize) -> Option<Rc<RefCell<ForLoop>>> {
         let result = self.for_loop[*id].take();
-        self.for_loop_free_list.lock().unwrap().push(*id);
+        self.for_loop_free_list.push(*id);
         result
     }
 
@@ -1366,7 +1373,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Function>>,
     {
-        let function = if let Some(_index) = self.function_free_list.lock().unwrap().pop() {
+        let function = if let Some(_index) = self.function_free_list.pop() {
             let function = function(_index);
             self.function[_index] = Some(function.clone());
             function
@@ -1396,7 +1403,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_function(&mut self, id: &usize) -> Option<Rc<RefCell<Function>>> {
         let result = self.function[*id].take();
-        self.function_free_list.lock().unwrap().push(*id);
+        self.function_free_list.push(*id);
         result
     }
 
@@ -1424,7 +1431,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Grouped>>,
     {
-        if let Some(_index) = self.grouped_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.grouped_free_list.pop() {
             let grouped = grouped(_index);
             self.grouped[_index] = Some(grouped.clone());
             grouped
@@ -1449,7 +1456,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_grouped(&mut self, id: &usize) -> Option<Rc<RefCell<Grouped>>> {
         let result = self.grouped[*id].take();
-        self.grouped_free_list.lock().unwrap().push(*id);
+        self.grouped_free_list.push(*id);
         result
     }
 
@@ -1471,7 +1478,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<XIf>>,
     {
-        if let Some(_index) = self.x_if_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.x_if_free_list.pop() {
             let x_if = x_if(_index);
             self.x_if[_index] = Some(x_if.clone());
             x_if
@@ -1496,7 +1503,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_x_if(&mut self, id: &usize) -> Option<Rc<RefCell<XIf>>> {
         let result = self.x_if[*id].take();
-        self.x_if_free_list.lock().unwrap().push(*id);
+        self.x_if_free_list.push(*id);
         result
     }
 
@@ -1513,7 +1520,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Implementation>>,
     {
-        if let Some(_index) = self.implementation_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.implementation_free_list.pop() {
             let implementation = implementation(_index);
             self.implementation[_index] = Some(implementation.clone());
             implementation
@@ -1538,7 +1545,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_implementation(&mut self, id: &usize) -> Option<Rc<RefCell<Implementation>>> {
         let result = self.implementation[*id].take();
-        self.implementation_free_list.lock().unwrap().push(*id);
+        self.implementation_free_list.push(*id);
         result
     }
 
@@ -1560,7 +1567,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Import>>,
     {
-        if let Some(_index) = self.import_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.import_free_list.pop() {
             let import = import(_index);
             self.import[_index] = Some(import.clone());
             import
@@ -1585,7 +1592,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_import(&mut self, id: &usize) -> Option<Rc<RefCell<Import>>> {
         let result = self.import[*id].take();
-        self.import_free_list.lock().unwrap().push(*id);
+        self.import_free_list.push(*id);
         result
     }
 
@@ -1607,7 +1614,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Index>>,
     {
-        if let Some(_index) = self.index_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.index_free_list.pop() {
             let index = index(_index);
             self.index[_index] = Some(index.clone());
             index
@@ -1632,7 +1639,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_index(&mut self, id: &usize) -> Option<Rc<RefCell<Index>>> {
         let result = self.index[*id].take();
-        self.index_free_list.lock().unwrap().push(*id);
+        self.index_free_list.push(*id);
         result
     }
 
@@ -1649,7 +1656,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<IntegerLiteral>>,
     {
-        if let Some(_index) = self.integer_literal_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.integer_literal_free_list.pop() {
             let integer_literal = integer_literal(_index);
             self.integer_literal[_index] = Some(integer_literal.clone());
             integer_literal
@@ -1674,7 +1681,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_integer_literal(&mut self, id: &usize) -> Option<Rc<RefCell<IntegerLiteral>>> {
         let result = self.integer_literal[*id].take();
-        self.integer_literal_free_list.lock().unwrap().push(*id);
+        self.integer_literal_free_list.push(*id);
         result
     }
 
@@ -1696,7 +1703,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Item>>,
     {
-        if let Some(_index) = self.item_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.item_free_list.pop() {
             let item = item(_index);
             self.item[_index] = Some(item.clone());
             item
@@ -1721,7 +1728,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_item(&mut self, id: &usize) -> Option<Rc<RefCell<Item>>> {
         let result = self.item[*id].take();
-        self.item_free_list.lock().unwrap().push(*id);
+        self.item_free_list.push(*id);
         result
     }
 
@@ -1732,13 +1739,110 @@ impl ObjectStore {
         (0..len).map(move |i| self.item[i].as_ref().map(|item| item.clone()).unwrap())
     }
 
+    /// Inter (insert) [`Lambda`] into the store.
+    ///
+    pub fn inter_lambda<F>(&mut self, lambda: F) -> Rc<RefCell<Lambda>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Lambda>>,
+    {
+        if let Some(_index) = self.lambda_free_list.pop() {
+            let lambda = lambda(_index);
+            self.lambda[_index] = Some(lambda.clone());
+            lambda
+        } else {
+            let _index = self.lambda.len();
+            let lambda = lambda(_index);
+            self.lambda.push(Some(lambda.clone()));
+            lambda
+        }
+    }
+
+    /// Exhume (get) [`Lambda`] from the store.
+    ///
+    pub fn exhume_lambda(&self, id: &usize) -> Option<Rc<RefCell<Lambda>>> {
+        match self.lambda.get(*id) {
+            Some(lambda) => lambda.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Lambda`] from the store.
+    ///
+    pub fn exorcise_lambda(&mut self, id: &usize) -> Option<Rc<RefCell<Lambda>>> {
+        let result = self.lambda[*id].take();
+        self.lambda_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Lambda>`.
+    ///
+    pub fn iter_lambda(&self) -> impl Iterator<Item = Rc<RefCell<Lambda>>> + '_ {
+        let len = self.lambda.len();
+        (0..len).map(move |i| {
+            self.lambda[i]
+                .as_ref()
+                .map(|lambda| lambda.clone())
+                .unwrap()
+        })
+    }
+
+    /// Inter (insert) [`LambdaParameter`] into the store.
+    ///
+    pub fn inter_lambda_parameter<F>(&mut self, lambda_parameter: F) -> Rc<RefCell<LambdaParameter>>
+    where
+        F: Fn(usize) -> Rc<RefCell<LambdaParameter>>,
+    {
+        if let Some(_index) = self.lambda_parameter_free_list.pop() {
+            let lambda_parameter = lambda_parameter(_index);
+            self.lambda_parameter[_index] = Some(lambda_parameter.clone());
+            lambda_parameter
+        } else {
+            let _index = self.lambda_parameter.len();
+            let lambda_parameter = lambda_parameter(_index);
+            self.lambda_parameter.push(Some(lambda_parameter.clone()));
+            lambda_parameter
+        }
+    }
+
+    /// Exhume (get) [`LambdaParameter`] from the store.
+    ///
+    pub fn exhume_lambda_parameter(&self, id: &usize) -> Option<Rc<RefCell<LambdaParameter>>> {
+        match self.lambda_parameter.get(*id) {
+            Some(lambda_parameter) => lambda_parameter.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`LambdaParameter`] from the store.
+    ///
+    pub fn exorcise_lambda_parameter(
+        &mut self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<LambdaParameter>>> {
+        let result = self.lambda_parameter[*id].take();
+        self.lambda_parameter_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, LambdaParameter>`.
+    ///
+    pub fn iter_lambda_parameter(&self) -> impl Iterator<Item = Rc<RefCell<LambdaParameter>>> + '_ {
+        let len = self.lambda_parameter.len();
+        (0..len).map(move |i| {
+            self.lambda_parameter[i]
+                .as_ref()
+                .map(|lambda_parameter| lambda_parameter.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`LetStatement`] into the store.
     ///
     pub fn inter_let_statement<F>(&mut self, let_statement: F) -> Rc<RefCell<LetStatement>>
     where
         F: Fn(usize) -> Rc<RefCell<LetStatement>>,
     {
-        if let Some(_index) = self.let_statement_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.let_statement_free_list.pop() {
             let let_statement = let_statement(_index);
             self.let_statement[_index] = Some(let_statement.clone());
             let_statement
@@ -1763,7 +1867,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_let_statement(&mut self, id: &usize) -> Option<Rc<RefCell<LetStatement>>> {
         let result = self.let_statement[*id].take();
-        self.let_statement_free_list.lock().unwrap().push(*id);
+        self.let_statement_free_list.push(*id);
         result
     }
 
@@ -1785,7 +1889,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<List>>,
     {
-        if let Some(_index) = self.list_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.list_free_list.pop() {
             let list = list(_index);
             self.list[_index] = Some(list.clone());
             list
@@ -1810,7 +1914,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_list(&mut self, id: &usize) -> Option<Rc<RefCell<List>>> {
         let result = self.list[*id].take();
-        self.list_free_list.lock().unwrap().push(*id);
+        self.list_free_list.push(*id);
         result
     }
 
@@ -1827,7 +1931,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ListElement>>,
     {
-        if let Some(_index) = self.list_element_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.list_element_free_list.pop() {
             let list_element = list_element(_index);
             self.list_element[_index] = Some(list_element.clone());
             list_element
@@ -1852,7 +1956,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_list_element(&mut self, id: &usize) -> Option<Rc<RefCell<ListElement>>> {
         let result = self.list_element[*id].take();
-        self.list_element_free_list.lock().unwrap().push(*id);
+        self.list_element_free_list.push(*id);
         result
     }
 
@@ -1874,7 +1978,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ListExpression>>,
     {
-        if let Some(_index) = self.list_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.list_expression_free_list.pop() {
             let list_expression = list_expression(_index);
             self.list_expression[_index] = Some(list_expression.clone());
             list_expression
@@ -1899,7 +2003,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_list_expression(&mut self, id: &usize) -> Option<Rc<RefCell<ListExpression>>> {
         let result = self.list_expression[*id].take();
-        self.list_expression_free_list.lock().unwrap().push(*id);
+        self.list_expression_free_list.push(*id);
         result
     }
 
@@ -1921,7 +2025,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Literal>>,
     {
-        if let Some(_index) = self.literal_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.literal_free_list.pop() {
             let literal = literal(_index);
             self.literal[_index] = Some(literal.clone());
             literal
@@ -1946,7 +2050,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_literal(&mut self, id: &usize) -> Option<Rc<RefCell<Literal>>> {
         let result = self.literal[*id].take();
-        self.literal_free_list.lock().unwrap().push(*id);
+        self.literal_free_list.push(*id);
         result
     }
 
@@ -1968,7 +2072,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<LocalVariable>>,
     {
-        if let Some(_index) = self.local_variable_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.local_variable_free_list.pop() {
             let local_variable = local_variable(_index);
             self.local_variable[_index] = Some(local_variable.clone());
             local_variable
@@ -1993,7 +2097,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_local_variable(&mut self, id: &usize) -> Option<Rc<RefCell<LocalVariable>>> {
         let result = self.local_variable[*id].take();
-        self.local_variable_free_list.lock().unwrap().push(*id);
+        self.local_variable_free_list.push(*id);
         result
     }
 
@@ -2015,7 +2119,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<XMacro>>,
     {
-        if let Some(_index) = self.x_macro_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.x_macro_free_list.pop() {
             let x_macro = x_macro(_index);
             self.x_macro[_index] = Some(x_macro.clone());
             x_macro
@@ -2040,7 +2144,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_x_macro(&mut self, id: &usize) -> Option<Rc<RefCell<XMacro>>> {
         let result = self.x_macro[*id].take();
-        self.x_macro_free_list.lock().unwrap().push(*id);
+        self.x_macro_free_list.push(*id);
         result
     }
 
@@ -2062,7 +2166,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<MethodCall>>,
     {
-        if let Some(_index) = self.method_call_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.method_call_free_list.pop() {
             let method_call = method_call(_index);
             self.method_call[_index] = Some(method_call.clone());
             method_call
@@ -2087,7 +2191,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_method_call(&mut self, id: &usize) -> Option<Rc<RefCell<MethodCall>>> {
         let result = self.method_call[*id].take();
-        self.method_call_free_list.lock().unwrap().push(*id);
+        self.method_call_free_list.push(*id);
         result
     }
 
@@ -2109,7 +2213,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ZObjectStore>>,
     {
-        if let Some(_index) = self.z_object_store_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.z_object_store_free_list.pop() {
             let z_object_store = z_object_store(_index);
             self.z_object_store[_index] = Some(z_object_store.clone());
             z_object_store
@@ -2134,7 +2238,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_z_object_store(&mut self, id: &usize) -> Option<Rc<RefCell<ZObjectStore>>> {
         let result = self.z_object_store[*id].take();
-        self.z_object_store_free_list.lock().unwrap().push(*id);
+        self.z_object_store_free_list.push(*id);
         result
     }
 
@@ -2156,7 +2260,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Operator>>,
     {
-        if let Some(_index) = self.operator_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.operator_free_list.pop() {
             let operator = operator(_index);
             self.operator[_index] = Some(operator.clone());
             operator
@@ -2181,7 +2285,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_operator(&mut self, id: &usize) -> Option<Rc<RefCell<Operator>>> {
         let result = self.operator[*id].take();
-        self.operator_free_list.lock().unwrap().push(*id);
+        self.operator_free_list.push(*id);
         result
     }
 
@@ -2203,7 +2307,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<WoogOption>>,
     {
-        if let Some(_index) = self.woog_option_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.woog_option_free_list.pop() {
             let woog_option = woog_option(_index);
             self.woog_option[_index] = Some(woog_option.clone());
             woog_option
@@ -2228,7 +2332,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_woog_option(&mut self, id: &usize) -> Option<Rc<RefCell<WoogOption>>> {
         let result = self.woog_option[*id].take();
-        self.woog_option_free_list.lock().unwrap().push(*id);
+        self.woog_option_free_list.push(*id);
         result
     }
 
@@ -2250,7 +2354,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Parameter>>,
     {
-        if let Some(_index) = self.parameter_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.parameter_free_list.pop() {
             let parameter = parameter(_index);
             self.parameter[_index] = Some(parameter.clone());
             parameter
@@ -2275,7 +2379,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_parameter(&mut self, id: &usize) -> Option<Rc<RefCell<Parameter>>> {
         let result = self.parameter[*id].take();
-        self.parameter_free_list.lock().unwrap().push(*id);
+        self.parameter_free_list.push(*id);
         result
     }
 
@@ -2297,7 +2401,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Print>>,
     {
-        if let Some(_index) = self.print_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.print_free_list.pop() {
             let print = print(_index);
             self.print[_index] = Some(print.clone());
             print
@@ -2322,7 +2426,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_print(&mut self, id: &usize) -> Option<Rc<RefCell<Print>>> {
         let result = self.print[*id].take();
-        self.print_free_list.lock().unwrap().push(*id);
+        self.print_free_list.push(*id);
         result
     }
 
@@ -2339,7 +2443,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<RangeExpression>>,
     {
-        if let Some(_index) = self.range_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.range_expression_free_list.pop() {
             let range_expression = range_expression(_index);
             self.range_expression[_index] = Some(range_expression.clone());
             range_expression
@@ -2367,7 +2471,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<RangeExpression>>> {
         let result = self.range_expression[*id].take();
-        self.range_expression_free_list.lock().unwrap().push(*id);
+        self.range_expression_free_list.push(*id);
         result
     }
 
@@ -2389,7 +2493,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Reference>>,
     {
-        if let Some(_index) = self.reference_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.reference_free_list.pop() {
             let reference = reference(_index);
             self.reference[_index] = Some(reference.clone());
             reference
@@ -2414,7 +2518,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_reference(&mut self, id: &usize) -> Option<Rc<RefCell<Reference>>> {
         let result = self.reference[*id].take();
-        self.reference_free_list.lock().unwrap().push(*id);
+        self.reference_free_list.push(*id);
         result
     }
 
@@ -2436,7 +2540,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ResultStatement>>,
     {
-        if let Some(_index) = self.result_statement_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.result_statement_free_list.pop() {
             let result_statement = result_statement(_index);
             self.result_statement[_index] = Some(result_statement.clone());
             result_statement
@@ -2464,7 +2568,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<ResultStatement>>> {
         let result = self.result_statement[*id].take();
-        self.result_statement_free_list.lock().unwrap().push(*id);
+        self.result_statement_free_list.push(*id);
         result
     }
 
@@ -2486,7 +2590,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<XReturn>>,
     {
-        if let Some(_index) = self.x_return_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.x_return_free_list.pop() {
             let x_return = x_return(_index);
             self.x_return[_index] = Some(x_return.clone());
             x_return
@@ -2511,7 +2615,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_x_return(&mut self, id: &usize) -> Option<Rc<RefCell<XReturn>>> {
         let result = self.x_return[*id].take();
-        self.x_return_free_list.lock().unwrap().push(*id);
+        self.x_return_free_list.push(*id);
         result
     }
 
@@ -2533,7 +2637,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ZSome>>,
     {
-        if let Some(_index) = self.z_some_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.z_some_free_list.pop() {
             let z_some = z_some(_index);
             self.z_some[_index] = Some(z_some.clone());
             z_some
@@ -2558,7 +2662,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_z_some(&mut self, id: &usize) -> Option<Rc<RefCell<ZSome>>> {
         let result = self.z_some[*id].take();
-        self.z_some_free_list.lock().unwrap().push(*id);
+        self.z_some_free_list.push(*id);
         result
     }
 
@@ -2580,7 +2684,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Span>>,
     {
-        if let Some(_index) = self.span_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.span_free_list.pop() {
             let span = span(_index);
             self.span[_index] = Some(span.clone());
             span
@@ -2605,7 +2709,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_span(&mut self, id: &usize) -> Option<Rc<RefCell<Span>>> {
         let result = self.span[*id].take();
-        self.span_free_list.lock().unwrap().push(*id);
+        self.span_free_list.push(*id);
         result
     }
 
@@ -2622,7 +2726,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Statement>>,
     {
-        if let Some(_index) = self.statement_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.statement_free_list.pop() {
             let statement = statement(_index);
             self.statement[_index] = Some(statement.clone());
             statement
@@ -2647,7 +2751,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_statement(&mut self, id: &usize) -> Option<Rc<RefCell<Statement>>> {
         let result = self.statement[*id].take();
-        self.statement_free_list.lock().unwrap().push(*id);
+        self.statement_free_list.push(*id);
         result
     }
 
@@ -2672,7 +2776,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<StaticMethodCall>>,
     {
-        if let Some(_index) = self.static_method_call_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.static_method_call_free_list.pop() {
             let static_method_call = static_method_call(_index);
             self.static_method_call[_index] = Some(static_method_call.clone());
             static_method_call
@@ -2701,7 +2805,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<StaticMethodCall>>> {
         let result = self.static_method_call[*id].take();
-        self.static_method_call_free_list.lock().unwrap().push(*id);
+        self.static_method_call_free_list.push(*id);
         result
     }
 
@@ -2725,7 +2829,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<StringLiteral>>,
     {
-        if let Some(_index) = self.string_literal_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.string_literal_free_list.pop() {
             let string_literal = string_literal(_index);
             self.string_literal[_index] = Some(string_literal.clone());
             string_literal
@@ -2750,7 +2854,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_string_literal(&mut self, id: &usize) -> Option<Rc<RefCell<StringLiteral>>> {
         let result = self.string_literal[*id].take();
-        self.string_literal_free_list.lock().unwrap().push(*id);
+        self.string_literal_free_list.push(*id);
         result
     }
 
@@ -2772,7 +2876,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<WoogStruct>>,
     {
-        let woog_struct = if let Some(_index) = self.woog_struct_free_list.lock().unwrap().pop() {
+        let woog_struct = if let Some(_index) = self.woog_struct_free_list.pop() {
             let woog_struct = woog_struct(_index);
             self.woog_struct[_index] = Some(woog_struct.clone());
             woog_struct
@@ -2802,7 +2906,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_woog_struct(&mut self, id: &usize) -> Option<Rc<RefCell<WoogStruct>>> {
         let result = self.woog_struct[*id].take();
-        self.woog_struct_free_list.lock().unwrap().push(*id);
+        self.woog_struct_free_list.push(*id);
         result
     }
 
@@ -2835,7 +2939,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<StructExpression>>,
     {
-        if let Some(_index) = self.struct_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.struct_expression_free_list.pop() {
             let struct_expression = struct_expression(_index);
             self.struct_expression[_index] = Some(struct_expression.clone());
             struct_expression
@@ -2863,7 +2967,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<StructExpression>>> {
         let result = self.struct_expression[*id].take();
-        self.struct_expression_free_list.lock().unwrap().push(*id);
+        self.struct_expression_free_list.push(*id);
         result
     }
 
@@ -2887,7 +2991,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<TypeCast>>,
     {
-        if let Some(_index) = self.type_cast_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.type_cast_free_list.pop() {
             let type_cast = type_cast(_index);
             self.type_cast[_index] = Some(type_cast.clone());
             type_cast
@@ -2912,7 +3016,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_type_cast(&mut self, id: &usize) -> Option<Rc<RefCell<TypeCast>>> {
         let result = self.type_cast[*id].take();
-        self.type_cast_free_list.lock().unwrap().push(*id);
+        self.type_cast_free_list.push(*id);
         result
     }
 
@@ -2934,7 +3038,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Unary>>,
     {
-        if let Some(_index) = self.unary_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.unary_free_list.pop() {
             let unary = unary(_index);
             self.unary[_index] = Some(unary.clone());
             unary
@@ -2959,7 +3063,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_unary(&mut self, id: &usize) -> Option<Rc<RefCell<Unary>>> {
         let result = self.unary[*id].take();
-        self.unary_free_list.lock().unwrap().push(*id);
+        self.unary_free_list.push(*id);
         result
     }
 
@@ -2976,7 +3080,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<XValue>>,
     {
-        if let Some(_index) = self.x_value_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.x_value_free_list.pop() {
             let x_value = x_value(_index);
             self.x_value[_index] = Some(x_value.clone());
             x_value
@@ -3001,7 +3105,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_x_value(&mut self, id: &usize) -> Option<Rc<RefCell<XValue>>> {
         let result = self.x_value[*id].take();
-        self.x_value_free_list.lock().unwrap().push(*id);
+        self.x_value_free_list.push(*id);
         result
     }
 
@@ -3023,7 +3127,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<ValueType>>,
     {
-        if let Some(_index) = self.value_type_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.value_type_free_list.pop() {
             let value_type = value_type(_index);
             self.value_type[_index] = Some(value_type.clone());
             value_type
@@ -3048,7 +3152,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_value_type(&mut self, id: &usize) -> Option<Rc<RefCell<ValueType>>> {
         let result = self.value_type[*id].take();
-        self.value_type_free_list.lock().unwrap().push(*id);
+        self.value_type_free_list.push(*id);
         result
     }
 
@@ -3070,7 +3174,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<Variable>>,
     {
-        if let Some(_index) = self.variable_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.variable_free_list.pop() {
             let variable = variable(_index);
             self.variable[_index] = Some(variable.clone());
             variable
@@ -3095,7 +3199,7 @@ impl ObjectStore {
     ///
     pub fn exorcise_variable(&mut self, id: &usize) -> Option<Rc<RefCell<Variable>>> {
         let result = self.variable[*id].take();
-        self.variable_free_list.lock().unwrap().push(*id);
+        self.variable_free_list.push(*id);
         result
     }
 
@@ -3120,7 +3224,7 @@ impl ObjectStore {
     where
         F: Fn(usize) -> Rc<RefCell<VariableExpression>>,
     {
-        if let Some(_index) = self.variable_expression_free_list.lock().unwrap().pop() {
+        if let Some(_index) = self.variable_expression_free_list.pop() {
             let variable_expression = variable_expression(_index);
             self.variable_expression[_index] = Some(variable_expression.clone());
             variable_expression
@@ -3152,7 +3256,7 @@ impl ObjectStore {
         id: &usize,
     ) -> Option<Rc<RefCell<VariableExpression>>> {
         let result = self.variable_expression[*id].take();
-        self.variable_expression_free_list.lock().unwrap().push(*id);
+        self.variable_expression_free_list.push(*id);
         result
     }
 
@@ -3556,6 +3660,34 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &item)?;
+                }
+            }
+        }
+
+        // Persist Lambda.
+        {
+            let path = path.join("lambda");
+            fs::create_dir_all(&path)?;
+            for lambda in &self.lambda {
+                if let Some(lambda) = lambda {
+                    let path = path.join(format!("{}.json", lambda.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &lambda)?;
+                }
+            }
+        }
+
+        // Persist Lambda Parameter.
+        {
+            let path = path.join("lambda_parameter");
+            fs::create_dir_all(&path)?;
+            for lambda_parameter in &self.lambda_parameter {
+                if let Some(lambda_parameter) = lambda_parameter {
+                    let path = path.join(format!("{}.json", lambda_parameter.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &lambda_parameter)?;
                 }
             }
         }
@@ -4017,10 +4149,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let argument: Rc<RefCell<Argument>> = serde_json::from_reader(reader)?;
-                store.inter_argument(|id| {
-                    argument.borrow_mut().id = id;
-                    argument.clone()
-                });
+                store
+                    .argument
+                    .insert(argument.borrow().id, Some(argument.clone()));
             }
         }
 
@@ -4034,10 +4165,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let binary: Rc<RefCell<Binary>> = serde_json::from_reader(reader)?;
-                store.inter_binary(|id| {
-                    binary.borrow_mut().id = id;
-                    binary.clone()
-                });
+                store
+                    .binary
+                    .insert(binary.borrow().id, Some(binary.clone()));
             }
         }
 
@@ -4051,10 +4181,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let block: Rc<RefCell<Block>> = serde_json::from_reader(reader)?;
-                store.inter_block(|id| {
-                    block.borrow_mut().id = id;
-                    block.clone()
-                });
+                store.block.insert(block.borrow().id, Some(block.clone()));
             }
         }
 
@@ -4068,10 +4195,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let boolean_literal: Rc<RefCell<BooleanLiteral>> = serde_json::from_reader(reader)?;
-                store.inter_boolean_literal(|id| {
-                    boolean_literal.borrow_mut().id = id;
-                    boolean_literal.clone()
-                });
+                store
+                    .boolean_literal
+                    .insert(boolean_literal.borrow().id, Some(boolean_literal.clone()));
             }
         }
 
@@ -4086,10 +4212,9 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let boolean_operator: Rc<RefCell<BooleanOperator>> =
                     serde_json::from_reader(reader)?;
-                store.inter_boolean_operator(|id| {
-                    boolean_operator.borrow_mut().id = id;
-                    boolean_operator.clone()
-                });
+                store
+                    .boolean_operator
+                    .insert(boolean_operator.borrow().id, Some(boolean_operator.clone()));
             }
         }
 
@@ -4103,10 +4228,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let call: Rc<RefCell<Call>> = serde_json::from_reader(reader)?;
-                store.inter_call(|id| {
-                    call.borrow_mut().id = id;
-                    call.clone()
-                });
+                store.call.insert(call.borrow().id, Some(call.clone()));
             }
         }
 
@@ -4120,10 +4242,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let comparison: Rc<RefCell<Comparison>> = serde_json::from_reader(reader)?;
-                store.inter_comparison(|id| {
-                    comparison.borrow_mut().id = id;
-                    comparison.clone()
-                });
+                store
+                    .comparison
+                    .insert(comparison.borrow().id, Some(comparison.clone()));
             }
         }
 
@@ -4138,10 +4259,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let dwarf_source_file: Rc<RefCell<DwarfSourceFile>> =
                     serde_json::from_reader(reader)?;
-                store.inter_dwarf_source_file(|id| {
-                    dwarf_source_file.borrow_mut().id = id;
-                    dwarf_source_file.clone()
-                });
+                store.dwarf_source_file.insert(
+                    dwarf_source_file.borrow().id,
+                    Some(dwarf_source_file.clone()),
+                );
             }
         }
 
@@ -4155,10 +4276,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let error: Rc<RefCell<Error>> = serde_json::from_reader(reader)?;
-                store.inter_error(|id| {
-                    error.borrow_mut().id = id;
-                    error.clone()
-                });
+                store.error.insert(error.borrow().id, Some(error.clone()));
             }
         }
 
@@ -4173,10 +4291,9 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let error_expression: Rc<RefCell<ErrorExpression>> =
                     serde_json::from_reader(reader)?;
-                store.inter_error_expression(|id| {
-                    error_expression.borrow_mut().id = id;
-                    error_expression.clone()
-                });
+                store
+                    .error_expression
+                    .insert(error_expression.borrow().id, Some(error_expression.clone()));
             }
         }
 
@@ -4190,10 +4307,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let expression: Rc<RefCell<Expression>> = serde_json::from_reader(reader)?;
-                store.inter_expression(|id| {
-                    expression.borrow_mut().id = id;
-                    expression.clone()
-                });
+                store
+                    .expression
+                    .insert(expression.borrow().id, Some(expression.clone()));
             }
         }
 
@@ -4208,10 +4324,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let expression_statement: Rc<RefCell<ExpressionStatement>> =
                     serde_json::from_reader(reader)?;
-                store.inter_expression_statement(|id| {
-                    expression_statement.borrow_mut().id = id;
-                    expression_statement.clone()
-                });
+                store.expression_statement.insert(
+                    expression_statement.borrow().id,
+                    Some(expression_statement.clone()),
+                );
             }
         }
 
@@ -4228,10 +4344,7 @@ impl ObjectStore {
                 store
                     .field_id_by_name
                     .insert(field.borrow().name.to_upper_camel_case(), field.borrow().id);
-                store.inter_field(|id| {
-                    field.borrow_mut().id = id;
-                    field.clone()
-                });
+                store.field.insert(field.borrow().id, Some(field.clone()));
             }
         }
 
@@ -4245,10 +4358,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let field_access: Rc<RefCell<FieldAccess>> = serde_json::from_reader(reader)?;
-                store.inter_field_access(|id| {
-                    field_access.borrow_mut().id = id;
-                    field_access.clone()
-                });
+                store
+                    .field_access
+                    .insert(field_access.borrow().id, Some(field_access.clone()));
             }
         }
 
@@ -4263,10 +4375,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let field_access_target: Rc<RefCell<FieldAccessTarget>> =
                     serde_json::from_reader(reader)?;
-                store.inter_field_access_target(|id| {
-                    field_access_target.borrow_mut().id = id;
-                    field_access_target.clone()
-                });
+                store.field_access_target.insert(
+                    field_access_target.borrow().id,
+                    Some(field_access_target.clone()),
+                );
             }
         }
 
@@ -4281,10 +4393,9 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let field_expression: Rc<RefCell<FieldExpression>> =
                     serde_json::from_reader(reader)?;
-                store.inter_field_expression(|id| {
-                    field_expression.borrow_mut().id = id;
-                    field_expression.clone()
-                });
+                store
+                    .field_expression
+                    .insert(field_expression.borrow().id, Some(field_expression.clone()));
             }
         }
 
@@ -4298,10 +4409,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let float_literal: Rc<RefCell<FloatLiteral>> = serde_json::from_reader(reader)?;
-                store.inter_float_literal(|id| {
-                    float_literal.borrow_mut().id = id;
-                    float_literal.clone()
-                });
+                store
+                    .float_literal
+                    .insert(float_literal.borrow().id, Some(float_literal.clone()));
             }
         }
 
@@ -4315,10 +4425,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let for_loop: Rc<RefCell<ForLoop>> = serde_json::from_reader(reader)?;
-                store.inter_for_loop(|id| {
-                    for_loop.borrow_mut().id = id;
-                    for_loop.clone()
-                });
+                store
+                    .for_loop
+                    .insert(for_loop.borrow().id, Some(for_loop.clone()));
             }
         }
 
@@ -4336,10 +4445,9 @@ impl ObjectStore {
                     function.borrow().name.to_upper_camel_case(),
                     function.borrow().id,
                 );
-                store.inter_function(|id| {
-                    function.borrow_mut().id = id;
-                    function.clone()
-                });
+                store
+                    .function
+                    .insert(function.borrow().id, Some(function.clone()));
             }
         }
 
@@ -4353,10 +4461,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let grouped: Rc<RefCell<Grouped>> = serde_json::from_reader(reader)?;
-                store.inter_grouped(|id| {
-                    grouped.borrow_mut().id = id;
-                    grouped.clone()
-                });
+                store
+                    .grouped
+                    .insert(grouped.borrow().id, Some(grouped.clone()));
             }
         }
 
@@ -4370,10 +4477,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_if: Rc<RefCell<XIf>> = serde_json::from_reader(reader)?;
-                store.inter_x_if(|id| {
-                    x_if.borrow_mut().id = id;
-                    x_if.clone()
-                });
+                store.x_if.insert(x_if.borrow().id, Some(x_if.clone()));
             }
         }
 
@@ -4387,10 +4491,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let implementation: Rc<RefCell<Implementation>> = serde_json::from_reader(reader)?;
-                store.inter_implementation(|id| {
-                    implementation.borrow_mut().id = id;
-                    implementation.clone()
-                });
+                store
+                    .implementation
+                    .insert(implementation.borrow().id, Some(implementation.clone()));
             }
         }
 
@@ -4404,10 +4507,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let import: Rc<RefCell<Import>> = serde_json::from_reader(reader)?;
-                store.inter_import(|id| {
-                    import.borrow_mut().id = id;
-                    import.clone()
-                });
+                store
+                    .import
+                    .insert(import.borrow().id, Some(import.clone()));
             }
         }
 
@@ -4421,10 +4523,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let index: Rc<RefCell<Index>> = serde_json::from_reader(reader)?;
-                store.inter_index(|id| {
-                    index.borrow_mut().id = id;
-                    index.clone()
-                });
+                store.index.insert(index.borrow().id, Some(index.clone()));
             }
         }
 
@@ -4438,10 +4537,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let integer_literal: Rc<RefCell<IntegerLiteral>> = serde_json::from_reader(reader)?;
-                store.inter_integer_literal(|id| {
-                    integer_literal.borrow_mut().id = id;
-                    integer_literal.clone()
-                });
+                store
+                    .integer_literal
+                    .insert(integer_literal.borrow().id, Some(integer_literal.clone()));
             }
         }
 
@@ -4455,10 +4553,40 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let item: Rc<RefCell<Item>> = serde_json::from_reader(reader)?;
-                store.inter_item(|id| {
-                    item.borrow_mut().id = id;
-                    item.clone()
-                });
+                store.item.insert(item.borrow().id, Some(item.clone()));
+            }
+        }
+
+        // Load Lambda.
+        {
+            let path = path.join("lambda");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let lambda: Rc<RefCell<Lambda>> = serde_json::from_reader(reader)?;
+                store
+                    .lambda
+                    .insert(lambda.borrow().id, Some(lambda.clone()));
+            }
+        }
+
+        // Load Lambda Parameter.
+        {
+            let path = path.join("lambda_parameter");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let lambda_parameter: Rc<RefCell<LambdaParameter>> =
+                    serde_json::from_reader(reader)?;
+                store
+                    .lambda_parameter
+                    .insert(lambda_parameter.borrow().id, Some(lambda_parameter.clone()));
             }
         }
 
@@ -4472,10 +4600,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let let_statement: Rc<RefCell<LetStatement>> = serde_json::from_reader(reader)?;
-                store.inter_let_statement(|id| {
-                    let_statement.borrow_mut().id = id;
-                    let_statement.clone()
-                });
+                store
+                    .let_statement
+                    .insert(let_statement.borrow().id, Some(let_statement.clone()));
             }
         }
 
@@ -4489,10 +4616,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let list: Rc<RefCell<List>> = serde_json::from_reader(reader)?;
-                store.inter_list(|id| {
-                    list.borrow_mut().id = id;
-                    list.clone()
-                });
+                store.list.insert(list.borrow().id, Some(list.clone()));
             }
         }
 
@@ -4506,10 +4630,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let list_element: Rc<RefCell<ListElement>> = serde_json::from_reader(reader)?;
-                store.inter_list_element(|id| {
-                    list_element.borrow_mut().id = id;
-                    list_element.clone()
-                });
+                store
+                    .list_element
+                    .insert(list_element.borrow().id, Some(list_element.clone()));
             }
         }
 
@@ -4523,10 +4646,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let list_expression: Rc<RefCell<ListExpression>> = serde_json::from_reader(reader)?;
-                store.inter_list_expression(|id| {
-                    list_expression.borrow_mut().id = id;
-                    list_expression.clone()
-                });
+                store
+                    .list_expression
+                    .insert(list_expression.borrow().id, Some(list_expression.clone()));
             }
         }
 
@@ -4540,10 +4662,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let literal: Rc<RefCell<Literal>> = serde_json::from_reader(reader)?;
-                store.inter_literal(|id| {
-                    literal.borrow_mut().id = id;
-                    literal.clone()
-                });
+                store
+                    .literal
+                    .insert(literal.borrow().id, Some(literal.clone()));
             }
         }
 
@@ -4557,10 +4678,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let local_variable: Rc<RefCell<LocalVariable>> = serde_json::from_reader(reader)?;
-                store.inter_local_variable(|id| {
-                    local_variable.borrow_mut().id = id;
-                    local_variable.clone()
-                });
+                store
+                    .local_variable
+                    .insert(local_variable.borrow().id, Some(local_variable.clone()));
             }
         }
 
@@ -4574,10 +4694,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_macro: Rc<RefCell<XMacro>> = serde_json::from_reader(reader)?;
-                store.inter_x_macro(|id| {
-                    x_macro.borrow_mut().id = id;
-                    x_macro.clone()
-                });
+                store
+                    .x_macro
+                    .insert(x_macro.borrow().id, Some(x_macro.clone()));
             }
         }
 
@@ -4591,10 +4710,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let method_call: Rc<RefCell<MethodCall>> = serde_json::from_reader(reader)?;
-                store.inter_method_call(|id| {
-                    method_call.borrow_mut().id = id;
-                    method_call.clone()
-                });
+                store
+                    .method_call
+                    .insert(method_call.borrow().id, Some(method_call.clone()));
             }
         }
 
@@ -4608,10 +4726,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_object_store: Rc<RefCell<ZObjectStore>> = serde_json::from_reader(reader)?;
-                store.inter_z_object_store(|id| {
-                    z_object_store.borrow_mut().id = id;
-                    z_object_store.clone()
-                });
+                store
+                    .z_object_store
+                    .insert(z_object_store.borrow().id, Some(z_object_store.clone()));
             }
         }
 
@@ -4625,10 +4742,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let operator: Rc<RefCell<Operator>> = serde_json::from_reader(reader)?;
-                store.inter_operator(|id| {
-                    operator.borrow_mut().id = id;
-                    operator.clone()
-                });
+                store
+                    .operator
+                    .insert(operator.borrow().id, Some(operator.clone()));
             }
         }
 
@@ -4642,10 +4758,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let woog_option: Rc<RefCell<WoogOption>> = serde_json::from_reader(reader)?;
-                store.inter_woog_option(|id| {
-                    woog_option.borrow_mut().id = id;
-                    woog_option.clone()
-                });
+                store
+                    .woog_option
+                    .insert(woog_option.borrow().id, Some(woog_option.clone()));
             }
         }
 
@@ -4659,10 +4774,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let parameter: Rc<RefCell<Parameter>> = serde_json::from_reader(reader)?;
-                store.inter_parameter(|id| {
-                    parameter.borrow_mut().id = id;
-                    parameter.clone()
-                });
+                store
+                    .parameter
+                    .insert(parameter.borrow().id, Some(parameter.clone()));
             }
         }
 
@@ -4676,10 +4790,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let print: Rc<RefCell<Print>> = serde_json::from_reader(reader)?;
-                store.inter_print(|id| {
-                    print.borrow_mut().id = id;
-                    print.clone()
-                });
+                store.print.insert(print.borrow().id, Some(print.clone()));
             }
         }
 
@@ -4694,10 +4805,9 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let range_expression: Rc<RefCell<RangeExpression>> =
                     serde_json::from_reader(reader)?;
-                store.inter_range_expression(|id| {
-                    range_expression.borrow_mut().id = id;
-                    range_expression.clone()
-                });
+                store
+                    .range_expression
+                    .insert(range_expression.borrow().id, Some(range_expression.clone()));
             }
         }
 
@@ -4711,10 +4821,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let reference: Rc<RefCell<Reference>> = serde_json::from_reader(reader)?;
-                store.inter_reference(|id| {
-                    reference.borrow_mut().id = id;
-                    reference.clone()
-                });
+                store
+                    .reference
+                    .insert(reference.borrow().id, Some(reference.clone()));
             }
         }
 
@@ -4729,10 +4838,9 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let result_statement: Rc<RefCell<ResultStatement>> =
                     serde_json::from_reader(reader)?;
-                store.inter_result_statement(|id| {
-                    result_statement.borrow_mut().id = id;
-                    result_statement.clone()
-                });
+                store
+                    .result_statement
+                    .insert(result_statement.borrow().id, Some(result_statement.clone()));
             }
         }
 
@@ -4746,10 +4854,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_return: Rc<RefCell<XReturn>> = serde_json::from_reader(reader)?;
-                store.inter_x_return(|id| {
-                    x_return.borrow_mut().id = id;
-                    x_return.clone()
-                });
+                store
+                    .x_return
+                    .insert(x_return.borrow().id, Some(x_return.clone()));
             }
         }
 
@@ -4763,10 +4870,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_some: Rc<RefCell<ZSome>> = serde_json::from_reader(reader)?;
-                store.inter_z_some(|id| {
-                    z_some.borrow_mut().id = id;
-                    z_some.clone()
-                });
+                store
+                    .z_some
+                    .insert(z_some.borrow().id, Some(z_some.clone()));
             }
         }
 
@@ -4780,10 +4886,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let span: Rc<RefCell<Span>> = serde_json::from_reader(reader)?;
-                store.inter_span(|id| {
-                    span.borrow_mut().id = id;
-                    span.clone()
-                });
+                store.span.insert(span.borrow().id, Some(span.clone()));
             }
         }
 
@@ -4797,10 +4900,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let statement: Rc<RefCell<Statement>> = serde_json::from_reader(reader)?;
-                store.inter_statement(|id| {
-                    statement.borrow_mut().id = id;
-                    statement.clone()
-                });
+                store
+                    .statement
+                    .insert(statement.borrow().id, Some(statement.clone()));
             }
         }
 
@@ -4815,10 +4917,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let static_method_call: Rc<RefCell<StaticMethodCall>> =
                     serde_json::from_reader(reader)?;
-                store.inter_static_method_call(|id| {
-                    static_method_call.borrow_mut().id = id;
-                    static_method_call.clone()
-                });
+                store.static_method_call.insert(
+                    static_method_call.borrow().id,
+                    Some(static_method_call.clone()),
+                );
             }
         }
 
@@ -4832,10 +4934,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let string_literal: Rc<RefCell<StringLiteral>> = serde_json::from_reader(reader)?;
-                store.inter_string_literal(|id| {
-                    string_literal.borrow_mut().id = id;
-                    string_literal.clone()
-                });
+                store
+                    .string_literal
+                    .insert(string_literal.borrow().id, Some(string_literal.clone()));
             }
         }
 
@@ -4853,10 +4954,9 @@ impl ObjectStore {
                     woog_struct.borrow().name.to_upper_camel_case(),
                     woog_struct.borrow().id,
                 );
-                store.inter_woog_struct(|id| {
-                    woog_struct.borrow_mut().id = id;
-                    woog_struct.clone()
-                });
+                store
+                    .woog_struct
+                    .insert(woog_struct.borrow().id, Some(woog_struct.clone()));
             }
         }
 
@@ -4871,10 +4971,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let struct_expression: Rc<RefCell<StructExpression>> =
                     serde_json::from_reader(reader)?;
-                store.inter_struct_expression(|id| {
-                    struct_expression.borrow_mut().id = id;
-                    struct_expression.clone()
-                });
+                store.struct_expression.insert(
+                    struct_expression.borrow().id,
+                    Some(struct_expression.clone()),
+                );
             }
         }
 
@@ -4888,10 +4988,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let type_cast: Rc<RefCell<TypeCast>> = serde_json::from_reader(reader)?;
-                store.inter_type_cast(|id| {
-                    type_cast.borrow_mut().id = id;
-                    type_cast.clone()
-                });
+                store
+                    .type_cast
+                    .insert(type_cast.borrow().id, Some(type_cast.clone()));
             }
         }
 
@@ -4905,10 +5004,7 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let unary: Rc<RefCell<Unary>> = serde_json::from_reader(reader)?;
-                store.inter_unary(|id| {
-                    unary.borrow_mut().id = id;
-                    unary.clone()
-                });
+                store.unary.insert(unary.borrow().id, Some(unary.clone()));
             }
         }
 
@@ -4922,10 +5018,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_value: Rc<RefCell<XValue>> = serde_json::from_reader(reader)?;
-                store.inter_x_value(|id| {
-                    x_value.borrow_mut().id = id;
-                    x_value.clone()
-                });
+                store
+                    .x_value
+                    .insert(x_value.borrow().id, Some(x_value.clone()));
             }
         }
 
@@ -4939,10 +5034,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let value_type: Rc<RefCell<ValueType>> = serde_json::from_reader(reader)?;
-                store.inter_value_type(|id| {
-                    value_type.borrow_mut().id = id;
-                    value_type.clone()
-                });
+                store
+                    .value_type
+                    .insert(value_type.borrow().id, Some(value_type.clone()));
             }
         }
 
@@ -4956,10 +5050,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let variable: Rc<RefCell<Variable>> = serde_json::from_reader(reader)?;
-                store.inter_variable(|id| {
-                    variable.borrow_mut().id = id;
-                    variable.clone()
-                });
+                store
+                    .variable
+                    .insert(variable.borrow().id, Some(variable.clone()));
             }
         }
 
@@ -4974,10 +5067,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let variable_expression: Rc<RefCell<VariableExpression>> =
                     serde_json::from_reader(reader)?;
-                store.inter_variable_expression(|id| {
-                    variable_expression.borrow_mut().id = id;
-                    variable_expression.clone()
-                });
+                store.variable_expression.insert(
+                    variable_expression.borrow().id,
+                    Some(variable_expression.clone()),
+                );
             }
         }
 

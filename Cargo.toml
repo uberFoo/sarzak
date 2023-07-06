@@ -50,8 +50,9 @@ crate-type = ["lib", "staticlib"]
 env_logger = "0.10.0"
 
 [features]
-default = ["lu-dog-rc"]
+default = ["lu-dog-vec"]
 lu-dog-vec = []
+lu-dog-rwlock-vec = []
 lu-dog-async = []
 lu-dog-rc = []
 lu-dog-rwlock = []

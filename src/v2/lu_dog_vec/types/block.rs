@@ -9,6 +9,7 @@ use crate::v2::lu_dog_vec::types::expression::Expression;
 use crate::v2::lu_dog_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_vec::types::for_loop::ForLoop;
 use crate::v2::lu_dog_vec::types::function::Function;
+use crate::v2::lu_dog_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_vec::types::statement::Statement;
 use crate::v2::lu_dog_vec::types::x_if::XIf;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
@@ -92,6 +93,16 @@ impl Block {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R46(1-M)
+    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
+        span!("r46_x_if");
+        store
+            .iter_x_if()
+            .filter(|x_if| x_if.borrow().true_block == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
     /// Navigate to [`XIf`] across R52(1-Mc)
     pub fn r52_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
@@ -103,13 +114,17 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
-    /// Navigate to [`XIf`] across R46(1-M)
-    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
-        span!("r46_x_if");
-        store
-            .iter_x_if()
-            .filter(|x_if| x_if.borrow().true_block == self.id)
-            .collect()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1-1c)
+    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Lambda>>> {
+        span!("r73_lambda");
+        let lambda = store
+            .iter_lambda()
+            .find(|lambda| lambda.borrow().block == self.id);
+        match lambda {
+            Some(ref lambda) => vec![lambda.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
