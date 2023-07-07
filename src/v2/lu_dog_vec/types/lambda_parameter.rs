@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::lambda::Lambda;
+use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::variable::Variable;
 use crate::v2::lu_dog_vec::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
@@ -25,6 +26,8 @@ pub struct LambdaParameter {
     pub lambda: usize,
     /// R75: [`LambdaParameter`] '' [`LambdaParameter`]
     pub next: Option<usize>,
+    /// R77: [`LambdaParameter`] 'may require a type' [`ValueType`]
+    pub ty: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-implementation"}}}
@@ -34,6 +37,7 @@ impl LambdaParameter {
     pub fn new(
         lambda: &Rc<RefCell<Lambda>>,
         next: Option<&Rc<RefCell<LambdaParameter>>>,
+        ty: Option<&Rc<RefCell<ValueType>>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<LambdaParameter>> {
         store.inter_lambda_parameter(|id| {
@@ -41,6 +45,7 @@ impl LambdaParameter {
                 id,
                 lambda: lambda.borrow().id,
                 next: next.map(|lambda_parameter| lambda_parameter.borrow().id),
+                ty: ty.map(|value_type| value_type.borrow().id),
             }))
         })
     }
@@ -66,6 +71,15 @@ impl LambdaParameter {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-cond-to-ty"}}}
+    /// Navigate to [`ValueType`] across R77(1-*c)
+    pub fn r77_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r77_value_type");
+        match self.ty {
+            Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
+            None => Vec::new(),
+        }
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-bi-cond-to-lambda_parameter"}}}
     /// Navigate to [`LambdaParameter`] across R75(1c-1c)

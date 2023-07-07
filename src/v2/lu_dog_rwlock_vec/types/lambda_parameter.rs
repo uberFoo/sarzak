@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::lambda::Lambda;
+use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_rwlock_vec::types::variable::Variable;
 use crate::v2::lu_dog_rwlock_vec::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
@@ -25,6 +26,8 @@ pub struct LambdaParameter {
     pub lambda: usize,
     /// R75: [`LambdaParameter`] '' [`LambdaParameter`]
     pub next: Option<usize>,
+    /// R77: [`LambdaParameter`] 'may require a type' [`ValueType`]
+    pub ty: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-implementation"}}}
@@ -34,6 +37,7 @@ impl LambdaParameter {
     pub fn new(
         lambda: &Arc<RwLock<Lambda>>,
         next: Option<&Arc<RwLock<LambdaParameter>>>,
+        ty: Option<&Arc<RwLock<ValueType>>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<LambdaParameter>> {
         store.inter_lambda_parameter(|id| {
@@ -41,6 +45,7 @@ impl LambdaParameter {
                 id,
                 lambda: lambda.read().unwrap().id,
                 next: next.map(|lambda_parameter| lambda_parameter.read().unwrap().id),
+                ty: ty.map(|value_type| value_type.read().unwrap().id),
             }))
         })
     }
@@ -61,6 +66,19 @@ impl LambdaParameter {
         span!("r75_lambda_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_lambda_parameter(&next).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-cond-to-ty"}}}
+    /// Navigate to [`ValueType`] across R77(1-*c)
+    pub fn r77_value_type<'a>(
+        &'a self,
+        store: &'a LuDogRwlockVecStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
+        span!("r77_value_type");
+        match self.ty {
+            Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
             None => Vec::new(),
         }
     }

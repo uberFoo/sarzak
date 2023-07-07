@@ -32,7 +32,7 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct Lambda {
     pub id: usize,
     /// R73: [`Lambda`] 'contains a' [`Block`]
-    pub block: usize,
+    pub block: Option<usize>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: usize,
 }
@@ -42,24 +42,28 @@ impl Lambda {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-new"}}}
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
-        block: &Arc<RwLock<Block>>,
+        block: Option<&Arc<RwLock<Block>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Lambda>> {
         store.inter_lambda(|id| {
             Arc::new(RwLock::new(Lambda {
                 id,
-                block: block.read().unwrap().id,
+                block: block.map(|block| block.read().unwrap().id),
                 return_type: return_type.read().unwrap().id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R73(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-block"}}}
+    /// Navigate to [`Block`] across R73(1-*c)
     pub fn r73_block<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
         span!("r73_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+        match self.block {
+            Some(ref block) => vec![store.exhume_block(&block).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-to-return_type"}}}

@@ -30,7 +30,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 pub struct Lambda {
     pub id: usize,
     /// R73: [`Lambda`] 'contains a' [`Block`]
-    pub block: usize,
+    pub block: Option<usize>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: usize,
 }
@@ -40,26 +40,30 @@ impl Lambda {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-new"}}}
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
-        block: &Rc<RefCell<Block>>,
+        block: Option<&Rc<RefCell<Block>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Lambda>> {
         store.inter_lambda(|id| {
             Rc::new(RefCell::new(Lambda {
                 id,
-                block: block.borrow().id,
+                block: block.map(|block| block.borrow().id),
                 return_type: return_type.borrow().id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R73(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-block"}}}
+    /// Navigate to [`Block`] across R73(1-*c)
     pub fn r73_block<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Block>>> {
         span!("r73_block");
-        vec![store.exhume_block(&self.block).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-param"}}}
+        match self.block {
+            Some(ref block) => vec![store.exhume_block(&block).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-to-return_type"}}}

@@ -12,6 +12,7 @@ use crate::v2::lu_dog_vec::types::field::Field;
 use crate::v2::lu_dog_vec::types::function::Function;
 use crate::v2::lu_dog_vec::types::import::Import;
 use crate::v2::lu_dog_vec::types::lambda::Lambda;
+use crate::v2::lu_dog_vec::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_vec::types::list::List;
 use crate::v2::lu_dog_vec::types::range::RANGE;
 use crate::v2::lu_dog_vec::types::reference::Reference;
@@ -284,6 +285,19 @@ impl ValueType {
         store
             .iter_lambda()
             .filter(|lambda| lambda.borrow().return_type == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-lambda_parameter"}}}
+    /// Navigate to [`LambdaParameter`] across R77(1-Mc)
+    pub fn r77_lambda_parameter<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<LambdaParameter>>> {
+        span!("r77_lambda_parameter");
+        store
+            .iter_lambda_parameter()
+            .filter(|lambda_parameter| lambda_parameter.borrow().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

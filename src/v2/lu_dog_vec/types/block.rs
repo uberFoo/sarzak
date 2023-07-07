@@ -115,12 +115,13 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-lambda"}}}
-    /// Navigate to [`Lambda`] across R73(1-1c)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1c-1c)
     pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Lambda>>> {
         span!("r73_lambda");
         let lambda = store
             .iter_lambda()
-            .find(|lambda| lambda.borrow().block == self.id);
+            .find(|lambda| lambda.borrow().block == Some(self.id));
         match lambda {
             Some(ref lambda) => vec![lambda.clone()],
             None => Vec::new(),

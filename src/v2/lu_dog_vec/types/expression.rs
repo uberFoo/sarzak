@@ -647,4 +647,17 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+impl Expression {
+    pub fn r15_variable_expression<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<VariableExpression>>> {
+        span!("r15_variable_expression");
+        if let ExpressionEnum::VariableExpression(id) = self.subtype {
+            vec![store.exhume_variable_expression(&id).unwrap()]
+        } else {
+            vec![]
+        }
+    }
+}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}
