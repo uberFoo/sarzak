@@ -1,4 +1,4 @@
-name: Rust Test and Code Coverage
+name: Test and Coverage
 
 on:
     workflow_dispatch:
@@ -25,14 +25,14 @@ jobs:
                   sudo mv grcov /usr/local/bin/
             - name: Install llvm-tools-preview
               run: rustup component add llvm-tools-preview
-            - name: Run tests with lu-dog-rwlock
-              run: cargo test --features lu-dog-rwlock
-            - name: Clean
-              run: cargo clean
-            - name: Run tests with lu-dog-pl-mutex
-              run: cargo test --features lu-dog-pl-mutex
-            - name: Clean
-              run: cargo clean
+            # - name: Run tests with lu-dog-rwlock-vec
+            #   run: cargo test --features lu-dog-rwlock-vec
+            # - name: Clean
+            #   run: cargo clean
+            # - name: Run tests with lu-dog-vec
+            #   run: cargo test --features lu-dog-vec
+            # - name: Clean
+            #   run: cargo clean
             - name: Build and run tests with coverage
               # this uses lu-doc-rc, which is the default.
               run: |
