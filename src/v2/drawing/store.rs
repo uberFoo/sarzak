@@ -25,7 +25,7 @@ use std::{
     time::SystemTime,
 };
 
-use fnv::FnvHashMap as HashMap;
+use rustc_hash::FxHashMap as HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

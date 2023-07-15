@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 pub mod domain;
 pub mod error;
 pub mod mc;
@@ -18,15 +20,7 @@ cfg_if::cfg_if! {
         pub use v2::lu_dog_vec as lu_dog;
     } else if #[cfg(feature = "lu-dog-rwlock-vec")] {
         pub use v2::lu_dog_rwlock_vec as lu_dog;
-    } else if #[cfg(feature = "lu-dog-rwlock")] {
-        pub use v2::lu_dog_rwlock as lu_dog;
-    } else if #[cfg(feature = "lu-dog-pl-mutex")] {
-        pub use v2::lu_dog_pl_mutex as lu_dog;
-    // } else if #[cfg(feature = "lu-dog-vanilla")] {
-        // pub use v2::lu_dog_vanilla as lu_dog;
-    // } else if #[cfg(feature = "lu-dog-async")] {
-        // pub use v2::lu_dog_async as lu_dog;
-    // } else if #[cfg(feature = "lu-dog-no-deadlocks")] {
-        // pub use v2::lu_dog_no_deadlocks as lu_dog;
+    } else if #[cfg(feature = "lu-dog-ndrwlock-vec")] {
+        pub use v2::lu_dog_ndrwlock_vec as lu_dog;
     }
 }

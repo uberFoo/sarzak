@@ -41,14 +41,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<&Arc<RwLock<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<WoogStruct>> {
         store.inter_woog_struct(|id| {
             Arc::new(RwLock::new(WoogStruct {
                 id,
                 name: name.to_owned(),
-                object: object.map(|object| object.read().unwrap().id),
+                object: object.map(|object| object.id),
             }))
         })
     }

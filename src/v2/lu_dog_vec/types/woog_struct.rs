@@ -41,14 +41,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<&Rc<RefCell<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<WoogStruct>> {
         store.inter_woog_struct(|id| {
             Rc::new(RefCell::new(WoogStruct {
                 id,
                 name: name.to_owned(),
-                object: object.map(|object| object.borrow().id),
+                object: object.map(|o| o.id),
             }))
         })
     }
