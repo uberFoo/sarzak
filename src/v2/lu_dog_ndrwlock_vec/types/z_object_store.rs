@@ -1,16 +1,15 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"z_object_store-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use no_deadlocks::RwLock;
+use std::sync::Arc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec::types::object_wrapper::ObjectWrapper;
-use crate::v2::lu_dog_vec::types::value_type::ValueType;
-use crate::v2::lu_dog_vec::types::value_type::ValueTypeEnum;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
-use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
+use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-documentation"}}}
@@ -30,41 +29,26 @@ pub struct ZObjectStore {
 impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-new"}}}
     /// Inter a new 'Object Store' in the store, and return it's `id`.
-    pub fn new(domain: String, store: &mut LuDogVecStore) -> Rc<RefCell<ZObjectStore>> {
+    pub fn new(domain: String, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<ZObjectStore>> {
         store.inter_z_object_store(|id| {
-            Rc::new(RefCell::new(ZObjectStore {
+            Arc::new(RwLock::new(ZObjectStore {
                 domain: domain.to_owned(),
                 id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-object"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-assoc-many-to-object_wrapper"}}}
-    /// Navigate to [`ObjectWrapper`] across R78(1-M)
-    pub fn r78_object_wrapper<'a>(
-        &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<ObjectWrapper>>> {
-        span!("r78_object_wrapper");
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-object"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-        store
-            .iter_object_wrapper()
-            .filter(|object_wrapper| object_wrapper.borrow().store == self.id)
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
         span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {
-                if let ValueTypeEnum::ZObjectStore(id) = value_type.borrow().subtype {
+                if let ValueTypeEnum::ZObjectStore(id) = value_type.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

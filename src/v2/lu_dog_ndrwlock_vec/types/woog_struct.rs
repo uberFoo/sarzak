@@ -1,22 +1,22 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_struct-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use no_deadlocks::RwLock;
+use std::sync::Arc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec::types::field::Field;
-use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
-use crate::v2::lu_dog_vec::types::implementation::Implementation;
-use crate::v2::lu_dog_vec::types::item::Item;
-use crate::v2::lu_dog_vec::types::item::ItemEnum;
-use crate::v2::lu_dog_vec::types::struct_expression::StructExpression;
-use crate::v2::lu_dog_vec::types::value_type::ValueType;
-use crate::v2::lu_dog_vec::types::value_type::ValueTypeEnum;
+use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
+use crate::v2::lu_dog_ndrwlock_vec::types::field_access::FieldAccess;
+use crate::v2::lu_dog_ndrwlock_vec::types::implementation::Implementation;
+use crate::v2::lu_dog_ndrwlock_vec::types::item::Item;
+use crate::v2::lu_dog_ndrwlock_vec::types::item::ItemEnum;
+use crate::v2::lu_dog_ndrwlock_vec::types::struct_expression::StructExpression;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueTypeEnum;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
 
-use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
+use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -31,7 +31,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
-    /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
+    /// R4: [`WoogStruct`] 'represents an' [`Object`]
     pub object: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,14 +41,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<&Rc<RefCell<Object>>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<WoogStruct>> {
+        object: Option<&Arc<RwLock<Object>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<WoogStruct>> {
         store.inter_woog_struct(|id| {
-            Rc::new(RefCell::new(WoogStruct {
+            Arc::new(RwLock::new(WoogStruct {
                 id,
                 name: name.to_owned(),
-                object: object.map(|object| object.borrow().id),
+                object: object.map(|object| object.read().unwrap().id),
             }))
         })
     }
@@ -64,11 +64,11 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R7(1-M)
-    pub fn r7_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Field>>> {
+    pub fn r7_field<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Field>>> {
         span!("r7_field");
         store
             .iter_field()
-            .filter(|field| field.borrow().x_model == self.id)
+            .filter(|field| field.read().unwrap().x_model == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,12 +76,12 @@ impl WoogStruct {
     /// Navigate to [`FieldAccess`] across R66(1-M)
     pub fn r66_field_access<'a>(
         &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<FieldAccess>>> {
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<FieldAccess>>> {
         span!("r66_field_access");
         store
             .iter_field_access()
-            .filter(|field_access| field_access.borrow().woog_struct == self.id)
+            .filter(|field_access| field_access.read().unwrap().woog_struct == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -89,12 +89,12 @@ impl WoogStruct {
     /// Navigate to [`Implementation`] across R8(1-1c)
     pub fn r8c_implementation<'a>(
         &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<Implementation>>> {
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Implementation>>> {
         span!("r8_implementation");
         let implementation = store
             .iter_implementation()
-            .find(|implementation| implementation.borrow().model_type == self.id);
+            .find(|implementation| implementation.read().unwrap().model_type == self.id);
         match implementation {
             Some(ref implementation) => vec![implementation.clone()],
             None => Vec::new(),
@@ -105,25 +105,23 @@ impl WoogStruct {
     /// Navigate to [`StructExpression`] across R39(1-M)
     pub fn r39_struct_expression<'a>(
         &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<StructExpression>>> {
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<StructExpression>>> {
         span!("r39_struct_expression");
         store
             .iter_struct_expression()
-            .filter(|struct_expression| struct_expression.borrow().woog_struct == self.id)
+            .filter(|struct_expression| struct_expression.read().unwrap().woog_struct == self.id)
             .collect()
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-assoc-one-cond-to-z_object_store"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
-    pub fn r6_item<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Item>>> {
+    pub fn r6_item<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Item>>> {
         span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
-                if let ItemEnum::WoogStruct(id) = item.borrow().subtype {
+                if let ItemEnum::WoogStruct(id) = item.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false
@@ -134,12 +132,15 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
-    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
         span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {
-                if let ValueTypeEnum::WoogStruct(id) = value_type.borrow().subtype {
+                if let ValueTypeEnum::WoogStruct(id) = value_type.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

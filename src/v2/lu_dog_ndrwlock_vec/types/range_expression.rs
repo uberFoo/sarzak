@@ -1,0 +1,175 @@
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"range_expression-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-use-statements"}}}
+use no_deadlocks::RwLock;
+use std::sync::Arc;
+use tracy_client::span;
+use uuid::Uuid;
+
+use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
+use crate::v2::lu_dog_ndrwlock_vec::types::expression::ExpressionEnum;
+use crate::v2::lu_dog_ndrwlock_vec::types::from::FROM;
+use crate::v2::lu_dog_ndrwlock_vec::types::full::FULL;
+use crate::v2::lu_dog_ndrwlock_vec::types::inclusive::INCLUSIVE;
+use crate::v2::lu_dog_ndrwlock_vec::types::to::TO;
+use crate::v2::lu_dog_ndrwlock_vec::types::to_inclusive::TO_INCLUSIVE;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct RangeExpression {
+    pub subtype: RangeExpressionEnum,
+    pub id: usize,
+    /// R58: [`RangeExpression`] '' [`Expression`]
+    pub lhs: Option<usize>,
+    /// R59: [`RangeExpression`] '' [`Expression`]
+    pub rhs: Option<usize>,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum RangeExpressionEnum {
+    From(Uuid),
+    Full(Uuid),
+    Inclusive(Uuid),
+    To(Uuid),
+    ToInclusive(Uuid),
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-implementation"}}}
+impl RangeExpression {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_from"}}}
+    /// Inter a new RangeExpression in the store, and return it's `id`.
+    pub fn new_from(
+        lhs: Option<&Arc<RwLock<Expression>>>,
+        rhs: Option<&Arc<RwLock<Expression>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<RangeExpression>> {
+        store.inter_range_expression(|id| {
+            Arc::new(RwLock::new(RangeExpression {
+                lhs: lhs.map(|expression| expression.read().unwrap().id),
+                rhs: rhs.map(|expression| expression.read().unwrap().id),
+                subtype: RangeExpressionEnum::From(FROM),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_full"}}}
+    /// Inter a new RangeExpression in the store, and return it's `id`.
+    pub fn new_full(
+        lhs: Option<&Arc<RwLock<Expression>>>,
+        rhs: Option<&Arc<RwLock<Expression>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<RangeExpression>> {
+        store.inter_range_expression(|id| {
+            Arc::new(RwLock::new(RangeExpression {
+                lhs: lhs.map(|expression| expression.read().unwrap().id),
+                rhs: rhs.map(|expression| expression.read().unwrap().id),
+                subtype: RangeExpressionEnum::Full(FULL),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_inclusive"}}}
+    /// Inter a new RangeExpression in the store, and return it's `id`.
+    pub fn new_inclusive(
+        lhs: Option<&Arc<RwLock<Expression>>>,
+        rhs: Option<&Arc<RwLock<Expression>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<RangeExpression>> {
+        store.inter_range_expression(|id| {
+            Arc::new(RwLock::new(RangeExpression {
+                lhs: lhs.map(|expression| expression.read().unwrap().id),
+                rhs: rhs.map(|expression| expression.read().unwrap().id),
+                subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_to"}}}
+    /// Inter a new RangeExpression in the store, and return it's `id`.
+    pub fn new_to(
+        lhs: Option<&Arc<RwLock<Expression>>>,
+        rhs: Option<&Arc<RwLock<Expression>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<RangeExpression>> {
+        store.inter_range_expression(|id| {
+            Arc::new(RwLock::new(RangeExpression {
+                lhs: lhs.map(|expression| expression.read().unwrap().id),
+                rhs: rhs.map(|expression| expression.read().unwrap().id),
+                subtype: RangeExpressionEnum::To(TO),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-new_to_inclusive"}}}
+    /// Inter a new RangeExpression in the store, and return it's `id`.
+    pub fn new_to_inclusive(
+        lhs: Option<&Arc<RwLock<Expression>>>,
+        rhs: Option<&Arc<RwLock<Expression>>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<RangeExpression>> {
+        store.inter_range_expression(|id| {
+            Arc::new(RwLock::new(RangeExpression {
+                lhs: lhs.map(|expression| expression.read().unwrap().id),
+                rhs: rhs.map(|expression| expression.read().unwrap().id),
+                subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-lhs"}}}
+    /// Navigate to [`Expression`] across R58(1-*c)
+    pub fn r58_expression<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
+        span!("r58_expression");
+        match self.lhs {
+            Some(ref lhs) => vec![store.exhume_expression(&lhs).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-rhs"}}}
+    /// Navigate to [`Expression`] across R59(1-*c)
+    pub fn r59_expression<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
+        span!("r59_expression");
+        match self.rhs {
+            Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-impl-nav-subtype-to-supertype-expression"}}}
+    // Navigate to [`Expression`] across R15(isa)
+    pub fn r15_expression<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
+        span!("r15_expression");
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::RangeExpression(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"allow-editing"}}}
