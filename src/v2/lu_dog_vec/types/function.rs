@@ -31,7 +31,7 @@ pub struct Function {
     pub id: usize,
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Block`]
-    pub block: Option<usize>,
+    pub block: usize,
     /// R9: [`Function`] 'may be contained in an' [`Implementation`]
     pub impl_block: Option<usize>,
     /// R10: [`Function`] 'returns' [`ValueType`]
@@ -44,7 +44,7 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: Option<&Rc<RefCell<Block>>>,
+        block: &Rc<RefCell<Block>>,
         impl_block: Option<&Rc<RefCell<Implementation>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
@@ -53,7 +53,7 @@ impl Function {
             Rc::new(RefCell::new(Function {
                 id,
                 name: name.to_owned(),
-                block: block.map(|block| block.borrow().id),
+                block: block.borrow().id,
                 impl_block: impl_block.map(|implementation| implementation.borrow().id),
                 return_type: return_type.borrow().id,
             }))
@@ -61,14 +61,10 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-block"}}}
-    /// Navigate to [`Block`] across R19(1-*c)
+    /// Navigate to [`Block`] across R19(1-*)
     pub fn r19_block<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Block>>> {
         span!("r19_block");
-        match self.block {
-            Some(ref block) => vec![store.exhume_block(&block).unwrap()],
-            None => Vec::new(),
-        }
+        vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}

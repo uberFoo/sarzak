@@ -81,13 +81,12 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-function"}}}
-    /// Navigate to [`Function`] across R19(1c-1c)
+    /// Navigate to [`Function`] across R19(1-1c)
     pub fn r19c_function<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Function>>> {
         span!("r19_function");
         let function = store
             .iter_function()
-            .find(|function| function.borrow().block == Some(self.id));
+            .find(|function| function.borrow().block == self.id);
         match function {
             Some(ref function) => vec![function.clone()],
             None => Vec::new(),

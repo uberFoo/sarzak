@@ -44,7 +44,6 @@
 //! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
-//! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
@@ -75,8 +74,8 @@ use std::{
     path::Path,
 };
 
-use heck::ToUpperCamelCase;
 use rustc_hash::FxHashMap as HashMap;
+use heck::ToUpperCamelCase;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -85,14 +84,14 @@ use crate::v2::lu_dog_vec::types::{
     Error, ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index,
     IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
-    Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Print, RangeExpression,
-    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
-    TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro,
-    XReturn, XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION,
-    EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
-    INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION,
-    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
-    UNKNOWN_VARIABLE, Z_NONE,
+    Literal, LocalVariable, MethodCall, Operator, Parameter, Print, RangeExpression, Reference,
+    ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
+    Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
+    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
+    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -173,8 +172,6 @@ pub struct ObjectStore {
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
     z_object_store_free_list: Vec<usize>,
     z_object_store: Vec<Option<Rc<RefCell<ZObjectStore>>>>,
-    object_wrapper_free_list: Vec<usize>,
-    object_wrapper: Vec<Option<Rc<RefCell<ObjectWrapper>>>>,
     operator_free_list: Vec<usize>,
     operator: Vec<Option<Rc<RefCell<Operator>>>>,
     woog_option_free_list: Vec<usize>,
@@ -299,8 +296,6 @@ impl ObjectStore {
             method_call: Vec::new(),
             z_object_store_free_list: Vec::new(),
             z_object_store: Vec::new(),
-            object_wrapper_free_list: Vec::new(),
-            object_wrapper: Vec::new(),
             operator_free_list: Vec::new(),
             operator: Vec::new(),
             woog_option_free_list: Vec::new(),
@@ -2259,53 +2254,6 @@ impl ObjectStore {
         })
     }
 
-    /// Inter (insert) [`ObjectWrapper`] into the store.
-    ///
-    pub fn inter_object_wrapper<F>(&mut self, object_wrapper: F) -> Rc<RefCell<ObjectWrapper>>
-    where
-        F: Fn(usize) -> Rc<RefCell<ObjectWrapper>>,
-    {
-        if let Some(_index) = self.object_wrapper_free_list.pop() {
-            let object_wrapper = object_wrapper(_index);
-            self.object_wrapper[_index] = Some(object_wrapper.clone());
-            object_wrapper
-        } else {
-            let _index = self.object_wrapper.len();
-            let object_wrapper = object_wrapper(_index);
-            self.object_wrapper.push(Some(object_wrapper.clone()));
-            object_wrapper
-        }
-    }
-
-    /// Exhume (get) [`ObjectWrapper`] from the store.
-    ///
-    pub fn exhume_object_wrapper(&self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
-        match self.object_wrapper.get(*id) {
-            Some(object_wrapper) => object_wrapper.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`ObjectWrapper`] from the store.
-    ///
-    pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
-        let result = self.object_wrapper[*id].take();
-        self.object_wrapper_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ObjectWrapper>`.
-    ///
-    pub fn iter_object_wrapper(&self) -> impl Iterator<Item = Rc<RefCell<ObjectWrapper>>> + '_ {
-        let len = self.object_wrapper.len();
-        (0..len).map(move |i| {
-            self.object_wrapper[i]
-                .as_ref()
-                .map(|object_wrapper| object_wrapper.clone())
-                .unwrap()
-        })
-    }
-
     /// Inter (insert) [`Operator`] into the store.
     ///
     pub fn inter_operator<F>(&mut self, operator: F) -> Rc<RefCell<Operator>>
@@ -3870,20 +3818,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Object Wrapper.
-        {
-            let path = path.join("object_wrapper");
-            fs::create_dir_all(&path)?;
-            for object_wrapper in &self.object_wrapper {
-                if let Some(object_wrapper) = object_wrapper {
-                    let path = path.join(format!("{}.json", object_wrapper.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &object_wrapper)?;
-                }
-            }
-        }
-
         // Persist Operator.
         {
             let path = path.join("operator");
@@ -4795,22 +4729,6 @@ impl ObjectStore {
                 store
                     .z_object_store
                     .insert(z_object_store.borrow().id, Some(z_object_store.clone()));
-            }
-        }
-
-        // Load Object Wrapper.
-        {
-            let path = path.join("object_wrapper");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let object_wrapper: Rc<RefCell<ObjectWrapper>> = serde_json::from_reader(reader)?;
-                store
-                    .object_wrapper
-                    .insert(object_wrapper.borrow().id, Some(object_wrapper.clone()));
             }
         }
 

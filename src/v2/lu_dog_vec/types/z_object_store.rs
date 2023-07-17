@@ -5,7 +5,6 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec::types::object_wrapper::ObjectWrapper;
 use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
@@ -37,24 +36,6 @@ impl ZObjectStore {
                 id,
             }))
         })
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-object"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-assoc-many-to-object_wrapper"}}}
-    /// Navigate to [`ObjectWrapper`] across R78(1-M)
-    pub fn r78_object_wrapper<'a>(
-        &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<ObjectWrapper>>> {
-        span!("r78_object_wrapper");
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-object"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-assoc-to-woog_struct"}}}
-        store
-            .iter_object_wrapper()
-            .filter(|object_wrapper| object_wrapper.borrow().store == self.id)
-            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}

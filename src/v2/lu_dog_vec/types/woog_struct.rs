@@ -31,7 +31,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
-    /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
+    /// R4: [`WoogStruct`] 'represents an' [`Object`]
     pub object: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,14 +41,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<&Rc<RefCell<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<WoogStruct>> {
         store.inter_woog_struct(|id| {
             Rc::new(RefCell::new(WoogStruct {
                 id,
                 name: name.to_owned(),
-                object: object.map(|object| object.borrow().id),
+                object: object.map(|o| o.id),
             }))
         })
     }
@@ -112,8 +112,6 @@ impl WoogStruct {
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.borrow().woog_struct == self.id)
             .collect()
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-assoc-one-cond-to-z_object_store"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

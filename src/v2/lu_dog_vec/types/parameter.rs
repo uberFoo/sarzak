@@ -6,7 +6,6 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::function::Function;
-use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::variable::Variable;
 use crate::v2::lu_dog_vec::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
@@ -30,8 +29,6 @@ pub struct Parameter {
     pub function: usize,
     /// R14: [`Parameter`] 'follows' [`Parameter`]
     pub next: Option<usize>,
-    /// R79: [`Parameter`] 'requires a' [`ValueType`]
-    pub ty: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-implementation"}}}
@@ -41,7 +38,6 @@ impl Parameter {
     pub fn new(
         function: &Rc<RefCell<Function>>,
         next: Option<&Rc<RefCell<Parameter>>>,
-        ty: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Parameter>> {
         store.inter_parameter(|id| {
@@ -49,7 +45,6 @@ impl Parameter {
                 id,
                 function: function.borrow().id,
                 next: next.map(|parameter| parameter.borrow().id),
-                ty: ty.borrow().id,
             }))
         })
     }
@@ -69,13 +64,6 @@ impl Parameter {
             Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
             None => Vec::new(),
         }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-ty"}}}
-    /// Navigate to [`ValueType`] across R79(1-*)
-    pub fn r79_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r79_value_type");
-        vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
