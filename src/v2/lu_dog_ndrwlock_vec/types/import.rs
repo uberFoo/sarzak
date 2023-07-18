@@ -52,7 +52,7 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Arc<RwLock<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Import>> {
         store.inter_import(|id| {
@@ -62,7 +62,7 @@ impl Import {
                 id,
                 name: name.to_owned(),
                 path: path.to_owned(),
-                object: object.map(|object| object.read().unwrap().id),
+                object: object.as_ref().map(|object| object.id),
             }))
         })
     }

@@ -52,7 +52,7 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Rc<RefCell<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Import>> {
         store.inter_import(|id| {
@@ -62,7 +62,7 @@ impl Import {
                 id,
                 name: name.to_owned(),
                 path: path.to_owned(),
-                object: object.map(|object| object.borrow().id),
+                object: object.as_ref().map(|object| object.id),
             }))
         })
     }

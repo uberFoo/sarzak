@@ -5,10 +5,10 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec::types::block::Block;
+use crate::v2::lu_dog_vec::types::body::Body;
 use crate::v2::lu_dog_vec::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_vec::types::field_access_target::FieldAccessTargetEnum;
-use crate::v2::lu_dog_vec::types::implementation::Implementation;
+use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
 use crate::v2::lu_dog_vec::types::parameter::Parameter;
@@ -30,9 +30,9 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 pub struct Function {
     pub id: usize,
     pub name: String,
-    /// R19: [`Function`] 'executes statements in a' [`Block`]
-    pub block: usize,
-    /// R9: [`Function`] 'may be contained in an' [`Implementation`]
+    /// R19: [`Function`] 'executes statements in a' [`Body`]
+    pub body: usize,
+    /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
     pub impl_block: Option<usize>,
     /// R10: [`Function`] 'returns' [`ValueType`]
     pub return_type: usize,
@@ -44,8 +44,8 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: &Rc<RefCell<Block>>,
-        impl_block: Option<&Rc<RefCell<Implementation>>>,
+        body: &Rc<RefCell<Body>>,
+        impl_block: Option<&Rc<RefCell<ImplementationBlock>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Function>> {
@@ -53,29 +53,32 @@ impl Function {
             Rc::new(RefCell::new(Function {
                 id,
                 name: name.to_owned(),
-                block: block.borrow().id,
-                impl_block: impl_block.map(|implementation| implementation.borrow().id),
+                body: body.borrow().id,
+                impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
                 return_type: return_type.borrow().id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R19(1-*)
-    pub fn r19_block<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r19_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-block"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-body"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
+    /// Navigate to [`Body`] across R19(1-*)
+    pub fn r19_body<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Body>>> {
+        span!("r19_body");
+        vec![store.exhume_body(&self.body).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}
-    /// Navigate to [`Implementation`] across R9(1-*c)
-    pub fn r9_implementation<'a>(
+    /// Navigate to [`ImplementationBlock`] across R9(1-*c)
+    pub fn r9_implementation_block<'a>(
         &'a self,
         store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<Implementation>>> {
-        span!("r9_implementation");
+    ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
+        span!("r9_implementation_block");
         match self.impl_block {
-            Some(ref impl_block) => vec![store.exhume_implementation(&impl_block).unwrap()],
+            Some(ref impl_block) => vec![store.exhume_implementation_block(&impl_block).unwrap()],
             None => Vec::new(),
         }
     }

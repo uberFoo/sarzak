@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::dwarf_source_file::DwarfSourceFile;
 use crate::v2::lu_dog_vec::types::function::Function;
-use crate::v2::lu_dog_vec::types::implementation::Implementation;
+use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::import::Import;
 use crate::v2::lu_dog_vec::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_vec::types::x_macro::XMacro;
@@ -29,7 +29,7 @@ pub struct Item {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ItemEnum {
     Function(usize),
-    Implementation(usize),
+    ImplementationBlock(usize),
     Import(usize),
     XMacro(usize),
     WoogStruct(usize),
@@ -54,16 +54,17 @@ impl Item {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation_block"}}}
     /// Inter a new Item in the store, and return it's `id`.
-    pub fn new_implementation(
+    pub fn new_implementation_block(
         source: &Rc<RefCell<DwarfSourceFile>>,
-        subtype: &Rc<RefCell<Implementation>>,
+        subtype: &Rc<RefCell<ImplementationBlock>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Item>> {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::Implementation(subtype.borrow().id),
+                subtype: ItemEnum::ImplementationBlock(subtype.borrow().id),
                 id,
             }))
         })

@@ -584,19 +584,6 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
-    /// Navigate to [`RangeExpression`] across R59(1-Mc)
-    pub fn r59_range_expression<'a>(
-        &'a self,
-        store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<RangeExpression>>> {
-        span!("r59_range_expression");
-        store
-            .iter_range_expression()
-            .filter(|range_expression| range_expression.read().unwrap().rhs == Some(self.id))
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
     /// Navigate to [`RangeExpression`] across R58(1-Mc)
     pub fn r58_range_expression<'a>(
         &'a self,
@@ -606,6 +593,19 @@ impl Expression {
         store
             .iter_range_expression()
             .filter(|range_expression| range_expression.read().unwrap().lhs == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
+    /// Navigate to [`RangeExpression`] across R59(1-Mc)
+    pub fn r59_range_expression<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<RangeExpression>>> {
+        span!("r59_range_expression");
+        store
+            .iter_range_expression()
+            .filter(|range_expression| range_expression.read().unwrap().rhs == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

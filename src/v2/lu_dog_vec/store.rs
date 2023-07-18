@@ -10,6 +10,7 @@
 //! * [`Argument`]
 //! * [`Binary`]
 //! * [`Block`]
+//! * [`Body`]
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
@@ -19,6 +20,7 @@
 //! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
+//! * [`ExternalImplementation`]
 //! * [`Field`]
 //! * [`FieldAccess`]
 //! * [`FieldAccessTarget`]
@@ -28,7 +30,7 @@
 //! * [`Function`]
 //! * [`Grouped`]
 //! * [`XIf`]
-//! * [`Implementation`]
+//! * [`ImplementationBlock`]
 //! * [`Import`]
 //! * [`Index`]
 //! * [`IntegerLiteral`]
@@ -44,6 +46,7 @@
 //! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
+//! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
@@ -74,17 +77,18 @@ use std::{
     path::Path,
 };
 
-use rustc_hash::FxHashMap as HashMap;
 use heck::ToUpperCamelCase;
+use rustc_hash::FxHashMap as HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
-    Argument, Binary, Block, BooleanLiteral, BooleanOperator, Call, Comparison, DwarfSourceFile,
-    Error, ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index,
-    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
-    Literal, LocalVariable, MethodCall, Operator, Parameter, Print, RangeExpression, Reference,
+    Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
+    DwarfSourceFile, Error, ErrorExpression, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, ObjectWrapper, Operator, Parameter, Print, RangeExpression, Reference,
     ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
     Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
     XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
@@ -102,6 +106,8 @@ pub struct ObjectStore {
     binary: Vec<Option<Rc<RefCell<Binary>>>>,
     block_free_list: Vec<usize>,
     block: Vec<Option<Rc<RefCell<Block>>>>,
+    body_free_list: Vec<usize>,
+    body: Vec<Option<Rc<RefCell<Body>>>>,
     boolean_literal_free_list: Vec<usize>,
     boolean_literal: Vec<Option<Rc<RefCell<BooleanLiteral>>>>,
     boolean_operator_free_list: Vec<usize>,
@@ -120,6 +126,8 @@ pub struct ObjectStore {
     expression: Vec<Option<Rc<RefCell<Expression>>>>,
     expression_statement_free_list: Vec<usize>,
     expression_statement: Vec<Option<Rc<RefCell<ExpressionStatement>>>>,
+    external_implementation_free_list: Vec<usize>,
+    external_implementation: Vec<Option<Rc<RefCell<ExternalImplementation>>>>,
     field_free_list: Vec<usize>,
     field: Vec<Option<Rc<RefCell<Field>>>>,
     field_id_by_name: HashMap<String, usize>,
@@ -140,8 +148,8 @@ pub struct ObjectStore {
     grouped: Vec<Option<Rc<RefCell<Grouped>>>>,
     x_if_free_list: Vec<usize>,
     x_if: Vec<Option<Rc<RefCell<XIf>>>>,
-    implementation_free_list: Vec<usize>,
-    implementation: Vec<Option<Rc<RefCell<Implementation>>>>,
+    implementation_block_free_list: Vec<usize>,
+    implementation_block: Vec<Option<Rc<RefCell<ImplementationBlock>>>>,
     import_free_list: Vec<usize>,
     import: Vec<Option<Rc<RefCell<Import>>>>,
     index_free_list: Vec<usize>,
@@ -172,6 +180,8 @@ pub struct ObjectStore {
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
     z_object_store_free_list: Vec<usize>,
     z_object_store: Vec<Option<Rc<RefCell<ZObjectStore>>>>,
+    object_wrapper_free_list: Vec<usize>,
+    object_wrapper: Vec<Option<Rc<RefCell<ObjectWrapper>>>>,
     operator_free_list: Vec<usize>,
     operator: Vec<Option<Rc<RefCell<Operator>>>>,
     woog_option_free_list: Vec<usize>,
@@ -226,6 +236,8 @@ impl ObjectStore {
             binary: Vec::new(),
             block_free_list: Vec::new(),
             block: Vec::new(),
+            body_free_list: Vec::new(),
+            body: Vec::new(),
             boolean_literal_free_list: Vec::new(),
             boolean_literal: Vec::new(),
             boolean_operator_free_list: Vec::new(),
@@ -244,6 +256,8 @@ impl ObjectStore {
             expression: Vec::new(),
             expression_statement_free_list: Vec::new(),
             expression_statement: Vec::new(),
+            external_implementation_free_list: Vec::new(),
+            external_implementation: Vec::new(),
             field_free_list: Vec::new(),
             field: Vec::new(),
             field_id_by_name: HashMap::default(),
@@ -264,8 +278,8 @@ impl ObjectStore {
             grouped: Vec::new(),
             x_if_free_list: Vec::new(),
             x_if: Vec::new(),
-            implementation_free_list: Vec::new(),
-            implementation: Vec::new(),
+            implementation_block_free_list: Vec::new(),
+            implementation_block: Vec::new(),
             import_free_list: Vec::new(),
             import: Vec::new(),
             index_free_list: Vec::new(),
@@ -296,6 +310,8 @@ impl ObjectStore {
             method_call: Vec::new(),
             z_object_store_free_list: Vec::new(),
             z_object_store: Vec::new(),
+            object_wrapper_free_list: Vec::new(),
+            object_wrapper: Vec::new(),
             operator_free_list: Vec::new(),
             operator: Vec::new(),
             woog_option_free_list: Vec::new(),
@@ -501,12 +517,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Argument>>,
     {
         if let Some(_index) = self.argument_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let argument = argument(_index);
+            log::debug!(target: "store", "interring {argument:?}.");
             self.argument[_index] = Some(argument.clone());
             argument
         } else {
             let _index = self.argument.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let argument = argument(_index);
+            log::debug!(target: "store", "interring {argument:?}.");
             self.argument.push(Some(argument.clone()));
             argument
         }
@@ -548,12 +568,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Binary>>,
     {
         if let Some(_index) = self.binary_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let binary = binary(_index);
+            log::debug!(target: "store", "interring {binary:?}.");
             self.binary[_index] = Some(binary.clone());
             binary
         } else {
             let _index = self.binary.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let binary = binary(_index);
+            log::debug!(target: "store", "interring {binary:?}.");
             self.binary.push(Some(binary.clone()));
             binary
         }
@@ -595,12 +619,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Block>>,
     {
         if let Some(_index) = self.block_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let block = block(_index);
+            log::debug!(target: "store", "interring {block:?}.");
             self.block[_index] = Some(block.clone());
             block
         } else {
             let _index = self.block.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let block = block(_index);
+            log::debug!(target: "store", "interring {block:?}.");
             self.block.push(Some(block.clone()));
             block
         }
@@ -630,6 +658,52 @@ impl ObjectStore {
         (0..len).map(move |i| self.block[i].as_ref().map(|block| block.clone()).unwrap())
     }
 
+    /// Inter (insert) [`Body`] into the store.
+    ///
+    pub fn inter_body<F>(&mut self, body: F) -> Rc<RefCell<Body>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Body>>,
+    {
+        if let Some(_index) = self.body_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let body = body(_index);
+            log::debug!(target: "store", "interring {body:?}.");
+            self.body[_index] = Some(body.clone());
+            body
+        } else {
+            let _index = self.body.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let body = body(_index);
+            log::debug!(target: "store", "interring {body:?}.");
+            self.body.push(Some(body.clone()));
+            body
+        }
+    }
+
+    /// Exhume (get) [`Body`] from the store.
+    ///
+    pub fn exhume_body(&self, id: &usize) -> Option<Rc<RefCell<Body>>> {
+        match self.body.get(*id) {
+            Some(body) => body.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Body`] from the store.
+    ///
+    pub fn exorcise_body(&mut self, id: &usize) -> Option<Rc<RefCell<Body>>> {
+        let result = self.body[*id].take();
+        self.body_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Body>`.
+    ///
+    pub fn iter_body(&self) -> impl Iterator<Item = Rc<RefCell<Body>>> + '_ {
+        let len = self.body.len();
+        (0..len).map(move |i| self.body[i].as_ref().map(|body| body.clone()).unwrap())
+    }
+
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
     pub fn inter_boolean_literal<F>(&mut self, boolean_literal: F) -> Rc<RefCell<BooleanLiteral>>
@@ -637,12 +711,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<BooleanLiteral>>,
     {
         if let Some(_index) = self.boolean_literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let boolean_literal = boolean_literal(_index);
+            log::debug!(target: "store", "interring {boolean_literal:?}.");
             self.boolean_literal[_index] = Some(boolean_literal.clone());
             boolean_literal
         } else {
             let _index = self.boolean_literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let boolean_literal = boolean_literal(_index);
+            log::debug!(target: "store", "interring {boolean_literal:?}.");
             self.boolean_literal.push(Some(boolean_literal.clone()));
             boolean_literal
         }
@@ -684,12 +762,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<BooleanOperator>>,
     {
         if let Some(_index) = self.boolean_operator_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let boolean_operator = boolean_operator(_index);
+            log::debug!(target: "store", "interring {boolean_operator:?}.");
             self.boolean_operator[_index] = Some(boolean_operator.clone());
             boolean_operator
         } else {
             let _index = self.boolean_operator.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let boolean_operator = boolean_operator(_index);
+            log::debug!(target: "store", "interring {boolean_operator:?}.");
             self.boolean_operator.push(Some(boolean_operator.clone()));
             boolean_operator
         }
@@ -734,12 +816,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Call>>,
     {
         if let Some(_index) = self.call_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let call = call(_index);
+            log::debug!(target: "store", "interring {call:?}.");
             self.call[_index] = Some(call.clone());
             call
         } else {
             let _index = self.call.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let call = call(_index);
+            log::debug!(target: "store", "interring {call:?}.");
             self.call.push(Some(call.clone()));
             call
         }
@@ -776,12 +862,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Comparison>>,
     {
         if let Some(_index) = self.comparison_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let comparison = comparison(_index);
+            log::debug!(target: "store", "interring {comparison:?}.");
             self.comparison[_index] = Some(comparison.clone());
             comparison
         } else {
             let _index = self.comparison.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let comparison = comparison(_index);
+            log::debug!(target: "store", "interring {comparison:?}.");
             self.comparison.push(Some(comparison.clone()));
             comparison
         }
@@ -826,12 +916,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<DwarfSourceFile>>,
     {
         if let Some(_index) = self.dwarf_source_file_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let dwarf_source_file = dwarf_source_file(_index);
+            log::debug!(target: "store", "interring {dwarf_source_file:?}.");
             self.dwarf_source_file[_index] = Some(dwarf_source_file.clone());
             dwarf_source_file
         } else {
             let _index = self.dwarf_source_file.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let dwarf_source_file = dwarf_source_file(_index);
+            log::debug!(target: "store", "interring {dwarf_source_file:?}.");
             self.dwarf_source_file.push(Some(dwarf_source_file.clone()));
             dwarf_source_file
         }
@@ -878,12 +972,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Error>>,
     {
         if let Some(_index) = self.error_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let error = error(_index);
+            log::debug!(target: "store", "interring {error:?}.");
             self.error[_index] = Some(error.clone());
             error
         } else {
             let _index = self.error.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let error = error(_index);
+            log::debug!(target: "store", "interring {error:?}.");
             self.error.push(Some(error.clone()));
             error
         }
@@ -920,12 +1018,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ErrorExpression>>,
     {
         if let Some(_index) = self.error_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let error_expression = error_expression(_index);
+            log::debug!(target: "store", "interring {error_expression:?}.");
             self.error_expression[_index] = Some(error_expression.clone());
             error_expression
         } else {
             let _index = self.error_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let error_expression = error_expression(_index);
+            log::debug!(target: "store", "interring {error_expression:?}.");
             self.error_expression.push(Some(error_expression.clone()));
             error_expression
         }
@@ -970,12 +1072,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Expression>>,
     {
         if let Some(_index) = self.expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let expression = expression(_index);
+            log::debug!(target: "store", "interring {expression:?}.");
             self.expression[_index] = Some(expression.clone());
             expression
         } else {
             let _index = self.expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let expression = expression(_index);
+            log::debug!(target: "store", "interring {expression:?}.");
             self.expression.push(Some(expression.clone()));
             expression
         }
@@ -1020,12 +1126,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ExpressionStatement>>,
     {
         if let Some(_index) = self.expression_statement_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let expression_statement = expression_statement(_index);
+            log::debug!(target: "store", "interring {expression_statement:?}.");
             self.expression_statement[_index] = Some(expression_statement.clone());
             expression_statement
         } else {
             let _index = self.expression_statement.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let expression_statement = expression_statement(_index);
+            log::debug!(target: "store", "interring {expression_statement:?}.");
             self.expression_statement
                 .push(Some(expression_statement.clone()));
             expression_statement
@@ -1069,6 +1179,69 @@ impl ObjectStore {
         })
     }
 
+    /// Inter (insert) [`ExternalImplementation`] into the store.
+    ///
+    pub fn inter_external_implementation<F>(
+        &mut self,
+        external_implementation: F,
+    ) -> Rc<RefCell<ExternalImplementation>>
+    where
+        F: Fn(usize) -> Rc<RefCell<ExternalImplementation>>,
+    {
+        if let Some(_index) = self.external_implementation_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let external_implementation = external_implementation(_index);
+            log::debug!(target: "store", "interring {external_implementation:?}.");
+            self.external_implementation[_index] = Some(external_implementation.clone());
+            external_implementation
+        } else {
+            let _index = self.external_implementation.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let external_implementation = external_implementation(_index);
+            log::debug!(target: "store", "interring {external_implementation:?}.");
+            self.external_implementation
+                .push(Some(external_implementation.clone()));
+            external_implementation
+        }
+    }
+
+    /// Exhume (get) [`ExternalImplementation`] from the store.
+    ///
+    pub fn exhume_external_implementation(
+        &self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<ExternalImplementation>>> {
+        match self.external_implementation.get(*id) {
+            Some(external_implementation) => external_implementation.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ExternalImplementation`] from the store.
+    ///
+    pub fn exorcise_external_implementation(
+        &mut self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<ExternalImplementation>>> {
+        let result = self.external_implementation[*id].take();
+        self.external_implementation_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExternalImplementation>`.
+    ///
+    pub fn iter_external_implementation(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<ExternalImplementation>>> + '_ {
+        let len = self.external_implementation.len();
+        (0..len).map(move |i| {
+            self.external_implementation[i]
+                .as_ref()
+                .map(|external_implementation| external_implementation.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`Field`] into the store.
     ///
     pub fn inter_field<F>(&mut self, field: F) -> Rc<RefCell<Field>>
@@ -1076,12 +1249,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Field>>,
     {
         let field = if let Some(_index) = self.field_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field = field(_index);
+            log::debug!(target: "store", "interring {field:?}.");
             self.field[_index] = Some(field.clone());
             field
         } else {
             let _index = self.field.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field = field(_index);
+            log::debug!(target: "store", "interring {field:?}.");
             self.field.push(Some(field.clone()));
             field
         };
@@ -1127,12 +1304,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<FieldAccess>>,
     {
         if let Some(_index) = self.field_access_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_access = field_access(_index);
+            log::debug!(target: "store", "interring {field_access:?}.");
             self.field_access[_index] = Some(field_access.clone());
             field_access
         } else {
             let _index = self.field_access.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_access = field_access(_index);
+            log::debug!(target: "store", "interring {field_access:?}.");
             self.field_access.push(Some(field_access.clone()));
             field_access
         }
@@ -1177,12 +1358,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<FieldAccessTarget>>,
     {
         if let Some(_index) = self.field_access_target_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_access_target = field_access_target(_index);
+            log::debug!(target: "store", "interring {field_access_target:?}.");
             self.field_access_target[_index] = Some(field_access_target.clone());
             field_access_target
         } else {
             let _index = self.field_access_target.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_access_target = field_access_target(_index);
+            log::debug!(target: "store", "interring {field_access_target:?}.");
             self.field_access_target
                 .push(Some(field_access_target.clone()));
             field_access_target
@@ -1230,12 +1415,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<FieldExpression>>,
     {
         if let Some(_index) = self.field_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_expression = field_expression(_index);
+            log::debug!(target: "store", "interring {field_expression:?}.");
             self.field_expression[_index] = Some(field_expression.clone());
             field_expression
         } else {
             let _index = self.field_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_expression = field_expression(_index);
+            log::debug!(target: "store", "interring {field_expression:?}.");
             self.field_expression.push(Some(field_expression.clone()));
             field_expression
         }
@@ -1280,12 +1469,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<FloatLiteral>>,
     {
         if let Some(_index) = self.float_literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let float_literal = float_literal(_index);
+            log::debug!(target: "store", "interring {float_literal:?}.");
             self.float_literal[_index] = Some(float_literal.clone());
             float_literal
         } else {
             let _index = self.float_literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let float_literal = float_literal(_index);
+            log::debug!(target: "store", "interring {float_literal:?}.");
             self.float_literal.push(Some(float_literal.clone()));
             float_literal
         }
@@ -1327,12 +1520,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ForLoop>>,
     {
         if let Some(_index) = self.for_loop_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let for_loop = for_loop(_index);
+            log::debug!(target: "store", "interring {for_loop:?}.");
             self.for_loop[_index] = Some(for_loop.clone());
             for_loop
         } else {
             let _index = self.for_loop.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let for_loop = for_loop(_index);
+            log::debug!(target: "store", "interring {for_loop:?}.");
             self.for_loop.push(Some(for_loop.clone()));
             for_loop
         }
@@ -1374,12 +1571,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Function>>,
     {
         let function = if let Some(_index) = self.function_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let function = function(_index);
+            log::debug!(target: "store", "interring {function:?}.");
             self.function[_index] = Some(function.clone());
             function
         } else {
             let _index = self.function.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let function = function(_index);
+            log::debug!(target: "store", "interring {function:?}.");
             self.function.push(Some(function.clone()));
             function
         };
@@ -1432,12 +1633,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Grouped>>,
     {
         if let Some(_index) = self.grouped_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let grouped = grouped(_index);
+            log::debug!(target: "store", "interring {grouped:?}.");
             self.grouped[_index] = Some(grouped.clone());
             grouped
         } else {
             let _index = self.grouped.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let grouped = grouped(_index);
+            log::debug!(target: "store", "interring {grouped:?}.");
             self.grouped.push(Some(grouped.clone()));
             grouped
         }
@@ -1479,12 +1684,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<XIf>>,
     {
         if let Some(_index) = self.x_if_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_if = x_if(_index);
+            log::debug!(target: "store", "interring {x_if:?}.");
             self.x_if[_index] = Some(x_if.clone());
             x_if
         } else {
             let _index = self.x_if.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_if = x_if(_index);
+            log::debug!(target: "store", "interring {x_if:?}.");
             self.x_if.push(Some(x_if.clone()));
             x_if
         }
@@ -1514,49 +1723,65 @@ impl ObjectStore {
         (0..len).map(move |i| self.x_if[i].as_ref().map(|x_if| x_if.clone()).unwrap())
     }
 
-    /// Inter (insert) [`Implementation`] into the store.
+    /// Inter (insert) [`ImplementationBlock`] into the store.
     ///
-    pub fn inter_implementation<F>(&mut self, implementation: F) -> Rc<RefCell<Implementation>>
+    pub fn inter_implementation_block<F>(
+        &mut self,
+        implementation_block: F,
+    ) -> Rc<RefCell<ImplementationBlock>>
     where
-        F: Fn(usize) -> Rc<RefCell<Implementation>>,
+        F: Fn(usize) -> Rc<RefCell<ImplementationBlock>>,
     {
-        if let Some(_index) = self.implementation_free_list.pop() {
-            let implementation = implementation(_index);
-            self.implementation[_index] = Some(implementation.clone());
-            implementation
+        if let Some(_index) = self.implementation_block_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let implementation_block = implementation_block(_index);
+            log::debug!(target: "store", "interring {implementation_block:?}.");
+            self.implementation_block[_index] = Some(implementation_block.clone());
+            implementation_block
         } else {
-            let _index = self.implementation.len();
-            let implementation = implementation(_index);
-            self.implementation.push(Some(implementation.clone()));
-            implementation
+            let _index = self.implementation_block.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let implementation_block = implementation_block(_index);
+            log::debug!(target: "store", "interring {implementation_block:?}.");
+            self.implementation_block
+                .push(Some(implementation_block.clone()));
+            implementation_block
         }
     }
 
-    /// Exhume (get) [`Implementation`] from the store.
+    /// Exhume (get) [`ImplementationBlock`] from the store.
     ///
-    pub fn exhume_implementation(&self, id: &usize) -> Option<Rc<RefCell<Implementation>>> {
-        match self.implementation.get(*id) {
-            Some(implementation) => implementation.clone(),
+    pub fn exhume_implementation_block(
+        &self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<ImplementationBlock>>> {
+        match self.implementation_block.get(*id) {
+            Some(implementation_block) => implementation_block.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Implementation`] from the store.
+    /// Exorcise (remove) [`ImplementationBlock`] from the store.
     ///
-    pub fn exorcise_implementation(&mut self, id: &usize) -> Option<Rc<RefCell<Implementation>>> {
-        let result = self.implementation[*id].take();
-        self.implementation_free_list.push(*id);
+    pub fn exorcise_implementation_block(
+        &mut self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<ImplementationBlock>>> {
+        let result = self.implementation_block[*id].take();
+        self.implementation_block_free_list.push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, ImplementationBlock>`.
     ///
-    pub fn iter_implementation(&self) -> impl Iterator<Item = Rc<RefCell<Implementation>>> + '_ {
-        let len = self.implementation.len();
+    pub fn iter_implementation_block(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<ImplementationBlock>>> + '_ {
+        let len = self.implementation_block.len();
         (0..len).map(move |i| {
-            self.implementation[i]
+            self.implementation_block[i]
                 .as_ref()
-                .map(|implementation| implementation.clone())
+                .map(|implementation_block| implementation_block.clone())
                 .unwrap()
         })
     }
@@ -1568,12 +1793,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Import>>,
     {
         if let Some(_index) = self.import_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let import = import(_index);
+            log::debug!(target: "store", "interring {import:?}.");
             self.import[_index] = Some(import.clone());
             import
         } else {
             let _index = self.import.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let import = import(_index);
+            log::debug!(target: "store", "interring {import:?}.");
             self.import.push(Some(import.clone()));
             import
         }
@@ -1615,12 +1844,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Index>>,
     {
         if let Some(_index) = self.index_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let index = index(_index);
+            log::debug!(target: "store", "interring {index:?}.");
             self.index[_index] = Some(index.clone());
             index
         } else {
             let _index = self.index.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let index = index(_index);
+            log::debug!(target: "store", "interring {index:?}.");
             self.index.push(Some(index.clone()));
             index
         }
@@ -1657,12 +1890,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<IntegerLiteral>>,
     {
         if let Some(_index) = self.integer_literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let integer_literal = integer_literal(_index);
+            log::debug!(target: "store", "interring {integer_literal:?}.");
             self.integer_literal[_index] = Some(integer_literal.clone());
             integer_literal
         } else {
             let _index = self.integer_literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let integer_literal = integer_literal(_index);
+            log::debug!(target: "store", "interring {integer_literal:?}.");
             self.integer_literal.push(Some(integer_literal.clone()));
             integer_literal
         }
@@ -1704,12 +1941,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Item>>,
     {
         if let Some(_index) = self.item_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let item = item(_index);
+            log::debug!(target: "store", "interring {item:?}.");
             self.item[_index] = Some(item.clone());
             item
         } else {
             let _index = self.item.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let item = item(_index);
+            log::debug!(target: "store", "interring {item:?}.");
             self.item.push(Some(item.clone()));
             item
         }
@@ -1746,12 +1987,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Lambda>>,
     {
         if let Some(_index) = self.lambda_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let lambda = lambda(_index);
+            log::debug!(target: "store", "interring {lambda:?}.");
             self.lambda[_index] = Some(lambda.clone());
             lambda
         } else {
             let _index = self.lambda.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let lambda = lambda(_index);
+            log::debug!(target: "store", "interring {lambda:?}.");
             self.lambda.push(Some(lambda.clone()));
             lambda
         }
@@ -1793,12 +2038,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<LambdaParameter>>,
     {
         if let Some(_index) = self.lambda_parameter_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let lambda_parameter = lambda_parameter(_index);
+            log::debug!(target: "store", "interring {lambda_parameter:?}.");
             self.lambda_parameter[_index] = Some(lambda_parameter.clone());
             lambda_parameter
         } else {
             let _index = self.lambda_parameter.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let lambda_parameter = lambda_parameter(_index);
+            log::debug!(target: "store", "interring {lambda_parameter:?}.");
             self.lambda_parameter.push(Some(lambda_parameter.clone()));
             lambda_parameter
         }
@@ -1843,12 +2092,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<LetStatement>>,
     {
         if let Some(_index) = self.let_statement_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let let_statement = let_statement(_index);
+            log::debug!(target: "store", "interring {let_statement:?}.");
             self.let_statement[_index] = Some(let_statement.clone());
             let_statement
         } else {
             let _index = self.let_statement.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let let_statement = let_statement(_index);
+            log::debug!(target: "store", "interring {let_statement:?}.");
             self.let_statement.push(Some(let_statement.clone()));
             let_statement
         }
@@ -1890,12 +2143,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<List>>,
     {
         if let Some(_index) = self.list_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list = list(_index);
+            log::debug!(target: "store", "interring {list:?}.");
             self.list[_index] = Some(list.clone());
             list
         } else {
             let _index = self.list.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list = list(_index);
+            log::debug!(target: "store", "interring {list:?}.");
             self.list.push(Some(list.clone()));
             list
         }
@@ -1932,12 +2189,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ListElement>>,
     {
         if let Some(_index) = self.list_element_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list_element = list_element(_index);
+            log::debug!(target: "store", "interring {list_element:?}.");
             self.list_element[_index] = Some(list_element.clone());
             list_element
         } else {
             let _index = self.list_element.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list_element = list_element(_index);
+            log::debug!(target: "store", "interring {list_element:?}.");
             self.list_element.push(Some(list_element.clone()));
             list_element
         }
@@ -1979,12 +2240,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ListExpression>>,
     {
         if let Some(_index) = self.list_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list_expression = list_expression(_index);
+            log::debug!(target: "store", "interring {list_expression:?}.");
             self.list_expression[_index] = Some(list_expression.clone());
             list_expression
         } else {
             let _index = self.list_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list_expression = list_expression(_index);
+            log::debug!(target: "store", "interring {list_expression:?}.");
             self.list_expression.push(Some(list_expression.clone()));
             list_expression
         }
@@ -2026,12 +2291,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Literal>>,
     {
         if let Some(_index) = self.literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let literal = literal(_index);
+            log::debug!(target: "store", "interring {literal:?}.");
             self.literal[_index] = Some(literal.clone());
             literal
         } else {
             let _index = self.literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let literal = literal(_index);
+            log::debug!(target: "store", "interring {literal:?}.");
             self.literal.push(Some(literal.clone()));
             literal
         }
@@ -2073,12 +2342,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<LocalVariable>>,
     {
         if let Some(_index) = self.local_variable_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let local_variable = local_variable(_index);
+            log::debug!(target: "store", "interring {local_variable:?}.");
             self.local_variable[_index] = Some(local_variable.clone());
             local_variable
         } else {
             let _index = self.local_variable.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let local_variable = local_variable(_index);
+            log::debug!(target: "store", "interring {local_variable:?}.");
             self.local_variable.push(Some(local_variable.clone()));
             local_variable
         }
@@ -2120,12 +2393,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<XMacro>>,
     {
         if let Some(_index) = self.x_macro_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_macro = x_macro(_index);
+            log::debug!(target: "store", "interring {x_macro:?}.");
             self.x_macro[_index] = Some(x_macro.clone());
             x_macro
         } else {
             let _index = self.x_macro.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_macro = x_macro(_index);
+            log::debug!(target: "store", "interring {x_macro:?}.");
             self.x_macro.push(Some(x_macro.clone()));
             x_macro
         }
@@ -2167,12 +2444,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<MethodCall>>,
     {
         if let Some(_index) = self.method_call_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let method_call = method_call(_index);
+            log::debug!(target: "store", "interring {method_call:?}.");
             self.method_call[_index] = Some(method_call.clone());
             method_call
         } else {
             let _index = self.method_call.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let method_call = method_call(_index);
+            log::debug!(target: "store", "interring {method_call:?}.");
             self.method_call.push(Some(method_call.clone()));
             method_call
         }
@@ -2214,12 +2495,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ZObjectStore>>,
     {
         if let Some(_index) = self.z_object_store_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let z_object_store = z_object_store(_index);
+            log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store[_index] = Some(z_object_store.clone());
             z_object_store
         } else {
             let _index = self.z_object_store.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let z_object_store = z_object_store(_index);
+            log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store.push(Some(z_object_store.clone()));
             z_object_store
         }
@@ -2254,6 +2539,57 @@ impl ObjectStore {
         })
     }
 
+    /// Inter (insert) [`ObjectWrapper`] into the store.
+    ///
+    pub fn inter_object_wrapper<F>(&mut self, object_wrapper: F) -> Rc<RefCell<ObjectWrapper>>
+    where
+        F: Fn(usize) -> Rc<RefCell<ObjectWrapper>>,
+    {
+        if let Some(_index) = self.object_wrapper_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let object_wrapper = object_wrapper(_index);
+            log::debug!(target: "store", "interring {object_wrapper:?}.");
+            self.object_wrapper[_index] = Some(object_wrapper.clone());
+            object_wrapper
+        } else {
+            let _index = self.object_wrapper.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let object_wrapper = object_wrapper(_index);
+            log::debug!(target: "store", "interring {object_wrapper:?}.");
+            self.object_wrapper.push(Some(object_wrapper.clone()));
+            object_wrapper
+        }
+    }
+
+    /// Exhume (get) [`ObjectWrapper`] from the store.
+    ///
+    pub fn exhume_object_wrapper(&self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
+        match self.object_wrapper.get(*id) {
+            Some(object_wrapper) => object_wrapper.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ObjectWrapper`] from the store.
+    ///
+    pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
+        let result = self.object_wrapper[*id].take();
+        self.object_wrapper_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ObjectWrapper>`.
+    ///
+    pub fn iter_object_wrapper(&self) -> impl Iterator<Item = Rc<RefCell<ObjectWrapper>>> + '_ {
+        let len = self.object_wrapper.len();
+        (0..len).map(move |i| {
+            self.object_wrapper[i]
+                .as_ref()
+                .map(|object_wrapper| object_wrapper.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`Operator`] into the store.
     ///
     pub fn inter_operator<F>(&mut self, operator: F) -> Rc<RefCell<Operator>>
@@ -2261,12 +2597,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Operator>>,
     {
         if let Some(_index) = self.operator_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let operator = operator(_index);
+            log::debug!(target: "store", "interring {operator:?}.");
             self.operator[_index] = Some(operator.clone());
             operator
         } else {
             let _index = self.operator.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let operator = operator(_index);
+            log::debug!(target: "store", "interring {operator:?}.");
             self.operator.push(Some(operator.clone()));
             operator
         }
@@ -2308,12 +2648,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<WoogOption>>,
     {
         if let Some(_index) = self.woog_option_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let woog_option = woog_option(_index);
+            log::debug!(target: "store", "interring {woog_option:?}.");
             self.woog_option[_index] = Some(woog_option.clone());
             woog_option
         } else {
             let _index = self.woog_option.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let woog_option = woog_option(_index);
+            log::debug!(target: "store", "interring {woog_option:?}.");
             self.woog_option.push(Some(woog_option.clone()));
             woog_option
         }
@@ -2355,12 +2699,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Parameter>>,
     {
         if let Some(_index) = self.parameter_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let parameter = parameter(_index);
+            log::debug!(target: "store", "interring {parameter:?}.");
             self.parameter[_index] = Some(parameter.clone());
             parameter
         } else {
             let _index = self.parameter.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let parameter = parameter(_index);
+            log::debug!(target: "store", "interring {parameter:?}.");
             self.parameter.push(Some(parameter.clone()));
             parameter
         }
@@ -2402,12 +2750,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Print>>,
     {
         if let Some(_index) = self.print_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let print = print(_index);
+            log::debug!(target: "store", "interring {print:?}.");
             self.print[_index] = Some(print.clone());
             print
         } else {
             let _index = self.print.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let print = print(_index);
+            log::debug!(target: "store", "interring {print:?}.");
             self.print.push(Some(print.clone()));
             print
         }
@@ -2444,12 +2796,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<RangeExpression>>,
     {
         if let Some(_index) = self.range_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let range_expression = range_expression(_index);
+            log::debug!(target: "store", "interring {range_expression:?}.");
             self.range_expression[_index] = Some(range_expression.clone());
             range_expression
         } else {
             let _index = self.range_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let range_expression = range_expression(_index);
+            log::debug!(target: "store", "interring {range_expression:?}.");
             self.range_expression.push(Some(range_expression.clone()));
             range_expression
         }
@@ -2494,12 +2850,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Reference>>,
     {
         if let Some(_index) = self.reference_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let reference = reference(_index);
+            log::debug!(target: "store", "interring {reference:?}.");
             self.reference[_index] = Some(reference.clone());
             reference
         } else {
             let _index = self.reference.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let reference = reference(_index);
+            log::debug!(target: "store", "interring {reference:?}.");
             self.reference.push(Some(reference.clone()));
             reference
         }
@@ -2541,12 +2901,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ResultStatement>>,
     {
         if let Some(_index) = self.result_statement_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let result_statement = result_statement(_index);
+            log::debug!(target: "store", "interring {result_statement:?}.");
             self.result_statement[_index] = Some(result_statement.clone());
             result_statement
         } else {
             let _index = self.result_statement.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let result_statement = result_statement(_index);
+            log::debug!(target: "store", "interring {result_statement:?}.");
             self.result_statement.push(Some(result_statement.clone()));
             result_statement
         }
@@ -2591,12 +2955,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<XReturn>>,
     {
         if let Some(_index) = self.x_return_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_return = x_return(_index);
+            log::debug!(target: "store", "interring {x_return:?}.");
             self.x_return[_index] = Some(x_return.clone());
             x_return
         } else {
             let _index = self.x_return.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_return = x_return(_index);
+            log::debug!(target: "store", "interring {x_return:?}.");
             self.x_return.push(Some(x_return.clone()));
             x_return
         }
@@ -2638,12 +3006,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ZSome>>,
     {
         if let Some(_index) = self.z_some_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let z_some = z_some(_index);
+            log::debug!(target: "store", "interring {z_some:?}.");
             self.z_some[_index] = Some(z_some.clone());
             z_some
         } else {
             let _index = self.z_some.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let z_some = z_some(_index);
+            log::debug!(target: "store", "interring {z_some:?}.");
             self.z_some.push(Some(z_some.clone()));
             z_some
         }
@@ -2685,12 +3057,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Span>>,
     {
         if let Some(_index) = self.span_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let span = span(_index);
+            log::debug!(target: "store", "interring {span:?}.");
             self.span[_index] = Some(span.clone());
             span
         } else {
             let _index = self.span.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let span = span(_index);
+            log::debug!(target: "store", "interring {span:?}.");
             self.span.push(Some(span.clone()));
             span
         }
@@ -2727,12 +3103,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Statement>>,
     {
         if let Some(_index) = self.statement_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let statement = statement(_index);
+            log::debug!(target: "store", "interring {statement:?}.");
             self.statement[_index] = Some(statement.clone());
             statement
         } else {
             let _index = self.statement.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let statement = statement(_index);
+            log::debug!(target: "store", "interring {statement:?}.");
             self.statement.push(Some(statement.clone()));
             statement
         }
@@ -2777,12 +3157,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<StaticMethodCall>>,
     {
         if let Some(_index) = self.static_method_call_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let static_method_call = static_method_call(_index);
+            log::debug!(target: "store", "interring {static_method_call:?}.");
             self.static_method_call[_index] = Some(static_method_call.clone());
             static_method_call
         } else {
             let _index = self.static_method_call.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let static_method_call = static_method_call(_index);
+            log::debug!(target: "store", "interring {static_method_call:?}.");
             self.static_method_call
                 .push(Some(static_method_call.clone()));
             static_method_call
@@ -2830,12 +3214,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<StringLiteral>>,
     {
         if let Some(_index) = self.string_literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let string_literal = string_literal(_index);
+            log::debug!(target: "store", "interring {string_literal:?}.");
             self.string_literal[_index] = Some(string_literal.clone());
             string_literal
         } else {
             let _index = self.string_literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let string_literal = string_literal(_index);
+            log::debug!(target: "store", "interring {string_literal:?}.");
             self.string_literal.push(Some(string_literal.clone()));
             string_literal
         }
@@ -2877,12 +3265,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<WoogStruct>>,
     {
         let woog_struct = if let Some(_index) = self.woog_struct_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let woog_struct = woog_struct(_index);
+            log::debug!(target: "store", "interring {woog_struct:?}.");
             self.woog_struct[_index] = Some(woog_struct.clone());
             woog_struct
         } else {
             let _index = self.woog_struct.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let woog_struct = woog_struct(_index);
+            log::debug!(target: "store", "interring {woog_struct:?}.");
             self.woog_struct.push(Some(woog_struct.clone()));
             woog_struct
         };
@@ -2940,12 +3332,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<StructExpression>>,
     {
         if let Some(_index) = self.struct_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let struct_expression = struct_expression(_index);
+            log::debug!(target: "store", "interring {struct_expression:?}.");
             self.struct_expression[_index] = Some(struct_expression.clone());
             struct_expression
         } else {
             let _index = self.struct_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let struct_expression = struct_expression(_index);
+            log::debug!(target: "store", "interring {struct_expression:?}.");
             self.struct_expression.push(Some(struct_expression.clone()));
             struct_expression
         }
@@ -2992,12 +3388,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<TypeCast>>,
     {
         if let Some(_index) = self.type_cast_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let type_cast = type_cast(_index);
+            log::debug!(target: "store", "interring {type_cast:?}.");
             self.type_cast[_index] = Some(type_cast.clone());
             type_cast
         } else {
             let _index = self.type_cast.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let type_cast = type_cast(_index);
+            log::debug!(target: "store", "interring {type_cast:?}.");
             self.type_cast.push(Some(type_cast.clone()));
             type_cast
         }
@@ -3039,12 +3439,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Unary>>,
     {
         if let Some(_index) = self.unary_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let unary = unary(_index);
+            log::debug!(target: "store", "interring {unary:?}.");
             self.unary[_index] = Some(unary.clone());
             unary
         } else {
             let _index = self.unary.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let unary = unary(_index);
+            log::debug!(target: "store", "interring {unary:?}.");
             self.unary.push(Some(unary.clone()));
             unary
         }
@@ -3081,12 +3485,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<XValue>>,
     {
         if let Some(_index) = self.x_value_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_value = x_value(_index);
+            log::debug!(target: "store", "interring {x_value:?}.");
             self.x_value[_index] = Some(x_value.clone());
             x_value
         } else {
             let _index = self.x_value.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_value = x_value(_index);
+            log::debug!(target: "store", "interring {x_value:?}.");
             self.x_value.push(Some(x_value.clone()));
             x_value
         }
@@ -3128,12 +3536,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<ValueType>>,
     {
         if let Some(_index) = self.value_type_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let value_type = value_type(_index);
+            log::debug!(target: "store", "interring {value_type:?}.");
             self.value_type[_index] = Some(value_type.clone());
             value_type
         } else {
             let _index = self.value_type.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let value_type = value_type(_index);
+            log::debug!(target: "store", "interring {value_type:?}.");
             self.value_type.push(Some(value_type.clone()));
             value_type
         }
@@ -3175,12 +3587,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<Variable>>,
     {
         if let Some(_index) = self.variable_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let variable = variable(_index);
+            log::debug!(target: "store", "interring {variable:?}.");
             self.variable[_index] = Some(variable.clone());
             variable
         } else {
             let _index = self.variable.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let variable = variable(_index);
+            log::debug!(target: "store", "interring {variable:?}.");
             self.variable.push(Some(variable.clone()));
             variable
         }
@@ -3225,12 +3641,16 @@ impl ObjectStore {
         F: Fn(usize) -> Rc<RefCell<VariableExpression>>,
     {
         if let Some(_index) = self.variable_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let variable_expression = variable_expression(_index);
+            log::debug!(target: "store", "interring {variable_expression:?}.");
             self.variable_expression[_index] = Some(variable_expression.clone());
             variable_expression
         } else {
             let _index = self.variable_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let variable_expression = variable_expression(_index);
+            log::debug!(target: "store", "interring {variable_expression:?}.");
             self.variable_expression
                 .push(Some(variable_expression.clone()));
             variable_expression
@@ -3338,6 +3758,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &block)?;
+                }
+            }
+        }
+
+        // Persist Body.
+        {
+            let path = path.join("body");
+            fs::create_dir_all(&path)?;
+            for body in &self.body {
+                if let Some(body) = body {
+                    let path = path.join(format!("{}.json", body.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &body)?;
                 }
             }
         }
@@ -3468,6 +3902,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist External Implementation.
+        {
+            let path = path.join("external_implementation");
+            fs::create_dir_all(&path)?;
+            for external_implementation in &self.external_implementation {
+                if let Some(external_implementation) = external_implementation {
+                    let path = path.join(format!("{}.json", external_implementation.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &external_implementation)?;
+                }
+            }
+        }
+
         // Persist Field.
         {
             let path = path.join("field");
@@ -3594,16 +4042,16 @@ impl ObjectStore {
             }
         }
 
-        // Persist Implementation.
+        // Persist Implementation Block.
         {
-            let path = path.join("implementation");
+            let path = path.join("implementation_block");
             fs::create_dir_all(&path)?;
-            for implementation in &self.implementation {
-                if let Some(implementation) = implementation {
-                    let path = path.join(format!("{}.json", implementation.borrow().id));
+            for implementation_block in &self.implementation_block {
+                if let Some(implementation_block) = implementation_block {
+                    let path = path.join(format!("{}.json", implementation_block.borrow().id));
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &implementation)?;
+                    serde_json::to_writer_pretty(&mut writer, &implementation_block)?;
                 }
             }
         }
@@ -3814,6 +4262,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &z_object_store)?;
+                }
+            }
+        }
+
+        // Persist Object Wrapper.
+        {
+            let path = path.join("object_wrapper");
+            fs::create_dir_all(&path)?;
+            for object_wrapper in &self.object_wrapper {
+                if let Some(object_wrapper) = object_wrapper {
+                    let path = path.join(format!("{}.json", object_wrapper.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &object_wrapper)?;
                 }
             }
         }
@@ -4185,6 +4647,20 @@ impl ObjectStore {
             }
         }
 
+        // Load Body.
+        {
+            let path = path.join("body");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let body: Rc<RefCell<Body>> = serde_json::from_reader(reader)?;
+                store.body.insert(body.borrow().id, Some(body.clone()));
+            }
+        }
+
         // Load Boolean Literal.
         {
             let path = path.join("boolean_literal");
@@ -4327,6 +4803,24 @@ impl ObjectStore {
                 store.expression_statement.insert(
                     expression_statement.borrow().id,
                     Some(expression_statement.clone()),
+                );
+            }
+        }
+
+        // Load External Implementation.
+        {
+            let path = path.join("external_implementation");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let external_implementation: Rc<RefCell<ExternalImplementation>> =
+                    serde_json::from_reader(reader)?;
+                store.external_implementation.insert(
+                    external_implementation.borrow().id,
+                    Some(external_implementation.clone()),
                 );
             }
         }
@@ -4481,19 +4975,21 @@ impl ObjectStore {
             }
         }
 
-        // Load Implementation.
+        // Load Implementation Block.
         {
-            let path = path.join("implementation");
+            let path = path.join("implementation_block");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let implementation: Rc<RefCell<Implementation>> = serde_json::from_reader(reader)?;
-                store
-                    .implementation
-                    .insert(implementation.borrow().id, Some(implementation.clone()));
+                let implementation_block: Rc<RefCell<ImplementationBlock>> =
+                    serde_json::from_reader(reader)?;
+                store.implementation_block.insert(
+                    implementation_block.borrow().id,
+                    Some(implementation_block.clone()),
+                );
             }
         }
 
@@ -4729,6 +5225,22 @@ impl ObjectStore {
                 store
                     .z_object_store
                     .insert(z_object_store.borrow().id, Some(z_object_store.clone()));
+            }
+        }
+
+        // Load Object Wrapper.
+        {
+            let path = path.join("object_wrapper");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let object_wrapper: Rc<RefCell<ObjectWrapper>> = serde_json::from_reader(reader)?;
+                store
+                    .object_wrapper
+                    .insert(object_wrapper.borrow().id, Some(object_wrapper.clone()));
             }
         }
 

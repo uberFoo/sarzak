@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
 use crate::v2::lu_dog_ndrwlock_vec::types::field_access::FieldAccess;
-use crate::v2::lu_dog_ndrwlock_vec::types::implementation::Implementation;
+use crate::v2::lu_dog_ndrwlock_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_ndrwlock_vec::types::item::Item;
 use crate::v2::lu_dog_ndrwlock_vec::types::item::ItemEnum;
 use crate::v2::lu_dog_ndrwlock_vec::types::struct_expression::StructExpression;
@@ -31,7 +31,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
-    /// R4: [`WoogStruct`] 'represents an' [`Object`]
+    /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
     pub object: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,14 +41,14 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        object: Option<&Arc<RwLock<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<WoogStruct>> {
         store.inter_woog_struct(|id| {
             Arc::new(RwLock::new(WoogStruct {
                 id,
                 name: name.to_owned(),
-                object: object.map(|object| object.read().unwrap().id),
+                object: object.as_ref().map(|object| object.id),
             }))
         })
     }
@@ -86,17 +86,20 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-cond-to-implementation"}}}
-    /// Navigate to [`Implementation`] across R8(1-1c)
-    pub fn r8c_implementation<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-cond-to-implementation_block"}}}
+    /// Navigate to [`ImplementationBlock`] across R8(1-1c)
+    pub fn r8c_implementation_block<'a>(
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<Implementation>>> {
-        span!("r8_implementation");
-        let implementation = store
-            .iter_implementation()
-            .find(|implementation| implementation.read().unwrap().model_type == self.id);
-        match implementation {
-            Some(ref implementation) => vec![implementation.clone()],
+    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+        span!("r8_implementation_block");
+        let implementation_block = store
+            .iter_implementation_block()
+            .find(|implementation_block| {
+                implementation_block.read().unwrap().model_type == self.id
+            });
+        match implementation_block {
+            Some(ref implementation_block) => vec![implementation_block.clone()],
             None => Vec::new(),
         }
     }

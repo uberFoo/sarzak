@@ -5,6 +5,7 @@ use std::sync::Arc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_ndrwlock_vec::types::object_wrapper::ObjectWrapper;
 use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
@@ -36,6 +37,19 @@ impl ZObjectStore {
                 id,
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-assoc-many-to-object_wrapper"}}}
+    /// Navigate to [`ObjectWrapper`] across R78(1-M)
+    pub fn r78_object_wrapper<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ObjectWrapper>>> {
+        span!("r78_object_wrapper");
+        store
+            .iter_object_wrapper()
+            .filter(|object_wrapper| object_wrapper.read().unwrap().z_store == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}

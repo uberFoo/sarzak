@@ -14,6 +14,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::import::Import;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_ndrwlock_vec::types::list::List;
+use crate::v2::lu_dog_ndrwlock_vec::types::parameter::Parameter;
 use crate::v2::lu_dog_ndrwlock_vec::types::range::RANGE;
 use crate::v2::lu_dog_ndrwlock_vec::types::reference::Reference;
 use crate::v2::lu_dog_ndrwlock_vec::types::span::Span;
@@ -324,6 +325,19 @@ impl ValueType {
         store
             .iter_woog_option()
             .filter(|woog_option| woog_option.read().unwrap().ty == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
+    /// Navigate to [`Parameter`] across R79(1-M)
+    pub fn r79_parameter<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Parameter>>> {
+        span!("r79_parameter");
+        store
+            .iter_parameter()
+            .filter(|parameter| parameter.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -10,6 +10,7 @@
 //! * [`Argument`]
 //! * [`Binary`]
 //! * [`Block`]
+//! * [`Body`]
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
@@ -19,6 +20,7 @@
 //! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
+//! * [`ExternalImplementation`]
 //! * [`Field`]
 //! * [`FieldAccess`]
 //! * [`FieldAccessTarget`]
@@ -28,7 +30,7 @@
 //! * [`Function`]
 //! * [`Grouped`]
 //! * [`XIf`]
-//! * [`Implementation`]
+//! * [`ImplementationBlock`]
 //! * [`Import`]
 //! * [`Index`]
 //! * [`IntegerLiteral`]
@@ -44,6 +46,7 @@
 //! * [`XMacro`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
+//! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
@@ -67,19 +70,20 @@
 //! * [`VariableExpression`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog_ndrwlock_vec-object-store-definition"}}}
 use no_deadlocks::RwLock;
-use std::{fs, io, sync::Arc};
+use std::sync::Arc;
 
-use rustc_hash::FxHashMap as HashMap;
 use heck::ToUpperCamelCase;
+use rustc_hash::FxHashMap as HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
-    Argument, Binary, Block, BooleanLiteral, BooleanOperator, Call, Comparison, DwarfSourceFile,
-    Error, ErrorExpression, Expression, ExpressionStatement, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, Implementation, Import, Index,
-    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
-    Literal, LocalVariable, MethodCall, Operator, Parameter, Print, RangeExpression, Reference,
+    Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
+    DwarfSourceFile, Error, ErrorExpression, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, ObjectWrapper, Operator, Parameter, Print, RangeExpression, Reference,
     ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
     Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
     XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
@@ -97,6 +101,8 @@ pub struct ObjectStore {
     binary: Arc<RwLock<Vec<Option<Arc<RwLock<Binary>>>>>>,
     block_free_list: std::sync::Mutex<Vec<usize>>,
     block: Arc<RwLock<Vec<Option<Arc<RwLock<Block>>>>>>,
+    body_free_list: std::sync::Mutex<Vec<usize>>,
+    body: Arc<RwLock<Vec<Option<Arc<RwLock<Body>>>>>>,
     boolean_literal_free_list: std::sync::Mutex<Vec<usize>>,
     boolean_literal: Arc<RwLock<Vec<Option<Arc<RwLock<BooleanLiteral>>>>>>,
     boolean_operator_free_list: std::sync::Mutex<Vec<usize>>,
@@ -115,6 +121,8 @@ pub struct ObjectStore {
     expression: Arc<RwLock<Vec<Option<Arc<RwLock<Expression>>>>>>,
     expression_statement_free_list: std::sync::Mutex<Vec<usize>>,
     expression_statement: Arc<RwLock<Vec<Option<Arc<RwLock<ExpressionStatement>>>>>>,
+    external_implementation_free_list: std::sync::Mutex<Vec<usize>>,
+    external_implementation: Arc<RwLock<Vec<Option<Arc<RwLock<ExternalImplementation>>>>>>,
     field_free_list: std::sync::Mutex<Vec<usize>>,
     field: Arc<RwLock<Vec<Option<Arc<RwLock<Field>>>>>>,
     field_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
@@ -135,8 +143,8 @@ pub struct ObjectStore {
     grouped: Arc<RwLock<Vec<Option<Arc<RwLock<Grouped>>>>>>,
     x_if_free_list: std::sync::Mutex<Vec<usize>>,
     x_if: Arc<RwLock<Vec<Option<Arc<RwLock<XIf>>>>>>,
-    implementation_free_list: std::sync::Mutex<Vec<usize>>,
-    implementation: Arc<RwLock<Vec<Option<Arc<RwLock<Implementation>>>>>>,
+    implementation_block_free_list: std::sync::Mutex<Vec<usize>>,
+    implementation_block: Arc<RwLock<Vec<Option<Arc<RwLock<ImplementationBlock>>>>>>,
     import_free_list: std::sync::Mutex<Vec<usize>>,
     import: Arc<RwLock<Vec<Option<Arc<RwLock<Import>>>>>>,
     index_free_list: std::sync::Mutex<Vec<usize>>,
@@ -167,6 +175,8 @@ pub struct ObjectStore {
     method_call: Arc<RwLock<Vec<Option<Arc<RwLock<MethodCall>>>>>>,
     z_object_store_free_list: std::sync::Mutex<Vec<usize>>,
     z_object_store: Arc<RwLock<Vec<Option<Arc<RwLock<ZObjectStore>>>>>>,
+    object_wrapper_free_list: std::sync::Mutex<Vec<usize>>,
+    object_wrapper: Arc<RwLock<Vec<Option<Arc<RwLock<ObjectWrapper>>>>>>,
     operator_free_list: std::sync::Mutex<Vec<usize>>,
     operator: Arc<RwLock<Vec<Option<Arc<RwLock<Operator>>>>>>,
     woog_option_free_list: std::sync::Mutex<Vec<usize>>,
@@ -221,6 +231,8 @@ impl ObjectStore {
             binary: Arc::new(RwLock::new(Vec::new())),
             block_free_list: std::sync::Mutex::new(Vec::new()),
             block: Arc::new(RwLock::new(Vec::new())),
+            body_free_list: std::sync::Mutex::new(Vec::new()),
+            body: Arc::new(RwLock::new(Vec::new())),
             boolean_literal_free_list: std::sync::Mutex::new(Vec::new()),
             boolean_literal: Arc::new(RwLock::new(Vec::new())),
             boolean_operator_free_list: std::sync::Mutex::new(Vec::new()),
@@ -239,6 +251,8 @@ impl ObjectStore {
             expression: Arc::new(RwLock::new(Vec::new())),
             expression_statement_free_list: std::sync::Mutex::new(Vec::new()),
             expression_statement: Arc::new(RwLock::new(Vec::new())),
+            external_implementation_free_list: std::sync::Mutex::new(Vec::new()),
+            external_implementation: Arc::new(RwLock::new(Vec::new())),
             field_free_list: std::sync::Mutex::new(Vec::new()),
             field: Arc::new(RwLock::new(Vec::new())),
             field_id_by_name: Arc::new(RwLock::new(HashMap::default())),
@@ -259,8 +273,8 @@ impl ObjectStore {
             grouped: Arc::new(RwLock::new(Vec::new())),
             x_if_free_list: std::sync::Mutex::new(Vec::new()),
             x_if: Arc::new(RwLock::new(Vec::new())),
-            implementation_free_list: std::sync::Mutex::new(Vec::new()),
-            implementation: Arc::new(RwLock::new(Vec::new())),
+            implementation_block_free_list: std::sync::Mutex::new(Vec::new()),
+            implementation_block: Arc::new(RwLock::new(Vec::new())),
             import_free_list: std::sync::Mutex::new(Vec::new()),
             import: Arc::new(RwLock::new(Vec::new())),
             index_free_list: std::sync::Mutex::new(Vec::new()),
@@ -291,6 +305,8 @@ impl ObjectStore {
             method_call: Arc::new(RwLock::new(Vec::new())),
             z_object_store_free_list: std::sync::Mutex::new(Vec::new()),
             z_object_store: Arc::new(RwLock::new(Vec::new())),
+            object_wrapper_free_list: std::sync::Mutex::new(Vec::new()),
+            object_wrapper: Arc::new(RwLock::new(Vec::new())),
             operator_free_list: std::sync::Mutex::new(Vec::new()),
             operator: Arc::new(RwLock::new(Vec::new())),
             woog_option_free_list: std::sync::Mutex::new(Vec::new()),
@@ -496,12 +512,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Argument>>,
     {
         if let Some(_index) = self.argument_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let argument = argument(_index);
+            log::debug!(target: "store", "interring {argument:?}.");
             self.argument.write().unwrap()[_index] = Some(argument.clone());
             argument
         } else {
             let _index = self.argument.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let argument = argument(_index);
+            log::debug!(target: "store", "interring {argument:?}.");
             self.argument.write().unwrap().push(Some(argument.clone()));
             argument
         }
@@ -543,12 +563,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Binary>>,
     {
         if let Some(_index) = self.binary_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let binary = binary(_index);
+            log::debug!(target: "store", "interring {binary:?}.");
             self.binary.write().unwrap()[_index] = Some(binary.clone());
             binary
         } else {
             let _index = self.binary.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let binary = binary(_index);
+            log::debug!(target: "store", "interring {binary:?}.");
             self.binary.write().unwrap().push(Some(binary.clone()));
             binary
         }
@@ -590,12 +614,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Block>>,
     {
         if let Some(_index) = self.block_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let block = block(_index);
+            log::debug!(target: "store", "interring {block:?}.");
             self.block.write().unwrap()[_index] = Some(block.clone());
             block
         } else {
             let _index = self.block.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let block = block(_index);
+            log::debug!(target: "store", "interring {block:?}.");
             self.block.write().unwrap().push(Some(block.clone()));
             block
         }
@@ -630,6 +658,57 @@ impl ObjectStore {
         })
     }
 
+    /// Inter (insert) [`Body`] into the store.
+    ///
+    pub fn inter_body<F>(&mut self, body: F) -> Arc<RwLock<Body>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Body>>,
+    {
+        if let Some(_index) = self.body_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let body = body(_index);
+            log::debug!(target: "store", "interring {body:?}.");
+            self.body.write().unwrap()[_index] = Some(body.clone());
+            body
+        } else {
+            let _index = self.body.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let body = body(_index);
+            log::debug!(target: "store", "interring {body:?}.");
+            self.body.write().unwrap().push(Some(body.clone()));
+            body
+        }
+    }
+
+    /// Exhume (get) [`Body`] from the store.
+    ///
+    pub fn exhume_body(&self, id: &usize) -> Option<Arc<RwLock<Body>>> {
+        match self.body.read().unwrap().get(*id) {
+            Some(body) => body.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Body`] from the store.
+    ///
+    pub fn exorcise_body(&mut self, id: &usize) -> Option<Arc<RwLock<Body>>> {
+        let result = self.body.write().unwrap()[*id].take();
+        self.body_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Body>`.
+    ///
+    pub fn iter_body(&self) -> impl Iterator<Item = Arc<RwLock<Body>>> + '_ {
+        let len = self.body.read().unwrap().len();
+        (0..len).map(move |i| {
+            self.body.read().unwrap()[i]
+                .as_ref()
+                .map(|body| body.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
     pub fn inter_boolean_literal<F>(&mut self, boolean_literal: F) -> Arc<RwLock<BooleanLiteral>>
@@ -637,12 +716,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<BooleanLiteral>>,
     {
         if let Some(_index) = self.boolean_literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let boolean_literal = boolean_literal(_index);
+            log::debug!(target: "store", "interring {boolean_literal:?}.");
             self.boolean_literal.write().unwrap()[_index] = Some(boolean_literal.clone());
             boolean_literal
         } else {
             let _index = self.boolean_literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let boolean_literal = boolean_literal(_index);
+            log::debug!(target: "store", "interring {boolean_literal:?}.");
             self.boolean_literal
                 .write()
                 .unwrap()
@@ -687,12 +770,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<BooleanOperator>>,
     {
         if let Some(_index) = self.boolean_operator_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let boolean_operator = boolean_operator(_index);
+            log::debug!(target: "store", "interring {boolean_operator:?}.");
             self.boolean_operator.write().unwrap()[_index] = Some(boolean_operator.clone());
             boolean_operator
         } else {
             let _index = self.boolean_operator.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let boolean_operator = boolean_operator(_index);
+            log::debug!(target: "store", "interring {boolean_operator:?}.");
             self.boolean_operator
                 .write()
                 .unwrap()
@@ -740,12 +827,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Call>>,
     {
         if let Some(_index) = self.call_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let call = call(_index);
+            log::debug!(target: "store", "interring {call:?}.");
             self.call.write().unwrap()[_index] = Some(call.clone());
             call
         } else {
             let _index = self.call.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let call = call(_index);
+            log::debug!(target: "store", "interring {call:?}.");
             self.call.write().unwrap().push(Some(call.clone()));
             call
         }
@@ -787,12 +878,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Comparison>>,
     {
         if let Some(_index) = self.comparison_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let comparison = comparison(_index);
+            log::debug!(target: "store", "interring {comparison:?}.");
             self.comparison.write().unwrap()[_index] = Some(comparison.clone());
             comparison
         } else {
             let _index = self.comparison.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let comparison = comparison(_index);
+            log::debug!(target: "store", "interring {comparison:?}.");
             self.comparison
                 .write()
                 .unwrap()
@@ -840,12 +935,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<DwarfSourceFile>>,
     {
         if let Some(_index) = self.dwarf_source_file_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let dwarf_source_file = dwarf_source_file(_index);
+            log::debug!(target: "store", "interring {dwarf_source_file:?}.");
             self.dwarf_source_file.write().unwrap()[_index] = Some(dwarf_source_file.clone());
             dwarf_source_file
         } else {
             let _index = self.dwarf_source_file.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let dwarf_source_file = dwarf_source_file(_index);
+            log::debug!(target: "store", "interring {dwarf_source_file:?}.");
             self.dwarf_source_file
                 .write()
                 .unwrap()
@@ -895,12 +994,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Error>>,
     {
         if let Some(_index) = self.error_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let error = error(_index);
+            log::debug!(target: "store", "interring {error:?}.");
             self.error.write().unwrap()[_index] = Some(error.clone());
             error
         } else {
             let _index = self.error.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let error = error(_index);
+            log::debug!(target: "store", "interring {error:?}.");
             self.error.write().unwrap().push(Some(error.clone()));
             error
         }
@@ -942,12 +1045,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ErrorExpression>>,
     {
         if let Some(_index) = self.error_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let error_expression = error_expression(_index);
+            log::debug!(target: "store", "interring {error_expression:?}.");
             self.error_expression.write().unwrap()[_index] = Some(error_expression.clone());
             error_expression
         } else {
             let _index = self.error_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let error_expression = error_expression(_index);
+            log::debug!(target: "store", "interring {error_expression:?}.");
             self.error_expression
                 .write()
                 .unwrap()
@@ -995,12 +1102,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Expression>>,
     {
         if let Some(_index) = self.expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let expression = expression(_index);
+            log::debug!(target: "store", "interring {expression:?}.");
             self.expression.write().unwrap()[_index] = Some(expression.clone());
             expression
         } else {
             let _index = self.expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let expression = expression(_index);
+            log::debug!(target: "store", "interring {expression:?}.");
             self.expression
                 .write()
                 .unwrap()
@@ -1048,12 +1159,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ExpressionStatement>>,
     {
         if let Some(_index) = self.expression_statement_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let expression_statement = expression_statement(_index);
+            log::debug!(target: "store", "interring {expression_statement:?}.");
             self.expression_statement.write().unwrap()[_index] = Some(expression_statement.clone());
             expression_statement
         } else {
             let _index = self.expression_statement.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let expression_statement = expression_statement(_index);
+            log::debug!(target: "store", "interring {expression_statement:?}.");
             self.expression_statement
                 .write()
                 .unwrap()
@@ -1102,6 +1217,75 @@ impl ObjectStore {
         })
     }
 
+    /// Inter (insert) [`ExternalImplementation`] into the store.
+    ///
+    pub fn inter_external_implementation<F>(
+        &mut self,
+        external_implementation: F,
+    ) -> Arc<RwLock<ExternalImplementation>>
+    where
+        F: Fn(usize) -> Arc<RwLock<ExternalImplementation>>,
+    {
+        if let Some(_index) = self.external_implementation_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let external_implementation = external_implementation(_index);
+            log::debug!(target: "store", "interring {external_implementation:?}.");
+            self.external_implementation.write().unwrap()[_index] =
+                Some(external_implementation.clone());
+            external_implementation
+        } else {
+            let _index = self.external_implementation.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let external_implementation = external_implementation(_index);
+            log::debug!(target: "store", "interring {external_implementation:?}.");
+            self.external_implementation
+                .write()
+                .unwrap()
+                .push(Some(external_implementation.clone()));
+            external_implementation
+        }
+    }
+
+    /// Exhume (get) [`ExternalImplementation`] from the store.
+    ///
+    pub fn exhume_external_implementation(
+        &self,
+        id: &usize,
+    ) -> Option<Arc<RwLock<ExternalImplementation>>> {
+        match self.external_implementation.read().unwrap().get(*id) {
+            Some(external_implementation) => external_implementation.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ExternalImplementation`] from the store.
+    ///
+    pub fn exorcise_external_implementation(
+        &mut self,
+        id: &usize,
+    ) -> Option<Arc<RwLock<ExternalImplementation>>> {
+        let result = self.external_implementation.write().unwrap()[*id].take();
+        self.external_implementation_free_list
+            .lock()
+            .unwrap()
+            .push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExternalImplementation>`.
+    ///
+    pub fn iter_external_implementation(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<ExternalImplementation>>> + '_ {
+        let len = self.external_implementation.read().unwrap().len();
+        (0..len).map(move |i| {
+            self.external_implementation.read().unwrap()[i]
+                .as_ref()
+                .map(|external_implementation| external_implementation.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`Field`] into the store.
     ///
     pub fn inter_field<F>(&mut self, field: F) -> Arc<RwLock<Field>>
@@ -1109,12 +1293,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Field>>,
     {
         let field = if let Some(_index) = self.field_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field = field(_index);
+            log::debug!(target: "store", "interring {field:?}.");
             self.field.write().unwrap()[_index] = Some(field.clone());
             field
         } else {
             let _index = self.field.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field = field(_index);
+            log::debug!(target: "store", "interring {field:?}.");
             self.field.write().unwrap().push(Some(field.clone()));
             field
         };
@@ -1171,12 +1359,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<FieldAccess>>,
     {
         if let Some(_index) = self.field_access_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_access = field_access(_index);
+            log::debug!(target: "store", "interring {field_access:?}.");
             self.field_access.write().unwrap()[_index] = Some(field_access.clone());
             field_access
         } else {
             let _index = self.field_access.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_access = field_access(_index);
+            log::debug!(target: "store", "interring {field_access:?}.");
             self.field_access
                 .write()
                 .unwrap()
@@ -1224,12 +1416,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<FieldAccessTarget>>,
     {
         if let Some(_index) = self.field_access_target_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_access_target = field_access_target(_index);
+            log::debug!(target: "store", "interring {field_access_target:?}.");
             self.field_access_target.write().unwrap()[_index] = Some(field_access_target.clone());
             field_access_target
         } else {
             let _index = self.field_access_target.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_access_target = field_access_target(_index);
+            log::debug!(target: "store", "interring {field_access_target:?}.");
             self.field_access_target
                 .write()
                 .unwrap()
@@ -1279,12 +1475,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<FieldExpression>>,
     {
         if let Some(_index) = self.field_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let field_expression = field_expression(_index);
+            log::debug!(target: "store", "interring {field_expression:?}.");
             self.field_expression.write().unwrap()[_index] = Some(field_expression.clone());
             field_expression
         } else {
             let _index = self.field_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let field_expression = field_expression(_index);
+            log::debug!(target: "store", "interring {field_expression:?}.");
             self.field_expression
                 .write()
                 .unwrap()
@@ -1332,12 +1532,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<FloatLiteral>>,
     {
         if let Some(_index) = self.float_literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let float_literal = float_literal(_index);
+            log::debug!(target: "store", "interring {float_literal:?}.");
             self.float_literal.write().unwrap()[_index] = Some(float_literal.clone());
             float_literal
         } else {
             let _index = self.float_literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let float_literal = float_literal(_index);
+            log::debug!(target: "store", "interring {float_literal:?}.");
             self.float_literal
                 .write()
                 .unwrap()
@@ -1382,12 +1586,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ForLoop>>,
     {
         if let Some(_index) = self.for_loop_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let for_loop = for_loop(_index);
+            log::debug!(target: "store", "interring {for_loop:?}.");
             self.for_loop.write().unwrap()[_index] = Some(for_loop.clone());
             for_loop
         } else {
             let _index = self.for_loop.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let for_loop = for_loop(_index);
+            log::debug!(target: "store", "interring {for_loop:?}.");
             self.for_loop.write().unwrap().push(Some(for_loop.clone()));
             for_loop
         }
@@ -1429,12 +1637,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Function>>,
     {
         let function = if let Some(_index) = self.function_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let function = function(_index);
+            log::debug!(target: "store", "interring {function:?}.");
             self.function.write().unwrap()[_index] = Some(function.clone());
             function
         } else {
             let _index = self.function.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let function = function(_index);
+            log::debug!(target: "store", "interring {function:?}.");
             self.function.write().unwrap().push(Some(function.clone()));
             function
         };
@@ -1491,12 +1703,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Grouped>>,
     {
         if let Some(_index) = self.grouped_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let grouped = grouped(_index);
+            log::debug!(target: "store", "interring {grouped:?}.");
             self.grouped.write().unwrap()[_index] = Some(grouped.clone());
             grouped
         } else {
             let _index = self.grouped.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let grouped = grouped(_index);
+            log::debug!(target: "store", "interring {grouped:?}.");
             self.grouped.write().unwrap().push(Some(grouped.clone()));
             grouped
         }
@@ -1538,12 +1754,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<XIf>>,
     {
         if let Some(_index) = self.x_if_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_if = x_if(_index);
+            log::debug!(target: "store", "interring {x_if:?}.");
             self.x_if.write().unwrap()[_index] = Some(x_if.clone());
             x_if
         } else {
             let _index = self.x_if.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_if = x_if(_index);
+            log::debug!(target: "store", "interring {x_if:?}.");
             self.x_if.write().unwrap().push(Some(x_if.clone()));
             x_if
         }
@@ -1578,52 +1798,70 @@ impl ObjectStore {
         })
     }
 
-    /// Inter (insert) [`Implementation`] into the store.
+    /// Inter (insert) [`ImplementationBlock`] into the store.
     ///
-    pub fn inter_implementation<F>(&mut self, implementation: F) -> Arc<RwLock<Implementation>>
+    pub fn inter_implementation_block<F>(
+        &mut self,
+        implementation_block: F,
+    ) -> Arc<RwLock<ImplementationBlock>>
     where
-        F: Fn(usize) -> Arc<RwLock<Implementation>>,
+        F: Fn(usize) -> Arc<RwLock<ImplementationBlock>>,
     {
-        if let Some(_index) = self.implementation_free_list.lock().unwrap().pop() {
-            let implementation = implementation(_index);
-            self.implementation.write().unwrap()[_index] = Some(implementation.clone());
-            implementation
+        if let Some(_index) = self.implementation_block_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let implementation_block = implementation_block(_index);
+            log::debug!(target: "store", "interring {implementation_block:?}.");
+            self.implementation_block.write().unwrap()[_index] = Some(implementation_block.clone());
+            implementation_block
         } else {
-            let _index = self.implementation.read().unwrap().len();
-            let implementation = implementation(_index);
-            self.implementation
+            let _index = self.implementation_block.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let implementation_block = implementation_block(_index);
+            log::debug!(target: "store", "interring {implementation_block:?}.");
+            self.implementation_block
                 .write()
                 .unwrap()
-                .push(Some(implementation.clone()));
-            implementation
+                .push(Some(implementation_block.clone()));
+            implementation_block
         }
     }
 
-    /// Exhume (get) [`Implementation`] from the store.
+    /// Exhume (get) [`ImplementationBlock`] from the store.
     ///
-    pub fn exhume_implementation(&self, id: &usize) -> Option<Arc<RwLock<Implementation>>> {
-        match self.implementation.read().unwrap().get(*id) {
-            Some(implementation) => implementation.clone(),
+    pub fn exhume_implementation_block(
+        &self,
+        id: &usize,
+    ) -> Option<Arc<RwLock<ImplementationBlock>>> {
+        match self.implementation_block.read().unwrap().get(*id) {
+            Some(implementation_block) => implementation_block.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Implementation`] from the store.
+    /// Exorcise (remove) [`ImplementationBlock`] from the store.
     ///
-    pub fn exorcise_implementation(&mut self, id: &usize) -> Option<Arc<RwLock<Implementation>>> {
-        let result = self.implementation.write().unwrap()[*id].take();
-        self.implementation_free_list.lock().unwrap().push(*id);
+    pub fn exorcise_implementation_block(
+        &mut self,
+        id: &usize,
+    ) -> Option<Arc<RwLock<ImplementationBlock>>> {
+        let result = self.implementation_block.write().unwrap()[*id].take();
+        self.implementation_block_free_list
+            .lock()
+            .unwrap()
+            .push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Implementation>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, ImplementationBlock>`.
     ///
-    pub fn iter_implementation(&self) -> impl Iterator<Item = Arc<RwLock<Implementation>>> + '_ {
-        let len = self.implementation.read().unwrap().len();
+    pub fn iter_implementation_block(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
+        let len = self.implementation_block.read().unwrap().len();
         (0..len).map(move |i| {
-            self.implementation.read().unwrap()[i]
+            self.implementation_block.read().unwrap()[i]
                 .as_ref()
-                .map(|implementation| implementation.clone())
+                .map(|implementation_block| implementation_block.clone())
                 .unwrap()
         })
     }
@@ -1635,12 +1873,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Import>>,
     {
         if let Some(_index) = self.import_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let import = import(_index);
+            log::debug!(target: "store", "interring {import:?}.");
             self.import.write().unwrap()[_index] = Some(import.clone());
             import
         } else {
             let _index = self.import.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let import = import(_index);
+            log::debug!(target: "store", "interring {import:?}.");
             self.import.write().unwrap().push(Some(import.clone()));
             import
         }
@@ -1682,12 +1924,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Index>>,
     {
         if let Some(_index) = self.index_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let index = index(_index);
+            log::debug!(target: "store", "interring {index:?}.");
             self.index.write().unwrap()[_index] = Some(index.clone());
             index
         } else {
             let _index = self.index.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let index = index(_index);
+            log::debug!(target: "store", "interring {index:?}.");
             self.index.write().unwrap().push(Some(index.clone()));
             index
         }
@@ -1729,12 +1975,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<IntegerLiteral>>,
     {
         if let Some(_index) = self.integer_literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let integer_literal = integer_literal(_index);
+            log::debug!(target: "store", "interring {integer_literal:?}.");
             self.integer_literal.write().unwrap()[_index] = Some(integer_literal.clone());
             integer_literal
         } else {
             let _index = self.integer_literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let integer_literal = integer_literal(_index);
+            log::debug!(target: "store", "interring {integer_literal:?}.");
             self.integer_literal
                 .write()
                 .unwrap()
@@ -1779,12 +2029,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Item>>,
     {
         if let Some(_index) = self.item_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let item = item(_index);
+            log::debug!(target: "store", "interring {item:?}.");
             self.item.write().unwrap()[_index] = Some(item.clone());
             item
         } else {
             let _index = self.item.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let item = item(_index);
+            log::debug!(target: "store", "interring {item:?}.");
             self.item.write().unwrap().push(Some(item.clone()));
             item
         }
@@ -1826,12 +2080,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Lambda>>,
     {
         if let Some(_index) = self.lambda_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let lambda = lambda(_index);
+            log::debug!(target: "store", "interring {lambda:?}.");
             self.lambda.write().unwrap()[_index] = Some(lambda.clone());
             lambda
         } else {
             let _index = self.lambda.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let lambda = lambda(_index);
+            log::debug!(target: "store", "interring {lambda:?}.");
             self.lambda.write().unwrap().push(Some(lambda.clone()));
             lambda
         }
@@ -1873,12 +2131,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<LambdaParameter>>,
     {
         if let Some(_index) = self.lambda_parameter_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let lambda_parameter = lambda_parameter(_index);
+            log::debug!(target: "store", "interring {lambda_parameter:?}.");
             self.lambda_parameter.write().unwrap()[_index] = Some(lambda_parameter.clone());
             lambda_parameter
         } else {
             let _index = self.lambda_parameter.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let lambda_parameter = lambda_parameter(_index);
+            log::debug!(target: "store", "interring {lambda_parameter:?}.");
             self.lambda_parameter
                 .write()
                 .unwrap()
@@ -1926,12 +2188,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<LetStatement>>,
     {
         if let Some(_index) = self.let_statement_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let let_statement = let_statement(_index);
+            log::debug!(target: "store", "interring {let_statement:?}.");
             self.let_statement.write().unwrap()[_index] = Some(let_statement.clone());
             let_statement
         } else {
             let _index = self.let_statement.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let let_statement = let_statement(_index);
+            log::debug!(target: "store", "interring {let_statement:?}.");
             self.let_statement
                 .write()
                 .unwrap()
@@ -1976,12 +2242,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<List>>,
     {
         if let Some(_index) = self.list_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list = list(_index);
+            log::debug!(target: "store", "interring {list:?}.");
             self.list.write().unwrap()[_index] = Some(list.clone());
             list
         } else {
             let _index = self.list.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list = list(_index);
+            log::debug!(target: "store", "interring {list:?}.");
             self.list.write().unwrap().push(Some(list.clone()));
             list
         }
@@ -2023,12 +2293,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ListElement>>,
     {
         if let Some(_index) = self.list_element_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list_element = list_element(_index);
+            log::debug!(target: "store", "interring {list_element:?}.");
             self.list_element.write().unwrap()[_index] = Some(list_element.clone());
             list_element
         } else {
             let _index = self.list_element.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list_element = list_element(_index);
+            log::debug!(target: "store", "interring {list_element:?}.");
             self.list_element
                 .write()
                 .unwrap()
@@ -2073,12 +2347,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ListExpression>>,
     {
         if let Some(_index) = self.list_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let list_expression = list_expression(_index);
+            log::debug!(target: "store", "interring {list_expression:?}.");
             self.list_expression.write().unwrap()[_index] = Some(list_expression.clone());
             list_expression
         } else {
             let _index = self.list_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let list_expression = list_expression(_index);
+            log::debug!(target: "store", "interring {list_expression:?}.");
             self.list_expression
                 .write()
                 .unwrap()
@@ -2123,12 +2401,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Literal>>,
     {
         if let Some(_index) = self.literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let literal = literal(_index);
+            log::debug!(target: "store", "interring {literal:?}.");
             self.literal.write().unwrap()[_index] = Some(literal.clone());
             literal
         } else {
             let _index = self.literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let literal = literal(_index);
+            log::debug!(target: "store", "interring {literal:?}.");
             self.literal.write().unwrap().push(Some(literal.clone()));
             literal
         }
@@ -2170,12 +2452,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<LocalVariable>>,
     {
         if let Some(_index) = self.local_variable_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let local_variable = local_variable(_index);
+            log::debug!(target: "store", "interring {local_variable:?}.");
             self.local_variable.write().unwrap()[_index] = Some(local_variable.clone());
             local_variable
         } else {
             let _index = self.local_variable.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let local_variable = local_variable(_index);
+            log::debug!(target: "store", "interring {local_variable:?}.");
             self.local_variable
                 .write()
                 .unwrap()
@@ -2220,12 +2506,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<XMacro>>,
     {
         if let Some(_index) = self.x_macro_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_macro = x_macro(_index);
+            log::debug!(target: "store", "interring {x_macro:?}.");
             self.x_macro.write().unwrap()[_index] = Some(x_macro.clone());
             x_macro
         } else {
             let _index = self.x_macro.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_macro = x_macro(_index);
+            log::debug!(target: "store", "interring {x_macro:?}.");
             self.x_macro.write().unwrap().push(Some(x_macro.clone()));
             x_macro
         }
@@ -2267,12 +2557,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<MethodCall>>,
     {
         if let Some(_index) = self.method_call_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let method_call = method_call(_index);
+            log::debug!(target: "store", "interring {method_call:?}.");
             self.method_call.write().unwrap()[_index] = Some(method_call.clone());
             method_call
         } else {
             let _index = self.method_call.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let method_call = method_call(_index);
+            log::debug!(target: "store", "interring {method_call:?}.");
             self.method_call
                 .write()
                 .unwrap()
@@ -2317,12 +2611,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ZObjectStore>>,
     {
         if let Some(_index) = self.z_object_store_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let z_object_store = z_object_store(_index);
+            log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store.write().unwrap()[_index] = Some(z_object_store.clone());
             z_object_store
         } else {
             let _index = self.z_object_store.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let z_object_store = z_object_store(_index);
+            log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store
                 .write()
                 .unwrap()
@@ -2360,6 +2658,60 @@ impl ObjectStore {
         })
     }
 
+    /// Inter (insert) [`ObjectWrapper`] into the store.
+    ///
+    pub fn inter_object_wrapper<F>(&mut self, object_wrapper: F) -> Arc<RwLock<ObjectWrapper>>
+    where
+        F: Fn(usize) -> Arc<RwLock<ObjectWrapper>>,
+    {
+        if let Some(_index) = self.object_wrapper_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            let object_wrapper = object_wrapper(_index);
+            log::debug!(target: "store", "interring {object_wrapper:?}.");
+            self.object_wrapper.write().unwrap()[_index] = Some(object_wrapper.clone());
+            object_wrapper
+        } else {
+            let _index = self.object_wrapper.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            let object_wrapper = object_wrapper(_index);
+            log::debug!(target: "store", "interring {object_wrapper:?}.");
+            self.object_wrapper
+                .write()
+                .unwrap()
+                .push(Some(object_wrapper.clone()));
+            object_wrapper
+        }
+    }
+
+    /// Exhume (get) [`ObjectWrapper`] from the store.
+    ///
+    pub fn exhume_object_wrapper(&self, id: &usize) -> Option<Arc<RwLock<ObjectWrapper>>> {
+        match self.object_wrapper.read().unwrap().get(*id) {
+            Some(object_wrapper) => object_wrapper.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ObjectWrapper`] from the store.
+    ///
+    pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Arc<RwLock<ObjectWrapper>>> {
+        let result = self.object_wrapper.write().unwrap()[*id].take();
+        self.object_wrapper_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ObjectWrapper>`.
+    ///
+    pub fn iter_object_wrapper(&self) -> impl Iterator<Item = Arc<RwLock<ObjectWrapper>>> + '_ {
+        let len = self.object_wrapper.read().unwrap().len();
+        (0..len).map(move |i| {
+            self.object_wrapper.read().unwrap()[i]
+                .as_ref()
+                .map(|object_wrapper| object_wrapper.clone())
+                .unwrap()
+        })
+    }
+
     /// Inter (insert) [`Operator`] into the store.
     ///
     pub fn inter_operator<F>(&mut self, operator: F) -> Arc<RwLock<Operator>>
@@ -2367,12 +2719,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Operator>>,
     {
         if let Some(_index) = self.operator_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let operator = operator(_index);
+            log::debug!(target: "store", "interring {operator:?}.");
             self.operator.write().unwrap()[_index] = Some(operator.clone());
             operator
         } else {
             let _index = self.operator.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let operator = operator(_index);
+            log::debug!(target: "store", "interring {operator:?}.");
             self.operator.write().unwrap().push(Some(operator.clone()));
             operator
         }
@@ -2414,12 +2770,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<WoogOption>>,
     {
         if let Some(_index) = self.woog_option_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let woog_option = woog_option(_index);
+            log::debug!(target: "store", "interring {woog_option:?}.");
             self.woog_option.write().unwrap()[_index] = Some(woog_option.clone());
             woog_option
         } else {
             let _index = self.woog_option.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let woog_option = woog_option(_index);
+            log::debug!(target: "store", "interring {woog_option:?}.");
             self.woog_option
                 .write()
                 .unwrap()
@@ -2464,12 +2824,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Parameter>>,
     {
         if let Some(_index) = self.parameter_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let parameter = parameter(_index);
+            log::debug!(target: "store", "interring {parameter:?}.");
             self.parameter.write().unwrap()[_index] = Some(parameter.clone());
             parameter
         } else {
             let _index = self.parameter.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let parameter = parameter(_index);
+            log::debug!(target: "store", "interring {parameter:?}.");
             self.parameter
                 .write()
                 .unwrap()
@@ -2514,12 +2878,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Print>>,
     {
         if let Some(_index) = self.print_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let print = print(_index);
+            log::debug!(target: "store", "interring {print:?}.");
             self.print.write().unwrap()[_index] = Some(print.clone());
             print
         } else {
             let _index = self.print.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let print = print(_index);
+            log::debug!(target: "store", "interring {print:?}.");
             self.print.write().unwrap().push(Some(print.clone()));
             print
         }
@@ -2561,12 +2929,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<RangeExpression>>,
     {
         if let Some(_index) = self.range_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let range_expression = range_expression(_index);
+            log::debug!(target: "store", "interring {range_expression:?}.");
             self.range_expression.write().unwrap()[_index] = Some(range_expression.clone());
             range_expression
         } else {
             let _index = self.range_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let range_expression = range_expression(_index);
+            log::debug!(target: "store", "interring {range_expression:?}.");
             self.range_expression
                 .write()
                 .unwrap()
@@ -2614,12 +2986,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Reference>>,
     {
         if let Some(_index) = self.reference_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let reference = reference(_index);
+            log::debug!(target: "store", "interring {reference:?}.");
             self.reference.write().unwrap()[_index] = Some(reference.clone());
             reference
         } else {
             let _index = self.reference.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let reference = reference(_index);
+            log::debug!(target: "store", "interring {reference:?}.");
             self.reference
                 .write()
                 .unwrap()
@@ -2664,12 +3040,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ResultStatement>>,
     {
         if let Some(_index) = self.result_statement_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let result_statement = result_statement(_index);
+            log::debug!(target: "store", "interring {result_statement:?}.");
             self.result_statement.write().unwrap()[_index] = Some(result_statement.clone());
             result_statement
         } else {
             let _index = self.result_statement.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let result_statement = result_statement(_index);
+            log::debug!(target: "store", "interring {result_statement:?}.");
             self.result_statement
                 .write()
                 .unwrap()
@@ -2717,12 +3097,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<XReturn>>,
     {
         if let Some(_index) = self.x_return_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_return = x_return(_index);
+            log::debug!(target: "store", "interring {x_return:?}.");
             self.x_return.write().unwrap()[_index] = Some(x_return.clone());
             x_return
         } else {
             let _index = self.x_return.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_return = x_return(_index);
+            log::debug!(target: "store", "interring {x_return:?}.");
             self.x_return.write().unwrap().push(Some(x_return.clone()));
             x_return
         }
@@ -2764,12 +3148,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ZSome>>,
     {
         if let Some(_index) = self.z_some_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let z_some = z_some(_index);
+            log::debug!(target: "store", "interring {z_some:?}.");
             self.z_some.write().unwrap()[_index] = Some(z_some.clone());
             z_some
         } else {
             let _index = self.z_some.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let z_some = z_some(_index);
+            log::debug!(target: "store", "interring {z_some:?}.");
             self.z_some.write().unwrap().push(Some(z_some.clone()));
             z_some
         }
@@ -2811,12 +3199,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Span>>,
     {
         if let Some(_index) = self.span_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let span = span(_index);
+            log::debug!(target: "store", "interring {span:?}.");
             self.span.write().unwrap()[_index] = Some(span.clone());
             span
         } else {
             let _index = self.span.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let span = span(_index);
+            log::debug!(target: "store", "interring {span:?}.");
             self.span.write().unwrap().push(Some(span.clone()));
             span
         }
@@ -2858,12 +3250,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Statement>>,
     {
         if let Some(_index) = self.statement_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let statement = statement(_index);
+            log::debug!(target: "store", "interring {statement:?}.");
             self.statement.write().unwrap()[_index] = Some(statement.clone());
             statement
         } else {
             let _index = self.statement.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let statement = statement(_index);
+            log::debug!(target: "store", "interring {statement:?}.");
             self.statement
                 .write()
                 .unwrap()
@@ -2911,12 +3307,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<StaticMethodCall>>,
     {
         if let Some(_index) = self.static_method_call_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let static_method_call = static_method_call(_index);
+            log::debug!(target: "store", "interring {static_method_call:?}.");
             self.static_method_call.write().unwrap()[_index] = Some(static_method_call.clone());
             static_method_call
         } else {
             let _index = self.static_method_call.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let static_method_call = static_method_call(_index);
+            log::debug!(target: "store", "interring {static_method_call:?}.");
             self.static_method_call
                 .write()
                 .unwrap()
@@ -2966,12 +3366,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<StringLiteral>>,
     {
         if let Some(_index) = self.string_literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let string_literal = string_literal(_index);
+            log::debug!(target: "store", "interring {string_literal:?}.");
             self.string_literal.write().unwrap()[_index] = Some(string_literal.clone());
             string_literal
         } else {
             let _index = self.string_literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let string_literal = string_literal(_index);
+            log::debug!(target: "store", "interring {string_literal:?}.");
             self.string_literal
                 .write()
                 .unwrap()
@@ -3016,12 +3420,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<WoogStruct>>,
     {
         let woog_struct = if let Some(_index) = self.woog_struct_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let woog_struct = woog_struct(_index);
+            log::debug!(target: "store", "interring {woog_struct:?}.");
             self.woog_struct.write().unwrap()[_index] = Some(woog_struct.clone());
             woog_struct
         } else {
             let _index = self.woog_struct.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let woog_struct = woog_struct(_index);
+            log::debug!(target: "store", "interring {woog_struct:?}.");
             self.woog_struct
                 .write()
                 .unwrap()
@@ -3084,12 +3492,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<StructExpression>>,
     {
         if let Some(_index) = self.struct_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let struct_expression = struct_expression(_index);
+            log::debug!(target: "store", "interring {struct_expression:?}.");
             self.struct_expression.write().unwrap()[_index] = Some(struct_expression.clone());
             struct_expression
         } else {
             let _index = self.struct_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let struct_expression = struct_expression(_index);
+            log::debug!(target: "store", "interring {struct_expression:?}.");
             self.struct_expression
                 .write()
                 .unwrap()
@@ -3139,12 +3551,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<TypeCast>>,
     {
         if let Some(_index) = self.type_cast_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let type_cast = type_cast(_index);
+            log::debug!(target: "store", "interring {type_cast:?}.");
             self.type_cast.write().unwrap()[_index] = Some(type_cast.clone());
             type_cast
         } else {
             let _index = self.type_cast.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let type_cast = type_cast(_index);
+            log::debug!(target: "store", "interring {type_cast:?}.");
             self.type_cast
                 .write()
                 .unwrap()
@@ -3189,12 +3605,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Unary>>,
     {
         if let Some(_index) = self.unary_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let unary = unary(_index);
+            log::debug!(target: "store", "interring {unary:?}.");
             self.unary.write().unwrap()[_index] = Some(unary.clone());
             unary
         } else {
             let _index = self.unary.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let unary = unary(_index);
+            log::debug!(target: "store", "interring {unary:?}.");
             self.unary.write().unwrap().push(Some(unary.clone()));
             unary
         }
@@ -3236,12 +3656,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<XValue>>,
     {
         if let Some(_index) = self.x_value_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let x_value = x_value(_index);
+            log::debug!(target: "store", "interring {x_value:?}.");
             self.x_value.write().unwrap()[_index] = Some(x_value.clone());
             x_value
         } else {
             let _index = self.x_value.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let x_value = x_value(_index);
+            log::debug!(target: "store", "interring {x_value:?}.");
             self.x_value.write().unwrap().push(Some(x_value.clone()));
             x_value
         }
@@ -3283,12 +3707,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<ValueType>>,
     {
         if let Some(_index) = self.value_type_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let value_type = value_type(_index);
+            log::debug!(target: "store", "interring {value_type:?}.");
             self.value_type.write().unwrap()[_index] = Some(value_type.clone());
             value_type
         } else {
             let _index = self.value_type.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let value_type = value_type(_index);
+            log::debug!(target: "store", "interring {value_type:?}.");
             self.value_type
                 .write()
                 .unwrap()
@@ -3333,12 +3761,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<Variable>>,
     {
         if let Some(_index) = self.variable_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let variable = variable(_index);
+            log::debug!(target: "store", "interring {variable:?}.");
             self.variable.write().unwrap()[_index] = Some(variable.clone());
             variable
         } else {
             let _index = self.variable.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let variable = variable(_index);
+            log::debug!(target: "store", "interring {variable:?}.");
             self.variable.write().unwrap().push(Some(variable.clone()));
             variable
         }
@@ -3383,12 +3815,16 @@ impl ObjectStore {
         F: Fn(usize) -> Arc<RwLock<VariableExpression>>,
     {
         if let Some(_index) = self.variable_expression_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
             let variable_expression = variable_expression(_index);
+            log::debug!(target: "store", "interring {variable_expression:?}.");
             self.variable_expression.write().unwrap()[_index] = Some(variable_expression.clone());
             variable_expression
         } else {
             let _index = self.variable_expression.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
             let variable_expression = variable_expression(_index);
+            log::debug!(target: "store", "interring {variable_expression:?}.");
             self.variable_expression
                 .write()
                 .unwrap()
