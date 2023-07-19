@@ -21,7 +21,7 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ImplementationBlock {
     pub id: usize,
     /// R8: [`ImplementationBlock`] 'adds functions to a' [`WoogStruct`]

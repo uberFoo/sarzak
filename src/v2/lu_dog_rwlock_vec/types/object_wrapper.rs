@@ -19,7 +19,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_wrapper-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ObjectWrapper {
     pub id: usize,
     /// R78: [`Object`] '🚧 Comments are out of order — see sarzak#14.' [`Object`]

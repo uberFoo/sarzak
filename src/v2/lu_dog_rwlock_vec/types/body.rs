@@ -19,14 +19,14 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-hybrid-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Body {
     pub subtype: BodyEnum,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-hybrid-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum BodyEnum {
     Block(usize),
     ExternalImplementation(usize),

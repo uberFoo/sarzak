@@ -17,7 +17,7 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external_implementation-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ExternalImplementation {
     pub function: String,
     pub id: usize,
