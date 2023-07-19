@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::dwarf_source_file::DwarfSourceFile;
 use crate::v2::lu_dog_rwlock::types::function::Function;
-use crate::v2::lu_dog_rwlock::types::implementation::Implementation;
+use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::import::Import;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_rwlock::types::x_macro::XMacro;
@@ -29,7 +29,7 @@ pub struct Item {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ItemEnum {
     Function(Uuid),
-    Implementation(Uuid),
+    ImplementationBlock(Uuid),
     Import(Uuid),
     XMacro(Uuid),
     WoogStruct(Uuid),
@@ -55,16 +55,17 @@ impl Item {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_implementation_block"}}}
     /// Inter a new Item in the store, and return it's `id`.
-    pub fn new_implementation(
+    pub fn new_implementation_block(
         source: &Arc<RwLock<DwarfSourceFile>>,
-        subtype: &Arc<RwLock<Implementation>>,
+        subtype: &Arc<RwLock<ImplementationBlock>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Item>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::Implementation(subtype.read().unwrap().id),
+            subtype: ItemEnum::ImplementationBlock(subtype.read().unwrap().id),
             id,
         }));
         store.inter_item(new.clone());

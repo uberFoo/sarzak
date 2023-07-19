@@ -85,12 +85,12 @@ impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Binary::Addition(id) => *id,
-            Binary::Assignment(id) => *id,
-            Binary::BooleanOperator(id) => *id,
-            Binary::Division(id) => *id,
-            Binary::Multiplication(id) => *id,
-            Binary::Subtraction(id) => *id,
+            Self::Addition(id) => *id,
+            Self::Assignment(id) => *id,
+            Self::BooleanOperator(id) => *id,
+            Self::Division(id) => *id,
+            Self::Multiplication(id) => *id,
+            Self::Subtraction(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

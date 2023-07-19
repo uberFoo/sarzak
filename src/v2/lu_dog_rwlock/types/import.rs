@@ -51,7 +51,7 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Arc<RwLock<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Import>> {
         let id = Uuid::new_v4();
@@ -61,7 +61,7 @@ impl Import {
             id,
             name,
             path,
-            object: object.map(|object| object.read().unwrap().id),
+            object: object.as_ref().map(|object| object.id),
         }));
         store.inter_import(new.clone());
         new

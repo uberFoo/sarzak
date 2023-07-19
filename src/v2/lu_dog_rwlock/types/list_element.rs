@@ -59,7 +59,7 @@ impl ListElement {
     ) -> Vec<Arc<RwLock<ListElement>>> {
         span!("r53_list_element");
         match self.next {
-            Some(ref next) => vec![store.exhume_list_element(next).unwrap()],
+            Some(ref next) => vec![store.exhume_list_element(&next).unwrap()],
             None => Vec::new(),
         }
     }

@@ -137,7 +137,7 @@ impl RangeExpression {
     ) -> Vec<Arc<RwLock<Expression>>> {
         span!("r58_expression");
         match self.lhs {
-            Some(ref lhs) => vec![store.exhume_expression(lhs).unwrap()],
+            Some(ref lhs) => vec![store.exhume_expression(&lhs).unwrap()],
             None => Vec::new(),
         }
     }
@@ -150,7 +150,7 @@ impl RangeExpression {
     ) -> Vec<Arc<RwLock<Expression>>> {
         span!("r59_expression");
         match self.rhs {
-            Some(ref rhs) => vec![store.exhume_expression(rhs).unwrap()],
+            Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
             None => Vec::new(),
         }
     }

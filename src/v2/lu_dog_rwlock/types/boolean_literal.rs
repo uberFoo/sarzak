@@ -43,8 +43,8 @@ impl BooleanLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            BooleanLiteral::FalseLiteral(id) => *id,
-            BooleanLiteral::TrueLiteral(id) => *id,
+            Self::FalseLiteral(id) => *id,
+            Self::TrueLiteral(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

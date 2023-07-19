@@ -5,9 +5,10 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock::types::body::Body;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::for_loop::ForLoop;
-use crate::v2::lu_dog_rwlock::types::function::Function;
+use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock::types::statement::Statement;
 use crate::v2::lu_dog_rwlock::types::x_if::XIf;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
@@ -64,7 +65,7 @@ impl Block {
     pub fn r71_statement<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Statement>>> {
         span!("r71_statement");
         match self.statement {
-            Some(ref statement) => vec![store.exhume_statement(statement).unwrap()],
+            Some(ref statement) => vec![store.exhume_statement(&statement).unwrap()],
             None => Vec::new(),
         }
     }
@@ -80,16 +81,14 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
-    /// Navigate to [`Function`] across R19(1-1c)
-    pub fn r19c_function<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Function>>> {
-        span!("r19_function");
-        let function = store
-            .iter_function()
-            .find(|function| function.read().unwrap().block == self.id);
-        match function {
-            Some(ref function) => vec![function.clone()],
-            None => Vec::new(),
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
+    /// Navigate to [`XIf`] across R46(1-M)
+    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XIf>>> {
+        span!("r46_x_if");
+        store
+            .iter_x_if()
+            .filter(|x_if| x_if.read().unwrap().true_block == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
@@ -103,13 +102,17 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
-    /// Navigate to [`XIf`] across R46(1-M)
-    pub fn r46_x_if<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XIf>>> {
-        span!("r46_x_if");
-        store
-            .iter_x_if()
-            .filter(|x_if| x_if.read().unwrap().true_block == self.id)
-            .collect()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1c-1c)
+    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
+        span!("r73_lambda");
+        let lambda = store
+            .iter_lambda()
+            .find(|lambda| lambda.read().unwrap().block == Some(self.id));
+        match lambda {
+            Some(ref lambda) => vec![lambda.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
@@ -130,6 +133,13 @@ impl Block {
             .iter_x_value()
             .filter(|x_value| x_value.read().unwrap().block == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-body"}}}
+    // Navigate to [`Body`] across R80(isa)
+    pub fn r80_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
+        span!("r80_body");
+        vec![store.exhume_body(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}

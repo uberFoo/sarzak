@@ -124,7 +124,7 @@ impl Call {
     ) -> Vec<Arc<RwLock<Expression>>> {
         span!("r29_expression");
         match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(expression).unwrap()],
+            Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
         }
     }

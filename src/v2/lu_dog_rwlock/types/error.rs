@@ -33,7 +33,7 @@ impl Error {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Error::UnknownVariable(id) => *id,
+            Self::UnknownVariable(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

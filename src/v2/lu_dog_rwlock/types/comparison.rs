@@ -76,12 +76,12 @@ impl Comparison {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Comparison::Equal(id) => *id,
-            Comparison::GreaterThan(id) => *id,
-            Comparison::GreaterThanOrEqual(id) => *id,
-            Comparison::LessThan(id) => *id,
-            Comparison::LessThanOrEqual(id) => *id,
-            Comparison::NotEqual(id) => *id,
+            Self::Equal(id) => *id,
+            Self::GreaterThan(id) => *id,
+            Self::GreaterThanOrEqual(id) => *id,
+            Self::LessThan(id) => *id,
+            Self::LessThanOrEqual(id) => *id,
+            Self::NotEqual(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

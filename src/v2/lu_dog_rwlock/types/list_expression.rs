@@ -51,7 +51,7 @@ impl ListExpression {
     ) -> Vec<Arc<RwLock<ListElement>>> {
         span!("r54_list_element");
         match self.elements {
-            Some(ref elements) => vec![store.exhume_list_element(elements).unwrap()],
+            Some(ref elements) => vec![store.exhume_list_element(&elements).unwrap()],
             None => Vec::new(),
         }
     }

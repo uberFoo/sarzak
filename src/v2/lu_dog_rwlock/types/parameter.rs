@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::function::Function;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use crate::v2::lu_dog_rwlock::types::variable::Variable;
 use crate::v2::lu_dog_rwlock::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
@@ -29,6 +30,8 @@ pub struct Parameter {
     pub function: Uuid,
     /// R14: [`Parameter`] 'follows' [`Parameter`]
     pub next: Option<Uuid>,
+    /// R79: [`Parameter`] 'requires a' [`ValueType`]
+    pub ty: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-implementation"}}}
@@ -38,6 +41,7 @@ impl Parameter {
     pub fn new(
         function: &Arc<RwLock<Function>>,
         next: Option<&Arc<RwLock<Parameter>>>,
+        ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Parameter>> {
         let id = Uuid::new_v4();
@@ -45,6 +49,7 @@ impl Parameter {
             id,
             function: function.read().unwrap().id,
             next: next.map(|parameter| parameter.read().unwrap().id),
+            ty: ty.read().unwrap().id(),
         }));
         store.inter_parameter(new.clone());
         new
@@ -62,9 +67,19 @@ impl Parameter {
     pub fn r14_parameter<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Parameter>>> {
         span!("r14_parameter");
         match self.next {
-            Some(ref next) => vec![store.exhume_parameter(next).unwrap()],
+            Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-ty"}}}
+    /// Navigate to [`ValueType`] across R79(1-*)
+    pub fn r79_value_type<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
+        span!("r79_value_type");
+        vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}

@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock::types::local_variable::LocalVariable;
 use crate::v2::lu_dog_rwlock::types::parameter::Parameter;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
@@ -33,12 +34,30 @@ pub struct Variable {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum VariableEnum {
+    LambdaParameter(Uuid),
     LocalVariable(Uuid),
     Parameter(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-implementation"}}}
 impl Variable {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_lambda_parameter"}}}
+    /// Inter a new Variable in the store, and return it's `id`.
+    pub fn new_lambda_parameter(
+        name: String,
+        subtype: &Arc<RwLock<LambdaParameter>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Variable>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Variable {
+            name: name,
+            subtype: VariableEnum::LambdaParameter(subtype.read().unwrap().id),
+            id,
+        }));
+        store.inter_variable(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local_variable"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(

@@ -5,10 +5,11 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock_vec::types::body::Body;
+use crate::v2::lu_dog_rwlock_vec::types::body::BodyEnum;
 use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
 use crate::v2::lu_dog_rwlock_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock_vec::types::for_loop::ForLoop;
-use crate::v2::lu_dog_rwlock_vec::types::function::Function;
 use crate::v2::lu_dog_rwlock_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock_vec::types::statement::Statement;
 use crate::v2::lu_dog_rwlock_vec::types::x_if::XIf;
@@ -84,20 +85,6 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-function"}}}
-    /// Navigate to [`Function`] across R19(1-1c)
-    pub fn r19c_function<'a>(
-        &'a self,
-        store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<Function>>> {
-        span!("r19_function");
-        let function = store
-            .iter_function()
-            .find(|function| function.read().unwrap().block == self.id);
-        match function {
-            Some(ref function) => vec![function.clone()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R46(1-M)
@@ -155,6 +142,22 @@ impl Block {
             .iter_x_value()
             .filter(|x_value| x_value.read().unwrap().block == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-body"}}}
+    // Navigate to [`Body`] across R80(isa)
+    pub fn r80_body<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Body>>> {
+        span!("r80_body");
+        vec![store
+            .iter_body()
+            .find(|body| {
+                if let BodyEnum::Block(id) = body.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}

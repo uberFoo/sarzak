@@ -130,7 +130,7 @@ impl Statement {
     pub fn r17_statement<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Statement>>> {
         span!("r17_statement");
         match self.next {
-            Some(ref next) => vec![store.exhume_statement(next).unwrap()],
+            Some(ref next) => vec![store.exhume_statement(&next).unwrap()],
             None => Vec::new(),
         }
     }

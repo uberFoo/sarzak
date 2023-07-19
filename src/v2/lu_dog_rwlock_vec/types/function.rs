@@ -5,10 +5,10 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_rwlock_vec::types::block::Block;
+use crate::v2::lu_dog_rwlock_vec::types::body::Body;
 use crate::v2::lu_dog_rwlock_vec::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_rwlock_vec::types::field_access_target::FieldAccessTargetEnum;
-use crate::v2::lu_dog_rwlock_vec::types::implementation::Implementation;
+use crate::v2::lu_dog_rwlock_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock_vec::types::item::Item;
 use crate::v2::lu_dog_rwlock_vec::types::item::ItemEnum;
 use crate::v2::lu_dog_rwlock_vec::types::parameter::Parameter;
@@ -32,9 +32,9 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct Function {
     pub id: usize,
     pub name: String,
-    /// R19: [`Function`] 'executes statements in a' [`Block`]
-    pub block: usize,
-    /// R9: [`Function`] 'may be contained in an' [`Implementation`]
+    /// R19: [`Function`] 'executes statements in a' [`Body`]
+    pub body: usize,
+    /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
     pub impl_block: Option<usize>,
     /// R10: [`Function`] 'returns' [`ValueType`]
     pub return_type: usize,
@@ -49,8 +49,8 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: &Arc<RwLock<Block>>,
-        impl_block: Option<&Arc<RwLock<Implementation>>>,
+        body: &Arc<RwLock<Body>>,
+        impl_block: Option<&Arc<RwLock<ImplementationBlock>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Function>> {
@@ -58,29 +58,31 @@ impl Function {
             Arc::new(RwLock::new(Function {
                 id,
                 name: name.to_owned(),
-                block: block.read().unwrap().id,
-                impl_block: impl_block.map(|implementation| implementation.read().unwrap().id),
+                body: body.read().unwrap().id,
+                impl_block: impl_block
+                    .map(|implementation_block| implementation_block.read().unwrap().id),
                 return_type: return_type.read().unwrap().id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R19(1-*)
-    pub fn r19_block<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r19_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
+    /// Navigate to [`Body`] across R19(1-*)
+    pub fn r19_body<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Body>>> {
+        span!("r19_body");
+        vec![store.exhume_body(&self.body).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}
-    /// Navigate to [`Implementation`] across R9(1-*c)
-    pub fn r9_implementation<'a>(
+    /// Navigate to [`ImplementationBlock`] across R9(1-*c)
+    pub fn r9_implementation_block<'a>(
         &'a self,
         store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<Implementation>>> {
-        span!("r9_implementation");
+    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+        span!("r9_implementation_block");
         match self.impl_block {
-            Some(ref impl_block) => vec![store.exhume_implementation(&impl_block).unwrap()],
+            Some(ref impl_block) => vec![store.exhume_implementation_block(&impl_block).unwrap()],
             None => Vec::new(),
         }
     }
