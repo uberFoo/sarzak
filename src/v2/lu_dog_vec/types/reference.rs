@@ -19,7 +19,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Reference {
     pub address: Uuid,
     pub id: usize,
@@ -71,6 +71,13 @@ impl Reference {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-implementation"}}}
+impl PartialEq for Reference {
+    fn eq(&self, other: &Self) -> bool {
+        self.address == other.address && self.is_valid == other.is_valid && self.ty == other.ty
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -21,7 +21,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StructExpression {
     pub bug: Uuid,
     pub id: usize,
@@ -83,6 +83,13 @@ impl StructExpression {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-implementation"}}}
+impl PartialEq for StructExpression {
+    fn eq(&self, other: &Self) -> bool {
+        self.bug == other.bug && self.woog_struct == other.woog_struct
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

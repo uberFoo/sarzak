@@ -18,7 +18,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ExpressionStatement {
     pub id: usize,
     /// R31: [`ExpressionStatement`] '' [`Expression`]
@@ -64,6 +64,13 @@ impl ExpressionStatement {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-implementation"}}}
+impl PartialEq for ExpressionStatement {
+    fn eq(&self, other: &Self) -> bool {
+        self.expression == other.expression
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"greater_than-const-definition"}}}
 pub const GREATER_THAN: Uuid = uuid!["b712aab1-95c2-5342-8494-d35bf3c161fe"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GreaterThan;
 
 impl GreaterThan {

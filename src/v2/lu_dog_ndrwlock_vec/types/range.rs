@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range-const-definition"}}}
 pub const RANGE: Uuid = uuid!["50e24d8f-3739-5fd9-b5ca-f537eba4b21a"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Range;
 
 impl Range {

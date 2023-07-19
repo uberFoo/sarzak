@@ -14,9 +14,10 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ListElement {
     pub id: usize,
+    pub position: i64,
     /// R55: [`ListElement`] 'points at an' [`Expression`]
     pub expression: usize,
     /// R53: [`ListElement`] 'follows' [`ListElement`]
@@ -28,6 +29,7 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-new"}}}
     /// Inter a new 'List Element' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         expression: &Rc<RefCell<Expression>>,
         next: Option<&Rc<RefCell<ListElement>>>,
         store: &mut LuDogVecStore,
@@ -35,6 +37,7 @@ impl ListElement {
         store.inter_list_element(|id| {
             Rc::new(RefCell::new(ListElement {
                 id,
+                position,
                 expression: expression.borrow().id,
                 next: next.map(|list_element| list_element.borrow().id),
             }))
@@ -106,6 +109,15 @@ impl ListElement {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-implementation"}}}
+impl PartialEq for ListElement {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position
+            && self.expression == other.expression
+            && self.next == other.next
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

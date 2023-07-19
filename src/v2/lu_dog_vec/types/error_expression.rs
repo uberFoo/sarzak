@@ -19,7 +19,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ErrorExpression {
     pub id: usize,
     pub span: String,
@@ -54,6 +54,13 @@ impl ErrorExpression {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error_expression-implementation"}}}
+impl PartialEq for ErrorExpression {
+    fn eq(&self, other: &Self) -> bool {
+        self.span == other.span
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

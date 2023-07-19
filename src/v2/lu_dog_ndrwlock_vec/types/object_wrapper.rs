@@ -19,7 +19,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_wrapper-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectWrapper {
     pub id: usize,
     /// R78: [`Object`] '🚧 Comments are out of order — see sarzak#14.' [`Object`]
@@ -62,6 +62,13 @@ impl ObjectWrapper {
         vec![store.exhume_z_object_store(&self.z_store).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_wrapper-implementation"}}}
+impl PartialEq for ObjectWrapper {
+    fn eq(&self, other: &Self) -> bool {
+        self.object == other.object && self.z_store == other.z_store
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

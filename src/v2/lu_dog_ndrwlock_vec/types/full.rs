@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"full-const-definition"}}}
 pub const FULL: Uuid = uuid!["3f2af943-5322-5ea2-a261-1e4626a1123a"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Full;
 
 impl Full {

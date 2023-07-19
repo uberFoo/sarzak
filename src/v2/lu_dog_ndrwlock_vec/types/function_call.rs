@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-const-definition"}}}
 pub const FUNCTION_CALL: Uuid = uuid!["e6133810-843b-5dab-90a4-c424232d5205"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FunctionCall;
 
 impl FunctionCall {

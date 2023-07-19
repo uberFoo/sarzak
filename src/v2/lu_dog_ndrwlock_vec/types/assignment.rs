@@ -13,7 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"assignment-const-definition"}}}
 pub const ASSIGNMENT: Uuid = uuid!["f0e3fca1-6a53-53da-9048-83f8a0da060d"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Assignment;
 
 impl Assignment {

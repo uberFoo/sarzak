@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"inclusive-const-definition"}}}
 pub const INCLUSIVE: Uuid = uuid!["25e8e986-5a74-5da1-b4d1-496e9f126860"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Inclusive;
 
 impl Inclusive {

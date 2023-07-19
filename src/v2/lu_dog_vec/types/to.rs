@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"to-const-definition"}}}
 pub const TO: Uuid = uuid!["f3610e2b-52b4-507b-812a-e1e13b493090"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct To;
 
 impl To {

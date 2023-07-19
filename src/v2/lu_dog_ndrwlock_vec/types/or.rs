@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"or-const-definition"}}}
 pub const OR: Uuid = uuid!["8b39b94c-4e7f-5663-bc4d-7bcd8d5c77ce"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Or;
 
 impl Or {

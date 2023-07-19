@@ -23,9 +23,10 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Parameter {
     pub id: usize,
+    pub position: i64,
     /// R13: [`Parameter`] 'is available to a' [`Function`]
     pub function: usize,
     /// R14: [`Parameter`] 'follows' [`Parameter`]
@@ -39,6 +40,7 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         function: &Arc<RwLock<Function>>,
         next: Option<&Arc<RwLock<Parameter>>>,
         ty: &Arc<RwLock<ValueType>>,
@@ -47,6 +49,7 @@ impl Parameter {
         store.inter_parameter(|id| {
             Arc::new(RwLock::new(Parameter {
                 id,
+                position,
                 function: function.read().unwrap().id,
                 next: next.map(|parameter| parameter.read().unwrap().id),
                 ty: ty.read().unwrap().id,
@@ -122,6 +125,16 @@ impl Parameter {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-implementation"}}}
+impl PartialEq for Parameter {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position
+            && self.function == other.function
+            && self.next == other.next
+            && self.ty == other.ty
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -13,7 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"and-const-definition"}}}
 pub const AND: Uuid = uuid!["bd9bf026-a7db-59e2-a44a-0e88124b8ec6"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct And;
 
 impl And {

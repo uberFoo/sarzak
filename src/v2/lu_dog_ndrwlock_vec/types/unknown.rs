@@ -13,7 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unknown-const-definition"}}}
 pub const UNKNOWN: Uuid = uuid!["351f1018-eae0-5fdb-920b-0528c8947138"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Unknown;
 
 impl Unknown {

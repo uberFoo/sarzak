@@ -13,7 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"char-const-definition"}}}
 pub const CHAR: Uuid = uuid!["9fe96a25-33bd-55cf-b227-fea54afbcc70"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Char;
 
 impl Char {

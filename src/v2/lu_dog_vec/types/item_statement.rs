@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item_statement-const-definition"}}}
 pub const ITEM_STATEMENT: Uuid = uuid!["309ad411-ef8c-5b27-9d1d-e4e37a5806de"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ItemStatement;
 
 impl ItemStatement {

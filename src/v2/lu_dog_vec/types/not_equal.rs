@@ -13,7 +13,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"not_equal-const-definition"}}}
 pub const NOT_EQUAL: Uuid = uuid!["3596966c-fab8-5a99-86b0-1820e6a19d3e"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NotEqual;
 
 impl NotEqual {

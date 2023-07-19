@@ -14,7 +14,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"empty-const-definition"}}}
 pub const EMPTY: Uuid = uuid!["ea81f072-96fe-5426-9bc3-c0419e448fe5"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Empty;
 
 impl Empty {

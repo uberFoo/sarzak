@@ -32,7 +32,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Import {
     pub alias: String,
     pub has_alias: bool,
@@ -108,6 +108,17 @@ impl Import {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-implementation"}}}
+impl PartialEq for Import {
+    fn eq(&self, other: &Self) -> bool {
+        self.alias == other.alias
+            && self.has_alias == other.has_alias
+            && self.name == other.name
+            && self.path == other.path
+            && self.object == other.object
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

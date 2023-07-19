@@ -22,11 +22,12 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StaticMethodCall {
     pub func: String,
     pub id: usize,
     pub ty: String,
+    pub unique: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-implementation"}}}
@@ -36,6 +37,7 @@ impl StaticMethodCall {
     pub fn new(
         func: String,
         ty: String,
+        unique: Uuid,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<StaticMethodCall>> {
         store.inter_static_method_call(|id| {
@@ -43,6 +45,7 @@ impl StaticMethodCall {
                 func: func.to_owned(),
                 id,
                 ty: ty.to_owned(),
+                unique,
             }))
         })
     }
@@ -63,6 +66,13 @@ impl StaticMethodCall {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-implementation"}}}
+impl PartialEq for StaticMethodCall {
+    fn eq(&self, other: &Self) -> bool {
+        self.func == other.func && self.ty == other.ty && self.unique == other.unique
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

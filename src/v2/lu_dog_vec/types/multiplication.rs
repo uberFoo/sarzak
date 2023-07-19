@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"multiplication-const-definition"}}}
 pub const MULTIPLICATION: Uuid = uuid!["a645e709-1543-57a0-a731-15c288d6b14a"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Multiplication;
 
 impl Multiplication {

@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"negation-const-definition"}}}
 pub const NEGATION: Uuid = uuid!["a4671940-9194-5585-84b4-4bd22b975f6f"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Negation;
 
 impl Negation {

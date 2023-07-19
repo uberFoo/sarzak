@@ -17,9 +17,10 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Argument {
     pub id: usize,
+    pub position: i64,
     /// R37: [`Argument`] '' [`Expression`]
     pub expression: usize,
     /// R28: [`Argument`] 'is part of a' [`Call`]
@@ -33,6 +34,7 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         expression: &Arc<RwLock<Expression>>,
         function: &Arc<RwLock<Call>>,
         next: Option<&Arc<RwLock<Argument>>>,
@@ -41,6 +43,7 @@ impl Argument {
         store.inter_argument(|id| {
             Arc::new(RwLock::new(Argument {
                 id,
+                position,
                 expression: expression.read().unwrap().id,
                 function: function.read().unwrap().id,
                 next: next.map(|argument| argument.read().unwrap().id),
@@ -94,6 +97,29 @@ impl Argument {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-call"}}}
+    /// Navigate to [`Call`] across R81(1c-1c)
+    pub fn r81c_call<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Call>>> {
+        span!("r81_call");
+        let call = store
+            .iter_call()
+            .find(|call| call.read().unwrap().argument == Some(self.id));
+        match call {
+            Some(ref call) => vec![call.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-implementation"}}}
+impl PartialEq for Argument {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position
+            && self.expression == other.expression
+            && self.function == other.function
+            && self.next == other.next
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

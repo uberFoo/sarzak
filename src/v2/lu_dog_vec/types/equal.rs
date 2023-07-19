@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"equal-const-definition"}}}
 pub const EQUAL: Uuid = uuid!["afd5efd2-654b-532a-b1b8-296adeac03e8"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Equal;
 
 impl Equal {

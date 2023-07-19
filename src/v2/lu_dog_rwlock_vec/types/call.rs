@@ -23,17 +23,19 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Call {
     pub subtype: CallEnum,
     pub arg_check: bool,
     pub id: usize,
+    /// R81: [`Call`] 'may have a first' [`Argument`]
+    pub argument: Option<usize>,
     /// R29: [`Call`] 'may be an' [`Expression`]
     pub expression: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum CallEnum {
     FunctionCall(Uuid),
     MacroCall(Uuid),
@@ -47,12 +49,14 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_function_call(
         arg_check: bool,
+        argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Call>> {
         store.inter_call(|id| {
             Arc::new(RwLock::new(Call {
                 arg_check: arg_check,
+                argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
                 subtype: CallEnum::FunctionCall(FUNCTION_CALL),
                 id,
@@ -64,12 +68,14 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_macro_call(
         arg_check: bool,
+        argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Call>> {
         store.inter_call(|id| {
             Arc::new(RwLock::new(Call {
                 arg_check: arg_check,
+                argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
                 subtype: CallEnum::MacroCall(MACRO_CALL),
                 id,
@@ -81,6 +87,7 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_method_call(
         arg_check: bool,
+        argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
         subtype: &Arc<RwLock<MethodCall>>,
         store: &mut LuDogRwlockVecStore,
@@ -88,6 +95,7 @@ impl Call {
         store.inter_call(|id| {
             Arc::new(RwLock::new(Call {
                 arg_check: arg_check,
+                argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
                 subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
                 id,
@@ -99,6 +107,7 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_static_method_call(
         arg_check: bool,
+        argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
         subtype: &Arc<RwLock<StaticMethodCall>>,
         store: &mut LuDogRwlockVecStore,
@@ -106,11 +115,25 @@ impl Call {
         store.inter_call(|id| {
             Arc::new(RwLock::new(Call {
                 arg_check: arg_check,
+                argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
                 subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
                 id,
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-argument"}}}
+    /// Navigate to [`Argument`] across R81(1-*c)
+    pub fn r81_argument<'a>(
+        &'a self,
+        store: &'a LuDogRwlockVecStore,
+    ) -> Vec<Arc<RwLock<Argument>>> {
+        span!("r81_argument");
+        match self.argument {
+            Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
@@ -158,6 +181,16 @@ impl Call {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-implementation"}}}
+impl PartialEq for Call {
+    fn eq(&self, other: &Self) -> bool {
+        self.subtype == other.subtype
+            && self.arg_check == other.arg_check
+            && self.argument == other.argument
+            && self.expression == other.expression
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

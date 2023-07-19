@@ -19,9 +19,10 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LambdaParameter {
     pub id: usize,
+    pub position: i64,
     /// R76: [`LambdaParameter`] 'helps define a function signature' [`Lambda`]
     pub lambda: usize,
     /// R75: [`LambdaParameter`] '' [`LambdaParameter`]
@@ -35,6 +36,7 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-new"}}}
     /// Inter a new 'Lambda Parameter' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         lambda: &Arc<RwLock<Lambda>>,
         next: Option<&Arc<RwLock<LambdaParameter>>>,
         ty: Option<&Arc<RwLock<ValueType>>>,
@@ -43,6 +45,7 @@ impl LambdaParameter {
         store.inter_lambda_parameter(|id| {
             Arc::new(RwLock::new(LambdaParameter {
                 id,
+                position,
                 lambda: lambda.read().unwrap().id,
                 next: next.map(|lambda_parameter| lambda_parameter.read().unwrap().id),
                 ty: ty.map(|value_type| value_type.read().unwrap().id),
@@ -118,6 +121,16 @@ impl LambdaParameter {
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-implementation"}}}
+impl PartialEq for LambdaParameter {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position
+            && self.lambda == other.lambda
+            && self.next == other.next
+            && self.ty == other.ty
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"not-const-definition"}}}
 pub const NOT: Uuid = uuid!["8b7cc57b-11d4-5fcb-b764-b99c76a8c327"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Not;
 
 impl Not {

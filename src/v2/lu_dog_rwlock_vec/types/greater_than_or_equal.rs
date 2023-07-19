@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"greater_than_or_equal-const-definition"}}}
 pub const GREATER_THAN_OR_EQUAL: Uuid = uuid!["4f5675c8-9119-51c7-8ede-5639aebb3f19"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GreaterThanOrEqual;
 
 impl GreaterThanOrEqual {

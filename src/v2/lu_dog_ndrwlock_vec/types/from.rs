@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"from-const-definition"}}}
 pub const FROM: Uuid = uuid!["5285c810-0e61-535f-b961-a43471f21357"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct From;
 
 impl From {

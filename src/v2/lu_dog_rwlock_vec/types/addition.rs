@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"addition-const-definition"}}}
 pub const ADDITION: Uuid = uuid!["82056c56-acb4-590c-a0f6-895876f1dc19"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Addition;
 
 impl Addition {

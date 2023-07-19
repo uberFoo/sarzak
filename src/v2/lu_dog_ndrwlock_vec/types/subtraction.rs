@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"subtraction-const-definition"}}}
 pub const SUBTRACTION: Uuid = uuid!["f1f6f96b-31a8-5158-b940-b08b7241117d"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Subtraction;
 
 impl Subtraction {

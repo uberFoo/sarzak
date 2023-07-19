@@ -7,7 +7,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"division-const-definition"}}}
 pub const DIVISION: Uuid = uuid!["9bdbeed5-5e34-53a7-bc76-5ebf19a39481"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Division;
 
 impl Division {

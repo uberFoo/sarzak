@@ -46,14 +46,14 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-hybrid-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Expression {
     pub subtype: ExpressionEnum,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-hybrid-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum ExpressionEnum {
     Block(usize),
     Call(usize),
@@ -536,8 +536,6 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
     pub fn r51_operator<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Operator>>> {
@@ -545,8 +543,6 @@ impl Expression {
         store
             .iter_operator()
             .filter(|operator| operator.borrow().rhs == Some(self.id))
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -647,17 +643,11 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-impl Expression {
-    pub fn r15_variable_expression<'a>(
-        &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<VariableExpression>>> {
-        span!("r15_variable_expression");
-        if let ExpressionEnum::VariableExpression(id) = self.subtype {
-            vec![store.exhume_variable_expression(&id).unwrap()]
-        } else {
-            vec![]
-        }
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
+impl PartialEq for Expression {
+    fn eq(&self, other: &Self) -> bool {
+        self.subtype == other.subtype
     }
 }
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

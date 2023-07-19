@@ -11,7 +11,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"less_than_or_equal-const-definition"}}}
 pub const LESS_THAN_OR_EQUAL: Uuid = uuid!["1694c92e-07df-54a4-8279-b93918548a61"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LessThanOrEqual;
 
 impl LessThanOrEqual {

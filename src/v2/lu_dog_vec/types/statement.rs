@@ -22,10 +22,11 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-struct-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Statement {
     pub subtype: StatementEnum,
     pub id: usize,
+    pub index: i64,
     /// R18: [`Statement`] 'is contianed in a' [`Block`]
     pub block: usize,
     /// R17: [`Statement`] 'follows' [`Statement`]
@@ -33,7 +34,7 @@ pub struct Statement {
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-hybrid-enum-definition"}}}
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum StatementEnum {
     ExpressionStatement(usize),
     ItemStatement(Uuid),
@@ -46,6 +47,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
+        index: i64,
         block: &Rc<RefCell<Block>>,
         next: Option<&Rc<RefCell<Statement>>>,
         subtype: &Rc<RefCell<ExpressionStatement>>,
@@ -53,6 +55,7 @@ impl Statement {
     ) -> Rc<RefCell<Statement>> {
         store.inter_statement(|id| {
             Rc::new(RefCell::new(Statement {
+                index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
                 subtype: StatementEnum::ExpressionStatement(subtype.borrow().id),
@@ -64,12 +67,14 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
+        index: i64,
         block: &Rc<RefCell<Block>>,
         next: Option<&Rc<RefCell<Statement>>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Statement>> {
         store.inter_statement(|id| {
             Rc::new(RefCell::new(Statement {
+                index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
                 subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
@@ -81,6 +86,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
+        index: i64,
         block: &Rc<RefCell<Block>>,
         next: Option<&Rc<RefCell<Statement>>>,
         subtype: &Rc<RefCell<LetStatement>>,
@@ -88,6 +94,7 @@ impl Statement {
     ) -> Rc<RefCell<Statement>> {
         store.inter_statement(|id| {
             Rc::new(RefCell::new(Statement {
+                index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
                 subtype: StatementEnum::LetStatement(subtype.borrow().id),
@@ -99,6 +106,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
+        index: i64,
         block: &Rc<RefCell<Block>>,
         next: Option<&Rc<RefCell<Statement>>>,
         subtype: &Rc<RefCell<ResultStatement>>,
@@ -106,6 +114,7 @@ impl Statement {
     ) -> Rc<RefCell<Statement>> {
         store.inter_statement(|id| {
             Rc::new(RefCell::new(Statement {
+                index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
                 subtype: StatementEnum::ResultStatement(subtype.borrow().id),
@@ -157,6 +166,16 @@ impl Statement {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-implementation"}}}
+impl PartialEq for Statement {
+    fn eq(&self, other: &Self) -> bool {
+        self.subtype == other.subtype
+            && self.index == other.index
+            && self.block == other.block
+            && self.next == other.next
+    }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

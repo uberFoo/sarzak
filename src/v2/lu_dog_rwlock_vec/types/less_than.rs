@@ -12,7 +12,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"less_than-const-definition"}}}
 pub const LESS_THAN: Uuid = uuid!["42ad4f7a-0828-519b-99b7-514577d12634"];
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LessThan;
 
 impl LessThan {
