@@ -48,7 +48,7 @@ impl ListExpression {
     pub fn r54_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ListElement>>> {
         span!("r54_list_element");
         match self.elements {
-            Some(ref elements) => vec![store.exhume_list_element(elements).unwrap()],
+            Some(ref elements) => vec![store.exhume_list_element(&elements).unwrap()],
             None => Vec::new(),
         }
     }

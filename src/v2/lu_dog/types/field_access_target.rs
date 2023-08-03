@@ -58,8 +58,8 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            FieldAccessTarget::Field(id) => *id,
-            FieldAccessTarget::Function(id) => *id,
+            Self::Field(id) => *id,
+            Self::Function(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

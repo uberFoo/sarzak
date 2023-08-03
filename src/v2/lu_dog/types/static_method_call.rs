@@ -27,15 +27,26 @@ pub struct StaticMethodCall {
     pub func: String,
     pub id: Uuid,
     pub ty: String,
+    pub unique: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-implementation"}}}
 impl StaticMethodCall {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-struct-impl-new"}}}
     /// Inter a new 'Static Method Call' in the store, and return it's `id`.
-    pub fn new(func: String, ty: String, store: &mut LuDogStore) -> Rc<RefCell<StaticMethodCall>> {
+    pub fn new(
+        func: String,
+        ty: String,
+        unique: Uuid,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<StaticMethodCall>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(StaticMethodCall { func, id, ty }));
+        let new = Rc::new(RefCell::new(StaticMethodCall {
+            func,
+            id,
+            ty,
+            unique,
+        }));
         store.inter_static_method_call(new.clone());
         new
     }

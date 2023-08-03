@@ -5,9 +5,9 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::block::Block;
+use crate::v2::lu_dog::types::body::Body;
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
-use crate::v2::lu_dog::types::implementation::Implementation;
+use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::parameter::Parameter;
@@ -28,9 +28,11 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct Function {
     pub id: Uuid,
     pub name: String,
-    /// R19: [`Function`] 'executes statements in a' [`Block`]
-    pub block: Uuid,
-    /// R9: [`Function`] 'may be contained in an' [`Implementation`]
+    /// R19: [`Function`] 'executes statements in a' [`Body`]
+    pub body: Uuid,
+    /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
+    pub first_param: Option<Uuid>,
+    /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
     pub impl_block: Option<Uuid>,
     /// R10: [`Function`] 'returns' [`ValueType`]
     pub return_type: Uuid,
@@ -42,8 +44,9 @@ impl Function {
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        block: &Rc<RefCell<Block>>,
-        impl_block: Option<&Rc<RefCell<Implementation>>>,
+        body: &Rc<RefCell<Body>>,
+        first_param: Option<&Rc<RefCell<Parameter>>>,
+        impl_block: Option<&Rc<RefCell<ImplementationBlock>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Function>> {
@@ -51,8 +54,9 @@ impl Function {
         let new = Rc::new(RefCell::new(Function {
             id,
             name,
-            block: block.borrow().id,
-            impl_block: impl_block.map(|implementation| implementation.borrow().id),
+            body: body.borrow().id(),
+            first_param: first_param.map(|parameter| parameter.borrow().id),
+            impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
             return_type: return_type.borrow().id(),
         }));
         store.inter_function(new.clone());
@@ -60,21 +64,32 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R19(1-*)
-    pub fn r19_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r19_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
+    /// Navigate to [`Body`] across R19(1-*)
+    pub fn r19_body<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Body>>> {
+        span!("r19_body");
+        vec![store.exhume_body(&self.body).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
+    /// Navigate to [`Parameter`] across R82(1-*c)
+    pub fn r82_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
+        span!("r82_parameter");
+        match self.first_param {
+            Some(ref first_param) => vec![store.exhume_parameter(&first_param).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}
-    /// Navigate to [`Implementation`] across R9(1-*c)
-    pub fn r9_implementation<'a>(
+    /// Navigate to [`ImplementationBlock`] across R9(1-*c)
+    pub fn r9_implementation_block<'a>(
         &'a self,
         store: &'a LuDogStore,
-    ) -> Vec<Rc<RefCell<Implementation>>> {
-        span!("r9_implementation");
+    ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
+        span!("r9_implementation_block");
         match self.impl_block {
-            Some(ref impl_block) => vec![store.exhume_implementation(impl_block).unwrap()],
+            Some(ref impl_block) => vec![store.exhume_implementation_block(&impl_block).unwrap()],
             None => Vec::new(),
         }
     }

@@ -12,6 +12,7 @@ use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::for_loop::ForLoop;
 use crate::v2::lu_dog::types::grouped::Grouped;
 use crate::v2::lu_dog::types::index::Index;
+use crate::v2::lu_dog::types::lambda::Lambda;
 use crate::v2::lu_dog::types::let_statement::LetStatement;
 use crate::v2::lu_dog::types::list_element::ListElement;
 use crate::v2::lu_dog::types::list_expression::ListExpression;
@@ -55,6 +56,7 @@ pub enum Expression {
     Grouped(Uuid),
     XIf(Uuid),
     Index(Uuid),
+    Lambda(Uuid),
     ListElement(Uuid),
     ListExpression(Uuid),
     Literal(Uuid),
@@ -196,6 +198,18 @@ impl Expression {
             index
         } else {
             let new = Rc::new(RefCell::new(Self::Index(id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of Expression::Lambda
+    pub fn new_lambda(lambda: &Rc<RefCell<Lambda>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = lambda.borrow().id;
+        if let Some(lambda) = store.exhume_expression(&id) {
+            lambda
+        } else {
+            let new = Rc::new(RefCell::new(Self::Lambda(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -370,28 +384,29 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Expression::Block(id) => *id,
-            Expression::Call(id) => *id,
-            Expression::Debugger(id) => *id,
-            Expression::ErrorExpression(id) => *id,
-            Expression::FieldAccess(id) => *id,
-            Expression::FieldExpression(id) => *id,
-            Expression::ForLoop(id) => *id,
-            Expression::Grouped(id) => *id,
-            Expression::XIf(id) => *id,
-            Expression::Index(id) => *id,
-            Expression::ListElement(id) => *id,
-            Expression::ListExpression(id) => *id,
-            Expression::Literal(id) => *id,
-            Expression::ZNone(id) => *id,
-            Expression::Operator(id) => *id,
-            Expression::Print(id) => *id,
-            Expression::RangeExpression(id) => *id,
-            Expression::XReturn(id) => *id,
-            Expression::ZSome(id) => *id,
-            Expression::StructExpression(id) => *id,
-            Expression::TypeCast(id) => *id,
-            Expression::VariableExpression(id) => *id,
+            Self::Block(id) => *id,
+            Self::Call(id) => *id,
+            Self::Debugger(id) => *id,
+            Self::ErrorExpression(id) => *id,
+            Self::FieldAccess(id) => *id,
+            Self::FieldExpression(id) => *id,
+            Self::ForLoop(id) => *id,
+            Self::Grouped(id) => *id,
+            Self::XIf(id) => *id,
+            Self::Index(id) => *id,
+            Self::Lambda(id) => *id,
+            Self::ListElement(id) => *id,
+            Self::ListExpression(id) => *id,
+            Self::Literal(id) => *id,
+            Self::ZNone(id) => *id,
+            Self::Operator(id) => *id,
+            Self::Print(id) => *id,
+            Self::RangeExpression(id) => *id,
+            Self::XReturn(id) => *id,
+            Self::ZSome(id) => *id,
+            Self::StructExpression(id) => *id,
+            Self::TypeCast(id) => *id,
+            Self::VariableExpression(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -530,14 +545,6 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
-    /// Navigate to [`Operator`] across R50(1-M)
-    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
-        span!("r50_operator");
-        store
-            .iter_operator()
-            .filter(|operator| operator.borrow().lhs == self.id())
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
@@ -553,6 +560,16 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    /// Navigate to [`Operator`] across R50(1-M)
+    pub fn r50_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
+        span!("r50_operator");
+        store
+            .iter_operator()
+            .filter(|operator| operator.borrow().lhs == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
     /// Navigate to [`Print`] across R32(1-M)
     pub fn r32_print<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Print>>> {
@@ -560,19 +577,6 @@ impl Expression {
         store
             .iter_print()
             .filter(|print| print.borrow().expression == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
-    /// Navigate to [`RangeExpression`] across R59(1-Mc)
-    pub fn r59_range_expression<'a>(
-        &'a self,
-        store: &'a LuDogStore,
-    ) -> Vec<Rc<RefCell<RangeExpression>>> {
-        span!("r59_range_expression");
-        store
-            .iter_range_expression()
-            .filter(|range_expression| range_expression.borrow().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -586,6 +590,19 @@ impl Expression {
         store
             .iter_range_expression()
             .filter(|range_expression| range_expression.borrow().lhs == Some(self.id()))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-range_expression"}}}
+    /// Navigate to [`RangeExpression`] across R59(1-Mc)
+    pub fn r59_range_expression<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Rc<RefCell<RangeExpression>>> {
+        span!("r59_range_expression");
+        store
+            .iter_range_expression()
+            .filter(|range_expression| range_expression.borrow().rhs == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

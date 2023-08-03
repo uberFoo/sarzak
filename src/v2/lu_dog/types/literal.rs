@@ -95,10 +95,10 @@ impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Literal::BooleanLiteral(id) => *id,
-            Literal::FloatLiteral(id) => *id,
-            Literal::IntegerLiteral(id) => *id,
-            Literal::StringLiteral(id) => *id,
+            Self::BooleanLiteral(id) => *id,
+            Self::FloatLiteral(id) => *id,
+            Self::IntegerLiteral(id) => *id,
+            Self::StringLiteral(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -24,10 +24,10 @@ pub struct XIf {
     pub id: Uuid,
     /// R52: [`XIf`] 'false block' [`Block`]
     pub false_block: Option<Uuid>,
-    /// R46: [`XIf`] 'when true, evaluates' [`Block`]
-    pub true_block: Uuid,
     /// R44: [`XIf`] 'branches based on' [`Expression`]
     pub test: Uuid,
+    /// R46: [`XIf`] 'when true, evaluates' [`Block`]
+    pub true_block: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-implementation"}}}
@@ -36,16 +36,16 @@ impl XIf {
     /// Inter a new 'If' in the store, and return it's `id`.
     pub fn new(
         false_block: Option<&Rc<RefCell<Block>>>,
-        true_block: &Rc<RefCell<Block>>,
         test: &Rc<RefCell<Expression>>,
+        true_block: &Rc<RefCell<Block>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<XIf>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(XIf {
             id,
             false_block: false_block.map(|block| block.borrow().id),
-            true_block: true_block.borrow().id,
             test: test.borrow().id(),
+            true_block: true_block.borrow().id,
         }));
         store.inter_x_if(new.clone());
         new
@@ -58,9 +58,18 @@ impl XIf {
     pub fn r52_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
         span!("r52_block");
         match self.false_block {
-            Some(ref false_block) => vec![store.exhume_block(false_block).unwrap()],
+            Some(ref false_block) => vec![store.exhume_block(&false_block).unwrap()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-true_block"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-test"}}}
+    /// Navigate to [`Expression`] across R44(1-*)
+    pub fn r44_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r44_expression");
+        vec![store.exhume_expression(&self.test).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-true_block"}}}
@@ -68,13 +77,6 @@ impl XIf {
     pub fn r46_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
         span!("r46_block");
         vec![store.exhume_block(&self.true_block).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-test"}}}
-    /// Navigate to [`Expression`] across R44(1-*)
-    pub fn r44_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r44_expression");
-        vec![store.exhume_expression(&self.test).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-impl-nav-subtype-to-supertype-expression"}}}

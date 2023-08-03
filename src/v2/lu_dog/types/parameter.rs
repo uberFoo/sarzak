@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
+use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
 use crate::v2::lu_dog::types::variable::VariableEnum;
 use serde::{Deserialize, Serialize};
@@ -25,10 +26,13 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Parameter {
     pub id: Uuid,
+    pub position: i64,
     /// R13: [`Parameter`] 'is available to a' [`Function`]
     pub function: Uuid,
     /// R14: [`Parameter`] 'follows' [`Parameter`]
     pub next: Option<Uuid>,
+    /// R79: [`Parameter`] 'requires a' [`ValueType`]
+    pub ty: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-implementation"}}}
@@ -36,15 +40,19 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         function: &Rc<RefCell<Function>>,
         next: Option<&Rc<RefCell<Parameter>>>,
+        ty: &Rc<RefCell<ValueType>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Parameter>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Parameter {
             id,
+            position,
             function: function.borrow().id,
             next: next.map(|parameter| parameter.borrow().id),
+            ty: ty.borrow().id(),
         }));
         store.inter_parameter(new.clone());
         new
@@ -62,7 +70,27 @@ impl Parameter {
     pub fn r14_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
         span!("r14_parameter");
         match self.next {
-            Some(ref next) => vec![store.exhume_parameter(next).unwrap()],
+            Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-ty"}}}
+    /// Navigate to [`ValueType`] across R79(1-*)
+    pub fn r79_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r79_value_type");
+        vec![store.exhume_value_type(&self.ty).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-function"}}}
+    /// Navigate to [`Function`] across R82(1c-1c)
+    pub fn r82c_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
+        span!("r82_function");
+        let function = store
+            .iter_function()
+            .find(|function| function.borrow().first_param == Some(self.id));
+        match function {
+            Some(ref function) => vec![function.clone()],
             None => Vec::new(),
         }
     }

@@ -51,7 +51,7 @@ impl Import {
         has_alias: bool,
         name: String,
         path: String,
-        object: Option<&Rc<RefCell<Object>>>,
+        object: Option<&Object>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Import>> {
         let id = Uuid::new_v4();
@@ -61,7 +61,7 @@ impl Import {
             id,
             name,
             path,
-            object: object.map(|object| object.borrow().id),
+            object: object.as_ref().map(|object| object.id),
         }));
         store.inter_import(new.clone());
         new

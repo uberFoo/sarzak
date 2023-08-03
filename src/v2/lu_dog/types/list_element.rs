@@ -16,6 +16,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ListElement {
     pub id: Uuid,
+    pub position: i64,
     /// R55: [`ListElement`] 'points at an' [`Expression`]
     pub expression: Uuid,
     /// R53: [`ListElement`] 'follows' [`ListElement`]
@@ -27,6 +28,7 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-new"}}}
     /// Inter a new 'List Element' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         expression: &Rc<RefCell<Expression>>,
         next: Option<&Rc<RefCell<ListElement>>>,
         store: &mut LuDogStore,
@@ -34,6 +36,7 @@ impl ListElement {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(ListElement {
             id,
+            position,
             expression: expression.borrow().id(),
             next: next.map(|list_element| list_element.borrow().id),
         }));
@@ -53,7 +56,7 @@ impl ListElement {
     pub fn r53_list_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ListElement>>> {
         span!("r53_list_element");
         match self.next {
-            Some(ref next) => vec![store.exhume_list_element(next).unwrap()],
+            Some(ref next) => vec![store.exhume_list_element(&next).unwrap()],
             None => Vec::new(),
         }
     }

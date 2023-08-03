@@ -32,6 +32,8 @@ pub struct Function {
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
     pub body: usize,
+    /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
+    pub first_param: Option<usize>,
     /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
     pub impl_block: Option<usize>,
     /// R10: [`Function`] 'returns' [`ValueType`]
@@ -45,6 +47,7 @@ impl Function {
     pub fn new(
         name: String,
         body: &Rc<RefCell<Body>>,
+        first_param: Option<&Rc<RefCell<Parameter>>>,
         impl_block: Option<&Rc<RefCell<ImplementationBlock>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
@@ -54,6 +57,7 @@ impl Function {
                 id,
                 name: name.to_owned(),
                 body: body.borrow().id,
+                first_param: first_param.map(|parameter| parameter.borrow().id),
                 impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
                 return_type: return_type.borrow().id,
             }))
@@ -68,6 +72,16 @@ impl Function {
     pub fn r19_body<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Body>>> {
         span!("r19_body");
         vec![store.exhume_body(&self.body).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
+    /// Navigate to [`Parameter`] across R82(1-*c)
+    pub fn r82_parameter<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Parameter>>> {
+        span!("r82_parameter");
+        match self.first_param {
+            Some(ref first_param) => vec![store.exhume_parameter(&first_param).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}
@@ -158,6 +172,7 @@ impl PartialEq for Function {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
             && self.body == other.body
+            && self.first_param == other.first_param
             && self.impl_block == other.impl_block
             && self.return_type == other.return_type
     }

@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock_vec::types::object_wrapper::ObjectWrapper;
 use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueTypeEnum;
@@ -24,19 +25,45 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct ZObjectStore {
     pub domain: String,
     pub id: usize,
+    pub name: String,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-implementation"}}}
 impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-new"}}}
     /// Inter a new 'Object Store' in the store, and return it's `id`.
-    pub fn new(domain: String, store: &mut LuDogRwlockVecStore) -> Arc<RwLock<ZObjectStore>> {
+    pub fn new(
+        domain: String,
+        name: String,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<ZObjectStore>> {
         store.inter_z_object_store(|id| {
             Arc::new(RwLock::new(ZObjectStore {
                 domain: domain.to_owned(),
                 id,
+                name: name.to_owned(),
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-to-implementation"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-forward-cond-to-implementation"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-one-bi-cond-to-implementation_block"}}}
+    /// Navigate to [`ImplementationBlock`] across R83(1c-1c)
+    pub fn r83c_implementation_block<'a>(
+        &'a self,
+        store: &'a LuDogRwlockVecStore,
+    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+        span!("r83_implementation_block");
+        let implementation_block = store
+            .iter_implementation_block()
+            .find(|implementation_block| {
+                implementation_block.read().unwrap().object_store == Some(self.id)
+            });
+        match implementation_block {
+            Some(ref implementation_block) => vec![implementation_block.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-assoc-many-to-object_wrapper"}}}
@@ -76,7 +103,7 @@ impl ZObjectStore {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-implementation"}}}
 impl PartialEq for ZObjectStore {
     fn eq(&self, other: &Self) -> bool {
-        self.domain == other.domain
+        self.domain == other.domain && self.name == other.name
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

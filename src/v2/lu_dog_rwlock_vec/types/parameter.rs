@@ -90,6 +90,22 @@ impl Parameter {
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-function"}}}
+    /// Navigate to [`Function`] across R82(1c-1c)
+    pub fn r82c_function<'a>(
+        &'a self,
+        store: &'a LuDogRwlockVecStore,
+    ) -> Vec<Arc<RwLock<Function>>> {
+        span!("r82_function");
+        let function = store
+            .iter_function()
+            .find(|function| function.read().unwrap().first_param == Some(self.id));
+        match function {
+            Some(ref function) => vec![function.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R14(1c-1c)
     pub fn r14c_parameter<'a>(

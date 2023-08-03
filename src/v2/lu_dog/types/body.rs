@@ -29,10 +29,12 @@ impl Body {
     /// Create a new instance of Body::Block
     pub fn new_block(block: &Rc<RefCell<Block>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
         let id = block.borrow().id;
-        if let Some(block) = store.exhume_body(id) {
+        if let Some(block) = store.exhume_body(&id) {
             block
         } else {
-            store.inter_body(|id| Rc::new(RefCell::new(Self::Block(id))))
+            let new = Rc::new(RefCell::new(Self::Block(id)));
+            store.inter_body(new.clone());
+            new
         }
     }
 
@@ -42,10 +44,12 @@ impl Body {
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Self>> {
         let id = external_implementation.borrow().id;
-        if let Some(external_implementation) = store.exhume_body(id) {
+        if let Some(external_implementation) = store.exhume_body(&id) {
             external_implementation
         } else {
-            store.inter_body(|id| Rc::new(RefCell::new(Self::ExternalImplementation(id))))
+            let new = Rc::new(RefCell::new(Self::ExternalImplementation(id)));
+            store.inter_body(new.clone());
+            new
         }
     }
 

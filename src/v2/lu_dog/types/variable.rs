@@ -5,6 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog::types::local_variable::LocalVariable;
 use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::x_value::XValue;
@@ -33,12 +34,30 @@ pub struct Variable {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum VariableEnum {
+    LambdaParameter(Uuid),
     LocalVariable(Uuid),
     Parameter(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-implementation"}}}
 impl Variable {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_lambda_parameter"}}}
+    /// Inter a new Variable in the store, and return it's `id`.
+    pub fn new_lambda_parameter(
+        name: String,
+        subtype: &Rc<RefCell<LambdaParameter>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Variable>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Variable {
+            name: name,
+            subtype: VariableEnum::LambdaParameter(subtype.borrow().id),
+            id,
+        }));
+        store.inter_variable(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-new_local_variable"}}}
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local_variable(

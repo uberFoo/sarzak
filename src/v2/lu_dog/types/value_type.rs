@@ -1,12 +1,16 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"value_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use crate::v2::lu_dog::types::char::CHAR;
 use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::error::Error;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
 use crate::v2::lu_dog::types::import::Import;
+use crate::v2::lu_dog::types::lambda::Lambda;
+use crate::v2::lu_dog::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog::types::list::List;
+use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::span::Span;
@@ -47,10 +51,12 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueType {
+    Char(Uuid),
     Empty(Uuid),
     Error(Uuid),
     Function(Uuid),
     Import(Uuid),
+    Lambda(Uuid),
     List(Uuid),
     ZObjectStore(Uuid),
     WoogOption(Uuid),
@@ -64,6 +70,12 @@ pub enum ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
+    /// Create a new instance of ValueType::Char
+    pub fn new_char(store: &LuDogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&CHAR).unwrap()
+    }
+
     /// Create a new instance of ValueType::Empty
     pub fn new_empty(store: &LuDogStore) -> Rc<RefCell<Self>> {
         // This is already in the store.
@@ -104,6 +116,18 @@ impl ValueType {
             import
         } else {
             let new = Rc::new(RefCell::new(Self::Import(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    }
+
+    /// Create a new instance of ValueType::Lambda
+    pub fn new_lambda(lambda: &Rc<RefCell<Lambda>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = lambda.borrow().id;
+        if let Some(lambda) = store.exhume_value_type(&id) {
+            lambda
+        } else {
+            let new = Rc::new(RefCell::new(Self::Lambda(id)));
             store.inter_value_type(new.clone());
             new
         }
@@ -209,18 +233,20 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            ValueType::Empty(id) => *id,
-            ValueType::Error(id) => *id,
-            ValueType::Function(id) => *id,
-            ValueType::Import(id) => *id,
-            ValueType::List(id) => *id,
-            ValueType::ZObjectStore(id) => *id,
-            ValueType::WoogOption(id) => *id,
-            ValueType::Range(id) => *id,
-            ValueType::Reference(id) => *id,
-            ValueType::WoogStruct(id) => *id,
-            ValueType::Ty(id) => *id,
-            ValueType::Unknown(id) => *id,
+            Self::Char(id) => *id,
+            Self::Empty(id) => *id,
+            Self::Error(id) => *id,
+            Self::Function(id) => *id,
+            Self::Import(id) => *id,
+            Self::Lambda(id) => *id,
+            Self::List(id) => *id,
+            Self::ZObjectStore(id) => *id,
+            Self::WoogOption(id) => *id,
+            Self::Range(id) => *id,
+            Self::Reference(id) => *id,
+            Self::WoogStruct(id) => *id,
+            Self::Ty(id) => *id,
+            Self::Unknown(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -244,6 +270,29 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R74(1-M)
+    pub fn r74_lambda<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Lambda>>> {
+        span!("r74_lambda");
+        store
+            .iter_lambda()
+            .filter(|lambda| lambda.borrow().return_type == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-lambda_parameter"}}}
+    /// Navigate to [`LambdaParameter`] across R77(1-Mc)
+    pub fn r77_lambda_parameter<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Rc<RefCell<LambdaParameter>>> {
+        span!("r77_lambda_parameter");
+        store
+            .iter_lambda_parameter()
+            .filter(|lambda_parameter| lambda_parameter.borrow().ty == Some(self.id()))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-list"}}}
     /// Navigate to [`List`] across R36(1-M)
     pub fn r36_list<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<List>>> {
@@ -261,6 +310,16 @@ impl ValueType {
         store
             .iter_woog_option()
             .filter(|woog_option| woog_option.borrow().ty == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
+    /// Navigate to [`Parameter`] across R79(1-M)
+    pub fn r79_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
+        span!("r79_parameter");
+        store
+            .iter_parameter()
+            .filter(|parameter| parameter.borrow().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -87,7 +87,8 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-cond-to-implementation"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-cond-to-implementation_block"}}}
-    /// Navigate to [`ImplementationBlock`] across R8(1-1c)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-one-bi-cond-to-implementation_block"}}}
+    /// Navigate to [`ImplementationBlock`] across R8(1c-1c)
     pub fn r8c_implementation_block<'a>(
         &'a self,
         store: &'a LuDogVecStore,
@@ -95,7 +96,7 @@ impl WoogStruct {
         span!("r8_implementation_block");
         let implementation_block = store
             .iter_implementation_block()
-            .find(|implementation_block| implementation_block.borrow().model_type == self.id);
+            .find(|implementation_block| implementation_block.borrow().model_type == Some(self.id));
         match implementation_block {
             Some(ref implementation_block) => vec![implementation_block.clone()],
             None => Vec::new(),

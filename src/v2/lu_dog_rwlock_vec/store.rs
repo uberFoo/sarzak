@@ -180,6 +180,7 @@ pub struct ObjectStore {
     method_call: Arc<RwLock<Vec<Option<Arc<RwLock<MethodCall>>>>>>,
     z_object_store_free_list: std::sync::Mutex<Vec<usize>>,
     z_object_store: Arc<RwLock<Vec<Option<Arc<RwLock<ZObjectStore>>>>>>,
+    z_object_store_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
     object_wrapper_free_list: std::sync::Mutex<Vec<usize>>,
     object_wrapper: Arc<RwLock<Vec<Option<Arc<RwLock<ObjectWrapper>>>>>>,
     operator_free_list: std::sync::Mutex<Vec<usize>>,
@@ -310,6 +311,7 @@ impl ObjectStore {
             method_call: Arc::new(RwLock::new(Vec::new())),
             z_object_store_free_list: std::sync::Mutex::new(Vec::new()),
             z_object_store: Arc::new(RwLock::new(Vec::new())),
+            z_object_store_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             object_wrapper_free_list: std::sync::Mutex::new(Vec::new()),
             object_wrapper: Arc::new(RwLock::new(Vec::new())),
             operator_free_list: std::sync::Mutex::new(Vec::new()),
@@ -3437,7 +3439,7 @@ impl ObjectStore {
             None
         };
 
-        if let Some(z_object_store) = found {
+        let z_object_store = if let Some(z_object_store) = found {
             log::debug!(target: "store", "found duplicate {z_object_store:?}.");
             self.z_object_store_free_list.lock().unwrap().push(_index);
             z_object_store.clone()
@@ -3445,7 +3447,12 @@ impl ObjectStore {
             log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store.write().unwrap()[_index] = Some(z_object_store.clone());
             z_object_store
-        }
+        };
+        self.z_object_store_id_by_name.write().unwrap().insert(
+            z_object_store.read().unwrap().name.to_upper_camel_case(),
+            z_object_store.read().unwrap().id,
+        );
+        z_object_store
     }
 
     /// Exhume (get) [`ZObjectStore`] from the store.
@@ -3463,6 +3470,16 @@ impl ObjectStore {
         let result = self.z_object_store.write().unwrap()[*id].take();
         self.z_object_store_free_list.lock().unwrap().push(*id);
         result
+    }
+
+    /// Exorcise [`ZObjectStore`] id from the store by name.
+    ///
+    pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<usize> {
+        self.z_object_store_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|z_object_store| *z_object_store)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -6753,6 +6770,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_object_store: Arc<RwLock<ZObjectStore>> = serde_json::from_reader(reader)?;
+                store.z_object_store_id_by_name.write().unwrap().insert(
+                    z_object_store.read().unwrap().name.to_upper_camel_case(),
+                    z_object_store.read().unwrap().id,
+                );
                 store.z_object_store.write().unwrap().insert(
                     z_object_store.read().unwrap().id,
                     Some(z_object_store.clone()),

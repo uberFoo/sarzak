@@ -43,8 +43,8 @@ impl BooleanOperator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            BooleanOperator::And(id) => *id,
-            BooleanOperator::Or(id) => *id,
+            Self::And(id) => *id,
+            Self::Or(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

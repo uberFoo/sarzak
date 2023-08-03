@@ -32,6 +32,8 @@ pub struct Function {
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
     pub body: usize,
+    /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
+    pub first_param: Option<usize>,
     /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
     pub impl_block: Option<usize>,
     /// R10: [`Function`] 'returns' [`ValueType`]
@@ -45,6 +47,7 @@ impl Function {
     pub fn new(
         name: String,
         body: &Arc<RwLock<Body>>,
+        first_param: Option<&Arc<RwLock<Parameter>>>,
         impl_block: Option<&Arc<RwLock<ImplementationBlock>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogNdrwlockVecStore,
@@ -54,6 +57,7 @@ impl Function {
                 id,
                 name: name.to_owned(),
                 body: body.read().unwrap().id,
+                first_param: first_param.map(|parameter| parameter.read().unwrap().id),
                 impl_block: impl_block
                     .map(|implementation_block| implementation_block.read().unwrap().id),
                 return_type: return_type.read().unwrap().id,
@@ -67,6 +71,19 @@ impl Function {
     pub fn r19_body<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Body>>> {
         span!("r19_body");
         vec![store.exhume_body(&self.body).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
+    /// Navigate to [`Parameter`] across R82(1-*c)
+    pub fn r82_parameter<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Parameter>>> {
+        span!("r82_parameter");
+        match self.first_param {
+            Some(ref first_param) => vec![store.exhume_parameter(&first_param).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-impl_block"}}}
@@ -168,6 +185,7 @@ impl PartialEq for Function {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
             && self.body == other.body
+            && self.first_param == other.first_param
             && self.impl_block == other.impl_block
             && self.return_type == other.return_type
     }

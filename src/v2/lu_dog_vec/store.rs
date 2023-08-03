@@ -180,6 +180,7 @@ pub struct ObjectStore {
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
     z_object_store_free_list: Vec<usize>,
     z_object_store: Vec<Option<Rc<RefCell<ZObjectStore>>>>,
+    z_object_store_id_by_name: HashMap<String, usize>,
     object_wrapper_free_list: Vec<usize>,
     object_wrapper: Vec<Option<Rc<RefCell<ObjectWrapper>>>>,
     operator_free_list: Vec<usize>,
@@ -310,6 +311,7 @@ impl ObjectStore {
             method_call: Vec::new(),
             z_object_store_free_list: Vec::new(),
             z_object_store: Vec::new(),
+            z_object_store_id_by_name: HashMap::default(),
             object_wrapper_free_list: Vec::new(),
             object_wrapper: Vec::new(),
             operator_free_list: Vec::new(),
@@ -3074,13 +3076,14 @@ impl ObjectStore {
 
         let z_object_store = z_object_store(_index);
 
-        if let Some(Some(z_object_store)) = self.z_object_store.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *z_object_store.borrow()
-            } else {
-                false
-            }
-        }) {
+        let z_object_store = if let Some(Some(z_object_store)) =
+            self.z_object_store.iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.borrow() == *z_object_store.borrow()
+                } else {
+                    false
+                }
+            }) {
             log::debug!(target: "store", "found duplicate {z_object_store:?}.");
             self.z_object_store_free_list.push(_index);
             z_object_store.clone()
@@ -3088,7 +3091,12 @@ impl ObjectStore {
             log::debug!(target: "store", "interring {z_object_store:?}.");
             self.z_object_store[_index] = Some(z_object_store.clone());
             z_object_store
-        }
+        };
+        self.z_object_store_id_by_name.insert(
+            z_object_store.borrow().name.to_upper_camel_case(),
+            z_object_store.borrow().id,
+        );
+        z_object_store
     }
 
     /// Exhume (get) [`ZObjectStore`] from the store.
@@ -3106,6 +3114,14 @@ impl ObjectStore {
         let result = self.z_object_store[*id].take();
         self.z_object_store_free_list.push(*id);
         result
+    }
+
+    /// Exorcise [`ZObjectStore`] id from the store by name.
+    ///
+    pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<usize> {
+        self.z_object_store_id_by_name
+            .get(name)
+            .map(|z_object_store| *z_object_store)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -6133,6 +6149,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_object_store: Rc<RefCell<ZObjectStore>> = serde_json::from_reader(reader)?;
+                store.z_object_store_id_by_name.insert(
+                    z_object_store.borrow().name.to_upper_camel_case(),
+                    z_object_store.borrow().id,
+                );
                 store
                     .z_object_store
                     .insert(z_object_store.borrow().id, Some(z_object_store.clone()));

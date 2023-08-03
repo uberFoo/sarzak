@@ -42,8 +42,8 @@ impl Unary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Unary::Negation(id) => *id,
-            Unary::Not(id) => *id,
+            Self::Negation(id) => *id,
+            Self::Not(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

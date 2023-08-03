@@ -27,6 +27,8 @@ pub struct Call {
     pub subtype: CallEnum,
     pub arg_check: bool,
     pub id: Uuid,
+    /// R81: [`Call`] 'may have a first' [`Argument`]
+    pub argument: Option<Uuid>,
     /// R29: [`Call`] 'may be an' [`Expression`]
     pub expression: Option<Uuid>,
 }
@@ -46,12 +48,14 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_function_call(
         arg_check: bool,
+        argument: Option<&Rc<RefCell<Argument>>>,
         expression: Option<&Rc<RefCell<Expression>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
+            argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::FunctionCall(FUNCTION_CALL),
             id,
@@ -64,12 +68,14 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_macro_call(
         arg_check: bool,
+        argument: Option<&Rc<RefCell<Argument>>>,
         expression: Option<&Rc<RefCell<Expression>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
+            argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::MacroCall(MACRO_CALL),
             id,
@@ -82,6 +88,7 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_method_call(
         arg_check: bool,
+        argument: Option<&Rc<RefCell<Argument>>>,
         expression: Option<&Rc<RefCell<Expression>>>,
         subtype: &Rc<RefCell<MethodCall>>,
         store: &mut LuDogStore,
@@ -89,6 +96,7 @@ impl Call {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
+            argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::MethodCall(subtype.borrow().id),
             id,
@@ -101,6 +109,7 @@ impl Call {
     /// Inter a new Call in the store, and return it's `id`.
     pub fn new_static_method_call(
         arg_check: bool,
+        argument: Option<&Rc<RefCell<Argument>>>,
         expression: Option<&Rc<RefCell<Expression>>>,
         subtype: &Rc<RefCell<StaticMethodCall>>,
         store: &mut LuDogStore,
@@ -108,6 +117,7 @@ impl Call {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
+            argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
             subtype: CallEnum::StaticMethodCall(subtype.borrow().id),
             id,
@@ -116,12 +126,22 @@ impl Call {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-argument"}}}
+    /// Navigate to [`Argument`] across R81(1-*c)
+    pub fn r81_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Argument>>> {
+        span!("r81_argument");
+        match self.argument {
+            Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
     /// Navigate to [`Expression`] across R29(1-*c)
     pub fn r29_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
         span!("r29_expression");
         match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(expression).unwrap()],
+            Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
         }
     }

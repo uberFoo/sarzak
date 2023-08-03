@@ -134,7 +134,7 @@ impl RangeExpression {
     pub fn r58_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
         span!("r58_expression");
         match self.lhs {
-            Some(ref lhs) => vec![store.exhume_expression(lhs).unwrap()],
+            Some(ref lhs) => vec![store.exhume_expression(&lhs).unwrap()],
             None => Vec::new(),
         }
     }
@@ -144,9 +144,9 @@ impl RangeExpression {
     pub fn r59_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
         span!("r59_expression");
         match self.rhs {
-            Some(ref rhs) => vec![store.exhume_expression(rhs).unwrap()],
             // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
             // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-struct-impl-nav-forward-cond-to-lhs"}}}
+            Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
             None => Vec::new(),
         }
     }
