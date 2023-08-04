@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"enumeration-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::enumeration_field::EnumerationField;
@@ -28,25 +31,30 @@ pub struct Enumeration {
 impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-new"}}}
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut WoogStore) -> Enumeration {
+    pub fn new(name: String, store: &mut WoogStore) -> Rc<RefCell<Enumeration>> {
         let id = Uuid::new_v4();
-        let new = Enumeration { id, name };
+        let new = Rc::new(RefCell::new(Enumeration { id, name }));
         store.inter_enumeration(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-assoc-many-to-enumeration_field"}}}
     /// Navigate to [`EnumerationField`] across R28(1-M)
-    pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {
+    pub fn r28_enumeration_field<'a>(
+        &'a self,
+        store: &'a WoogStore,
+    ) -> Vec<Rc<RefCell<EnumerationField>>> {
+        span!("r28_enumeration_field");
         store
             .iter_enumeration_field()
-            .filter(|enumeration_field| enumeration_field.field == self.id)
+            .filter(|enumeration_field| enumeration_field.borrow().field == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
-    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<&Item> {
+    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Item>>> {
+        span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

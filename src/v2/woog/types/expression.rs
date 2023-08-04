@@ -8,6 +8,9 @@ use crate::v2::woog::types::x_let::XLet;
 use crate::v2::woog::types::x_value::XValue;
 use crate::v2::woog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -33,52 +36,64 @@ pub enum Expression {
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
     /// Create a new instance of Expression::Block
-    pub fn new_block(block: &Block, store: &mut WoogStore) -> Self {
-        let new = Self::Block(block.id);
-        store.inter_expression(new.clone());
-        new
+    pub fn new_block(block: &Rc<RefCell<Block>>, store: &mut WoogStore) -> Rc<RefCell<Self>> {
+        let id = block.borrow().id;
+        if let Some(block) = store.exhume_expression(&id) {
+            block
+        } else {
+            let new = Rc::new(RefCell::new(Self::Block(id)));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::Call
-    pub fn new_call(call: &Call, store: &mut WoogStore) -> Self {
-        let new = Self::Call(call.id);
-        store.inter_expression(new.clone());
-        new
+    pub fn new_call(call: &Rc<RefCell<Call>>, store: &mut WoogStore) -> Rc<RefCell<Self>> {
+        let id = call.borrow().id;
+        if let Some(call) = store.exhume_expression(&id) {
+            call
+        } else {
+            let new = Rc::new(RefCell::new(Self::Call(id)));
+            store.inter_expression(new.clone());
+            new
+        }
     }
 
     /// Create a new instance of Expression::Literal
-    pub fn new_literal() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Literal(LITERAL)
+    pub fn new_literal(store: &WoogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_expression(&LITERAL).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Expression::Block(id) => *id,
-            Expression::Call(id) => *id,
-            Expression::Literal(id) => *id,
+            Self::Block(id) => *id,
+            Self::Call(id) => *id,
+            Self::Literal(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_let"}}}
     /// Navigate to [`XLet`] across R18(1-M)
-    pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
+    pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XLet>>> {
+        span!("r18_x_let");
         store
             .iter_x_let()
-            .filter(|x_let| x_let.expression == self.id())
+            .filter(|x_let| x_let.borrow().expression == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-value"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R7(isa)
-    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
+    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r7_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Expression(id) = x_value.subtype {
+                if let XValueEnum::Expression(id) = x_value.borrow().subtype {
                     id == self.id()
                 } else {
                     false

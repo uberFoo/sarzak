@@ -26,6 +26,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 pub struct Statement {
     pub subtype: StatementEnum,
     pub id: Uuid,
+    pub index: i64,
     /// R18: [`Statement`] 'is contianed in a' [`Block`]
     pub block: Uuid,
     /// R17: [`Statement`] 'follows' [`Statement`]
@@ -46,6 +47,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_expression_statement(
+        index: i64,
         block: &Arc<RwLock<Block>>,
         next: Option<&Arc<RwLock<Statement>>>,
         subtype: &Arc<RwLock<ExpressionStatement>>,
@@ -53,6 +55,7 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
+            index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
             subtype: StatementEnum::ExpressionStatement(subtype.read().unwrap().id),
@@ -65,12 +68,14 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_item_statement(
+        index: i64,
         block: &Arc<RwLock<Block>>,
         next: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
+            index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
             subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
@@ -83,6 +88,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_let_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_let_statement(
+        index: i64,
         block: &Arc<RwLock<Block>>,
         next: Option<&Arc<RwLock<Statement>>>,
         subtype: &Arc<RwLock<LetStatement>>,
@@ -90,6 +96,7 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
+            index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
             subtype: StatementEnum::LetStatement(subtype.read().unwrap().id),
@@ -102,6 +109,7 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_result_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
     pub fn new_result_statement(
+        index: i64,
         block: &Arc<RwLock<Block>>,
         next: Option<&Arc<RwLock<Statement>>>,
         subtype: &Arc<RwLock<ResultStatement>>,
@@ -109,6 +117,7 @@ impl Statement {
     ) -> Arc<RwLock<Statement>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
+            index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
             subtype: StatementEnum::ResultStatement(subtype.read().unwrap().id),

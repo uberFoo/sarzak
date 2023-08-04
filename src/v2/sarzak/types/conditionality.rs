@@ -7,6 +7,9 @@ use crate::v2::sarzak::types::referent::Referent;
 use crate::v2::sarzak::types::referrer::Referrer;
 use crate::v2::sarzak::types::unconditional::UNCONDITIONAL;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -21,23 +24,23 @@ pub enum Conditionality {
 impl Conditionality {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"conditionality-new-impl"}}}
     /// Create a new instance of Conditionality::Conditional
-    pub fn new_conditional() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Conditional(CONDITIONAL)
+    pub fn new_conditional(store: &SarzakStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_conditionality(&CONDITIONAL).unwrap()
     }
 
     /// Create a new instance of Conditionality::Unconditional
-    pub fn new_unconditional() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Unconditional(UNCONDITIONAL)
+    pub fn new_unconditional(store: &SarzakStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_conditionality(&UNCONDITIONAL).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"conditionality-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Conditionality::Conditional(id) => *id,
-            Conditionality::Unconditional(id) => *id,
+            Self::Conditional(id) => *id,
+            Self::Unconditional(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -46,28 +49,33 @@ impl Conditionality {
     pub fn r77_associative_referent<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<&AssociativeReferent> {
+    ) -> Vec<Rc<RefCell<AssociativeReferent>>> {
+        span!("r77_associative_referent");
         store
             .iter_associative_referent()
-            .filter(|associative_referent| associative_referent.conditionality == self.id())
+            .filter(|associative_referent| {
+                associative_referent.borrow().conditionality == self.id()
+            })
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"conditionality-struct-impl-nav-backward-1_M-to-referent"}}}
     /// Navigate to [`Referent`] across R12(1-M)
-    pub fn r12_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referent> {
+    pub fn r12_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referent>>> {
+        span!("r12_referent");
         store
             .iter_referent()
-            .filter(|referent| referent.conditionality == self.id())
+            .filter(|referent| referent.borrow().conditionality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"conditionality-struct-impl-nav-backward-1_M-to-referrer"}}}
     /// Navigate to [`Referrer`] across R11(1-M)
-    pub fn r11_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referrer> {
+    pub fn r11_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referrer>>> {
+        span!("r11_referrer");
         store
             .iter_referrer()
-            .filter(|referrer| referrer.conditionality == self.id())
+            .filter(|referrer| referrer.borrow().conditionality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

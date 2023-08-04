@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
@@ -28,25 +31,27 @@ pub struct Call {
 impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new"}}}
     /// Inter a new 'Call' in the store, and return it's `id`.
-    pub fn new(method: &ObjectMethod, store: &mut WoogStore) -> Call {
+    pub fn new(method: &Rc<RefCell<ObjectMethod>>, store: &mut WoogStore) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
-        let new = Call {
+        let new = Rc::new(RefCell::new(Call {
             id,
-            method: method.id,
-        };
+            method: method.borrow().id,
+        }));
         store.inter_call(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-method"}}}
     /// Navigate to [`ObjectMethod`] across R19(1-*)
-    pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
+    pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<ObjectMethod>>> {
+        span!("r19_object_method");
         vec![store.exhume_object_method(&self.method).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R10(isa)
-    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
+    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r10_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

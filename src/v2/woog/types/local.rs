@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"local-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::variable::Variable;
@@ -28,20 +31,21 @@ pub struct Local {
 impl Local {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new"}}}
     /// Inter a new 'Local' in the store, and return it's `id`.
-    pub fn new(seed: Uuid, store: &mut WoogStore) -> Local {
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Rc<RefCell<Local>> {
         let id = Uuid::new_v4();
-        let new = Local { id, seed };
+        let new = Rc::new(RefCell::new(Local { id, seed }));
         store.inter_local(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R8(isa)
-    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
+    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Variable>>> {
+        span!("r8_variable");
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::Local(id) = variable.subtype {
+                if let VariableEnum::Local(id) = variable.borrow().subtype {
                     id == self.id
                 } else {
                     false

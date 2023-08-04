@@ -26,6 +26,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Parameter {
     pub id: Uuid,
+    pub position: i64,
     /// R13: [`Parameter`] 'is available to a' [`Function`]
     pub function: Uuid,
     /// R14: [`Parameter`] 'follows' [`Parameter`]
@@ -39,6 +40,7 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-new"}}}
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         function: &Arc<RwLock<Function>>,
         next: Option<&Arc<RwLock<Parameter>>>,
         ty: &Arc<RwLock<ValueType>>,
@@ -47,6 +49,7 @@ impl Parameter {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Parameter {
             id,
+            position,
             function: function.read().unwrap().id,
             next: next.map(|parameter| parameter.read().unwrap().id),
             ty: ty.read().unwrap().id(),
@@ -80,6 +83,19 @@ impl Parameter {
     ) -> Vec<Arc<RwLock<ValueType>>> {
         span!("r79_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-function"}}}
+    /// Navigate to [`Function`] across R82(1c-1c)
+    pub fn r82c_function<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Function>>> {
+        span!("r82_function");
+        let function = store
+            .iter_function()
+            .find(|function| function.read().unwrap().first_param == Some(self.id));
+        match function {
+            Some(ref function) => vec![function.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}

@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"block-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
@@ -29,46 +32,53 @@ pub struct Block {
 impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
-    pub fn new(seed: Uuid, store: &mut WoogStore) -> Block {
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Rc<RefCell<Block>> {
         let id = Uuid::new_v4();
-        let new = Block { id, seed };
+        let new = Rc::new(RefCell::new(Block { id, seed }));
         store.inter_block(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-object_method"}}}
     /// Navigate to [`ObjectMethod`] across R23(1-1c)
-    pub fn r23c_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<&ObjectMethod> {
+    pub fn r23c_object_method<'a>(
+        &'a self,
+        store: &'a WoogStore,
+    ) -> Vec<Rc<RefCell<ObjectMethod>>> {
+        span!("r23_object_method");
         let object_method = store
             .iter_object_method()
-            .find(|object_method| object_method.block == self.id);
+            .find(|object_method| object_method.borrow().block == self.id);
         match object_method {
-            Some(ref object_method) => vec![object_method],
+            Some(ref object_method) => vec![object_method.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R12(1-M)
-    pub fn r12_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
+    pub fn r12_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r12_statement");
         store
             .iter_statement()
-            .filter(|statement| statement.block == self.id)
+            .filter(|statement| statement.borrow().block == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-to-symbol_table"}}}
     /// Navigate to [`SymbolTable`] across R24(1-1)
-    pub fn r24_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
+    pub fn r24_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<SymbolTable>>> {
+        span!("r24_symbol_table");
         vec![store
             .iter_symbol_table()
-            .find(|symbol_table| symbol_table.block == self.id)
+            .find(|symbol_table| symbol_table.borrow().block == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R10(isa)
-    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
+    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r10_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

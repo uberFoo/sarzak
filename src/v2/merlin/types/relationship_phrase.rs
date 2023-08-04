@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"relationship_phrase-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -16,10 +19,10 @@ pub struct RelationshipPhrase {
     pub text: String,
     pub x: i64,
     pub y: i64,
-    /// R13: [`RelationshipPhrase`] 'is attached to an' [`Anchor`]
-    pub origin: Uuid,
     /// R12: [`RelationshipPhrase`] 'describes' [`Line`]
     pub line: Uuid,
+    /// R13: [`RelationshipPhrase`] 'is attached to an' [`Anchor`]
+    pub origin: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-implementation"}}}
@@ -30,35 +33,38 @@ impl RelationshipPhrase {
         text: String,
         x: i64,
         y: i64,
-        origin: &Anchor,
-        line: &Line,
+        line: &Rc<RefCell<Line>>,
+        origin: &Rc<RefCell<Anchor>>,
         store: &mut MerlinStore,
-    ) -> RelationshipPhrase {
+    ) -> Rc<RefCell<RelationshipPhrase>> {
         let id = Uuid::new_v4();
-        let new = RelationshipPhrase {
+        let new = Rc::new(RefCell::new(RelationshipPhrase {
             id,
             text,
             x,
             y,
-            origin: origin.id,
-            line: line.id,
-        };
+            line: line.borrow().id,
+            origin: origin.borrow().id,
+        }));
         store.inter_relationship_phrase(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-new_"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-line"}}}
+    /// Navigate to [`Line`] across R12(1-*)
+    pub fn r12_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<Line>>> {
+        span!("r12_line");
+        vec![store.exhume_line(&self.line).unwrap()]
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Anchor`] across R13(1-*)
-    pub fn r13_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
+    pub fn r13_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<Anchor>>> {
+        span!("r13_anchor");
         vec![store.exhume_anchor(&self.origin).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-line"}}}
-    /// Navigate to [`Line`] across R12(1-*)
-    pub fn r12_line<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Line> {
-        vec![store.exhume_line(&self.line).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship_phrase-struct-impl-nav-forward-to-line"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

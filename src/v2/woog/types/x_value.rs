@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_value-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::access::Access;
@@ -49,18 +52,18 @@ impl XValue {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-new_expression"}}}
     /// Inter a new XValue in the store, and return it's `id`.
     pub fn new_expression(
-        access: &Access,
-        ty: &GraceType,
-        subtype: &Expression,
+        access: &Rc<RefCell<Access>>,
+        ty: &Rc<RefCell<GraceType>>,
+        subtype: &Rc<RefCell<Expression>>,
         store: &mut WoogStore,
-    ) -> XValue {
+    ) -> Rc<RefCell<XValue>> {
         let id = Uuid::new_v4();
-        let new = XValue {
-            access: access.id,
-            ty: ty.id(),
-            subtype: XValueEnum::Expression(subtype.id()),
+        let new = Rc::new(RefCell::new(XValue {
+            access: access.borrow().id,
+            ty: ty.borrow().id(),
+            subtype: XValueEnum::Expression(subtype.borrow().id()),
             id,
-        };
+        }));
         store.inter_x_value(new.clone());
         new
     }
@@ -68,31 +71,33 @@ impl XValue {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-new_variable"}}}
     /// Inter a new XValue in the store, and return it's `id`.
     pub fn new_variable(
-        access: &Access,
-        ty: &GraceType,
-        subtype: &Variable,
+        access: &Rc<RefCell<Access>>,
+        ty: &Rc<RefCell<GraceType>>,
+        subtype: &Rc<RefCell<Variable>>,
         store: &mut WoogStore,
-    ) -> XValue {
+    ) -> Rc<RefCell<XValue>> {
         let id = Uuid::new_v4();
-        let new = XValue {
-            access: access.id,
-            ty: ty.id(),
-            subtype: XValueEnum::Variable(subtype.id),
+        let new = Rc::new(RefCell::new(XValue {
+            access: access.borrow().id,
+            ty: ty.borrow().id(),
+            subtype: XValueEnum::Variable(subtype.borrow().id),
             id,
-        };
+        }));
         store.inter_x_value(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-forward-to-access"}}}
     /// Navigate to [`Access`] across R16(1-*)
-    pub fn r16_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
+    pub fn r16_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Access>>> {
+        span!("r16_access");
         vec![store.exhume_access(&self.access).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R3(1-*)
-    pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
+    pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+        span!("r3_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -8,6 +8,9 @@ use crate::v2::drawing::types::object_edge::ObjectEdge;
 use crate::v2::drawing::types::right::RIGHT;
 use crate::v2::drawing::types::top::TOP;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -44,58 +47,62 @@ pub enum Edge {
 impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
     /// Create a new instance of Edge::Bottom
-    pub fn new_bottom() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Bottom(BOTTOM)
+    pub fn new_bottom(store: &DrawingStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&BOTTOM).unwrap()
     }
 
     /// Create a new instance of Edge::Left
-    pub fn new_left() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Left(LEFT)
+    pub fn new_left(store: &DrawingStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&LEFT).unwrap()
     }
 
     /// Create a new instance of Edge::Right
-    pub fn new_right() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Right(RIGHT)
+    pub fn new_right(store: &DrawingStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&RIGHT).unwrap()
     }
 
     /// Create a new instance of Edge::Top
-    pub fn new_top() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Top(TOP)
+    pub fn new_top(store: &DrawingStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&TOP).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Edge::Bottom(id) => *id,
-            Edge::Left(id) => *id,
-            Edge::Right(id) => *id,
-            Edge::Top(id) => *id,
+            Self::Bottom(id) => *id,
+            Self::Left(id) => *id,
+            Self::Right(id) => *id,
+            Self::Top(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-1c)
-    pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<&Anchor> {
-        let anchor = store.iter_anchor().find(|anchor| anchor.edge == self.id());
+    pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Anchor>>> {
+        span!("r3_anchor");
+        let anchor = store
+            .iter_anchor()
+            .find(|anchor| anchor.borrow().edge == self.id());
         match anchor {
-            Some(ref anchor) => vec![anchor],
+            Some(ref anchor) => vec![anchor.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-object_edge"}}}
     /// Navigate to [`ObjectEdge`] across R19(1-1c)
-    pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<&ObjectEdge> {
+    pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<ObjectEdge>>> {
+        span!("r19_object_edge");
         let object_edge = store
             .iter_object_edge()
-            .find(|object_edge| object_edge.edge == self.id());
+            .find(|object_edge| object_edge.borrow().edge == self.id());
         match object_edge {
-            Some(ref object_edge) => vec![object_edge],
+            Some(ref object_edge) => vec![object_edge.clone()],
             None => Vec::new(),
         }
     }

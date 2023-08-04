@@ -7,6 +7,9 @@ use crate::v2::merlin::types::left::LEFT;
 use crate::v2::merlin::types::right::RIGHT;
 use crate::v2::merlin::types::top::TOP;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -23,46 +26,47 @@ pub enum Edge {
 impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
     /// Create a new instance of Edge::Bottom
-    pub fn new_bottom() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Bottom(BOTTOM)
+    pub fn new_bottom(store: &MerlinStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&BOTTOM).unwrap()
     }
 
     /// Create a new instance of Edge::Left
-    pub fn new_left() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Left(LEFT)
+    pub fn new_left(store: &MerlinStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&LEFT).unwrap()
     }
 
     /// Create a new instance of Edge::Right
-    pub fn new_right() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Right(RIGHT)
+    pub fn new_right(store: &MerlinStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&RIGHT).unwrap()
     }
 
     /// Create a new instance of Edge::Top
-    pub fn new_top() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Top(TOP)
+    pub fn new_top(store: &MerlinStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_edge(&TOP).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Edge::Bottom(id) => *id,
-            Edge::Left(id) => *id,
-            Edge::Right(id) => *id,
-            Edge::Top(id) => *id,
+            Self::Bottom(id) => *id,
+            Self::Left(id) => *id,
+            Self::Right(id) => *id,
+            Self::Top(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-1_M-to-anchor"}}}
     /// Navigate to [`Anchor`] across R9(1-M)
-    pub fn r9_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
+    pub fn r9_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<Anchor>>> {
+        span!("r9_anchor");
         store
             .iter_anchor()
-            .filter(|anchor| anchor.edge == self.id())
+            .filter(|anchor| anchor.borrow().edge == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

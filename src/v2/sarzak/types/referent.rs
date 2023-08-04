@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"referent-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referent-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::binary::Binary;
@@ -34,19 +37,19 @@ impl Referent {
     /// Inter a new 'Referent' in the store, and return it's `id`.
     pub fn new(
         description: String,
-        cardinality: &Cardinality,
-        conditionality: &Conditionality,
-        obj_id: &Object,
+        cardinality: &Rc<RefCell<Cardinality>>,
+        conditionality: &Rc<RefCell<Conditionality>>,
+        obj_id: &Rc<RefCell<Object>>,
         store: &mut SarzakStore,
-    ) -> Referent {
+    ) -> Rc<RefCell<Referent>> {
         let id = Uuid::new_v4();
-        let new = Referent {
+        let new = Rc::new(RefCell::new(Referent {
             description,
             id,
-            cardinality: cardinality.id(),
-            conditionality: conditionality.id(),
-            obj_id: obj_id.id,
-        };
+            cardinality: cardinality.borrow().id(),
+            conditionality: conditionality.borrow().id(),
+            obj_id: obj_id.borrow().id,
+        }));
         store.inter_referent(new.clone());
         new
     }
@@ -55,28 +58,35 @@ impl Referent {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referent-struct-impl-nav-forward-to-cardinality"}}}
     /// Navigate to [`Cardinality`] across R8(1-*)
-    pub fn r8_cardinality<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Cardinality> {
+    pub fn r8_cardinality<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Cardinality>>> {
+        span!("r8_cardinality");
         vec![store.exhume_cardinality(&self.cardinality).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referent-struct-impl-nav-forward-to-conditionality"}}}
     /// Navigate to [`Conditionality`] across R12(1-*)
-    pub fn r12_conditionality<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Conditionality> {
+    pub fn r12_conditionality<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<Rc<RefCell<Conditionality>>> {
+        span!("r12_conditionality");
         vec![store.exhume_conditionality(&self.conditionality).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referent-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R16(1-*)
-    pub fn r16_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r16_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r16_object");
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"referent-struct-impl-nav-backward-one-to-binary"}}}
     /// Navigate to [`Binary`] across R5(1-1)
-    pub fn r5_binary<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Binary> {
+    pub fn r5_binary<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Binary>>> {
+        span!("r5_binary");
         vec![store
             .iter_binary()
-            .find(|binary| binary.to == self.id)
+            .find(|binary| binary.borrow().to == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

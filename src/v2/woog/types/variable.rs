@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::local::Local;
@@ -42,17 +45,17 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local(
         name: String,
-        symbol_table: &SymbolTable,
-        subtype: &Local,
+        symbol_table: &Rc<RefCell<SymbolTable>>,
+        subtype: &Rc<RefCell<Local>>,
         store: &mut WoogStore,
-    ) -> Variable {
+    ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
-        let new = Variable {
+        let new = Rc::new(RefCell::new(Variable {
             name: name,
-            symbol_table: symbol_table.id,
-            subtype: VariableEnum::Local(subtype.id),
+            symbol_table: symbol_table.borrow().id,
+            subtype: VariableEnum::Local(subtype.borrow().id),
             id,
-        };
+        }));
         store.inter_variable(new.clone());
         new
     }
@@ -61,44 +64,47 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
-        symbol_table: &SymbolTable,
-        subtype: &Parameter,
+        symbol_table: &Rc<RefCell<SymbolTable>>,
+        subtype: &Rc<RefCell<Parameter>>,
         store: &mut WoogStore,
-    ) -> Variable {
+    ) -> Rc<RefCell<Variable>> {
         let id = Uuid::new_v4();
-        let new = Variable {
+        let new = Rc::new(RefCell::new(Variable {
             name: name,
-            symbol_table: symbol_table.id,
-            subtype: VariableEnum::Parameter(subtype.id),
+            symbol_table: symbol_table.borrow().id,
+            subtype: VariableEnum::Parameter(subtype.borrow().id),
             id,
-        };
+        }));
         store.inter_variable(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-forward-to-symbol_table"}}}
     /// Navigate to [`SymbolTable`] across R20(1-*)
-    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<&SymbolTable> {
+    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<SymbolTable>>> {
+        span!("r20_symbol_table");
         vec![store.exhume_symbol_table(&self.symbol_table).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-backward-1_M-to-x_let"}}}
     /// Navigate to [`XLet`] across R17(1-M)
-    pub fn r17_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<&XLet> {
+    pub fn r17_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XLet>>> {
+        span!("r17_x_let");
         store
             .iter_x_let()
-            .filter(|x_let| x_let.variable == self.id)
+            .filter(|x_let| x_let.borrow().variable == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R7(isa)
-    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<&XValue> {
+    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XValue>>> {
+        span!("r7_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Variable(id) = x_value.subtype {
+                if let XValueEnum::Variable(id) = x_value.borrow().subtype {
                     id == self.id
                 } else {
                     false

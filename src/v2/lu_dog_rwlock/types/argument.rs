@@ -20,6 +20,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Argument {
     pub id: Uuid,
+    pub position: i64,
     /// R37: [`Argument`] '' [`Expression`]
     pub expression: Uuid,
     /// R28: [`Argument`] 'is part of a' [`Call`]
@@ -33,6 +34,7 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-new"}}}
     /// Inter a new 'Argument' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         expression: &Arc<RwLock<Expression>>,
         function: &Arc<RwLock<Call>>,
         next: Option<&Arc<RwLock<Argument>>>,
@@ -41,6 +43,7 @@ impl Argument {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Argument {
             id,
+            position,
             expression: expression.read().unwrap().id(),
             function: function.read().unwrap().id,
             next: next.map(|argument| argument.read().unwrap().id),
@@ -87,6 +90,19 @@ impl Argument {
             .find(|argument| argument.read().unwrap().next == Some(self.id));
         match argument {
             Some(ref argument) => vec![argument.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-call"}}}
+    /// Navigate to [`Call`] across R81(1c-1c)
+    pub fn r81c_call<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Call>>> {
+        span!("r81_call");
+        let call = store
+            .iter_call()
+            .find(|call| call.read().unwrap().argument == Some(self.id));
+        match call {
+            Some(ref call) => vec![call.clone()],
             None => Vec::new(),
         }
     }

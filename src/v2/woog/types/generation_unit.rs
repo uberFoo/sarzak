@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"generation_unit-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
@@ -14,10 +17,10 @@ use crate::v2::woog::store::ObjectStore as WoogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct GenerationUnit {
     pub id: Uuid,
-    /// R22: [`GenerationUnit`] 'is based on an' [`Object`]
-    pub object: Uuid,
     /// R21: [`GenerationUnit`] 'is created at' [`TimeStamp`]
     pub creation_time: Uuid,
+    /// R22: [`GenerationUnit`] 'is based on an' [`Object`]
+    pub object: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-implementation"}}}
@@ -25,30 +28,34 @@ impl GenerationUnit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-new"}}}
     /// Inter a new 'Generation Unit' in the store, and return it's `id`.
     pub fn new(
+        creation_time: &Rc<RefCell<TimeStamp>>,
         object: &Object,
-        creation_time: &TimeStamp,
         store: &mut WoogStore,
-    ) -> GenerationUnit {
+    ) -> Rc<RefCell<GenerationUnit>> {
         let id = Uuid::new_v4();
-        let new = GenerationUnit {
+        let new = Rc::new(RefCell::new(GenerationUnit {
             id,
+            creation_time: creation_time.borrow().id,
             object: object.id,
-            creation_time: creation_time.id,
-        };
+        }));
         store.inter_generation_unit(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-object"}}}
-    /// Navigate to [`Object`] across R22(1-*)
-    pub fn r22_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
-        vec![store.exhume_object(&self.object).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}
     /// Navigate to [`TimeStamp`] across R21(1-*)
-    pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<&TimeStamp> {
+    pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<TimeStamp>>> {
+        span!("r21_time_stamp");
         vec![store.exhume_time_stamp(&self.creation_time).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-object"}}}
+    /// Navigate to [`Object`] across R22(1-*)
+    pub fn r22_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r22_object");
+        vec![store.exhume_object(&self.object).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

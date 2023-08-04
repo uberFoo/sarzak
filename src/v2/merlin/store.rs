@@ -19,6 +19,8 @@
 //! * [`RelationshipName`]
 //! * [`RelationshipPhrase`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-definition"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::{
     fs,
     io::{self, prelude::*},
@@ -36,43 +38,43 @@ use crate::v2::merlin::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    anchor: HashMap<Uuid, Anchor>,
-    bisection: HashMap<Uuid, Bisection>,
-    x_box: HashMap<Uuid, XBox>,
-    edge: HashMap<Uuid, Edge>,
-    glyph: HashMap<Uuid, Glyph>,
-    line: HashMap<Uuid, Line>,
-    line_segment: HashMap<Uuid, LineSegment>,
-    line_segment_point: HashMap<Uuid, LineSegmentPoint>,
-    point: HashMap<Uuid, Point>,
-    relationship_name: HashMap<Uuid, RelationshipName>,
-    relationship_phrase: HashMap<Uuid, RelationshipPhrase>,
+    anchor: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Anchor>>>>>,
+    bisection: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Bisection>>>>>,
+    x_box: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XBox>>>>>,
+    edge: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Edge>>>>>,
+    glyph: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Glyph>>>>>,
+    line: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Line>>>>>,
+    line_segment: Rc<RefCell<HashMap<Uuid, Rc<RefCell<LineSegment>>>>>,
+    line_segment_point: Rc<RefCell<HashMap<Uuid, Rc<RefCell<LineSegmentPoint>>>>>,
+    point: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Point>>>>>,
+    relationship_name: Rc<RefCell<HashMap<Uuid, Rc<RefCell<RelationshipName>>>>>,
+    relationship_phrase: Rc<RefCell<HashMap<Uuid, Rc<RefCell<RelationshipPhrase>>>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            anchor: HashMap::default(),
-            bisection: HashMap::default(),
-            x_box: HashMap::default(),
-            edge: HashMap::default(),
-            glyph: HashMap::default(),
-            line: HashMap::default(),
-            line_segment: HashMap::default(),
-            line_segment_point: HashMap::default(),
-            point: HashMap::default(),
-            relationship_name: HashMap::default(),
-            relationship_phrase: HashMap::default(),
+            anchor: Rc::new(RefCell::new(HashMap::default())),
+            bisection: Rc::new(RefCell::new(HashMap::default())),
+            x_box: Rc::new(RefCell::new(HashMap::default())),
+            edge: Rc::new(RefCell::new(HashMap::default())),
+            glyph: Rc::new(RefCell::new(HashMap::default())),
+            line: Rc::new(RefCell::new(HashMap::default())),
+            line_segment: Rc::new(RefCell::new(HashMap::default())),
+            line_segment_point: Rc::new(RefCell::new(HashMap::default())),
+            point: Rc::new(RefCell::new(HashMap::default())),
+            relationship_name: Rc::new(RefCell::new(HashMap::default())),
+            relationship_phrase: Rc::new(RefCell::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_edge(Edge::Bottom(BOTTOM));
-        store.inter_edge(Edge::Left(LEFT));
-        store.inter_edge(Edge::Right(RIGHT));
-        store.inter_edge(Edge::Top(TOP));
+        store.inter_edge(Rc::new(RefCell::new(Edge::Bottom(BOTTOM))));
+        store.inter_edge(Rc::new(RefCell::new(Edge::Left(LEFT))));
+        store.inter_edge(Rc::new(RefCell::new(Edge::Right(RIGHT))));
+        store.inter_edge(Rc::new(RefCell::new(Edge::Top(TOP))));
 
         store
     }
@@ -80,269 +82,424 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::merlin-object-store-methods"}}}
     /// Inter (insert) [`Anchor`] into the store.
     ///
-    pub fn inter_anchor(&mut self, anchor: Anchor) {
-        self.anchor.insert(anchor.id, anchor);
+    pub fn inter_anchor(&mut self, anchor: Rc<RefCell<Anchor>>) {
+        let read = anchor.borrow();
+        self.anchor.borrow_mut().insert(read.id, anchor.clone());
     }
 
     /// Exhume (get) [`Anchor`] from the store.
     ///
-    pub fn exhume_anchor(&self, id: &Uuid) -> Option<&Anchor> {
-        self.anchor.get(id)
+    pub fn exhume_anchor(&self, id: &Uuid) -> Option<Rc<RefCell<Anchor>>> {
+        self.anchor.borrow().get(id).map(|anchor| anchor.clone())
     }
 
     /// Exorcise (remove) [`Anchor`] from the store.
     ///
-    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Anchor> {
-        self.anchor.remove(id)
+    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Rc<RefCell<Anchor>>> {
+        self.anchor
+            .borrow_mut()
+            .remove(id)
+            .map(|anchor| anchor.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
-    pub fn iter_anchor(&self) -> impl Iterator<Item = &Anchor> {
-        self.anchor.values()
+    pub fn iter_anchor(&self) -> impl Iterator<Item = Rc<RefCell<Anchor>>> + '_ {
+        let values: Vec<Rc<RefCell<Anchor>>> = self
+            .anchor
+            .borrow()
+            .values()
+            .map(|anchor| anchor.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`Bisection`] into the store.
     ///
-    pub fn inter_bisection(&mut self, bisection: Bisection) {
-        self.bisection.insert(bisection.id, bisection);
+    pub fn inter_bisection(&mut self, bisection: Rc<RefCell<Bisection>>) {
+        let read = bisection.borrow();
+        self.bisection
+            .borrow_mut()
+            .insert(read.id, bisection.clone());
     }
 
     /// Exhume (get) [`Bisection`] from the store.
     ///
-    pub fn exhume_bisection(&self, id: &Uuid) -> Option<&Bisection> {
-        self.bisection.get(id)
+    pub fn exhume_bisection(&self, id: &Uuid) -> Option<Rc<RefCell<Bisection>>> {
+        self.bisection
+            .borrow()
+            .get(id)
+            .map(|bisection| bisection.clone())
     }
 
     /// Exorcise (remove) [`Bisection`] from the store.
     ///
-    pub fn exorcise_bisection(&mut self, id: &Uuid) -> Option<Bisection> {
-        self.bisection.remove(id)
+    pub fn exorcise_bisection(&mut self, id: &Uuid) -> Option<Rc<RefCell<Bisection>>> {
+        self.bisection
+            .borrow_mut()
+            .remove(id)
+            .map(|bisection| bisection.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Bisection>`.
     ///
-    pub fn iter_bisection(&self) -> impl Iterator<Item = &Bisection> {
-        self.bisection.values()
+    pub fn iter_bisection(&self) -> impl Iterator<Item = Rc<RefCell<Bisection>>> + '_ {
+        let values: Vec<Rc<RefCell<Bisection>>> = self
+            .bisection
+            .borrow()
+            .values()
+            .map(|bisection| bisection.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`XBox`] into the store.
     ///
-    pub fn inter_x_box(&mut self, x_box: XBox) {
-        self.x_box.insert(x_box.id, x_box);
+    pub fn inter_x_box(&mut self, x_box: Rc<RefCell<XBox>>) {
+        let read = x_box.borrow();
+        self.x_box.borrow_mut().insert(read.id, x_box.clone());
     }
 
     /// Exhume (get) [`XBox`] from the store.
     ///
-    pub fn exhume_x_box(&self, id: &Uuid) -> Option<&XBox> {
-        self.x_box.get(id)
+    pub fn exhume_x_box(&self, id: &Uuid) -> Option<Rc<RefCell<XBox>>> {
+        self.x_box.borrow().get(id).map(|x_box| x_box.clone())
     }
 
     /// Exorcise (remove) [`XBox`] from the store.
     ///
-    pub fn exorcise_x_box(&mut self, id: &Uuid) -> Option<XBox> {
-        self.x_box.remove(id)
+    pub fn exorcise_x_box(&mut self, id: &Uuid) -> Option<Rc<RefCell<XBox>>> {
+        self.x_box
+            .borrow_mut()
+            .remove(id)
+            .map(|x_box| x_box.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XBox>`.
     ///
-    pub fn iter_x_box(&self) -> impl Iterator<Item = &XBox> {
-        self.x_box.values()
+    pub fn iter_x_box(&self) -> impl Iterator<Item = Rc<RefCell<XBox>>> + '_ {
+        let values: Vec<Rc<RefCell<XBox>>> = self
+            .x_box
+            .borrow()
+            .values()
+            .map(|x_box| x_box.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`Edge`] into the store.
     ///
-    pub fn inter_edge(&mut self, edge: Edge) {
-        self.edge.insert(edge.id(), edge);
+    pub fn inter_edge(&mut self, edge: Rc<RefCell<Edge>>) {
+        let read = edge.borrow();
+        self.edge.borrow_mut().insert(read.id(), edge.clone());
     }
 
     /// Exhume (get) [`Edge`] from the store.
     ///
-    pub fn exhume_edge(&self, id: &Uuid) -> Option<&Edge> {
-        self.edge.get(id)
+    pub fn exhume_edge(&self, id: &Uuid) -> Option<Rc<RefCell<Edge>>> {
+        self.edge.borrow().get(id).map(|edge| edge.clone())
     }
 
     /// Exorcise (remove) [`Edge`] from the store.
     ///
-    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Edge> {
-        self.edge.remove(id)
+    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Rc<RefCell<Edge>>> {
+        self.edge.borrow_mut().remove(id).map(|edge| edge.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
-    pub fn iter_edge(&self) -> impl Iterator<Item = &Edge> {
-        self.edge.values()
+    pub fn iter_edge(&self) -> impl Iterator<Item = Rc<RefCell<Edge>>> + '_ {
+        let values: Vec<Rc<RefCell<Edge>>> = self
+            .edge
+            .borrow()
+            .values()
+            .map(|edge| edge.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`Glyph`] into the store.
     ///
-    pub fn inter_glyph(&mut self, glyph: Glyph) {
-        self.glyph.insert(glyph.id, glyph);
+    pub fn inter_glyph(&mut self, glyph: Rc<RefCell<Glyph>>) {
+        let read = glyph.borrow();
+        self.glyph.borrow_mut().insert(read.id, glyph.clone());
     }
 
     /// Exhume (get) [`Glyph`] from the store.
     ///
-    pub fn exhume_glyph(&self, id: &Uuid) -> Option<&Glyph> {
-        self.glyph.get(id)
+    pub fn exhume_glyph(&self, id: &Uuid) -> Option<Rc<RefCell<Glyph>>> {
+        self.glyph.borrow().get(id).map(|glyph| glyph.clone())
     }
 
     /// Exorcise (remove) [`Glyph`] from the store.
     ///
-    pub fn exorcise_glyph(&mut self, id: &Uuid) -> Option<Glyph> {
-        self.glyph.remove(id)
+    pub fn exorcise_glyph(&mut self, id: &Uuid) -> Option<Rc<RefCell<Glyph>>> {
+        self.glyph
+            .borrow_mut()
+            .remove(id)
+            .map(|glyph| glyph.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Glyph>`.
     ///
-    pub fn iter_glyph(&self) -> impl Iterator<Item = &Glyph> {
-        self.glyph.values()
+    pub fn iter_glyph(&self) -> impl Iterator<Item = Rc<RefCell<Glyph>>> + '_ {
+        let values: Vec<Rc<RefCell<Glyph>>> = self
+            .glyph
+            .borrow()
+            .values()
+            .map(|glyph| glyph.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`Line`] into the store.
     ///
-    pub fn inter_line(&mut self, line: Line) {
-        self.line.insert(line.id, line);
+    pub fn inter_line(&mut self, line: Rc<RefCell<Line>>) {
+        let read = line.borrow();
+        self.line.borrow_mut().insert(read.id, line.clone());
     }
 
     /// Exhume (get) [`Line`] from the store.
     ///
-    pub fn exhume_line(&self, id: &Uuid) -> Option<&Line> {
-        self.line.get(id)
+    pub fn exhume_line(&self, id: &Uuid) -> Option<Rc<RefCell<Line>>> {
+        self.line.borrow().get(id).map(|line| line.clone())
     }
 
     /// Exorcise (remove) [`Line`] from the store.
     ///
-    pub fn exorcise_line(&mut self, id: &Uuid) -> Option<Line> {
-        self.line.remove(id)
+    pub fn exorcise_line(&mut self, id: &Uuid) -> Option<Rc<RefCell<Line>>> {
+        self.line.borrow_mut().remove(id).map(|line| line.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Line>`.
     ///
-    pub fn iter_line(&self) -> impl Iterator<Item = &Line> {
-        self.line.values()
+    pub fn iter_line(&self) -> impl Iterator<Item = Rc<RefCell<Line>>> + '_ {
+        let values: Vec<Rc<RefCell<Line>>> = self
+            .line
+            .borrow()
+            .values()
+            .map(|line| line.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`LineSegment`] into the store.
     ///
-    pub fn inter_line_segment(&mut self, line_segment: LineSegment) {
-        self.line_segment.insert(line_segment.id, line_segment);
+    pub fn inter_line_segment(&mut self, line_segment: Rc<RefCell<LineSegment>>) {
+        let read = line_segment.borrow();
+        self.line_segment
+            .borrow_mut()
+            .insert(read.id, line_segment.clone());
     }
 
     /// Exhume (get) [`LineSegment`] from the store.
     ///
-    pub fn exhume_line_segment(&self, id: &Uuid) -> Option<&LineSegment> {
-        self.line_segment.get(id)
+    pub fn exhume_line_segment(&self, id: &Uuid) -> Option<Rc<RefCell<LineSegment>>> {
+        self.line_segment
+            .borrow()
+            .get(id)
+            .map(|line_segment| line_segment.clone())
     }
 
     /// Exorcise (remove) [`LineSegment`] from the store.
     ///
-    pub fn exorcise_line_segment(&mut self, id: &Uuid) -> Option<LineSegment> {
-        self.line_segment.remove(id)
+    pub fn exorcise_line_segment(&mut self, id: &Uuid) -> Option<Rc<RefCell<LineSegment>>> {
+        self.line_segment
+            .borrow_mut()
+            .remove(id)
+            .map(|line_segment| line_segment.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegment>`.
     ///
-    pub fn iter_line_segment(&self) -> impl Iterator<Item = &LineSegment> {
-        self.line_segment.values()
+    pub fn iter_line_segment(&self) -> impl Iterator<Item = Rc<RefCell<LineSegment>>> + '_ {
+        let values: Vec<Rc<RefCell<LineSegment>>> = self
+            .line_segment
+            .borrow()
+            .values()
+            .map(|line_segment| line_segment.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`LineSegmentPoint`] into the store.
     ///
-    pub fn inter_line_segment_point(&mut self, line_segment_point: LineSegmentPoint) {
+    pub fn inter_line_segment_point(&mut self, line_segment_point: Rc<RefCell<LineSegmentPoint>>) {
+        let read = line_segment_point.borrow();
         self.line_segment_point
-            .insert(line_segment_point.id, line_segment_point);
+            .borrow_mut()
+            .insert(read.id, line_segment_point.clone());
     }
 
     /// Exhume (get) [`LineSegmentPoint`] from the store.
     ///
-    pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<&LineSegmentPoint> {
-        self.line_segment_point.get(id)
+    pub fn exhume_line_segment_point(&self, id: &Uuid) -> Option<Rc<RefCell<LineSegmentPoint>>> {
+        self.line_segment_point
+            .borrow()
+            .get(id)
+            .map(|line_segment_point| line_segment_point.clone())
     }
 
     /// Exorcise (remove) [`LineSegmentPoint`] from the store.
     ///
-    pub fn exorcise_line_segment_point(&mut self, id: &Uuid) -> Option<LineSegmentPoint> {
-        self.line_segment_point.remove(id)
+    pub fn exorcise_line_segment_point(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<LineSegmentPoint>>> {
+        self.line_segment_point
+            .borrow_mut()
+            .remove(id)
+            .map(|line_segment_point| line_segment_point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, LineSegmentPoint>`.
     ///
-    pub fn iter_line_segment_point(&self) -> impl Iterator<Item = &LineSegmentPoint> {
-        self.line_segment_point.values()
+    pub fn iter_line_segment_point(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<LineSegmentPoint>>> + '_ {
+        let values: Vec<Rc<RefCell<LineSegmentPoint>>> = self
+            .line_segment_point
+            .borrow()
+            .values()
+            .map(|line_segment_point| line_segment_point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`Point`] into the store.
     ///
-    pub fn inter_point(&mut self, point: Point) {
-        self.point.insert(point.id, point);
+    pub fn inter_point(&mut self, point: Rc<RefCell<Point>>) {
+        let read = point.borrow();
+        self.point.borrow_mut().insert(read.id, point.clone());
     }
 
     /// Exhume (get) [`Point`] from the store.
     ///
-    pub fn exhume_point(&self, id: &Uuid) -> Option<&Point> {
-        self.point.get(id)
+    pub fn exhume_point(&self, id: &Uuid) -> Option<Rc<RefCell<Point>>> {
+        self.point.borrow().get(id).map(|point| point.clone())
     }
 
     /// Exorcise (remove) [`Point`] from the store.
     ///
-    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Point> {
-        self.point.remove(id)
+    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Rc<RefCell<Point>>> {
+        self.point
+            .borrow_mut()
+            .remove(id)
+            .map(|point| point.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
     ///
-    pub fn iter_point(&self) -> impl Iterator<Item = &Point> {
-        self.point.values()
+    pub fn iter_point(&self) -> impl Iterator<Item = Rc<RefCell<Point>>> + '_ {
+        let values: Vec<Rc<RefCell<Point>>> = self
+            .point
+            .borrow()
+            .values()
+            .map(|point| point.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`RelationshipName`] into the store.
     ///
-    pub fn inter_relationship_name(&mut self, relationship_name: RelationshipName) {
+    pub fn inter_relationship_name(&mut self, relationship_name: Rc<RefCell<RelationshipName>>) {
+        let read = relationship_name.borrow();
         self.relationship_name
-            .insert(relationship_name.id, relationship_name);
+            .borrow_mut()
+            .insert(read.id, relationship_name.clone());
     }
 
     /// Exhume (get) [`RelationshipName`] from the store.
     ///
-    pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<&RelationshipName> {
-        self.relationship_name.get(id)
+    pub fn exhume_relationship_name(&self, id: &Uuid) -> Option<Rc<RefCell<RelationshipName>>> {
+        self.relationship_name
+            .borrow()
+            .get(id)
+            .map(|relationship_name| relationship_name.clone())
     }
 
     /// Exorcise (remove) [`RelationshipName`] from the store.
     ///
-    pub fn exorcise_relationship_name(&mut self, id: &Uuid) -> Option<RelationshipName> {
-        self.relationship_name.remove(id)
+    pub fn exorcise_relationship_name(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<RelationshipName>>> {
+        self.relationship_name
+            .borrow_mut()
+            .remove(id)
+            .map(|relationship_name| relationship_name.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipName>`.
     ///
-    pub fn iter_relationship_name(&self) -> impl Iterator<Item = &RelationshipName> {
-        self.relationship_name.values()
+    pub fn iter_relationship_name(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<RelationshipName>>> + '_ {
+        let values: Vec<Rc<RefCell<RelationshipName>>> = self
+            .relationship_name
+            .borrow()
+            .values()
+            .map(|relationship_name| relationship_name.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     /// Inter (insert) [`RelationshipPhrase`] into the store.
     ///
-    pub fn inter_relationship_phrase(&mut self, relationship_phrase: RelationshipPhrase) {
+    pub fn inter_relationship_phrase(
+        &mut self,
+        relationship_phrase: Rc<RefCell<RelationshipPhrase>>,
+    ) {
+        let read = relationship_phrase.borrow();
         self.relationship_phrase
-            .insert(relationship_phrase.id, relationship_phrase);
+            .borrow_mut()
+            .insert(read.id, relationship_phrase.clone());
     }
 
     /// Exhume (get) [`RelationshipPhrase`] from the store.
     ///
-    pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<&RelationshipPhrase> {
-        self.relationship_phrase.get(id)
+    pub fn exhume_relationship_phrase(&self, id: &Uuid) -> Option<Rc<RefCell<RelationshipPhrase>>> {
+        self.relationship_phrase
+            .borrow()
+            .get(id)
+            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
     /// Exorcise (remove) [`RelationshipPhrase`] from the store.
     ///
-    pub fn exorcise_relationship_phrase(&mut self, id: &Uuid) -> Option<RelationshipPhrase> {
-        self.relationship_phrase.remove(id)
+    pub fn exorcise_relationship_phrase(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<RelationshipPhrase>>> {
+        self.relationship_phrase
+            .borrow_mut()
+            .remove(id)
+            .map(|relationship_phrase| relationship_phrase.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipPhrase>`.
     ///
-    pub fn iter_relationship_phrase(&self) -> impl Iterator<Item = &RelationshipPhrase> {
-        self.relationship_phrase.values()
+    pub fn iter_relationship_phrase(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<RelationshipPhrase>>> + '_ {
+        let values: Vec<Rc<RefCell<RelationshipPhrase>>> = self
+            .relationship_phrase
+            .borrow()
+            .values()
+            .map(|relationship_phrase| relationship_phrase.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -375,8 +532,8 @@ impl ObjectStore {
         {
             let path = path.join("anchor");
             fs::create_dir_all(&path)?;
-            for anchor in self.anchor.values() {
-                let path = path.join(format!("{}.json", anchor.id));
+            for anchor in self.anchor.borrow().values() {
+                let path = path.join(format!("{}.json", anchor.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &anchor)?;
@@ -387,8 +544,8 @@ impl ObjectStore {
         {
             let path = path.join("bisection");
             fs::create_dir_all(&path)?;
-            for bisection in self.bisection.values() {
-                let path = path.join(format!("{}.json", bisection.id));
+            for bisection in self.bisection.borrow().values() {
+                let path = path.join(format!("{}.json", bisection.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &bisection)?;
@@ -399,8 +556,8 @@ impl ObjectStore {
         {
             let path = path.join("x_box");
             fs::create_dir_all(&path)?;
-            for x_box in self.x_box.values() {
-                let path = path.join(format!("{}.json", x_box.id));
+            for x_box in self.x_box.borrow().values() {
+                let path = path.join(format!("{}.json", x_box.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &x_box)?;
@@ -411,8 +568,8 @@ impl ObjectStore {
         {
             let path = path.join("edge");
             fs::create_dir_all(&path)?;
-            for edge in self.edge.values() {
-                let path = path.join(format!("{}.json", edge.id()));
+            for edge in self.edge.borrow().values() {
+                let path = path.join(format!("{}.json", edge.borrow().id()));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &edge)?;
@@ -423,8 +580,8 @@ impl ObjectStore {
         {
             let path = path.join("glyph");
             fs::create_dir_all(&path)?;
-            for glyph in self.glyph.values() {
-                let path = path.join(format!("{}.json", glyph.id));
+            for glyph in self.glyph.borrow().values() {
+                let path = path.join(format!("{}.json", glyph.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &glyph)?;
@@ -435,8 +592,8 @@ impl ObjectStore {
         {
             let path = path.join("line");
             fs::create_dir_all(&path)?;
-            for line in self.line.values() {
-                let path = path.join(format!("{}.json", line.id));
+            for line in self.line.borrow().values() {
+                let path = path.join(format!("{}.json", line.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &line)?;
@@ -447,8 +604,8 @@ impl ObjectStore {
         {
             let path = path.join("line_segment");
             fs::create_dir_all(&path)?;
-            for line_segment in self.line_segment.values() {
-                let path = path.join(format!("{}.json", line_segment.id));
+            for line_segment in self.line_segment.borrow().values() {
+                let path = path.join(format!("{}.json", line_segment.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &line_segment)?;
@@ -459,8 +616,8 @@ impl ObjectStore {
         {
             let path = path.join("line_segment_point");
             fs::create_dir_all(&path)?;
-            for line_segment_point in self.line_segment_point.values() {
-                let path = path.join(format!("{}.json", line_segment_point.id));
+            for line_segment_point in self.line_segment_point.borrow().values() {
+                let path = path.join(format!("{}.json", line_segment_point.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &line_segment_point)?;
@@ -471,8 +628,8 @@ impl ObjectStore {
         {
             let path = path.join("point");
             fs::create_dir_all(&path)?;
-            for point in self.point.values() {
-                let path = path.join(format!("{}.json", point.id));
+            for point in self.point.borrow().values() {
+                let path = path.join(format!("{}.json", point.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &point)?;
@@ -483,8 +640,8 @@ impl ObjectStore {
         {
             let path = path.join("relationship_name");
             fs::create_dir_all(&path)?;
-            for relationship_name in self.relationship_name.values() {
-                let path = path.join(format!("{}.json", relationship_name.id));
+            for relationship_name in self.relationship_name.borrow().values() {
+                let path = path.join(format!("{}.json", relationship_name.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &relationship_name)?;
@@ -495,8 +652,8 @@ impl ObjectStore {
         {
             let path = path.join("relationship_phrase");
             fs::create_dir_all(&path)?;
-            for relationship_phrase in self.relationship_phrase.values() {
-                let path = path.join(format!("{}.json", relationship_phrase.id));
+            for relationship_phrase in self.relationship_phrase.borrow().values() {
+                let path = path.join(format!("{}.json", relationship_phrase.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &relationship_phrase)?;
@@ -528,7 +685,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("merlin.json");
 
-        let mut store = Self::new();
+        let store = Self::new();
 
         // Load Anchor.
         {
@@ -539,8 +696,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let anchor: Anchor = serde_json::from_reader(reader)?;
-                store.anchor.insert(anchor.id, anchor);
+                let anchor: Rc<RefCell<Anchor>> = serde_json::from_reader(reader)?;
+                store
+                    .anchor
+                    .borrow_mut()
+                    .insert(anchor.borrow().id, anchor.clone());
             }
         }
 
@@ -553,8 +713,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let bisection: Bisection = serde_json::from_reader(reader)?;
-                store.bisection.insert(bisection.id, bisection);
+                let bisection: Rc<RefCell<Bisection>> = serde_json::from_reader(reader)?;
+                store
+                    .bisection
+                    .borrow_mut()
+                    .insert(bisection.borrow().id, bisection.clone());
             }
         }
 
@@ -567,8 +730,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let x_box: XBox = serde_json::from_reader(reader)?;
-                store.x_box.insert(x_box.id, x_box);
+                let x_box: Rc<RefCell<XBox>> = serde_json::from_reader(reader)?;
+                store
+                    .x_box
+                    .borrow_mut()
+                    .insert(x_box.borrow().id, x_box.clone());
             }
         }
 
@@ -581,8 +747,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let edge: Edge = serde_json::from_reader(reader)?;
-                store.edge.insert(edge.id(), edge);
+                let edge: Rc<RefCell<Edge>> = serde_json::from_reader(reader)?;
+                store
+                    .edge
+                    .borrow_mut()
+                    .insert(edge.borrow().id(), edge.clone());
             }
         }
 
@@ -595,8 +764,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let glyph: Glyph = serde_json::from_reader(reader)?;
-                store.glyph.insert(glyph.id, glyph);
+                let glyph: Rc<RefCell<Glyph>> = serde_json::from_reader(reader)?;
+                store
+                    .glyph
+                    .borrow_mut()
+                    .insert(glyph.borrow().id, glyph.clone());
             }
         }
 
@@ -609,8 +781,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line: Line = serde_json::from_reader(reader)?;
-                store.line.insert(line.id, line);
+                let line: Rc<RefCell<Line>> = serde_json::from_reader(reader)?;
+                store
+                    .line
+                    .borrow_mut()
+                    .insert(line.borrow().id, line.clone());
             }
         }
 
@@ -623,8 +798,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment: LineSegment = serde_json::from_reader(reader)?;
-                store.line_segment.insert(line_segment.id, line_segment);
+                let line_segment: Rc<RefCell<LineSegment>> = serde_json::from_reader(reader)?;
+                store
+                    .line_segment
+                    .borrow_mut()
+                    .insert(line_segment.borrow().id, line_segment.clone());
             }
         }
 
@@ -637,10 +815,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let line_segment_point: LineSegmentPoint = serde_json::from_reader(reader)?;
+                let line_segment_point: Rc<RefCell<LineSegmentPoint>> =
+                    serde_json::from_reader(reader)?;
                 store
                     .line_segment_point
-                    .insert(line_segment_point.id, line_segment_point);
+                    .borrow_mut()
+                    .insert(line_segment_point.borrow().id, line_segment_point.clone());
             }
         }
 
@@ -653,8 +833,11 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let point: Point = serde_json::from_reader(reader)?;
-                store.point.insert(point.id, point);
+                let point: Rc<RefCell<Point>> = serde_json::from_reader(reader)?;
+                store
+                    .point
+                    .borrow_mut()
+                    .insert(point.borrow().id, point.clone());
             }
         }
 
@@ -667,10 +850,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_name: RelationshipName = serde_json::from_reader(reader)?;
+                let relationship_name: Rc<RefCell<RelationshipName>> =
+                    serde_json::from_reader(reader)?;
                 store
                     .relationship_name
-                    .insert(relationship_name.id, relationship_name);
+                    .borrow_mut()
+                    .insert(relationship_name.borrow().id, relationship_name.clone());
             }
         }
 
@@ -683,10 +868,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_phrase: RelationshipPhrase = serde_json::from_reader(reader)?;
+                let relationship_phrase: Rc<RefCell<RelationshipPhrase>> =
+                    serde_json::from_reader(reader)?;
                 store
                     .relationship_phrase
-                    .insert(relationship_phrase.id, relationship_phrase);
+                    .borrow_mut()
+                    .insert(relationship_phrase.borrow().id, relationship_phrase.clone());
             }
         }
 

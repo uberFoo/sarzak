@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_option-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::grace_type::GraceType;
@@ -26,22 +29,27 @@ pub struct WoogOption {
 impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new"}}}
     /// Inter a new 'Option' in the store, and return it's `id`.
-    pub fn new(ty: &GraceType, store: &mut WoogStore) -> WoogOption {
+    pub fn new(ty: &Rc<RefCell<GraceType>>, store: &mut WoogStore) -> Rc<RefCell<WoogOption>> {
         let id = Uuid::new_v4();
-        let new = WoogOption { id, ty: ty.id() };
+        let new = Rc::new(RefCell::new(WoogOption {
+            id,
+            ty: ty.borrow().id(),
+        }));
         store.inter_woog_option(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R20(1-*)
-    pub fn r20_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
+    pub fn r20_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+        span!("r20_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-impl-nav-subtype-to-supertype-grace_type"}}}
     // Navigate to [`GraceType`] across R2(isa)
-    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
+    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+        span!("r2_grace_type");
         vec![store.exhume_grace_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

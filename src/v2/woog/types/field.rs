@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::enumeration_field::EnumerationField;
@@ -30,43 +33,56 @@ pub struct Field {
 impl Field {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-new"}}}
     /// Inter a new 'Field' in the store, and return it's `id`.
-    pub fn new(name: String, ty: &GraceType, store: &mut WoogStore) -> Field {
+    pub fn new(
+        name: String,
+        ty: &Rc<RefCell<GraceType>>,
+        store: &mut WoogStore,
+    ) -> Rc<RefCell<Field>> {
         let id = Uuid::new_v4();
-        let new = Field {
+        let new = Rc::new(RefCell::new(Field {
             id,
             name,
-            ty: ty.id(),
-        };
+            ty: ty.borrow().id(),
+        }));
         store.inter_field(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R29(1-*)
-    pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
+    pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+        span!("r29_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-structure_field"}}}
     /// Navigate to [`StructureField`] across R27(1-1c)
-    pub fn r27_structure_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&StructureField> {
+    pub fn r27_structure_field<'a>(
+        &'a self,
+        store: &'a WoogStore,
+    ) -> Vec<Rc<RefCell<StructureField>>> {
+        span!("r27_structure_field");
         let structure_field = store
             .iter_structure_field()
-            .find(|structure_field| structure_field.woog_struct == self.id);
+            .find(|structure_field| structure_field.borrow().woog_struct == self.id);
         match structure_field {
-            Some(ref structure_field) => vec![structure_field],
+            Some(structure_field) => vec![structure_field],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-backward-assoc-one-cond-to-enumeration_field"}}}
     /// Navigate to [`EnumerationField`] across R28(1-1c)
-    pub fn r28_enumeration_field<'a>(&'a self, store: &'a WoogStore) -> Vec<&EnumerationField> {
+    pub fn r28_enumeration_field<'a>(
+        &'a self,
+        store: &'a WoogStore,
+    ) -> Vec<Rc<RefCell<EnumerationField>>> {
+        span!("r28_enumeration_field");
         let enumeration_field = store
             .iter_enumeration_field()
-            .find(|enumeration_field| enumeration_field.woog_enum == self.id);
+            .find(|enumeration_field| enumeration_field.borrow().woog_enum == self.id);
         match enumeration_field {
-            Some(ref enumeration_field) => vec![enumeration_field],
+            Some(enumeration_field) => vec![enumeration_field],
             None => Vec::new(),
         }
     }

@@ -1,6 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_struct-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-use-statements"}}}
 use no_deadlocks::RwLock;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::Arc;
 use tracy_client::span;
 use uuid::Uuid;
@@ -55,9 +57,10 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*c)
-    pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r4_object");
         match self.object {
-            Some(ref object) => vec![store.exhume_object(object).unwrap()],
+            Some(ref object) => vec![store.exhume_object(&object).unwrap()],
             None => Vec::new(),
         }
     }

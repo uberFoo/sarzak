@@ -8,6 +8,9 @@ use crate::v2::sarzak::types::one::ONE;
 use crate::v2::sarzak::types::referent::Referent;
 use crate::v2::sarzak::types::referrer::Referrer;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -22,23 +25,23 @@ pub enum Cardinality {
 impl Cardinality {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"cardinality-new-impl"}}}
     /// Create a new instance of Cardinality::Many
-    pub fn new_many() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Many(MANY)
+    pub fn new_many(store: &SarzakStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_cardinality(&MANY).unwrap()
     }
 
     /// Create a new instance of Cardinality::One
-    pub fn new_one() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::One(ONE)
+    pub fn new_one(store: &SarzakStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_cardinality(&ONE).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"cardinality-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Cardinality::Many(id) => *id,
-            Cardinality::One(id) => *id,
+            Self::Many(id) => *id,
+            Self::One(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -47,10 +50,11 @@ impl Cardinality {
     pub fn r88_associative_referent<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<&AssociativeReferent> {
+    ) -> Vec<Rc<RefCell<AssociativeReferent>>> {
+        span!("r88_associative_referent");
         store
             .iter_associative_referent()
-            .filter(|associative_referent| associative_referent.cardinality == self.id())
+            .filter(|associative_referent| associative_referent.borrow().cardinality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -59,28 +63,31 @@ impl Cardinality {
     pub fn r89_associative_referrer<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<&AssociativeReferrer> {
+    ) -> Vec<Rc<RefCell<AssociativeReferrer>>> {
+        span!("r89_associative_referrer");
         store
             .iter_associative_referrer()
-            .filter(|associative_referrer| associative_referrer.cardinality == self.id())
+            .filter(|associative_referrer| associative_referrer.borrow().cardinality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"cardinality-struct-impl-nav-backward-1_M-to-referent"}}}
     /// Navigate to [`Referent`] across R8(1-M)
-    pub fn r8_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referent> {
+    pub fn r8_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referent>>> {
+        span!("r8_referent");
         store
             .iter_referent()
-            .filter(|referent| referent.cardinality == self.id())
+            .filter(|referent| referent.borrow().cardinality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"cardinality-struct-impl-nav-backward-1_M-to-referrer"}}}
     /// Navigate to [`Referrer`] across R9(1-M)
-    pub fn r9_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referrer> {
+    pub fn r9_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referrer>>> {
+        span!("r9_referrer");
         store
             .iter_referrer()
-            .filter(|referrer| referrer.cardinality == self.id())
+            .filter(|referrer| referrer.borrow().cardinality == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

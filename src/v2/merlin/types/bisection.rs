@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"bisection-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::merlin::types::line_segment::LineSegment;
@@ -35,13 +38,17 @@ pub struct Bisection {
 impl Bisection {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-new"}}}
     /// Inter a new 'Bisection' in the store, and return it's `id`.
-    pub fn new(offset: f64, segment: &LineSegment, store: &mut MerlinStore) -> Bisection {
+    pub fn new(
+        offset: f64,
+        segment: &Rc<RefCell<LineSegment>>,
+        store: &mut MerlinStore,
+    ) -> Rc<RefCell<Bisection>> {
         let id = Uuid::new_v4();
-        let new = Bisection {
+        let new = Rc::new(RefCell::new(Bisection {
             id,
             offset,
-            segment: segment.id,
-        };
+            segment: segment.borrow().id,
+        }));
         store.inter_bisection(new.clone());
         new
     }
@@ -50,29 +57,35 @@ impl Bisection {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-nav-forward-to-segment"}}}
     /// Navigate to [`LineSegment`] across R14(1-*)
-    pub fn r14_line_segment<'a>(&'a self, store: &'a MerlinStore) -> Vec<&LineSegment> {
+    pub fn r14_line_segment<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<LineSegment>>> {
+        span!("r14_line_segment");
         vec![store.exhume_line_segment(&self.segment).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-struct-impl-nav-backward-cond-to-relationship_name"}}}
     /// Navigate to [`RelationshipName`] across R15(1-1c)
-    pub fn r15c_relationship_name<'a>(&'a self, store: &'a MerlinStore) -> Vec<&RelationshipName> {
+    pub fn r15c_relationship_name<'a>(
+        &'a self,
+        store: &'a MerlinStore,
+    ) -> Vec<Rc<RefCell<RelationshipName>>> {
+        span!("r15_relationship_name");
         let relationship_name = store
             .iter_relationship_name()
-            .find(|relationship_name| relationship_name.origin == self.id);
+            .find(|relationship_name| relationship_name.borrow().origin == self.id);
         match relationship_name {
-            Some(ref relationship_name) => vec![relationship_name],
+            Some(ref relationship_name) => vec![relationship_name.clone()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"bisection-impl-nav-subtype-to-supertype-point"}}}
     // Navigate to [`Point`] across R6(isa)
-    pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Point> {
+    pub fn r6_point<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<Point>>> {
+        span!("r6_point");
         vec![store
             .iter_point()
             .find(|point| {
-                if let PointEnum::Bisection(id) = point.subtype {
+                if let PointEnum::Bisection(id) = point.borrow().subtype {
                     id == self.id
                 } else {
                     false

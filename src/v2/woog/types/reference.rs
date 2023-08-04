@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"reference-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
@@ -30,25 +33,27 @@ pub struct Reference {
 impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new(object: &Object, store: &mut WoogStore) -> Reference {
+    pub fn new(object: &Object, store: &mut WoogStore) -> Rc<RefCell<Reference>> {
         let id = Uuid::new_v4();
-        let new = Reference {
+        let new = Rc::new(RefCell::new(Reference {
             id,
             object: object.id,
-        };
+        }));
         store.inter_reference(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R13(1-*)
-    pub fn r13_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r13_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r13_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-impl-nav-subtype-to-supertype-grace_type"}}}
     // Navigate to [`GraceType`] across R2(isa)
-    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<&GraceType> {
+    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+        span!("r2_grace_type");
         vec![store.exhume_grace_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

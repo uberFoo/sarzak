@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_box-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -42,16 +45,16 @@ impl XBox {
         y: i64,
         object: &Object,
         store: &mut MerlinStore,
-    ) -> XBox {
+    ) -> Rc<RefCell<XBox>> {
         let id = Uuid::new_v4();
-        let new = XBox {
+        let new = Rc::new(RefCell::new(XBox {
             height,
             id,
             width,
             x,
             y,
             object: object.id,
-        };
+        }));
         store.inter_x_box(new.clone());
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-new_"}}}
@@ -60,17 +63,19 @@ impl XBox {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R1(1-*)
-    pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r1_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc_many-to-anchor"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc-many-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-M)
-    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<&Anchor> {
+    pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Rc<RefCell<Anchor>>> {
+        span!("r3_anchor");
         store
             .iter_anchor()
-            .filter(|anchor| anchor.x_box == self.id)
+            .filter(|anchor| anchor.borrow().x_box == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

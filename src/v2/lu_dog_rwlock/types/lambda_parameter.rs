@@ -22,6 +22,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LambdaParameter {
     pub id: Uuid,
+    pub position: i64,
     /// R76: [`LambdaParameter`] 'helps define a function signature' [`Lambda`]
     pub lambda: Uuid,
     /// R75: [`LambdaParameter`] '' [`LambdaParameter`]
@@ -35,6 +36,7 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-new"}}}
     /// Inter a new 'Lambda Parameter' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         lambda: &Arc<RwLock<Lambda>>,
         next: Option<&Arc<RwLock<LambdaParameter>>>,
         ty: Option<&Arc<RwLock<ValueType>>>,
@@ -43,6 +45,7 @@ impl LambdaParameter {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LambdaParameter {
             id,
+            position,
             lambda: lambda.read().unwrap().id,
             next: next.map(|lambda_parameter| lambda_parameter.read().unwrap().id),
             ty: ty.map(|value_type| value_type.read().unwrap().id()),

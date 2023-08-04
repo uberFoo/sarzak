@@ -16,6 +16,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ListElement {
     pub id: Uuid,
+    pub position: i64,
     /// R55: [`ListElement`] 'points at an' [`Expression`]
     pub expression: Uuid,
     /// R53: [`ListElement`] 'follows' [`ListElement`]
@@ -27,6 +28,7 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-new"}}}
     /// Inter a new 'List Element' in the store, and return it's `id`.
     pub fn new(
+        position: i64,
         expression: &Arc<RwLock<Expression>>,
         next: Option<&Arc<RwLock<ListElement>>>,
         store: &mut LuDogRwlockStore,
@@ -34,6 +36,7 @@ impl ListElement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ListElement {
             id,
+            position,
             expression: expression.read().unwrap().id(),
             next: next.map(|list_element| list_element.read().unwrap().id),
         }));

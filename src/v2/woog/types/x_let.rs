@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_let-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::expression::Expression;
@@ -36,40 +39,43 @@ impl XLet {
     /// Inter a new 'Let' in the store, and return it's `id`.
     pub fn new(
         x_value: String,
-        expression: &Expression,
-        variable: &Variable,
+        expression: &Rc<RefCell<Expression>>,
+        variable: &Rc<RefCell<Variable>>,
         store: &mut WoogStore,
-    ) -> XLet {
+    ) -> Rc<RefCell<XLet>> {
         let id = Uuid::new_v4();
-        let new = XLet {
+        let new = Rc::new(RefCell::new(XLet {
             id,
             x_value,
-            expression: expression.id(),
-            variable: variable.id,
-        };
+            expression: expression.borrow().id(),
+            variable: variable.borrow().id,
+        }));
         store.inter_x_let(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R18(1-*)
-    pub fn r18_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<&Expression> {
+    pub fn r18_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r18_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-struct-impl-nav-forward-to-variable"}}}
     /// Navigate to [`Variable`] across R17(1-*)
-    pub fn r17_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<&Variable> {
+    pub fn r17_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Variable>>> {
+        span!("r17_variable");
         vec![store.exhume_variable(&self.variable).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_let-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R11(isa)
-    pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<&Statement> {
+    pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Statement>>> {
+        span!("r11_statement");
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::XLet(id) = statement.subtype {
+                if let StatementEnum::XLet(id) = statement.borrow().subtype {
                     id == self.id
                 } else {
                     false

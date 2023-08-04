@@ -10,6 +10,8 @@
 //! the generated code will need to be manually edited.
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
+use std::{cell::RefCell, rc::Rc};
+
 use uuid::Uuid;
 
 use crate::v2::drawing::types::{
@@ -31,52 +33,52 @@ impl From<&DrawingStore> for ObjectStore {
         let mut to = ObjectStore::new();
 
         for (_, instance) in from.iter_anchor() {
-            let instance = Anchor::from(instance);
+            let instance = Rc::new(RefCell::new(Anchor::from(instance)));
             to.inter_anchor(instance);
         }
 
         for (_, instance) in from.iter_associative_ui() {
-            let instance = AssociativeUi::from(instance);
+            let instance = Rc::new(RefCell::new(AssociativeUi::from(instance)));
             to.inter_associative_ui(instance);
         }
 
         for (_, instance) in from.iter_binary_ui() {
-            let instance = BinaryUi::from(instance);
+            let instance = Rc::new(RefCell::new(BinaryUi::from(instance)));
             to.inter_binary_ui(instance);
         }
 
         for (_, instance) in from.iter_edge() {
-            let instance = Edge::from(instance);
+            let instance = Rc::new(RefCell::new(Edge::from(instance)));
             to.inter_edge(instance);
         }
 
         for (_, instance) in from.iter_isa_ui() {
-            let instance = IsaUi::from(instance);
+            let instance = Rc::new(RefCell::new(IsaUi::from(instance)));
             to.inter_isa_ui(instance);
         }
 
         for (_, instance) in from.iter_object_edge() {
-            let instance = ObjectEdge::from(instance);
+            let instance = Rc::new(RefCell::new(ObjectEdge::from(instance)));
             to.inter_object_edge(instance);
         }
 
         for (_, instance) in from.iter_object_ui() {
-            let instance = ObjectUi::from(instance);
+            let instance = Rc::new(RefCell::new(ObjectUi::from(instance)));
             to.inter_object_ui(instance);
         }
 
         for (_, instance) in from.iter_point() {
-            let instance = Point::from(instance);
+            let instance = Rc::new(RefCell::new(Point::from(instance)));
             to.inter_point(instance);
         }
 
         for (_, instance) in from.iter_relationship_ui() {
-            let instance = RelationshipUi::from(instance);
+            let instance = Rc::new(RefCell::new(RelationshipUi::from(instance)));
             to.inter_relationship_ui(instance);
         }
 
         for (_, instance) in from.iter_subtype_anchors() {
-            let instance = SubtypeAnchors::from(instance);
+            let instance = Rc::new(RefCell::new(SubtypeAnchors::from(instance)));
             to.inter_subtype_anchors(instance);
         }
 

@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"associative_referent-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::an_associative_referent::AnAssociativeReferent;
@@ -37,19 +40,19 @@ impl AssociativeReferent {
     /// Inter a new 'Associative Referent' in the store, and return it's `id`.
     pub fn new(
         description: String,
-        cardinality: &Cardinality,
-        conditionality: &Conditionality,
-        obj_id: &Object,
+        cardinality: &Rc<RefCell<Cardinality>>,
+        conditionality: &Rc<RefCell<Conditionality>>,
+        obj_id: &Rc<RefCell<Object>>,
         store: &mut SarzakStore,
-    ) -> AssociativeReferent {
+    ) -> Rc<RefCell<AssociativeReferent>> {
         let id = Uuid::new_v4();
-        let new = AssociativeReferent {
+        let new = Rc::new(RefCell::new(AssociativeReferent {
             description,
             id,
-            cardinality: cardinality.id(),
-            conditionality: conditionality.id(),
-            obj_id: obj_id.id,
-        };
+            cardinality: cardinality.borrow().id(),
+            conditionality: conditionality.borrow().id(),
+            obj_id: obj_id.borrow().id,
+        }));
         store.inter_associative_referent(new.clone());
         new
     }
@@ -58,19 +61,25 @@ impl AssociativeReferent {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-nav-forward-to-cardinality"}}}
     /// Navigate to [`Cardinality`] across R88(1-*)
-    pub fn r88_cardinality<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Cardinality> {
+    pub fn r88_cardinality<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Cardinality>>> {
+        span!("r88_cardinality");
         vec![store.exhume_cardinality(&self.cardinality).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-nav-forward-to-conditionality"}}}
     /// Navigate to [`Conditionality`] across R77(1-*)
-    pub fn r77_conditionality<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Conditionality> {
+    pub fn r77_conditionality<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<Rc<RefCell<Conditionality>>> {
+        span!("r77_conditionality");
         vec![store.exhume_conditionality(&self.conditionality).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R25(1-*)
-    pub fn r25_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r25_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+        span!("r25_object");
         vec![store.exhume_object(&self.obj_id).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referent-struct-impl-nav-backward-cond-to-associative"}}}
@@ -83,10 +92,11 @@ impl AssociativeReferent {
     pub fn r22_an_associative_referent<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<&AnAssociativeReferent> {
+    ) -> Vec<Rc<RefCell<AnAssociativeReferent>>> {
+        span!("r22_an_associative_referent");
         vec![store
             .iter_an_associative_referent()
-            .find(|an_associative_referent| an_associative_referent.referent == self.id)
+            .find(|an_associative_referent| an_associative_referent.borrow().referent == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

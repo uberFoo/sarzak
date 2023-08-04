@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"binary-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::referent::Referent;
@@ -28,45 +31,54 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct Binary {
     pub id: Uuid,
     pub number: i64,
-    /// R5: [`Binary`] 'loops in the' [`Referent`]
-    pub to: Uuid,
     /// R6: [`Binary`] 'is formalized by' [`Referrer`]
     pub from: Uuid,
+    /// R5: [`Binary`] 'loops in the' [`Referent`]
+    pub to: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-implementation"}}}
 impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new"}}}
     /// Inter a new 'Binary' in the store, and return it's `id`.
-    pub fn new(number: i64, to: &Referent, from: &Referrer, store: &mut SarzakStore) -> Binary {
+    pub fn new(
+        number: i64,
+        from: &Rc<RefCell<Referrer>>,
+        to: &Rc<RefCell<Referent>>,
+        store: &mut SarzakStore,
+    ) -> Rc<RefCell<Binary>> {
         let id = Uuid::new_v4();
-        let new = Binary {
+        let new = Rc::new(RefCell::new(Binary {
             id,
             number,
-            to: to.id,
-            from: from.id,
-        };
+            from: from.borrow().id,
+            to: to.borrow().id,
+        }));
         store.inter_binary(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-nav-forward-to-from"}}}
+    /// Navigate to [`Referrer`] across R6(1-*)
+    pub fn r6_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referrer>>> {
+        span!("r6_referrer");
+        vec![store.exhume_referrer(&self.from).unwrap()]
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-nav-forward-to-to"}}}
     /// Navigate to [`Referent`] across R5(1-*)
-    pub fn r5_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referent> {
+    pub fn r5_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Referent>>> {
+        span!("r5_referent");
         vec![store.exhume_referent(&self.to).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-nav-forward-to-from"}}}
-    /// Navigate to [`Referrer`] across R6(1-*)
-    pub fn r6_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Referrer> {
-        vec![store.exhume_referrer(&self.from).unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-impl-nav-subtype-to-supertype-relationship"}}}
     // Navigate to [`Relationship`] across R4(isa)
-    pub fn r4_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Relationship> {
+    pub fn r4_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Relationship>>> {
+        span!("r4_relationship");
         vec![store.exhume_relationship(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

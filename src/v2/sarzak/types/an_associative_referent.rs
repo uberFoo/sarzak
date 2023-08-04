@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"an_associative_referent-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::associative::Associative;
@@ -14,9 +17,9 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct AnAssociativeReferent {
     pub id: Uuid,
     pub referential_attribute: String,
-    /// R22: [`Associative`] '🚧 Out of order — see sarzak#14.' [`Associative`]
+    /// R22: [`Associative`] '🚧 Comments are out of order — see sarzak#14.' [`Associative`]
     pub associative: Uuid,
-    /// R22: [`AssociativeReferent`] '🚧 Out of order — see sarzak#14.' [`AssociativeReferent`]
+    /// R22: [`AssociativeReferent`] '🚧 Comments are out of order — see sarzak#14.' [`AssociativeReferent`]
     pub referent: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -26,17 +29,17 @@ impl AnAssociativeReferent {
     /// Inter a new 'An Associative Referent' in the store, and return it's `id`.
     pub fn new(
         referential_attribute: String,
-        associative: &Associative,
-        referent: &AssociativeReferent,
+        associative: &Rc<RefCell<Associative>>,
+        referent: &Rc<RefCell<AssociativeReferent>>,
         store: &mut SarzakStore,
-    ) -> AnAssociativeReferent {
+    ) -> Rc<RefCell<AnAssociativeReferent>> {
         let id = Uuid::new_v4();
-        let new = AnAssociativeReferent {
+        let new = Rc::new(RefCell::new(AnAssociativeReferent {
             id,
             referential_attribute,
-            associative: associative.id,
-            referent: referent.id,
-        };
+            associative: associative.borrow().id,
+            referent: referent.borrow().id,
+        }));
         store.inter_an_associative_referent(new.clone());
         new
     }
@@ -45,7 +48,8 @@ impl AnAssociativeReferent {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"an_associative_referent-struct-impl-nav-forward-assoc-to-associative"}}}
     /// Navigate to [`Associative`] across R22(1-*)
-    pub fn r22_associative<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Associative> {
+    pub fn r22_associative<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Associative>>> {
+        span!("r22_associative");
         vec![store.exhume_associative(&self.associative).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -54,7 +58,8 @@ impl AnAssociativeReferent {
     pub fn r22_associative_referent<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<&AssociativeReferent> {
+    ) -> Vec<Rc<RefCell<AssociativeReferent>>> {
+        span!("r22_associative_referent");
         vec![store.exhume_associative_referent(&self.referent).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

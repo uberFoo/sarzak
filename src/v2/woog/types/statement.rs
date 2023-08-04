@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"statement-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::block::Block;
@@ -41,59 +44,74 @@ pub enum StatementEnum {
 impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_expression_statement"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_expression_statement(block: &Block, store: &mut WoogStore) -> Statement {
+    pub fn new_expression_statement(
+        block: &Rc<RefCell<Block>>,
+        store: &mut WoogStore,
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Statement {
-            block: block.id,
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
             subtype: StatementEnum::ExpressionStatement(EXPRESSION_STATEMENT),
             id,
-        };
+        }));
         store.inter_statement(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_item"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_item(block: &Block, subtype: &Item, store: &mut WoogStore) -> Statement {
+    pub fn new_item(
+        block: &Rc<RefCell<Block>>,
+        subtype: &Rc<RefCell<Item>>,
+        store: &mut WoogStore,
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::Item(subtype.id()),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            subtype: StatementEnum::Item(subtype.borrow().id()),
             id,
-        };
+        }));
         store.inter_statement(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_let"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_x_let(block: &Block, subtype: &XLet, store: &mut WoogStore) -> Statement {
+    pub fn new_x_let(
+        block: &Rc<RefCell<Block>>,
+        subtype: &Rc<RefCell<XLet>>,
+        store: &mut WoogStore,
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Statement {
-            block: block.id,
-            subtype: StatementEnum::XLet(subtype.id),
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
+            subtype: StatementEnum::XLet(subtype.borrow().id),
             id,
-        };
+        }));
         store.inter_statement(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-new_x_macro"}}}
     /// Inter a new Statement in the store, and return it's `id`.
-    pub fn new_x_macro(block: &Block, store: &mut WoogStore) -> Statement {
+    pub fn new_x_macro(
+        block: &Rc<RefCell<Block>>,
+        store: &mut WoogStore,
+    ) -> Rc<RefCell<Statement>> {
         let id = Uuid::new_v4();
-        let new = Statement {
-            block: block.id,
+        let new = Rc::new(RefCell::new(Statement {
+            block: block.borrow().id,
             subtype: StatementEnum::XMacro(X_MACRO),
             id,
-        };
+        }));
         store.inter_statement(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R12(1-*)
-    pub fn r12_block<'a>(&'a self, store: &'a WoogStore) -> Vec<&Block> {
+    pub fn r12_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Block>>> {
+        span!("r12_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

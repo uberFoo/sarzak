@@ -1,5 +1,8 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"external-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::ty::Ty;
@@ -42,14 +45,19 @@ pub struct External {
 impl External {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-impl-new"}}}
     /// Inter a new 'External' in the store, and return it's `id`.
-    pub fn new(ctor: String, name: String, path: String, store: &mut SarzakStore) -> External {
+    pub fn new(
+        ctor: String,
+        name: String,
+        path: String,
+        store: &mut SarzakStore,
+    ) -> Rc<RefCell<External>> {
         let id = Uuid::new_v4();
-        let new = External {
+        let new = Rc::new(RefCell::new(External {
             ctor,
             id,
             name,
             path,
-        };
+        }));
         store.inter_external(new.clone());
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-struct-impl-new_"}}}
@@ -58,7 +66,8 @@ impl External {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
-    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Ty> {
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Ty>>> {
+        span!("r3_ty");
         vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

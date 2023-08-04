@@ -69,7 +69,7 @@ impl Import {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R40(1-*c)
-    pub fn r40_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Object> {
+    pub fn r40_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
         match self.object {
             Some(ref object) => vec![store.exhume_object(object).unwrap()],
             None => Vec::new(),

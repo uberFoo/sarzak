@@ -239,10 +239,10 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_ty(subtype: &Ty, store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_ty(subtype: &Rc<RefCell<Ty>>, store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Ty(subtype.id()),
+                subtype: ValueTypeEnum::Ty(subtype.borrow().id()),
                 id,
             }))
         })

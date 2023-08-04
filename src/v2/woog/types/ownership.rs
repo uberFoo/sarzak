@@ -6,6 +6,9 @@ use crate::v2::woog::types::borrowed::BORROWED;
 use crate::v2::woog::types::mutable::MUTABLE;
 use crate::v2::woog::types::owned::OWNED;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -28,39 +31,40 @@ pub enum Ownership {
 impl Ownership {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-new-impl"}}}
     /// Create a new instance of Ownership::Borrowed
-    pub fn new_borrowed() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Borrowed(BORROWED)
+    pub fn new_borrowed(store: &WoogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_ownership(&BORROWED).unwrap()
     }
 
     /// Create a new instance of Ownership::Mutable
-    pub fn new_mutable() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Mutable(MUTABLE)
+    pub fn new_mutable(store: &WoogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_ownership(&MUTABLE).unwrap()
     }
 
     /// Create a new instance of Ownership::Owned
-    pub fn new_owned() -> Self {
-        // This is already in the store, see associated function `new` above.
-        Self::Owned(OWNED)
+    pub fn new_owned(store: &WoogStore) -> Rc<RefCell<Self>> {
+        // This is already in the store.
+        store.exhume_ownership(&OWNED).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
-            Ownership::Borrowed(id) => *id,
-            Ownership::Mutable(id) => *id,
-            Ownership::Owned(id) => *id,
+            Self::Borrowed(id) => *id,
+            Self::Mutable(id) => *id,
+            Self::Owned(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-struct-impl-nav-backward-1_M-to-access"}}}
     /// Navigate to [`Access`] across R15(1-M)
-    pub fn r15_access<'a>(&'a self, store: &'a WoogStore) -> Vec<&Access> {
+    pub fn r15_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Access>>> {
+        span!("r15_access");
         store
             .iter_access()
-            .filter(|access| access.ownership == self.id())
+            .filter(|access| access.borrow().ownership == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

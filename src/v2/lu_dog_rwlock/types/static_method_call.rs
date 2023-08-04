@@ -27,6 +27,7 @@ pub struct StaticMethodCall {
     pub func: String,
     pub id: Uuid,
     pub ty: String,
+    pub unique: Uuid,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"static_method_call-implementation"}}}
@@ -36,10 +37,16 @@ impl StaticMethodCall {
     pub fn new(
         func: String,
         ty: String,
+        unique: Uuid,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<StaticMethodCall>> {
         let id = Uuid::new_v4();
-        let new = Arc::new(RwLock::new(StaticMethodCall { func, id, ty }));
+        let new = Arc::new(RwLock::new(StaticMethodCall {
+            func,
+            id,
+            ty,
+            unique,
+        }));
         store.inter_static_method_call(new.clone());
         new
     }
