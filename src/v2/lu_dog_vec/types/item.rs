@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::dwarf_source_file::DwarfSourceFile;
+use crate::v2::lu_dog_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec::types::function::Function;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::import::Import;
@@ -28,6 +29,7 @@ pub struct Item {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum ItemEnum {
+    Enumeration(usize),
     Function(usize),
     ImplementationBlock(usize),
     Import(usize),
@@ -37,6 +39,22 @@ pub enum ItemEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
 impl Item {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_enumeration"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_enumeration(
+        source: &Rc<RefCell<DwarfSourceFile>>,
+        subtype: &Rc<RefCell<Enumeration>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<Item>> {
+        store.inter_item(|id| {
+            Rc::new(RefCell::new(Item {
+                source: source.borrow().id,
+                subtype: ItemEnum::Enumeration(subtype.borrow().id),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(

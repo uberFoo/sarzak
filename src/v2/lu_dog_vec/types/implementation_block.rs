@@ -5,6 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec::types::function::Function;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
@@ -69,6 +70,22 @@ impl ImplementationBlock {
         span!("r83_z_object_store");
         match self.object_store {
             Some(ref object_store) => vec![store.exhume_z_object_store(&object_store).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-one-bi-cond-to-enumeration"}}}
+    /// Navigate to [`Enumeration`] across R84(1c-1c)
+    pub fn r84c_enumeration<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<Enumeration>>> {
+        span!("r84_enumeration");
+        let enumeration = store
+            .iter_enumeration()
+            .find(|enumeration| enumeration.borrow().implementation == Some(self.id));
+        match enumeration {
+            Some(ref enumeration) => vec![enumeration.clone()],
             None => Vec::new(),
         }
     }

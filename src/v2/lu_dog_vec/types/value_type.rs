@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::char::CHAR;
 use crate::v2::lu_dog_vec::types::empty::EMPTY;
+use crate::v2::lu_dog_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec::types::error::Error;
 use crate::v2::lu_dog_vec::types::field::Field;
 use crate::v2::lu_dog_vec::types::function::Function;
@@ -18,6 +19,7 @@ use crate::v2::lu_dog_vec::types::parameter::Parameter;
 use crate::v2::lu_dog_vec::types::range::RANGE;
 use crate::v2::lu_dog_vec::types::reference::Reference;
 use crate::v2::lu_dog_vec::types::span::Span;
+use crate::v2::lu_dog_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_vec::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_vec::types::woog_option::WoogOption;
@@ -62,6 +64,7 @@ pub struct ValueType {
 pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    Enumeration(usize),
     Error(usize),
     Function(usize),
     Import(usize),
@@ -95,6 +98,20 @@ impl ValueType {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
                 subtype: ValueTypeEnum::Empty(EMPTY),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_enumeration(
+        subtype: &Rc<RefCell<Enumeration>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                subtype: ValueTypeEnum::Enumeration(subtype.borrow().id),
                 id,
             }))
         })
@@ -349,6 +366,18 @@ impl ValueType {
         store
             .iter_span()
             .filter(|span| span.borrow().ty == Some(self.id))
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-struct_field"}}}
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-tuple_field"}}}
+    /// Navigate to [`TupleField`] across R86(1-M)
+    pub fn r86_tuple_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<TupleField>>> {
+        span!("r86_tuple_field");
+        store
+            .iter_tuple_field()
+            .filter(|tuple_field| tuple_field.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

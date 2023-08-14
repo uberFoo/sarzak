@@ -16,6 +16,8 @@
 //! * [`Call`]
 //! * [`Comparison`]
 //! * [`DwarfSourceFile`]
+//! * [`EnumField`]
+//! * [`Enumeration`]
 //! * [`Error`]
 //! * [`ErrorExpression`]
 //! * [`Expression`]
@@ -50,6 +52,7 @@
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`Plain`]
 //! * [`Print`]
 //! * [`RangeExpression`]
 //! * [`Reference`]
@@ -62,6 +65,8 @@
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
+//! * [`StructField`]
+//! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
 //! * [`XValue`]
@@ -84,18 +89,18 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, Error, ErrorExpression, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, ObjectWrapper, Operator, Parameter, Print, RangeExpression, Reference,
-    ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
-    Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
-    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
+    DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain, Print,
+    RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
+    VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
+    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -118,6 +123,11 @@ pub struct ObjectStore {
     comparison: Vec<Option<Rc<RefCell<Comparison>>>>,
     dwarf_source_file_free_list: Vec<usize>,
     dwarf_source_file: Vec<Option<Rc<RefCell<DwarfSourceFile>>>>,
+    enum_field_free_list: Vec<usize>,
+    enum_field: Vec<Option<Rc<RefCell<EnumField>>>>,
+    enumeration_free_list: Vec<usize>,
+    enumeration: Vec<Option<Rc<RefCell<Enumeration>>>>,
+    enumeration_id_by_name: HashMap<String, usize>,
     error_free_list: Vec<usize>,
     error: Vec<Option<Rc<RefCell<Error>>>>,
     error_expression_free_list: Vec<usize>,
@@ -189,6 +199,8 @@ pub struct ObjectStore {
     woog_option: Vec<Option<Rc<RefCell<WoogOption>>>>,
     parameter_free_list: Vec<usize>,
     parameter: Vec<Option<Rc<RefCell<Parameter>>>>,
+    plain_free_list: Vec<usize>,
+    plain: Vec<Option<Rc<RefCell<Plain>>>>,
     print_free_list: Vec<usize>,
     print: Vec<Option<Rc<RefCell<Print>>>>,
     range_expression_free_list: Vec<usize>,
@@ -214,6 +226,10 @@ pub struct ObjectStore {
     woog_struct_id_by_name: HashMap<String, usize>,
     struct_expression_free_list: Vec<usize>,
     struct_expression: Vec<Option<Rc<RefCell<StructExpression>>>>,
+    struct_field_free_list: Vec<usize>,
+    struct_field: Vec<Option<Rc<RefCell<StructField>>>>,
+    tuple_field_free_list: Vec<usize>,
+    tuple_field: Vec<Option<Rc<RefCell<TupleField>>>>,
     type_cast_free_list: Vec<usize>,
     type_cast: Vec<Option<Rc<RefCell<TypeCast>>>>,
     unary_free_list: Vec<usize>,
@@ -249,6 +265,11 @@ impl ObjectStore {
             comparison: Vec::new(),
             dwarf_source_file_free_list: Vec::new(),
             dwarf_source_file: Vec::new(),
+            enum_field_free_list: Vec::new(),
+            enum_field: Vec::new(),
+            enumeration_free_list: Vec::new(),
+            enumeration: Vec::new(),
+            enumeration_id_by_name: HashMap::default(),
             error_free_list: Vec::new(),
             error: Vec::new(),
             error_expression_free_list: Vec::new(),
@@ -320,6 +341,8 @@ impl ObjectStore {
             woog_option: Vec::new(),
             parameter_free_list: Vec::new(),
             parameter: Vec::new(),
+            plain_free_list: Vec::new(),
+            plain: Vec::new(),
             print_free_list: Vec::new(),
             print: Vec::new(),
             range_expression_free_list: Vec::new(),
@@ -345,6 +368,10 @@ impl ObjectStore {
             woog_struct_id_by_name: HashMap::default(),
             struct_expression_free_list: Vec::new(),
             struct_expression: Vec::new(),
+            struct_field_free_list: Vec::new(),
+            struct_field: Vec::new(),
+            tuple_field_free_list: Vec::new(),
+            tuple_field: Vec::new(),
             type_cast_free_list: Vec::new(),
             type_cast: Vec::new(),
             unary_free_list: Vec::new(),
@@ -1102,6 +1129,151 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`EnumField`] into the store.
+    ///
+    pub fn inter_enum_field<F>(&mut self, enum_field: F) -> Rc<RefCell<EnumField>>
+    where
+        F: Fn(usize) -> Rc<RefCell<EnumField>>,
+    {
+        let _index = if let Some(_index) = self.enum_field_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enum_field.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enum_field.push(None);
+            _index
+        };
+
+        let enum_field = enum_field(_index);
+
+        if let Some(Some(enum_field)) = self.enum_field.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *enum_field.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {enum_field:?}.");
+            self.enum_field_free_list.push(_index);
+            enum_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {enum_field:?}.");
+            self.enum_field[_index] = Some(enum_field.clone());
+            enum_field
+        }
+    }
+
+    /// Exhume (get) [`EnumField`] from the store.
+    ///
+    pub fn exhume_enum_field(&self, id: &usize) -> Option<Rc<RefCell<EnumField>>> {
+        match self.enum_field.get(*id) {
+            Some(enum_field) => enum_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`EnumField`] from the store.
+    ///
+    pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Rc<RefCell<EnumField>>> {
+        let result = self.enum_field[*id].take();
+        self.enum_field_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumField>`.
+    ///
+    pub fn iter_enum_field(&self) -> impl Iterator<Item = Rc<RefCell<EnumField>>> + '_ {
+        let len = self.enum_field.len();
+        (0..len)
+            .filter(|i| self.enum_field[*i].is_some())
+            .map(move |i| {
+                self.enum_field[i]
+                    .as_ref()
+                    .map(|enum_field| enum_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Enumeration`] into the store.
+    ///
+    pub fn inter_enumeration<F>(&mut self, enumeration: F) -> Rc<RefCell<Enumeration>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Enumeration>>,
+    {
+        let _index = if let Some(_index) = self.enumeration_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enumeration.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enumeration.push(None);
+            _index
+        };
+
+        let enumeration = enumeration(_index);
+
+        let enumeration = if let Some(Some(enumeration)) = self.enumeration.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *enumeration.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {enumeration:?}.");
+            self.enumeration_free_list.push(_index);
+            enumeration.clone()
+        } else {
+            log::debug!(target: "store", "interring {enumeration:?}.");
+            self.enumeration[_index] = Some(enumeration.clone());
+            enumeration
+        };
+        self.enumeration_id_by_name.insert(
+            enumeration.borrow().name.to_owned(),
+            enumeration.borrow().id,
+        );
+        enumeration
+    }
+
+    /// Exhume (get) [`Enumeration`] from the store.
+    ///
+    pub fn exhume_enumeration(&self, id: &usize) -> Option<Rc<RefCell<Enumeration>>> {
+        match self.enumeration.get(*id) {
+            Some(enumeration) => enumeration.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Enumeration`] from the store.
+    ///
+    pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Rc<RefCell<Enumeration>>> {
+        let result = self.enumeration[*id].take();
+        self.enumeration_free_list.push(*id);
+        result
+    }
+
+    /// Exorcise [`Enumeration`] id from the store by name.
+    ///
+    pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<usize> {
+        self.enumeration_id_by_name
+            .get(name)
+            .map(|enumeration| *enumeration)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
+    ///
+    pub fn iter_enumeration(&self) -> impl Iterator<Item = Rc<RefCell<Enumeration>>> + '_ {
+        let len = self.enumeration.len();
+        (0..len)
+            .filter(|i| self.enumeration[*i].is_some())
+            .map(move |i| {
+                self.enumeration[i]
+                    .as_ref()
+                    .map(|enumeration| enumeration.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`Error`] into the store.
     ///
     pub fn inter_error<F>(&mut self, error: F) -> Rc<RefCell<Error>>
@@ -1488,7 +1660,7 @@ impl ObjectStore {
             field
         };
         self.field_id_by_name
-            .insert(field.borrow().name.to_upper_camel_case(), field.borrow().id);
+            .insert(field.borrow().name.to_owned(), field.borrow().id);
         field
     }
 
@@ -1898,10 +2070,8 @@ impl ObjectStore {
             self.function[_index] = Some(function.clone());
             function
         };
-        self.function_id_by_name.insert(
-            function.borrow().name.to_upper_camel_case(),
-            function.borrow().id,
-        );
+        self.function_id_by_name
+            .insert(function.borrow().name.to_owned(), function.borrow().id);
         function
     }
 
@@ -3093,7 +3263,7 @@ impl ObjectStore {
             z_object_store
         };
         self.z_object_store_id_by_name.insert(
-            z_object_store.borrow().name.to_upper_camel_case(),
+            z_object_store.borrow().name.to_owned(),
             z_object_store.borrow().id,
         );
         z_object_store
@@ -3400,6 +3570,67 @@ impl ObjectStore {
                     .map(|parameter| parameter.clone())
                     .unwrap()
             })
+    }
+
+    /// Inter (insert) [`Plain`] into the store.
+    ///
+    pub fn inter_plain<F>(&mut self, plain: F) -> Rc<RefCell<Plain>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Plain>>,
+    {
+        let _index = if let Some(_index) = self.plain_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.plain.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.plain.push(None);
+            _index
+        };
+
+        let plain = plain(_index);
+
+        if let Some(Some(plain)) = self.plain.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *plain.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {plain:?}.");
+            self.plain_free_list.push(_index);
+            plain.clone()
+        } else {
+            log::debug!(target: "store", "interring {plain:?}.");
+            self.plain[_index] = Some(plain.clone());
+            plain
+        }
+    }
+
+    /// Exhume (get) [`Plain`] from the store.
+    ///
+    pub fn exhume_plain(&self, id: &usize) -> Option<Rc<RefCell<Plain>>> {
+        match self.plain.get(*id) {
+            Some(plain) => plain.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Plain`] from the store.
+    ///
+    pub fn exorcise_plain(&mut self, id: &usize) -> Option<Rc<RefCell<Plain>>> {
+        let result = self.plain[*id].take();
+        self.plain_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Plain>`.
+    ///
+    pub fn iter_plain(&self) -> impl Iterator<Item = Rc<RefCell<Plain>>> + '_ {
+        let len = self.plain.len();
+        (0..len)
+            .filter(|i| self.plain[*i].is_some())
+            .map(move |i| self.plain[i].as_ref().map(|plain| plain.clone()).unwrap())
     }
 
     /// Inter (insert) [`Print`] into the store.
@@ -4100,7 +4331,7 @@ impl ObjectStore {
             woog_struct
         };
         self.woog_struct_id_by_name.insert(
-            woog_struct.borrow().name.to_upper_camel_case(),
+            woog_struct.borrow().name.to_owned(),
             woog_struct.borrow().id,
         );
         woog_struct
@@ -4215,6 +4446,138 @@ impl ObjectStore {
                 self.struct_expression[i]
                     .as_ref()
                     .map(|struct_expression| struct_expression.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`StructField`] into the store.
+    ///
+    pub fn inter_struct_field<F>(&mut self, struct_field: F) -> Rc<RefCell<StructField>>
+    where
+        F: Fn(usize) -> Rc<RefCell<StructField>>,
+    {
+        let _index = if let Some(_index) = self.struct_field_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.struct_field.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.struct_field.push(None);
+            _index
+        };
+
+        let struct_field = struct_field(_index);
+
+        if let Some(Some(struct_field)) = self.struct_field.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *struct_field.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {struct_field:?}.");
+            self.struct_field_free_list.push(_index);
+            struct_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {struct_field:?}.");
+            self.struct_field[_index] = Some(struct_field.clone());
+            struct_field
+        }
+    }
+
+    /// Exhume (get) [`StructField`] from the store.
+    ///
+    pub fn exhume_struct_field(&self, id: &usize) -> Option<Rc<RefCell<StructField>>> {
+        match self.struct_field.get(*id) {
+            Some(struct_field) => struct_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`StructField`] from the store.
+    ///
+    pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Rc<RefCell<StructField>>> {
+        let result = self.struct_field[*id].take();
+        self.struct_field_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StructField>`.
+    ///
+    pub fn iter_struct_field(&self) -> impl Iterator<Item = Rc<RefCell<StructField>>> + '_ {
+        let len = self.struct_field.len();
+        (0..len)
+            .filter(|i| self.struct_field[*i].is_some())
+            .map(move |i| {
+                self.struct_field[i]
+                    .as_ref()
+                    .map(|struct_field| struct_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`TupleField`] into the store.
+    ///
+    pub fn inter_tuple_field<F>(&mut self, tuple_field: F) -> Rc<RefCell<TupleField>>
+    where
+        F: Fn(usize) -> Rc<RefCell<TupleField>>,
+    {
+        let _index = if let Some(_index) = self.tuple_field_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.tuple_field.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.tuple_field.push(None);
+            _index
+        };
+
+        let tuple_field = tuple_field(_index);
+
+        if let Some(Some(tuple_field)) = self.tuple_field.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *tuple_field.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {tuple_field:?}.");
+            self.tuple_field_free_list.push(_index);
+            tuple_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {tuple_field:?}.");
+            self.tuple_field[_index] = Some(tuple_field.clone());
+            tuple_field
+        }
+    }
+
+    /// Exhume (get) [`TupleField`] from the store.
+    ///
+    pub fn exhume_tuple_field(&self, id: &usize) -> Option<Rc<RefCell<TupleField>>> {
+        match self.tuple_field.get(*id) {
+            Some(tuple_field) => tuple_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`TupleField`] from the store.
+    ///
+    pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Rc<RefCell<TupleField>>> {
+        let result = self.tuple_field[*id].take();
+        self.tuple_field_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, TupleField>`.
+    ///
+    pub fn iter_tuple_field(&self) -> impl Iterator<Item = Rc<RefCell<TupleField>>> + '_ {
+        let len = self.tuple_field.len();
+        (0..len)
+            .filter(|i| self.tuple_field[*i].is_some())
+            .map(move |i| {
+                self.tuple_field[i]
+                    .as_ref()
+                    .map(|tuple_field| tuple_field.clone())
                     .unwrap()
             })
     }
@@ -4773,6 +5136,34 @@ impl ObjectStore {
             }
         }
 
+        // Persist Enum Field.
+        {
+            let path = path.join("enum_field");
+            fs::create_dir_all(&path)?;
+            for enum_field in &self.enum_field {
+                if let Some(enum_field) = enum_field {
+                    let path = path.join(format!("{}.json", enum_field.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &enum_field)?;
+                }
+            }
+        }
+
+        // Persist Enumeration.
+        {
+            let path = path.join("enumeration");
+            fs::create_dir_all(&path)?;
+            for enumeration in &self.enumeration {
+                if let Some(enumeration) = enumeration {
+                    let path = path.join(format!("{}.json", enumeration.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &enumeration)?;
+                }
+            }
+        }
+
         // Persist Error.
         {
             let path = path.join("error");
@@ -5249,6 +5640,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Plain.
+        {
+            let path = path.join("plain");
+            fs::create_dir_all(&path)?;
+            for plain in &self.plain {
+                if let Some(plain) = plain {
+                    let path = path.join(format!("{}.json", plain.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &plain)?;
+                }
+            }
+        }
+
         // Persist Print.
         {
             let path = path.join("print");
@@ -5413,6 +5818,34 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &struct_expression)?;
+                }
+            }
+        }
+
+        // Persist Struct Field.
+        {
+            let path = path.join("struct_field");
+            fs::create_dir_all(&path)?;
+            for struct_field in &self.struct_field {
+                if let Some(struct_field) = struct_field {
+                    let path = path.join(format!("{}.json", struct_field.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &struct_field)?;
+                }
+            }
+        }
+
+        // Persist Tuple Field.
+        {
+            let path = path.join("tuple_field");
+            fs::create_dir_all(&path)?;
+            for tuple_field in &self.tuple_field {
+                if let Some(tuple_field) = tuple_field {
+                    let path = path.join(format!("{}.json", tuple_field.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &tuple_field)?;
                 }
             }
         }
@@ -5669,6 +6102,42 @@ impl ObjectStore {
             }
         }
 
+        // Load Enum Field.
+        {
+            let path = path.join("enum_field");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let enum_field: Rc<RefCell<EnumField>> = serde_json::from_reader(reader)?;
+                store
+                    .enum_field
+                    .insert(enum_field.borrow().id, Some(enum_field.clone()));
+            }
+        }
+
+        // Load Enumeration.
+        {
+            let path = path.join("enumeration");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let enumeration: Rc<RefCell<Enumeration>> = serde_json::from_reader(reader)?;
+                store.enumeration_id_by_name.insert(
+                    enumeration.borrow().name.to_owned(),
+                    enumeration.borrow().id,
+                );
+                store
+                    .enumeration
+                    .insert(enumeration.borrow().id, Some(enumeration.clone()));
+            }
+        }
+
         // Load Error.
         {
             let path = path.join("error");
@@ -5764,7 +6233,7 @@ impl ObjectStore {
                 let field: Rc<RefCell<Field>> = serde_json::from_reader(reader)?;
                 store
                     .field_id_by_name
-                    .insert(field.borrow().name.to_upper_camel_case(), field.borrow().id);
+                    .insert(field.borrow().name.to_owned(), field.borrow().id);
                 store.field.insert(field.borrow().id, Some(field.clone()));
             }
         }
@@ -5862,10 +6331,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let function: Rc<RefCell<Function>> = serde_json::from_reader(reader)?;
-                store.function_id_by_name.insert(
-                    function.borrow().name.to_upper_camel_case(),
-                    function.borrow().id,
-                );
+                store
+                    .function_id_by_name
+                    .insert(function.borrow().name.to_owned(), function.borrow().id);
                 store
                     .function
                     .insert(function.borrow().id, Some(function.clone()));
@@ -6150,7 +6618,7 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let z_object_store: Rc<RefCell<ZObjectStore>> = serde_json::from_reader(reader)?;
                 store.z_object_store_id_by_name.insert(
-                    z_object_store.borrow().name.to_upper_camel_case(),
+                    z_object_store.borrow().name.to_owned(),
                     z_object_store.borrow().id,
                 );
                 store
@@ -6220,6 +6688,20 @@ impl ObjectStore {
                 store
                     .parameter
                     .insert(parameter.borrow().id, Some(parameter.clone()));
+            }
+        }
+
+        // Load Plain.
+        {
+            let path = path.join("plain");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let plain: Rc<RefCell<Plain>> = serde_json::from_reader(reader)?;
+                store.plain.insert(plain.borrow().id, Some(plain.clone()));
             }
         }
 
@@ -6394,7 +6876,7 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let woog_struct: Rc<RefCell<WoogStruct>> = serde_json::from_reader(reader)?;
                 store.woog_struct_id_by_name.insert(
-                    woog_struct.borrow().name.to_upper_camel_case(),
+                    woog_struct.borrow().name.to_owned(),
                     woog_struct.borrow().id,
                 );
                 store
@@ -6418,6 +6900,38 @@ impl ObjectStore {
                     struct_expression.borrow().id,
                     Some(struct_expression.clone()),
                 );
+            }
+        }
+
+        // Load Struct Field.
+        {
+            let path = path.join("struct_field");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let struct_field: Rc<RefCell<StructField>> = serde_json::from_reader(reader)?;
+                store
+                    .struct_field
+                    .insert(struct_field.borrow().id, Some(struct_field.clone()));
+            }
+        }
+
+        // Load Tuple Field.
+        {
+            let path = path.join("tuple_field");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let tuple_field: Rc<RefCell<TupleField>> = serde_json::from_reader(reader)?;
+                store
+                    .tuple_field
+                    .insert(tuple_field.borrow().id, Some(tuple_field.clone()));
             }
         }
 

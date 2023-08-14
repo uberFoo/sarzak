@@ -9,6 +9,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::argument::Argument;
 use crate::v2::lu_dog_ndrwlock_vec::types::block::Block;
 use crate::v2::lu_dog_ndrwlock_vec::types::call::Call;
 use crate::v2::lu_dog_ndrwlock_vec::types::debugger::DEBUGGER;
+use crate::v2::lu_dog_ndrwlock_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_ndrwlock_vec::types::error_expression::ErrorExpression;
 use crate::v2::lu_dog_ndrwlock_vec::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_ndrwlock_vec::types::field_access::FieldAccess;
@@ -26,6 +27,8 @@ use crate::v2::lu_dog_ndrwlock_vec::types::print::Print;
 use crate::v2::lu_dog_ndrwlock_vec::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_ndrwlock_vec::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_ndrwlock_vec::types::struct_expression::StructExpression;
+use crate::v2::lu_dog_ndrwlock_vec::types::struct_field::StructField;
+use crate::v2::lu_dog_ndrwlock_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_ndrwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_ndrwlock_vec::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog_ndrwlock_vec::types::x_if::XIf;
@@ -58,6 +61,7 @@ pub enum ExpressionEnum {
     Block(usize),
     Call(usize),
     Debugger(Uuid),
+    EnumField(usize),
     ErrorExpression(usize),
     FieldAccess(usize),
     FieldExpression(usize),
@@ -116,6 +120,20 @@ impl Expression {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
                 subtype: ExpressionEnum::Debugger(DEBUGGER),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_enum_field"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub fn new_enum_field(
+        subtype: &Arc<RwLock<EnumField>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<Expression>> {
+        store.inter_expression(|id| {
+            Arc::new(RwLock::new(Expression {
+                subtype: ExpressionEnum::EnumField(subtype.read().unwrap().id),
                 id,
             }))
         })
@@ -632,6 +650,32 @@ impl Expression {
         store
             .iter_x_return()
             .filter(|x_return| x_return.read().unwrap().expression == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
+    /// Navigate to [`StructField`] across R89(1-Mc)
+    pub fn r89_struct_field<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<StructField>>> {
+        span!("r89_struct_field");
+        store
+            .iter_struct_field()
+            .filter(|struct_field| struct_field.read().unwrap().expression == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
+    /// Navigate to [`TupleField`] across R90(1-Mc)
+    pub fn r90_tuple_field<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<TupleField>>> {
+        span!("r90_tuple_field");
+        store
+            .iter_tuple_field()
+            .filter(|tuple_field| tuple_field.read().unwrap().expression == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

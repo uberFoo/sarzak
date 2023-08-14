@@ -16,6 +16,8 @@
 //! * [`Call`]
 //! * [`Comparison`]
 //! * [`DwarfSourceFile`]
+//! * [`EnumField`]
+//! * [`Enumeration`]
 //! * [`Error`]
 //! * [`ErrorExpression`]
 //! * [`Expression`]
@@ -50,6 +52,7 @@
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`Plain`]
 //! * [`Print`]
 //! * [`RangeExpression`]
 //! * [`Reference`]
@@ -62,6 +65,8 @@
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
+//! * [`StructField`]
+//! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
 //! * [`XValue`]
@@ -79,18 +84,18 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, Error, ErrorExpression, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, ObjectWrapper, Operator, Parameter, Print, RangeExpression, Reference,
-    ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression, TypeCast,
-    Unary, ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn,
-    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
+    DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain, Print,
+    RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
+    VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
+    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Debug)]
@@ -113,6 +118,11 @@ pub struct ObjectStore {
     comparison: Arc<RwLock<Vec<Option<Arc<RwLock<Comparison>>>>>>,
     dwarf_source_file_free_list: std::sync::Mutex<Vec<usize>>,
     dwarf_source_file: Arc<RwLock<Vec<Option<Arc<RwLock<DwarfSourceFile>>>>>>,
+    enum_field_free_list: std::sync::Mutex<Vec<usize>>,
+    enum_field: Arc<RwLock<Vec<Option<Arc<RwLock<EnumField>>>>>>,
+    enumeration_free_list: std::sync::Mutex<Vec<usize>>,
+    enumeration: Arc<RwLock<Vec<Option<Arc<RwLock<Enumeration>>>>>>,
+    enumeration_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
     error_free_list: std::sync::Mutex<Vec<usize>>,
     error: Arc<RwLock<Vec<Option<Arc<RwLock<Error>>>>>>,
     error_expression_free_list: std::sync::Mutex<Vec<usize>>,
@@ -184,6 +194,8 @@ pub struct ObjectStore {
     woog_option: Arc<RwLock<Vec<Option<Arc<RwLock<WoogOption>>>>>>,
     parameter_free_list: std::sync::Mutex<Vec<usize>>,
     parameter: Arc<RwLock<Vec<Option<Arc<RwLock<Parameter>>>>>>,
+    plain_free_list: std::sync::Mutex<Vec<usize>>,
+    plain: Arc<RwLock<Vec<Option<Arc<RwLock<Plain>>>>>>,
     print_free_list: std::sync::Mutex<Vec<usize>>,
     print: Arc<RwLock<Vec<Option<Arc<RwLock<Print>>>>>>,
     range_expression_free_list: std::sync::Mutex<Vec<usize>>,
@@ -209,6 +221,10 @@ pub struct ObjectStore {
     woog_struct_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
     struct_expression_free_list: std::sync::Mutex<Vec<usize>>,
     struct_expression: Arc<RwLock<Vec<Option<Arc<RwLock<StructExpression>>>>>>,
+    struct_field_free_list: std::sync::Mutex<Vec<usize>>,
+    struct_field: Arc<RwLock<Vec<Option<Arc<RwLock<StructField>>>>>>,
+    tuple_field_free_list: std::sync::Mutex<Vec<usize>>,
+    tuple_field: Arc<RwLock<Vec<Option<Arc<RwLock<TupleField>>>>>>,
     type_cast_free_list: std::sync::Mutex<Vec<usize>>,
     type_cast: Arc<RwLock<Vec<Option<Arc<RwLock<TypeCast>>>>>>,
     unary_free_list: std::sync::Mutex<Vec<usize>>,
@@ -244,6 +260,11 @@ impl ObjectStore {
             comparison: Arc::new(RwLock::new(Vec::new())),
             dwarf_source_file_free_list: std::sync::Mutex::new(Vec::new()),
             dwarf_source_file: Arc::new(RwLock::new(Vec::new())),
+            enum_field_free_list: std::sync::Mutex::new(Vec::new()),
+            enum_field: Arc::new(RwLock::new(Vec::new())),
+            enumeration_free_list: std::sync::Mutex::new(Vec::new()),
+            enumeration: Arc::new(RwLock::new(Vec::new())),
+            enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             error_free_list: std::sync::Mutex::new(Vec::new()),
             error: Arc::new(RwLock::new(Vec::new())),
             error_expression_free_list: std::sync::Mutex::new(Vec::new()),
@@ -315,6 +336,8 @@ impl ObjectStore {
             woog_option: Arc::new(RwLock::new(Vec::new())),
             parameter_free_list: std::sync::Mutex::new(Vec::new()),
             parameter: Arc::new(RwLock::new(Vec::new())),
+            plain_free_list: std::sync::Mutex::new(Vec::new()),
+            plain: Arc::new(RwLock::new(Vec::new())),
             print_free_list: std::sync::Mutex::new(Vec::new()),
             print: Arc::new(RwLock::new(Vec::new())),
             range_expression_free_list: std::sync::Mutex::new(Vec::new()),
@@ -340,6 +363,10 @@ impl ObjectStore {
             woog_struct_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             struct_expression_free_list: std::sync::Mutex::new(Vec::new()),
             struct_expression: Arc::new(RwLock::new(Vec::new())),
+            struct_field_free_list: std::sync::Mutex::new(Vec::new()),
+            struct_field: Arc::new(RwLock::new(Vec::new())),
+            tuple_field_free_list: std::sync::Mutex::new(Vec::new()),
+            tuple_field: Arc::new(RwLock::new(Vec::new())),
             type_cast_free_list: std::sync::Mutex::new(Vec::new()),
             type_cast: Arc::new(RwLock::new(Vec::new())),
             unary_free_list: std::sync::Mutex::new(Vec::new()),
@@ -1177,6 +1204,167 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`EnumField`] into the store.
+    ///
+    pub fn inter_enum_field<F>(&mut self, enum_field: F) -> Arc<RwLock<EnumField>>
+    where
+        F: Fn(usize) -> Arc<RwLock<EnumField>>,
+    {
+        let _index = if let Some(_index) = self.enum_field_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enum_field.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enum_field.write().unwrap().push(None);
+            _index
+        };
+
+        let enum_field = enum_field(_index);
+
+        let found = if let Some(enum_field) =
+            self.enum_field.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *enum_field.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            enum_field.clone()
+        } else {
+            None
+        };
+
+        if let Some(enum_field) = found {
+            log::debug!(target: "store", "found duplicate {enum_field:?}.");
+            self.enum_field_free_list.lock().unwrap().push(_index);
+            enum_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {enum_field:?}.");
+            self.enum_field.write().unwrap()[_index] = Some(enum_field.clone());
+            enum_field
+        }
+    }
+
+    /// Exhume (get) [`EnumField`] from the store.
+    ///
+    pub fn exhume_enum_field(&self, id: &usize) -> Option<Arc<RwLock<EnumField>>> {
+        match self.enum_field.read().unwrap().get(*id) {
+            Some(enum_field) => enum_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`EnumField`] from the store.
+    ///
+    pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Arc<RwLock<EnumField>>> {
+        let result = self.enum_field.write().unwrap()[*id].take();
+        self.enum_field_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumField>`.
+    ///
+    pub fn iter_enum_field(&self) -> impl Iterator<Item = Arc<RwLock<EnumField>>> + '_ {
+        let len = self.enum_field.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.enum_field.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.enum_field.read().unwrap()[i]
+                    .as_ref()
+                    .map(|enum_field| enum_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Enumeration`] into the store.
+    ///
+    pub fn inter_enumeration<F>(&mut self, enumeration: F) -> Arc<RwLock<Enumeration>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Enumeration>>,
+    {
+        let _index = if let Some(_index) = self.enumeration_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enumeration.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enumeration.write().unwrap().push(None);
+            _index
+        };
+
+        let enumeration = enumeration(_index);
+
+        let found = if let Some(enumeration) =
+            self.enumeration.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *enumeration.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            enumeration.clone()
+        } else {
+            None
+        };
+
+        let enumeration = if let Some(enumeration) = found {
+            log::debug!(target: "store", "found duplicate {enumeration:?}.");
+            self.enumeration_free_list.lock().unwrap().push(_index);
+            enumeration.clone()
+        } else {
+            log::debug!(target: "store", "interring {enumeration:?}.");
+            self.enumeration.write().unwrap()[_index] = Some(enumeration.clone());
+            enumeration
+        };
+        self.enumeration_id_by_name.write().unwrap().insert(
+            enumeration.read().unwrap().name.to_owned(),
+            enumeration.read().unwrap().id,
+        );
+        enumeration
+    }
+
+    /// Exhume (get) [`Enumeration`] from the store.
+    ///
+    pub fn exhume_enumeration(&self, id: &usize) -> Option<Arc<RwLock<Enumeration>>> {
+        match self.enumeration.read().unwrap().get(*id) {
+            Some(enumeration) => enumeration.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Enumeration`] from the store.
+    ///
+    pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Arc<RwLock<Enumeration>>> {
+        let result = self.enumeration.write().unwrap()[*id].take();
+        self.enumeration_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Exorcise [`Enumeration`] id from the store by name.
+    ///
+    pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<usize> {
+        self.enumeration_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|enumeration| *enumeration)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
+    ///
+    pub fn iter_enumeration(&self) -> impl Iterator<Item = Arc<RwLock<Enumeration>>> + '_ {
+        let len = self.enumeration.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.enumeration.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.enumeration.read().unwrap()[i]
+                    .as_ref()
+                    .map(|enumeration| enumeration.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`Error`] into the store.
     ///
     pub fn inter_error<F>(&mut self, error: F) -> Arc<RwLock<Error>>
@@ -1629,7 +1817,7 @@ impl ObjectStore {
             field
         };
         self.field_id_by_name.write().unwrap().insert(
-            field.read().unwrap().name.to_upper_camel_case(),
+            field.read().unwrap().name.to_owned(),
             field.read().unwrap().id,
         );
         field
@@ -2099,7 +2287,7 @@ impl ObjectStore {
             function
         };
         self.function_id_by_name.write().unwrap().insert(
-            function.read().unwrap().name.to_upper_camel_case(),
+            function.read().unwrap().name.to_owned(),
             function.read().unwrap().id,
         );
         function
@@ -3444,7 +3632,7 @@ impl ObjectStore {
             z_object_store
         };
         self.z_object_store_id_by_name.write().unwrap().insert(
-            z_object_store.read().unwrap().name.to_upper_camel_case(),
+            z_object_store.read().unwrap().name.to_owned(),
             z_object_store.read().unwrap().id,
         );
         z_object_store
@@ -3777,6 +3965,78 @@ impl ObjectStore {
                 self.parameter.read().unwrap()[i]
                     .as_ref()
                     .map(|parameter| parameter.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Plain`] into the store.
+    ///
+    pub fn inter_plain<F>(&mut self, plain: F) -> Arc<RwLock<Plain>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Plain>>,
+    {
+        let _index = if let Some(_index) = self.plain_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.plain.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.plain.write().unwrap().push(None);
+            _index
+        };
+
+        let plain = plain(_index);
+
+        let found = if let Some(plain) = self.plain.read().unwrap().iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.read().unwrap() == *plain.read().unwrap()
+            } else {
+                false
+            }
+        }) {
+            plain.clone()
+        } else {
+            None
+        };
+
+        if let Some(plain) = found {
+            log::debug!(target: "store", "found duplicate {plain:?}.");
+            self.plain_free_list.lock().unwrap().push(_index);
+            plain.clone()
+        } else {
+            log::debug!(target: "store", "interring {plain:?}.");
+            self.plain.write().unwrap()[_index] = Some(plain.clone());
+            plain
+        }
+    }
+
+    /// Exhume (get) [`Plain`] from the store.
+    ///
+    pub fn exhume_plain(&self, id: &usize) -> Option<Arc<RwLock<Plain>>> {
+        match self.plain.read().unwrap().get(*id) {
+            Some(plain) => plain.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Plain`] from the store.
+    ///
+    pub fn exorcise_plain(&mut self, id: &usize) -> Option<Arc<RwLock<Plain>>> {
+        let result = self.plain.write().unwrap()[*id].take();
+        self.plain_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Plain>`.
+    ///
+    pub fn iter_plain(&self) -> impl Iterator<Item = Arc<RwLock<Plain>>> + '_ {
+        let len = self.plain.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.plain.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.plain.read().unwrap()[i]
+                    .as_ref()
+                    .map(|plain| plain.clone())
                     .unwrap()
             })
     }
@@ -4567,7 +4827,7 @@ impl ObjectStore {
             woog_struct
         };
         self.woog_struct_id_by_name.write().unwrap().insert(
-            woog_struct.read().unwrap().name.to_upper_camel_case(),
+            woog_struct.read().unwrap().name.to_owned(),
             woog_struct.read().unwrap().id,
         );
         woog_struct
@@ -4698,6 +4958,152 @@ impl ObjectStore {
                 self.struct_expression.read().unwrap()[i]
                     .as_ref()
                     .map(|struct_expression| struct_expression.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`StructField`] into the store.
+    ///
+    pub fn inter_struct_field<F>(&mut self, struct_field: F) -> Arc<RwLock<StructField>>
+    where
+        F: Fn(usize) -> Arc<RwLock<StructField>>,
+    {
+        let _index = if let Some(_index) = self.struct_field_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.struct_field.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.struct_field.write().unwrap().push(None);
+            _index
+        };
+
+        let struct_field = struct_field(_index);
+
+        let found = if let Some(struct_field) =
+            self.struct_field.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *struct_field.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            struct_field.clone()
+        } else {
+            None
+        };
+
+        if let Some(struct_field) = found {
+            log::debug!(target: "store", "found duplicate {struct_field:?}.");
+            self.struct_field_free_list.lock().unwrap().push(_index);
+            struct_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {struct_field:?}.");
+            self.struct_field.write().unwrap()[_index] = Some(struct_field.clone());
+            struct_field
+        }
+    }
+
+    /// Exhume (get) [`StructField`] from the store.
+    ///
+    pub fn exhume_struct_field(&self, id: &usize) -> Option<Arc<RwLock<StructField>>> {
+        match self.struct_field.read().unwrap().get(*id) {
+            Some(struct_field) => struct_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`StructField`] from the store.
+    ///
+    pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Arc<RwLock<StructField>>> {
+        let result = self.struct_field.write().unwrap()[*id].take();
+        self.struct_field_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StructField>`.
+    ///
+    pub fn iter_struct_field(&self) -> impl Iterator<Item = Arc<RwLock<StructField>>> + '_ {
+        let len = self.struct_field.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.struct_field.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.struct_field.read().unwrap()[i]
+                    .as_ref()
+                    .map(|struct_field| struct_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`TupleField`] into the store.
+    ///
+    pub fn inter_tuple_field<F>(&mut self, tuple_field: F) -> Arc<RwLock<TupleField>>
+    where
+        F: Fn(usize) -> Arc<RwLock<TupleField>>,
+    {
+        let _index = if let Some(_index) = self.tuple_field_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.tuple_field.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.tuple_field.write().unwrap().push(None);
+            _index
+        };
+
+        let tuple_field = tuple_field(_index);
+
+        let found = if let Some(tuple_field) =
+            self.tuple_field.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *tuple_field.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            tuple_field.clone()
+        } else {
+            None
+        };
+
+        if let Some(tuple_field) = found {
+            log::debug!(target: "store", "found duplicate {tuple_field:?}.");
+            self.tuple_field_free_list.lock().unwrap().push(_index);
+            tuple_field.clone()
+        } else {
+            log::debug!(target: "store", "interring {tuple_field:?}.");
+            self.tuple_field.write().unwrap()[_index] = Some(tuple_field.clone());
+            tuple_field
+        }
+    }
+
+    /// Exhume (get) [`TupleField`] from the store.
+    ///
+    pub fn exhume_tuple_field(&self, id: &usize) -> Option<Arc<RwLock<TupleField>>> {
+        match self.tuple_field.read().unwrap().get(*id) {
+            Some(tuple_field) => tuple_field.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`TupleField`] from the store.
+    ///
+    pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Arc<RwLock<TupleField>>> {
+        let result = self.tuple_field.write().unwrap()[*id].take();
+        self.tuple_field_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, TupleField>`.
+    ///
+    pub fn iter_tuple_field(&self) -> impl Iterator<Item = Arc<RwLock<TupleField>>> + '_ {
+        let len = self.tuple_field.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.tuple_field.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.tuple_field.read().unwrap()[i]
+                    .as_ref()
+                    .map(|tuple_field| tuple_field.clone())
                     .unwrap()
             })
     }

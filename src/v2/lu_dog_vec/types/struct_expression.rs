@@ -64,6 +64,8 @@ impl StructExpression {
         store
             .iter_field_expression()
             .filter(|field_expression| field_expression.borrow().woog_struct == self.id)
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

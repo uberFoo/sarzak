@@ -5,6 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_vec::types::field::Field;
 use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_vec::types::function::Function;
@@ -29,12 +30,27 @@ pub struct FieldAccessTarget {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum FieldAccessTargetEnum {
+    EnumField(usize),
     Field(usize),
     Function(usize),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-implementation"}}}
 impl FieldAccessTarget {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_enum_field"}}}
+    /// Inter a new FieldAccessTarget in the store, and return it's `id`.
+    pub fn new_enum_field(
+        subtype: &Rc<RefCell<EnumField>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<FieldAccessTarget>> {
+        store.inter_field_access_target(|id| {
+            Rc::new(RefCell::new(FieldAccessTarget {
+                subtype: FieldAccessTargetEnum::EnumField(subtype.borrow().id),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_field"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub fn new_field(

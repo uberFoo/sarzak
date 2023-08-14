@@ -55,7 +55,10 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*c)
-    pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r4_object<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
         span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(&object).unwrap()],
