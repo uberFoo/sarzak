@@ -30,6 +30,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -86,11 +87,11 @@ use crate::v2::lu_dog_ndrwlock_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, ImplementationBlock, Import, Index,
-    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
-    Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain, Print,
-    RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
+    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain,
+    Print, RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
     VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
     ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
     FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
@@ -149,6 +150,8 @@ pub struct ObjectStore {
     function_free_list: std::sync::Mutex<Vec<usize>>,
     function: Arc<RwLock<Vec<Option<Arc<RwLock<Function>>>>>>,
     function_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
+    generic_free_list: std::sync::Mutex<Vec<usize>>,
+    generic: Arc<RwLock<Vec<Option<Arc<RwLock<Generic>>>>>>,
     grouped_free_list: std::sync::Mutex<Vec<usize>>,
     grouped: Arc<RwLock<Vec<Option<Arc<RwLock<Grouped>>>>>>,
     x_if_free_list: std::sync::Mutex<Vec<usize>>,
@@ -291,6 +294,8 @@ impl ObjectStore {
             function_free_list: std::sync::Mutex::new(Vec::new()),
             function: Arc::new(RwLock::new(Vec::new())),
             function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
+            generic_free_list: std::sync::Mutex::new(Vec::new()),
+            generic: Arc::new(RwLock::new(Vec::new())),
             grouped_free_list: std::sync::Mutex::new(Vec::new()),
             grouped: Arc::new(RwLock::new(Vec::new())),
             x_if_free_list: std::sync::Mutex::new(Vec::new()),
@@ -587,6 +592,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Argument`] from the store.
     ///
     pub fn exorcise_argument(&mut self, id: &usize) -> Option<Arc<RwLock<Argument>>> {
+        log::debug!(target: "store", "exorcising argument slot: {id}.");
         let result = self.argument.write().unwrap()[*id].take();
         self.argument_free_list.lock().unwrap().push(*id);
         result
@@ -659,6 +665,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Binary`] from the store.
     ///
     pub fn exorcise_binary(&mut self, id: &usize) -> Option<Arc<RwLock<Binary>>> {
+        log::debug!(target: "store", "exorcising binary slot: {id}.");
         let result = self.binary.write().unwrap()[*id].take();
         self.binary_free_list.lock().unwrap().push(*id);
         result
@@ -731,6 +738,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Block`] from the store.
     ///
     pub fn exorcise_block(&mut self, id: &usize) -> Option<Arc<RwLock<Block>>> {
+        log::debug!(target: "store", "exorcising block slot: {id}.");
         let result = self.block.write().unwrap()[*id].take();
         self.block_free_list.lock().unwrap().push(*id);
         result
@@ -803,6 +811,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Body`] from the store.
     ///
     pub fn exorcise_body(&mut self, id: &usize) -> Option<Arc<RwLock<Body>>> {
+        log::debug!(target: "store", "exorcising body slot: {id}.");
         let result = self.body.write().unwrap()[*id].take();
         self.body_free_list.lock().unwrap().push(*id);
         result
@@ -876,6 +885,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
     pub fn exorcise_boolean_literal(&mut self, id: &usize) -> Option<Arc<RwLock<BooleanLiteral>>> {
+        log::debug!(target: "store", "exorcising boolean_literal slot: {id}.");
         let result = self.boolean_literal.write().unwrap()[*id].take();
         self.boolean_literal_free_list.lock().unwrap().push(*id);
         result
@@ -952,6 +962,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<BooleanOperator>>> {
+        log::debug!(target: "store", "exorcising boolean_operator slot: {id}.");
         let result = self.boolean_operator.write().unwrap()[*id].take();
         self.boolean_operator_free_list.lock().unwrap().push(*id);
         result
@@ -1024,6 +1035,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Call`] from the store.
     ///
     pub fn exorcise_call(&mut self, id: &usize) -> Option<Arc<RwLock<Call>>> {
+        log::debug!(target: "store", "exorcising call slot: {id}.");
         let result = self.call.write().unwrap()[*id].take();
         self.call_free_list.lock().unwrap().push(*id);
         result
@@ -1097,6 +1109,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
     pub fn exorcise_comparison(&mut self, id: &usize) -> Option<Arc<RwLock<Comparison>>> {
+        log::debug!(target: "store", "exorcising comparison slot: {id}.");
         let result = self.comparison.write().unwrap()[*id].take();
         self.comparison_free_list.lock().unwrap().push(*id);
         result
@@ -1183,6 +1196,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<DwarfSourceFile>>> {
+        log::debug!(target: "store", "exorcising dwarf_source_file slot: {id}.");
         let result = self.dwarf_source_file.write().unwrap()[*id].take();
         self.dwarf_source_file_free_list.lock().unwrap().push(*id);
         result
@@ -1258,6 +1272,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`EnumField`] from the store.
     ///
     pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Arc<RwLock<EnumField>>> {
+        log::debug!(target: "store", "exorcising enum_field slot: {id}.");
         let result = self.enum_field.write().unwrap()[*id].take();
         self.enum_field_free_list.lock().unwrap().push(*id);
         result
@@ -1336,6 +1351,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Enumeration`] from the store.
     ///
     pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Arc<RwLock<Enumeration>>> {
+        log::debug!(target: "store", "exorcising enumeration slot: {id}.");
         let result = self.enumeration.write().unwrap()[*id].take();
         self.enumeration_free_list.lock().unwrap().push(*id);
         result
@@ -1418,6 +1434,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Error`] from the store.
     ///
     pub fn exorcise_error(&mut self, id: &usize) -> Option<Arc<RwLock<Error>>> {
+        log::debug!(target: "store", "exorcising error slot: {id}.");
         let result = self.error.write().unwrap()[*id].take();
         self.error_free_list.lock().unwrap().push(*id);
         result
@@ -1494,6 +1511,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<ErrorExpression>>> {
+        log::debug!(target: "store", "exorcising error_expression slot: {id}.");
         let result = self.error_expression.write().unwrap()[*id].take();
         self.error_expression_free_list.lock().unwrap().push(*id);
         result
@@ -1567,6 +1585,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Expression`] from the store.
     ///
     pub fn exorcise_expression(&mut self, id: &usize) -> Option<Arc<RwLock<Expression>>> {
+        log::debug!(target: "store", "exorcising expression slot: {id}.");
         let result = self.expression.write().unwrap()[*id].take();
         self.expression_free_list.lock().unwrap().push(*id);
         result
@@ -1657,6 +1676,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<ExpressionStatement>>> {
+        log::debug!(target: "store", "exorcising expression_statement slot: {id}.");
         let result = self.expression_statement.write().unwrap()[*id].take();
         self.expression_statement_free_list
             .lock()
@@ -1753,6 +1773,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<ExternalImplementation>>> {
+        log::debug!(target: "store", "exorcising external_implementation slot: {id}.");
         let result = self.external_implementation.write().unwrap()[*id].take();
         self.external_implementation_free_list
             .lock()
@@ -1835,6 +1856,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Field`] from the store.
     ///
     pub fn exorcise_field(&mut self, id: &usize) -> Option<Arc<RwLock<Field>>> {
+        log::debug!(target: "store", "exorcising field slot: {id}.");
         let result = self.field.write().unwrap()[*id].take();
         self.field_free_list.lock().unwrap().push(*id);
         result
@@ -1918,6 +1940,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
     pub fn exorcise_field_access(&mut self, id: &usize) -> Option<Arc<RwLock<FieldAccess>>> {
+        log::debug!(target: "store", "exorcising field_access slot: {id}.");
         let result = self.field_access.write().unwrap()[*id].take();
         self.field_access_free_list.lock().unwrap().push(*id);
         result
@@ -2005,6 +2028,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<FieldAccessTarget>>> {
+        log::debug!(target: "store", "exorcising field_access_target slot: {id}.");
         let result = self.field_access_target.write().unwrap()[*id].take();
         self.field_access_target_free_list.lock().unwrap().push(*id);
         result
@@ -2083,6 +2107,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<FieldExpression>>> {
+        log::debug!(target: "store", "exorcising field_expression slot: {id}.");
         let result = self.field_expression.write().unwrap()[*id].take();
         self.field_expression_free_list.lock().unwrap().push(*id);
         result
@@ -2156,6 +2181,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
     pub fn exorcise_float_literal(&mut self, id: &usize) -> Option<Arc<RwLock<FloatLiteral>>> {
+        log::debug!(target: "store", "exorcising float_literal slot: {id}.");
         let result = self.float_literal.write().unwrap()[*id].take();
         self.float_literal_free_list.lock().unwrap().push(*id);
         result
@@ -2228,6 +2254,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
     pub fn exorcise_for_loop(&mut self, id: &usize) -> Option<Arc<RwLock<ForLoop>>> {
+        log::debug!(target: "store", "exorcising for_loop slot: {id}.");
         let result = self.for_loop.write().unwrap()[*id].take();
         self.for_loop_free_list.lock().unwrap().push(*id);
         result
@@ -2305,6 +2332,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Function`] from the store.
     ///
     pub fn exorcise_function(&mut self, id: &usize) -> Option<Arc<RwLock<Function>>> {
+        log::debug!(target: "store", "exorcising function slot: {id}.");
         let result = self.function.write().unwrap()[*id].take();
         self.function_free_list.lock().unwrap().push(*id);
         result
@@ -2330,6 +2358,79 @@ impl ObjectStore {
                 self.function.read().unwrap()[i]
                     .as_ref()
                     .map(|function| function.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Generic`] into the store.
+    ///
+    pub fn inter_generic<F>(&mut self, generic: F) -> Arc<RwLock<Generic>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Generic>>,
+    {
+        let _index = if let Some(_index) = self.generic_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.generic.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.generic.write().unwrap().push(None);
+            _index
+        };
+
+        let generic = generic(_index);
+
+        let found = if let Some(generic) = self.generic.read().unwrap().iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.read().unwrap() == *generic.read().unwrap()
+            } else {
+                false
+            }
+        }) {
+            generic.clone()
+        } else {
+            None
+        };
+
+        if let Some(generic) = found {
+            log::debug!(target: "store", "found duplicate {generic:?}.");
+            self.generic_free_list.lock().unwrap().push(_index);
+            generic.clone()
+        } else {
+            log::debug!(target: "store", "interring {generic:?}.");
+            self.generic.write().unwrap()[_index] = Some(generic.clone());
+            generic
+        }
+    }
+
+    /// Exhume (get) [`Generic`] from the store.
+    ///
+    pub fn exhume_generic(&self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
+        match self.generic.read().unwrap().get(*id) {
+            Some(generic) => generic.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Generic`] from the store.
+    ///
+    pub fn exorcise_generic(&mut self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
+        log::debug!(target: "store", "exorcising generic slot: {id}.");
+        let result = self.generic.write().unwrap()[*id].take();
+        self.generic_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
+    ///
+    pub fn iter_generic(&self) -> impl Iterator<Item = Arc<RwLock<Generic>>> + '_ {
+        let len = self.generic.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.generic.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.generic.read().unwrap()[i]
+                    .as_ref()
+                    .map(|generic| generic.clone())
                     .unwrap()
             })
     }
@@ -2387,6 +2488,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
     pub fn exorcise_grouped(&mut self, id: &usize) -> Option<Arc<RwLock<Grouped>>> {
+        log::debug!(target: "store", "exorcising grouped slot: {id}.");
         let result = self.grouped.write().unwrap()[*id].take();
         self.grouped_free_list.lock().unwrap().push(*id);
         result
@@ -2459,6 +2561,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XIf`] from the store.
     ///
     pub fn exorcise_x_if(&mut self, id: &usize) -> Option<Arc<RwLock<XIf>>> {
+        log::debug!(target: "store", "exorcising x_if slot: {id}.");
         let result = self.x_if.write().unwrap()[*id].take();
         self.x_if_free_list.lock().unwrap().push(*id);
         result
@@ -2549,6 +2652,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<ImplementationBlock>>> {
+        log::debug!(target: "store", "exorcising implementation_block slot: {id}.");
         let result = self.implementation_block.write().unwrap()[*id].take();
         self.implementation_block_free_list
             .lock()
@@ -2626,6 +2730,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Import`] from the store.
     ///
     pub fn exorcise_import(&mut self, id: &usize) -> Option<Arc<RwLock<Import>>> {
+        log::debug!(target: "store", "exorcising import slot: {id}.");
         let result = self.import.write().unwrap()[*id].take();
         self.import_free_list.lock().unwrap().push(*id);
         result
@@ -2698,6 +2803,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Index`] from the store.
     ///
     pub fn exorcise_index(&mut self, id: &usize) -> Option<Arc<RwLock<Index>>> {
+        log::debug!(target: "store", "exorcising index slot: {id}.");
         let result = self.index.write().unwrap()[*id].take();
         self.index_free_list.lock().unwrap().push(*id);
         result
@@ -2771,6 +2877,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
     pub fn exorcise_integer_literal(&mut self, id: &usize) -> Option<Arc<RwLock<IntegerLiteral>>> {
+        log::debug!(target: "store", "exorcising integer_literal slot: {id}.");
         let result = self.integer_literal.write().unwrap()[*id].take();
         self.integer_literal_free_list.lock().unwrap().push(*id);
         result
@@ -2843,6 +2950,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Item`] from the store.
     ///
     pub fn exorcise_item(&mut self, id: &usize) -> Option<Arc<RwLock<Item>>> {
+        log::debug!(target: "store", "exorcising item slot: {id}.");
         let result = self.item.write().unwrap()[*id].take();
         self.item_free_list.lock().unwrap().push(*id);
         result
@@ -2915,6 +3023,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Lambda`] from the store.
     ///
     pub fn exorcise_lambda(&mut self, id: &usize) -> Option<Arc<RwLock<Lambda>>> {
+        log::debug!(target: "store", "exorcising lambda slot: {id}.");
         let result = self.lambda.write().unwrap()[*id].take();
         self.lambda_free_list.lock().unwrap().push(*id);
         result
@@ -2991,6 +3100,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<LambdaParameter>>> {
+        log::debug!(target: "store", "exorcising lambda_parameter slot: {id}.");
         let result = self.lambda_parameter.write().unwrap()[*id].take();
         self.lambda_parameter_free_list.lock().unwrap().push(*id);
         result
@@ -3064,6 +3174,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
     pub fn exorcise_let_statement(&mut self, id: &usize) -> Option<Arc<RwLock<LetStatement>>> {
+        log::debug!(target: "store", "exorcising let_statement slot: {id}.");
         let result = self.let_statement.write().unwrap()[*id].take();
         self.let_statement_free_list.lock().unwrap().push(*id);
         result
@@ -3136,6 +3247,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`List`] from the store.
     ///
     pub fn exorcise_list(&mut self, id: &usize) -> Option<Arc<RwLock<List>>> {
+        log::debug!(target: "store", "exorcising list slot: {id}.");
         let result = self.list.write().unwrap()[*id].take();
         self.list_free_list.lock().unwrap().push(*id);
         result
@@ -3209,6 +3321,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
     pub fn exorcise_list_element(&mut self, id: &usize) -> Option<Arc<RwLock<ListElement>>> {
+        log::debug!(target: "store", "exorcising list_element slot: {id}.");
         let result = self.list_element.write().unwrap()[*id].take();
         self.list_element_free_list.lock().unwrap().push(*id);
         result
@@ -3282,6 +3395,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
     pub fn exorcise_list_expression(&mut self, id: &usize) -> Option<Arc<RwLock<ListExpression>>> {
+        log::debug!(target: "store", "exorcising list_expression slot: {id}.");
         let result = self.list_expression.write().unwrap()[*id].take();
         self.list_expression_free_list.lock().unwrap().push(*id);
         result
@@ -3354,6 +3468,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Literal`] from the store.
     ///
     pub fn exorcise_literal(&mut self, id: &usize) -> Option<Arc<RwLock<Literal>>> {
+        log::debug!(target: "store", "exorcising literal slot: {id}.");
         let result = self.literal.write().unwrap()[*id].take();
         self.literal_free_list.lock().unwrap().push(*id);
         result
@@ -3427,6 +3542,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
     pub fn exorcise_local_variable(&mut self, id: &usize) -> Option<Arc<RwLock<LocalVariable>>> {
+        log::debug!(target: "store", "exorcising local_variable slot: {id}.");
         let result = self.local_variable.write().unwrap()[*id].take();
         self.local_variable_free_list.lock().unwrap().push(*id);
         result
@@ -3499,6 +3615,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XMacro`] from the store.
     ///
     pub fn exorcise_x_macro(&mut self, id: &usize) -> Option<Arc<RwLock<XMacro>>> {
+        log::debug!(target: "store", "exorcising x_macro slot: {id}.");
         let result = self.x_macro.write().unwrap()[*id].take();
         self.x_macro_free_list.lock().unwrap().push(*id);
         result
@@ -3572,6 +3689,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
     pub fn exorcise_method_call(&mut self, id: &usize) -> Option<Arc<RwLock<MethodCall>>> {
+        log::debug!(target: "store", "exorcising method_call slot: {id}.");
         let result = self.method_call.write().unwrap()[*id].take();
         self.method_call_free_list.lock().unwrap().push(*id);
         result
@@ -3650,6 +3768,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
     pub fn exorcise_z_object_store(&mut self, id: &usize) -> Option<Arc<RwLock<ZObjectStore>>> {
+        log::debug!(target: "store", "exorcising z_object_store slot: {id}.");
         let result = self.z_object_store.write().unwrap()[*id].take();
         self.z_object_store_free_list.lock().unwrap().push(*id);
         result
@@ -3733,6 +3852,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ObjectWrapper`] from the store.
     ///
     pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Arc<RwLock<ObjectWrapper>>> {
+        log::debug!(target: "store", "exorcising object_wrapper slot: {id}.");
         let result = self.object_wrapper.write().unwrap()[*id].take();
         self.object_wrapper_free_list.lock().unwrap().push(*id);
         result
@@ -3805,6 +3925,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Operator`] from the store.
     ///
     pub fn exorcise_operator(&mut self, id: &usize) -> Option<Arc<RwLock<Operator>>> {
+        log::debug!(target: "store", "exorcising operator slot: {id}.");
         let result = self.operator.write().unwrap()[*id].take();
         self.operator_free_list.lock().unwrap().push(*id);
         result
@@ -3878,6 +3999,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`WoogOption`] from the store.
     ///
     pub fn exorcise_woog_option(&mut self, id: &usize) -> Option<Arc<RwLock<WoogOption>>> {
+        log::debug!(target: "store", "exorcising woog_option slot: {id}.");
         let result = self.woog_option.write().unwrap()[*id].take();
         self.woog_option_free_list.lock().unwrap().push(*id);
         result
@@ -3950,6 +4072,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
     pub fn exorcise_parameter(&mut self, id: &usize) -> Option<Arc<RwLock<Parameter>>> {
+        log::debug!(target: "store", "exorcising parameter slot: {id}.");
         let result = self.parameter.write().unwrap()[*id].take();
         self.parameter_free_list.lock().unwrap().push(*id);
         result
@@ -4022,6 +4145,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Plain`] from the store.
     ///
     pub fn exorcise_plain(&mut self, id: &usize) -> Option<Arc<RwLock<Plain>>> {
+        log::debug!(target: "store", "exorcising plain slot: {id}.");
         let result = self.plain.write().unwrap()[*id].take();
         self.plain_free_list.lock().unwrap().push(*id);
         result
@@ -4094,6 +4218,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Print`] from the store.
     ///
     pub fn exorcise_print(&mut self, id: &usize) -> Option<Arc<RwLock<Print>>> {
+        log::debug!(target: "store", "exorcising print slot: {id}.");
         let result = self.print.write().unwrap()[*id].take();
         self.print_free_list.lock().unwrap().push(*id);
         result
@@ -4170,6 +4295,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<RangeExpression>>> {
+        log::debug!(target: "store", "exorcising range_expression slot: {id}.");
         let result = self.range_expression.write().unwrap()[*id].take();
         self.range_expression_free_list.lock().unwrap().push(*id);
         result
@@ -4242,6 +4368,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Reference`] from the store.
     ///
     pub fn exorcise_reference(&mut self, id: &usize) -> Option<Arc<RwLock<Reference>>> {
+        log::debug!(target: "store", "exorcising reference slot: {id}.");
         let result = self.reference.write().unwrap()[*id].take();
         self.reference_free_list.lock().unwrap().push(*id);
         result
@@ -4318,6 +4445,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<ResultStatement>>> {
+        log::debug!(target: "store", "exorcising result_statement slot: {id}.");
         let result = self.result_statement.write().unwrap()[*id].take();
         self.result_statement_free_list.lock().unwrap().push(*id);
         result
@@ -4390,6 +4518,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
     pub fn exorcise_x_return(&mut self, id: &usize) -> Option<Arc<RwLock<XReturn>>> {
+        log::debug!(target: "store", "exorcising x_return slot: {id}.");
         let result = self.x_return.write().unwrap()[*id].take();
         self.x_return_free_list.lock().unwrap().push(*id);
         result
@@ -4462,6 +4591,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ZSome`] from the store.
     ///
     pub fn exorcise_z_some(&mut self, id: &usize) -> Option<Arc<RwLock<ZSome>>> {
+        log::debug!(target: "store", "exorcising z_some slot: {id}.");
         let result = self.z_some.write().unwrap()[*id].take();
         self.z_some_free_list.lock().unwrap().push(*id);
         result
@@ -4534,6 +4664,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Span`] from the store.
     ///
     pub fn exorcise_span(&mut self, id: &usize) -> Option<Arc<RwLock<Span>>> {
+        log::debug!(target: "store", "exorcising span slot: {id}.");
         let result = self.span.write().unwrap()[*id].take();
         self.span_free_list.lock().unwrap().push(*id);
         result
@@ -4606,6 +4737,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Statement`] from the store.
     ///
     pub fn exorcise_statement(&mut self, id: &usize) -> Option<Arc<RwLock<Statement>>> {
+        log::debug!(target: "store", "exorcising statement slot: {id}.");
         let result = self.statement.write().unwrap()[*id].take();
         self.statement_free_list.lock().unwrap().push(*id);
         result
@@ -4692,6 +4824,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<StaticMethodCall>>> {
+        log::debug!(target: "store", "exorcising static_method_call slot: {id}.");
         let result = self.static_method_call.write().unwrap()[*id].take();
         self.static_method_call_free_list.lock().unwrap().push(*id);
         result
@@ -4767,6 +4900,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
     pub fn exorcise_string_literal(&mut self, id: &usize) -> Option<Arc<RwLock<StringLiteral>>> {
+        log::debug!(target: "store", "exorcising string_literal slot: {id}.");
         let result = self.string_literal.write().unwrap()[*id].take();
         self.string_literal_free_list.lock().unwrap().push(*id);
         result
@@ -4845,6 +4979,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
     pub fn exorcise_woog_struct(&mut self, id: &usize) -> Option<Arc<RwLock<WoogStruct>>> {
+        log::debug!(target: "store", "exorcising woog_struct slot: {id}.");
         let result = self.woog_struct.write().unwrap()[*id].take();
         self.woog_struct_free_list.lock().unwrap().push(*id);
         result
@@ -4941,6 +5076,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<StructExpression>>> {
+        log::debug!(target: "store", "exorcising struct_expression slot: {id}.");
         let result = self.struct_expression.write().unwrap()[*id].take();
         self.struct_expression_free_list.lock().unwrap().push(*id);
         result
@@ -5016,6 +5152,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`StructField`] from the store.
     ///
     pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Arc<RwLock<StructField>>> {
+        log::debug!(target: "store", "exorcising struct_field slot: {id}.");
         let result = self.struct_field.write().unwrap()[*id].take();
         self.struct_field_free_list.lock().unwrap().push(*id);
         result
@@ -5089,6 +5226,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`TupleField`] from the store.
     ///
     pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Arc<RwLock<TupleField>>> {
+        log::debug!(target: "store", "exorcising tuple_field slot: {id}.");
         let result = self.tuple_field.write().unwrap()[*id].take();
         self.tuple_field_free_list.lock().unwrap().push(*id);
         result
@@ -5161,6 +5299,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
     pub fn exorcise_type_cast(&mut self, id: &usize) -> Option<Arc<RwLock<TypeCast>>> {
+        log::debug!(target: "store", "exorcising type_cast slot: {id}.");
         let result = self.type_cast.write().unwrap()[*id].take();
         self.type_cast_free_list.lock().unwrap().push(*id);
         result
@@ -5233,6 +5372,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Unary`] from the store.
     ///
     pub fn exorcise_unary(&mut self, id: &usize) -> Option<Arc<RwLock<Unary>>> {
+        log::debug!(target: "store", "exorcising unary slot: {id}.");
         let result = self.unary.write().unwrap()[*id].take();
         self.unary_free_list.lock().unwrap().push(*id);
         result
@@ -5305,6 +5445,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XValue`] from the store.
     ///
     pub fn exorcise_x_value(&mut self, id: &usize) -> Option<Arc<RwLock<XValue>>> {
+        log::debug!(target: "store", "exorcising x_value slot: {id}.");
         let result = self.x_value.write().unwrap()[*id].take();
         self.x_value_free_list.lock().unwrap().push(*id);
         result
@@ -5378,6 +5519,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
     pub fn exorcise_value_type(&mut self, id: &usize) -> Option<Arc<RwLock<ValueType>>> {
+        log::debug!(target: "store", "exorcising value_type slot: {id}.");
         let result = self.value_type.write().unwrap()[*id].take();
         self.value_type_free_list.lock().unwrap().push(*id);
         result
@@ -5450,6 +5592,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Variable`] from the store.
     ///
     pub fn exorcise_variable(&mut self, id: &usize) -> Option<Arc<RwLock<Variable>>> {
+        log::debug!(target: "store", "exorcising variable slot: {id}.");
         let result = self.variable.write().unwrap()[*id].take();
         self.variable_free_list.lock().unwrap().push(*id);
         result
@@ -5540,6 +5683,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Arc<RwLock<VariableExpression>>> {
+        log::debug!(target: "store", "exorcising variable_expression slot: {id}.");
         let result = self.variable_expression.write().unwrap()[*id].take();
         self.variable_expression_free_list.lock().unwrap().push(*id);
         result

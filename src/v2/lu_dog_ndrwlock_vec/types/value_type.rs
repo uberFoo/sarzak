@@ -11,6 +11,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_ndrwlock_vec::types::error::Error;
 use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
 use crate::v2::lu_dog_ndrwlock_vec::types::function::Function;
+use crate::v2::lu_dog_ndrwlock_vec::types::generic::Generic;
 use crate::v2::lu_dog_ndrwlock_vec::types::import::Import;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda_parameter::LambdaParameter;
@@ -67,6 +68,7 @@ pub enum ValueTypeEnum {
     Enumeration(usize),
     Error(usize),
     Function(usize),
+    Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
@@ -140,6 +142,20 @@ impl ValueType {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
                 subtype: ValueTypeEnum::Function(subtype.read().unwrap().id),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_generic(
+        subtype: &Arc<RwLock<Generic>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
+                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id),
                 id,
             }))
         })
@@ -256,10 +272,13 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_ty(subtype: &Ty, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<ValueType>> {
+    pub fn new_ty(
+        subtype: &std::rc::Rc<std::cell::RefCell<Ty>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Ty(subtype.id()),
+                subtype: ValueTypeEnum::Ty(subtype.borrow().id()),
                 id,
             }))
         })

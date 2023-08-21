@@ -30,6 +30,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -91,11 +92,11 @@ use crate::v2::lu_dog_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Grouped, ImplementationBlock, Import, Index,
-    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
-    Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain, Print,
-    RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
+    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain,
+    Print, RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
     VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
     ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
     FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
@@ -154,6 +155,8 @@ pub struct ObjectStore {
     function_free_list: Vec<usize>,
     function: Vec<Option<Rc<RefCell<Function>>>>,
     function_id_by_name: HashMap<String, usize>,
+    generic_free_list: Vec<usize>,
+    generic: Vec<Option<Rc<RefCell<Generic>>>>,
     grouped_free_list: Vec<usize>,
     grouped: Vec<Option<Rc<RefCell<Grouped>>>>,
     x_if_free_list: Vec<usize>,
@@ -296,6 +299,8 @@ impl ObjectStore {
             function_free_list: Vec::new(),
             function: Vec::new(),
             function_id_by_name: HashMap::default(),
+            generic_free_list: Vec::new(),
+            generic: Vec::new(),
             grouped_free_list: Vec::new(),
             grouped: Vec::new(),
             x_if_free_list: Vec::new(),
@@ -586,6 +591,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Argument`] from the store.
     ///
     pub fn exorcise_argument(&mut self, id: &usize) -> Option<Rc<RefCell<Argument>>> {
+        log::debug!(target: "store", "exorcising argument slot: {id}.");
         let result = self.argument[*id].take();
         self.argument_free_list.push(*id);
         result
@@ -652,6 +658,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Binary`] from the store.
     ///
     pub fn exorcise_binary(&mut self, id: &usize) -> Option<Rc<RefCell<Binary>>> {
+        log::debug!(target: "store", "exorcising binary slot: {id}.");
         let result = self.binary[*id].take();
         self.binary_free_list.push(*id);
         result
@@ -718,6 +725,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Block`] from the store.
     ///
     pub fn exorcise_block(&mut self, id: &usize) -> Option<Rc<RefCell<Block>>> {
+        log::debug!(target: "store", "exorcising block slot: {id}.");
         let result = self.block[*id].take();
         self.block_free_list.push(*id);
         result
@@ -779,6 +787,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Body`] from the store.
     ///
     pub fn exorcise_body(&mut self, id: &usize) -> Option<Rc<RefCell<Body>>> {
+        log::debug!(target: "store", "exorcising body slot: {id}.");
         let result = self.body[*id].take();
         self.body_free_list.push(*id);
         result
@@ -840,6 +849,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
     pub fn exorcise_boolean_literal(&mut self, id: &usize) -> Option<Rc<RefCell<BooleanLiteral>>> {
+        log::debug!(target: "store", "exorcising boolean_literal slot: {id}.");
         let result = self.boolean_literal[*id].take();
         self.boolean_literal_free_list.push(*id);
         result
@@ -909,6 +919,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<BooleanOperator>>> {
+        log::debug!(target: "store", "exorcising boolean_operator slot: {id}.");
         let result = self.boolean_operator[*id].take();
         self.boolean_operator_free_list.push(*id);
         result
@@ -975,6 +986,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Call`] from the store.
     ///
     pub fn exorcise_call(&mut self, id: &usize) -> Option<Rc<RefCell<Call>>> {
+        log::debug!(target: "store", "exorcising call slot: {id}.");
         let result = self.call[*id].take();
         self.call_free_list.push(*id);
         result
@@ -1036,6 +1048,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
     pub fn exorcise_comparison(&mut self, id: &usize) -> Option<Rc<RefCell<Comparison>>> {
+        log::debug!(target: "store", "exorcising comparison slot: {id}.");
         let result = self.comparison[*id].take();
         self.comparison_free_list.push(*id);
         result
@@ -1108,6 +1121,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<DwarfSourceFile>>> {
+        log::debug!(target: "store", "exorcising dwarf_source_file slot: {id}.");
         let result = self.dwarf_source_file[*id].take();
         self.dwarf_source_file_free_list.push(*id);
         result
@@ -1176,6 +1190,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`EnumField`] from the store.
     ///
     pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Rc<RefCell<EnumField>>> {
+        log::debug!(target: "store", "exorcising enum_field slot: {id}.");
         let result = self.enum_field[*id].take();
         self.enum_field_free_list.push(*id);
         result
@@ -1247,6 +1262,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Enumeration`] from the store.
     ///
     pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Rc<RefCell<Enumeration>>> {
+        log::debug!(target: "store", "exorcising enumeration slot: {id}.");
         let result = self.enumeration[*id].take();
         self.enumeration_free_list.push(*id);
         result
@@ -1321,6 +1337,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Error`] from the store.
     ///
     pub fn exorcise_error(&mut self, id: &usize) -> Option<Rc<RefCell<Error>>> {
+        log::debug!(target: "store", "exorcising error slot: {id}.");
         let result = self.error[*id].take();
         self.error_free_list.push(*id);
         result
@@ -1385,6 +1402,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<ErrorExpression>>> {
+        log::debug!(target: "store", "exorcising error_expression slot: {id}.");
         let result = self.error_expression[*id].take();
         self.error_expression_free_list.push(*id);
         result
@@ -1451,6 +1469,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Expression`] from the store.
     ///
     pub fn exorcise_expression(&mut self, id: &usize) -> Option<Rc<RefCell<Expression>>> {
+        log::debug!(target: "store", "exorcising expression slot: {id}.");
         let result = self.expression[*id].take();
         self.expression_free_list.push(*id);
         result
@@ -1526,6 +1545,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<ExpressionStatement>>> {
+        log::debug!(target: "store", "exorcising expression_statement slot: {id}.");
         let result = self.expression_statement[*id].take();
         self.expression_statement_free_list.push(*id);
         result
@@ -1605,6 +1625,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<ExternalImplementation>>> {
+        log::debug!(target: "store", "exorcising external_implementation slot: {id}.");
         let result = self.external_implementation[*id].take();
         self.external_implementation_free_list.push(*id);
         result
@@ -1676,6 +1697,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Field`] from the store.
     ///
     pub fn exorcise_field(&mut self, id: &usize) -> Option<Rc<RefCell<Field>>> {
+        log::debug!(target: "store", "exorcising field slot: {id}.");
         let result = self.field[*id].take();
         self.field_free_list.push(*id);
         result
@@ -1743,6 +1765,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
     pub fn exorcise_field_access(&mut self, id: &usize) -> Option<Rc<RefCell<FieldAccess>>> {
+        log::debug!(target: "store", "exorcising field_access slot: {id}.");
         let result = self.field_access[*id].take();
         self.field_access_free_list.push(*id);
         result
@@ -1815,6 +1838,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<FieldAccessTarget>>> {
+        log::debug!(target: "store", "exorcising field_access_target slot: {id}.");
         let result = self.field_access_target[*id].take();
         self.field_access_target_free_list.push(*id);
         result
@@ -1886,6 +1910,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<FieldExpression>>> {
+        log::debug!(target: "store", "exorcising field_expression slot: {id}.");
         let result = self.field_expression[*id].take();
         self.field_expression_free_list.push(*id);
         result
@@ -1952,6 +1977,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
     pub fn exorcise_float_literal(&mut self, id: &usize) -> Option<Rc<RefCell<FloatLiteral>>> {
+        log::debug!(target: "store", "exorcising float_literal slot: {id}.");
         let result = self.float_literal[*id].take();
         self.float_literal_free_list.push(*id);
         result
@@ -2018,6 +2044,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
     pub fn exorcise_for_loop(&mut self, id: &usize) -> Option<Rc<RefCell<ForLoop>>> {
+        log::debug!(target: "store", "exorcising for_loop slot: {id}.");
         let result = self.for_loop[*id].take();
         self.for_loop_free_list.push(*id);
         result
@@ -2087,6 +2114,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Function`] from the store.
     ///
     pub fn exorcise_function(&mut self, id: &usize) -> Option<Rc<RefCell<Function>>> {
+        log::debug!(target: "store", "exorcising function slot: {id}.");
         let result = self.function[*id].take();
         self.function_free_list.push(*id);
         result
@@ -2108,6 +2136,73 @@ impl ObjectStore {
                 self.function[i]
                     .as_ref()
                     .map(|function| function.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Generic`] into the store.
+    ///
+    pub fn inter_generic<F>(&mut self, generic: F) -> Rc<RefCell<Generic>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Generic>>,
+    {
+        let _index = if let Some(_index) = self.generic_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.generic.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.generic.push(None);
+            _index
+        };
+
+        let generic = generic(_index);
+
+        if let Some(Some(generic)) = self.generic.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *generic.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {generic:?}.");
+            self.generic_free_list.push(_index);
+            generic.clone()
+        } else {
+            log::debug!(target: "store", "interring {generic:?}.");
+            self.generic[_index] = Some(generic.clone());
+            generic
+        }
+    }
+
+    /// Exhume (get) [`Generic`] from the store.
+    ///
+    pub fn exhume_generic(&self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
+        match self.generic.get(*id) {
+            Some(generic) => generic.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Generic`] from the store.
+    ///
+    pub fn exorcise_generic(&mut self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
+        log::debug!(target: "store", "exorcising generic slot: {id}.");
+        let result = self.generic[*id].take();
+        self.generic_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
+    ///
+    pub fn iter_generic(&self) -> impl Iterator<Item = Rc<RefCell<Generic>>> + '_ {
+        let len = self.generic.len();
+        (0..len)
+            .filter(|i| self.generic[*i].is_some())
+            .map(move |i| {
+                self.generic[i]
+                    .as_ref()
+                    .map(|generic| generic.clone())
                     .unwrap()
             })
     }
@@ -2159,6 +2254,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
     pub fn exorcise_grouped(&mut self, id: &usize) -> Option<Rc<RefCell<Grouped>>> {
+        log::debug!(target: "store", "exorcising grouped slot: {id}.");
         let result = self.grouped[*id].take();
         self.grouped_free_list.push(*id);
         result
@@ -2225,6 +2321,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XIf`] from the store.
     ///
     pub fn exorcise_x_if(&mut self, id: &usize) -> Option<Rc<RefCell<XIf>>> {
+        log::debug!(target: "store", "exorcising x_if slot: {id}.");
         let result = self.x_if[*id].take();
         self.x_if_free_list.push(*id);
         result
@@ -2295,6 +2392,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<ImplementationBlock>>> {
+        log::debug!(target: "store", "exorcising implementation_block slot: {id}.");
         let result = self.implementation_block[*id].take();
         self.implementation_block_free_list.push(*id);
         result
@@ -2363,6 +2461,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Import`] from the store.
     ///
     pub fn exorcise_import(&mut self, id: &usize) -> Option<Rc<RefCell<Import>>> {
+        log::debug!(target: "store", "exorcising import slot: {id}.");
         let result = self.import[*id].take();
         self.import_free_list.push(*id);
         result
@@ -2429,6 +2528,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Index`] from the store.
     ///
     pub fn exorcise_index(&mut self, id: &usize) -> Option<Rc<RefCell<Index>>> {
+        log::debug!(target: "store", "exorcising index slot: {id}.");
         let result = self.index[*id].take();
         self.index_free_list.push(*id);
         result
@@ -2490,6 +2590,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
     pub fn exorcise_integer_literal(&mut self, id: &usize) -> Option<Rc<RefCell<IntegerLiteral>>> {
+        log::debug!(target: "store", "exorcising integer_literal slot: {id}.");
         let result = self.integer_literal[*id].take();
         self.integer_literal_free_list.push(*id);
         result
@@ -2556,6 +2657,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Item`] from the store.
     ///
     pub fn exorcise_item(&mut self, id: &usize) -> Option<Rc<RefCell<Item>>> {
+        log::debug!(target: "store", "exorcising item slot: {id}.");
         let result = self.item[*id].take();
         self.item_free_list.push(*id);
         result
@@ -2617,6 +2719,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Lambda`] from the store.
     ///
     pub fn exorcise_lambda(&mut self, id: &usize) -> Option<Rc<RefCell<Lambda>>> {
+        log::debug!(target: "store", "exorcising lambda slot: {id}.");
         let result = self.lambda[*id].take();
         self.lambda_free_list.push(*id);
         result
@@ -2686,6 +2789,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<LambdaParameter>>> {
+        log::debug!(target: "store", "exorcising lambda_parameter slot: {id}.");
         let result = self.lambda_parameter[*id].take();
         self.lambda_parameter_free_list.push(*id);
         result
@@ -2752,6 +2856,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
     pub fn exorcise_let_statement(&mut self, id: &usize) -> Option<Rc<RefCell<LetStatement>>> {
+        log::debug!(target: "store", "exorcising let_statement slot: {id}.");
         let result = self.let_statement[*id].take();
         self.let_statement_free_list.push(*id);
         result
@@ -2818,6 +2923,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`List`] from the store.
     ///
     pub fn exorcise_list(&mut self, id: &usize) -> Option<Rc<RefCell<List>>> {
+        log::debug!(target: "store", "exorcising list slot: {id}.");
         let result = self.list[*id].take();
         self.list_free_list.push(*id);
         result
@@ -2879,6 +2985,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
     pub fn exorcise_list_element(&mut self, id: &usize) -> Option<Rc<RefCell<ListElement>>> {
+        log::debug!(target: "store", "exorcising list_element slot: {id}.");
         let result = self.list_element[*id].take();
         self.list_element_free_list.push(*id);
         result
@@ -2945,6 +3052,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
     pub fn exorcise_list_expression(&mut self, id: &usize) -> Option<Rc<RefCell<ListExpression>>> {
+        log::debug!(target: "store", "exorcising list_expression slot: {id}.");
         let result = self.list_expression[*id].take();
         self.list_expression_free_list.push(*id);
         result
@@ -3011,6 +3119,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Literal`] from the store.
     ///
     pub fn exorcise_literal(&mut self, id: &usize) -> Option<Rc<RefCell<Literal>>> {
+        log::debug!(target: "store", "exorcising literal slot: {id}.");
         let result = self.literal[*id].take();
         self.literal_free_list.push(*id);
         result
@@ -3077,6 +3186,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
     pub fn exorcise_local_variable(&mut self, id: &usize) -> Option<Rc<RefCell<LocalVariable>>> {
+        log::debug!(target: "store", "exorcising local_variable slot: {id}.");
         let result = self.local_variable[*id].take();
         self.local_variable_free_list.push(*id);
         result
@@ -3143,6 +3253,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XMacro`] from the store.
     ///
     pub fn exorcise_x_macro(&mut self, id: &usize) -> Option<Rc<RefCell<XMacro>>> {
+        log::debug!(target: "store", "exorcising x_macro slot: {id}.");
         let result = self.x_macro[*id].take();
         self.x_macro_free_list.push(*id);
         result
@@ -3209,6 +3320,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
     pub fn exorcise_method_call(&mut self, id: &usize) -> Option<Rc<RefCell<MethodCall>>> {
+        log::debug!(target: "store", "exorcising method_call slot: {id}.");
         let result = self.method_call[*id].take();
         self.method_call_free_list.push(*id);
         result
@@ -3281,6 +3393,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
     pub fn exorcise_z_object_store(&mut self, id: &usize) -> Option<Rc<RefCell<ZObjectStore>>> {
+        log::debug!(target: "store", "exorcising z_object_store slot: {id}.");
         let result = self.z_object_store[*id].take();
         self.z_object_store_free_list.push(*id);
         result
@@ -3355,6 +3468,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ObjectWrapper`] from the store.
     ///
     pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
+        log::debug!(target: "store", "exorcising object_wrapper slot: {id}.");
         let result = self.object_wrapper[*id].take();
         self.object_wrapper_free_list.push(*id);
         result
@@ -3421,6 +3535,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Operator`] from the store.
     ///
     pub fn exorcise_operator(&mut self, id: &usize) -> Option<Rc<RefCell<Operator>>> {
+        log::debug!(target: "store", "exorcising operator slot: {id}.");
         let result = self.operator[*id].take();
         self.operator_free_list.push(*id);
         result
@@ -3487,6 +3602,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`WoogOption`] from the store.
     ///
     pub fn exorcise_woog_option(&mut self, id: &usize) -> Option<Rc<RefCell<WoogOption>>> {
+        log::debug!(target: "store", "exorcising woog_option slot: {id}.");
         let result = self.woog_option[*id].take();
         self.woog_option_free_list.push(*id);
         result
@@ -3553,6 +3669,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
     pub fn exorcise_parameter(&mut self, id: &usize) -> Option<Rc<RefCell<Parameter>>> {
+        log::debug!(target: "store", "exorcising parameter slot: {id}.");
         let result = self.parameter[*id].take();
         self.parameter_free_list.push(*id);
         result
@@ -3619,6 +3736,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Plain`] from the store.
     ///
     pub fn exorcise_plain(&mut self, id: &usize) -> Option<Rc<RefCell<Plain>>> {
+        log::debug!(target: "store", "exorcising plain slot: {id}.");
         let result = self.plain[*id].take();
         self.plain_free_list.push(*id);
         result
@@ -3680,6 +3798,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Print`] from the store.
     ///
     pub fn exorcise_print(&mut self, id: &usize) -> Option<Rc<RefCell<Print>>> {
+        log::debug!(target: "store", "exorcising print slot: {id}.");
         let result = self.print[*id].take();
         self.print_free_list.push(*id);
         result
@@ -3744,6 +3863,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<RangeExpression>>> {
+        log::debug!(target: "store", "exorcising range_expression slot: {id}.");
         let result = self.range_expression[*id].take();
         self.range_expression_free_list.push(*id);
         result
@@ -3810,6 +3930,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Reference`] from the store.
     ///
     pub fn exorcise_reference(&mut self, id: &usize) -> Option<Rc<RefCell<Reference>>> {
+        log::debug!(target: "store", "exorcising reference slot: {id}.");
         let result = self.reference[*id].take();
         self.reference_free_list.push(*id);
         result
@@ -3879,6 +4000,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<ResultStatement>>> {
+        log::debug!(target: "store", "exorcising result_statement slot: {id}.");
         let result = self.result_statement[*id].take();
         self.result_statement_free_list.push(*id);
         result
@@ -3945,6 +4067,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
     pub fn exorcise_x_return(&mut self, id: &usize) -> Option<Rc<RefCell<XReturn>>> {
+        log::debug!(target: "store", "exorcising x_return slot: {id}.");
         let result = self.x_return[*id].take();
         self.x_return_free_list.push(*id);
         result
@@ -4011,6 +4134,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ZSome`] from the store.
     ///
     pub fn exorcise_z_some(&mut self, id: &usize) -> Option<Rc<RefCell<ZSome>>> {
+        log::debug!(target: "store", "exorcising z_some slot: {id}.");
         let result = self.z_some[*id].take();
         self.z_some_free_list.push(*id);
         result
@@ -4077,6 +4201,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Span`] from the store.
     ///
     pub fn exorcise_span(&mut self, id: &usize) -> Option<Rc<RefCell<Span>>> {
+        log::debug!(target: "store", "exorcising span slot: {id}.");
         let result = self.span[*id].take();
         self.span_free_list.push(*id);
         result
@@ -4138,6 +4263,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Statement`] from the store.
     ///
     pub fn exorcise_statement(&mut self, id: &usize) -> Option<Rc<RefCell<Statement>>> {
+        log::debug!(target: "store", "exorcising statement slot: {id}.");
         let result = self.statement[*id].take();
         self.statement_free_list.push(*id);
         result
@@ -4210,6 +4336,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<StaticMethodCall>>> {
+        log::debug!(target: "store", "exorcising static_method_call slot: {id}.");
         let result = self.static_method_call[*id].take();
         self.static_method_call_free_list.push(*id);
         result
@@ -4278,6 +4405,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
     pub fn exorcise_string_literal(&mut self, id: &usize) -> Option<Rc<RefCell<StringLiteral>>> {
+        log::debug!(target: "store", "exorcising string_literal slot: {id}.");
         let result = self.string_literal[*id].take();
         self.string_literal_free_list.push(*id);
         result
@@ -4349,6 +4477,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
     pub fn exorcise_woog_struct(&mut self, id: &usize) -> Option<Rc<RefCell<WoogStruct>>> {
+        log::debug!(target: "store", "exorcising woog_struct slot: {id}.");
         let result = self.woog_struct[*id].take();
         self.woog_struct_free_list.push(*id);
         result
@@ -4429,6 +4558,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<StructExpression>>> {
+        log::debug!(target: "store", "exorcising struct_expression slot: {id}.");
         let result = self.struct_expression[*id].take();
         self.struct_expression_free_list.push(*id);
         result
@@ -4497,6 +4627,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`StructField`] from the store.
     ///
     pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Rc<RefCell<StructField>>> {
+        log::debug!(target: "store", "exorcising struct_field slot: {id}.");
         let result = self.struct_field[*id].take();
         self.struct_field_free_list.push(*id);
         result
@@ -4563,6 +4694,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`TupleField`] from the store.
     ///
     pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Rc<RefCell<TupleField>>> {
+        log::debug!(target: "store", "exorcising tuple_field slot: {id}.");
         let result = self.tuple_field[*id].take();
         self.tuple_field_free_list.push(*id);
         result
@@ -4629,6 +4761,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
     pub fn exorcise_type_cast(&mut self, id: &usize) -> Option<Rc<RefCell<TypeCast>>> {
+        log::debug!(target: "store", "exorcising type_cast slot: {id}.");
         let result = self.type_cast[*id].take();
         self.type_cast_free_list.push(*id);
         result
@@ -4695,6 +4828,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Unary`] from the store.
     ///
     pub fn exorcise_unary(&mut self, id: &usize) -> Option<Rc<RefCell<Unary>>> {
+        log::debug!(target: "store", "exorcising unary slot: {id}.");
         let result = self.unary[*id].take();
         self.unary_free_list.push(*id);
         result
@@ -4756,6 +4890,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`XValue`] from the store.
     ///
     pub fn exorcise_x_value(&mut self, id: &usize) -> Option<Rc<RefCell<XValue>>> {
+        log::debug!(target: "store", "exorcising x_value slot: {id}.");
         let result = self.x_value[*id].take();
         self.x_value_free_list.push(*id);
         result
@@ -4822,6 +4957,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
     pub fn exorcise_value_type(&mut self, id: &usize) -> Option<Rc<RefCell<ValueType>>> {
+        log::debug!(target: "store", "exorcising value_type slot: {id}.");
         let result = self.value_type[*id].take();
         self.value_type_free_list.push(*id);
         result
@@ -4888,6 +5024,7 @@ impl ObjectStore {
     /// Exorcise (remove) [`Variable`] from the store.
     ///
     pub fn exorcise_variable(&mut self, id: &usize) -> Option<Rc<RefCell<Variable>>> {
+        log::debug!(target: "store", "exorcising variable slot: {id}.");
         let result = self.variable[*id].take();
         self.variable_free_list.push(*id);
         result
@@ -4963,6 +5100,7 @@ impl ObjectStore {
         &mut self,
         id: &usize,
     ) -> Option<Rc<RefCell<VariableExpression>>> {
+        log::debug!(target: "store", "exorcising variable_expression slot: {id}.");
         let result = self.variable_expression[*id].take();
         self.variable_expression_free_list.push(*id);
         result
@@ -5328,6 +5466,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &function)?;
+                }
+            }
+        }
+
+        // Persist Generic.
+        {
+            let path = path.join("generic");
+            fs::create_dir_all(&path)?;
+            for generic in &self.generic {
+                if let Some(generic) = generic {
+                    let path = path.join(format!("{}.json", generic.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &generic)?;
                 }
             }
         }
@@ -6337,6 +6489,22 @@ impl ObjectStore {
                 store
                     .function
                     .insert(function.borrow().id, Some(function.clone()));
+            }
+        }
+
+        // Load Generic.
+        {
+            let path = path.join("generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let generic: Rc<RefCell<Generic>> = serde_json::from_reader(reader)?;
+                store
+                    .generic
+                    .insert(generic.borrow().id, Some(generic.clone()));
             }
         }
 

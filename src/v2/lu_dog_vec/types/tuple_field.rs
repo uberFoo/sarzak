@@ -20,11 +20,22 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 /// Currently in this implementation we are cheating, as we don’t yet actually have tuples
 /// . So this is limited to a single item.
 ///
+/// Note the `hack` attribute. What’s happening is that during generic substitution?, expansion
+/// ?, whatever. During that we are cloning the enum, and it’s fields. This is to create a
+///  new type. When we do this we don’t want the store optimizing away a duplicate Tuple Field
+/// .
+///
+/// I deb thee hack because I think the right thing to do is something else, I’m just not
+///  sure what it is yet.
+///
+/// I renamed it to `xyzzy`, because I think `hack` does magic in the compiler.
+///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TupleField {
     pub id: usize,
+    pub xyzzy: Uuid,
     /// R90: [`TupleField`] 'is constructed via' [`Expression`]
     pub expression: Option<usize>,
     /// R86: [`TupleField`] 'must have a type' [`ValueType`]
@@ -36,6 +47,7 @@ impl TupleField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-new"}}}
     /// Inter a new 'Tuple Field' in the store, and return it's `id`.
     pub fn new(
+        xyzzy: Uuid,
         expression: Option<&Rc<RefCell<Expression>>>,
         ty: &Rc<RefCell<ValueType>>,
         store: &mut LuDogVecStore,
@@ -43,6 +55,7 @@ impl TupleField {
         store.inter_tuple_field(|id| {
             Rc::new(RefCell::new(TupleField {
                 id,
+                xyzzy,
                 expression: expression.map(|expression| expression.borrow().id),
                 ty: ty.borrow().id,
             }))
@@ -92,7 +105,7 @@ impl TupleField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-implementation"}}}
 impl PartialEq for TupleField {
     fn eq(&self, other: &Self) -> bool {
-        self.expression == other.expression && self.ty == other.ty
+        self.xyzzy == other.xyzzy && self.expression == other.expression && self.ty == other.ty
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

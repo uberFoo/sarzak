@@ -11,6 +11,7 @@ use crate::v2::lu_dog_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec::types::error::Error;
 use crate::v2::lu_dog_vec::types::field::Field;
 use crate::v2::lu_dog_vec::types::function::Function;
+use crate::v2::lu_dog_vec::types::generic::Generic;
 use crate::v2::lu_dog_vec::types::import::Import;
 use crate::v2::lu_dog_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_vec::types::lambda_parameter::LambdaParameter;
@@ -67,6 +68,7 @@ pub enum ValueTypeEnum {
     Enumeration(usize),
     Error(usize),
     Function(usize),
+    Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
@@ -140,6 +142,20 @@ impl ValueType {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
                 subtype: ValueTypeEnum::Function(subtype.borrow().id),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_generic(
+        subtype: &Rc<RefCell<Generic>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                subtype: ValueTypeEnum::Generic(subtype.borrow().id),
                 id,
             }))
         })
