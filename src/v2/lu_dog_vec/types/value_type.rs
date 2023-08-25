@@ -382,8 +382,6 @@ impl ValueType {
         store
             .iter_span()
             .filter(|span| span.borrow().ty == Some(self.id))
-            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-struct_field"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

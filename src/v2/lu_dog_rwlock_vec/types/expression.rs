@@ -23,6 +23,7 @@ use crate::v2::lu_dog_rwlock_vec::types::list_element::ListElement;
 use crate::v2::lu_dog_rwlock_vec::types::list_expression::ListExpression;
 use crate::v2::lu_dog_rwlock_vec::types::literal::Literal;
 use crate::v2::lu_dog_rwlock_vec::types::operator::Operator;
+use crate::v2::lu_dog_rwlock_vec::types::pattern::Pattern;
 use crate::v2::lu_dog_rwlock_vec::types::print::Print;
 use crate::v2::lu_dog_rwlock_vec::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_rwlock_vec::types::result_statement::ResultStatement;
@@ -32,6 +33,7 @@ use crate::v2::lu_dog_rwlock_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock_vec::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog_rwlock_vec::types::x_if::XIf;
+use crate::v2::lu_dog_rwlock_vec::types::x_match::XMatch;
 use crate::v2::lu_dog_rwlock_vec::types::x_return::XReturn;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValueEnum;
@@ -73,6 +75,7 @@ pub enum ExpressionEnum {
     ListElement(usize),
     ListExpression(usize),
     Literal(usize),
+    XMatch(usize),
     ZNone(Uuid),
     Operator(usize),
     Print(usize),
@@ -288,6 +291,20 @@ impl Expression {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
                 subtype: ExpressionEnum::Literal(subtype.read().unwrap().id),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_match"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub fn new_x_match(
+        subtype: &Arc<RwLock<XMatch>>,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<Expression>> {
+        store.inter_expression(|id| {
+            Arc::new(RwLock::new(Expression {
+                subtype: ExpressionEnum::XMatch(subtype.read().unwrap().id),
                 id,
             }))
         })
@@ -560,6 +577,16 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_match"}}}
+    /// Navigate to [`XMatch`] across R91(1-M)
+    pub fn r91_x_match<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XMatch>>> {
+        span!("r91_x_match");
+        store
+            .iter_x_match()
+            .filter(|x_match| x_match.read().unwrap().scrutinee == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
     /// Navigate to [`Operator`] across R51(1-Mc)
     pub fn r51_operator<'a>(
@@ -584,6 +611,16 @@ impl Expression {
         store
             .iter_operator()
             .filter(|operator| operator.read().unwrap().lhs == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-pattern"}}}
+    /// Navigate to [`Pattern`] across R92(1-M)
+    pub fn r92_pattern<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Pattern>>> {
+        span!("r92_pattern");
+        store
+            .iter_pattern()
+            .filter(|pattern| pattern.read().unwrap().expression == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -682,6 +719,16 @@ impl Expression {
         store
             .iter_type_cast()
             .filter(|type_cast| type_cast.read().unwrap().lhs == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-assoc-many-to-pattern"}}}
+    /// Navigate to [`Pattern`] across R87(1-M)
+    pub fn r87_pattern<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Pattern>>> {
+        span!("r87_pattern");
+        store
+            .iter_pattern()
+            .filter(|pattern| pattern.read().unwrap().match_expr == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

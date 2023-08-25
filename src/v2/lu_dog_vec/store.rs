@@ -47,12 +47,14 @@
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`XMacro`]
+//! * [`XMatch`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`Pattern`]
 //! * [`Plain`]
 //! * [`Print`]
 //! * [`RangeExpression`]
@@ -94,14 +96,15 @@ use crate::v2::lu_dog_vec::types::{
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
     Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain,
-    Print, RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
-    VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
-    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
-    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
-    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter,
+    Pattern, Plain, Print, RangeExpression, Reference, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary,
+    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XMatch, XReturn,
+    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
+    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -189,6 +192,8 @@ pub struct ObjectStore {
     local_variable: Vec<Option<Rc<RefCell<LocalVariable>>>>,
     x_macro_free_list: Vec<usize>,
     x_macro: Vec<Option<Rc<RefCell<XMacro>>>>,
+    x_match_free_list: Vec<usize>,
+    x_match: Vec<Option<Rc<RefCell<XMatch>>>>,
     method_call_free_list: Vec<usize>,
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
     z_object_store_free_list: Vec<usize>,
@@ -202,6 +207,8 @@ pub struct ObjectStore {
     woog_option: Vec<Option<Rc<RefCell<WoogOption>>>>,
     parameter_free_list: Vec<usize>,
     parameter: Vec<Option<Rc<RefCell<Parameter>>>>,
+    pattern_free_list: Vec<usize>,
+    pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
     plain_free_list: Vec<usize>,
     plain: Vec<Option<Rc<RefCell<Plain>>>>,
     print_free_list: Vec<usize>,
@@ -333,6 +340,8 @@ impl ObjectStore {
             local_variable: Vec::new(),
             x_macro_free_list: Vec::new(),
             x_macro: Vec::new(),
+            x_match_free_list: Vec::new(),
+            x_match: Vec::new(),
             method_call_free_list: Vec::new(),
             method_call: Vec::new(),
             z_object_store_free_list: Vec::new(),
@@ -346,6 +355,8 @@ impl ObjectStore {
             woog_option: Vec::new(),
             parameter_free_list: Vec::new(),
             parameter: Vec::new(),
+            pattern_free_list: Vec::new(),
+            pattern: Vec::new(),
             plain_free_list: Vec::new(),
             plain: Vec::new(),
             print_free_list: Vec::new(),
@@ -3273,6 +3284,73 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`XMatch`] into the store.
+    ///
+    pub fn inter_x_match<F>(&mut self, x_match: F) -> Rc<RefCell<XMatch>>
+    where
+        F: Fn(usize) -> Rc<RefCell<XMatch>>,
+    {
+        let _index = if let Some(_index) = self.x_match_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.x_match.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.x_match.push(None);
+            _index
+        };
+
+        let x_match = x_match(_index);
+
+        if let Some(Some(x_match)) = self.x_match.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *x_match.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {x_match:?}.");
+            self.x_match_free_list.push(_index);
+            x_match.clone()
+        } else {
+            log::debug!(target: "store", "interring {x_match:?}.");
+            self.x_match[_index] = Some(x_match.clone());
+            x_match
+        }
+    }
+
+    /// Exhume (get) [`XMatch`] from the store.
+    ///
+    pub fn exhume_x_match(&self, id: &usize) -> Option<Rc<RefCell<XMatch>>> {
+        match self.x_match.get(*id) {
+            Some(x_match) => x_match.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`XMatch`] from the store.
+    ///
+    pub fn exorcise_x_match(&mut self, id: &usize) -> Option<Rc<RefCell<XMatch>>> {
+        log::debug!(target: "store", "exorcising x_match slot: {id}.");
+        let result = self.x_match[*id].take();
+        self.x_match_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XMatch>`.
+    ///
+    pub fn iter_x_match(&self) -> impl Iterator<Item = Rc<RefCell<XMatch>>> + '_ {
+        let len = self.x_match.len();
+        (0..len)
+            .filter(|i| self.x_match[*i].is_some())
+            .map(move |i| {
+                self.x_match[i]
+                    .as_ref()
+                    .map(|x_match| x_match.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`MethodCall`] into the store.
     ///
     pub fn inter_method_call<F>(&mut self, method_call: F) -> Rc<RefCell<MethodCall>>
@@ -3685,6 +3763,73 @@ impl ObjectStore {
                 self.parameter[i]
                     .as_ref()
                     .map(|parameter| parameter.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Pattern`] into the store.
+    ///
+    pub fn inter_pattern<F>(&mut self, pattern: F) -> Rc<RefCell<Pattern>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Pattern>>,
+    {
+        let _index = if let Some(_index) = self.pattern_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.pattern.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.pattern.push(None);
+            _index
+        };
+
+        let pattern = pattern(_index);
+
+        if let Some(Some(pattern)) = self.pattern.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *pattern.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {pattern:?}.");
+            self.pattern_free_list.push(_index);
+            pattern.clone()
+        } else {
+            log::debug!(target: "store", "interring {pattern:?}.");
+            self.pattern[_index] = Some(pattern.clone());
+            pattern
+        }
+    }
+
+    /// Exhume (get) [`Pattern`] from the store.
+    ///
+    pub fn exhume_pattern(&self, id: &usize) -> Option<Rc<RefCell<Pattern>>> {
+        match self.pattern.get(*id) {
+            Some(pattern) => pattern.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Pattern`] from the store.
+    ///
+    pub fn exorcise_pattern(&mut self, id: &usize) -> Option<Rc<RefCell<Pattern>>> {
+        log::debug!(target: "store", "exorcising pattern slot: {id}.");
+        let result = self.pattern[*id].take();
+        self.pattern_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Pattern>`.
+    ///
+    pub fn iter_pattern(&self) -> impl Iterator<Item = Rc<RefCell<Pattern>>> + '_ {
+        let len = self.pattern.len();
+        (0..len)
+            .filter(|i| self.pattern[*i].is_some())
+            .map(move |i| {
+                self.pattern[i]
+                    .as_ref()
+                    .map(|pattern| pattern.clone())
                     .unwrap()
             })
     }
@@ -5708,6 +5853,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Match.
+        {
+            let path = path.join("x_match");
+            fs::create_dir_all(&path)?;
+            for x_match in &self.x_match {
+                if let Some(x_match) = x_match {
+                    let path = path.join(format!("{}.json", x_match.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_match)?;
+                }
+            }
+        }
+
         // Persist Method Call.
         {
             let path = path.join("method_call");
@@ -5788,6 +5947,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &parameter)?;
+                }
+            }
+        }
+
+        // Persist Pattern.
+        {
+            let path = path.join("pattern");
+            fs::create_dir_all(&path)?;
+            for pattern in &self.pattern {
+                if let Some(pattern) = pattern {
+                    let path = path.join(format!("{}.json", pattern.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &pattern)?;
                 }
             }
         }
@@ -6759,6 +6932,22 @@ impl ObjectStore {
             }
         }
 
+        // Load Match.
+        {
+            let path = path.join("x_match");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_match: Rc<RefCell<XMatch>> = serde_json::from_reader(reader)?;
+                store
+                    .x_match
+                    .insert(x_match.borrow().id, Some(x_match.clone()));
+            }
+        }
+
         // Load Method Call.
         {
             let path = path.join("method_call");
@@ -6856,6 +7045,22 @@ impl ObjectStore {
                 store
                     .parameter
                     .insert(parameter.borrow().id, Some(parameter.clone()));
+            }
+        }
+
+        // Load Pattern.
+        {
+            let path = path.join("pattern");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let pattern: Rc<RefCell<Pattern>> = serde_json::from_reader(reader)?;
+                store
+                    .pattern
+                    .insert(pattern.borrow().id, Some(pattern.clone()));
             }
         }
 

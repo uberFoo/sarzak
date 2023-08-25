@@ -47,12 +47,14 @@
 //! * [`Literal`]
 //! * [`LocalVariable`]
 //! * [`XMacro`]
+//! * [`XMatch`]
 //! * [`MethodCall`]
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`Pattern`]
 //! * [`Plain`]
 //! * [`Print`]
 //! * [`RangeExpression`]
@@ -89,14 +91,15 @@ use crate::v2::lu_dog_ndrwlock_vec::types::{
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
     Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Plain,
-    Print, RangeExpression, Reference, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary, ValueType, Variable,
-    VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XReturn, XValue, ZObjectStore, ZSome,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
-    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
-    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
-    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter,
+    Pattern, Plain, Print, RangeExpression, Reference, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary,
+    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XMatch, XReturn,
+    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
+    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Z_NONE,
 };
 
 #[derive(Debug)]
@@ -184,6 +187,8 @@ pub struct ObjectStore {
     local_variable: Arc<RwLock<Vec<Option<Arc<RwLock<LocalVariable>>>>>>,
     x_macro_free_list: std::sync::Mutex<Vec<usize>>,
     x_macro: Arc<RwLock<Vec<Option<Arc<RwLock<XMacro>>>>>>,
+    x_match_free_list: std::sync::Mutex<Vec<usize>>,
+    x_match: Arc<RwLock<Vec<Option<Arc<RwLock<XMatch>>>>>>,
     method_call_free_list: std::sync::Mutex<Vec<usize>>,
     method_call: Arc<RwLock<Vec<Option<Arc<RwLock<MethodCall>>>>>>,
     z_object_store_free_list: std::sync::Mutex<Vec<usize>>,
@@ -197,6 +202,8 @@ pub struct ObjectStore {
     woog_option: Arc<RwLock<Vec<Option<Arc<RwLock<WoogOption>>>>>>,
     parameter_free_list: std::sync::Mutex<Vec<usize>>,
     parameter: Arc<RwLock<Vec<Option<Arc<RwLock<Parameter>>>>>>,
+    pattern_free_list: std::sync::Mutex<Vec<usize>>,
+    pattern: Arc<RwLock<Vec<Option<Arc<RwLock<Pattern>>>>>>,
     plain_free_list: std::sync::Mutex<Vec<usize>>,
     plain: Arc<RwLock<Vec<Option<Arc<RwLock<Plain>>>>>>,
     print_free_list: std::sync::Mutex<Vec<usize>>,
@@ -328,6 +335,8 @@ impl ObjectStore {
             local_variable: Arc::new(RwLock::new(Vec::new())),
             x_macro_free_list: std::sync::Mutex::new(Vec::new()),
             x_macro: Arc::new(RwLock::new(Vec::new())),
+            x_match_free_list: std::sync::Mutex::new(Vec::new()),
+            x_match: Arc::new(RwLock::new(Vec::new())),
             method_call_free_list: std::sync::Mutex::new(Vec::new()),
             method_call: Arc::new(RwLock::new(Vec::new())),
             z_object_store_free_list: std::sync::Mutex::new(Vec::new()),
@@ -341,6 +350,8 @@ impl ObjectStore {
             woog_option: Arc::new(RwLock::new(Vec::new())),
             parameter_free_list: std::sync::Mutex::new(Vec::new()),
             parameter: Arc::new(RwLock::new(Vec::new())),
+            pattern_free_list: std::sync::Mutex::new(Vec::new()),
+            pattern: Arc::new(RwLock::new(Vec::new())),
             plain_free_list: std::sync::Mutex::new(Vec::new()),
             plain: Arc::new(RwLock::new(Vec::new())),
             print_free_list: std::sync::Mutex::new(Vec::new()),
@@ -3635,6 +3646,79 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`XMatch`] into the store.
+    ///
+    pub fn inter_x_match<F>(&mut self, x_match: F) -> Arc<RwLock<XMatch>>
+    where
+        F: Fn(usize) -> Arc<RwLock<XMatch>>,
+    {
+        let _index = if let Some(_index) = self.x_match_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.x_match.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.x_match.write().unwrap().push(None);
+            _index
+        };
+
+        let x_match = x_match(_index);
+
+        let found = if let Some(x_match) = self.x_match.read().unwrap().iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.read().unwrap() == *x_match.read().unwrap()
+            } else {
+                false
+            }
+        }) {
+            x_match.clone()
+        } else {
+            None
+        };
+
+        if let Some(x_match) = found {
+            log::debug!(target: "store", "found duplicate {x_match:?}.");
+            self.x_match_free_list.lock().unwrap().push(_index);
+            x_match.clone()
+        } else {
+            log::debug!(target: "store", "interring {x_match:?}.");
+            self.x_match.write().unwrap()[_index] = Some(x_match.clone());
+            x_match
+        }
+    }
+
+    /// Exhume (get) [`XMatch`] from the store.
+    ///
+    pub fn exhume_x_match(&self, id: &usize) -> Option<Arc<RwLock<XMatch>>> {
+        match self.x_match.read().unwrap().get(*id) {
+            Some(x_match) => x_match.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`XMatch`] from the store.
+    ///
+    pub fn exorcise_x_match(&mut self, id: &usize) -> Option<Arc<RwLock<XMatch>>> {
+        log::debug!(target: "store", "exorcising x_match slot: {id}.");
+        let result = self.x_match.write().unwrap()[*id].take();
+        self.x_match_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XMatch>`.
+    ///
+    pub fn iter_x_match(&self) -> impl Iterator<Item = Arc<RwLock<XMatch>>> + '_ {
+        let len = self.x_match.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.x_match.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.x_match.read().unwrap()[i]
+                    .as_ref()
+                    .map(|x_match| x_match.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`MethodCall`] into the store.
     ///
     pub fn inter_method_call<F>(&mut self, method_call: F) -> Arc<RwLock<MethodCall>>
@@ -4088,6 +4172,79 @@ impl ObjectStore {
                 self.parameter.read().unwrap()[i]
                     .as_ref()
                     .map(|parameter| parameter.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`Pattern`] into the store.
+    ///
+    pub fn inter_pattern<F>(&mut self, pattern: F) -> Arc<RwLock<Pattern>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Pattern>>,
+    {
+        let _index = if let Some(_index) = self.pattern_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.pattern.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.pattern.write().unwrap().push(None);
+            _index
+        };
+
+        let pattern = pattern(_index);
+
+        let found = if let Some(pattern) = self.pattern.read().unwrap().iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.read().unwrap() == *pattern.read().unwrap()
+            } else {
+                false
+            }
+        }) {
+            pattern.clone()
+        } else {
+            None
+        };
+
+        if let Some(pattern) = found {
+            log::debug!(target: "store", "found duplicate {pattern:?}.");
+            self.pattern_free_list.lock().unwrap().push(_index);
+            pattern.clone()
+        } else {
+            log::debug!(target: "store", "interring {pattern:?}.");
+            self.pattern.write().unwrap()[_index] = Some(pattern.clone());
+            pattern
+        }
+    }
+
+    /// Exhume (get) [`Pattern`] from the store.
+    ///
+    pub fn exhume_pattern(&self, id: &usize) -> Option<Arc<RwLock<Pattern>>> {
+        match self.pattern.read().unwrap().get(*id) {
+            Some(pattern) => pattern.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Pattern`] from the store.
+    ///
+    pub fn exorcise_pattern(&mut self, id: &usize) -> Option<Arc<RwLock<Pattern>>> {
+        log::debug!(target: "store", "exorcising pattern slot: {id}.");
+        let result = self.pattern.write().unwrap()[*id].take();
+        self.pattern_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Pattern>`.
+    ///
+    pub fn iter_pattern(&self) -> impl Iterator<Item = Arc<RwLock<Pattern>>> + '_ {
+        let len = self.pattern.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.pattern.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.pattern.read().unwrap()[i]
+                    .as_ref()
+                    .map(|pattern| pattern.clone())
                     .unwrap()
             })
     }
