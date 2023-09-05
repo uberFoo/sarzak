@@ -8,7 +8,6 @@ use uuid::Uuid;
 use crate::v2::lu_dog_rwlock_vec::types::char::CHAR;
 use crate::v2::lu_dog_rwlock_vec::types::empty::EMPTY;
 use crate::v2::lu_dog_rwlock_vec::types::enumeration::Enumeration;
-use crate::v2::lu_dog_rwlock_vec::types::error::Error;
 use crate::v2::lu_dog_rwlock_vec::types::field::Field;
 use crate::v2::lu_dog_rwlock_vec::types::function::Function;
 use crate::v2::lu_dog_rwlock_vec::types::generic::Generic;
@@ -25,6 +24,7 @@ use crate::v2::lu_dog_rwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock_vec::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_rwlock_vec::types::woog_option::WoogOption;
 use crate::v2::lu_dog_rwlock_vec::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_rwlock_vec::types::x_error::XError;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock_vec::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -66,7 +66,7 @@ pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
     Enumeration(usize),
-    Error(usize),
+    XError(usize),
     Function(usize),
     Generic(usize),
     Import(usize),
@@ -120,14 +120,15 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_error"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_error"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_error(
-        subtype: &Arc<RwLock<Error>>,
+    pub fn new_x_error(
+        subtype: &Arc<RwLock<XError>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Error(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::XError(subtype.read().unwrap().id),
                 id,
             }))
         })

@@ -18,7 +18,7 @@
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`Error`]
+//! * [`XError`]
 //! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -56,7 +56,7 @@
 //! * [`Parameter`]
 //! * [`Pattern`]
 //! * [`Plain`]
-//! * [`Print`]
+//! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`Reference`]
 //! * [`ResultStatement`]
@@ -87,19 +87,18 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter,
-    Pattern, Plain, Print, RangeExpression, Reference, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary,
-    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XMatch, XReturn,
-    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
+    DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
+    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
+    LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Pattern, Plain, RangeExpression,
+    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
+    StructField, TupleField, TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption,
+    WoogStruct, XError, XIf, XMacro, XMatch, XPrint, XReturn, XValue, ZObjectStore, ZSome,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
+    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Debug)]
@@ -127,8 +126,8 @@ pub struct ObjectStore {
     enumeration_free_list: std::sync::Mutex<Vec<usize>>,
     enumeration: Arc<RwLock<Vec<Option<Arc<RwLock<Enumeration>>>>>>,
     enumeration_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
-    error_free_list: std::sync::Mutex<Vec<usize>>,
-    error: Arc<RwLock<Vec<Option<Arc<RwLock<Error>>>>>>,
+    x_error_free_list: std::sync::Mutex<Vec<usize>>,
+    x_error: Arc<RwLock<Vec<Option<Arc<RwLock<XError>>>>>>,
     error_expression_free_list: std::sync::Mutex<Vec<usize>>,
     error_expression: Arc<RwLock<Vec<Option<Arc<RwLock<ErrorExpression>>>>>>,
     expression_free_list: std::sync::Mutex<Vec<usize>>,
@@ -206,8 +205,8 @@ pub struct ObjectStore {
     pattern: Arc<RwLock<Vec<Option<Arc<RwLock<Pattern>>>>>>,
     plain_free_list: std::sync::Mutex<Vec<usize>>,
     plain: Arc<RwLock<Vec<Option<Arc<RwLock<Plain>>>>>>,
-    print_free_list: std::sync::Mutex<Vec<usize>>,
-    print: Arc<RwLock<Vec<Option<Arc<RwLock<Print>>>>>>,
+    x_print_free_list: std::sync::Mutex<Vec<usize>>,
+    x_print: Arc<RwLock<Vec<Option<Arc<RwLock<XPrint>>>>>>,
     range_expression_free_list: std::sync::Mutex<Vec<usize>>,
     range_expression: Arc<RwLock<Vec<Option<Arc<RwLock<RangeExpression>>>>>>,
     reference_free_list: std::sync::Mutex<Vec<usize>>,
@@ -275,8 +274,8 @@ impl ObjectStore {
             enumeration_free_list: std::sync::Mutex::new(Vec::new()),
             enumeration: Arc::new(RwLock::new(Vec::new())),
             enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
-            error_free_list: std::sync::Mutex::new(Vec::new()),
-            error: Arc::new(RwLock::new(Vec::new())),
+            x_error_free_list: std::sync::Mutex::new(Vec::new()),
+            x_error: Arc::new(RwLock::new(Vec::new())),
             error_expression_free_list: std::sync::Mutex::new(Vec::new()),
             error_expression: Arc::new(RwLock::new(Vec::new())),
             expression_free_list: std::sync::Mutex::new(Vec::new()),
@@ -354,8 +353,8 @@ impl ObjectStore {
             pattern: Arc::new(RwLock::new(Vec::new())),
             plain_free_list: std::sync::Mutex::new(Vec::new()),
             plain: Arc::new(RwLock::new(Vec::new())),
-            print_free_list: std::sync::Mutex::new(Vec::new()),
-            print: Arc::new(RwLock::new(Vec::new())),
+            x_print_free_list: std::sync::Mutex::new(Vec::new()),
+            x_print: Arc::new(RwLock::new(Vec::new())),
             range_expression_free_list: std::sync::Mutex::new(Vec::new()),
             range_expression: Arc::new(RwLock::new(Vec::new())),
             reference_free_list: std::sync::Mutex::new(Vec::new()),
@@ -491,9 +490,9 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_error(|id| {
-            Arc::new(RwLock::new(Error {
-                subtype: super::ErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
+        store.inter_x_error(|id| {
+            Arc::new(RwLock::new(XError {
+                subtype: super::XErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
                 id,
             }))
         });
@@ -1392,75 +1391,75 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Error`] into the store.
+    /// Inter (insert) [`XError`] into the store.
     ///
-    pub fn inter_error<F>(&mut self, error: F) -> Arc<RwLock<Error>>
+    pub fn inter_x_error<F>(&mut self, x_error: F) -> Arc<RwLock<XError>>
     where
-        F: Fn(usize) -> Arc<RwLock<Error>>,
+        F: Fn(usize) -> Arc<RwLock<XError>>,
     {
-        let _index = if let Some(_index) = self.error_free_list.lock().unwrap().pop() {
+        let _index = if let Some(_index) = self.x_error_free_list.lock().unwrap().pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.error.read().unwrap().len();
+            let _index = self.x_error.read().unwrap().len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.error.write().unwrap().push(None);
+            self.x_error.write().unwrap().push(None);
             _index
         };
 
-        let error = error(_index);
+        let x_error = x_error(_index);
 
-        let found = if let Some(error) = self.error.read().unwrap().iter().find(|stored| {
+        let found = if let Some(x_error) = self.x_error.read().unwrap().iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.read().unwrap() == *error.read().unwrap()
+                *stored.read().unwrap() == *x_error.read().unwrap()
             } else {
                 false
             }
         }) {
-            error.clone()
+            x_error.clone()
         } else {
             None
         };
 
-        if let Some(error) = found {
-            log::debug!(target: "store", "found duplicate {error:?}.");
-            self.error_free_list.lock().unwrap().push(_index);
-            error.clone()
+        if let Some(x_error) = found {
+            log::debug!(target: "store", "found duplicate {x_error:?}.");
+            self.x_error_free_list.lock().unwrap().push(_index);
+            x_error.clone()
         } else {
-            log::debug!(target: "store", "interring {error:?}.");
-            self.error.write().unwrap()[_index] = Some(error.clone());
-            error
+            log::debug!(target: "store", "interring {x_error:?}.");
+            self.x_error.write().unwrap()[_index] = Some(x_error.clone());
+            x_error
         }
     }
 
-    /// Exhume (get) [`Error`] from the store.
+    /// Exhume (get) [`XError`] from the store.
     ///
-    pub fn exhume_error(&self, id: &usize) -> Option<Arc<RwLock<Error>>> {
-        match self.error.read().unwrap().get(*id) {
-            Some(error) => error.clone(),
+    pub fn exhume_x_error(&self, id: &usize) -> Option<Arc<RwLock<XError>>> {
+        match self.x_error.read().unwrap().get(*id) {
+            Some(x_error) => x_error.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Error`] from the store.
+    /// Exorcise (remove) [`XError`] from the store.
     ///
-    pub fn exorcise_error(&mut self, id: &usize) -> Option<Arc<RwLock<Error>>> {
-        log::debug!(target: "store", "exorcising error slot: {id}.");
-        let result = self.error.write().unwrap()[*id].take();
-        self.error_free_list.lock().unwrap().push(*id);
+    pub fn exorcise_x_error(&mut self, id: &usize) -> Option<Arc<RwLock<XError>>> {
+        log::debug!(target: "store", "exorcising x_error slot: {id}.");
+        let result = self.x_error.write().unwrap()[*id].take();
+        self.x_error_free_list.lock().unwrap().push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
     ///
-    pub fn iter_error(&self) -> impl Iterator<Item = Arc<RwLock<Error>>> + '_ {
-        let len = self.error.read().unwrap().len();
+    pub fn iter_x_error(&self) -> impl Iterator<Item = Arc<RwLock<XError>>> + '_ {
+        let len = self.x_error.read().unwrap().len();
         (0..len)
-            .filter(|i| self.error.read().unwrap()[*i].is_some())
+            .filter(|i| self.x_error.read().unwrap()[*i].is_some())
             .map(move |i| {
-                self.error.read().unwrap()[i]
+                self.x_error.read().unwrap()[i]
                     .as_ref()
-                    .map(|error| error.clone())
+                    .map(|x_error| x_error.clone())
                     .unwrap()
             })
     }
@@ -4322,75 +4321,75 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Print`] into the store.
+    /// Inter (insert) [`XPrint`] into the store.
     ///
-    pub fn inter_print<F>(&mut self, print: F) -> Arc<RwLock<Print>>
+    pub fn inter_x_print<F>(&mut self, x_print: F) -> Arc<RwLock<XPrint>>
     where
-        F: Fn(usize) -> Arc<RwLock<Print>>,
+        F: Fn(usize) -> Arc<RwLock<XPrint>>,
     {
-        let _index = if let Some(_index) = self.print_free_list.lock().unwrap().pop() {
+        let _index = if let Some(_index) = self.x_print_free_list.lock().unwrap().pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.print.read().unwrap().len();
+            let _index = self.x_print.read().unwrap().len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.print.write().unwrap().push(None);
+            self.x_print.write().unwrap().push(None);
             _index
         };
 
-        let print = print(_index);
+        let x_print = x_print(_index);
 
-        let found = if let Some(print) = self.print.read().unwrap().iter().find(|stored| {
+        let found = if let Some(x_print) = self.x_print.read().unwrap().iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.read().unwrap() == *print.read().unwrap()
+                *stored.read().unwrap() == *x_print.read().unwrap()
             } else {
                 false
             }
         }) {
-            print.clone()
+            x_print.clone()
         } else {
             None
         };
 
-        if let Some(print) = found {
-            log::debug!(target: "store", "found duplicate {print:?}.");
-            self.print_free_list.lock().unwrap().push(_index);
-            print.clone()
+        if let Some(x_print) = found {
+            log::debug!(target: "store", "found duplicate {x_print:?}.");
+            self.x_print_free_list.lock().unwrap().push(_index);
+            x_print.clone()
         } else {
-            log::debug!(target: "store", "interring {print:?}.");
-            self.print.write().unwrap()[_index] = Some(print.clone());
-            print
+            log::debug!(target: "store", "interring {x_print:?}.");
+            self.x_print.write().unwrap()[_index] = Some(x_print.clone());
+            x_print
         }
     }
 
-    /// Exhume (get) [`Print`] from the store.
+    /// Exhume (get) [`XPrint`] from the store.
     ///
-    pub fn exhume_print(&self, id: &usize) -> Option<Arc<RwLock<Print>>> {
-        match self.print.read().unwrap().get(*id) {
-            Some(print) => print.clone(),
+    pub fn exhume_x_print(&self, id: &usize) -> Option<Arc<RwLock<XPrint>>> {
+        match self.x_print.read().unwrap().get(*id) {
+            Some(x_print) => x_print.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Print`] from the store.
+    /// Exorcise (remove) [`XPrint`] from the store.
     ///
-    pub fn exorcise_print(&mut self, id: &usize) -> Option<Arc<RwLock<Print>>> {
-        log::debug!(target: "store", "exorcising print slot: {id}.");
-        let result = self.print.write().unwrap()[*id].take();
-        self.print_free_list.lock().unwrap().push(*id);
+    pub fn exorcise_x_print(&mut self, id: &usize) -> Option<Arc<RwLock<XPrint>>> {
+        log::debug!(target: "store", "exorcising x_print slot: {id}.");
+        let result = self.x_print.write().unwrap()[*id].take();
+        self.x_print_free_list.lock().unwrap().push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XPrint>`.
     ///
-    pub fn iter_print(&self) -> impl Iterator<Item = Arc<RwLock<Print>>> + '_ {
-        let len = self.print.read().unwrap().len();
+    pub fn iter_x_print(&self) -> impl Iterator<Item = Arc<RwLock<XPrint>>> + '_ {
+        let len = self.x_print.read().unwrap().len();
         (0..len)
-            .filter(|i| self.print.read().unwrap()[*i].is_some())
+            .filter(|i| self.x_print.read().unwrap()[*i].is_some())
             .map(move |i| {
-                self.print.read().unwrap()[i]
+                self.x_print.read().unwrap()[i]
                     .as_ref()
-                    .map(|print| print.clone())
+                    .map(|x_print| x_print.clone())
                     .unwrap()
             })
     }

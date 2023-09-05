@@ -39,6 +39,8 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 pub struct Block {
     pub bug: Uuid,
     pub id: usize,
+    /// R93: [`Block`] '' [`Block`]
+    pub next: Option<usize>,
     /// R71: [`Block`] '' [`Statement`]
     pub statement: Option<usize>,
 }
@@ -49,6 +51,7 @@ impl Block {
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(
         bug: Uuid,
+        next: Option<&Arc<RwLock<Block>>>,
         statement: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Block>> {
@@ -56,9 +59,20 @@ impl Block {
             Arc::new(RwLock::new(Block {
                 bug,
                 id,
+                next: next.map(|block| block.read().unwrap().id),
                 statement: statement.map(|statement| statement.read().unwrap().id),
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-next"}}}
+    /// Navigate to [`Block`] across R93(1-*c)
+    pub fn r93_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
+        span!("r93_block");
+        match self.next {
+            Some(ref next) => vec![store.exhume_block(&next).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-statement"}}}
@@ -70,6 +84,19 @@ impl Block {
         span!("r71_statement");
         match self.statement {
             Some(ref statement) => vec![store.exhume_statement(&statement).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-block"}}}
+    /// Navigate to [`Block`] across R93(1c-1c)
+    pub fn r93c_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
+        span!("r93_block");
+        let block = store
+            .iter_block()
+            .find(|block| block.read().unwrap().next == Some(self.id));
+        match block {
+            Some(ref block) => vec![block.clone()],
             None => Vec::new(),
         }
     }
@@ -185,7 +212,7 @@ impl Block {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-implementation"}}}
 impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
-        self.bug == other.bug && self.statement == other.statement
+        self.bug == other.bug && self.next == other.next && self.statement == other.statement
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

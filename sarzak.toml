@@ -1,10 +1,10 @@
 [modules."v2/lu_dog"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog".compiler]
+[[modules."v2/lu_dog".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog".compiler.target]
 optimization_level = "None"
@@ -17,11 +17,11 @@ target = "domain"
 
 [modules."v2/lu_dog_vec"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_vec".compiler]
+[[modules."v2/lu_dog_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_vec".compiler.target]
 optimization_level = "Vec"
@@ -34,11 +34,11 @@ target = "domain"
 
 [modules."v2/lu_dog_rwlock_vec"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_rwlock_vec".compiler]
+[[modules."v2/lu_dog_rwlock_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_rwlock_vec".compiler.target]
 optimization_level = "Vec"
@@ -51,11 +51,11 @@ target = "domain"
 
 [modules."v2/lu_dog_ndrwlock_vec"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_ndrwlock_vec".compiler]
+[[modules."v2/lu_dog_ndrwlock_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_ndrwlock_vec".compiler.target]
 optimization_level = "Vec"
@@ -68,11 +68,11 @@ target = "domain"
 
 [modules."v2/lu_dog_async"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_async".compiler]
+[[modules."v2/lu_dog_async".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_async".compiler.target]
 optimization_level = "None"
@@ -85,11 +85,11 @@ target = "domain"
 
 [modules."v2/lu_dog_vanilla"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_vanilla".compiler]
+[[modules."v2/lu_dog_vanilla".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_vanilla".compiler.target]
 optimization_level = "None"
@@ -102,11 +102,11 @@ target = "domain"
 
 [modules."v2/lu_dog_rwlock"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_rwlock".compiler]
+[[modules."v2/lu_dog_rwlock".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_rwlock".compiler.target]
 optimization_level = "None"
@@ -119,11 +119,11 @@ target = "domain"
 
 [modules."v2/lu_dog_pl_mutex"]
 model = "models/lu_dog.json"
-[modules."v2/lu_dog_pl_mutex".compiler]
+[[modules."v2/lu_dog_pl_mutex".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/lu_dog_pl_mutex".compiler.target]
 optimization_level = "None"
@@ -136,11 +136,11 @@ target = "domain"
 
 [modules."v2/drawing"]
 model = "models/drawing.json"
-[modules."v2/drawing".compiler]
+[[modules."v2/drawing".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/drawing".compiler.target]
 optimization_level = "None"
@@ -155,11 +155,11 @@ target = "domain"
 
 [modules."v2/merlin"]
 model = "models/merlin.json"
-[modules."v2/merlin".compiler]
+[[modules."v2/merlin".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/merlin".compiler.target]
 optimization_level = "None"
@@ -170,14 +170,14 @@ persist_timestamps = false
 uber_store = "Single"
 target = "domain"
 
-[modules."v2/sarzak"]
+[modules."crate/v2/sarzak"]
 model = "models/sarzak.json"
-[modules."v2/sarzak".compiler]
+[[modules."crate/v2/sarzak".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-[modules."v2/sarzak".compiler.target]
+[modules."crate/v2/sarzak".compiler.target]
 optimization_level = "None"
 from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
@@ -190,11 +190,11 @@ target = "domain"
 
 [modules."v2/woog"]
 model = "models/woog.json"
-[modules."v2/woog".compiler]
+[[modules."v2/woog".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
-imported_domains = ["v2/sarzak"]
+imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
 [modules."v2/woog".compiler.target]
 optimization_level = "None"

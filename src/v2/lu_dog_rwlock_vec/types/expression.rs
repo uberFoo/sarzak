@@ -24,7 +24,6 @@ use crate::v2::lu_dog_rwlock_vec::types::list_expression::ListExpression;
 use crate::v2::lu_dog_rwlock_vec::types::literal::Literal;
 use crate::v2::lu_dog_rwlock_vec::types::operator::Operator;
 use crate::v2::lu_dog_rwlock_vec::types::pattern::Pattern;
-use crate::v2::lu_dog_rwlock_vec::types::print::Print;
 use crate::v2::lu_dog_rwlock_vec::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_rwlock_vec::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_rwlock_vec::types::struct_expression::StructExpression;
@@ -34,6 +33,7 @@ use crate::v2::lu_dog_rwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock_vec::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog_rwlock_vec::types::x_if::XIf;
 use crate::v2::lu_dog_rwlock_vec::types::x_match::XMatch;
+use crate::v2::lu_dog_rwlock_vec::types::x_print::XPrint;
 use crate::v2::lu_dog_rwlock_vec::types::x_return::XReturn;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValueEnum;
@@ -78,7 +78,7 @@ pub enum ExpressionEnum {
     XMatch(usize),
     ZNone(Uuid),
     Operator(usize),
-    Print(usize),
+    XPrint(usize),
     RangeExpression(usize),
     XReturn(usize),
     ZSome(usize),
@@ -336,14 +336,15 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_print"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_print"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_print(
-        subtype: &Arc<RwLock<Print>>,
+    pub fn new_x_print(
+        subtype: &Arc<RwLock<XPrint>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Print(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::XPrint(subtype.read().unwrap().id),
                 id,
             }))
         })
@@ -625,12 +626,13 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-print"}}}
-    /// Navigate to [`Print`] across R32(1-M)
-    pub fn r32_print<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Print>>> {
-        span!("r32_print");
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_print"}}}
+    /// Navigate to [`XPrint`] across R32(1-M)
+    pub fn r32_x_print<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPrint>>> {
+        span!("r32_x_print");
         store
-            .iter_print()
-            .filter(|print| print.read().unwrap().expression == self.id)
+            .iter_x_print()
+            .filter(|x_print| x_print.read().unwrap().expression == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

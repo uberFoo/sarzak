@@ -18,7 +18,7 @@
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`Error`]
+//! * [`XError`]
 //! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -56,7 +56,7 @@
 //! * [`Parameter`]
 //! * [`Pattern`]
 //! * [`Plain`]
-//! * [`Print`]
+//! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`Reference`]
 //! * [`ResultStatement`]
@@ -92,19 +92,18 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, EnumField, Enumeration, Error, ErrorExpression, Expression,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter,
-    Pattern, Plain, Print, RangeExpression, Reference, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField, TypeCast, Unary,
-    ValueType, Variable, VariableExpression, WoogOption, WoogStruct, XIf, XMacro, XMatch, XReturn,
-    XValue, ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
+    DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
+    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
+    LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Pattern, Plain, RangeExpression,
+    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
+    StructField, TupleField, TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption,
+    WoogStruct, XError, XIf, XMacro, XMatch, XPrint, XReturn, XValue, ZObjectStore, ZSome,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
+    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -132,8 +131,8 @@ pub struct ObjectStore {
     enumeration_free_list: Vec<usize>,
     enumeration: Vec<Option<Rc<RefCell<Enumeration>>>>,
     enumeration_id_by_name: HashMap<String, usize>,
-    error_free_list: Vec<usize>,
-    error: Vec<Option<Rc<RefCell<Error>>>>,
+    x_error_free_list: Vec<usize>,
+    x_error: Vec<Option<Rc<RefCell<XError>>>>,
     error_expression_free_list: Vec<usize>,
     error_expression: Vec<Option<Rc<RefCell<ErrorExpression>>>>,
     expression_free_list: Vec<usize>,
@@ -211,8 +210,8 @@ pub struct ObjectStore {
     pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
     plain_free_list: Vec<usize>,
     plain: Vec<Option<Rc<RefCell<Plain>>>>,
-    print_free_list: Vec<usize>,
-    print: Vec<Option<Rc<RefCell<Print>>>>,
+    x_print_free_list: Vec<usize>,
+    x_print: Vec<Option<Rc<RefCell<XPrint>>>>,
     range_expression_free_list: Vec<usize>,
     range_expression: Vec<Option<Rc<RefCell<RangeExpression>>>>,
     reference_free_list: Vec<usize>,
@@ -280,8 +279,8 @@ impl ObjectStore {
             enumeration_free_list: Vec::new(),
             enumeration: Vec::new(),
             enumeration_id_by_name: HashMap::default(),
-            error_free_list: Vec::new(),
-            error: Vec::new(),
+            x_error_free_list: Vec::new(),
+            x_error: Vec::new(),
             error_expression_free_list: Vec::new(),
             error_expression: Vec::new(),
             expression_free_list: Vec::new(),
@@ -359,8 +358,8 @@ impl ObjectStore {
             pattern: Vec::new(),
             plain_free_list: Vec::new(),
             plain: Vec::new(),
-            print_free_list: Vec::new(),
-            print: Vec::new(),
+            x_print_free_list: Vec::new(),
+            x_print: Vec::new(),
             range_expression_free_list: Vec::new(),
             range_expression: Vec::new(),
             reference_free_list: Vec::new(),
@@ -496,9 +495,9 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_error(|id| {
-            Rc::new(RefCell::new(Error {
-                subtype: super::ErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
+        store.inter_x_error(|id| {
+            Rc::new(RefCell::new(XError {
+                subtype: super::XErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
                 id,
             }))
         });
@@ -1301,66 +1300,71 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Error`] into the store.
+    /// Inter (insert) [`XError`] into the store.
     ///
-    pub fn inter_error<F>(&mut self, error: F) -> Rc<RefCell<Error>>
+    pub fn inter_x_error<F>(&mut self, x_error: F) -> Rc<RefCell<XError>>
     where
-        F: Fn(usize) -> Rc<RefCell<Error>>,
+        F: Fn(usize) -> Rc<RefCell<XError>>,
     {
-        let _index = if let Some(_index) = self.error_free_list.pop() {
+        let _index = if let Some(_index) = self.x_error_free_list.pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.error.len();
+            let _index = self.x_error.len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.error.push(None);
+            self.x_error.push(None);
             _index
         };
 
-        let error = error(_index);
+        let x_error = x_error(_index);
 
-        if let Some(Some(error)) = self.error.iter().find(|stored| {
+        if let Some(Some(x_error)) = self.x_error.iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.borrow() == *error.borrow()
+                *stored.borrow() == *x_error.borrow()
             } else {
                 false
             }
         }) {
-            log::debug!(target: "store", "found duplicate {error:?}.");
-            self.error_free_list.push(_index);
-            error.clone()
+            log::debug!(target: "store", "found duplicate {x_error:?}.");
+            self.x_error_free_list.push(_index);
+            x_error.clone()
         } else {
-            log::debug!(target: "store", "interring {error:?}.");
-            self.error[_index] = Some(error.clone());
-            error
+            log::debug!(target: "store", "interring {x_error:?}.");
+            self.x_error[_index] = Some(x_error.clone());
+            x_error
         }
     }
 
-    /// Exhume (get) [`Error`] from the store.
+    /// Exhume (get) [`XError`] from the store.
     ///
-    pub fn exhume_error(&self, id: &usize) -> Option<Rc<RefCell<Error>>> {
-        match self.error.get(*id) {
-            Some(error) => error.clone(),
+    pub fn exhume_x_error(&self, id: &usize) -> Option<Rc<RefCell<XError>>> {
+        match self.x_error.get(*id) {
+            Some(x_error) => x_error.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Error`] from the store.
+    /// Exorcise (remove) [`XError`] from the store.
     ///
-    pub fn exorcise_error(&mut self, id: &usize) -> Option<Rc<RefCell<Error>>> {
-        log::debug!(target: "store", "exorcising error slot: {id}.");
-        let result = self.error[*id].take();
-        self.error_free_list.push(*id);
+    pub fn exorcise_x_error(&mut self, id: &usize) -> Option<Rc<RefCell<XError>>> {
+        log::debug!(target: "store", "exorcising x_error slot: {id}.");
+        let result = self.x_error[*id].take();
+        self.x_error_free_list.push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Error>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
     ///
-    pub fn iter_error(&self) -> impl Iterator<Item = Rc<RefCell<Error>>> + '_ {
-        let len = self.error.len();
+    pub fn iter_x_error(&self) -> impl Iterator<Item = Rc<RefCell<XError>>> + '_ {
+        let len = self.x_error.len();
         (0..len)
-            .filter(|i| self.error[*i].is_some())
-            .map(move |i| self.error[i].as_ref().map(|error| error.clone()).unwrap())
+            .filter(|i| self.x_error[*i].is_some())
+            .map(move |i| {
+                self.x_error[i]
+                    .as_ref()
+                    .map(|x_error| x_error.clone())
+                    .unwrap()
+            })
     }
 
     /// Inter (insert) [`ErrorExpression`] into the store.
@@ -3896,66 +3900,71 @@ impl ObjectStore {
             .map(move |i| self.plain[i].as_ref().map(|plain| plain.clone()).unwrap())
     }
 
-    /// Inter (insert) [`Print`] into the store.
+    /// Inter (insert) [`XPrint`] into the store.
     ///
-    pub fn inter_print<F>(&mut self, print: F) -> Rc<RefCell<Print>>
+    pub fn inter_x_print<F>(&mut self, x_print: F) -> Rc<RefCell<XPrint>>
     where
-        F: Fn(usize) -> Rc<RefCell<Print>>,
+        F: Fn(usize) -> Rc<RefCell<XPrint>>,
     {
-        let _index = if let Some(_index) = self.print_free_list.pop() {
+        let _index = if let Some(_index) = self.x_print_free_list.pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.print.len();
+            let _index = self.x_print.len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.print.push(None);
+            self.x_print.push(None);
             _index
         };
 
-        let print = print(_index);
+        let x_print = x_print(_index);
 
-        if let Some(Some(print)) = self.print.iter().find(|stored| {
+        if let Some(Some(x_print)) = self.x_print.iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.borrow() == *print.borrow()
+                *stored.borrow() == *x_print.borrow()
             } else {
                 false
             }
         }) {
-            log::debug!(target: "store", "found duplicate {print:?}.");
-            self.print_free_list.push(_index);
-            print.clone()
+            log::debug!(target: "store", "found duplicate {x_print:?}.");
+            self.x_print_free_list.push(_index);
+            x_print.clone()
         } else {
-            log::debug!(target: "store", "interring {print:?}.");
-            self.print[_index] = Some(print.clone());
-            print
+            log::debug!(target: "store", "interring {x_print:?}.");
+            self.x_print[_index] = Some(x_print.clone());
+            x_print
         }
     }
 
-    /// Exhume (get) [`Print`] from the store.
+    /// Exhume (get) [`XPrint`] from the store.
     ///
-    pub fn exhume_print(&self, id: &usize) -> Option<Rc<RefCell<Print>>> {
-        match self.print.get(*id) {
-            Some(print) => print.clone(),
+    pub fn exhume_x_print(&self, id: &usize) -> Option<Rc<RefCell<XPrint>>> {
+        match self.x_print.get(*id) {
+            Some(x_print) => x_print.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Print`] from the store.
+    /// Exorcise (remove) [`XPrint`] from the store.
     ///
-    pub fn exorcise_print(&mut self, id: &usize) -> Option<Rc<RefCell<Print>>> {
-        log::debug!(target: "store", "exorcising print slot: {id}.");
-        let result = self.print[*id].take();
-        self.print_free_list.push(*id);
+    pub fn exorcise_x_print(&mut self, id: &usize) -> Option<Rc<RefCell<XPrint>>> {
+        log::debug!(target: "store", "exorcising x_print slot: {id}.");
+        let result = self.x_print[*id].take();
+        self.x_print_free_list.push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Print>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XPrint>`.
     ///
-    pub fn iter_print(&self) -> impl Iterator<Item = Rc<RefCell<Print>>> + '_ {
-        let len = self.print.len();
+    pub fn iter_x_print(&self) -> impl Iterator<Item = Rc<RefCell<XPrint>>> + '_ {
+        let len = self.x_print.len();
         (0..len)
-            .filter(|i| self.print[*i].is_some())
-            .map(move |i| self.print[i].as_ref().map(|print| print.clone()).unwrap())
+            .filter(|i| self.x_print[*i].is_some())
+            .map(move |i| {
+                self.x_print[i]
+                    .as_ref()
+                    .map(|x_print| x_print.clone())
+                    .unwrap()
+            })
     }
 
     /// Inter (insert) [`RangeExpression`] into the store.
@@ -5449,14 +5458,14 @@ impl ObjectStore {
 
         // Persist Error.
         {
-            let path = path.join("error");
+            let path = path.join("x_error");
             fs::create_dir_all(&path)?;
-            for error in &self.error {
-                if let Some(error) = error {
-                    let path = path.join(format!("{}.json", error.borrow().id));
+            for x_error in &self.x_error {
+                if let Some(x_error) = x_error {
+                    let path = path.join(format!("{}.json", x_error.borrow().id));
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &error)?;
+                    serde_json::to_writer_pretty(&mut writer, &x_error)?;
                 }
             }
         }
@@ -5981,14 +5990,14 @@ impl ObjectStore {
 
         // Persist Print.
         {
-            let path = path.join("print");
+            let path = path.join("x_print");
             fs::create_dir_all(&path)?;
-            for print in &self.print {
-                if let Some(print) = print {
-                    let path = path.join(format!("{}.json", print.borrow().id));
+            for x_print in &self.x_print {
+                if let Some(x_print) = x_print {
+                    let path = path.join(format!("{}.json", x_print.borrow().id));
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &print)?;
+                    serde_json::to_writer_pretty(&mut writer, &x_print)?;
                 }
             }
         }
@@ -6465,15 +6474,17 @@ impl ObjectStore {
 
         // Load Error.
         {
-            let path = path.join("error");
+            let path = path.join("x_error");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let error: Rc<RefCell<Error>> = serde_json::from_reader(reader)?;
-                store.error.insert(error.borrow().id, Some(error.clone()));
+                let x_error: Rc<RefCell<XError>> = serde_json::from_reader(reader)?;
+                store
+                    .x_error
+                    .insert(x_error.borrow().id, Some(x_error.clone()));
             }
         }
 
@@ -7080,15 +7091,17 @@ impl ObjectStore {
 
         // Load Print.
         {
-            let path = path.join("print");
+            let path = path.join("x_print");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let print: Rc<RefCell<Print>> = serde_json::from_reader(reader)?;
-                store.print.insert(print.borrow().id, Some(print.clone()));
+                let x_print: Rc<RefCell<XPrint>> = serde_json::from_reader(reader)?;
+                store
+                    .x_print
+                    .insert(x_print.borrow().id, Some(x_print.clone()));
             }
         }
 
