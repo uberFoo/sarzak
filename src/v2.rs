@@ -1,6 +1,7 @@
 pub mod domain;
 pub mod drawing;
 pub mod lu_dog;
+pub mod lu_dog_async;
 pub mod lu_dog_ndrwlock_vec;
 pub mod lu_dog_rwlock;
 pub mod lu_dog_rwlock_vec;
