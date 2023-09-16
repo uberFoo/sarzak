@@ -10,7 +10,7 @@
 //! the generated code will need to be manually edited.
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::sarzak-from-impl-definition"}}}
-use std::{cell::RefCell, rc::Rc};
+use std::sync::{Arc, RwLock};
 
 use uuid::Uuid;
 
@@ -42,7 +42,7 @@ impl From<&SarzakStore> for ObjectStore {
 
         for (_, instance) in from.iter_acknowledged_event() {
             let instance = AcknowledgedEvent::from(instance);
-            to.inter_acknowledged_event(Rc::new(RefCell::new(instance)));
+            to.inter_acknowledged_event(Arc::new(RwLock::new(instance)));
         }
 
         // The order of the next two is important. We need the referents in the
@@ -50,92 +50,92 @@ impl From<&SarzakStore> for ObjectStore {
         // instances.
         for (_, instance) in from.iter_associative_referent() {
             let instance = AssociativeReferent::from(instance);
-            to.inter_associative_referent(Rc::new(RefCell::new(instance)));
+            to.inter_associative_referent(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_associative() {
             let instance = Associative::from((instance, from, &mut to));
-            to.inter_associative(Rc::new(RefCell::new(instance)));
+            to.inter_associative(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_associative_referrer() {
             let instance = AssociativeReferrer::from(instance);
-            to.inter_associative_referrer(Rc::new(RefCell::new(instance)));
+            to.inter_associative_referrer(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_attribute() {
             let instance = Attribute::from(instance);
-            to.inter_attribute(Rc::new(RefCell::new(instance)));
+            to.inter_attribute(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_binary() {
             let instance = Binary::from(instance);
-            to.inter_binary(Rc::new(RefCell::new(instance)));
+            to.inter_binary(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_cardinality() {
             let instance = Cardinality::from(instance);
-            to.inter_cardinality(Rc::new(RefCell::new(instance)));
+            to.inter_cardinality(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_conditionality() {
             let instance = Conditionality::from(instance);
-            to.inter_conditionality(Rc::new(RefCell::new(instance)));
+            to.inter_conditionality(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_event() {
             let instance = Event::from(instance);
-            to.inter_event(Rc::new(RefCell::new(instance)));
+            to.inter_event(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_external() {
             let instance = External::from(instance);
-            to.inter_external(Rc::new(RefCell::new(instance)));
+            to.inter_external(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_isa() {
             let instance = Isa::from(instance);
-            to.inter_isa(Rc::new(RefCell::new(instance)));
+            to.inter_isa(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_object() {
             let instance = Object::from(instance);
-            to.inter_object(Rc::new(RefCell::new(instance)));
+            to.inter_object(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_referent() {
             let instance = Referent::from(instance);
-            to.inter_referent(Rc::new(RefCell::new(instance)));
+            to.inter_referent(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_referrer() {
             let instance = Referrer::from(instance);
-            to.inter_referrer(Rc::new(RefCell::new(instance)));
+            to.inter_referrer(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_relationship() {
             let instance = Relationship::from(instance);
-            to.inter_relationship(Rc::new(RefCell::new(instance)));
+            to.inter_relationship(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_state() {
             let instance = State::from(instance);
-            to.inter_state(Rc::new(RefCell::new(instance)));
+            to.inter_state(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_subtype() {
             let instance = Subtype::from(instance);
-            to.inter_subtype(Rc::new(RefCell::new(instance)));
+            to.inter_subtype(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_supertype() {
             let instance = Supertype::from(instance);
-            to.inter_supertype(Rc::new(RefCell::new(instance)));
+            to.inter_supertype(Arc::new(RwLock::new(instance)));
         }
 
         for (_, instance) in from.iter_ty() {
             let instance = Ty::from(instance);
-            to.inter_ty(Rc::new(RefCell::new(instance)));
+            to.inter_ty(Arc::new(RwLock::new(instance)));
         }
 
         to
@@ -154,7 +154,7 @@ impl From<&FromAcknowledgedEvent> for AcknowledgedEvent {
 
 impl From<(&FromAssociative, &SarzakStore, &mut ObjectStore)> for Associative {
     fn from((src, sarzak, store): (&FromAssociative, &SarzakStore, &mut ObjectStore)) -> Self {
-        let this = Rc::new(RefCell::new(Self {
+        let this = Arc::new(RwLock::new(Self {
             id: src.id,
             number: src.number,
             from: src.from,
@@ -183,7 +183,7 @@ impl From<(&FromAssociative, &SarzakStore, &mut ObjectStore)> for Associative {
         );
 
         // This is seriously lame, but I don't think it's going to hurt anything.
-        let x = (*this).borrow().clone();
+        let x = (*this).read().unwrap().clone();
         x
     }
 }

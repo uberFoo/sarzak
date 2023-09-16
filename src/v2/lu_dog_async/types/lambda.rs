@@ -45,11 +45,11 @@ impl Lambda {
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Lambda>> {
-        let return_type = return_type.read().await.id;
         let block = match block {
             Some(block) => Some(block.read().await.id),
             None => None,
         };
+        let return_type = return_type.read().await.id;
         store
             .inter_lambda(|id| {
                 Arc::new(RwLock::new(Lambda {
@@ -63,11 +63,16 @@ impl Lambda {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-block"}}}
     /// Navigate to [`Block`] across R73(1-*c)
-    pub async fn r73_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r73_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r73_block");
         match self.block {
-            Some(ref block) => vec![store.exhume_block(block).await.unwrap()],
-            None => Vec::new(),
+            Some(ref block) => {
+                stream::iter(vec![store.exhume_block(block).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,9 +81,9 @@ impl Lambda {
     pub async fn r74_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r74_value_type");
-        vec![store.exhume_value_type(&self.return_type).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.return_type).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-backward-1_M-to-lambda_parameter"}}}
@@ -86,7 +91,7 @@ impl Lambda {
     pub async fn r76_lambda_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<LambdaParameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<LambdaParameter>>> + '_ {
         span!("r76_lambda_parameter");
         store
             .iter_lambda_parameter()
@@ -98,8 +103,6 @@ impl Lambda {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-impl-nav-subtype-to-supertype-expression"}}}

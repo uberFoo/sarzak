@@ -49,7 +49,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::Enumeration(subtype.borrow().id),
+                subtype: ItemEnum::Enumeration(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -65,7 +65,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::Function(subtype.borrow().id),
+                subtype: ItemEnum::Function(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -82,7 +82,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::ImplementationBlock(subtype.borrow().id),
+                subtype: ItemEnum::ImplementationBlock(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -98,7 +98,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::Import(subtype.borrow().id),
+                subtype: ItemEnum::Import(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -114,7 +114,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::XMacro(subtype.borrow().id),
+                subtype: ItemEnum::XMacro(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -130,7 +130,7 @@ impl Item {
         store.inter_item(|id| {
             Rc::new(RefCell::new(Item {
                 source: source.borrow().id,
-                subtype: ItemEnum::WoogStruct(subtype.borrow().id),
+                subtype: ItemEnum::WoogStruct(subtype.borrow().id), // b
                 id,
             }))
         })

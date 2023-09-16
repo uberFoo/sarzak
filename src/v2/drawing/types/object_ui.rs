@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"object_ui-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -56,16 +56,16 @@ impl ObjectUi {
         height: i64,
         width: i64,
         object_id: &Object,
-        origin: &Rc<RefCell<Point>>,
+        origin: &Arc<RwLock<Point>>,
         store: &mut DrawingStore,
-    ) -> Rc<RefCell<ObjectUi>> {
+    ) -> Arc<RwLock<ObjectUi>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(ObjectUi {
+        let new = Arc::new(RwLock::new(ObjectUi {
             height,
             id,
             width,
             object_id: object_id.id,
-            origin: origin.borrow().id,
+            origin: origin.read().unwrap().id,
         }));
         store.inter_object_ui(new.clone());
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -75,24 +75,28 @@ impl ObjectUi {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-object_id"}}}
     /// Navigate to [`Object`] across R1(1-*)
-    pub fn r1_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r1_object<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
+        span!("r1_object");
         vec![store.exhume_object(&self.object_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Point`] across R13(1-*)
-    pub fn r13_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Point>>> {
+    pub fn r13_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Point>>> {
         span!("r13_point");
         vec![store.exhume_point(&self.origin).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-backward-1_M-to-object_edge"}}}
     /// Navigate to [`ObjectEdge`] across R18(1-M)
-    pub fn r18_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<ObjectEdge>>> {
+    pub fn r18_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<ObjectEdge>>> {
         span!("r18_object_edge");
         store
             .iter_object_edge()
-            .filter(|object_edge| object_edge.borrow().oui_id == self.id)
+            .filter(|object_edge| object_edge.read().unwrap().oui_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

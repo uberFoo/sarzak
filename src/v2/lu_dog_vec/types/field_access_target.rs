@@ -45,7 +45,7 @@ impl FieldAccessTarget {
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::EnumField(subtype.borrow().id),
+                subtype: FieldAccessTargetEnum::EnumField(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -59,7 +59,7 @@ impl FieldAccessTarget {
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::Field(subtype.borrow().id),
+                subtype: FieldAccessTargetEnum::Field(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -73,7 +73,7 @@ impl FieldAccessTarget {
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::Function(subtype.borrow().id),
+                subtype: FieldAccessTargetEnum::Function(subtype.borrow().id), // b
                 id,
             }))
         })

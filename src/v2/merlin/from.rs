@@ -8,7 +8,7 @@
 //! It is hoped that the model has not changed enough to render
 //! these implementations useless. In any case it's expected that
 //! the generated code will need to be manually edited.
-use std::{cell::RefCell, rc::Rc};
+use std::sync::{Arc, RwLock};
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-gen","tag":"v2::drawing-from-impl-definition"}}}
@@ -49,27 +49,27 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
 
-        merlin.inter_edge(Rc::new(RefCell::new(Edge::Bottom(BOTTOM))));
-        merlin.inter_edge(Rc::new(RefCell::new(Edge::Left(LEFT))));
-        merlin.inter_edge(Rc::new(RefCell::new(Edge::Right(RIGHT))));
-        merlin.inter_edge(Rc::new(RefCell::new(Edge::Top(TOP))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
 
         for oui in drawing.iter_object_ui() {
-            let instance = Rc::new(RefCell::new(XBox::from((&*oui.borrow(), drawing))));
+            let instance = Arc::new(RwLock::new(XBox::from((&*oui.read().unwrap(), drawing))));
             merlin.inter_x_box(instance);
         }
 
         for bui in drawing.iter_binary_ui() {
-            let binary = &bui.borrow().r12_binary(sarzak)[0];
-            let rel = &binary.borrow().r4_relationship(sarzak)[0];
+            let binary = &bui.read().unwrap().r12_binary(sarzak)[0];
+            let rel = &binary.read().unwrap().r4_relationship(sarzak)[0];
 
-            let line = Line::new(&rel, &mut merlin);
+            let line = Line::new(&rel.read().unwrap(), &mut merlin);
             let line_seg = LineSegment::new(&line, &mut merlin);
 
             // Default to putting the relationship at the midpoint of the line,
             let bisection = Bisection::new(0.5, &line_seg, &mut merlin);
             let _name = RelationshipName::new(
-                format!("R{}", binary.borrow().number),
+                format!("R{}", binary.read().unwrap().number),
                 0,
                 0,
                 &line,
@@ -77,37 +77,37 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 &mut merlin,
             );
 
-            let from_anchor = &bui.borrow().r7_anchor(drawing)[0];
+            let from_anchor = &bui.read().unwrap().r7_anchor(drawing)[0];
 
             // Our relationships are jacked up, so we have to do the dumb thing.
             // Not that relationship navigation is any better, depending on the
             // direction.
-            let referrer = &binary.borrow().r6_referrer(sarzak)[0];
-            let from_obj = &referrer.borrow().r17_object(sarzak)[0];
+            let referrer = &binary.read().unwrap().r6_referrer(sarzak)[0];
+            let from_obj = &referrer.read().unwrap().r17_object(sarzak)[0];
             let from_obj_ui = drawing
                 .iter_object_ui()
-                .find(|oui| oui.borrow().object_id == from_obj.borrow().id)
+                .find(|oui| oui.read().unwrap().object_id == from_obj.read().unwrap().id)
                 .unwrap();
 
             // Get what we need to build the offset to which the line connects.
-            let point = &from_anchor.borrow().r4_point(drawing)[0];
-            let edge = &from_anchor.borrow().r3_edge(drawing)[0];
+            let point = &from_anchor.read().unwrap().r4_point(drawing)[0];
+            let edge = &from_anchor.read().unwrap().r3_edge(drawing)[0];
             let (x, y) = get_anchor_offset(&point, &edge);
 
             // Sort out how far along the edge the arrow should be drawn.
-            let origin = &from_obj_ui.borrow().r13_point(drawing)[0];
+            let origin = &from_obj_ui.read().unwrap().r13_point(drawing)[0];
             let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
 
             // Sort out the glyph.
-            let card = &referrer.borrow().r9_cardinality(sarzak)[0];
-            let glyph = match *card.borrow() {
+            let card = &referrer.read().unwrap().r9_cardinality(sarzak)[0];
+            let glyph = match *card.read().unwrap() {
                 Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
                 Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
             };
 
             // Get the box.
             let x_box = merlin
-                .exhume_x_box(&from_obj_ui.borrow().id)
+                .exhume_x_box(&from_obj_ui.read().unwrap().id)
                 .unwrap()
                 .clone();
 
@@ -116,7 +116,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &Rc::new(RefCell::new(XyzzyEdge(&edge, &merlin).into())),
+                &Arc::new(RwLock::new(XyzzyEdge(&edge, &merlin).into())),
                 &glyph,
                 &x_box,
                 &line,
@@ -125,8 +125,8 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
 
             // Create the from point
             let point = Point::new_anchor(
-                point.borrow().x,
-                point.borrow().y,
+                point.read().unwrap().x,
+                point.read().unwrap().y,
                 &from_anchor,
                 &mut merlin,
             );
@@ -134,33 +134,33 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Create the "line segment point"
             LineSegmentPoint::new(&line_seg, &point, &mut merlin);
 
-            let to_anchor = &bui.borrow().r8_anchor(drawing)[0];
-            let referent = &binary.borrow().r5_referent(sarzak)[0];
-            let from_obj = &referent.borrow().r16_object(sarzak)[0];
+            let to_anchor = &bui.read().unwrap().r8_anchor(drawing)[0];
+            let referent = &binary.read().unwrap().r5_referent(sarzak)[0];
+            let from_obj = &referent.read().unwrap().r16_object(sarzak)[0];
             let from_obj_ui = drawing
                 .iter_object_ui()
-                .find(|oui| oui.borrow().object_id == from_obj.borrow().id)
+                .find(|oui| oui.read().unwrap().object_id == from_obj.read().unwrap().id)
                 .unwrap();
 
             // Get what we need to build the offset to which the line connects.
-            let point = &to_anchor.borrow().r4_point(drawing)[0];
-            let edge = &to_anchor.borrow().r3_edge(drawing)[0];
+            let point = &to_anchor.read().unwrap().r4_point(drawing)[0];
+            let edge = &to_anchor.read().unwrap().r3_edge(drawing)[0];
             let (x, y) = get_anchor_offset(&point, &edge);
 
             // Sort out how far along the edge the arrow should be drawn.
-            let origin = &from_obj_ui.borrow().r13_point(drawing)[0];
+            let origin = &from_obj_ui.read().unwrap().r13_point(drawing)[0];
             let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
 
             // Sort out the glyph.
-            let card = &referent.borrow().r8_cardinality(sarzak)[0];
-            let glyph = match *card.borrow() {
+            let card = &referent.read().unwrap().r8_cardinality(sarzak)[0];
+            let glyph = match *card.read().unwrap() {
                 Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
                 Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
             };
 
             // Get the box.
             let x_box = merlin
-                .exhume_x_box(&from_obj_ui.borrow().id)
+                .exhume_x_box(&from_obj_ui.read().unwrap().id)
                 .unwrap()
                 .clone();
 
@@ -169,7 +169,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
                 offset,
                 x,
                 y,
-                &Rc::new(RefCell::new(XyzzyEdge(&edge, &merlin).into())),
+                &Arc::new(RwLock::new(XyzzyEdge(&edge, &merlin).into())),
                 &glyph,
                 &x_box,
                 &line,
@@ -177,8 +177,12 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             );
 
             // Create the to point
-            let point =
-                Point::new_anchor(point.borrow().x, point.borrow().y, &to_anchor, &mut merlin);
+            let point = Point::new_anchor(
+                point.read().unwrap().x,
+                point.read().unwrap().y,
+                &to_anchor,
+                &mut merlin,
+            );
 
             // Create the "line segment point"
             LineSegmentPoint::new(&line_seg, &point, &mut merlin);
@@ -188,10 +192,10 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     }
 }
 
-fn get_anchor_offset(point: &Rc<RefCell<FromPoint>>, edge: &Rc<RefCell<FromEdge>>) -> (i64, i64) {
-    let (x, y) = (point.borrow().x, point.borrow().y);
+fn get_anchor_offset(point: &Arc<RwLock<FromPoint>>, edge: &Arc<RwLock<FromEdge>>) -> (i64, i64) {
+    let (x, y) = (point.read().unwrap().x, point.read().unwrap().y);
 
-    match *edge.borrow() {
+    match *edge.read().unwrap() {
         FromEdge::Top(_) => (x, y - 40),
         FromEdge::Right(_) => (x + 40, y),
         FromEdge::Bottom(_) => (x, y + 40),
@@ -200,16 +204,16 @@ fn get_anchor_offset(point: &Rc<RefCell<FromPoint>>, edge: &Rc<RefCell<FromEdge>
 }
 
 fn get_anchor_line_offset(
-    edge: &Rc<RefCell<FromEdge>>,
-    anchor: &Rc<RefCell<FromPoint>>,
-    obj: &Rc<RefCell<ObjectUi>>,
-    origin: &Rc<RefCell<FromPoint>>,
+    edge: &Arc<RwLock<FromEdge>>,
+    anchor: &Arc<RwLock<FromPoint>>,
+    obj: &Arc<RwLock<ObjectUi>>,
+    origin: &Arc<RwLock<FromPoint>>,
 ) -> f64 {
-    let (x, y) = (anchor.borrow().x, anchor.borrow().y);
-    let (obj_x, obj_y) = (origin.borrow().x, origin.borrow().y);
-    let (width, height) = (obj.borrow().width, obj.borrow().height);
+    let (x, y) = (anchor.read().unwrap().x, anchor.read().unwrap().y);
+    let (obj_x, obj_y) = (origin.read().unwrap().x, origin.read().unwrap().y);
+    let (width, height) = (obj.read().unwrap().width, obj.read().unwrap().height);
 
-    match *edge.borrow() {
+    match *edge.read().unwrap() {
         FromEdge::Top(_) | FromEdge::Bottom(_) => width as f64 / (x + width - obj_x) as f64,
         FromEdge::Left(_) | FromEdge::Right(_) => height as f64 / (y + height - obj_y) as f64,
     }
@@ -218,8 +222,8 @@ fn get_anchor_line_offset(
 impl From<(&ObjectUi, &DrawingStore)> for XBox {
     fn from((src, store): (&ObjectUi, &DrawingStore)) -> Self {
         let point = &src.r13_point(store)[0];
-        let x = point.borrow().x;
-        let y = point.borrow().y;
+        let x = point.read().unwrap().x;
+        let y = point.read().unwrap().y;
         Self {
             id: src.id,
             x,
@@ -231,18 +235,18 @@ impl From<(&ObjectUi, &DrawingStore)> for XBox {
     }
 }
 
-struct XyzzyEdge<'a>(&'a Rc<RefCell<FromEdge>>, &'a ObjectStore);
+struct XyzzyEdge<'a>(&'a Arc<RwLock<FromEdge>>, &'a ObjectStore);
 
 impl<'a> From<XyzzyEdge<'a>> for Edge {
     fn from(edge: XyzzyEdge<'a>) -> Self {
         let src = edge.0;
         let merlin = edge.1;
 
-        match *src.borrow() {
-            FromEdge::Bottom(_) => *merlin.exhume_edge(&BOTTOM).unwrap().borrow(),
-            FromEdge::Left(_) => *merlin.exhume_edge(&LEFT).unwrap().borrow(),
-            FromEdge::Right(_) => *merlin.exhume_edge(&RIGHT).unwrap().borrow(),
-            FromEdge::Top(_) => *merlin.exhume_edge(&TOP).unwrap().borrow(),
+        match *src.read().unwrap() {
+            FromEdge::Bottom(_) => *merlin.exhume_edge(&BOTTOM).unwrap().read().unwrap(),
+            FromEdge::Left(_) => *merlin.exhume_edge(&LEFT).unwrap().read().unwrap(),
+            FromEdge::Right(_) => *merlin.exhume_edge(&RIGHT).unwrap().read().unwrap(),
+            FromEdge::Top(_) => *merlin.exhume_edge(&TOP).unwrap().read().unwrap(),
         }
     }
 }

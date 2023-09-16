@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"enumeration_field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -31,15 +31,15 @@ impl EnumerationField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-new"}}}
     /// Inter a new 'Enumeration Field' in the store, and return it's `id`.
     pub fn new(
-        field: &Rc<RefCell<Enumeration>>,
-        woog_enum: &Rc<RefCell<Field>>,
+        field: &Arc<RwLock<Enumeration>>,
+        woog_enum: &Arc<RwLock<Field>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<EnumerationField>> {
+    ) -> Arc<RwLock<EnumerationField>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(EnumerationField {
+        let new = Arc::new(RwLock::new(EnumerationField {
             id,
-            field: field.borrow().id,
-            woog_enum: woog_enum.borrow().id,
+            field: field.read().unwrap().id,
+            woog_enum: woog_enum.read().unwrap().id,
         }));
         store.inter_enumeration_field(new.clone());
         new
@@ -47,14 +47,14 @@ impl EnumerationField {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Enumeration`] across R28(1-*)
-    pub fn r28_enumeration<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Enumeration>>> {
+    pub fn r28_enumeration<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Enumeration>>> {
         span!("r28_enumeration");
         vec![store.exhume_enumeration(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-woog_enum"}}}
     /// Navigate to [`Field`] across R28(1-*)
-    pub fn r28_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Field>>> {
+    pub fn r28_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Field>>> {
         span!("r28_field");
         vec![store.exhume_field(&self.woog_enum).unwrap()]
     }

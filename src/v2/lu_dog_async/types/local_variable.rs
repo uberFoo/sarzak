@@ -42,7 +42,7 @@ impl LocalVariable {
     pub async fn r21_let_statement<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<LetStatement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<LetStatement>>> + '_ {
         span!("r21_let_statement");
         store
             .iter_let_statement()
@@ -54,8 +54,6 @@ impl LocalVariable {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-impl-nav-subtype-to-supertype-variable"}}}

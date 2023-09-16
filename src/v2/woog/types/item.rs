@@ -9,8 +9,8 @@ use crate::v2::woog::types::statement::Statement;
 use crate::v2::woog::types::statement::StatementEnum;
 use crate::v2::woog::types::structure::Structure;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -38,69 +38,69 @@ impl Item {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-new-impl"}}}
     /// Create a new instance of Item::Constant
     pub fn new_constant(
-        constant: &Rc<RefCell<Constant>>,
+        constant: &Arc<RwLock<Constant>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = constant.borrow().id;
+    ) -> Arc<RwLock<Self>> {
+        let id = constant.read().unwrap().id;
         if let Some(constant) = store.exhume_item(&id) {
             constant
         } else {
-            let new = Rc::new(RefCell::new(Self::Constant(id)));
+            let new = Arc::new(RwLock::new(Self::Constant(id)));
             store.inter_item(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Item::Enumeration
     pub fn new_enumeration(
-        enumeration: &Rc<RefCell<Enumeration>>,
+        enumeration: &Arc<RwLock<Enumeration>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = enumeration.borrow().id;
+    ) -> Arc<RwLock<Self>> {
+        let id = enumeration.read().unwrap().id;
         if let Some(enumeration) = store.exhume_item(&id) {
             enumeration
         } else {
-            let new = Rc::new(RefCell::new(Self::Enumeration(id)));
+            let new = Arc::new(RwLock::new(Self::Enumeration(id)));
             store.inter_item(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Item::Function
     pub fn new_function(
-        function: &Rc<RefCell<Function>>,
+        function: &Arc<RwLock<Function>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = function.borrow().id;
+    ) -> Arc<RwLock<Self>> {
+        let id = function.read().unwrap().id;
         if let Some(function) = store.exhume_item(&id) {
             function
         } else {
-            let new = Rc::new(RefCell::new(Self::Function(id)));
+            let new = Arc::new(RwLock::new(Self::Function(id)));
             store.inter_item(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Item::Implementation
-    pub fn new_implementation(store: &WoogStore) -> Rc<RefCell<Self>> {
+    pub fn new_implementation(store: &WoogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_item(&IMPLEMENTATION).unwrap()
     }
 
     /// Create a new instance of Item::Structure
     pub fn new_structure(
-        structure: &Rc<RefCell<Structure>>,
+        structure: &Arc<RwLock<Structure>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = structure.borrow().id;
+    ) -> Arc<RwLock<Self>> {
+        let id = structure.read().unwrap().id;
         if let Some(structure) = store.exhume_item(&id) {
             structure
         } else {
-            let new = Rc::new(RefCell::new(Self::Structure(id)));
+            let new = Arc::new(RwLock::new(Self::Structure(id)));
             store.inter_item(new.clone());
             new
         }
-    }
+    } // wtf?
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-get-id-impl"}}}
@@ -116,12 +116,12 @@ impl Item {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R11(isa)
-    pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Statement>>> {
+    pub fn r11_statement<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Statement>>> {
         span!("r11_statement");
         vec![store
             .iter_statement()
             .find(|statement| {
-                if let StatementEnum::Item(id) = statement.borrow().subtype {
+                if let StatementEnum::Item(id) = statement.read().unwrap().subtype {
                     id == self.id()
                 } else {
                     false

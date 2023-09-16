@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -35,14 +35,14 @@ impl Field {
     /// Inter a new 'Field' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        ty: &Rc<RefCell<GraceType>>,
+        ty: &Arc<RwLock<GraceType>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Field>> {
+    ) -> Arc<RwLock<Field>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Field {
+        let new = Arc::new(RwLock::new(Field {
             id,
             name,
-            ty: ty.borrow().id(),
+            ty: ty.read().unwrap().id(),
         }));
         store.inter_field(new.clone());
         new
@@ -50,7 +50,7 @@ impl Field {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R29(1-*)
-    pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+    pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
         span!("r29_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
@@ -60,11 +60,11 @@ impl Field {
     pub fn r27_structure_field<'a>(
         &'a self,
         store: &'a WoogStore,
-    ) -> Vec<Rc<RefCell<StructureField>>> {
+    ) -> Vec<Arc<RwLock<StructureField>>> {
         span!("r27_structure_field");
         let structure_field = store
             .iter_structure_field()
-            .find(|structure_field| structure_field.borrow().woog_struct == self.id);
+            .find(|structure_field| structure_field.read().unwrap().woog_struct == self.id);
         match structure_field {
             Some(structure_field) => vec![structure_field],
             None => Vec::new(),
@@ -76,11 +76,11 @@ impl Field {
     pub fn r28_enumeration_field<'a>(
         &'a self,
         store: &'a WoogStore,
-    ) -> Vec<Rc<RefCell<EnumerationField>>> {
+    ) -> Vec<Arc<RwLock<EnumerationField>>> {
         span!("r28_enumeration_field");
         let enumeration_field = store
             .iter_enumeration_field()
-            .find(|enumeration_field| enumeration_field.borrow().woog_enum == self.id);
+            .find(|enumeration_field| enumeration_field.read().unwrap().woog_enum == self.id);
         match enumeration_field {
             Some(enumeration_field) => vec![enumeration_field],
             None => Vec::new(),

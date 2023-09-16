@@ -53,11 +53,11 @@ impl TupleField {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<TupleField>> {
+        let ty = ty.read().await.id;
         let expression = match expression {
             Some(expression) => Some(expression.read().await.id),
             None => None,
         };
-        let ty = ty.read().await.id;
         store
             .inter_tuple_field(|id| {
                 Arc::new(RwLock::new(TupleField {
@@ -75,11 +75,13 @@ impl TupleField {
     pub async fn r90_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r90_expression");
         match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(expression).await.unwrap()],
-            None => Vec::new(),
+            Some(ref expression) => {
+                stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -88,9 +90,9 @@ impl TupleField {
     pub async fn r86_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r86_value_type");
-        vec![store.exhume_value_type(&self.ty).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-impl-nav-subtype-to-supertype-enum_field"}}}

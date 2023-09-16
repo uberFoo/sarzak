@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -31,11 +31,11 @@ pub struct Call {
 impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-new"}}}
     /// Inter a new 'Call' in the store, and return it's `id`.
-    pub fn new(method: &Rc<RefCell<ObjectMethod>>, store: &mut WoogStore) -> Rc<RefCell<Call>> {
+    pub fn new(method: &Arc<RwLock<ObjectMethod>>, store: &mut WoogStore) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Call {
+        let new = Arc::new(RwLock::new(Call {
             id,
-            method: method.borrow().id,
+            method: method.read().unwrap().id,
         }));
         store.inter_call(new.clone());
         new
@@ -43,14 +43,14 @@ impl Call {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-to-method"}}}
     /// Navigate to [`ObjectMethod`] across R19(1-*)
-    pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<ObjectMethod>>> {
+    pub fn r19_object_method<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<ObjectMethod>>> {
         span!("r19_object_method");
         vec![store.exhume_object_method(&self.method).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R10(isa)
-    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Expression>>> {
+    pub fn r10_expression<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Expression>>> {
         span!("r10_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }

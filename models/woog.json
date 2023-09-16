@@ -1359,7 +1359,7 @@
                 "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
                 "key_letter": "T",
                 "name": "Type",
-                "description": "The type of a value\n\nThere are several values available: [Integer], [Boolean], [Float], [String], and [UUID].\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f\"}}\n",
+                "description": "The type of a value\n\nThere are several values available: [Integer], [Boolean], [Float], [String], and [UUID].\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f\"}}\n",
                 "attributes": {
                     "52783e59-f28c-5a8b-8947-12d60c2d49d0": {
                         "id": "52783e59-f28c-5a8b-8947-12d60c2d49d0",
@@ -1424,7 +1424,7 @@
                 "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
                 "key_letter": "OBJ",
                 "name": "Object",
-                "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [Attribute]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}",
+                "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [Attribute]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.\n\n# Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}",
                 "attributes": {
                     "a37b26e0-49fb-5be8-95a8-fb563ab81cc4": {
                         "id": "a37b26e0-49fb-5be8-95a8-fb563ab81cc4",

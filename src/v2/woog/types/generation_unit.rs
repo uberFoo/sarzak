@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"generation_unit-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -28,14 +28,14 @@ impl GenerationUnit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-new"}}}
     /// Inter a new 'Generation Unit' in the store, and return it's `id`.
     pub fn new(
-        creation_time: &Rc<RefCell<TimeStamp>>,
+        creation_time: &Arc<RwLock<TimeStamp>>,
         object: &Object,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<GenerationUnit>> {
+    ) -> Arc<RwLock<GenerationUnit>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(GenerationUnit {
+        let new = Arc::new(RwLock::new(GenerationUnit {
             id,
-            creation_time: creation_time.borrow().id,
+            creation_time: creation_time.read().unwrap().id,
             object: object.id,
         }));
         store.inter_generation_unit(new.clone());
@@ -44,14 +44,17 @@ impl GenerationUnit {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}
     /// Navigate to [`TimeStamp`] across R21(1-*)
-    pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<TimeStamp>>> {
+    pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<TimeStamp>>> {
         span!("r21_time_stamp");
         vec![store.exhume_time_stamp(&self.creation_time).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R22(1-*)
-    pub fn r22_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r22_object<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r22_object");
         vec![store.exhume_object(&self.object).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

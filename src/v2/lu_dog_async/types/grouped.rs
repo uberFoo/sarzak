@@ -44,9 +44,9 @@ impl Grouped {
     pub async fn r61_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r61_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grouped-impl-nav-subtype-to-supertype-expression"}}}

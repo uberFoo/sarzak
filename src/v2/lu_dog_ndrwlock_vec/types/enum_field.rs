@@ -56,7 +56,7 @@ impl EnumField {
             Arc::new(RwLock::new(EnumField {
                 name: name.to_owned(),
                 woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::Plain(subtype.read().unwrap().id),
+                subtype: EnumFieldEnum::Plain(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -74,7 +74,7 @@ impl EnumField {
             Arc::new(RwLock::new(EnumField {
                 name: name.to_owned(),
                 woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::StructField(subtype.read().unwrap().id),
+                subtype: EnumFieldEnum::StructField(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -92,7 +92,7 @@ impl EnumField {
             Arc::new(RwLock::new(EnumField {
                 name: name.to_owned(),
                 woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::TupleField(subtype.read().unwrap().id),
+                subtype: EnumFieldEnum::TupleField(subtype.read().unwrap().id), // b
                 id,
             }))
         })

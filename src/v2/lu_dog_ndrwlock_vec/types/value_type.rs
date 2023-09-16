@@ -113,7 +113,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Enumeration(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Enumeration(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -128,7 +128,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::XError(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::XError(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -142,7 +142,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Function(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Function(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -156,7 +156,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -170,7 +170,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Import(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Import(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -184,7 +184,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Lambda(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Lambda(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -198,7 +198,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::List(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::List(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -212,7 +212,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::ZObjectStore(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::ZObjectStore(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -226,7 +226,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::WoogOption(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::WoogOption(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -251,7 +251,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Reference(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Reference(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -265,7 +265,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::WoogStruct(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::WoogStruct(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -273,10 +273,13 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_ty(subtype: &Ty, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<ValueType>> {
+    pub fn new_ty(
+        subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Ty(subtype.id()),
+                subtype: ValueTypeEnum::Ty(subtype.read().unwrap().id()),
                 id,
             }))
         })

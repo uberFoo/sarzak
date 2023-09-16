@@ -54,7 +54,7 @@ impl XValue {
             Arc::new(RwLock::new(XValue {
                 block: block.read().unwrap().id,
                 ty: ty.read().unwrap().id,
-                subtype: XValueEnum::Expression(subtype.read().unwrap().id),
+                subtype: XValueEnum::Expression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -72,7 +72,7 @@ impl XValue {
             Arc::new(RwLock::new(XValue {
                 block: block.read().unwrap().id,
                 ty: ty.read().unwrap().id,
-                subtype: XValueEnum::Variable(subtype.read().unwrap().id),
+                subtype: XValueEnum::Variable(subtype.read().unwrap().id), // b
                 id,
             }))
         })

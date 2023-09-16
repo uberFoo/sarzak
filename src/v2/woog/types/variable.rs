@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"variable-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -45,15 +45,15 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_local(
         name: String,
-        symbol_table: &Rc<RefCell<SymbolTable>>,
-        subtype: &Rc<RefCell<Local>>,
+        symbol_table: &Arc<RwLock<SymbolTable>>,
+        subtype: &Arc<RwLock<Local>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Variable>> {
+    ) -> Arc<RwLock<Variable>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Variable {
+        let new = Arc::new(RwLock::new(Variable {
             name: name,
-            symbol_table: symbol_table.borrow().id,
-            subtype: VariableEnum::Local(subtype.borrow().id),
+            symbol_table: symbol_table.read().unwrap().id,
+            subtype: VariableEnum::Local(subtype.read().unwrap().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -64,15 +64,15 @@ impl Variable {
     /// Inter a new Variable in the store, and return it's `id`.
     pub fn new_parameter(
         name: String,
-        symbol_table: &Rc<RefCell<SymbolTable>>,
-        subtype: &Rc<RefCell<Parameter>>,
+        symbol_table: &Arc<RwLock<SymbolTable>>,
+        subtype: &Arc<RwLock<Parameter>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Variable>> {
+    ) -> Arc<RwLock<Variable>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Variable {
+        let new = Arc::new(RwLock::new(Variable {
             name: name,
-            symbol_table: symbol_table.borrow().id,
-            subtype: VariableEnum::Parameter(subtype.borrow().id),
+            symbol_table: symbol_table.read().unwrap().id,
+            subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
             id,
         }));
         store.inter_variable(new.clone());
@@ -81,30 +81,30 @@ impl Variable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-forward-to-symbol_table"}}}
     /// Navigate to [`SymbolTable`] across R20(1-*)
-    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<SymbolTable>>> {
+    pub fn r20_symbol_table<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<SymbolTable>>> {
         span!("r20_symbol_table");
         vec![store.exhume_symbol_table(&self.symbol_table).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-struct-impl-nav-backward-1_M-to-x_let"}}}
     /// Navigate to [`XLet`] across R17(1-M)
-    pub fn r17_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XLet>>> {
+    pub fn r17_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XLet>>> {
         span!("r17_x_let");
         store
             .iter_x_let()
-            .filter(|x_let| x_let.borrow().variable == self.id)
+            .filter(|x_let| x_let.read().unwrap().variable == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-value"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"variable-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R7(isa)
-    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XValue>>> {
+    pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XValue>>> {
         span!("r7_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {
-                if let XValueEnum::Variable(id) = x_value.borrow().subtype {
+                if let XValueEnum::Variable(id) = x_value.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

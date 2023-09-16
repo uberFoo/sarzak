@@ -47,9 +47,9 @@ impl ExpressionStatement {
     pub async fn r31_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r31_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-impl-nav-subtype-to-supertype-statement"}}}

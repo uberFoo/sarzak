@@ -58,11 +58,11 @@ impl Function {
             None => None,
         };
         let return_type = return_type.read().await.id;
+        let body = body.read().await.id;
         let implementation_block = match impl_block {
             Some(implementation_block) => Some(implementation_block.read().await.id),
             None => None,
         };
-        let body = body.read().await.id;
         store
             .inter_function(|id| {
                 Arc::new(RwLock::new(Function {
@@ -79,9 +79,12 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
     /// Navigate to [`Body`] across R19(1-*)
-    pub async fn r19_body<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Body>>> {
+    pub async fn r19_body<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Body>>> + '_ {
         span!("r19_body");
-        vec![store.exhume_body(&self.body).await.unwrap()]
+        stream::iter(vec![store.exhume_body(&self.body).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
@@ -89,11 +92,13 @@ impl Function {
     pub async fn r82_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Parameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
         span!("r82_parameter");
         match self.first_param {
-            Some(ref first_param) => vec![store.exhume_parameter(first_param).await.unwrap()],
-            None => Vec::new(),
+            Some(ref first_param) => {
+                stream::iter(vec![store.exhume_parameter(first_param).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -102,13 +107,13 @@ impl Function {
     pub async fn r9_implementation_block<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
         span!("r9_implementation_block");
         match self.impl_block {
-            Some(ref impl_block) => {
-                vec![store.exhume_implementation_block(impl_block).await.unwrap()]
-            }
-            None => Vec::new(),
+            Some(ref impl_block) => stream::iter(
+                vec![store.exhume_implementation_block(impl_block).await.unwrap()].into_iter(),
+            ),
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -117,9 +122,9 @@ impl Function {
     pub async fn r10_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r10_value_type");
-        vec![store.exhume_value_type(&self.return_type).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.return_type).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}
@@ -127,20 +132,15 @@ impl Function {
     pub async fn r13_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Parameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
         span!("r13_parameter");
-        store
-            .iter_parameter()
-            .await
-            .filter_map(|parameter| async {
-                if parameter.read().await.function == self.id {
-                    Some(parameter)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_parameter().await.filter_map(|parameter| async {
+            if parameter.read().await.function == self.id {
+                Some(parameter)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-field_access_target"}}}

@@ -63,7 +63,7 @@ impl WoogOption {
         store.inter_woog_option(|id| {
             Arc::new(RwLock::new(WoogOption {
                 ty: ty.read().unwrap().id,
-                subtype: WoogOptionEnum::ZSome(subtype.read().unwrap().id),
+                subtype: WoogOptionEnum::ZSome(subtype.read().unwrap().id), // b
                 id,
             }))
         })

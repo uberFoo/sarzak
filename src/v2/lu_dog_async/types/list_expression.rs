@@ -55,11 +55,13 @@ impl ListExpression {
     pub async fn r54_list_element<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ListElement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
         span!("r54_list_element");
         match self.elements {
-            Some(ref elements) => vec![store.exhume_list_element(elements).await.unwrap()],
-            None => Vec::new(),
+            Some(ref elements) => {
+                stream::iter(vec![store.exhume_list_element(elements).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

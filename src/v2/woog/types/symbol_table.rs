@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"symbol_table-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -30,11 +30,11 @@ pub struct SymbolTable {
 impl SymbolTable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-new"}}}
     /// Inter a new 'Symbol Table' in the store, and return it's `id`.
-    pub fn new(block: &Rc<RefCell<Block>>, store: &mut WoogStore) -> Rc<RefCell<SymbolTable>> {
+    pub fn new(block: &Arc<RwLock<Block>>, store: &mut WoogStore) -> Arc<RwLock<SymbolTable>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(SymbolTable {
+        let new = Arc::new(RwLock::new(SymbolTable {
             id,
-            block: block.borrow().id,
+            block: block.read().unwrap().id,
         }));
         store.inter_symbol_table(new.clone());
         new
@@ -42,18 +42,18 @@ impl SymbolTable {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R24(1-*)
-    pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Block>>> {
+    pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Block>>> {
         span!("r24_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-backward-1_M-to-variable"}}}
     /// Navigate to [`Variable`] across R20(1-M)
-    pub fn r20_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Variable>>> {
+    pub fn r20_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Variable>>> {
         span!("r20_variable");
         store
             .iter_variable()
-            .filter(|variable| variable.borrow().symbol_table == self.id)
+            .filter(|variable| variable.read().unwrap().symbol_table == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

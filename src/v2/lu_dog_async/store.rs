@@ -10757,7 +10757,7 @@ impl ObjectStore {
         let path = path.as_ref();
         let path = path.join("lu_dog.json");
 
-        let store = Self::new();
+        let mut store = Self::new();
         let mut store = store.await;
 
         // Load Argument.

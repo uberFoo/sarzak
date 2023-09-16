@@ -49,7 +49,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::Enumeration(subtype.read().unwrap().id),
+                subtype: ItemEnum::Enumeration(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -65,7 +65,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::Function(subtype.read().unwrap().id),
+                subtype: ItemEnum::Function(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -82,7 +82,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::ImplementationBlock(subtype.read().unwrap().id),
+                subtype: ItemEnum::ImplementationBlock(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -98,7 +98,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::Import(subtype.read().unwrap().id),
+                subtype: ItemEnum::Import(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -114,7 +114,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::XMacro(subtype.read().unwrap().id),
+                subtype: ItemEnum::XMacro(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -130,7 +130,7 @@ impl Item {
         store.inter_item(|id| {
             Arc::new(RwLock::new(Item {
                 source: source.read().unwrap().id,
-                subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id),
+                subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id), // b
                 id,
             }))
         })

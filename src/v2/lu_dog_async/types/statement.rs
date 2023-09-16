@@ -65,8 +65,8 @@ impl Statement {
             .inter_statement(|id| {
                 Arc::new(RwLock::new(Statement {
                     index: index,
-                    block,
-                    next,
+                    block, // (b)
+                    next,  // (a)
                     subtype: StatementEnum::ExpressionStatement(subtype),
                     id,
                 }))
@@ -91,8 +91,8 @@ impl Statement {
             .inter_statement(|id| {
                 Arc::new(RwLock::new(Statement {
                     index: index,
-                    block,
-                    next,
+                    block, // (b)
+                    next,  // (a)
                     subtype: StatementEnum::ItemStatement(ITEM_STATEMENT),
                     id,
                 }))
@@ -120,8 +120,8 @@ impl Statement {
             .inter_statement(|id| {
                 Arc::new(RwLock::new(Statement {
                     index: index,
-                    block,
-                    next,
+                    block, // (b)
+                    next,  // (a)
                     subtype: StatementEnum::LetStatement(subtype),
                     id,
                 }))
@@ -149,8 +149,8 @@ impl Statement {
             .inter_statement(|id| {
                 Arc::new(RwLock::new(Statement {
                     index: index,
-                    block,
-                    next,
+                    block, // (b)
+                    next,  // (a)
                     subtype: StatementEnum::ResultStatement(subtype),
                     id,
                 }))
@@ -160,9 +160,12 @@ impl Statement {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
-    pub async fn r18_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r18_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r18_block");
-        vec![store.exhume_block(&self.block).await.unwrap()]
+        stream::iter(vec![store.exhume_block(&self.block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-cond-to-next"}}}
@@ -170,30 +173,33 @@ impl Statement {
     pub async fn r17_statement<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Statement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
         span!("r17_statement");
         match self.next {
-            Some(ref next) => vec![store.exhume_statement(next).await.unwrap()],
-            None => Vec::new(),
+            Some(ref next) => {
+                stream::iter(vec![store.exhume_statement(next).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-block"}}}
     /// Navigate to [`Block`] across R71(1c-1c)
-    pub async fn r71c_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r71c_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r71_block");
         store
             .iter_block()
             .await
-            .filter_map(|block| async move {
+            .filter_map(move |block| async move {
                 if block.read().await.statement == Some(self.id) {
                     Some(block.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
@@ -201,20 +207,18 @@ impl Statement {
     pub async fn r17c_statement<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Statement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
         span!("r17_statement");
         store
             .iter_statement()
             .await
-            .filter_map(|statement| async move {
+            .filter_map(move |statement| async move {
                 if statement.read().await.next == Some(self.id) {
                     Some(statement.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

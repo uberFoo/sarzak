@@ -48,11 +48,11 @@ impl Span {
         x_value: Option<&Arc<RwLock<XValue>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Span>> {
-        let source = source.read().await.id;
         let value_type = match ty {
             Some(value_type) => Some(value_type.read().await.id),
             None => None,
         };
+        let source = source.read().await.id;
         let x_value = match x_value {
             Some(x_value) => Some(x_value.read().await.id),
             None => None,
@@ -76,9 +76,9 @@ impl Span {
     pub async fn r64_dwarf_source_file<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
         span!("r64_dwarf_source_file");
-        vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()]
+        stream::iter(vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-struct-impl-nav-forward-cond-to-ty"}}}
@@ -86,21 +86,28 @@ impl Span {
     pub async fn r62_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r62_value_type");
         match self.ty {
-            Some(ref ty) => vec![store.exhume_value_type(ty).await.unwrap()],
-            None => Vec::new(),
+            Some(ref ty) => {
+                stream::iter(vec![store.exhume_value_type(ty).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-struct-impl-nav-forward-cond-to-x_value"}}}
     /// Navigate to [`XValue`] across R63(1-*c)
-    pub async fn r63_x_value<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XValue>>> {
+    pub async fn r63_x_value<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XValue>>> + '_ {
         span!("r63_x_value");
         match self.x_value {
-            Some(ref x_value) => vec![store.exhume_x_value(x_value).await.unwrap()],
-            None => Vec::new(),
+            Some(ref x_value) => {
+                stream::iter(vec![store.exhume_x_value(x_value).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

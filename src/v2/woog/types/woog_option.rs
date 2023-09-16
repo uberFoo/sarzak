@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"woog_option-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -29,11 +29,11 @@ pub struct WoogOption {
 impl WoogOption {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-new"}}}
     /// Inter a new 'Option' in the store, and return it's `id`.
-    pub fn new(ty: &Rc<RefCell<GraceType>>, store: &mut WoogStore) -> Rc<RefCell<WoogOption>> {
+    pub fn new(ty: &Arc<RwLock<GraceType>>, store: &mut WoogStore) -> Arc<RwLock<WoogOption>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(WoogOption {
+        let new = Arc::new(RwLock::new(WoogOption {
             id,
-            ty: ty.borrow().id(),
+            ty: ty.read().unwrap().id(),
         }));
         store.inter_woog_option(new.clone());
         new
@@ -41,14 +41,14 @@ impl WoogOption {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R20(1-*)
-    pub fn r20_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+    pub fn r20_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
         span!("r20_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_option-impl-nav-subtype-to-supertype-grace_type"}}}
     // Navigate to [`GraceType`] across R2(isa)
-    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
         span!("r2_grace_type");
         vec![store.exhume_grace_type(&self.id).unwrap()]
     }

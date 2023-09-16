@@ -39,7 +39,7 @@ impl Body {
     pub fn new_block(subtype: &Rc<RefCell<Block>>, store: &mut LuDogVecStore) -> Rc<RefCell<Body>> {
         store.inter_body(|id| {
             Rc::new(RefCell::new(Body {
-                subtype: BodyEnum::Block(subtype.borrow().id),
+                subtype: BodyEnum::Block(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -53,7 +53,7 @@ impl Body {
     ) -> Rc<RefCell<Body>> {
         store.inter_body(|id| {
             Rc::new(RefCell::new(Body {
-                subtype: BodyEnum::ExternalImplementation(subtype.borrow().id),
+                subtype: BodyEnum::ExternalImplementation(subtype.borrow().id), // b
                 id,
             }))
         })

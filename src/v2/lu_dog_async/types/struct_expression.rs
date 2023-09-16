@@ -56,9 +56,9 @@ impl StructExpression {
     pub async fn r39_woog_struct<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<WoogStruct>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
         span!("r39_woog_struct");
-        vec![store.exhume_woog_struct(&self.woog_struct).await.unwrap()]
+        stream::iter(vec![store.exhume_woog_struct(&self.woog_struct).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-backward-1_M-to-field_expression"}}}
@@ -66,7 +66,7 @@ impl StructExpression {
     pub async fn r26_field_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<FieldExpression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<FieldExpression>>> + '_ {
         span!("r26_field_expression");
         store
             .iter_field_expression()
@@ -78,8 +78,6 @@ impl StructExpression {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-impl-nav-subtype-to-supertype-expression"}}}

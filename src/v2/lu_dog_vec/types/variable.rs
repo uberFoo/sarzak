@@ -51,7 +51,7 @@ impl Variable {
         store.inter_variable(|id| {
             Rc::new(RefCell::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::LambdaParameter(subtype.borrow().id),
+                subtype: VariableEnum::LambdaParameter(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -67,7 +67,7 @@ impl Variable {
         store.inter_variable(|id| {
             Rc::new(RefCell::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::LocalVariable(subtype.borrow().id),
+                subtype: VariableEnum::LocalVariable(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -83,7 +83,7 @@ impl Variable {
         store.inter_variable(|id| {
             Rc::new(RefCell::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::Parameter(subtype.borrow().id),
+                subtype: VariableEnum::Parameter(subtype.borrow().id), // b
                 id,
             }))
         })

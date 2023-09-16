@@ -42,8 +42,8 @@ impl Field {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Field>> {
-        let ty = ty.read().await.id;
         let x_model = x_model.read().await.id;
+        let ty = ty.read().await.id;
         store
             .inter_field(|id| {
                 Arc::new(RwLock::new(Field {
@@ -61,9 +61,9 @@ impl Field {
     pub async fn r7_woog_struct<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<WoogStruct>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
         span!("r7_woog_struct");
-        vec![store.exhume_woog_struct(&self.x_model).await.unwrap()]
+        stream::iter(vec![store.exhume_woog_struct(&self.x_model).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
@@ -71,9 +71,9 @@ impl Field {
     pub async fn r5_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r5_value_type");
-        vec![store.exhume_value_type(&self.ty).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-impl-nav-subtype-to-supertype-field_access_target"}}}

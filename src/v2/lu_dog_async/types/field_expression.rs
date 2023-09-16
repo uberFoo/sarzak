@@ -60,9 +60,9 @@ impl FieldExpression {
     pub async fn r38_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r38_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-struct-impl-nav-forward-to-woog_struct"}}}
@@ -70,12 +70,15 @@ impl FieldExpression {
     pub async fn r26_struct_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<StructExpression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<StructExpression>>> + '_ {
         span!("r26_struct_expression");
-        vec![store
-            .exhume_struct_expression(&self.woog_struct)
-            .await
-            .unwrap()]
+        stream::iter(
+            vec![store
+                .exhume_struct_expression(&self.woog_struct)
+                .await
+                .unwrap()]
+            .into_iter(),
+        )
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-impl-nav-subtype-to-supertype-expression"}}}

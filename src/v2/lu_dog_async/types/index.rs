@@ -36,8 +36,8 @@ impl Index {
         target: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Index>> {
-        let target = target.read().await.id;
         let index = index.read().await.id;
+        let target = target.read().await.id;
         store
             .inter_index(|id| Arc::new(RwLock::new(Index { id, index, target })))
             .await
@@ -48,9 +48,9 @@ impl Index {
     pub async fn r56_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r56_expression");
-        vec![store.exhume_expression(&self.index).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.index).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-struct-impl-nav-forward-to-target"}}}
@@ -58,9 +58,9 @@ impl Index {
     pub async fn r57_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r57_expression");
-        vec![store.exhume_expression(&self.target).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.target).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"index-impl-nav-subtype-to-supertype-expression"}}}

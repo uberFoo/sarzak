@@ -35,11 +35,11 @@ impl ListElement {
         next: Option<&Arc<RwLock<ListElement>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ListElement>> {
-        let expression = expression.read().await.id;
         let list_element = match next {
             Some(list_element) => Some(list_element.read().await.id),
             None => None,
         };
+        let expression = expression.read().await.id;
         store
             .inter_list_element(|id| {
                 Arc::new(RwLock::new(ListElement {
@@ -57,9 +57,9 @@ impl ListElement {
     pub async fn r55_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r55_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-forward-cond-to-next"}}}
@@ -67,11 +67,13 @@ impl ListElement {
     pub async fn r53_list_element<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ListElement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
         span!("r53_list_element");
         match self.next {
-            Some(ref next) => vec![store.exhume_list_element(next).await.unwrap()],
-            None => Vec::new(),
+            Some(ref next) => {
+                stream::iter(vec![store.exhume_list_element(next).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -80,20 +82,18 @@ impl ListElement {
     pub async fn r53c_list_element<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ListElement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
         span!("r53_list_element");
         store
             .iter_list_element()
             .await
-            .filter_map(|list_element| async move {
+            .filter_map(move |list_element| async move {
                 if list_element.read().await.next == Some(self.id) {
                     Some(list_element.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-backward-one-to-list_expression"}}}
@@ -101,7 +101,7 @@ impl ListElement {
     pub async fn r54_list_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ListExpression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ListExpression>>> + '_ {
         span!("r54_list_expression");
         store
             .iter_list_expression()
@@ -113,8 +113,6 @@ impl ListElement {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-impl-nav-subtype-to-supertype-expression"}}}

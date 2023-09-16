@@ -51,9 +51,9 @@ impl TypeCast {
     pub async fn r68_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r68_expression");
-        vec![store.exhume_expression(&self.lhs).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.lhs).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-struct-impl-nav-forward-to-ty"}}}
@@ -61,9 +61,9 @@ impl TypeCast {
     pub async fn r69_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r69_value_type");
-        vec![store.exhume_value_type(&self.ty).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-impl-nav-subtype-to-supertype-expression"}}}

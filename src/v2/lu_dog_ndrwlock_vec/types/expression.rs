@@ -97,7 +97,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Block(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Block(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -111,7 +111,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Call(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Call(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -136,7 +136,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::EnumField(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::EnumField(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -150,7 +150,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ErrorExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::ErrorExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -164,7 +164,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::FieldAccess(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::FieldAccess(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -178,7 +178,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::FieldExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::FieldExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -192,7 +192,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ForLoop(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::ForLoop(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -206,7 +206,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Grouped(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Grouped(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -220,7 +220,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::XIf(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::XIf(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -234,7 +234,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Index(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Index(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -248,7 +248,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Lambda(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Lambda(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -262,7 +262,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ListElement(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::ListElement(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -276,7 +276,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ListExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::ListExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -290,7 +290,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Literal(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Literal(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -304,7 +304,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::XMatch(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::XMatch(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -329,7 +329,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::Operator(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::Operator(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -344,7 +344,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::XPrint(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::XPrint(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -358,7 +358,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::RangeExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::RangeExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -372,7 +372,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::XReturn(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::XReturn(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -386,7 +386,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ZSome(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::ZSome(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -400,7 +400,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::StructExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::StructExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -414,7 +414,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::TypeCast(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::TypeCast(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -428,7 +428,7 @@ impl Expression {
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::VariableExpression(subtype.read().unwrap().id),
+                subtype: ExpressionEnum::VariableExpression(subtype.read().unwrap().id), // b
                 id,
             }))
         })

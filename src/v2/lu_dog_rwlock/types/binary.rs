@@ -61,7 +61,7 @@ impl Binary {
             store.inter_binary(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Binary::Division
     pub fn new_division(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {

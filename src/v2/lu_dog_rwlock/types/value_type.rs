@@ -3,9 +3,10 @@
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 use crate::v2::lu_dog_rwlock::types::char::CHAR;
 use crate::v2::lu_dog_rwlock::types::empty::EMPTY;
-use crate::v2::lu_dog_rwlock::types::error::Error;
+use crate::v2::lu_dog_rwlock::types::enumeration::Enumeration;
 use crate::v2::lu_dog_rwlock::types::field::Field;
 use crate::v2::lu_dog_rwlock::types::function::Function;
+use crate::v2::lu_dog_rwlock::types::generic::Generic;
 use crate::v2::lu_dog_rwlock::types::import::Import;
 use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
@@ -14,10 +15,12 @@ use crate::v2::lu_dog_rwlock::types::parameter::Parameter;
 use crate::v2::lu_dog_rwlock::types::range::RANGE;
 use crate::v2::lu_dog_rwlock::types::reference::Reference;
 use crate::v2::lu_dog_rwlock::types::span::Span;
+use crate::v2::lu_dog_rwlock::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_rwlock::types::woog_option::WoogOption;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_rwlock::types::x_error::XError;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -53,8 +56,10 @@ use uuid::Uuid;
 pub enum ValueType {
     Char(Uuid),
     Empty(Uuid),
-    Error(Uuid),
+    Enumeration(Uuid),
+    XError(Uuid),
     Function(Uuid),
+    Generic(Uuid),
     Import(Uuid),
     Lambda(Uuid),
     List(Uuid),
@@ -82,20 +87,35 @@ impl ValueType {
         store.exhume_value_type(&EMPTY).unwrap()
     }
 
-    /// Create a new instance of ValueType::Error
-    pub fn new_error(
-        error: &Arc<RwLock<Error>>,
+    /// Create a new instance of ValueType::Enumeration
+    pub fn new_enumeration(
+        enumeration: &Arc<RwLock<Enumeration>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Self>> {
-        let id = error.read().unwrap().id();
-        if let Some(error) = store.exhume_value_type(&id) {
-            error
+        let id = enumeration.read().unwrap().id;
+        if let Some(enumeration) = store.exhume_value_type(&id) {
+            enumeration
         } else {
-            let new = Arc::new(RwLock::new(Self::Error(id)));
+            let new = Arc::new(RwLock::new(Self::Enumeration(id)));
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
+
+    /// Create a new instance of ValueType::XError
+    pub fn new_x_error(
+        x_error: &Arc<RwLock<XError>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = x_error.read().unwrap().id();
+        if let Some(x_error) = store.exhume_value_type(&id) {
+            x_error
+        } else {
+            let new = Arc::new(RwLock::new(Self::XError(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    } // wtf?
 
     /// Create a new instance of ValueType::Function
     pub fn new_function(
@@ -110,7 +130,22 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
+
+    /// Create a new instance of ValueType::Generic
+    pub fn new_generic(
+        generic: &Arc<RwLock<Generic>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = generic.read().unwrap().id;
+        if let Some(generic) = store.exhume_value_type(&id) {
+            generic
+        } else {
+            let new = Arc::new(RwLock::new(Self::Generic(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    } // wtf?
 
     /// Create a new instance of ValueType::Import
     pub fn new_import(
@@ -125,7 +160,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Lambda
     pub fn new_lambda(
@@ -140,7 +175,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::List
     pub fn new_list(list: &Arc<RwLock<List>>, store: &mut LuDogRwlockStore) -> Arc<RwLock<Self>> {
@@ -152,7 +187,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::ZObjectStore
     pub fn new_z_object_store(
@@ -167,7 +202,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(
@@ -182,7 +217,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Range
     pub fn new_range(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
@@ -203,7 +238,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::WoogStruct
     pub fn new_woog_struct(
@@ -218,7 +253,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: &Arc<RwLock<Ty>>, store: &mut LuDogRwlockStore) -> Arc<RwLock<Self>> {
@@ -230,7 +265,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Unknown
     pub fn new_unknown(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
@@ -244,8 +279,10 @@ impl ValueType {
         match self {
             Self::Char(id) => *id,
             Self::Empty(id) => *id,
-            Self::Error(id) => *id,
+            Self::Enumeration(id) => *id,
+            Self::XError(id) => *id,
             Self::Function(id) => *id,
+            Self::Generic(id) => *id,
             Self::Import(id) => *id,
             Self::Lambda(id) => *id,
             Self::List(id) => *id,
@@ -352,6 +389,19 @@ impl ValueType {
         store
             .iter_span()
             .filter(|span| span.read().unwrap().ty == Some(self.id()))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-tuple_field"}}}
+    /// Navigate to [`TupleField`] across R86(1-M)
+    pub fn r86_tuple_field<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<TupleField>>> {
+        span!("r86_tuple_field");
+        store
+            .iter_tuple_field()
+            .filter(|tuple_field| tuple_field.read().unwrap().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

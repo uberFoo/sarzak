@@ -53,7 +53,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::Enumeration(subtype),
                     id,
                 }))
@@ -74,7 +74,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::Function(subtype),
                     id,
                 }))
@@ -95,7 +95,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::ImplementationBlock(subtype),
                     id,
                 }))
@@ -116,7 +116,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::Import(subtype),
                     id,
                 }))
@@ -137,7 +137,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::XMacro(subtype),
                     id,
                 }))
@@ -158,7 +158,7 @@ impl Item {
         store
             .inter_item(|id| {
                 Arc::new(RwLock::new(Item {
-                    source,
+                    source, // (b)
                     subtype: ItemEnum::WoogStruct(subtype),
                     id,
                 }))
@@ -171,9 +171,9 @@ impl Item {
     pub async fn r25_dwarf_source_file<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
         span!("r25_dwarf_source_file");
-        vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()]
+        stream::iter(vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

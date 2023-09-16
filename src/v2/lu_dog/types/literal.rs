@@ -44,7 +44,7 @@ impl Literal {
             store.inter_literal(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Literal::FloatLiteral
     pub fn new_float_literal(
@@ -59,7 +59,7 @@ impl Literal {
             store.inter_literal(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Literal::IntegerLiteral
     pub fn new_integer_literal(
@@ -74,7 +74,7 @@ impl Literal {
             store.inter_literal(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Literal::StringLiteral
     pub fn new_string_literal(
@@ -89,7 +89,7 @@ impl Literal {
             store.inter_literal(new.clone());
             new
         }
-    }
+    } // wtf?
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}

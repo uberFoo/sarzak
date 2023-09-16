@@ -1,6 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field_access_target-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-use-statements"}}}
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use crate::v2::lu_dog::types::enum_field::EnumField;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::function::Function;
@@ -20,6 +21,7 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-enum-definition"}}}
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum FieldAccessTarget {
+    EnumField(Uuid),
     Field(Uuid),
     Function(Uuid),
 }
@@ -27,6 +29,21 @@ pub enum FieldAccessTarget {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-implementation"}}}
 impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-new-impl"}}}
+    /// Create a new instance of FieldAccessTarget::EnumField
+    pub fn new_enum_field(
+        enum_field: &Rc<RefCell<EnumField>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Self>> {
+        let id = enum_field.borrow().id;
+        if let Some(enum_field) = store.exhume_field_access_target(&id) {
+            enum_field
+        } else {
+            let new = Rc::new(RefCell::new(Self::EnumField(id)));
+            store.inter_field_access_target(new.clone());
+            new
+        }
+    } // wtf?
+
     /// Create a new instance of FieldAccessTarget::Field
     pub fn new_field(field: &Rc<RefCell<Field>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
         let id = field.borrow().id;
@@ -37,7 +54,7 @@ impl FieldAccessTarget {
             store.inter_field_access_target(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of FieldAccessTarget::Function
     pub fn new_function(
@@ -52,12 +69,13 @@ impl FieldAccessTarget {
             store.inter_field_access_target(new.clone());
             new
         }
-    }
+    } // wtf?
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            Self::EnumField(id) => *id,
             Self::Field(id) => *id,
             Self::Function(id) => *id,
         }

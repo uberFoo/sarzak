@@ -46,9 +46,9 @@ impl XPrint {
     pub async fn r32_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r32_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_print-impl-nav-subtype-to-supertype-expression"}}}

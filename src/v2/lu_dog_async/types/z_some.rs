@@ -47,9 +47,12 @@ impl ZSome {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-struct-impl-nav-forward-to-inner"}}}
     /// Navigate to [`XValue`] across R23(1-*)
-    pub async fn r23_x_value<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XValue>>> {
+    pub async fn r23_x_value<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XValue>>> + '_ {
         span!("r23_x_value");
-        vec![store.exhume_x_value(&self.inner).await.unwrap()]
+        stream::iter(vec![store.exhume_x_value(&self.inner).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_some-impl-nav-subtype-to-supertype-expression"}}}

@@ -53,9 +53,9 @@ impl Pattern {
         x_match: &Arc<RwLock<XMatch>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Pattern>> {
+        let expression = expression.read().await.id;
         let match_expr = match_expr.read().await.id;
         let x_match = x_match.read().await.id;
-        let expression = expression.read().await.id;
         store
             .inter_pattern(|id| {
                 Arc::new(RwLock::new(Pattern {
@@ -73,9 +73,9 @@ impl Pattern {
     pub async fn r92_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r92_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"pattern-struct-impl-nav-forward-assoc-to-match_expr"}}}

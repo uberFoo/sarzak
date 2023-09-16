@@ -66,8 +66,8 @@ impl Call {
             .inter_call(|id| {
                 Arc::new(RwLock::new(Call {
                     arg_check: arg_check,
-                    argument,
-                    expression,
+                    argument,   // (a)
+                    expression, // (a)
                     subtype: CallEnum::FunctionCall(FUNCTION_CALL),
                     id,
                 }))
@@ -95,8 +95,8 @@ impl Call {
             .inter_call(|id| {
                 Arc::new(RwLock::new(Call {
                     arg_check: arg_check,
-                    argument,
-                    expression,
+                    argument,   // (a)
+                    expression, // (a)
                     subtype: CallEnum::MacroCall(MACRO_CALL),
                     id,
                 }))
@@ -127,8 +127,8 @@ impl Call {
             .inter_call(|id| {
                 Arc::new(RwLock::new(Call {
                     arg_check: arg_check,
-                    argument,
-                    expression,
+                    argument,   // (a)
+                    expression, // (a)
                     subtype: CallEnum::MethodCall(subtype),
                     id,
                 }))
@@ -159,8 +159,8 @@ impl Call {
             .inter_call(|id| {
                 Arc::new(RwLock::new(Call {
                     arg_check: arg_check,
-                    argument,
-                    expression,
+                    argument,   // (a)
+                    expression, // (a)
                     subtype: CallEnum::StaticMethodCall(subtype),
                     id,
                 }))
@@ -173,11 +173,13 @@ impl Call {
     pub async fn r81_argument<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Argument>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
         span!("r81_argument");
         match self.argument {
-            Some(ref argument) => vec![store.exhume_argument(argument).await.unwrap()],
-            None => Vec::new(),
+            Some(ref argument) => {
+                stream::iter(vec![store.exhume_argument(argument).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -186,11 +188,13 @@ impl Call {
     pub async fn r29_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r29_expression");
         match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(expression).await.unwrap()],
-            None => Vec::new(),
+            Some(ref expression) => {
+                stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -199,20 +203,15 @@ impl Call {
     pub async fn r28_argument<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Argument>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
         span!("r28_argument");
-        store
-            .iter_argument()
-            .await
-            .filter_map(|argument| async {
-                if argument.read().await.function == self.id {
-                    Some(argument)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_argument().await.filter_map(|argument| async {
+            if argument.read().await.function == self.id {
+                Some(argument)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}

@@ -62,10 +62,10 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*c)
-    pub async fn r4_object<'a>(
+    pub fn r4_object<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(object).unwrap()],
@@ -75,20 +75,18 @@ impl WoogStruct {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R7(1-M)
-    pub async fn r7_field<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Field>>> {
+    pub async fn r7_field<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Field>>> + '_ {
         span!("r7_field");
-        store
-            .iter_field()
-            .await
-            .filter_map(|field| async {
-                if field.read().await.x_model == self.id {
-                    Some(field)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_field().await.filter_map(|field| async {
+            if field.read().await.x_model == self.id {
+                Some(field)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field_access"}}}
@@ -96,7 +94,7 @@ impl WoogStruct {
     pub async fn r66_field_access<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<FieldAccess>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccess>>> + '_ {
         span!("r66_field_access");
         store
             .iter_field_access()
@@ -108,8 +106,6 @@ impl WoogStruct {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-one-bi-cond-to-implementation_block"}}}
@@ -117,20 +113,18 @@ impl WoogStruct {
     pub async fn r8c_implementation_block<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
         span!("r8_implementation_block");
         store
             .iter_implementation_block()
             .await
-            .filter_map(|implementation_block| async move {
+            .filter_map(move |implementation_block| async move {
                 if implementation_block.read().await.model_type == Some(self.id) {
                     Some(implementation_block.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
@@ -138,7 +132,7 @@ impl WoogStruct {
     pub async fn r39_struct_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<StructExpression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<StructExpression>>> + '_ {
         span!("r39_struct_expression");
         store
             .iter_struct_expression()
@@ -150,8 +144,6 @@ impl WoogStruct {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

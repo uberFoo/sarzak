@@ -43,9 +43,9 @@ impl FieldAccess {
         woog_struct: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccess>> {
-        let expression = expression.read().await.id;
-        let woog_struct = woog_struct.read().await.id;
         let field = field.read().await.id;
+        let woog_struct = woog_struct.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_field_access(|id| {
                 Arc::new(RwLock::new(FieldAccess {
@@ -63,9 +63,9 @@ impl FieldAccess {
     pub async fn r27_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r27_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-field"}}}
@@ -73,9 +73,9 @@ impl FieldAccess {
     pub async fn r65_field_access_target<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccessTarget>>> + '_ {
         span!("r65_field_access_target");
-        vec![store.exhume_field_access_target(&self.field).await.unwrap()]
+        stream::iter(vec![store.exhume_field_access_target(&self.field).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-woog_struct"}}}
@@ -83,9 +83,9 @@ impl FieldAccess {
     pub async fn r66_woog_struct<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<WoogStruct>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
         span!("r66_woog_struct");
-        vec![store.exhume_woog_struct(&self.woog_struct).await.unwrap()]
+        stream::iter(vec![store.exhume_woog_struct(&self.woog_struct).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-impl-nav-subtype-to-supertype-expression"}}}

@@ -42,7 +42,7 @@ impl Body {
     ) -> Arc<RwLock<Body>> {
         store.inter_body(|id| {
             Arc::new(RwLock::new(Body {
-                subtype: BodyEnum::Block(subtype.read().unwrap().id),
+                subtype: BodyEnum::Block(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -56,7 +56,7 @@ impl Body {
     ) -> Arc<RwLock<Body>> {
         store.inter_body(|id| {
             Arc::new(RwLock::new(Body {
-                subtype: BodyEnum::ExternalImplementation(subtype.read().unwrap().id),
+                subtype: BodyEnum::ExternalImplementation(subtype.read().unwrap().id), // b
                 id,
             }))
         })

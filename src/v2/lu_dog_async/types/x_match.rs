@@ -53,9 +53,9 @@ impl XMatch {
     pub async fn r91_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r91_expression");
-        vec![store.exhume_expression(&self.scrutinee).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.scrutinee).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_match-struct-impl-nav-backward-assoc-many-to-pattern"}}}

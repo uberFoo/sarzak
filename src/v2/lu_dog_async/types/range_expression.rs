@@ -59,8 +59,8 @@ impl RangeExpression {
         store
             .inter_range_expression(|id| {
                 Arc::new(RwLock::new(RangeExpression {
-                    lhs,
-                    rhs,
+                    lhs, // (a)
+                    rhs, // (a)
                     subtype: RangeExpressionEnum::From(FROM),
                     id,
                 }))
@@ -86,8 +86,8 @@ impl RangeExpression {
         store
             .inter_range_expression(|id| {
                 Arc::new(RwLock::new(RangeExpression {
-                    lhs,
-                    rhs,
+                    lhs, // (a)
+                    rhs, // (a)
                     subtype: RangeExpressionEnum::Full(FULL),
                     id,
                 }))
@@ -113,8 +113,8 @@ impl RangeExpression {
         store
             .inter_range_expression(|id| {
                 Arc::new(RwLock::new(RangeExpression {
-                    lhs,
-                    rhs,
+                    lhs, // (a)
+                    rhs, // (a)
                     subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
                     id,
                 }))
@@ -140,8 +140,8 @@ impl RangeExpression {
         store
             .inter_range_expression(|id| {
                 Arc::new(RwLock::new(RangeExpression {
-                    lhs,
-                    rhs,
+                    lhs, // (a)
+                    rhs, // (a)
                     subtype: RangeExpressionEnum::To(TO),
                     id,
                 }))
@@ -167,8 +167,8 @@ impl RangeExpression {
         store
             .inter_range_expression(|id| {
                 Arc::new(RwLock::new(RangeExpression {
-                    lhs,
-                    rhs,
+                    lhs, // (a)
+                    rhs, // (a)
                     subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
                     id,
                 }))
@@ -181,11 +181,13 @@ impl RangeExpression {
     pub async fn r58_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r58_expression");
         match self.lhs {
-            Some(ref lhs) => vec![store.exhume_expression(lhs).await.unwrap()],
-            None => Vec::new(),
+            Some(ref lhs) => {
+                stream::iter(vec![store.exhume_expression(lhs).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -194,11 +196,13 @@ impl RangeExpression {
     pub async fn r59_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r59_expression");
         match self.rhs {
-            Some(ref rhs) => vec![store.exhume_expression(rhs).await.unwrap()],
-            None => Vec::new(),
+            Some(ref rhs) => {
+                stream::iter(vec![store.exhume_expression(rhs).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

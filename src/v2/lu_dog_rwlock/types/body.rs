@@ -39,7 +39,7 @@ impl Body {
             store.inter_body(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of Body::ExternalImplementation
     pub fn new_external_implementation(
@@ -54,7 +54,7 @@ impl Body {
             store.inter_body(new.clone());
             new
         }
-    }
+    } // wtf?
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-get-id-impl"}}}

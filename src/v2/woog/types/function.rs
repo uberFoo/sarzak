@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"function-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -41,14 +41,14 @@ impl Function {
     pub fn new_object_method(
         description: String,
         name: String,
-        subtype: &Rc<RefCell<ObjectMethod>>,
+        subtype: &Arc<RwLock<ObjectMethod>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Function>> {
+    ) -> Arc<RwLock<Function>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Function {
+        let new = Arc::new(RwLock::new(Function {
             description: description,
             name: name,
-            subtype: FunctionEnum::ObjectMethod(subtype.borrow().id),
+            subtype: FunctionEnum::ObjectMethod(subtype.read().unwrap().id),
             id,
         }));
         store.inter_function(new.clone());
@@ -57,11 +57,11 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R5(1c-1c)
-    pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Parameter>>> {
+    pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Parameter>>> {
         span!("r5_parameter");
         let parameter = store
             .iter_parameter()
-            .find(|parameter| parameter.borrow().function == Some(self.id));
+            .find(|parameter| parameter.read().unwrap().function == Some(self.id));
         match parameter {
             Some(ref parameter) => vec![parameter.clone()],
             None => Vec::new(),
@@ -70,7 +70,7 @@ impl Function {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
-    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Item>>> {
+    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Item>>> {
         span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }

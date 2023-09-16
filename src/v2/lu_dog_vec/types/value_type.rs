@@ -113,7 +113,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Enumeration(subtype.borrow().id),
+                subtype: ValueTypeEnum::Enumeration(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -128,7 +128,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::XError(subtype.borrow().id),
+                subtype: ValueTypeEnum::XError(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -142,7 +142,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Function(subtype.borrow().id),
+                subtype: ValueTypeEnum::Function(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -156,7 +156,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Generic(subtype.borrow().id),
+                subtype: ValueTypeEnum::Generic(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -170,7 +170,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Import(subtype.borrow().id),
+                subtype: ValueTypeEnum::Import(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -184,7 +184,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Lambda(subtype.borrow().id),
+                subtype: ValueTypeEnum::Lambda(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -198,7 +198,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::List(subtype.borrow().id),
+                subtype: ValueTypeEnum::List(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -212,7 +212,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::ZObjectStore(subtype.borrow().id),
+                subtype: ValueTypeEnum::ZObjectStore(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -226,7 +226,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::WoogOption(subtype.borrow().id),
+                subtype: ValueTypeEnum::WoogOption(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -251,7 +251,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Reference(subtype.borrow().id),
+                subtype: ValueTypeEnum::Reference(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -265,7 +265,7 @@ impl ValueType {
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::WoogStruct(subtype.borrow().id),
+                subtype: ValueTypeEnum::WoogStruct(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -273,10 +273,13 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_ty(subtype: &Rc<RefCell<Ty>>, store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_ty(
+        subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Ty(subtype.borrow().id()),
+                subtype: ValueTypeEnum::Ty(subtype.read().unwrap().id()),
                 id,
             }))
         })

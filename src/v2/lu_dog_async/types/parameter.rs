@@ -47,12 +47,12 @@ impl Parameter {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Parameter>> {
-        let ty = ty.read().await.id;
         let function = function.read().await.id;
         let parameter = match next {
             Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
+        let ty = ty.read().await.id;
         store
             .inter_parameter(|id| {
                 Arc::new(RwLock::new(Parameter {
@@ -71,9 +71,9 @@ impl Parameter {
     pub async fn r13_function<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Function>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
         span!("r13_function");
-        vec![store.exhume_function(&self.function).await.unwrap()]
+        stream::iter(vec![store.exhume_function(&self.function).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
@@ -81,11 +81,13 @@ impl Parameter {
     pub async fn r14_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Parameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
         span!("r14_parameter");
         match self.next {
-            Some(ref next) => vec![store.exhume_parameter(next).await.unwrap()],
-            None => Vec::new(),
+            Some(ref next) => {
+                stream::iter(vec![store.exhume_parameter(next).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -94,9 +96,9 @@ impl Parameter {
     pub async fn r79_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r79_value_type");
-        vec![store.exhume_value_type(&self.ty).await.unwrap()]
+        stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-function"}}}
@@ -104,20 +106,18 @@ impl Parameter {
     pub async fn r82c_function<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Function>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
         span!("r82_function");
         store
             .iter_function()
             .await
-            .filter_map(|function| async move {
+            .filter_map(move |function| async move {
                 if function.read().await.first_param == Some(self.id) {
                     Some(function.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
@@ -125,20 +125,18 @@ impl Parameter {
     pub async fn r14c_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Parameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
         span!("r14_parameter");
         store
             .iter_parameter()
             .await
-            .filter_map(|parameter| async move {
+            .filter_map(move |parameter| async move {
                 if parameter.read().await.next == Some(self.id) {
                     Some(parameter.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}

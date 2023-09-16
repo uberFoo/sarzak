@@ -74,7 +74,7 @@ impl Binary {
     ) -> Rc<RefCell<Binary>> {
         store.inter_binary(|id| {
             Rc::new(RefCell::new(Binary {
-                subtype: BinaryEnum::BooleanOperator(subtype.borrow().id),
+                subtype: BinaryEnum::BooleanOperator(subtype.borrow().id), // b
                 id,
             }))
         })

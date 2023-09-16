@@ -56,11 +56,13 @@ impl StructField {
     pub async fn r89_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r89_expression");
         match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(expression).await.unwrap()],
-            None => Vec::new(),
+            Some(ref expression) => {
+                stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

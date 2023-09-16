@@ -48,7 +48,7 @@ impl Literal {
     ) -> Rc<RefCell<Literal>> {
         store.inter_literal(|id| {
             Rc::new(RefCell::new(Literal {
-                subtype: LiteralEnum::BooleanLiteral(subtype.borrow().id),
+                subtype: LiteralEnum::BooleanLiteral(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -62,7 +62,7 @@ impl Literal {
     ) -> Rc<RefCell<Literal>> {
         store.inter_literal(|id| {
             Rc::new(RefCell::new(Literal {
-                subtype: LiteralEnum::FloatLiteral(subtype.borrow().id),
+                subtype: LiteralEnum::FloatLiteral(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -76,7 +76,7 @@ impl Literal {
     ) -> Rc<RefCell<Literal>> {
         store.inter_literal(|id| {
             Rc::new(RefCell::new(Literal {
-                subtype: LiteralEnum::IntegerLiteral(subtype.borrow().id),
+                subtype: LiteralEnum::IntegerLiteral(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -90,7 +90,7 @@ impl Literal {
     ) -> Rc<RefCell<Literal>> {
         store.inter_literal(|id| {
             Rc::new(RefCell::new(Literal {
-                subtype: LiteralEnum::StringLiteral(subtype.borrow().id),
+                subtype: LiteralEnum::StringLiteral(subtype.borrow().id), // b
                 id,
             }))
         })

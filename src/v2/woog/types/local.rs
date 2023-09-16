@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"local-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -31,21 +31,21 @@ pub struct Local {
 impl Local {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-struct-impl-new"}}}
     /// Inter a new 'Local' in the store, and return it's `id`.
-    pub fn new(seed: Uuid, store: &mut WoogStore) -> Rc<RefCell<Local>> {
+    pub fn new(seed: Uuid, store: &mut WoogStore) -> Arc<RwLock<Local>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Local { id, seed }));
+        let new = Arc::new(RwLock::new(Local { id, seed }));
         store.inter_local(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R8(isa)
-    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Variable>>> {
+    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Variable>>> {
         span!("r8_variable");
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::Local(id) = variable.borrow().subtype {
+                if let VariableEnum::Local(id) = variable.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

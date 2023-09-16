@@ -18,8 +18,8 @@
 //! * [`RelationshipUi`]
 //! * [`SubtypeAnchors`]
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-definition"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use std::{
     fs,
     io::{self, prelude::*},
@@ -38,41 +38,41 @@ use crate::v2::drawing::types::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
-    anchor: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Anchor>>, SystemTime)>>>,
-    associative_ui: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<AssociativeUi>>, SystemTime)>>>,
-    binary_ui: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<BinaryUi>>, SystemTime)>>>,
-    edge: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Edge>>, SystemTime)>>>,
-    isa_ui: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<IsaUi>>, SystemTime)>>>,
-    object_edge: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ObjectEdge>>, SystemTime)>>>,
-    object_ui: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<ObjectUi>>, SystemTime)>>>,
-    point: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<Point>>, SystemTime)>>>,
-    relationship_ui: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<RelationshipUi>>, SystemTime)>>>,
-    subtype_anchors: Rc<RefCell<HashMap<Uuid, (Rc<RefCell<SubtypeAnchors>>, SystemTime)>>>,
+    anchor: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Anchor>>, SystemTime)>>>,
+    associative_ui: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<AssociativeUi>>, SystemTime)>>>,
+    binary_ui: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<BinaryUi>>, SystemTime)>>>,
+    edge: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Edge>>, SystemTime)>>>,
+    isa_ui: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<IsaUi>>, SystemTime)>>>,
+    object_edge: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ObjectEdge>>, SystemTime)>>>,
+    object_ui: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<ObjectUi>>, SystemTime)>>>,
+    point: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<Point>>, SystemTime)>>>,
+    relationship_ui: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<RelationshipUi>>, SystemTime)>>>,
+    subtype_anchors: Arc<RwLock<HashMap<Uuid, (Arc<RwLock<SubtypeAnchors>>, SystemTime)>>>,
 }
 
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
-            anchor: Rc::new(RefCell::new(HashMap::default())),
-            associative_ui: Rc::new(RefCell::new(HashMap::default())),
-            binary_ui: Rc::new(RefCell::new(HashMap::default())),
-            edge: Rc::new(RefCell::new(HashMap::default())),
-            isa_ui: Rc::new(RefCell::new(HashMap::default())),
-            object_edge: Rc::new(RefCell::new(HashMap::default())),
-            object_ui: Rc::new(RefCell::new(HashMap::default())),
-            point: Rc::new(RefCell::new(HashMap::default())),
-            relationship_ui: Rc::new(RefCell::new(HashMap::default())),
-            subtype_anchors: Rc::new(RefCell::new(HashMap::default())),
+            anchor: Arc::new(RwLock::new(HashMap::default())),
+            associative_ui: Arc::new(RwLock::new(HashMap::default())),
+            binary_ui: Arc::new(RwLock::new(HashMap::default())),
+            edge: Arc::new(RwLock::new(HashMap::default())),
+            isa_ui: Arc::new(RwLock::new(HashMap::default())),
+            object_edge: Arc::new(RwLock::new(HashMap::default())),
+            object_ui: Arc::new(RwLock::new(HashMap::default())),
+            point: Arc::new(RwLock::new(HashMap::default())),
+            relationship_ui: Arc::new(RwLock::new(HashMap::default())),
+            subtype_anchors: Arc::new(RwLock::new(HashMap::default())),
         };
 
         // Initialize Singleton Subtypes
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_edge(Rc::new(RefCell::new(Edge::Bottom(BOTTOM))));
-        store.inter_edge(Rc::new(RefCell::new(Edge::Left(LEFT))));
-        store.inter_edge(Rc::new(RefCell::new(Edge::Right(RIGHT))));
-        store.inter_edge(Rc::new(RefCell::new(Edge::Top(TOP))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        store.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
 
         store
     }
@@ -80,34 +80,41 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::drawing-object-store-methods"}}}
     /// Inter (insert) [`Anchor`] into the store.
     ///
-    pub fn inter_anchor(&mut self, anchor: Rc<RefCell<Anchor>>) {
-        let read = anchor.borrow();
+    pub fn inter_anchor(&mut self, anchor: Arc<RwLock<Anchor>>) {
+        let read = anchor.read().unwrap();
         self.anchor
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (anchor.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Anchor`] from the store.
     ///
-    pub fn exhume_anchor(&self, id: &Uuid) -> Option<Rc<RefCell<Anchor>>> {
-        self.anchor.borrow().get(id).map(|anchor| anchor.0.clone())
+    pub fn exhume_anchor(&self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
+        self.anchor
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|anchor| anchor.0.clone())
     }
 
     /// Exorcise (remove) [`Anchor`] from the store.
     ///
-    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Rc<RefCell<Anchor>>> {
+    pub fn exorcise_anchor(&mut self, id: &Uuid) -> Option<Arc<RwLock<Anchor>>> {
         self.anchor
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|anchor| anchor.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Anchor>`.
     ///
-    pub fn iter_anchor(&self) -> impl Iterator<Item = Rc<RefCell<Anchor>>> + '_ {
-        let values: Vec<Rc<RefCell<Anchor>>> = self
+    pub fn iter_anchor(&self) -> impl Iterator<Item = Arc<RwLock<Anchor>>> + '_ {
+        let values: Vec<Arc<RwLock<Anchor>>> = self
             .anchor
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|anchor| anchor.0.clone())
             .collect();
@@ -119,7 +126,8 @@ impl ObjectStore {
     ///
     pub fn anchor_timestamp(&self, anchor: &Anchor) -> SystemTime {
         self.anchor
-            .borrow()
+            .read()
+            .unwrap()
             .get(&anchor.id)
             .map(|anchor| anchor.1)
             .unwrap_or(SystemTime::now())
@@ -127,37 +135,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`AssociativeUi`] into the store.
     ///
-    pub fn inter_associative_ui(&mut self, associative_ui: Rc<RefCell<AssociativeUi>>) {
-        let read = associative_ui.borrow();
+    pub fn inter_associative_ui(&mut self, associative_ui: Arc<RwLock<AssociativeUi>>) {
+        let read = associative_ui.read().unwrap();
         self.associative_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (associative_ui.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`AssociativeUi`] from the store.
     ///
-    pub fn exhume_associative_ui(&self, id: &Uuid) -> Option<Rc<RefCell<AssociativeUi>>> {
+    pub fn exhume_associative_ui(&self, id: &Uuid) -> Option<Arc<RwLock<AssociativeUi>>> {
         self.associative_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|associative_ui| associative_ui.0.clone())
     }
 
     /// Exorcise (remove) [`AssociativeUi`] from the store.
     ///
-    pub fn exorcise_associative_ui(&mut self, id: &Uuid) -> Option<Rc<RefCell<AssociativeUi>>> {
+    pub fn exorcise_associative_ui(&mut self, id: &Uuid) -> Option<Arc<RwLock<AssociativeUi>>> {
         self.associative_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|associative_ui| associative_ui.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, AssociativeUi>`.
     ///
-    pub fn iter_associative_ui(&self) -> impl Iterator<Item = Rc<RefCell<AssociativeUi>>> + '_ {
-        let values: Vec<Rc<RefCell<AssociativeUi>>> = self
+    pub fn iter_associative_ui(&self) -> impl Iterator<Item = Arc<RwLock<AssociativeUi>>> + '_ {
+        let values: Vec<Arc<RwLock<AssociativeUi>>> = self
             .associative_ui
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|associative_ui| associative_ui.0.clone())
             .collect();
@@ -169,7 +181,8 @@ impl ObjectStore {
     ///
     pub fn associative_ui_timestamp(&self, associative_ui: &AssociativeUi) -> SystemTime {
         self.associative_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(&associative_ui.id)
             .map(|associative_ui| associative_ui.1)
             .unwrap_or(SystemTime::now())
@@ -177,37 +190,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`BinaryUi`] into the store.
     ///
-    pub fn inter_binary_ui(&mut self, binary_ui: Rc<RefCell<BinaryUi>>) {
-        let read = binary_ui.borrow();
+    pub fn inter_binary_ui(&mut self, binary_ui: Arc<RwLock<BinaryUi>>) {
+        let read = binary_ui.read().unwrap();
         self.binary_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (binary_ui.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`BinaryUi`] from the store.
     ///
-    pub fn exhume_binary_ui(&self, id: &Uuid) -> Option<Rc<RefCell<BinaryUi>>> {
+    pub fn exhume_binary_ui(&self, id: &Uuid) -> Option<Arc<RwLock<BinaryUi>>> {
         self.binary_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|binary_ui| binary_ui.0.clone())
     }
 
     /// Exorcise (remove) [`BinaryUi`] from the store.
     ///
-    pub fn exorcise_binary_ui(&mut self, id: &Uuid) -> Option<Rc<RefCell<BinaryUi>>> {
+    pub fn exorcise_binary_ui(&mut self, id: &Uuid) -> Option<Arc<RwLock<BinaryUi>>> {
         self.binary_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|binary_ui| binary_ui.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, BinaryUi>`.
     ///
-    pub fn iter_binary_ui(&self) -> impl Iterator<Item = Rc<RefCell<BinaryUi>>> + '_ {
-        let values: Vec<Rc<RefCell<BinaryUi>>> = self
+    pub fn iter_binary_ui(&self) -> impl Iterator<Item = Arc<RwLock<BinaryUi>>> + '_ {
+        let values: Vec<Arc<RwLock<BinaryUi>>> = self
             .binary_ui
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|binary_ui| binary_ui.0.clone())
             .collect();
@@ -219,7 +236,8 @@ impl ObjectStore {
     ///
     pub fn binary_ui_timestamp(&self, binary_ui: &BinaryUi) -> SystemTime {
         self.binary_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(&binary_ui.id)
             .map(|binary_ui| binary_ui.1)
             .unwrap_or(SystemTime::now())
@@ -227,31 +245,37 @@ impl ObjectStore {
 
     /// Inter (insert) [`Edge`] into the store.
     ///
-    pub fn inter_edge(&mut self, edge: Rc<RefCell<Edge>>) {
-        let read = edge.borrow();
+    pub fn inter_edge(&mut self, edge: Arc<RwLock<Edge>>) {
+        let read = edge.read().unwrap();
         self.edge
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id(), (edge.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Edge`] from the store.
     ///
-    pub fn exhume_edge(&self, id: &Uuid) -> Option<Rc<RefCell<Edge>>> {
-        self.edge.borrow().get(id).map(|edge| edge.0.clone())
+    pub fn exhume_edge(&self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
+        self.edge.read().unwrap().get(id).map(|edge| edge.0.clone())
     }
 
     /// Exorcise (remove) [`Edge`] from the store.
     ///
-    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Rc<RefCell<Edge>>> {
-        self.edge.borrow_mut().remove(id).map(|edge| edge.0.clone())
+    pub fn exorcise_edge(&mut self, id: &Uuid) -> Option<Arc<RwLock<Edge>>> {
+        self.edge
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|edge| edge.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Edge>`.
     ///
-    pub fn iter_edge(&self) -> impl Iterator<Item = Rc<RefCell<Edge>>> + '_ {
-        let values: Vec<Rc<RefCell<Edge>>> = self
+    pub fn iter_edge(&self) -> impl Iterator<Item = Arc<RwLock<Edge>>> + '_ {
+        let values: Vec<Arc<RwLock<Edge>>> = self
             .edge
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|edge| edge.0.clone())
             .collect();
@@ -263,7 +287,8 @@ impl ObjectStore {
     ///
     pub fn edge_timestamp(&self, edge: &Edge) -> SystemTime {
         self.edge
-            .borrow()
+            .read()
+            .unwrap()
             .get(&edge.id())
             .map(|edge| edge.1)
             .unwrap_or(SystemTime::now())
@@ -271,34 +296,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`IsaUi`] into the store.
     ///
-    pub fn inter_isa_ui(&mut self, isa_ui: Rc<RefCell<IsaUi>>) {
-        let read = isa_ui.borrow();
+    pub fn inter_isa_ui(&mut self, isa_ui: Arc<RwLock<IsaUi>>) {
+        let read = isa_ui.read().unwrap();
         self.isa_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (isa_ui.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`IsaUi`] from the store.
     ///
-    pub fn exhume_isa_ui(&self, id: &Uuid) -> Option<Rc<RefCell<IsaUi>>> {
-        self.isa_ui.borrow().get(id).map(|isa_ui| isa_ui.0.clone())
+    pub fn exhume_isa_ui(&self, id: &Uuid) -> Option<Arc<RwLock<IsaUi>>> {
+        self.isa_ui
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|isa_ui| isa_ui.0.clone())
     }
 
     /// Exorcise (remove) [`IsaUi`] from the store.
     ///
-    pub fn exorcise_isa_ui(&mut self, id: &Uuid) -> Option<Rc<RefCell<IsaUi>>> {
+    pub fn exorcise_isa_ui(&mut self, id: &Uuid) -> Option<Arc<RwLock<IsaUi>>> {
         self.isa_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|isa_ui| isa_ui.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, IsaUi>`.
     ///
-    pub fn iter_isa_ui(&self) -> impl Iterator<Item = Rc<RefCell<IsaUi>>> + '_ {
-        let values: Vec<Rc<RefCell<IsaUi>>> = self
+    pub fn iter_isa_ui(&self) -> impl Iterator<Item = Arc<RwLock<IsaUi>>> + '_ {
+        let values: Vec<Arc<RwLock<IsaUi>>> = self
             .isa_ui
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|isa_ui| isa_ui.0.clone())
             .collect();
@@ -310,7 +342,8 @@ impl ObjectStore {
     ///
     pub fn isa_ui_timestamp(&self, isa_ui: &IsaUi) -> SystemTime {
         self.isa_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(&isa_ui.id)
             .map(|isa_ui| isa_ui.1)
             .unwrap_or(SystemTime::now())
@@ -318,37 +351,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`ObjectEdge`] into the store.
     ///
-    pub fn inter_object_edge(&mut self, object_edge: Rc<RefCell<ObjectEdge>>) {
-        let read = object_edge.borrow();
+    pub fn inter_object_edge(&mut self, object_edge: Arc<RwLock<ObjectEdge>>) {
+        let read = object_edge.read().unwrap();
         self.object_edge
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (object_edge.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ObjectEdge`] from the store.
     ///
-    pub fn exhume_object_edge(&self, id: &Uuid) -> Option<Rc<RefCell<ObjectEdge>>> {
+    pub fn exhume_object_edge(&self, id: &Uuid) -> Option<Arc<RwLock<ObjectEdge>>> {
         self.object_edge
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|object_edge| object_edge.0.clone())
     }
 
     /// Exorcise (remove) [`ObjectEdge`] from the store.
     ///
-    pub fn exorcise_object_edge(&mut self, id: &Uuid) -> Option<Rc<RefCell<ObjectEdge>>> {
+    pub fn exorcise_object_edge(&mut self, id: &Uuid) -> Option<Arc<RwLock<ObjectEdge>>> {
         self.object_edge
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|object_edge| object_edge.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectEdge>`.
     ///
-    pub fn iter_object_edge(&self) -> impl Iterator<Item = Rc<RefCell<ObjectEdge>>> + '_ {
-        let values: Vec<Rc<RefCell<ObjectEdge>>> = self
+    pub fn iter_object_edge(&self) -> impl Iterator<Item = Arc<RwLock<ObjectEdge>>> + '_ {
+        let values: Vec<Arc<RwLock<ObjectEdge>>> = self
             .object_edge
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|object_edge| object_edge.0.clone())
             .collect();
@@ -360,7 +397,8 @@ impl ObjectStore {
     ///
     pub fn object_edge_timestamp(&self, object_edge: &ObjectEdge) -> SystemTime {
         self.object_edge
-            .borrow()
+            .read()
+            .unwrap()
             .get(&object_edge.id)
             .map(|object_edge| object_edge.1)
             .unwrap_or(SystemTime::now())
@@ -368,37 +406,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`ObjectUi`] into the store.
     ///
-    pub fn inter_object_ui(&mut self, object_ui: Rc<RefCell<ObjectUi>>) {
-        let read = object_ui.borrow();
+    pub fn inter_object_ui(&mut self, object_ui: Arc<RwLock<ObjectUi>>) {
+        let read = object_ui.read().unwrap();
         self.object_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (object_ui.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`ObjectUi`] from the store.
     ///
-    pub fn exhume_object_ui(&self, id: &Uuid) -> Option<Rc<RefCell<ObjectUi>>> {
+    pub fn exhume_object_ui(&self, id: &Uuid) -> Option<Arc<RwLock<ObjectUi>>> {
         self.object_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|object_ui| object_ui.0.clone())
     }
 
     /// Exorcise (remove) [`ObjectUi`] from the store.
     ///
-    pub fn exorcise_object_ui(&mut self, id: &Uuid) -> Option<Rc<RefCell<ObjectUi>>> {
+    pub fn exorcise_object_ui(&mut self, id: &Uuid) -> Option<Arc<RwLock<ObjectUi>>> {
         self.object_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|object_ui| object_ui.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectUi>`.
     ///
-    pub fn iter_object_ui(&self) -> impl Iterator<Item = Rc<RefCell<ObjectUi>>> + '_ {
-        let values: Vec<Rc<RefCell<ObjectUi>>> = self
+    pub fn iter_object_ui(&self) -> impl Iterator<Item = Arc<RwLock<ObjectUi>>> + '_ {
+        let values: Vec<Arc<RwLock<ObjectUi>>> = self
             .object_ui
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|object_ui| object_ui.0.clone())
             .collect();
@@ -410,7 +452,8 @@ impl ObjectStore {
     ///
     pub fn object_ui_timestamp(&self, object_ui: &ObjectUi) -> SystemTime {
         self.object_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(&object_ui.id)
             .map(|object_ui| object_ui.1)
             .unwrap_or(SystemTime::now())
@@ -418,34 +461,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`Point`] into the store.
     ///
-    pub fn inter_point(&mut self, point: Rc<RefCell<Point>>) {
-        let read = point.borrow();
+    pub fn inter_point(&mut self, point: Arc<RwLock<Point>>) {
+        let read = point.read().unwrap();
         self.point
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (point.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`Point`] from the store.
     ///
-    pub fn exhume_point(&self, id: &Uuid) -> Option<Rc<RefCell<Point>>> {
-        self.point.borrow().get(id).map(|point| point.0.clone())
+    pub fn exhume_point(&self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
+        self.point
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|point| point.0.clone())
     }
 
     /// Exorcise (remove) [`Point`] from the store.
     ///
-    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Rc<RefCell<Point>>> {
+    pub fn exorcise_point(&mut self, id: &Uuid) -> Option<Arc<RwLock<Point>>> {
         self.point
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|point| point.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Point>`.
     ///
-    pub fn iter_point(&self) -> impl Iterator<Item = Rc<RefCell<Point>>> + '_ {
-        let values: Vec<Rc<RefCell<Point>>> = self
+    pub fn iter_point(&self) -> impl Iterator<Item = Arc<RwLock<Point>>> + '_ {
+        let values: Vec<Arc<RwLock<Point>>> = self
             .point
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|point| point.0.clone())
             .collect();
@@ -457,7 +507,8 @@ impl ObjectStore {
     ///
     pub fn point_timestamp(&self, point: &Point) -> SystemTime {
         self.point
-            .borrow()
+            .read()
+            .unwrap()
             .get(&point.id)
             .map(|point| point.1)
             .unwrap_or(SystemTime::now())
@@ -465,37 +516,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`RelationshipUi`] into the store.
     ///
-    pub fn inter_relationship_ui(&mut self, relationship_ui: Rc<RefCell<RelationshipUi>>) {
-        let read = relationship_ui.borrow();
+    pub fn inter_relationship_ui(&mut self, relationship_ui: Arc<RwLock<RelationshipUi>>) {
+        let read = relationship_ui.read().unwrap();
         self.relationship_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id(), (relationship_ui.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`RelationshipUi`] from the store.
     ///
-    pub fn exhume_relationship_ui(&self, id: &Uuid) -> Option<Rc<RefCell<RelationshipUi>>> {
+    pub fn exhume_relationship_ui(&self, id: &Uuid) -> Option<Arc<RwLock<RelationshipUi>>> {
         self.relationship_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|relationship_ui| relationship_ui.0.clone())
     }
 
     /// Exorcise (remove) [`RelationshipUi`] from the store.
     ///
-    pub fn exorcise_relationship_ui(&mut self, id: &Uuid) -> Option<Rc<RefCell<RelationshipUi>>> {
+    pub fn exorcise_relationship_ui(&mut self, id: &Uuid) -> Option<Arc<RwLock<RelationshipUi>>> {
         self.relationship_ui
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|relationship_ui| relationship_ui.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, RelationshipUi>`.
     ///
-    pub fn iter_relationship_ui(&self) -> impl Iterator<Item = Rc<RefCell<RelationshipUi>>> + '_ {
-        let values: Vec<Rc<RefCell<RelationshipUi>>> = self
+    pub fn iter_relationship_ui(&self) -> impl Iterator<Item = Arc<RwLock<RelationshipUi>>> + '_ {
+        let values: Vec<Arc<RwLock<RelationshipUi>>> = self
             .relationship_ui
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|relationship_ui| relationship_ui.0.clone())
             .collect();
@@ -507,7 +562,8 @@ impl ObjectStore {
     ///
     pub fn relationship_ui_timestamp(&self, relationship_ui: &RelationshipUi) -> SystemTime {
         self.relationship_ui
-            .borrow()
+            .read()
+            .unwrap()
             .get(&relationship_ui.id())
             .map(|relationship_ui| relationship_ui.1)
             .unwrap_or(SystemTime::now())
@@ -515,37 +571,41 @@ impl ObjectStore {
 
     /// Inter (insert) [`SubtypeAnchors`] into the store.
     ///
-    pub fn inter_subtype_anchors(&mut self, subtype_anchors: Rc<RefCell<SubtypeAnchors>>) {
-        let read = subtype_anchors.borrow();
+    pub fn inter_subtype_anchors(&mut self, subtype_anchors: Arc<RwLock<SubtypeAnchors>>) {
+        let read = subtype_anchors.read().unwrap();
         self.subtype_anchors
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(read.id, (subtype_anchors.clone(), SystemTime::now()));
     }
 
     /// Exhume (get) [`SubtypeAnchors`] from the store.
     ///
-    pub fn exhume_subtype_anchors(&self, id: &Uuid) -> Option<Rc<RefCell<SubtypeAnchors>>> {
+    pub fn exhume_subtype_anchors(&self, id: &Uuid) -> Option<Arc<RwLock<SubtypeAnchors>>> {
         self.subtype_anchors
-            .borrow()
+            .read()
+            .unwrap()
             .get(id)
             .map(|subtype_anchors| subtype_anchors.0.clone())
     }
 
     /// Exorcise (remove) [`SubtypeAnchors`] from the store.
     ///
-    pub fn exorcise_subtype_anchors(&mut self, id: &Uuid) -> Option<Rc<RefCell<SubtypeAnchors>>> {
+    pub fn exorcise_subtype_anchors(&mut self, id: &Uuid) -> Option<Arc<RwLock<SubtypeAnchors>>> {
         self.subtype_anchors
-            .borrow_mut()
+            .write()
+            .unwrap()
             .remove(id)
             .map(|subtype_anchors| subtype_anchors.0.clone())
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, SubtypeAnchors>`.
     ///
-    pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = Rc<RefCell<SubtypeAnchors>>> + '_ {
-        let values: Vec<Rc<RefCell<SubtypeAnchors>>> = self
+    pub fn iter_subtype_anchors(&self) -> impl Iterator<Item = Arc<RwLock<SubtypeAnchors>>> + '_ {
+        let values: Vec<Arc<RwLock<SubtypeAnchors>>> = self
             .subtype_anchors
-            .borrow()
+            .read()
+            .unwrap()
             .values()
             .map(|subtype_anchors| subtype_anchors.0.clone())
             .collect();
@@ -557,7 +617,8 @@ impl ObjectStore {
     ///
     pub fn subtype_anchors_timestamp(&self, subtype_anchors: &SubtypeAnchors) -> SystemTime {
         self.subtype_anchors
-            .borrow()
+            .read()
+            .unwrap()
             .get(&subtype_anchors.id)
             .map(|subtype_anchors| subtype_anchors.1)
             .unwrap_or(SystemTime::now())
@@ -593,14 +654,16 @@ impl ObjectStore {
         {
             let path = path.join("anchor");
             fs::create_dir_all(&path)?;
-            for anchor_tuple in self.anchor.borrow().values() {
-                let path = path.join(format!("{}.json", anchor_tuple.0.borrow().id));
+            for anchor_tuple in self.anchor.read().unwrap().values() {
+                let path = path.join(format!("{}.json", anchor_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<Anchor>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<Anchor>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != anchor_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != anchor_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &anchor_tuple)?;
@@ -617,7 +680,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.anchor.borrow().contains_key(&id) {
+                    if !self.anchor.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -628,14 +691,19 @@ impl ObjectStore {
         {
             let path = path.join("associative_ui");
             fs::create_dir_all(&path)?;
-            for associative_ui_tuple in self.associative_ui.borrow().values() {
-                let path = path.join(format!("{}.json", associative_ui_tuple.0.borrow().id));
+            for associative_ui_tuple in self.associative_ui.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    associative_ui_tuple.0.read().unwrap().id
+                ));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<AssociativeUi>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<AssociativeUi>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != associative_ui_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != associative_ui_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &associative_ui_tuple)?;
@@ -652,7 +720,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.associative_ui.borrow().contains_key(&id) {
+                    if !self.associative_ui.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -663,14 +731,16 @@ impl ObjectStore {
         {
             let path = path.join("binary_ui");
             fs::create_dir_all(&path)?;
-            for binary_ui_tuple in self.binary_ui.borrow().values() {
-                let path = path.join(format!("{}.json", binary_ui_tuple.0.borrow().id));
+            for binary_ui_tuple in self.binary_ui.read().unwrap().values() {
+                let path = path.join(format!("{}.json", binary_ui_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<BinaryUi>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<BinaryUi>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != binary_ui_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != binary_ui_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &binary_ui_tuple)?;
@@ -687,7 +757,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.binary_ui.borrow().contains_key(&id) {
+                    if !self.binary_ui.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -698,13 +768,15 @@ impl ObjectStore {
         {
             let path = path.join("edge");
             fs::create_dir_all(&path)?;
-            for edge_tuple in self.edge.borrow().values() {
-                let path = path.join(format!("{}.json", edge_tuple.0.borrow().id()));
+            for edge_tuple in self.edge.read().unwrap().values() {
+                let path = path.join(format!("{}.json", edge_tuple.0.read().unwrap().id()));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != edge_tuple.0.borrow().to_owned() {
+                    let on_disk: (Arc<RwLock<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
+                    if on_disk.0.read().unwrap().to_owned()
+                        != edge_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &edge_tuple)?;
@@ -721,7 +793,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.edge.borrow().contains_key(&id) {
+                    if !self.edge.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -732,14 +804,16 @@ impl ObjectStore {
         {
             let path = path.join("isa_ui");
             fs::create_dir_all(&path)?;
-            for isa_ui_tuple in self.isa_ui.borrow().values() {
-                let path = path.join(format!("{}.json", isa_ui_tuple.0.borrow().id));
+            for isa_ui_tuple in self.isa_ui.read().unwrap().values() {
+                let path = path.join(format!("{}.json", isa_ui_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<IsaUi>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<IsaUi>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != isa_ui_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != isa_ui_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &isa_ui_tuple)?;
@@ -756,7 +830,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.isa_ui.borrow().contains_key(&id) {
+                    if !self.isa_ui.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -767,14 +841,16 @@ impl ObjectStore {
         {
             let path = path.join("object_edge");
             fs::create_dir_all(&path)?;
-            for object_edge_tuple in self.object_edge.borrow().values() {
-                let path = path.join(format!("{}.json", object_edge_tuple.0.borrow().id));
+            for object_edge_tuple in self.object_edge.read().unwrap().values() {
+                let path = path.join(format!("{}.json", object_edge_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<ObjectEdge>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<ObjectEdge>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != object_edge_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != object_edge_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &object_edge_tuple)?;
@@ -791,7 +867,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.object_edge.borrow().contains_key(&id) {
+                    if !self.object_edge.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -802,14 +878,16 @@ impl ObjectStore {
         {
             let path = path.join("object_ui");
             fs::create_dir_all(&path)?;
-            for object_ui_tuple in self.object_ui.borrow().values() {
-                let path = path.join(format!("{}.json", object_ui_tuple.0.borrow().id));
+            for object_ui_tuple in self.object_ui.read().unwrap().values() {
+                let path = path.join(format!("{}.json", object_ui_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<ObjectUi>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<ObjectUi>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != object_ui_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != object_ui_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &object_ui_tuple)?;
@@ -826,7 +904,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.object_ui.borrow().contains_key(&id) {
+                    if !self.object_ui.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -837,14 +915,16 @@ impl ObjectStore {
         {
             let path = path.join("point");
             fs::create_dir_all(&path)?;
-            for point_tuple in self.point.borrow().values() {
-                let path = path.join(format!("{}.json", point_tuple.0.borrow().id));
+            for point_tuple in self.point.read().unwrap().values() {
+                let path = path.join(format!("{}.json", point_tuple.0.read().unwrap().id));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<Point>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<Point>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != point_tuple.0.borrow().to_owned() {
+                    if on_disk.0.read().unwrap().to_owned()
+                        != point_tuple.0.read().unwrap().to_owned()
+                    {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
                         serde_json::to_writer_pretty(&mut writer, &point_tuple)?;
@@ -861,7 +941,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.point.borrow().contains_key(&id) {
+                    if !self.point.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -872,14 +952,18 @@ impl ObjectStore {
         {
             let path = path.join("relationship_ui");
             fs::create_dir_all(&path)?;
-            for relationship_ui_tuple in self.relationship_ui.borrow().values() {
-                let path = path.join(format!("{}.json", relationship_ui_tuple.0.borrow().id()));
+            for relationship_ui_tuple in self.relationship_ui.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    relationship_ui_tuple.0.read().unwrap().id()
+                ));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<RelationshipUi>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<RelationshipUi>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != relationship_ui_tuple.0.borrow().to_owned()
+                    if on_disk.0.read().unwrap().to_owned()
+                        != relationship_ui_tuple.0.read().unwrap().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -897,7 +981,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.relationship_ui.borrow().contains_key(&id) {
+                    if !self.relationship_ui.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -908,14 +992,18 @@ impl ObjectStore {
         {
             let path = path.join("subtype_anchors");
             fs::create_dir_all(&path)?;
-            for subtype_anchors_tuple in self.subtype_anchors.borrow().values() {
-                let path = path.join(format!("{}.json", subtype_anchors_tuple.0.borrow().id));
+            for subtype_anchors_tuple in self.subtype_anchors.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    subtype_anchors_tuple.0.read().unwrap().id
+                ));
                 if path.exists() {
                     let file = fs::File::open(&path)?;
                     let reader = io::BufReader::new(file);
-                    let on_disk: (Rc<RefCell<SubtypeAnchors>>, SystemTime) =
+                    let on_disk: (Arc<RwLock<SubtypeAnchors>>, SystemTime) =
                         serde_json::from_reader(reader)?;
-                    if on_disk.0.borrow().to_owned() != subtype_anchors_tuple.0.borrow().to_owned()
+                    if on_disk.0.read().unwrap().to_owned()
+                        != subtype_anchors_tuple.0.read().unwrap().to_owned()
                     {
                         let file = fs::File::create(path)?;
                         let mut writer = io::BufWriter::new(file);
@@ -933,7 +1021,7 @@ impl ObjectStore {
                 let file_name = path.file_name().unwrap().to_str().unwrap();
                 let id = file_name.split('.').next().unwrap();
                 if let Ok(id) = Uuid::parse_str(id) {
-                    if !self.subtype_anchors.borrow().contains_key(&id) {
+                    if !self.subtype_anchors.read().unwrap().contains_key(&id) {
                         fs::remove_file(path)?;
                     }
                 }
@@ -976,11 +1064,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let anchor: (Rc<RefCell<Anchor>>, SystemTime) = serde_json::from_reader(reader)?;
+                let anchor: (Arc<RwLock<Anchor>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .anchor
-                    .borrow_mut()
-                    .insert(anchor.0.borrow().id, anchor.clone());
+                    .write()
+                    .unwrap()
+                    .insert(anchor.0.read().unwrap().id, anchor.clone());
             }
         }
 
@@ -993,12 +1082,13 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let associative_ui: (Rc<RefCell<AssociativeUi>>, SystemTime) =
+                let associative_ui: (Arc<RwLock<AssociativeUi>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .associative_ui
-                    .borrow_mut()
-                    .insert(associative_ui.0.borrow().id, associative_ui.clone());
+                    .write()
+                    .unwrap()
+                    .insert(associative_ui.0.read().unwrap().id, associative_ui.clone());
             }
         }
 
@@ -1011,12 +1101,13 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let binary_ui: (Rc<RefCell<BinaryUi>>, SystemTime) =
+                let binary_ui: (Arc<RwLock<BinaryUi>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .binary_ui
-                    .borrow_mut()
-                    .insert(binary_ui.0.borrow().id, binary_ui.clone());
+                    .write()
+                    .unwrap()
+                    .insert(binary_ui.0.read().unwrap().id, binary_ui.clone());
             }
         }
 
@@ -1029,11 +1120,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let edge: (Rc<RefCell<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
+                let edge: (Arc<RwLock<Edge>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .edge
-                    .borrow_mut()
-                    .insert(edge.0.borrow().id(), edge.clone());
+                    .write()
+                    .unwrap()
+                    .insert(edge.0.read().unwrap().id(), edge.clone());
             }
         }
 
@@ -1046,11 +1138,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let isa_ui: (Rc<RefCell<IsaUi>>, SystemTime) = serde_json::from_reader(reader)?;
+                let isa_ui: (Arc<RwLock<IsaUi>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .isa_ui
-                    .borrow_mut()
-                    .insert(isa_ui.0.borrow().id, isa_ui.clone());
+                    .write()
+                    .unwrap()
+                    .insert(isa_ui.0.read().unwrap().id, isa_ui.clone());
             }
         }
 
@@ -1063,12 +1156,13 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let object_edge: (Rc<RefCell<ObjectEdge>>, SystemTime) =
+                let object_edge: (Arc<RwLock<ObjectEdge>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .object_edge
-                    .borrow_mut()
-                    .insert(object_edge.0.borrow().id, object_edge.clone());
+                    .write()
+                    .unwrap()
+                    .insert(object_edge.0.read().unwrap().id, object_edge.clone());
             }
         }
 
@@ -1081,12 +1175,13 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let object_ui: (Rc<RefCell<ObjectUi>>, SystemTime) =
+                let object_ui: (Arc<RwLock<ObjectUi>>, SystemTime) =
                     serde_json::from_reader(reader)?;
                 store
                     .object_ui
-                    .borrow_mut()
-                    .insert(object_ui.0.borrow().id, object_ui.clone());
+                    .write()
+                    .unwrap()
+                    .insert(object_ui.0.read().unwrap().id, object_ui.clone());
             }
         }
 
@@ -1099,11 +1194,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let point: (Rc<RefCell<Point>>, SystemTime) = serde_json::from_reader(reader)?;
+                let point: (Arc<RwLock<Point>>, SystemTime) = serde_json::from_reader(reader)?;
                 store
                     .point
-                    .borrow_mut()
-                    .insert(point.0.borrow().id, point.clone());
+                    .write()
+                    .unwrap()
+                    .insert(point.0.read().unwrap().id, point.clone());
             }
         }
 
@@ -1116,12 +1212,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let relationship_ui: (Rc<RefCell<RelationshipUi>>, SystemTime) =
+                let relationship_ui: (Arc<RwLock<RelationshipUi>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store
-                    .relationship_ui
-                    .borrow_mut()
-                    .insert(relationship_ui.0.borrow().id(), relationship_ui.clone());
+                store.relationship_ui.write().unwrap().insert(
+                    relationship_ui.0.read().unwrap().id(),
+                    relationship_ui.clone(),
+                );
             }
         }
 
@@ -1134,12 +1230,12 @@ impl ObjectStore {
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let subtype_anchors: (Rc<RefCell<SubtypeAnchors>>, SystemTime) =
+                let subtype_anchors: (Arc<RwLock<SubtypeAnchors>>, SystemTime) =
                     serde_json::from_reader(reader)?;
-                store
-                    .subtype_anchors
-                    .borrow_mut()
-                    .insert(subtype_anchors.0.borrow().id, subtype_anchors.clone());
+                store.subtype_anchors.write().unwrap().insert(
+                    subtype_anchors.0.read().unwrap().id,
+                    subtype_anchors.clone(),
+                );
             }
         }
 

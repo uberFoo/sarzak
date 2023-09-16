@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"parameter-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -36,16 +36,16 @@ impl Parameter {
     /// Inter a new 'Parameter' in the store, and return it's `id`.
     pub fn new(
         seed: Uuid,
-        function: Option<&Rc<RefCell<Function>>>,
-        next: Option<&Rc<RefCell<Parameter>>>,
+        function: Option<&Arc<RwLock<Function>>>,
+        next: Option<&Arc<RwLock<Parameter>>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Parameter>> {
+    ) -> Arc<RwLock<Parameter>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Parameter {
+        let new = Arc::new(RwLock::new(Parameter {
             id,
             seed,
-            function: function.map(|function| function.borrow().id),
-            next: next.map(|parameter| parameter.borrow().id),
+            function: function.map(|function| function.read().unwrap().id),
+            next: next.map(|parameter| parameter.read().unwrap().id),
         }));
         store.inter_parameter(new.clone());
         new
@@ -53,7 +53,7 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-function"}}}
     /// Navigate to [`Function`] across R5(1-*c)
-    pub fn r5_function<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Function>>> {
+    pub fn r5_function<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Function>>> {
         span!("r5_function");
         match self.function {
             Some(ref function) => vec![store.exhume_function(&function).unwrap()],
@@ -63,7 +63,7 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Parameter`] across R1(1-*c)
-    pub fn r1_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Parameter>>> {
+    pub fn r1_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Parameter>>> {
         span!("r1_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
@@ -73,11 +73,11 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R1(1c-1c)
-    pub fn r1c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Parameter>>> {
+    pub fn r1c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Parameter>>> {
         span!("r1_parameter");
         let parameter = store
             .iter_parameter()
-            .find(|parameter| parameter.borrow().next == Some(self.id));
+            .find(|parameter| parameter.read().unwrap().next == Some(self.id));
         match parameter {
             Some(ref parameter) => vec![parameter.clone()],
             None => Vec::new(),
@@ -86,12 +86,12 @@ impl Parameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R8(isa)
-    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Variable>>> {
+    pub fn r8_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Variable>>> {
         span!("r8_variable");
         vec![store
             .iter_variable()
             .find(|variable| {
-                if let VariableEnum::Parameter(id) = variable.borrow().subtype {
+                if let VariableEnum::Parameter(id) = variable.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

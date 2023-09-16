@@ -43,15 +43,15 @@ impl LambdaParameter {
         ty: Option<&Arc<RwLock<ValueType>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<LambdaParameter>> {
-        let lambda_parameter = match next {
-            Some(lambda_parameter) => Some(lambda_parameter.read().await.id),
-            None => None,
-        };
+        let lambda = lambda.read().await.id;
         let value_type = match ty {
             Some(value_type) => Some(value_type.read().await.id),
             None => None,
         };
-        let lambda = lambda.read().await.id;
+        let lambda_parameter = match next {
+            Some(lambda_parameter) => Some(lambda_parameter.read().await.id),
+            None => None,
+        };
         store
             .inter_lambda_parameter(|id| {
                 Arc::new(RwLock::new(LambdaParameter {
@@ -67,9 +67,12 @@ impl LambdaParameter {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-to-lambda"}}}
     /// Navigate to [`Lambda`] across R76(1-*)
-    pub async fn r76_lambda<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Lambda>>> {
+    pub async fn r76_lambda<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Lambda>>> + '_ {
         span!("r76_lambda");
-        vec![store.exhume_lambda(&self.lambda).await.unwrap()]
+        stream::iter(vec![store.exhume_lambda(&self.lambda).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-cond-to-next"}}}
@@ -77,11 +80,13 @@ impl LambdaParameter {
     pub async fn r75_lambda_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<LambdaParameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<LambdaParameter>>> + '_ {
         span!("r75_lambda_parameter");
         match self.next {
-            Some(ref next) => vec![store.exhume_lambda_parameter(next).await.unwrap()],
-            None => Vec::new(),
+            Some(ref next) => {
+                stream::iter(vec![store.exhume_lambda_parameter(next).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -90,11 +95,13 @@ impl LambdaParameter {
     pub async fn r77_value_type<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ValueType>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
         span!("r77_value_type");
         match self.ty {
-            Some(ref ty) => vec![store.exhume_value_type(ty).await.unwrap()],
-            None => Vec::new(),
+            Some(ref ty) => {
+                stream::iter(vec![store.exhume_value_type(ty).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -103,20 +110,18 @@ impl LambdaParameter {
     pub async fn r75c_lambda_parameter<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<LambdaParameter>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<LambdaParameter>>> + '_ {
         span!("r75_lambda_parameter");
         store
             .iter_lambda_parameter()
             .await
-            .filter_map(|lambda_parameter| async move {
+            .filter_map(move |lambda_parameter| async move {
                 if lambda_parameter.read().await.next == Some(self.id) {
                     Some(lambda_parameter.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-impl-nav-subtype-to-supertype-variable"}}}

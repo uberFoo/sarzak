@@ -705,7 +705,7 @@
                 "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
                 "key_letter": "R_ISA",
                 "name": "Isa",
-                "description": "The imported R_ISA object from the sarzak domain.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"0cbeeb50-21ce-5e83-9f2e-65d1410d553f\" }}",
+                "description": "The imported R_ISA object from the sarzak domain.\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"0cbeeb50-21ce-5e83-9f2e-65d1410d553f\" }}",
                 "attributes": {
                     "5f35488b-11db-5ba6-8d91-0fe68a844510": {
                         "id": "5f35488b-11db-5ba6-8d91-0fe68a844510",
@@ -762,7 +762,7 @@
                 "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
                 "key_letter": "R_BIN",
                 "name": "Binary",
-                "description": "Binary Relationship from sarzak domain\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"56c5ed80-25e7-592e-ab36-a306c78ac58b\" }}",
+                "description": "Binary Relationship from sarzak domain\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"56c5ed80-25e7-592e-ab36-a306c78ac58b\" }}",
                 "attributes": {
                     "4717289d-ed9c-5931-94ce-a73a66b88856": {
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
@@ -819,7 +819,7 @@
                 "id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd",
                 "key_letter": "R_ASSOC",
                 "name": "Associative",
-                "description": "Imported Object from the sarzak domain\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd\"}}\n\n",
+                "description": "Imported Object from the sarzak domain\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd\"}}\n\n",
                 "attributes": {
                     "4717289d-ed9c-5931-94ce-a73a66b88856": {
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
@@ -894,7 +894,7 @@
                 "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
                 "key_letter": "OBJ",
                 "name": "Object",
-                "description": "Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}\n\n",
+                "description": "Object imported from the sarzak Domain.\n\nWe don’t have a means of representing this as imported in Cuckoo, so I’m just adding it here.\n\n🐶 { \"imported_object\": { \"domain\": \"crate::v2::sarzak\", \"model_file\": \"models/sarzak.json\", \"id\": \"7178e7a4-5131-504b-a7b3-c2c0cfedf343\"}}\n\n",
                 "attributes": {
                     "7d07d8ac-b12c-5245-92f5-af056570ab6c": {
                         "id": "7d07d8ac-b12c-5245-92f5-af056570ab6c",

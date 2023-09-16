@@ -5,12 +5,13 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec::types::data_structure::DataStructure;
+use crate::v2::lu_dog_vec::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_vec::types::field::Field;
 use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
-use crate::v2::lu_dog_vec::types::struct_expression::StructExpression;
 use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::value_type::ValueTypeEnum;
 use crate::v2::sarzak::types::object::Object;
@@ -58,7 +59,7 @@ impl WoogStruct {
     pub fn r4_object<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(&object).unwrap()],
@@ -108,16 +109,23 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
-    /// Navigate to [`StructExpression`] across R39(1-M)
-    pub fn r39_struct_expression<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub fn r95_data_structure<'a>(
         &'a self,
         store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<StructExpression>>> {
-        span!("r39_struct_expression");
-        store
-            .iter_struct_expression()
-            .filter(|struct_expression| struct_expression.borrow().woog_struct == self.id)
-            .collect()
+    ) -> Vec<Rc<RefCell<DataStructure>>> {
+        span!("r95_data_structure");
+        vec![store
+            .iter_data_structure()
+            .find(|data_structure| {
+                if let DataStructureEnum::WoogStruct(id) = data_structure.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

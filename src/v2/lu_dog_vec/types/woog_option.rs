@@ -63,7 +63,7 @@ impl WoogOption {
         store.inter_woog_option(|id| {
             Rc::new(RefCell::new(WoogOption {
                 ty: ty.borrow().id,
-                subtype: WoogOptionEnum::ZSome(subtype.borrow().id),
+                subtype: WoogOptionEnum::ZSome(subtype.borrow().id), // b
                 id,
             }))
         })

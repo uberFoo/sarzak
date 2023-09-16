@@ -6,8 +6,8 @@ use crate::v2::woog::types::krate::KRATE;
 use crate::v2::woog::types::private::PRIVATE;
 use crate::v2::woog::types::public::PUBLIC;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -35,19 +35,19 @@ pub enum Visibility {
 impl Visibility {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-new-impl"}}}
     /// Create a new instance of Visibility::Krate
-    pub fn new_krate(store: &WoogStore) -> Rc<RefCell<Self>> {
+    pub fn new_krate(store: &WoogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_visibility(&KRATE).unwrap()
     }
 
     /// Create a new instance of Visibility::Private
-    pub fn new_private(store: &WoogStore) -> Rc<RefCell<Self>> {
+    pub fn new_private(store: &WoogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_visibility(&PRIVATE).unwrap()
     }
 
     /// Create a new instance of Visibility::Public
-    pub fn new_public(store: &WoogStore) -> Rc<RefCell<Self>> {
+    pub fn new_public(store: &WoogStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_visibility(&PUBLIC).unwrap()
     }
@@ -64,11 +64,11 @@ impl Visibility {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-struct-impl-nav-backward-1_M-to-access"}}}
     /// Navigate to [`Access`] across R14(1-M)
-    pub fn r14_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Access>>> {
+    pub fn r14_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Access>>> {
         span!("r14_access");
         store
             .iter_access()
-            .filter(|access| access.borrow().visibility == self.id())
+            .filter(|access| access.read().unwrap().visibility == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

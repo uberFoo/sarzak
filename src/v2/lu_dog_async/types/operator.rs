@@ -61,8 +61,8 @@ impl Operator {
         store
             .inter_operator(|id| {
                 Arc::new(RwLock::new(Operator {
-                    lhs,
-                    rhs,
+                    lhs, // (b)
+                    rhs, // (a)
                     subtype: OperatorEnum::Binary(subtype),
                     id,
                 }))
@@ -88,8 +88,8 @@ impl Operator {
         store
             .inter_operator(|id| {
                 Arc::new(RwLock::new(Operator {
-                    lhs,
-                    rhs,
+                    lhs, // (b)
+                    rhs, // (a)
                     subtype: OperatorEnum::Comparison(subtype),
                     id,
                 }))
@@ -115,8 +115,8 @@ impl Operator {
         store
             .inter_operator(|id| {
                 Arc::new(RwLock::new(Operator {
-                    lhs,
-                    rhs,
+                    lhs, // (b)
+                    rhs, // (a)
                     subtype: OperatorEnum::Unary(subtype),
                     id,
                 }))
@@ -129,9 +129,9 @@ impl Operator {
     pub async fn r50_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r50_expression");
-        vec![store.exhume_expression(&self.lhs).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.lhs).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"operator-struct-impl-nav-forward-cond-to-rhs"}}}
@@ -139,11 +139,13 @@ impl Operator {
     pub async fn r51_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r51_expression");
         match self.rhs {
-            Some(ref rhs) => vec![store.exhume_expression(rhs).await.unwrap()],
-            None => Vec::new(),
+            Some(ref rhs) => {
+                stream::iter(vec![store.exhume_expression(rhs).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

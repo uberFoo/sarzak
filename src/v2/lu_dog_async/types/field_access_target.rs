@@ -97,7 +97,7 @@ impl FieldAccessTarget {
     pub async fn r65_field_access<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<FieldAccess>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccess>>> + '_ {
         span!("r65_field_access");
         store
             .iter_field_access()
@@ -109,8 +109,6 @@ impl FieldAccessTarget {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

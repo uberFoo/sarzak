@@ -1,5 +1,5 @@
-// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"error-struct-definition-file"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-use-statements"}}}
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"x_error-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-use-statements"}}}
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 use crate::v2::lu_dog_rwlock::types::unknown_variable::UNKNOWN_VARIABLE;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
@@ -10,34 +10,34 @@ use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-enum-documentation"}}}
 /// A type to signify an Error condition
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-enum-definition"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-enum-definition"}}}
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Error {
+pub enum XError {
     UnknownVariable(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-implementation"}}}
-impl Error {
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-new-impl"}}}
-    /// Create a new instance of Error::UnknownVariable
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-implementation"}}}
+impl XError {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-new-impl"}}}
+    /// Create a new instance of XError::UnknownVariable
     pub fn new_unknown_variable(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
-        store.exhume_error(&UNKNOWN_VARIABLE).unwrap()
+        store.exhume_x_error(&UNKNOWN_VARIABLE).unwrap()
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-get-id-impl"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
             Self::UnknownVariable(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"error-impl-nav-subtype-to-supertype-value_type"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_error-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
         span!("r1_value_type");

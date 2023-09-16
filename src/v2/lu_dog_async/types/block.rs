@@ -78,11 +78,16 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Block`] across R93(1-*c)
-    pub async fn r93_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r93_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r93_block");
         match self.next {
-            Some(ref next) => vec![store.exhume_block(next).await.unwrap()],
-            None => Vec::new(),
+            Some(ref next) => {
+                stream::iter(vec![store.exhume_block(next).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -91,30 +96,33 @@ impl Block {
     pub async fn r71_statement<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Statement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
         span!("r71_statement");
         match self.statement {
-            Some(ref statement) => vec![store.exhume_statement(statement).await.unwrap()],
-            None => Vec::new(),
+            Some(ref statement) => {
+                stream::iter(vec![store.exhume_statement(statement).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-block"}}}
     /// Navigate to [`Block`] across R93(1c-1c)
-    pub async fn r93c_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r93c_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r93_block");
         store
             .iter_block()
             .await
-            .filter_map(|block| async move {
+            .filter_map(move |block| async move {
                 if block.read().await.next == Some(self.id) {
                     Some(block.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-for_loop"}}}
@@ -122,74 +130,66 @@ impl Block {
     pub async fn r43_for_loop<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ForLoop>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ForLoop>>> + '_ {
         span!("r43_for_loop");
-        store
-            .iter_for_loop()
-            .await
-            .filter_map(|for_loop| async {
-                if for_loop.read().await.block == self.id {
-                    Some(for_loop)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_for_loop().await.filter_map(|for_loop| async {
+            if for_loop.read().await.block == self.id {
+                Some(for_loop)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R46(1-M)
-    pub async fn r46_x_if<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XIf>>> {
+    pub async fn r46_x_if<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XIf>>> + '_ {
         span!("r46_x_if");
-        store
-            .iter_x_if()
-            .await
-            .filter_map(|x_if| async {
-                if x_if.read().await.true_block == self.id {
-                    Some(x_if)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_x_if().await.filter_map(|x_if| async {
+            if x_if.read().await.true_block == self.id {
+                Some(x_if)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
     /// Navigate to [`XIf`] across R52(1-Mc)
-    pub async fn r52_x_if<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XIf>>> {
+    pub async fn r52_x_if<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XIf>>> + '_ {
         span!("r52_x_if");
-        store
-            .iter_x_if()
-            .await
-            .filter_map(|x_if| async move {
-                if x_if.read().await.false_block == Some(self.id) {
-                    Some(x_if.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_x_if().await.filter_map(move |x_if| async move {
+            if x_if.read().await.false_block == Some(self.id) {
+                Some(x_if.clone())
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
     /// Navigate to [`Lambda`] across R73(1c-1c)
-    pub async fn r73c_lambda<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Lambda>>> {
+    pub async fn r73c_lambda<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Lambda>>> + '_ {
         span!("r73_lambda");
         store
             .iter_lambda()
             .await
-            .filter_map(|lambda| async move {
+            .filter_map(move |lambda| async move {
                 if lambda.read().await.block == Some(self.id) {
                     Some(lambda.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
@@ -197,38 +197,31 @@ impl Block {
     pub async fn r18_statement<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Statement>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
         span!("r18_statement");
-        store
-            .iter_statement()
-            .await
-            .filter_map(|statement| async {
-                if statement.read().await.block == self.id {
-                    Some(statement)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_statement().await.filter_map(|statement| async {
+            if statement.read().await.block == self.id {
+                Some(statement)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R33(1-M)
-    pub async fn r33_x_value<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XValue>>> {
+    pub async fn r33_x_value<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XValue>>> + '_ {
         span!("r33_x_value");
-        store
-            .iter_x_value()
-            .await
-            .filter_map(|x_value| async {
-                if x_value.read().await.block == self.id {
-                    Some(x_value)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_x_value().await.filter_map(|x_value| async {
+            if x_value.read().await.block == self.id {
+                Some(x_value)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-body"}}}

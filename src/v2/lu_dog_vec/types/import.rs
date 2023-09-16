@@ -38,7 +38,7 @@ pub struct Import {
     pub has_alias: bool,
     pub id: usize,
     pub name: String,
-    pub path: String,
+    pub x_path: String,
     /// R40: [`Import`] '' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -51,7 +51,7 @@ impl Import {
         alias: String,
         has_alias: bool,
         name: String,
-        path: String,
+        x_path: String,
         object: Option<&Object>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Import>> {
@@ -61,7 +61,7 @@ impl Import {
                 has_alias,
                 id,
                 name: name.to_owned(),
-                path: path.to_owned(),
+                x_path: x_path.to_owned(),
                 object: object.as_ref().map(|object| object.id),
             }))
         })
@@ -72,7 +72,7 @@ impl Import {
     pub fn r40_object<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r40_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(&object).unwrap()],
@@ -120,7 +120,7 @@ impl PartialEq for Import {
         self.alias == other.alias
             && self.has_alias == other.has_alias
             && self.name == other.name
-            && self.path == other.path
+            && self.x_path == other.x_path
             && self.object == other.object
     }
 }

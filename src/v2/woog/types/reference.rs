@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"reference-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -33,9 +33,9 @@ pub struct Reference {
 impl Reference {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-new"}}}
     /// Inter a new 'Reference' in the store, and return it's `id`.
-    pub fn new(object: &Object, store: &mut WoogStore) -> Rc<RefCell<Reference>> {
+    pub fn new(object: &Object, store: &mut WoogStore) -> Arc<RwLock<Reference>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Reference {
+        let new = Arc::new(RwLock::new(Reference {
             id,
             object: object.id,
         }));
@@ -45,14 +45,17 @@ impl Reference {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R13(1-*)
-    pub fn r13_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r13_object<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r13_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-impl-nav-subtype-to-supertype-grace_type"}}}
     // Navigate to [`GraceType`] across R2(isa)
-    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<GraceType>>> {
+    pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
         span!("r2_grace_type");
         vec![store.exhume_grace_type(&self.id).unwrap()]
     }

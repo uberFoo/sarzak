@@ -58,7 +58,7 @@ impl WoogStruct {
     pub fn r4_object<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(&object).unwrap()],

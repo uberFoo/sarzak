@@ -3,9 +3,10 @@
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 use crate::v2::lu_dog::types::char::CHAR;
 use crate::v2::lu_dog::types::empty::EMPTY;
-use crate::v2::lu_dog::types::error::Error;
+use crate::v2::lu_dog::types::enumeration::Enumeration;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
+use crate::v2::lu_dog::types::generic::Generic;
 use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::lambda::Lambda;
 use crate::v2::lu_dog::types::lambda_parameter::LambdaParameter;
@@ -14,10 +15,12 @@ use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::reference::Reference;
 use crate::v2::lu_dog::types::span::Span;
+use crate::v2::lu_dog::types::tuple_field::TupleField;
 use crate::v2::lu_dog::types::type_cast::TypeCast;
 use crate::v2::lu_dog::types::unknown::UNKNOWN;
 use crate::v2::lu_dog::types::woog_option::WoogOption;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog::types::x_error::XError;
 use crate::v2::lu_dog::types::x_value::XValue;
 use crate::v2::lu_dog::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -53,8 +56,10 @@ use uuid::Uuid;
 pub enum ValueType {
     Char(Uuid),
     Empty(Uuid),
-    Error(Uuid),
+    Enumeration(Uuid),
+    XError(Uuid),
     Function(Uuid),
+    Generic(Uuid),
     Import(Uuid),
     Lambda(Uuid),
     List(Uuid),
@@ -82,17 +87,32 @@ impl ValueType {
         store.exhume_value_type(&EMPTY).unwrap()
     }
 
-    /// Create a new instance of ValueType::Error
-    pub fn new_error(error: &Rc<RefCell<Error>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = error.borrow().id();
-        if let Some(error) = store.exhume_value_type(&id) {
-            error
+    /// Create a new instance of ValueType::Enumeration
+    pub fn new_enumeration(
+        enumeration: &Rc<RefCell<Enumeration>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Self>> {
+        let id = enumeration.borrow().id;
+        if let Some(enumeration) = store.exhume_value_type(&id) {
+            enumeration
         } else {
-            let new = Rc::new(RefCell::new(Self::Error(id)));
+            let new = Rc::new(RefCell::new(Self::Enumeration(id)));
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
+
+    /// Create a new instance of ValueType::XError
+    pub fn new_x_error(x_error: &Rc<RefCell<XError>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
+        let id = x_error.borrow().id();
+        if let Some(x_error) = store.exhume_value_type(&id) {
+            x_error
+        } else {
+            let new = Rc::new(RefCell::new(Self::XError(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    } // wtf?
 
     /// Create a new instance of ValueType::Function
     pub fn new_function(
@@ -107,7 +127,22 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
+
+    /// Create a new instance of ValueType::Generic
+    pub fn new_generic(
+        generic: &Rc<RefCell<Generic>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Self>> {
+        let id = generic.borrow().id;
+        if let Some(generic) = store.exhume_value_type(&id) {
+            generic
+        } else {
+            let new = Rc::new(RefCell::new(Self::Generic(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    } // wtf?
 
     /// Create a new instance of ValueType::Import
     pub fn new_import(import: &Rc<RefCell<Import>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
@@ -119,7 +154,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Lambda
     pub fn new_lambda(lambda: &Rc<RefCell<Lambda>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
@@ -131,7 +166,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::List
     pub fn new_list(list: &Rc<RefCell<List>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
@@ -143,7 +178,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::ZObjectStore
     pub fn new_z_object_store(
@@ -158,7 +193,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::WoogOption
     pub fn new_woog_option(
@@ -173,7 +208,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Range
     pub fn new_range(store: &LuDogStore) -> Rc<RefCell<Self>> {
@@ -194,7 +229,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::WoogStruct
     pub fn new_woog_struct(
@@ -209,7 +244,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: &Rc<RefCell<Ty>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
@@ -221,7 +256,7 @@ impl ValueType {
             store.inter_value_type(new.clone());
             new
         }
-    }
+    } // wtf?
 
     /// Create a new instance of ValueType::Unknown
     pub fn new_unknown(store: &LuDogStore) -> Rc<RefCell<Self>> {
@@ -235,8 +270,10 @@ impl ValueType {
         match self {
             Self::Char(id) => *id,
             Self::Empty(id) => *id,
-            Self::Error(id) => *id,
+            Self::Enumeration(id) => *id,
+            Self::XError(id) => *id,
             Self::Function(id) => *id,
+            Self::Generic(id) => *id,
             Self::Import(id) => *id,
             Self::Lambda(id) => *id,
             Self::List(id) => *id,
@@ -340,6 +377,16 @@ impl ValueType {
         store
             .iter_span()
             .filter(|span| span.borrow().ty == Some(self.id()))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-tuple_field"}}}
+    /// Navigate to [`TupleField`] across R86(1-M)
+    pub fn r86_tuple_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<TupleField>>> {
+        span!("r86_tuple_field");
+        store
+            .iter_tuple_field()
+            .filter(|tuple_field| tuple_field.borrow().ty == self.id())
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

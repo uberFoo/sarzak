@@ -54,20 +54,18 @@ impl ZObjectStore {
     pub async fn r83c_implementation_block<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
         span!("r83_implementation_block");
         store
             .iter_implementation_block()
             .await
-            .filter_map(|implementation_block| async move {
+            .filter_map(move |implementation_block| async move {
                 if implementation_block.read().await.object_store == Some(self.id) {
                     Some(implementation_block.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-struct-impl-nav-backward-assoc-many-to-object_wrapper"}}}

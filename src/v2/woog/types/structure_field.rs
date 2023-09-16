@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"structure_field-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -33,17 +33,17 @@ impl StructureField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-new"}}}
     /// Inter a new 'Structure Field' in the store, and return it's `id`.
     pub fn new(
-        next: Option<&Rc<RefCell<StructureField>>>,
-        woog_struct: &Rc<RefCell<Field>>,
-        field: &Rc<RefCell<Structure>>,
+        next: Option<&Arc<RwLock<StructureField>>>,
+        woog_struct: &Arc<RwLock<Field>>,
+        field: &Arc<RwLock<Structure>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<StructureField>> {
+    ) -> Arc<RwLock<StructureField>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(StructureField {
+        let new = Arc::new(RwLock::new(StructureField {
             id,
-            next: next.map(|structure_field| structure_field.borrow().id),
-            woog_struct: woog_struct.borrow().id,
-            field: field.borrow().id,
+            next: next.map(|structure_field| structure_field.read().unwrap().id),
+            woog_struct: woog_struct.read().unwrap().id,
+            field: field.read().unwrap().id,
         }));
         store.inter_structure_field(new.clone());
         new
@@ -54,7 +54,7 @@ impl StructureField {
     pub fn r30_structure_field<'a>(
         &'a self,
         store: &'a WoogStore,
-    ) -> Vec<Rc<RefCell<StructureField>>> {
+    ) -> Vec<Arc<RwLock<StructureField>>> {
         span!("r30_structure_field");
         match self.next {
             Some(ref next) => vec![store.exhume_structure_field(&next).unwrap()],
@@ -67,11 +67,11 @@ impl StructureField {
     pub fn r30c_structure_field<'a>(
         &'a self,
         store: &'a WoogStore,
-    ) -> Vec<Rc<RefCell<StructureField>>> {
+    ) -> Vec<Arc<RwLock<StructureField>>> {
         span!("r30_structure_field");
         let structure_field = store
             .iter_structure_field()
-            .find(|structure_field| structure_field.borrow().next == Some(self.id));
+            .find(|structure_field| structure_field.read().unwrap().next == Some(self.id));
         match structure_field {
             Some(ref structure_field) => vec![structure_field.clone()],
             None => Vec::new(),
@@ -80,14 +80,14 @@ impl StructureField {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
     /// Navigate to [`Field`] across R27(1-*)
-    pub fn r27_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Field>>> {
+    pub fn r27_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Field>>> {
         span!("r27_field");
         vec![store.exhume_field(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Structure`] across R27(1-*)
-    pub fn r27_structure<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Structure>>> {
+    pub fn r27_structure<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Structure>>> {
         span!("r27_structure");
         vec![store.exhume_structure(&self.field).unwrap()]
     }

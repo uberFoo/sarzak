@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"object_method-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -47,14 +47,14 @@ impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-new"}}}
     /// Inter a new 'Object Method' in the store, and return it's `id`.
     pub fn new(
-        block: &Rc<RefCell<Block>>,
+        block: &Arc<RwLock<Block>>,
         object: &Object,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<ObjectMethod>> {
+    ) -> Arc<RwLock<ObjectMethod>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(ObjectMethod {
+        let new = Arc::new(RwLock::new(ObjectMethod {
             id,
-            block: block.borrow().id,
+            block: block.read().unwrap().id,
             object: object.id,
         }));
         store.inter_object_method(new.clone());
@@ -63,36 +63,39 @@ impl ObjectMethod {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R23(1-*)
-    pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Block>>> {
+    pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Block>>> {
         span!("r23_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-object"}}}
     /// Navigate to [`Object`] across R4(1-*)
-    pub fn r4_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r4_object<'a>(
+        &'a self,
+        store: &'a SarzakStore,
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r4_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-1_M-to-call"}}}
     /// Navigate to [`Call`] across R19(1-M)
-    pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Call>>> {
+    pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Call>>> {
         span!("r19_call");
         store
             .iter_call()
-            .filter(|call| call.borrow().method == self.id)
+            .filter(|call| call.read().unwrap().method == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}
     // Navigate to [`Function`] across R25(isa)
-    pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Function>>> {
+    pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Function>>> {
         span!("r25_function");
         vec![store
             .iter_function()
             .find(|function| {
-                if let FunctionEnum::ObjectMethod(id) = function.borrow().subtype {
+                if let FunctionEnum::ObjectMethod(id) = function.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

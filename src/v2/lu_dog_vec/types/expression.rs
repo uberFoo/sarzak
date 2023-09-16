@@ -9,7 +9,6 @@ use crate::v2::lu_dog_vec::types::argument::Argument;
 use crate::v2::lu_dog_vec::types::block::Block;
 use crate::v2::lu_dog_vec::types::call::Call;
 use crate::v2::lu_dog_vec::types::debugger::DEBUGGER;
-use crate::v2::lu_dog_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_vec::types::error_expression::ErrorExpression;
 use crate::v2::lu_dog_vec::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
@@ -27,12 +26,11 @@ use crate::v2::lu_dog_vec::types::pattern::Pattern;
 use crate::v2::lu_dog_vec::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_vec::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_vec::types::struct_expression::StructExpression;
-use crate::v2::lu_dog_vec::types::struct_field::StructField;
-use crate::v2::lu_dog_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_vec::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog_vec::types::x_if::XIf;
 use crate::v2::lu_dog_vec::types::x_match::XMatch;
+use crate::v2::lu_dog_vec::types::x_path::XPath;
 use crate::v2::lu_dog_vec::types::x_print::XPrint;
 use crate::v2::lu_dog_vec::types::x_return::XReturn;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
@@ -63,7 +61,6 @@ pub enum ExpressionEnum {
     Block(usize),
     Call(usize),
     Debugger(Uuid),
-    EnumField(usize),
     ErrorExpression(usize),
     FieldAccess(usize),
     FieldExpression(usize),
@@ -78,6 +75,7 @@ pub enum ExpressionEnum {
     XMatch(usize),
     ZNone(Uuid),
     Operator(usize),
+    XPath(usize),
     XPrint(usize),
     RangeExpression(usize),
     XReturn(usize),
@@ -97,7 +95,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Block(subtype.borrow().id),
+                subtype: ExpressionEnum::Block(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -111,7 +109,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Call(subtype.borrow().id),
+                subtype: ExpressionEnum::Call(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -129,18 +127,6 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_enum_field"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_enum_field(
-        subtype: &Rc<RefCell<EnumField>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<Expression>> {
-        store.inter_expression(|id| {
-            Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::EnumField(subtype.borrow().id),
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_error_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
@@ -150,7 +136,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ErrorExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::ErrorExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -164,7 +150,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::FieldAccess(subtype.borrow().id),
+                subtype: ExpressionEnum::FieldAccess(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -178,7 +164,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::FieldExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::FieldExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -192,7 +178,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ForLoop(subtype.borrow().id),
+                subtype: ExpressionEnum::ForLoop(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -206,7 +192,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Grouped(subtype.borrow().id),
+                subtype: ExpressionEnum::Grouped(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -220,7 +206,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::XIf(subtype.borrow().id),
+                subtype: ExpressionEnum::XIf(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -234,7 +220,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Index(subtype.borrow().id),
+                subtype: ExpressionEnum::Index(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -248,7 +234,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Lambda(subtype.borrow().id),
+                subtype: ExpressionEnum::Lambda(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -262,7 +248,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ListElement(subtype.borrow().id),
+                subtype: ExpressionEnum::ListElement(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -276,7 +262,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ListExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::ListExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -290,7 +276,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Literal(subtype.borrow().id),
+                subtype: ExpressionEnum::Literal(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -304,7 +290,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::XMatch(subtype.borrow().id),
+                subtype: ExpressionEnum::XMatch(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -329,13 +315,28 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::Operator(subtype.borrow().id),
+                subtype: ExpressionEnum::Operator(subtype.borrow().id), // b
                 id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_print"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_path"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_path"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub fn new_x_path(
+        subtype: &Rc<RefCell<XPath>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<Expression>> {
+        store.inter_expression(|id| {
+            Rc::new(RefCell::new(Expression {
+                subtype: ExpressionEnum::XPath(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_print"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_print(
@@ -344,7 +345,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::XPrint(subtype.borrow().id),
+                subtype: ExpressionEnum::XPrint(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -358,7 +359,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::RangeExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::RangeExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -372,7 +373,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::XReturn(subtype.borrow().id),
+                subtype: ExpressionEnum::XReturn(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -386,7 +387,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ZSome(subtype.borrow().id),
+                subtype: ExpressionEnum::ZSome(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -400,7 +401,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::StructExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::StructExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -414,7 +415,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::TypeCast(subtype.borrow().id),
+                subtype: ExpressionEnum::TypeCast(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -428,7 +429,7 @@ impl Expression {
     ) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::VariableExpression(subtype.borrow().id),
+                subtype: ExpressionEnum::VariableExpression(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -670,29 +671,11 @@ impl Expression {
             .iter_x_return()
             .filter(|x_return| x_return.borrow().expression == self.id)
             .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
-    /// Navigate to [`StructField`] across R89(1-Mc)
-    pub fn r89_struct_field<'a>(
-        &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<StructField>>> {
-        span!("r89_struct_field");
-        store
-            .iter_struct_field()
-            .filter(|struct_field| struct_field.borrow().expression == Some(self.id))
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
-    /// Navigate to [`TupleField`] across R90(1-Mc)
-    pub fn r90_tuple_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<TupleField>>> {
-        span!("r90_tuple_field");
-        store
-            .iter_tuple_field()
-            .filter(|tuple_field| tuple_field.borrow().expression == Some(self.id))
-            .collect()
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-one-bi-cond-to-tuple_field"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-type_cast"}}}

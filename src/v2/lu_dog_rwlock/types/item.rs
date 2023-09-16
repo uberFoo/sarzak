@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::dwarf_source_file::DwarfSourceFile;
+use crate::v2::lu_dog_rwlock::types::enumeration::Enumeration;
 use crate::v2::lu_dog_rwlock::types::function::Function;
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::import::Import;
@@ -28,6 +29,7 @@ pub struct Item {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ItemEnum {
+    Enumeration(Uuid),
     Function(Uuid),
     ImplementationBlock(Uuid),
     Import(Uuid),
@@ -37,6 +39,23 @@ pub enum ItemEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-implementation"}}}
 impl Item {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_enumeration"}}}
+    /// Inter a new Item in the store, and return it's `id`.
+    pub fn new_enumeration(
+        source: &Arc<RwLock<DwarfSourceFile>>,
+        subtype: &Arc<RwLock<Enumeration>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Item>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Item {
+            source: source.read().unwrap().id,
+            subtype: ItemEnum::Enumeration(subtype.read().unwrap().id),
+            id,
+        }));
+        store.inter_item(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-struct-impl-new_function"}}}
     /// Inter a new Item in the store, and return it's `id`.
     pub fn new_function(

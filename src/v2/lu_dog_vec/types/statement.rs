@@ -58,7 +58,7 @@ impl Statement {
                 index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
-                subtype: StatementEnum::ExpressionStatement(subtype.borrow().id),
+                subtype: StatementEnum::ExpressionStatement(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -97,7 +97,7 @@ impl Statement {
                 index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
-                subtype: StatementEnum::LetStatement(subtype.borrow().id),
+                subtype: StatementEnum::LetStatement(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -117,7 +117,7 @@ impl Statement {
                 index: index,
                 block: block.borrow().id,
                 next: next.map(|statement| statement.borrow().id),
-                subtype: StatementEnum::ResultStatement(subtype.borrow().id),
+                subtype: StatementEnum::ResultStatement(subtype.borrow().id), // b
                 id,
             }))
         })

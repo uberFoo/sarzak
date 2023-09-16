@@ -150,7 +150,7 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
-uber_store = "Single"
+uber_store = "StdRwLock"
 target = "domain"
 
 [modules."v2/merlin"]
@@ -167,17 +167,17 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = false
-uber_store = "Single"
+uber_store = "StdRwLock"
 target = "domain"
 
-[modules."crate/v2/sarzak"]
+[modules."v2/sarzak"]
 model = "models/sarzak.json"
-[[modules."crate/v2/sarzak".compiler]]
+[[modules."v2/sarzak".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
-[modules."crate/v2/sarzak".compiler.target]
+[modules."v2/sarzak".compiler.target]
 optimization_level = "None"
 from_module = "v1::sarzak"
 from_path = "models/sarzak.json"
@@ -185,7 +185,7 @@ is_meta_model = true
 is_sarzak = true
 persist = true
 persist_timestamps = true
-uber_store = "Single"
+uber_store = "StdRwLock"
 target = "domain"
 
 [modules."v2/woog"]
@@ -202,5 +202,5 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = true
-uber_store = "Single"
+uber_store = "StdRwLock"
 target = "domain"

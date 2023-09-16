@@ -15,6 +15,7 @@
 //! * [`BooleanOperator`]
 //! * [`Call`]
 //! * [`Comparison`]
+//! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
@@ -49,13 +50,15 @@
 //! * [`XMacro`]
 //! * [`XMatch`]
 //! * [`MethodCall`]
+//! * [`NamedFieldExpression`]
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
 //! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`XPath`]
+//! * [`PathElement`]
 //! * [`Pattern`]
-//! * [`Plain`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`Reference`]
@@ -72,6 +75,8 @@
 //! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
+//! * [`Unit`]
+//! * [`UnnamedFieldExpression`]
 //! * [`XValue`]
 //! * [`ValueType`]
 //! * [`Variable`]
@@ -92,18 +97,20 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
     Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
-    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Pattern, Plain, RangeExpression,
-    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
-    StructField, TupleField, TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XError, XIf, XMacro, XMatch, XPrint, XReturn, XValue, ZObjectStore, ZSome,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, FROM, FULL,
-    FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
-    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
-    SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    DataStructure, DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, Reference, ResultStatement, Span,
+    Statement, StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogOption, WoogStruct, XError, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue,
+    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
+    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -124,6 +131,8 @@ pub struct ObjectStore {
     call: Vec<Option<Rc<RefCell<Call>>>>,
     comparison_free_list: Vec<usize>,
     comparison: Vec<Option<Rc<RefCell<Comparison>>>>,
+    data_structure_free_list: Vec<usize>,
+    data_structure: Vec<Option<Rc<RefCell<DataStructure>>>>,
     dwarf_source_file_free_list: Vec<usize>,
     dwarf_source_file: Vec<Option<Rc<RefCell<DwarfSourceFile>>>>,
     enum_field_free_list: Vec<usize>,
@@ -195,6 +204,8 @@ pub struct ObjectStore {
     x_match: Vec<Option<Rc<RefCell<XMatch>>>>,
     method_call_free_list: Vec<usize>,
     method_call: Vec<Option<Rc<RefCell<MethodCall>>>>,
+    named_field_expression_free_list: Vec<usize>,
+    named_field_expression: Vec<Option<Rc<RefCell<NamedFieldExpression>>>>,
     z_object_store_free_list: Vec<usize>,
     z_object_store: Vec<Option<Rc<RefCell<ZObjectStore>>>>,
     z_object_store_id_by_name: HashMap<String, usize>,
@@ -206,10 +217,12 @@ pub struct ObjectStore {
     woog_option: Vec<Option<Rc<RefCell<WoogOption>>>>,
     parameter_free_list: Vec<usize>,
     parameter: Vec<Option<Rc<RefCell<Parameter>>>>,
+    x_path_free_list: Vec<usize>,
+    x_path: Vec<Option<Rc<RefCell<XPath>>>>,
+    path_element_free_list: Vec<usize>,
+    path_element: Vec<Option<Rc<RefCell<PathElement>>>>,
     pattern_free_list: Vec<usize>,
     pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
-    plain_free_list: Vec<usize>,
-    plain: Vec<Option<Rc<RefCell<Plain>>>>,
     x_print_free_list: Vec<usize>,
     x_print: Vec<Option<Rc<RefCell<XPrint>>>>,
     range_expression_free_list: Vec<usize>,
@@ -243,6 +256,10 @@ pub struct ObjectStore {
     type_cast: Vec<Option<Rc<RefCell<TypeCast>>>>,
     unary_free_list: Vec<usize>,
     unary: Vec<Option<Rc<RefCell<Unary>>>>,
+    unit_free_list: Vec<usize>,
+    unit: Vec<Option<Rc<RefCell<Unit>>>>,
+    unnamed_field_expression_free_list: Vec<usize>,
+    unnamed_field_expression: Vec<Option<Rc<RefCell<UnnamedFieldExpression>>>>,
     x_value_free_list: Vec<usize>,
     x_value: Vec<Option<Rc<RefCell<XValue>>>>,
     value_type_free_list: Vec<usize>,
@@ -272,6 +289,8 @@ impl ObjectStore {
             call: Vec::new(),
             comparison_free_list: Vec::new(),
             comparison: Vec::new(),
+            data_structure_free_list: Vec::new(),
+            data_structure: Vec::new(),
             dwarf_source_file_free_list: Vec::new(),
             dwarf_source_file: Vec::new(),
             enum_field_free_list: Vec::new(),
@@ -343,6 +362,8 @@ impl ObjectStore {
             x_match: Vec::new(),
             method_call_free_list: Vec::new(),
             method_call: Vec::new(),
+            named_field_expression_free_list: Vec::new(),
+            named_field_expression: Vec::new(),
             z_object_store_free_list: Vec::new(),
             z_object_store: Vec::new(),
             z_object_store_id_by_name: HashMap::default(),
@@ -354,10 +375,12 @@ impl ObjectStore {
             woog_option: Vec::new(),
             parameter_free_list: Vec::new(),
             parameter: Vec::new(),
+            x_path_free_list: Vec::new(),
+            x_path: Vec::new(),
+            path_element_free_list: Vec::new(),
+            path_element: Vec::new(),
             pattern_free_list: Vec::new(),
             pattern: Vec::new(),
-            plain_free_list: Vec::new(),
-            plain: Vec::new(),
             x_print_free_list: Vec::new(),
             x_print: Vec::new(),
             range_expression_free_list: Vec::new(),
@@ -391,6 +414,10 @@ impl ObjectStore {
             type_cast: Vec::new(),
             unary_free_list: Vec::new(),
             unary: Vec::new(),
+            unit_free_list: Vec::new(),
+            unit: Vec::new(),
+            unnamed_field_expression_free_list: Vec::new(),
+            unnamed_field_expression: Vec::new(),
             x_value_free_list: Vec::new(),
             x_value: Vec::new(),
             value_type_free_list: Vec::new(),
@@ -1074,6 +1101,73 @@ impl ObjectStore {
                 self.comparison[i]
                     .as_ref()
                     .map(|comparison| comparison.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`DataStructure`] into the store.
+    ///
+    pub fn inter_data_structure<F>(&mut self, data_structure: F) -> Rc<RefCell<DataStructure>>
+    where
+        F: Fn(usize) -> Rc<RefCell<DataStructure>>,
+    {
+        let _index = if let Some(_index) = self.data_structure_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.data_structure.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.data_structure.push(None);
+            _index
+        };
+
+        let data_structure = data_structure(_index);
+
+        if let Some(Some(data_structure)) = self.data_structure.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *data_structure.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {data_structure:?}.");
+            self.data_structure_free_list.push(_index);
+            data_structure.clone()
+        } else {
+            log::debug!(target: "store", "interring {data_structure:?}.");
+            self.data_structure[_index] = Some(data_structure.clone());
+            data_structure
+        }
+    }
+
+    /// Exhume (get) [`DataStructure`] from the store.
+    ///
+    pub fn exhume_data_structure(&self, id: &usize) -> Option<Rc<RefCell<DataStructure>>> {
+        match self.data_structure.get(*id) {
+            Some(data_structure) => data_structure.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`DataStructure`] from the store.
+    ///
+    pub fn exorcise_data_structure(&mut self, id: &usize) -> Option<Rc<RefCell<DataStructure>>> {
+        log::debug!(target: "store", "exorcising data_structure slot: {id}.");
+        let result = self.data_structure[*id].take();
+        self.data_structure_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, DataStructure>`.
+    ///
+    pub fn iter_data_structure(&self) -> impl Iterator<Item = Rc<RefCell<DataStructure>>> + '_ {
+        let len = self.data_structure.len();
+        (0..len)
+            .filter(|i| self.data_structure[*i].is_some())
+            .map(move |i| {
+                self.data_structure[i]
+                    .as_ref()
+                    .map(|data_structure| data_structure.clone())
                     .unwrap()
             })
     }
@@ -3422,6 +3516,86 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`NamedFieldExpression`] into the store.
+    ///
+    pub fn inter_named_field_expression<F>(
+        &mut self,
+        named_field_expression: F,
+    ) -> Rc<RefCell<NamedFieldExpression>>
+    where
+        F: Fn(usize) -> Rc<RefCell<NamedFieldExpression>>,
+    {
+        let _index = if let Some(_index) = self.named_field_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.named_field_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.named_field_expression.push(None);
+            _index
+        };
+
+        let named_field_expression = named_field_expression(_index);
+
+        if let Some(Some(named_field_expression)) =
+            self.named_field_expression.iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.borrow() == *named_field_expression.borrow()
+                } else {
+                    false
+                }
+            })
+        {
+            log::debug!(target: "store", "found duplicate {named_field_expression:?}.");
+            self.named_field_expression_free_list.push(_index);
+            named_field_expression.clone()
+        } else {
+            log::debug!(target: "store", "interring {named_field_expression:?}.");
+            self.named_field_expression[_index] = Some(named_field_expression.clone());
+            named_field_expression
+        }
+    }
+
+    /// Exhume (get) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_named_field_expression(
+        &self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<NamedFieldExpression>>> {
+        match self.named_field_expression.get(*id) {
+            Some(named_field_expression) => named_field_expression.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_named_field_expression(
+        &mut self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<NamedFieldExpression>>> {
+        log::debug!(target: "store", "exorcising named_field_expression slot: {id}.");
+        let result = self.named_field_expression[*id].take();
+        self.named_field_expression_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, NamedFieldExpression>`.
+    ///
+    pub fn iter_named_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<NamedFieldExpression>>> + '_ {
+        let len = self.named_field_expression.len();
+        (0..len)
+            .filter(|i| self.named_field_expression[*i].is_some())
+            .map(move |i| {
+                self.named_field_expression[i]
+                    .as_ref()
+                    .map(|named_field_expression| named_field_expression.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
     pub fn inter_z_object_store<F>(&mut self, z_object_store: F) -> Rc<RefCell<ZObjectStore>>
@@ -3771,6 +3945,140 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`XPath`] into the store.
+    ///
+    pub fn inter_x_path<F>(&mut self, x_path: F) -> Rc<RefCell<XPath>>
+    where
+        F: Fn(usize) -> Rc<RefCell<XPath>>,
+    {
+        let _index = if let Some(_index) = self.x_path_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.x_path.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.x_path.push(None);
+            _index
+        };
+
+        let x_path = x_path(_index);
+
+        if let Some(Some(x_path)) = self.x_path.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *x_path.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {x_path:?}.");
+            self.x_path_free_list.push(_index);
+            x_path.clone()
+        } else {
+            log::debug!(target: "store", "interring {x_path:?}.");
+            self.x_path[_index] = Some(x_path.clone());
+            x_path
+        }
+    }
+
+    /// Exhume (get) [`XPath`] from the store.
+    ///
+    pub fn exhume_x_path(&self, id: &usize) -> Option<Rc<RefCell<XPath>>> {
+        match self.x_path.get(*id) {
+            Some(x_path) => x_path.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`XPath`] from the store.
+    ///
+    pub fn exorcise_x_path(&mut self, id: &usize) -> Option<Rc<RefCell<XPath>>> {
+        log::debug!(target: "store", "exorcising x_path slot: {id}.");
+        let result = self.x_path[*id].take();
+        self.x_path_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XPath>`.
+    ///
+    pub fn iter_x_path(&self) -> impl Iterator<Item = Rc<RefCell<XPath>>> + '_ {
+        let len = self.x_path.len();
+        (0..len)
+            .filter(|i| self.x_path[*i].is_some())
+            .map(move |i| {
+                self.x_path[i]
+                    .as_ref()
+                    .map(|x_path| x_path.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`PathElement`] into the store.
+    ///
+    pub fn inter_path_element<F>(&mut self, path_element: F) -> Rc<RefCell<PathElement>>
+    where
+        F: Fn(usize) -> Rc<RefCell<PathElement>>,
+    {
+        let _index = if let Some(_index) = self.path_element_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.path_element.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.path_element.push(None);
+            _index
+        };
+
+        let path_element = path_element(_index);
+
+        if let Some(Some(path_element)) = self.path_element.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *path_element.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {path_element:?}.");
+            self.path_element_free_list.push(_index);
+            path_element.clone()
+        } else {
+            log::debug!(target: "store", "interring {path_element:?}.");
+            self.path_element[_index] = Some(path_element.clone());
+            path_element
+        }
+    }
+
+    /// Exhume (get) [`PathElement`] from the store.
+    ///
+    pub fn exhume_path_element(&self, id: &usize) -> Option<Rc<RefCell<PathElement>>> {
+        match self.path_element.get(*id) {
+            Some(path_element) => path_element.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`PathElement`] from the store.
+    ///
+    pub fn exorcise_path_element(&mut self, id: &usize) -> Option<Rc<RefCell<PathElement>>> {
+        log::debug!(target: "store", "exorcising path_element slot: {id}.");
+        let result = self.path_element[*id].take();
+        self.path_element_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, PathElement>`.
+    ///
+    pub fn iter_path_element(&self) -> impl Iterator<Item = Rc<RefCell<PathElement>>> + '_ {
+        let len = self.path_element.len();
+        (0..len)
+            .filter(|i| self.path_element[*i].is_some())
+            .map(move |i| {
+                self.path_element[i]
+                    .as_ref()
+                    .map(|path_element| path_element.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`Pattern`] into the store.
     ///
     pub fn inter_pattern<F>(&mut self, pattern: F) -> Rc<RefCell<Pattern>>
@@ -3836,68 +4144,6 @@ impl ObjectStore {
                     .map(|pattern| pattern.clone())
                     .unwrap()
             })
-    }
-
-    /// Inter (insert) [`Plain`] into the store.
-    ///
-    pub fn inter_plain<F>(&mut self, plain: F) -> Rc<RefCell<Plain>>
-    where
-        F: Fn(usize) -> Rc<RefCell<Plain>>,
-    {
-        let _index = if let Some(_index) = self.plain_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.plain.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.plain.push(None);
-            _index
-        };
-
-        let plain = plain(_index);
-
-        if let Some(Some(plain)) = self.plain.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *plain.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {plain:?}.");
-            self.plain_free_list.push(_index);
-            plain.clone()
-        } else {
-            log::debug!(target: "store", "interring {plain:?}.");
-            self.plain[_index] = Some(plain.clone());
-            plain
-        }
-    }
-
-    /// Exhume (get) [`Plain`] from the store.
-    ///
-    pub fn exhume_plain(&self, id: &usize) -> Option<Rc<RefCell<Plain>>> {
-        match self.plain.get(*id) {
-            Some(plain) => plain.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`Plain`] from the store.
-    ///
-    pub fn exorcise_plain(&mut self, id: &usize) -> Option<Rc<RefCell<Plain>>> {
-        log::debug!(target: "store", "exorcising plain slot: {id}.");
-        let result = self.plain[*id].take();
-        self.plain_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Plain>`.
-    ///
-    pub fn iter_plain(&self) -> impl Iterator<Item = Rc<RefCell<Plain>>> + '_ {
-        let len = self.plain.len();
-        (0..len)
-            .filter(|i| self.plain[*i].is_some())
-            .map(move |i| self.plain[i].as_ref().map(|plain| plain.clone()).unwrap())
     }
 
     /// Inter (insert) [`XPrint`] into the store.
@@ -4997,6 +5243,148 @@ impl ObjectStore {
             .map(move |i| self.unary[i].as_ref().map(|unary| unary.clone()).unwrap())
     }
 
+    /// Inter (insert) [`Unit`] into the store.
+    ///
+    pub fn inter_unit<F>(&mut self, unit: F) -> Rc<RefCell<Unit>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Unit>>,
+    {
+        let _index = if let Some(_index) = self.unit_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.unit.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.unit.push(None);
+            _index
+        };
+
+        let unit = unit(_index);
+
+        if let Some(Some(unit)) = self.unit.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *unit.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {unit:?}.");
+            self.unit_free_list.push(_index);
+            unit.clone()
+        } else {
+            log::debug!(target: "store", "interring {unit:?}.");
+            self.unit[_index] = Some(unit.clone());
+            unit
+        }
+    }
+
+    /// Exhume (get) [`Unit`] from the store.
+    ///
+    pub fn exhume_unit(&self, id: &usize) -> Option<Rc<RefCell<Unit>>> {
+        match self.unit.get(*id) {
+            Some(unit) => unit.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Unit`] from the store.
+    ///
+    pub fn exorcise_unit(&mut self, id: &usize) -> Option<Rc<RefCell<Unit>>> {
+        log::debug!(target: "store", "exorcising unit slot: {id}.");
+        let result = self.unit[*id].take();
+        self.unit_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Unit>`.
+    ///
+    pub fn iter_unit(&self) -> impl Iterator<Item = Rc<RefCell<Unit>>> + '_ {
+        let len = self.unit.len();
+        (0..len)
+            .filter(|i| self.unit[*i].is_some())
+            .map(move |i| self.unit[i].as_ref().map(|unit| unit.clone()).unwrap())
+    }
+
+    /// Inter (insert) [`UnnamedFieldExpression`] into the store.
+    ///
+    pub fn inter_unnamed_field_expression<F>(
+        &mut self,
+        unnamed_field_expression: F,
+    ) -> Rc<RefCell<UnnamedFieldExpression>>
+    where
+        F: Fn(usize) -> Rc<RefCell<UnnamedFieldExpression>>,
+    {
+        let _index = if let Some(_index) = self.unnamed_field_expression_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.unnamed_field_expression.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.unnamed_field_expression.push(None);
+            _index
+        };
+
+        let unnamed_field_expression = unnamed_field_expression(_index);
+
+        if let Some(Some(unnamed_field_expression)) =
+            self.unnamed_field_expression.iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.borrow() == *unnamed_field_expression.borrow()
+                } else {
+                    false
+                }
+            })
+        {
+            log::debug!(target: "store", "found duplicate {unnamed_field_expression:?}.");
+            self.unnamed_field_expression_free_list.push(_index);
+            unnamed_field_expression.clone()
+        } else {
+            log::debug!(target: "store", "interring {unnamed_field_expression:?}.");
+            self.unnamed_field_expression[_index] = Some(unnamed_field_expression.clone());
+            unnamed_field_expression
+        }
+    }
+
+    /// Exhume (get) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_unnamed_field_expression(
+        &self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<UnnamedFieldExpression>>> {
+        match self.unnamed_field_expression.get(*id) {
+            Some(unnamed_field_expression) => unnamed_field_expression.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_unnamed_field_expression(
+        &mut self,
+        id: &usize,
+    ) -> Option<Rc<RefCell<UnnamedFieldExpression>>> {
+        log::debug!(target: "store", "exorcising unnamed_field_expression slot: {id}.");
+        let result = self.unnamed_field_expression[*id].take();
+        self.unnamed_field_expression_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, UnnamedFieldExpression>`.
+    ///
+    pub fn iter_unnamed_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<UnnamedFieldExpression>>> + '_ {
+        let len = self.unnamed_field_expression.len();
+        (0..len)
+            .filter(|i| self.unnamed_field_expression[*i].is_some())
+            .map(move |i| {
+                self.unnamed_field_expression[i]
+                    .as_ref()
+                    .map(|unnamed_field_expression| unnamed_field_expression.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`XValue`] into the store.
     ///
     pub fn inter_x_value<F>(&mut self, x_value: F) -> Rc<RefCell<XValue>>
@@ -5410,6 +5798,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &comparison)?;
+                }
+            }
+        }
+
+        // Persist Data Structure.
+        {
+            let path = path.join("data_structure");
+            fs::create_dir_all(&path)?;
+            for data_structure in &self.data_structure {
+                if let Some(data_structure) = data_structure {
+                    let path = path.join(format!("{}.json", data_structure.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &data_structure)?;
                 }
             }
         }
@@ -5890,6 +6292,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            fs::create_dir_all(&path)?;
+            for named_field_expression in &self.named_field_expression {
+                if let Some(named_field_expression) = named_field_expression {
+                    let path = path.join(format!("{}.json", named_field_expression.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &named_field_expression)?;
+                }
+            }
+        }
+
         // Persist Object Store.
         {
             let path = path.join("z_object_store");
@@ -5960,6 +6376,34 @@ impl ObjectStore {
             }
         }
 
+        // Persist Path.
+        {
+            let path = path.join("x_path");
+            fs::create_dir_all(&path)?;
+            for x_path in &self.x_path {
+                if let Some(x_path) = x_path {
+                    let path = path.join(format!("{}.json", x_path.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_path)?;
+                }
+            }
+        }
+
+        // Persist Path Element.
+        {
+            let path = path.join("path_element");
+            fs::create_dir_all(&path)?;
+            for path_element in &self.path_element {
+                if let Some(path_element) = path_element {
+                    let path = path.join(format!("{}.json", path_element.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &path_element)?;
+                }
+            }
+        }
+
         // Persist Pattern.
         {
             let path = path.join("pattern");
@@ -5970,20 +6414,6 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &pattern)?;
-                }
-            }
-        }
-
-        // Persist Plain.
-        {
-            let path = path.join("plain");
-            fs::create_dir_all(&path)?;
-            for plain in &self.plain {
-                if let Some(plain) = plain {
-                    let path = path.join(format!("{}.json", plain.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &plain)?;
                 }
             }
         }
@@ -6212,6 +6642,34 @@ impl ObjectStore {
             }
         }
 
+        // Persist Unit.
+        {
+            let path = path.join("unit");
+            fs::create_dir_all(&path)?;
+            for unit in &self.unit {
+                if let Some(unit) = unit {
+                    let path = path.join(format!("{}.json", unit.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &unit)?;
+                }
+            }
+        }
+
+        // Persist Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            fs::create_dir_all(&path)?;
+            for unnamed_field_expression in &self.unnamed_field_expression {
+                if let Some(unnamed_field_expression) = unnamed_field_expression {
+                    let path = path.join(format!("{}.json", unnamed_field_expression.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &unnamed_field_expression)?;
+                }
+            }
+        }
+
         // Persist Value.
         {
             let path = path.join("x_value");
@@ -6415,6 +6873,22 @@ impl ObjectStore {
                 store
                     .comparison
                     .insert(comparison.borrow().id, Some(comparison.clone()));
+            }
+        }
+
+        // Load Data Structure.
+        {
+            let path = path.join("data_structure");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let data_structure: Rc<RefCell<DataStructure>> = serde_json::from_reader(reader)?;
+                store
+                    .data_structure
+                    .insert(data_structure.borrow().id, Some(data_structure.clone()));
             }
         }
 
@@ -6975,6 +7449,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let named_field_expression: Rc<RefCell<NamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.named_field_expression.insert(
+                    named_field_expression.borrow().id,
+                    Some(named_field_expression.clone()),
+                );
+            }
+        }
+
         // Load Object Store.
         {
             let path = path.join("z_object_store");
@@ -7059,6 +7551,38 @@ impl ObjectStore {
             }
         }
 
+        // Load Path.
+        {
+            let path = path.join("x_path");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_path: Rc<RefCell<XPath>> = serde_json::from_reader(reader)?;
+                store
+                    .x_path
+                    .insert(x_path.borrow().id, Some(x_path.clone()));
+            }
+        }
+
+        // Load Path Element.
+        {
+            let path = path.join("path_element");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let path_element: Rc<RefCell<PathElement>> = serde_json::from_reader(reader)?;
+                store
+                    .path_element
+                    .insert(path_element.borrow().id, Some(path_element.clone()));
+            }
+        }
+
         // Load Pattern.
         {
             let path = path.join("pattern");
@@ -7072,20 +7596,6 @@ impl ObjectStore {
                 store
                     .pattern
                     .insert(pattern.borrow().id, Some(pattern.clone()));
-            }
-        }
-
-        // Load Plain.
-        {
-            let path = path.join("plain");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let plain: Rc<RefCell<Plain>> = serde_json::from_reader(reader)?;
-                store.plain.insert(plain.borrow().id, Some(plain.clone()));
             }
         }
 
@@ -7348,6 +7858,38 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let unary: Rc<RefCell<Unary>> = serde_json::from_reader(reader)?;
                 store.unary.insert(unary.borrow().id, Some(unary.clone()));
+            }
+        }
+
+        // Load Unit.
+        {
+            let path = path.join("unit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unit: Rc<RefCell<Unit>> = serde_json::from_reader(reader)?;
+                store.unit.insert(unit.borrow().id, Some(unit.clone()));
+            }
+        }
+
+        // Load Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unnamed_field_expression: Rc<RefCell<UnnamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.unnamed_field_expression.insert(
+                    unnamed_field_expression.borrow().id,
+                    Some(unnamed_field_expression.clone()),
+                );
             }
         }
 

@@ -41,8 +41,8 @@ impl ForLoop {
         expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ForLoop>> {
-        let expression = expression.read().await.id;
         let block = block.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_for_loop(|id| {
                 Arc::new(RwLock::new(ForLoop {
@@ -57,9 +57,12 @@ impl ForLoop {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R43(1-*)
-    pub async fn r43_block<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Block>>> {
+    pub async fn r43_block<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
         span!("r43_block");
-        vec![store.exhume_block(&self.block).await.unwrap()]
+        stream::iter(vec![store.exhume_block(&self.block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-expression"}}}
@@ -67,9 +70,9 @@ impl ForLoop {
     pub async fn r42_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r42_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-impl-nav-subtype-to-supertype-expression"}}}

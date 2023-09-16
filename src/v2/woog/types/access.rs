@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"access-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -34,15 +34,15 @@ impl Access {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-new"}}}
     /// Inter a new 'Access' in the store, and return it's `id`.
     pub fn new(
-        ownership: &Rc<RefCell<Ownership>>,
-        visibility: &Rc<RefCell<Visibility>>,
+        ownership: &Arc<RwLock<Ownership>>,
+        visibility: &Arc<RwLock<Visibility>>,
         store: &mut WoogStore,
-    ) -> Rc<RefCell<Access>> {
+    ) -> Arc<RwLock<Access>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Access {
+        let new = Arc::new(RwLock::new(Access {
             id,
-            ownership: ownership.borrow().id(),
-            visibility: visibility.borrow().id(),
+            ownership: ownership.read().unwrap().id(),
+            visibility: visibility.read().unwrap().id(),
         }));
         store.inter_access(new.clone());
         new
@@ -50,14 +50,14 @@ impl Access {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-forward-to-ownership"}}}
     /// Navigate to [`Ownership`] across R15(1-*)
-    pub fn r15_ownership<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Ownership>>> {
+    pub fn r15_ownership<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Ownership>>> {
         span!("r15_ownership");
         vec![store.exhume_ownership(&self.ownership).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-forward-to-visibility"}}}
     /// Navigate to [`Visibility`] across R14(1-*)
-    pub fn r14_visibility<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Visibility>>> {
+    pub fn r14_visibility<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Visibility>>> {
         span!("r14_visibility");
         vec![store.exhume_visibility(&self.visibility).unwrap()]
     }
@@ -65,11 +65,11 @@ impl Access {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-backward-1_M-to-value"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"access-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R16(1-M)
-    pub fn r16_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<XValue>>> {
+    pub fn r16_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XValue>>> {
         span!("r16_x_value");
         store
             .iter_x_value()
-            .filter(|x_value| x_value.borrow().access == self.id)
+            .filter(|x_value| x_value.read().unwrap().access == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

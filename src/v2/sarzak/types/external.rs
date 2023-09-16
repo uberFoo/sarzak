@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"external-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -50,9 +50,9 @@ impl External {
         name: String,
         path: String,
         store: &mut SarzakStore,
-    ) -> Rc<RefCell<External>> {
+    ) -> Arc<RwLock<External>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(External {
+        let new = Arc::new(RwLock::new(External {
             ctor,
             id,
             name,
@@ -66,7 +66,7 @@ impl External {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
-    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<Rc<RefCell<Ty>>> {
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Ty>>> {
         span!("r3_ty");
         vec![store.exhume_ty(&self.id).unwrap()]
     }

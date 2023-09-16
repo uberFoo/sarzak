@@ -40,8 +40,8 @@ impl LetStatement {
         variable: &Arc<RwLock<LocalVariable>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<LetStatement>> {
-        let expression = expression.read().await.id;
         let variable = variable.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_let_statement(|id| {
                 Arc::new(RwLock::new(LetStatement {
@@ -58,9 +58,9 @@ impl LetStatement {
     pub async fn r20_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         span!("r20_expression");
-        vec![store.exhume_expression(&self.expression).await.unwrap()]
+        stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-nav-forward-to-variable"}}}
@@ -68,9 +68,9 @@ impl LetStatement {
     pub async fn r21_local_variable<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<LocalVariable>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<LocalVariable>>> + '_ {
         span!("r21_local_variable");
-        vec![store.exhume_local_variable(&self.variable).await.unwrap()]
+        stream::iter(vec![store.exhume_local_variable(&self.variable).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}

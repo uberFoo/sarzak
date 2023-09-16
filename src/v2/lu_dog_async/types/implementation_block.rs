@@ -42,12 +42,12 @@ impl ImplementationBlock {
         object_store: Option<&Arc<RwLock<ZObjectStore>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ImplementationBlock>> {
-        let z_object_store = match object_store {
-            Some(z_object_store) => Some(z_object_store.read().await.id),
-            None => None,
-        };
         let woog_struct = match model_type {
             Some(woog_struct) => Some(woog_struct.read().await.id),
+            None => None,
+        };
+        let z_object_store = match object_store {
+            Some(z_object_store) => Some(z_object_store.read().await.id),
             None => None,
         };
         store
@@ -66,11 +66,13 @@ impl ImplementationBlock {
     pub async fn r8_woog_struct<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<WoogStruct>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
         span!("r8_woog_struct");
         match self.model_type {
-            Some(ref model_type) => vec![store.exhume_woog_struct(model_type).await.unwrap()],
-            None => Vec::new(),
+            Some(ref model_type) => {
+                stream::iter(vec![store.exhume_woog_struct(model_type).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -79,13 +81,13 @@ impl ImplementationBlock {
     pub async fn r83_z_object_store<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ZObjectStore>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ZObjectStore>>> + '_ {
         span!("r83_z_object_store");
         match self.object_store {
-            Some(ref object_store) => {
-                vec![store.exhume_z_object_store(object_store).await.unwrap()]
-            }
-            None => Vec::new(),
+            Some(ref object_store) => stream::iter(
+                vec![store.exhume_z_object_store(object_store).await.unwrap()].into_iter(),
+            ),
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -94,20 +96,18 @@ impl ImplementationBlock {
     pub async fn r84c_enumeration<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Enumeration>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Enumeration>>> + '_ {
         span!("r84_enumeration");
         store
             .iter_enumeration()
             .await
-            .filter_map(|enumeration| async move {
+            .filter_map(move |enumeration| async move {
                 if enumeration.read().await.implementation == Some(self.id) {
                     Some(enumeration.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-1_Mc-to-function"}}}
@@ -115,20 +115,18 @@ impl ImplementationBlock {
     pub async fn r9_function<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Function>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
         span!("r9_function");
         store
             .iter_function()
             .await
-            .filter_map(|function| async move {
+            .filter_map(move |function| async move {
                 if function.read().await.impl_block == Some(self.id) {
                     Some(function.clone())
                 } else {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-impl-nav-subtype-to-supertype-item"}}}

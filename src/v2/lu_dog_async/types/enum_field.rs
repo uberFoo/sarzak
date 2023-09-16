@@ -60,7 +60,7 @@ impl EnumField {
             .inter_enum_field(|id| {
                 Arc::new(RwLock::new(EnumField {
                     name: name.to_owned(),
-                    woog_enum,
+                    woog_enum, // (b)
                     subtype: EnumFieldEnum::Plain(subtype),
                     id,
                 }))
@@ -83,7 +83,7 @@ impl EnumField {
             .inter_enum_field(|id| {
                 Arc::new(RwLock::new(EnumField {
                     name: name.to_owned(),
-                    woog_enum,
+                    woog_enum, // (b)
                     subtype: EnumFieldEnum::StructField(subtype),
                     id,
                 }))
@@ -106,7 +106,7 @@ impl EnumField {
             .inter_enum_field(|id| {
                 Arc::new(RwLock::new(EnumField {
                     name: name.to_owned(),
-                    woog_enum,
+                    woog_enum, // (b)
                     subtype: EnumFieldEnum::TupleField(subtype),
                     id,
                 }))
@@ -119,9 +119,9 @@ impl EnumField {
     pub async fn r88_enumeration<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Enumeration>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<Enumeration>>> + '_ {
         span!("r88_enumeration");
-        vec![store.exhume_enumeration(&self.woog_enum).await.unwrap()]
+        stream::iter(vec![store.exhume_enumeration(&self.woog_enum).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}

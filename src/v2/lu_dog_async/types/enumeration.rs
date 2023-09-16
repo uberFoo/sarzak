@@ -62,14 +62,17 @@ impl Enumeration {
     pub async fn r84_implementation_block<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
         span!("r84_implementation_block");
         match self.implementation {
-            Some(ref implementation) => vec![store
-                .exhume_implementation_block(implementation)
-                .await
-                .unwrap()],
-            None => Vec::new(),
+            Some(ref implementation) => stream::iter(
+                vec![store
+                    .exhume_implementation_block(implementation)
+                    .await
+                    .unwrap()]
+                .into_iter(),
+            ),
+            None => stream::iter(vec![].into_iter()),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -78,7 +81,7 @@ impl Enumeration {
     pub async fn r88_enum_field<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<EnumField>>> {
+    ) -> impl futures::Stream<Item = Arc<RwLock<EnumField>>> + '_ {
         span!("r88_enum_field");
         store
             .iter_enum_field()
@@ -90,8 +93,6 @@ impl Enumeration {
                     None
                 }
             })
-            .collect()
-            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}

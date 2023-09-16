@@ -54,7 +54,7 @@ impl Operator {
             Rc::new(RefCell::new(Operator {
                 lhs: lhs.borrow().id,
                 rhs: rhs.map(|expression| expression.borrow().id),
-                subtype: OperatorEnum::Binary(subtype.borrow().id),
+                subtype: OperatorEnum::Binary(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -72,7 +72,7 @@ impl Operator {
             Rc::new(RefCell::new(Operator {
                 lhs: lhs.borrow().id,
                 rhs: rhs.map(|expression| expression.borrow().id),
-                subtype: OperatorEnum::Comparison(subtype.borrow().id),
+                subtype: OperatorEnum::Comparison(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -90,7 +90,7 @@ impl Operator {
             Rc::new(RefCell::new(Operator {
                 lhs: lhs.borrow().id,
                 rhs: rhs.map(|expression| expression.borrow().id),
-                subtype: OperatorEnum::Unary(subtype.borrow().id),
+                subtype: OperatorEnum::Unary(subtype.borrow().id), // b
                 id,
             }))
         })

@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"constant-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -28,16 +28,16 @@ pub struct Constant {
 impl Constant {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-struct-impl-new"}}}
     /// Inter a new 'Constant' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut WoogStore) -> Rc<RefCell<Constant>> {
+    pub fn new(name: String, store: &mut WoogStore) -> Arc<RwLock<Constant>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Constant { id, name }));
+        let new = Arc::new(RwLock::new(Constant { id, name }));
         store.inter_constant(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"constant-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
-    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Rc<RefCell<Item>>> {
+    pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Item>>> {
         span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }

@@ -45,38 +45,34 @@ impl DwarfSourceFile {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-item"}}}
     /// Navigate to [`Item`] across R25(1-M)
-    pub async fn r25_item<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Item>>> {
+    pub async fn r25_item<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Item>>> + '_ {
         span!("r25_item");
-        store
-            .iter_item()
-            .await
-            .filter_map(|item| async {
-                if item.read().await.source == self.id {
-                    Some(item)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_item().await.filter_map(|item| async {
+            if item.read().await.source == self.id {
+                Some(item)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-span"}}}
     /// Navigate to [`Span`] across R64(1-M)
-    pub async fn r64_span<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Span>>> {
+    pub async fn r64_span<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Span>>> + '_ {
         span!("r64_span");
-        store
-            .iter_span()
-            .await
-            .filter_map(|span| async {
-                if span.read().await.source == self.id {
-                    Some(span)
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
+        store.iter_span().await.filter_map(|span| async {
+            if span.read().await.source == self.id {
+                Some(span)
+            } else {
+                None
+            }
+        })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -56,7 +56,7 @@ impl ObjectWrapper {
     pub async fn r78_object<'a>(
         &'a self,
         store: &'a SarzakStore,
-    ) -> Vec<std::rc::Rc<std::cell::RefCell<Object>>> {
+    ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
         span!("r78_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }

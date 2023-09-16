@@ -25,10 +25,10 @@ pub struct TimeStamp {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"time_stamp-ee-impl"}}}
 impl TimeStamp {
-    pub fn new(store: &mut WoogStore) -> std::rc::Rc<std::cell::RefCell<TimeStamp>> {
+    pub fn new(store: &mut WoogStore) -> std::sync::Arc<std::sync::RwLock<TimeStamp>> {
         let inner = SystemTime::now();
         let id = Uuid::new_v5(&UUID_NS, format!("{:?}", inner).as_bytes());
-        let new = std::rc::Rc::new(std::cell::RefCell::new(TimeStamp {
+        let new = std::sync::Arc::new(std::sync::RwLock::new(TimeStamp {
             id: id,
             inner: inner,
         }));

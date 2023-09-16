@@ -12,7 +12,7 @@ use uuid::{uuid, Uuid};
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path-const-definition"}}}
 pub const PATH: Uuid = uuid!["9a08ad53-69fd-5651-9417-e344bb5805a5"];
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Path;
 
 impl Path {

@@ -8,8 +8,8 @@ use crate::v2::drawing::types::object_edge::ObjectEdge;
 use crate::v2::drawing::types::right::RIGHT;
 use crate::v2::drawing::types::top::TOP;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -47,25 +47,25 @@ pub enum Edge {
 impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-new-impl"}}}
     /// Create a new instance of Edge::Bottom
-    pub fn new_bottom(store: &DrawingStore) -> Rc<RefCell<Self>> {
+    pub fn new_bottom(store: &DrawingStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_edge(&BOTTOM).unwrap()
     }
 
     /// Create a new instance of Edge::Left
-    pub fn new_left(store: &DrawingStore) -> Rc<RefCell<Self>> {
+    pub fn new_left(store: &DrawingStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_edge(&LEFT).unwrap()
     }
 
     /// Create a new instance of Edge::Right
-    pub fn new_right(store: &DrawingStore) -> Rc<RefCell<Self>> {
+    pub fn new_right(store: &DrawingStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_edge(&RIGHT).unwrap()
     }
 
     /// Create a new instance of Edge::Top
-    pub fn new_top(store: &DrawingStore) -> Rc<RefCell<Self>> {
+    pub fn new_top(store: &DrawingStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_edge(&TOP).unwrap()
     }
@@ -83,11 +83,11 @@ impl Edge {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-1c)
-    pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Anchor>>> {
+    pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
         span!("r3_anchor");
         let anchor = store
             .iter_anchor()
-            .find(|anchor| anchor.borrow().edge == self.id());
+            .find(|anchor| anchor.read().unwrap().edge == self.id());
         match anchor {
             Some(ref anchor) => vec![anchor.clone()],
             None => Vec::new(),
@@ -96,11 +96,11 @@ impl Edge {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-object_edge"}}}
     /// Navigate to [`ObjectEdge`] across R19(1-1c)
-    pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<ObjectEdge>>> {
+    pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<ObjectEdge>>> {
         span!("r19_object_edge");
         let object_edge = store
             .iter_object_edge()
-            .find(|object_edge| object_edge.borrow().edge == self.id());
+            .find(|object_edge| object_edge.read().unwrap().edge == self.id());
         match object_edge {
             Some(ref object_edge) => vec![object_edge.clone()],
             None => Vec::new(),

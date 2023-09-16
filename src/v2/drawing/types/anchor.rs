@@ -1,7 +1,7 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"anchor-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
@@ -47,17 +47,17 @@ impl Anchor {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-new"}}}
     /// Inter a new 'Anchor' in the store, and return it's `id`.
     pub fn new(
-        edge: &Rc<RefCell<Edge>>,
-        location: &Rc<RefCell<Point>>,
-        offset: &Rc<RefCell<Point>>,
+        edge: &Arc<RwLock<Edge>>,
+        location: &Arc<RwLock<Point>>,
+        offset: &Arc<RwLock<Point>>,
         store: &mut DrawingStore,
-    ) -> Rc<RefCell<Anchor>> {
+    ) -> Arc<RwLock<Anchor>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Anchor {
+        let new = Arc::new(RwLock::new(Anchor {
             id,
-            edge: edge.borrow().id(),
-            location: location.borrow().id,
-            offset: offset.borrow().id,
+            edge: edge.read().unwrap().id(),
+            location: location.read().unwrap().id,
+            offset: offset.read().unwrap().id,
         }));
         store.inter_anchor(new.clone());
         new
@@ -67,7 +67,7 @@ impl Anchor {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-edge"}}}
     /// Navigate to [`Edge`] across R3(1-*)
-    pub fn r3_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Edge>>> {
+    pub fn r3_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Edge>>> {
         span!("r3_edge");
         vec![store.exhume_edge(&self.edge).unwrap()]
     }
@@ -76,14 +76,14 @@ impl Anchor {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-location"}}}
     /// Navigate to [`Point`] across R4(1-*)
-    pub fn r4_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Point>>> {
+    pub fn r4_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Point>>> {
         span!("r4_point");
         vec![store.exhume_point(&self.location).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-forward-to-offset"}}}
     /// Navigate to [`Point`] across R5(1-*)
-    pub fn r5_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<Point>>> {
+    pub fn r5_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Point>>> {
         span!("r5_point");
         vec![store.exhume_point(&self.offset).unwrap()]
     }
@@ -93,11 +93,11 @@ impl Anchor {
     pub fn r14c_associative_ui<'a>(
         &'a self,
         store: &'a DrawingStore,
-    ) -> Vec<Rc<RefCell<AssociativeUi>>> {
+    ) -> Vec<Arc<RwLock<AssociativeUi>>> {
         span!("r14_associative_ui");
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.borrow().one == self.id);
+            .find(|associative_ui| associative_ui.read().unwrap().one == self.id);
         match associative_ui {
             Some(ref associative_ui) => vec![associative_ui.clone()],
             None => Vec::new(),
@@ -109,11 +109,11 @@ impl Anchor {
     pub fn r15c_associative_ui<'a>(
         &'a self,
         store: &'a DrawingStore,
-    ) -> Vec<Rc<RefCell<AssociativeUi>>> {
+    ) -> Vec<Arc<RwLock<AssociativeUi>>> {
         span!("r15_associative_ui");
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.borrow().other == self.id);
+            .find(|associative_ui| associative_ui.read().unwrap().other == self.id);
         match associative_ui {
             Some(ref associative_ui) => vec![associative_ui.clone()],
             None => Vec::new(),
@@ -125,11 +125,11 @@ impl Anchor {
     pub fn r16c_associative_ui<'a>(
         &'a self,
         store: &'a DrawingStore,
-    ) -> Vec<Rc<RefCell<AssociativeUi>>> {
+    ) -> Vec<Arc<RwLock<AssociativeUi>>> {
         span!("r16_associative_ui");
         let associative_ui = store
             .iter_associative_ui()
-            .find(|associative_ui| associative_ui.borrow().middle == self.id);
+            .find(|associative_ui| associative_ui.read().unwrap().middle == self.id);
         match associative_ui {
             Some(ref associative_ui) => vec![associative_ui.clone()],
             None => Vec::new(),
@@ -138,11 +138,11 @@ impl Anchor {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-binary_ui"}}}
     /// Navigate to [`BinaryUi`] across R8(1-1c)
-    pub fn r8c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<BinaryUi>>> {
+    pub fn r8c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<BinaryUi>>> {
         span!("r8_binary_ui");
         let binary_ui = store
             .iter_binary_ui()
-            .find(|binary_ui| binary_ui.borrow().to == self.id);
+            .find(|binary_ui| binary_ui.read().unwrap().to == self.id);
         match binary_ui {
             Some(ref binary_ui) => vec![binary_ui.clone()],
             None => Vec::new(),
@@ -151,11 +151,11 @@ impl Anchor {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-binary_ui"}}}
     /// Navigate to [`BinaryUi`] across R7(1-1c)
-    pub fn r7c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<BinaryUi>>> {
+    pub fn r7c_binary_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<BinaryUi>>> {
         span!("r7_binary_ui");
         let binary_ui = store
             .iter_binary_ui()
-            .find(|binary_ui| binary_ui.borrow().from == self.id);
+            .find(|binary_ui| binary_ui.read().unwrap().from == self.id);
         match binary_ui {
             Some(ref binary_ui) => vec![binary_ui.clone()],
             None => Vec::new(),
@@ -164,11 +164,11 @@ impl Anchor {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"anchor-struct-impl-nav-backward-cond-to-isa_ui"}}}
     /// Navigate to [`IsaUi`] across R9(1-1c)
-    pub fn r9c_isa_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Rc<RefCell<IsaUi>>> {
+    pub fn r9c_isa_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<IsaUi>>> {
         span!("r9_isa_ui");
         let isa_ui = store
             .iter_isa_ui()
-            .find(|isa_ui| isa_ui.borrow().from == self.id);
+            .find(|isa_ui| isa_ui.read().unwrap().from == self.id);
         match isa_ui {
             Some(ref isa_ui) => vec![isa_ui.clone()],
             None => Vec::new(),
@@ -181,11 +181,11 @@ impl Anchor {
     pub fn r10_subtype_anchors<'a>(
         &'a self,
         store: &'a DrawingStore,
-    ) -> Vec<Rc<RefCell<SubtypeAnchors>>> {
+    ) -> Vec<Arc<RwLock<SubtypeAnchors>>> {
         span!("r10_subtype_anchors");
         store
             .iter_subtype_anchors()
-            .filter(|subtype_anchors| subtype_anchors.borrow().anchor_id == self.id)
+            .filter(|subtype_anchors| subtype_anchors.read().unwrap().anchor_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

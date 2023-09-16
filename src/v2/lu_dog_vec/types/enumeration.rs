@@ -5,6 +5,8 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec::types::data_structure::DataStructure;
+use crate::v2::lu_dog_vec::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
@@ -75,6 +77,25 @@ impl Enumeration {
             .iter_enum_field()
             .filter(|enum_field| enum_field.borrow().woog_enum == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub fn r95_data_structure<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<DataStructure>>> {
+        span!("r95_data_structure");
+        vec![store
+            .iter_data_structure()
+            .find(|data_structure| {
+                if let DataStructureEnum::Enumeration(id) = data_structure.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
