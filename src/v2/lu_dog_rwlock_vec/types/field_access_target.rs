@@ -45,7 +45,7 @@ impl FieldAccessTarget {
     ) -> Arc<RwLock<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Arc::new(RwLock::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::EnumField(subtype.read().unwrap().id),
+                subtype: FieldAccessTargetEnum::EnumField(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -59,7 +59,7 @@ impl FieldAccessTarget {
     ) -> Arc<RwLock<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Arc::new(RwLock::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::Field(subtype.read().unwrap().id),
+                subtype: FieldAccessTargetEnum::Field(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -73,7 +73,7 @@ impl FieldAccessTarget {
     ) -> Arc<RwLock<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Arc::new(RwLock::new(FieldAccessTarget {
-                subtype: FieldAccessTargetEnum::Function(subtype.read().unwrap().id),
+                subtype: FieldAccessTargetEnum::Function(subtype.read().unwrap().id), // b
                 id,
             }))
         })

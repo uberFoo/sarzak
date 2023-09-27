@@ -5,10 +5,11 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock_vec::types::data_structure::DataStructure;
 use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
 use crate::v2::lu_dog_rwlock_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock_vec::types::field_expression::FieldExpression;
-use crate::v2::lu_dog_rwlock_vec::types::woog_struct::WoogStruct;
+use crate::v2::lu_dog_rwlock_vec::types::x_path::XPath;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
@@ -25,8 +26,10 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct StructExpression {
     pub bug: Uuid,
     pub id: usize,
-    /// R39: [`StructExpression`] '' [`WoogStruct`]
-    pub woog_struct: usize,
+    /// R39: [`StructExpression`] '' [`DataStructure`]
+    pub data: usize,
+    /// R96: [`StructExpression`] 'has a' [`XPath`]
+    pub x_path: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-implementation"}}}
@@ -35,26 +38,36 @@ impl StructExpression {
     /// Inter a new 'Struct Expression' in the store, and return it's `id`.
     pub fn new(
         bug: Uuid,
-        woog_struct: &Arc<RwLock<WoogStruct>>,
+        data: &Arc<RwLock<DataStructure>>,
+        x_path: &Arc<RwLock<XPath>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<StructExpression>> {
         store.inter_struct_expression(|id| {
             Arc::new(RwLock::new(StructExpression {
                 bug,
                 id,
-                woog_struct: woog_struct.read().unwrap().id,
+                data: data.read().unwrap().id,
+                x_path: x_path.read().unwrap().id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-woog_struct"}}}
-    /// Navigate to [`WoogStruct`] across R39(1-*)
-    pub fn r39_woog_struct<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-data"}}}
+    /// Navigate to [`DataStructure`] across R39(1-*)
+    pub fn r39_data_structure<'a>(
         &'a self,
         store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r39_woog_struct");
-        vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
+    ) -> Vec<Arc<RwLock<DataStructure>>> {
+        span!("r39_data_structure");
+        vec![store.exhume_data_structure(&self.data).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-x_path"}}}
+    /// Navigate to [`XPath`] across R96(1-*)
+    pub fn r96_x_path<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPath>>> {
+        span!("r96_x_path");
+        vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-backward-1_M-to-field_expression"}}}
@@ -96,7 +109,7 @@ impl StructExpression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-implementation"}}}
 impl PartialEq for StructExpression {
     fn eq(&self, other: &Self) -> bool {
-        self.bug == other.bug && self.woog_struct == other.woog_struct
+        self.bug == other.bug && self.data == other.data && self.x_path == other.x_path
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -97,7 +97,7 @@ impl Call {
                 arg_check: arg_check,
                 argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
-                subtype: CallEnum::MethodCall(subtype.read().unwrap().id),
+                subtype: CallEnum::MethodCall(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -117,7 +117,7 @@ impl Call {
                 arg_check: arg_check,
                 argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
-                subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id),
+                subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id), // b
                 id,
             }))
         })

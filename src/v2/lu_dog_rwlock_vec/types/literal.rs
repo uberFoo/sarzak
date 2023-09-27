@@ -48,7 +48,7 @@ impl Literal {
     ) -> Arc<RwLock<Literal>> {
         store.inter_literal(|id| {
             Arc::new(RwLock::new(Literal {
-                subtype: LiteralEnum::BooleanLiteral(subtype.read().unwrap().id),
+                subtype: LiteralEnum::BooleanLiteral(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -62,7 +62,7 @@ impl Literal {
     ) -> Arc<RwLock<Literal>> {
         store.inter_literal(|id| {
             Arc::new(RwLock::new(Literal {
-                subtype: LiteralEnum::FloatLiteral(subtype.read().unwrap().id),
+                subtype: LiteralEnum::FloatLiteral(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -76,7 +76,7 @@ impl Literal {
     ) -> Arc<RwLock<Literal>> {
         store.inter_literal(|id| {
             Arc::new(RwLock::new(Literal {
-                subtype: LiteralEnum::IntegerLiteral(subtype.read().unwrap().id),
+                subtype: LiteralEnum::IntegerLiteral(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -90,7 +90,7 @@ impl Literal {
     ) -> Arc<RwLock<Literal>> {
         store.inter_literal(|id| {
             Arc::new(RwLock::new(Literal {
-                subtype: LiteralEnum::StringLiteral(subtype.read().unwrap().id),
+                subtype: LiteralEnum::StringLiteral(subtype.read().unwrap().id), // b
                 id,
             }))
         })

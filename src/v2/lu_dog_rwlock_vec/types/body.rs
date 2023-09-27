@@ -22,6 +22,7 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Body {
     pub subtype: BodyEnum,
+    pub a_sink: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -37,12 +38,14 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_block"}}}
     /// Inter a new Body in the store, and return it's `id`.
     pub fn new_block(
+        a_sink: bool,
         subtype: &Arc<RwLock<Block>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Body>> {
         store.inter_body(|id| {
             Arc::new(RwLock::new(Body {
-                subtype: BodyEnum::Block(subtype.read().unwrap().id),
+                a_sink: a_sink,
+                subtype: BodyEnum::Block(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -51,12 +54,14 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_external_implementation"}}}
     /// Inter a new Body in the store, and return it's `id`.
     pub fn new_external_implementation(
+        a_sink: bool,
         subtype: &Arc<RwLock<ExternalImplementation>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<Body>> {
         store.inter_body(|id| {
             Arc::new(RwLock::new(Body {
-                subtype: BodyEnum::ExternalImplementation(subtype.read().unwrap().id),
+                a_sink: a_sink,
+                subtype: BodyEnum::ExternalImplementation(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -83,7 +88,7 @@ impl Body {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-implementation"}}}
 impl PartialEq for Body {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.a_sink == other.a_sink
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

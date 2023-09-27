@@ -6,13 +6,11 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::enumeration::Enumeration;
-use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
-use crate::v2::lu_dog_rwlock_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock_vec::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_rwlock_vec::types::field_access_target::FieldAccessTargetEnum;
-use crate::v2::lu_dog_rwlock_vec::types::plain::Plain;
 use crate::v2::lu_dog_rwlock_vec::types::struct_field::StructField;
 use crate::v2::lu_dog_rwlock_vec::types::tuple_field::TupleField;
+use crate::v2::lu_dog_rwlock_vec::types::unit::Unit;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
@@ -37,31 +35,14 @@ pub struct EnumField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum EnumFieldEnum {
-    Plain(usize),
     StructField(usize),
     TupleField(usize),
+    Unit(usize),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-implementation"}}}
 impl EnumField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_plain"}}}
-    /// Inter a new EnumField in the store, and return it's `id`.
-    pub fn new_plain(
-        name: String,
-        woog_enum: &Arc<RwLock<Enumeration>>,
-        subtype: &Arc<RwLock<Plain>>,
-        store: &mut LuDogRwlockVecStore,
-    ) -> Arc<RwLock<EnumField>> {
-        store.inter_enum_field(|id| {
-            Arc::new(RwLock::new(EnumField {
-                name: name.to_owned(),
-                woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::Plain(subtype.read().unwrap().id),
-                id,
-            }))
-        })
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub fn new_struct_field(
@@ -74,12 +55,13 @@ impl EnumField {
             Arc::new(RwLock::new(EnumField {
                 name: name.to_owned(),
                 woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::StructField(subtype.read().unwrap().id),
+                subtype: EnumFieldEnum::StructField(subtype.read().unwrap().id), // b
                 id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub fn new_tuple_field(
@@ -92,7 +74,26 @@ impl EnumField {
             Arc::new(RwLock::new(EnumField {
                 name: name.to_owned(),
                 woog_enum: woog_enum.read().unwrap().id,
-                subtype: EnumFieldEnum::TupleField(subtype.read().unwrap().id),
+                subtype: EnumFieldEnum::TupleField(subtype.read().unwrap().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_unit"}}}
+    /// Inter a new EnumField in the store, and return it's `id`.
+    pub fn new_unit(
+        name: String,
+        woog_enum: &Arc<RwLock<Enumeration>>,
+        subtype: &Arc<RwLock<Unit>>,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<EnumField>> {
+        store.inter_enum_field(|id| {
+            Arc::new(RwLock::new(EnumField {
+                name: name.to_owned(),
+                woog_enum: woog_enum.read().unwrap().id,
+                subtype: EnumFieldEnum::Unit(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -107,25 +108,8 @@ impl EnumField {
     ) -> Vec<Arc<RwLock<Enumeration>>> {
         span!("r88_enumeration");
         vec![store.exhume_enumeration(&self.woog_enum).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
-    // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(
-        &'a self,
-        store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store
-            .iter_expression()
-            .find(|expression| {
-                if let ExpressionEnum::EnumField(id) = expression.read().unwrap().subtype {
-                    id == self.id
-                } else {
-                    false
-                }
-            })
-            .unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-field_access_target"}}}

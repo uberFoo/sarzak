@@ -74,7 +74,7 @@ impl Binary {
     ) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
-                subtype: BinaryEnum::BooleanOperator(subtype.read().unwrap().id),
+                subtype: BinaryEnum::BooleanOperator(subtype.read().unwrap().id), // b
                 id,
             }))
         })

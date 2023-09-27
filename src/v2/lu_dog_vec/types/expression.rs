@@ -5,6 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec::types::a_wait::AWait;
 use crate::v2::lu_dog_vec::types::argument::Argument;
 use crate::v2::lu_dog_vec::types::block::Block;
 use crate::v2::lu_dog_vec::types::call::Call;
@@ -35,8 +36,6 @@ use crate::v2::lu_dog_vec::types::x_print::XPrint;
 use crate::v2::lu_dog_vec::types::x_return::XReturn;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
 use crate::v2::lu_dog_vec::types::x_value::XValueEnum;
-use crate::v2::lu_dog_vec::types::z_none::Z_NONE;
-use crate::v2::lu_dog_vec::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
@@ -58,6 +57,7 @@ pub struct Expression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum ExpressionEnum {
+    AWait(usize),
     Block(usize),
     Call(usize),
     Debugger(Uuid),
@@ -73,13 +73,11 @@ pub enum ExpressionEnum {
     ListExpression(usize),
     Literal(usize),
     XMatch(usize),
-    ZNone(Uuid),
     Operator(usize),
     XPath(usize),
     XPrint(usize),
     RangeExpression(usize),
     XReturn(usize),
-    ZSome(usize),
     StructExpression(usize),
     TypeCast(usize),
     VariableExpression(usize),
@@ -87,6 +85,20 @@ pub enum ExpressionEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl Expression {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_a_wait"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub fn new_a_wait(
+        subtype: &Rc<RefCell<AWait>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<Expression>> {
+        store.inter_expression(|id| {
+            Rc::new(RefCell::new(Expression {
+                subtype: ExpressionEnum::AWait(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_block"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_block(
@@ -297,15 +309,6 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_z_none"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_z_none(store: &mut LuDogVecStore) -> Rc<RefCell<Expression>> {
-        store.inter_expression(|id| {
-            Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ZNone(Z_NONE),
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_operator"}}}
     /// Inter a new Expression in the store, and return it's `id`.
@@ -380,18 +383,6 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_z_some"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_z_some(
-        subtype: &Rc<RefCell<ZSome>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<Expression>> {
-        store.inter_expression(|id| {
-            Rc::new(RefCell::new(Expression {
-                subtype: ExpressionEnum::ZSome(subtype.borrow().id), // b
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_struct_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
@@ -443,6 +434,19 @@ impl Expression {
             .iter_argument()
             .filter(|argument| argument.borrow().expression == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-a_wait"}}}
+    /// Navigate to [`AWait`] across R98(1-1c)
+    pub fn r98c_a_wait<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<AWait>>> {
+        span!("r98_a_wait");
+        let a_wait = store
+            .iter_a_wait()
+            .find(|a_wait| a_wait.borrow().x_future == self.id);
+        match a_wait {
+            Some(ref a_wait) => vec![a_wait.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}

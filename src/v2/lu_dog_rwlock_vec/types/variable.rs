@@ -51,7 +51,7 @@ impl Variable {
         store.inter_variable(|id| {
             Arc::new(RwLock::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::LambdaParameter(subtype.read().unwrap().id),
+                subtype: VariableEnum::LambdaParameter(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -67,7 +67,7 @@ impl Variable {
         store.inter_variable(|id| {
             Arc::new(RwLock::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
+                subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -83,7 +83,7 @@ impl Variable {
         store.inter_variable(|id| {
             Arc::new(RwLock::new(Variable {
                 name: name.to_owned(),
-                subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
+                subtype: VariableEnum::Parameter(subtype.read().unwrap().id), // b
                 id,
             }))
         })

@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_ndrwlock_vec::types::enum_field::EnumFieldEnum;
-use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
 use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
 
@@ -36,8 +35,6 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 pub struct TupleField {
     pub id: usize,
     pub xyzzy: Uuid,
-    /// R90: [`TupleField`] 'is constructed via' [`Expression`]
-    pub expression: Option<usize>,
     /// R86: [`TupleField`] 'must have a type' [`ValueType`]
     pub ty: usize,
 }
@@ -48,7 +45,6 @@ impl TupleField {
     /// Inter a new 'Tuple Field' in the store, and return it's `id`.
     pub fn new(
         xyzzy: Uuid,
-        expression: Option<&Arc<RwLock<Expression>>>,
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<TupleField>> {
@@ -56,7 +52,6 @@ impl TupleField {
             Arc::new(RwLock::new(TupleField {
                 id,
                 xyzzy,
-                expression: expression.map(|expression| expression.read().unwrap().id),
                 ty: ty.read().unwrap().id,
             }))
         })
@@ -64,17 +59,6 @@ impl TupleField {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-cond-to-static_method"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-cond-to-expression"}}}
-    /// Navigate to [`Expression`] across R90(1-*c)
-    pub fn r90_expression<'a>(
-        &'a self,
-        store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r90_expression");
-        match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R86(1-*)
@@ -114,7 +98,7 @@ impl TupleField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-implementation"}}}
 impl PartialEq for TupleField {
     fn eq(&self, other: &Self) -> bool {
-        self.xyzzy == other.xyzzy && self.expression == other.expression && self.ty == other.ty
+        self.xyzzy == other.xyzzy && self.ty == other.ty
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

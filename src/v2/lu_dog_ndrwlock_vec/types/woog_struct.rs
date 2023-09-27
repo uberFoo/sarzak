@@ -5,12 +5,14 @@ use std::sync::Arc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_ndrwlock_vec::types::data_structure::DataStructure;
+use crate::v2::lu_dog_ndrwlock_vec::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
 use crate::v2::lu_dog_ndrwlock_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_ndrwlock_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_ndrwlock_vec::types::item::Item;
 use crate::v2::lu_dog_ndrwlock_vec::types::item::ItemEnum;
-use crate::v2::lu_dog_ndrwlock_vec::types::struct_expression::StructExpression;
+use crate::v2::lu_dog_ndrwlock_vec::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueTypeEnum;
 use crate::v2::sarzak::types::object::Object;
@@ -31,6 +33,8 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
+    /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
+    pub first_generic: Option<usize>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -41,6 +45,7 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        first_generic: Option<&Arc<RwLock<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<WoogStruct>> {
@@ -48,9 +53,24 @@ impl WoogStruct {
             Arc::new(RwLock::new(WoogStruct {
                 id,
                 name: name.to_owned(),
+                first_generic: first_generic
+                    .map(|struct_generic| struct_generic.read().unwrap().id),
                 object: object.as_ref().map(|object| object.id),
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`StructGeneric`] across R102(1-*c)
+    pub fn r102_struct_generic<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<StructGeneric>>> {
+        span!("r102_struct_generic");
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_struct_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
@@ -110,16 +130,36 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
-    /// Navigate to [`StructExpression`] across R39(1-M)
-    pub fn r39_struct_expression<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_generic"}}}
+    /// Navigate to [`StructGeneric`] across R100(1-M)
+    pub fn r100_struct_generic<'a>(
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r39_struct_expression");
+    ) -> Vec<Arc<RwLock<StructGeneric>>> {
+        span!("r100_struct_generic");
         store
-            .iter_struct_expression()
-            .filter(|struct_expression| struct_expression.read().unwrap().woog_struct == self.id)
+            .iter_struct_generic()
+            .filter(|struct_generic| struct_generic.read().unwrap().woog_struct == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub fn r95_data_structure<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<DataStructure>>> {
+        span!("r95_data_structure");
+        vec![store
+            .iter_data_structure()
+            .find(|data_structure| {
+                if let DataStructureEnum::WoogStruct(id) = data_structure.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}
@@ -162,7 +202,9 @@ impl WoogStruct {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-implementation"}}}
 impl PartialEq for WoogStruct {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.object == other.object
+        self.name == other.name
+            && self.first_generic == other.first_generic
+            && self.object == other.object
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::enum_field::EnumField;
 use crate::v2::lu_dog_rwlock_vec::types::enum_field::EnumFieldEnum;
-use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
@@ -22,40 +21,22 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct StructField {
     pub id: usize,
     pub name: String,
-    /// R89: [`StructField`] 'is composed with a' [`Expression`]
-    pub expression: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-implementation"}}}
 impl StructField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-struct-impl-new"}}}
     /// Inter a new 'Struct Field' in the store, and return it's `id`.
-    pub fn new(
-        name: String,
-        expression: Option<&Arc<RwLock<Expression>>>,
-        store: &mut LuDogRwlockVecStore,
-    ) -> Arc<RwLock<StructField>> {
+    pub fn new(name: String, store: &mut LuDogRwlockVecStore) -> Arc<RwLock<StructField>> {
         store.inter_struct_field(|id| {
             Arc::new(RwLock::new(StructField {
                 id,
                 name: name.to_owned(),
-                expression: expression.map(|expression| expression.read().unwrap().id),
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-struct-impl-nav-forward-cond-to-expression"}}}
-    /// Navigate to [`Expression`] across R89(1-*c)
-    pub fn r89_expression<'a>(
-        &'a self,
-        store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r89_expression");
-        match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-struct-impl-nav-forward-to-ty"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -87,7 +68,7 @@ impl StructField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-implementation"}}}
 impl PartialEq for StructField {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.expression == other.expression
+        self.name == other.name
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

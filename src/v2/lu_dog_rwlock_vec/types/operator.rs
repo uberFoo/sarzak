@@ -54,7 +54,7 @@ impl Operator {
             Arc::new(RwLock::new(Operator {
                 lhs: lhs.read().unwrap().id,
                 rhs: rhs.map(|expression| expression.read().unwrap().id),
-                subtype: OperatorEnum::Binary(subtype.read().unwrap().id),
+                subtype: OperatorEnum::Binary(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -72,7 +72,7 @@ impl Operator {
             Arc::new(RwLock::new(Operator {
                 lhs: lhs.read().unwrap().id,
                 rhs: rhs.map(|expression| expression.read().unwrap().id),
-                subtype: OperatorEnum::Comparison(subtype.read().unwrap().id),
+                subtype: OperatorEnum::Comparison(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -90,7 +90,7 @@ impl Operator {
             Arc::new(RwLock::new(Operator {
                 lhs: lhs.read().unwrap().id,
                 rhs: rhs.map(|expression| expression.read().unwrap().id),
-                subtype: OperatorEnum::Unary(subtype.read().unwrap().id),
+                subtype: OperatorEnum::Unary(subtype.read().unwrap().id), // b
                 id,
             }))
         })

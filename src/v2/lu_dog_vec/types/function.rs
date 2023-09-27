@@ -28,7 +28,6 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Function {
-    pub a_sink: bool,
     pub id: usize,
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
@@ -46,7 +45,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-new"}}}
     /// Inter a new 'Function' in the store, and return it's `id`.
     pub fn new(
-        a_sink: bool,
         name: String,
         body: &Rc<RefCell<Body>>,
         first_param: Option<&Rc<RefCell<Parameter>>>,
@@ -56,7 +54,6 @@ impl Function {
     ) -> Rc<RefCell<Function>> {
         store.inter_function(|id| {
             Rc::new(RefCell::new(Function {
-                a_sink,
                 id,
                 name: name.to_owned(),
                 body: body.borrow().id,
@@ -173,8 +170,7 @@ impl Function {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-implementation"}}}
 impl PartialEq for Function {
     fn eq(&self, other: &Self) -> bool {
-        self.a_sink == other.a_sink
-            && self.name == other.name
+        self.name == other.name
             && self.body == other.body
             && self.first_param == other.first_param
             && self.impl_block == other.impl_block

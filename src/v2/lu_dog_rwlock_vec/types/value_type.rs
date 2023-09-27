@@ -22,9 +22,9 @@ use crate::v2::lu_dog_rwlock_vec::types::span::Span;
 use crate::v2::lu_dog_rwlock_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock_vec::types::unknown::UNKNOWN;
-use crate::v2::lu_dog_rwlock_vec::types::woog_option::WoogOption;
 use crate::v2::lu_dog_rwlock_vec::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_rwlock_vec::types::x_error::XError;
+use crate::v2::lu_dog_rwlock_vec::types::x_future::XFuture;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock_vec::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -68,12 +68,12 @@ pub enum ValueTypeEnum {
     Enumeration(usize),
     XError(usize),
     Function(usize),
+    XFuture(usize),
     Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
     ZObjectStore(usize),
-    WoogOption(usize),
     Range(Uuid),
     Reference(usize),
     WoogStruct(usize),
@@ -113,7 +113,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Enumeration(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Enumeration(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -128,7 +128,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::XError(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::XError(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -142,7 +142,21 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Function(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Function(subtype.read().unwrap().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_x_future(
+        subtype: &Arc<RwLock<XFuture>>,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
+                subtype: ValueTypeEnum::XFuture(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -156,7 +170,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -170,7 +184,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Import(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Import(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -184,7 +198,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Lambda(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Lambda(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -198,7 +212,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::List(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::List(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -212,25 +226,13 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::ZObjectStore(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::ZObjectStore(subtype.read().unwrap().id), // b
                 id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_option"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_woog_option(
-        subtype: &Arc<RwLock<WoogOption>>,
-        store: &mut LuDogRwlockVecStore,
-    ) -> Arc<RwLock<ValueType>> {
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::WoogOption(subtype.read().unwrap().id),
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
@@ -251,7 +253,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Reference(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::Reference(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -265,7 +267,7 @@ impl ValueType {
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::WoogStruct(subtype.read().unwrap().id),
+                subtype: ValueTypeEnum::WoogStruct(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -274,7 +276,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_ty(
-        subtype: &Arc<RwLock<Ty>>,
+        subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
@@ -319,6 +321,26 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
+    /// Navigate to [`XFuture`] across R2(1-M)
+    pub fn r2_x_future<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XFuture>>> {
+        span!("r2_x_future");
+        store
+            .iter_x_future()
+            .filter(|x_future| x_future.read().unwrap().x_value == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
+    /// Navigate to [`Generic`] across R99(1-Mc)
+    pub fn r99_generic<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Generic>>> {
+        span!("r99_generic");
+        store
+            .iter_generic()
+            .filter(|generic| generic.read().unwrap().ty == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)
     pub fn r74_lambda<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Lambda>>> {
@@ -353,17 +375,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
-    /// Navigate to [`WoogOption`] across R2(1-M)
-    pub fn r2_woog_option<'a>(
-        &'a self,
-        store: &'a LuDogRwlockVecStore,
-    ) -> Vec<Arc<RwLock<WoogOption>>> {
-        span!("r2_woog_option");
-        store
-            .iter_woog_option()
-            .filter(|woog_option| woog_option.read().unwrap().ty == self.id)
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R79(1-M)

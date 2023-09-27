@@ -22,9 +22,9 @@ use crate::v2::lu_dog_vec::types::span::Span;
 use crate::v2::lu_dog_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_vec::types::unknown::UNKNOWN;
-use crate::v2::lu_dog_vec::types::woog_option::WoogOption;
 use crate::v2::lu_dog_vec::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_vec::types::x_error::XError;
+use crate::v2::lu_dog_vec::types::x_future::XFuture;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
 use crate::v2::lu_dog_vec::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -68,12 +68,12 @@ pub enum ValueTypeEnum {
     Enumeration(usize),
     XError(usize),
     Function(usize),
+    XFuture(usize),
     Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
     ZObjectStore(usize),
-    WoogOption(usize),
     Range(Uuid),
     Reference(usize),
     WoogStruct(usize),
@@ -143,6 +143,21 @@ impl ValueType {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
                 subtype: ValueTypeEnum::Function(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_future"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_x_future(
+        subtype: &Rc<RefCell<XFuture>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                subtype: ValueTypeEnum::XFuture(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -219,18 +234,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_option"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_woog_option(
-        subtype: &Rc<RefCell<WoogOption>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<ValueType>> {
-        store.inter_value_type(|id| {
-            Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::WoogOption(subtype.borrow().id), // b
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
@@ -316,6 +319,28 @@ impl ValueType {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-future"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
+    /// Navigate to [`XFuture`] across R2(1-M)
+    pub fn r2_x_future<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XFuture>>> {
+        span!("r2_x_future");
+        store
+            .iter_x_future()
+            .filter(|x_future| x_future.borrow().x_value == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-generic"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
+    /// Navigate to [`Generic`] across R99(1-Mc)
+    pub fn r99_generic<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Generic>>> {
+        span!("r99_generic");
+        store
+            .iter_generic()
+            .filter(|generic| generic.borrow().ty == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)
     pub fn r74_lambda<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Lambda>>> {
@@ -346,16 +371,8 @@ impl ValueType {
         store
             .iter_list()
             .filter(|list| list.borrow().ty == self.id)
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
-    /// Navigate to [`WoogOption`] across R2(1-M)
-    pub fn r2_woog_option<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<WoogOption>>> {
-        span!("r2_woog_option");
-        store
-            .iter_woog_option()
-            .filter(|woog_option| woog_option.borrow().ty == self.id)
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

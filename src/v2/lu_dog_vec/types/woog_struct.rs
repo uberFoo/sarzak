@@ -12,6 +12,7 @@ use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
+use crate::v2::lu_dog_vec::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::value_type::ValueTypeEnum;
 use crate::v2::sarzak::types::object::Object;
@@ -32,6 +33,8 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
+    /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
+    pub first_generic: Option<usize>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -42,6 +45,7 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        first_generic: Option<&Rc<RefCell<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<WoogStruct>> {
@@ -49,9 +53,23 @@ impl WoogStruct {
             Rc::new(RefCell::new(WoogStruct {
                 id,
                 name: name.to_owned(),
+                first_generic: first_generic.map(|struct_generic| struct_generic.borrow().id),
                 object: object.as_ref().map(|object| object.id),
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`StructGeneric`] across R102(1-*c)
+    pub fn r102_struct_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<StructGeneric>>> {
+        span!("r102_struct_generic");
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_struct_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
@@ -109,6 +127,19 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_generic"}}}
+    /// Navigate to [`StructGeneric`] across R100(1-M)
+    pub fn r100_struct_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<StructGeneric>>> {
+        span!("r100_struct_generic");
+        store
+            .iter_struct_generic()
+            .filter(|struct_generic| struct_generic.borrow().woog_struct == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-data_structure"}}}
     // Navigate to [`DataStructure`] across R95(isa)
     pub fn r95_data_structure<'a>(
@@ -165,7 +196,9 @@ impl WoogStruct {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-implementation"}}}
 impl PartialEq for WoogStruct {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.object == other.object
+        self.name == other.name
+            && self.first_generic == other.first_generic
+            && self.object == other.object
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

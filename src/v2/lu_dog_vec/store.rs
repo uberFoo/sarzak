@@ -8,6 +8,7 @@
 //! # Contents:
 //!
 //! * [`Argument`]
+//! * [`AWait`]
 //! * [`Binary`]
 //! * [`Block`]
 //! * [`Body`]
@@ -31,6 +32,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
@@ -54,7 +56,6 @@
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
-//! * [`WoogOption`]
 //! * [`Parameter`]
 //! * [`XPath`]
 //! * [`PathElement`]
@@ -64,7 +65,6 @@
 //! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
-//! * [`ZSome`]
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -72,6 +72,7 @@
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
 //! * [`StructField`]
+//! * [`StructGeneric`]
 //! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
@@ -96,27 +97,28 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
-    Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
     FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
     Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
     ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
     Operator, Parameter, PathElement, Pattern, RangeExpression, Reference, ResultStatement, Span,
-    Statement, StaticMethodCall, StringLiteral, StructExpression, StructField, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogOption, WoogStruct, XError, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue,
-    ZObjectStore, ZSome, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    Statement, StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric,
+    TupleField, TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable,
+    VariableExpression, WoogStruct, XError, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn,
+    XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
     FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
     ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
     NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
-    Z_NONE,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     argument_free_list: Vec<usize>,
     argument: Vec<Option<Rc<RefCell<Argument>>>>,
+    a_wait_free_list: Vec<usize>,
+    a_wait: Vec<Option<Rc<RefCell<AWait>>>>,
     binary_free_list: Vec<usize>,
     binary: Vec<Option<Rc<RefCell<Binary>>>>,
     block_free_list: Vec<usize>,
@@ -166,6 +168,8 @@ pub struct ObjectStore {
     function_free_list: Vec<usize>,
     function: Vec<Option<Rc<RefCell<Function>>>>,
     function_id_by_name: HashMap<String, usize>,
+    x_future_free_list: Vec<usize>,
+    x_future: Vec<Option<Rc<RefCell<XFuture>>>>,
     generic_free_list: Vec<usize>,
     generic: Vec<Option<Rc<RefCell<Generic>>>>,
     grouped_free_list: Vec<usize>,
@@ -213,8 +217,6 @@ pub struct ObjectStore {
     object_wrapper: Vec<Option<Rc<RefCell<ObjectWrapper>>>>,
     operator_free_list: Vec<usize>,
     operator: Vec<Option<Rc<RefCell<Operator>>>>,
-    woog_option_free_list: Vec<usize>,
-    woog_option: Vec<Option<Rc<RefCell<WoogOption>>>>,
     parameter_free_list: Vec<usize>,
     parameter: Vec<Option<Rc<RefCell<Parameter>>>>,
     x_path_free_list: Vec<usize>,
@@ -233,8 +235,6 @@ pub struct ObjectStore {
     result_statement: Vec<Option<Rc<RefCell<ResultStatement>>>>,
     x_return_free_list: Vec<usize>,
     x_return: Vec<Option<Rc<RefCell<XReturn>>>>,
-    z_some_free_list: Vec<usize>,
-    z_some: Vec<Option<Rc<RefCell<ZSome>>>>,
     span_free_list: Vec<usize>,
     span: Vec<Option<Rc<RefCell<Span>>>>,
     statement_free_list: Vec<usize>,
@@ -250,6 +250,8 @@ pub struct ObjectStore {
     struct_expression: Vec<Option<Rc<RefCell<StructExpression>>>>,
     struct_field_free_list: Vec<usize>,
     struct_field: Vec<Option<Rc<RefCell<StructField>>>>,
+    struct_generic_free_list: Vec<usize>,
+    struct_generic: Vec<Option<Rc<RefCell<StructGeneric>>>>,
     tuple_field_free_list: Vec<usize>,
     tuple_field: Vec<Option<Rc<RefCell<TupleField>>>>,
     type_cast_free_list: Vec<usize>,
@@ -275,6 +277,8 @@ impl ObjectStore {
         let mut store = Self {
             argument_free_list: Vec::new(),
             argument: Vec::new(),
+            a_wait_free_list: Vec::new(),
+            a_wait: Vec::new(),
             binary_free_list: Vec::new(),
             binary: Vec::new(),
             block_free_list: Vec::new(),
@@ -324,6 +328,8 @@ impl ObjectStore {
             function_free_list: Vec::new(),
             function: Vec::new(),
             function_id_by_name: HashMap::default(),
+            x_future_free_list: Vec::new(),
+            x_future: Vec::new(),
             generic_free_list: Vec::new(),
             generic: Vec::new(),
             grouped_free_list: Vec::new(),
@@ -371,8 +377,6 @@ impl ObjectStore {
             object_wrapper: Vec::new(),
             operator_free_list: Vec::new(),
             operator: Vec::new(),
-            woog_option_free_list: Vec::new(),
-            woog_option: Vec::new(),
             parameter_free_list: Vec::new(),
             parameter: Vec::new(),
             x_path_free_list: Vec::new(),
@@ -391,8 +395,6 @@ impl ObjectStore {
             result_statement: Vec::new(),
             x_return_free_list: Vec::new(),
             x_return: Vec::new(),
-            z_some_free_list: Vec::new(),
-            z_some: Vec::new(),
             span_free_list: Vec::new(),
             span: Vec::new(),
             statement_free_list: Vec::new(),
@@ -408,6 +410,8 @@ impl ObjectStore {
             struct_expression: Vec::new(),
             struct_field_free_list: Vec::new(),
             struct_field: Vec::new(),
+            struct_generic_free_list: Vec::new(),
+            struct_generic: Vec::new(),
             tuple_field_free_list: Vec::new(),
             tuple_field: Vec::new(),
             type_cast_free_list: Vec::new(),
@@ -534,12 +538,6 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_expression(|id| {
-            Rc::new(RefCell::new(Expression {
-                subtype: super::ExpressionEnum::ZNone(Z_NONE),
-                id,
-            }))
-        });
         store.inter_unary(|id| {
             Rc::new(RefCell::new(Unary {
                 subtype: super::UnaryEnum::Negation(NEGATION),
@@ -644,6 +642,73 @@ impl ObjectStore {
                 self.argument[i]
                     .as_ref()
                     .map(|argument| argument.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`AWait`] into the store.
+    ///
+    pub fn inter_a_wait<F>(&mut self, a_wait: F) -> Rc<RefCell<AWait>>
+    where
+        F: Fn(usize) -> Rc<RefCell<AWait>>,
+    {
+        let _index = if let Some(_index) = self.a_wait_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.a_wait.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.a_wait.push(None);
+            _index
+        };
+
+        let a_wait = a_wait(_index);
+
+        if let Some(Some(a_wait)) = self.a_wait.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *a_wait.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {a_wait:?}.");
+            self.a_wait_free_list.push(_index);
+            a_wait.clone()
+        } else {
+            log::debug!(target: "store", "interring {a_wait:?}.");
+            self.a_wait[_index] = Some(a_wait.clone());
+            a_wait
+        }
+    }
+
+    /// Exhume (get) [`AWait`] from the store.
+    ///
+    pub fn exhume_a_wait(&self, id: &usize) -> Option<Rc<RefCell<AWait>>> {
+        match self.a_wait.get(*id) {
+            Some(a_wait) => a_wait.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`AWait`] from the store.
+    ///
+    pub fn exorcise_a_wait(&mut self, id: &usize) -> Option<Rc<RefCell<AWait>>> {
+        log::debug!(target: "store", "exorcising a_wait slot: {id}.");
+        let result = self.a_wait[*id].take();
+        self.a_wait_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, AWait>`.
+    ///
+    pub fn iter_a_wait(&self) -> impl Iterator<Item = Rc<RefCell<AWait>>> + '_ {
+        let len = self.a_wait.len();
+        (0..len)
+            .filter(|i| self.a_wait[*i].is_some())
+            .map(move |i| {
+                self.a_wait[i]
+                    .as_ref()
+                    .map(|a_wait| a_wait.clone())
                     .unwrap()
             })
     }
@@ -2249,6 +2314,73 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`XFuture`] into the store.
+    ///
+    pub fn inter_x_future<F>(&mut self, x_future: F) -> Rc<RefCell<XFuture>>
+    where
+        F: Fn(usize) -> Rc<RefCell<XFuture>>,
+    {
+        let _index = if let Some(_index) = self.x_future_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.x_future.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.x_future.push(None);
+            _index
+        };
+
+        let x_future = x_future(_index);
+
+        if let Some(Some(x_future)) = self.x_future.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *x_future.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {x_future:?}.");
+            self.x_future_free_list.push(_index);
+            x_future.clone()
+        } else {
+            log::debug!(target: "store", "interring {x_future:?}.");
+            self.x_future[_index] = Some(x_future.clone());
+            x_future
+        }
+    }
+
+    /// Exhume (get) [`XFuture`] from the store.
+    ///
+    pub fn exhume_x_future(&self, id: &usize) -> Option<Rc<RefCell<XFuture>>> {
+        match self.x_future.get(*id) {
+            Some(x_future) => x_future.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`XFuture`] from the store.
+    ///
+    pub fn exorcise_x_future(&mut self, id: &usize) -> Option<Rc<RefCell<XFuture>>> {
+        log::debug!(target: "store", "exorcising x_future slot: {id}.");
+        let result = self.x_future[*id].take();
+        self.x_future_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XFuture>`.
+    ///
+    pub fn iter_x_future(&self) -> impl Iterator<Item = Rc<RefCell<XFuture>>> + '_ {
+        let len = self.x_future.len();
+        (0..len)
+            .filter(|i| self.x_future[*i].is_some())
+            .map(move |i| {
+                self.x_future[i]
+                    .as_ref()
+                    .map(|x_future| x_future.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`Generic`] into the store.
     ///
     pub fn inter_generic<F>(&mut self, generic: F) -> Rc<RefCell<Generic>>
@@ -3811,73 +3943,6 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`WoogOption`] into the store.
-    ///
-    pub fn inter_woog_option<F>(&mut self, woog_option: F) -> Rc<RefCell<WoogOption>>
-    where
-        F: Fn(usize) -> Rc<RefCell<WoogOption>>,
-    {
-        let _index = if let Some(_index) = self.woog_option_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.woog_option.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.woog_option.push(None);
-            _index
-        };
-
-        let woog_option = woog_option(_index);
-
-        if let Some(Some(woog_option)) = self.woog_option.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *woog_option.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {woog_option:?}.");
-            self.woog_option_free_list.push(_index);
-            woog_option.clone()
-        } else {
-            log::debug!(target: "store", "interring {woog_option:?}.");
-            self.woog_option[_index] = Some(woog_option.clone());
-            woog_option
-        }
-    }
-
-    /// Exhume (get) [`WoogOption`] from the store.
-    ///
-    pub fn exhume_woog_option(&self, id: &usize) -> Option<Rc<RefCell<WoogOption>>> {
-        match self.woog_option.get(*id) {
-            Some(woog_option) => woog_option.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`WoogOption`] from the store.
-    ///
-    pub fn exorcise_woog_option(&mut self, id: &usize) -> Option<Rc<RefCell<WoogOption>>> {
-        log::debug!(target: "store", "exorcising woog_option slot: {id}.");
-        let result = self.woog_option[*id].take();
-        self.woog_option_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
-    ///
-    pub fn iter_woog_option(&self) -> impl Iterator<Item = Rc<RefCell<WoogOption>>> + '_ {
-        let len = self.woog_option.len();
-        (0..len)
-            .filter(|i| self.woog_option[*i].is_some())
-            .map(move |i| {
-                self.woog_option[i]
-                    .as_ref()
-                    .map(|woog_option| woog_option.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`Parameter`] into the store.
     ///
     pub fn inter_parameter<F>(&mut self, parameter: F) -> Rc<RefCell<Parameter>>
@@ -4487,73 +4552,6 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`ZSome`] into the store.
-    ///
-    pub fn inter_z_some<F>(&mut self, z_some: F) -> Rc<RefCell<ZSome>>
-    where
-        F: Fn(usize) -> Rc<RefCell<ZSome>>,
-    {
-        let _index = if let Some(_index) = self.z_some_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.z_some.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.z_some.push(None);
-            _index
-        };
-
-        let z_some = z_some(_index);
-
-        if let Some(Some(z_some)) = self.z_some.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *z_some.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {z_some:?}.");
-            self.z_some_free_list.push(_index);
-            z_some.clone()
-        } else {
-            log::debug!(target: "store", "interring {z_some:?}.");
-            self.z_some[_index] = Some(z_some.clone());
-            z_some
-        }
-    }
-
-    /// Exhume (get) [`ZSome`] from the store.
-    ///
-    pub fn exhume_z_some(&self, id: &usize) -> Option<Rc<RefCell<ZSome>>> {
-        match self.z_some.get(*id) {
-            Some(z_some) => z_some.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`ZSome`] from the store.
-    ///
-    pub fn exorcise_z_some(&mut self, id: &usize) -> Option<Rc<RefCell<ZSome>>> {
-        log::debug!(target: "store", "exorcising z_some slot: {id}.");
-        let result = self.z_some[*id].take();
-        self.z_some_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
-    ///
-    pub fn iter_z_some(&self) -> impl Iterator<Item = Rc<RefCell<ZSome>>> + '_ {
-        let len = self.z_some.len();
-        (0..len)
-            .filter(|i| self.z_some[*i].is_some())
-            .map(move |i| {
-                self.z_some[i]
-                    .as_ref()
-                    .map(|z_some| z_some.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`Span`] into the store.
     ///
     pub fn inter_span<F>(&mut self, span: F) -> Rc<RefCell<Span>>
@@ -5043,6 +5041,73 @@ impl ObjectStore {
                 self.struct_field[i]
                     .as_ref()
                     .map(|struct_field| struct_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`StructGeneric`] into the store.
+    ///
+    pub fn inter_struct_generic<F>(&mut self, struct_generic: F) -> Rc<RefCell<StructGeneric>>
+    where
+        F: Fn(usize) -> Rc<RefCell<StructGeneric>>,
+    {
+        let _index = if let Some(_index) = self.struct_generic_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.struct_generic.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.struct_generic.push(None);
+            _index
+        };
+
+        let struct_generic = struct_generic(_index);
+
+        if let Some(Some(struct_generic)) = self.struct_generic.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *struct_generic.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {struct_generic:?}.");
+            self.struct_generic_free_list.push(_index);
+            struct_generic.clone()
+        } else {
+            log::debug!(target: "store", "interring {struct_generic:?}.");
+            self.struct_generic[_index] = Some(struct_generic.clone());
+            struct_generic
+        }
+    }
+
+    /// Exhume (get) [`StructGeneric`] from the store.
+    ///
+    pub fn exhume_struct_generic(&self, id: &usize) -> Option<Rc<RefCell<StructGeneric>>> {
+        match self.struct_generic.get(*id) {
+            Some(struct_generic) => struct_generic.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`StructGeneric`] from the store.
+    ///
+    pub fn exorcise_struct_generic(&mut self, id: &usize) -> Option<Rc<RefCell<StructGeneric>>> {
+        log::debug!(target: "store", "exorcising struct_generic slot: {id}.");
+        let result = self.struct_generic[*id].take();
+        self.struct_generic_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StructGeneric>`.
+    ///
+    pub fn iter_struct_generic(&self) -> impl Iterator<Item = Rc<RefCell<StructGeneric>>> + '_ {
+        let len = self.struct_generic.len();
+        (0..len)
+            .filter(|i| self.struct_generic[*i].is_some())
+            .map(move |i| {
+                self.struct_generic[i]
+                    .as_ref()
+                    .map(|struct_generic| struct_generic.clone())
                     .unwrap()
             })
     }
@@ -5704,6 +5769,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Await.
+        {
+            let path = path.join("a_wait");
+            fs::create_dir_all(&path)?;
+            for a_wait in &self.a_wait {
+                if let Some(a_wait) = a_wait {
+                    let path = path.join(format!("{}.json", a_wait.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &a_wait)?;
+                }
+            }
+        }
+
         // Persist Binary.
         {
             let path = path.join("binary");
@@ -6022,6 +6101,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &function)?;
+                }
+            }
+        }
+
+        // Persist Future.
+        {
+            let path = path.join("x_future");
+            fs::create_dir_all(&path)?;
+            for x_future in &self.x_future {
+                if let Some(x_future) = x_future {
+                    let path = path.join(format!("{}.json", x_future.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &x_future)?;
                 }
             }
         }
@@ -6348,20 +6441,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Option.
-        {
-            let path = path.join("woog_option");
-            fs::create_dir_all(&path)?;
-            for woog_option in &self.woog_option {
-                if let Some(woog_option) = woog_option {
-                    let path = path.join(format!("{}.json", woog_option.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &woog_option)?;
-                }
-            }
-        }
-
         // Persist Parameter.
         {
             let path = path.join("parameter");
@@ -6488,20 +6567,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Some.
-        {
-            let path = path.join("z_some");
-            fs::create_dir_all(&path)?;
-            for z_some in &self.z_some {
-                if let Some(z_some) = z_some {
-                    let path = path.join(format!("{}.json", z_some.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &z_some)?;
-                }
-            }
-        }
-
         // Persist Span.
         {
             let path = path.join("span");
@@ -6596,6 +6661,20 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &struct_field)?;
+                }
+            }
+        }
+
+        // Persist Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            fs::create_dir_all(&path)?;
+            for struct_generic in &self.struct_generic {
+                if let Some(struct_generic) = struct_generic {
+                    let path = path.join(format!("{}.json", struct_generic.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &struct_generic)?;
                 }
             }
         }
@@ -6766,6 +6845,22 @@ impl ObjectStore {
                 store
                     .argument
                     .insert(argument.borrow().id, Some(argument.clone()));
+            }
+        }
+
+        // Load Await.
+        {
+            let path = path.join("a_wait");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let a_wait: Rc<RefCell<AWait>> = serde_json::from_reader(reader)?;
+                store
+                    .a_wait
+                    .insert(a_wait.borrow().id, Some(a_wait.clone()));
             }
         }
 
@@ -7150,6 +7245,22 @@ impl ObjectStore {
             }
         }
 
+        // Load Future.
+        {
+            let path = path.join("x_future");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_future: Rc<RefCell<XFuture>> = serde_json::from_reader(reader)?;
+                store
+                    .x_future
+                    .insert(x_future.borrow().id, Some(x_future.clone()));
+            }
+        }
+
         // Load Generic.
         {
             let path = path.join("generic");
@@ -7519,22 +7630,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Option.
-        {
-            let path = path.join("woog_option");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let woog_option: Rc<RefCell<WoogOption>> = serde_json::from_reader(reader)?;
-                store
-                    .woog_option
-                    .insert(woog_option.borrow().id, Some(woog_option.clone()));
-            }
-        }
-
         // Load Parameter.
         {
             let path = path.join("parameter");
@@ -7681,22 +7776,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Some.
-        {
-            let path = path.join("z_some");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let z_some: Rc<RefCell<ZSome>> = serde_json::from_reader(reader)?;
-                store
-                    .z_some
-                    .insert(z_some.borrow().id, Some(z_some.clone()));
-            }
-        }
-
         // Load Span.
         {
             let path = path.join("span");
@@ -7812,6 +7891,22 @@ impl ObjectStore {
                 store
                     .struct_field
                     .insert(struct_field.borrow().id, Some(struct_field.clone()));
+            }
+        }
+
+        // Load Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let struct_generic: Rc<RefCell<StructGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .struct_generic
+                    .insert(struct_generic.borrow().id, Some(struct_generic.clone()));
             }
         }
 

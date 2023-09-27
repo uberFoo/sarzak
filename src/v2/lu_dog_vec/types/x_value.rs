@@ -10,7 +10,6 @@ use crate::v2::lu_dog_vec::types::expression::Expression;
 use crate::v2::lu_dog_vec::types::span::Span;
 use crate::v2::lu_dog_vec::types::value_type::ValueType;
 use crate::v2::lu_dog_vec::types::variable::Variable;
-use crate::v2::lu_dog_vec::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
@@ -90,16 +89,8 @@ impl XValue {
     pub fn r24_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
         span!("r24_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
-    /// Navigate to [`ZSome`] across R23(1-M)
-    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ZSome>>> {
-        span!("r23_z_some");
-        store
-            .iter_z_some()
-            .filter(|z_some| z_some.borrow().inner == self.id)
-            .collect()
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_Mc-to-span"}}}
