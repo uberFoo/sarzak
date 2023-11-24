@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::block::Block;
@@ -53,7 +52,6 @@ impl ForLoop {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R43(1-*)
     pub fn r43_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r43_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -63,7 +61,6 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r42_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -73,7 +70,6 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

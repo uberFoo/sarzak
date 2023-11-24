@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
@@ -62,14 +61,12 @@ impl BinaryUi {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Binary>>> {
-        span!("r12_binary");
         vec![store.exhume_binary(&self.binary_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-from"}}}
     /// Navigate to [`Anchor`] across R7(1-*)
     pub fn r7_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r7_anchor");
         vec![store.exhume_anchor(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -77,7 +74,6 @@ impl BinaryUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-to"}}}
     /// Navigate to [`Anchor`] across R8(1-*)
     pub fn r8_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r8_anchor");
         vec![store.exhume_anchor(&self.to).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -87,7 +83,6 @@ impl BinaryUi {
         &'a self,
         store: &'a DrawingStore,
     ) -> Vec<Arc<RwLock<RelationshipUi>>> {
-        span!("r6_relationship_ui");
         vec![store.exhume_relationship_ui(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

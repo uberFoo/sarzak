@@ -54,7 +54,7 @@ impl Function {
         let new = Arc::new(RwLock::new(Function {
             id,
             name,
-            body: body.read().unwrap().id(),
+            body: body.read().unwrap().id,
             first_param: first_param.map(|parameter| parameter.read().unwrap().id),
             impl_block: impl_block
                 .map(|implementation_block| implementation_block.read().unwrap().id),

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::negation::NEGATION;
@@ -59,7 +58,6 @@ impl Unary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-impl-nav-subtype-to-supertype-operator"}}}
     // Navigate to [`Operator`] across R47(isa)
     pub fn r47_operator<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Operator>>> {
-        span!("r47_operator");
         vec![store
             .iter_operator()
             .find(|operator| {

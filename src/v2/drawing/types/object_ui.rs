@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::drawing::types::object_edge::ObjectEdge;
@@ -79,21 +78,18 @@ impl ObjectUi {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r1_object");
         vec![store.exhume_object(&self.object_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-forward-to-origin"}}}
     /// Navigate to [`Point`] across R13(1-*)
     pub fn r13_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Point>>> {
-        span!("r13_point");
         vec![store.exhume_point(&self.origin).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_ui-struct-impl-nav-backward-1_M-to-object_edge"}}}
     /// Navigate to [`ObjectEdge`] across R18(1-M)
     pub fn r18_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<ObjectEdge>>> {
-        span!("r18_object_edge");
         store
             .iter_object_edge()
             .filter(|object_edge| object_edge.read().unwrap().oui_id == self.id)

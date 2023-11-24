@@ -37,7 +37,7 @@ pub struct Import {
     pub has_alias: bool,
     pub id: Uuid,
     pub name: String,
-    pub path: String,
+    pub x_path: String,
     /// R40: [`Import`] '' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -50,7 +50,7 @@ impl Import {
         alias: String,
         has_alias: bool,
         name: String,
-        path: String,
+        x_path: String,
         object: Option<&Object>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Import>> {
@@ -60,7 +60,7 @@ impl Import {
             has_alias,
             id,
             name,
-            path,
+            x_path,
             object: object.as_ref().map(|object| object.id),
         }));
         store.inter_import(new.clone());

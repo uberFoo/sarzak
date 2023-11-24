@@ -1,24 +1,37 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"body-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-use-statements"}}}
-use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
-use crate::v2::lu_dog::types::block::Block;
-use crate::v2::lu_dog::types::external_implementation::ExternalImplementation;
-use crate::v2::lu_dog::types::function::Function;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
+
+use crate::v2::lu_dog::types::block::Block;
+use crate::v2::lu_dog::types::external_implementation::ExternalImplementation;
+use crate::v2::lu_dog::types::function::Function;
+use crate::v2::lu_dog::types::lambda::Lambda;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-hybrid-documentation"}}}
 /// The function body. Generally contains statements, but may point to some other implementation
 /// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Body {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Body {
+    pub subtype: BodyEnum,
+    pub a_sink: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum BodyEnum {
     Block(Uuid),
     ExternalImplementation(Uuid),
 }
@@ -26,40 +39,39 @@ pub enum Body {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-implementation"}}}
 impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-new-impl"}}}
-    /// Create a new instance of Body::Block
-    pub fn new_block(block: &Rc<RefCell<Block>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = block.borrow().id;
-        if let Some(block) = store.exhume_body(&id) {
-            block
-        } else {
-            let new = Rc::new(RefCell::new(Self::Block(id)));
-            store.inter_body(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Body::ExternalImplementation
-    pub fn new_external_implementation(
-        external_implementation: &Rc<RefCell<ExternalImplementation>>,
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_block"}}}
+    /// Inter a new Body in the store, and return it's `id`.
+    pub fn new_block(
+        a_sink: bool,
+        subtype: &Rc<RefCell<Block>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = external_implementation.borrow().id;
-        if let Some(external_implementation) = store.exhume_body(&id) {
-            external_implementation
-        } else {
-            let new = Rc::new(RefCell::new(Self::ExternalImplementation(id)));
-            store.inter_body(new.clone());
-            new
-        }
-    } // wtf?
-
+    ) -> Rc<RefCell<Body>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Body {
+            a_sink: a_sink,
+            subtype: BodyEnum::Block(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_body(new.clone());
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::Block(id) => *id,
-            Self::ExternalImplementation(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_external_implementation"}}}
+    /// Inter a new Body in the store, and return it's `id`.
+    pub fn new_external_implementation(
+        a_sink: bool,
+        subtype: &Rc<RefCell<ExternalImplementation>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Body>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Body {
+            a_sink: a_sink,
+            subtype: BodyEnum::ExternalImplementation(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_body(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-cond-to-function"}}}
@@ -68,9 +80,22 @@ impl Body {
         span!("r19_function");
         let function = store
             .iter_function()
-            .find(|function| function.borrow().body == self.id());
+            .find(|function| function.borrow().body == self.id);
         match function {
             Some(ref function) => vec![function.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1c-1c)
+    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Lambda>>> {
+        span!("r73_lambda");
+        let lambda = store
+            .iter_lambda()
+            .find(|lambda| lambda.borrow().body == Some(self.id));
+        match lambda {
+            Some(ref lambda) => vec![lambda.clone()],
             None => Vec::new(),
         }
     }

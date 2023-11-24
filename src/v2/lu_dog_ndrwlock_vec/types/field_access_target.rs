@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::enum_field::EnumField;
@@ -85,7 +84,6 @@ impl FieldAccessTarget {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldAccess>>> {
-        span!("r65_field_access");
         store
             .iter_field_access()
             .filter(|field_access| field_access.read().unwrap().field == self.id)

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::data_structure::DataStructure;
@@ -59,7 +58,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
-        span!("r84_implementation_block");
         match self.implementation {
             Some(ref implementation) => {
                 vec![store.exhume_implementation_block(&implementation).unwrap()]
@@ -72,7 +70,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_field"}}}
     /// Navigate to [`EnumField`] across R88(1-M)
     pub fn r88_enum_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<EnumField>>> {
-        span!("r88_enum_field");
         store
             .iter_enum_field()
             .filter(|enum_field| enum_field.borrow().woog_enum == self.id)
@@ -85,7 +82,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<DataStructure>>> {
-        span!("r95_data_structure");
         vec![store
             .iter_data_structure()
             .find(|data_structure| {
@@ -101,7 +97,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -117,7 +112,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {

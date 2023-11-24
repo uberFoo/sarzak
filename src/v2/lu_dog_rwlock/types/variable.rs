@@ -51,7 +51,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::LambdaParameter(subtype.read().unwrap().id),
+            subtype: VariableEnum::LambdaParameter(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_variable(new.clone());
@@ -68,7 +68,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id),
+            subtype: VariableEnum::LocalVariable(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_variable(new.clone());
@@ -85,7 +85,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.read().unwrap().id),
+            subtype: VariableEnum::Parameter(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_variable(new.clone());

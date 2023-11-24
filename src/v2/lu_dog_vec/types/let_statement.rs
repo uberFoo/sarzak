@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::expression::Expression;
@@ -51,7 +50,6 @@ impl LetStatement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R20(1-*)
     pub fn r20_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r20_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -61,14 +59,12 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<LocalVariable>>> {
-        span!("r21_local_variable");
         vec![store.exhume_local_variable(&self.variable).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
     pub fn r16_statement<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Statement>>> {
-        span!("r16_statement");
         vec![store
             .iter_statement()
             .find(|statement| {

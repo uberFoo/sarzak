@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unit-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::enum_field::EnumField;
@@ -34,7 +33,6 @@ impl Unit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unit-impl-nav-subtype-to-supertype-enum_field"}}}
     // Navigate to [`EnumField`] across R85(isa)
     pub fn r85_enum_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<EnumField>>> {
-        span!("r85_enum_field");
         vec![store
             .iter_enum_field()
             .find(|enum_field| {

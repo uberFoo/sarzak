@@ -1,12 +1,12 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"expression-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-use-statements"}}}
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
+use crate::v2::lu_dog_rwlock::types::a_wait::AWait;
 use crate::v2::lu_dog_rwlock::types::argument::Argument;
 use crate::v2::lu_dog_rwlock::types::block::Block;
 use crate::v2::lu_dog_rwlock::types::call::Call;
 use crate::v2::lu_dog_rwlock::types::debugger::DEBUGGER;
-use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
-use crate::v2::lu_dog_rwlock::types::error_expression::ErrorExpression;
+use crate::v2::lu_dog_rwlock::types::empty_expression::EMPTY_EXPRESSION;
 use crate::v2::lu_dog_rwlock::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_rwlock::types::field_access::FieldAccess;
 use crate::v2::lu_dog_rwlock::types::field_expression::FieldExpression;
@@ -23,18 +23,15 @@ use crate::v2::lu_dog_rwlock::types::pattern::Pattern;
 use crate::v2::lu_dog_rwlock::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_rwlock::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_rwlock::types::struct_expression::StructExpression;
-use crate::v2::lu_dog_rwlock::types::struct_field::StructField;
-use crate::v2::lu_dog_rwlock::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock::types::variable_expression::VariableExpression;
 use crate::v2::lu_dog_rwlock::types::x_if::XIf;
 use crate::v2::lu_dog_rwlock::types::x_match::XMatch;
+use crate::v2::lu_dog_rwlock::types::x_path::XPath;
 use crate::v2::lu_dog_rwlock::types::x_print::XPrint;
 use crate::v2::lu_dog_rwlock::types::x_return::XReturn;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock::types::x_value::XValueEnum;
-use crate::v2::lu_dog_rwlock::types::z_none::Z_NONE;
-use crate::v2::lu_dog_rwlock::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -51,11 +48,11 @@ use uuid::Uuid;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-enum-definition"}}}
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Expression {
+    AWait(Uuid),
     Block(Uuid),
     Call(Uuid),
     Debugger(Uuid),
-    EnumField(Uuid),
-    ErrorExpression(Uuid),
+    EmptyExpression(Uuid),
     FieldAccess(Uuid),
     FieldExpression(Uuid),
     ForLoop(Uuid),
@@ -67,12 +64,11 @@ pub enum Expression {
     ListExpression(Uuid),
     Literal(Uuid),
     XMatch(Uuid),
-    ZNone(Uuid),
     Operator(Uuid),
+    XPath(Uuid),
     XPrint(Uuid),
     RangeExpression(Uuid),
     XReturn(Uuid),
-    ZSome(Uuid),
     StructExpression(Uuid),
     TypeCast(Uuid),
     VariableExpression(Uuid),
@@ -81,6 +77,21 @@ pub enum Expression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-new-impl"}}}
+    /// Create a new instance of Expression::AWait
+    pub fn new_a_wait(
+        a_wait: &Arc<RwLock<AWait>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = a_wait.read().unwrap().id;
+        if let Some(a_wait) = store.exhume_expression(&id) {
+            a_wait
+        } else {
+            let new = Arc::new(RwLock::new(Self::AWait(id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    } // wtf?
+
     /// Create a new instance of Expression::Block
     pub fn new_block(
         block: &Arc<RwLock<Block>>,
@@ -114,35 +125,11 @@ impl Expression {
         store.exhume_expression(&DEBUGGER).unwrap()
     }
 
-    /// Create a new instance of Expression::EnumField
-    pub fn new_enum_field(
-        enum_field: &Arc<RwLock<EnumField>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = enum_field.read().unwrap().id;
-        if let Some(enum_field) = store.exhume_expression(&id) {
-            enum_field
-        } else {
-            let new = Arc::new(RwLock::new(Self::EnumField(id)));
-            store.inter_expression(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Expression::ErrorExpression
-    pub fn new_error_expression(
-        error_expression: &Arc<RwLock<ErrorExpression>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = error_expression.read().unwrap().id;
-        if let Some(error_expression) = store.exhume_expression(&id) {
-            error_expression
-        } else {
-            let new = Arc::new(RwLock::new(Self::ErrorExpression(id)));
-            store.inter_expression(new.clone());
-            new
-        }
-    } // wtf?
+    /// Create a new instance of Expression::EmptyExpression
+    pub fn new_empty_expression(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_expression(&EMPTY_EXPRESSION).unwrap()
+    }
 
     /// Create a new instance of Expression::FieldAccess
     pub fn new_field_access(
@@ -306,12 +293,6 @@ impl Expression {
         }
     } // wtf?
 
-    /// Create a new instance of Expression::ZNone
-    pub fn new_z_none(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_expression(&Z_NONE).unwrap()
-    }
-
     /// Create a new instance of Expression::Operator
     pub fn new_operator(
         operator: &Arc<RwLock<Operator>>,
@@ -322,6 +303,21 @@ impl Expression {
             operator
         } else {
             let new = Arc::new(RwLock::new(Self::Operator(id)));
+            store.inter_expression(new.clone());
+            new
+        }
+    } // wtf?
+
+    /// Create a new instance of Expression::XPath
+    pub fn new_x_path(
+        x_path: &Arc<RwLock<XPath>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = x_path.read().unwrap().id;
+        if let Some(x_path) = store.exhume_expression(&id) {
+            x_path
+        } else {
+            let new = Arc::new(RwLock::new(Self::XPath(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -367,21 +363,6 @@ impl Expression {
             x_return
         } else {
             let new = Arc::new(RwLock::new(Self::XReturn(id)));
-            store.inter_expression(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Expression::ZSome
-    pub fn new_z_some(
-        z_some: &Arc<RwLock<ZSome>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = z_some.read().unwrap().id;
-        if let Some(z_some) = store.exhume_expression(&id) {
-            z_some
-        } else {
-            let new = Arc::new(RwLock::new(Self::ZSome(id)));
             store.inter_expression(new.clone());
             new
         }
@@ -436,11 +417,11 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-get-id-impl"}}}
     pub fn id(&self) -> Uuid {
         match self {
+            Self::AWait(id) => *id,
             Self::Block(id) => *id,
             Self::Call(id) => *id,
             Self::Debugger(id) => *id,
-            Self::EnumField(id) => *id,
-            Self::ErrorExpression(id) => *id,
+            Self::EmptyExpression(id) => *id,
             Self::FieldAccess(id) => *id,
             Self::FieldExpression(id) => *id,
             Self::ForLoop(id) => *id,
@@ -452,12 +433,11 @@ impl Expression {
             Self::ListExpression(id) => *id,
             Self::Literal(id) => *id,
             Self::XMatch(id) => *id,
-            Self::ZNone(id) => *id,
             Self::Operator(id) => *id,
+            Self::XPath(id) => *id,
             Self::XPrint(id) => *id,
             Self::RangeExpression(id) => *id,
             Self::XReturn(id) => *id,
-            Self::ZSome(id) => *id,
             Self::StructExpression(id) => *id,
             Self::TypeCast(id) => *id,
             Self::VariableExpression(id) => *id,
@@ -472,6 +452,19 @@ impl Expression {
             .iter_argument()
             .filter(|argument| argument.read().unwrap().expression == self.id())
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-a_wait"}}}
+    /// Navigate to [`AWait`] across R98(1-1c)
+    pub fn r98c_a_wait<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<AWait>>> {
+        span!("r98_a_wait");
+        let a_wait = store
+            .iter_a_wait()
+            .find(|a_wait| a_wait.read().unwrap().x_future == self.id());
+        match a_wait {
+            Some(ref a_wait) => vec![a_wait.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
@@ -704,32 +697,10 @@ impl Expression {
         store
             .iter_x_return()
             .filter(|x_return| x_return.read().unwrap().expression == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
-    /// Navigate to [`StructField`] across R89(1-Mc)
-    pub fn r89_struct_field<'a>(
-        &'a self,
-        store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<StructField>>> {
-        span!("r89_struct_field");
-        store
-            .iter_struct_field()
-            .filter(|struct_field| struct_field.read().unwrap().expression == Some(self.id()))
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
-    /// Navigate to [`TupleField`] across R90(1-Mc)
-    pub fn r90_tuple_field<'a>(
-        &'a self,
-        store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<TupleField>>> {
-        span!("r90_tuple_field");
-        store
-            .iter_tuple_field()
-            .filter(|tuple_field| tuple_field.read().unwrap().expression == Some(self.id()))
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_match-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
@@ -51,7 +50,6 @@ impl XMatch {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r91_expression");
         vec![store.exhume_expression(&self.scrutinee).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -61,7 +59,6 @@ impl XMatch {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Pattern>>> {
-        span!("r87_pattern");
         store
             .iter_pattern()
             .filter(|pattern| pattern.read().unwrap().x_match == self.id)
@@ -74,7 +71,6 @@ impl XMatch {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

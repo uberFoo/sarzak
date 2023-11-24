@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::enumeration::Enumeration;
@@ -106,7 +105,6 @@ impl EnumField {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Enumeration>>> {
-        span!("r88_enumeration");
         vec![store.exhume_enumeration(&self.woog_enum).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
@@ -118,7 +116,6 @@ impl EnumField {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         vec![store
             .iter_field_access_target()
             .find(|field_access_target| {

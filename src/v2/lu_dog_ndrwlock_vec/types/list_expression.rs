@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_expression-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
@@ -49,7 +48,6 @@ impl ListExpression {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ListElement>>> {
-        span!("r54_list_element");
         match self.elements {
             Some(ref elements) => vec![store.exhume_list_element(&elements).unwrap()],
             None => Vec::new(),
@@ -62,7 +60,6 @@ impl ListExpression {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

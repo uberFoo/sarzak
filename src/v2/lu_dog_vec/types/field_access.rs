@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::expression::Expression;
@@ -55,7 +54,6 @@ impl FieldAccess {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R27(1-*)
     pub fn r27_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r27_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -65,21 +63,18 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
-        span!("r65_field_access_target");
         vec![store.exhume_field_access_target(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-struct-impl-nav-forward-to-woog_struct"}}}
     /// Navigate to [`WoogStruct`] across R66(1-*)
     pub fn r66_woog_struct<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<WoogStruct>>> {
-        span!("r66_woog_struct");
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

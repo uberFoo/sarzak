@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::addition::ADDITION;
@@ -119,7 +118,6 @@ impl Binary {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r47_operator");
         vec![store
             .iter_operator()
             .find(|operator| {

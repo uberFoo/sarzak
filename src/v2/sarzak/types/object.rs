@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::associative_referent::AssociativeReferent;
@@ -69,7 +68,6 @@ impl Object {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<Arc<RwLock<AssociativeReferent>>> {
-        span!("r25_associative_referent");
         store
             .iter_associative_referent()
             .filter(|associative_referent| associative_referent.read().unwrap().obj_id == self.id)
@@ -82,7 +80,6 @@ impl Object {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<Arc<RwLock<AssociativeReferrer>>> {
-        span!("r26_associative_referrer");
         store
             .iter_associative_referrer()
             .filter(|associative_referrer| associative_referrer.read().unwrap().obj_id == self.id)
@@ -93,7 +90,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-attribute"}}}
     /// Navigate to [`Attribute`] across R1(1-M)
     pub fn r1_attribute<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Attribute>>> {
-        span!("r1_attribute");
         store
             .iter_attribute()
             .filter(|attribute| attribute.read().unwrap().obj_id == self.id)
@@ -103,7 +99,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-event"}}}
     /// Navigate to [`Event`] across R19(1-M)
     pub fn r19_event<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Event>>> {
-        span!("r19_event");
         store
             .iter_event()
             .filter(|event| event.read().unwrap().obj_id == self.id)
@@ -113,7 +108,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-referent"}}}
     /// Navigate to [`Referent`] across R16(1-M)
     pub fn r16_referent<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Referent>>> {
-        span!("r16_referent");
         store
             .iter_referent()
             .filter(|referent| referent.read().unwrap().obj_id == self.id)
@@ -123,7 +117,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-referrer"}}}
     /// Navigate to [`Referrer`] across R17(1-M)
     pub fn r17_referrer<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Referrer>>> {
-        span!("r17_referrer");
         store
             .iter_referrer()
             .filter(|referrer| referrer.read().unwrap().obj_id == self.id)
@@ -133,7 +126,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-state"}}}
     /// Navigate to [`State`] across R18(1-M)
     pub fn r18_state<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<State>>> {
-        span!("r18_state");
         store
             .iter_state()
             .filter(|state| state.read().unwrap().obj_id == self.id)
@@ -144,7 +136,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-subtype"}}}
     /// Navigate to [`Subtype`] across R15(1-M)
     pub fn r15_subtype<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Subtype>>> {
-        span!("r15_subtype");
         store
             .iter_subtype()
             .filter(|subtype| subtype.read().unwrap().obj_id == self.id)
@@ -154,7 +145,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-supertype"}}}
     /// Navigate to [`Supertype`] across R14(1-M)
     pub fn r14_supertype<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Supertype>>> {
-        span!("r14_supertype");
         store
             .iter_supertype()
             .filter(|supertype| supertype.read().unwrap().obj_id == self.id)
@@ -164,7 +154,6 @@ impl Object {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
     pub fn r3_ty<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Ty>>> {
-        span!("r3_ty");
         vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

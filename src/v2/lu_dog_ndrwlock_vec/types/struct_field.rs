@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::enum_field::EnumField;
@@ -50,7 +49,6 @@ impl StructField {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r85_enum_field");
         vec![store
             .iter_enum_field()
             .find(|enum_field| {

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::enumeration::Enumeration;
@@ -63,7 +62,6 @@ impl DataStructure {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r39_struct_expression");
         store
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.read().unwrap().data == self.id)

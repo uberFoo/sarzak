@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::data_structure::DataStructure;
@@ -59,7 +58,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        span!("r84_implementation_block");
         match self.implementation {
             Some(ref implementation) => {
                 vec![store.exhume_implementation_block(&implementation).unwrap()]
@@ -75,7 +73,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r88_enum_field");
         store
             .iter_enum_field()
             .filter(|enum_field| enum_field.read().unwrap().woog_enum == self.id)
@@ -88,7 +85,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<DataStructure>>> {
-        span!("r95_data_structure");
         vec![store
             .iter_data_structure()
             .find(|data_structure| {
@@ -104,7 +100,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -123,7 +118,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {

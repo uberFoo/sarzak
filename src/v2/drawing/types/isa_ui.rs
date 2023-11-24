@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
@@ -54,7 +53,6 @@ impl IsaUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"isa_ui-struct-impl-nav-forward-to-from"}}}
     /// Navigate to [`Anchor`] across R9(1-*)
     pub fn r9_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r9_anchor");
         vec![store.exhume_anchor(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -64,7 +62,6 @@ impl IsaUi {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Isa>>> {
-        span!("r11_isa");
         vec![store.exhume_isa(&self.isa).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -74,7 +71,6 @@ impl IsaUi {
         &'a self,
         store: &'a DrawingStore,
     ) -> Vec<Arc<RwLock<SubtypeAnchors>>> {
-        span!("r10_subtype_anchors");
         let subtype_anchors = store
             .iter_subtype_anchors()
             .find(|subtype_anchors| subtype_anchors.read().unwrap().isaui_id == self.id);
@@ -90,7 +86,6 @@ impl IsaUi {
         &'a self,
         store: &'a DrawingStore,
     ) -> Vec<Arc<RwLock<RelationshipUi>>> {
-        span!("r6_relationship_ui");
         vec![store.exhume_relationship_ui(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

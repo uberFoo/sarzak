@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::function::Function;
@@ -63,7 +62,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Function>>> {
-        span!("r13_function");
         vec![store.exhume_function(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -73,7 +71,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r14_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
             None => Vec::new(),
@@ -86,7 +83,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r79_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -96,7 +92,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Function>>> {
-        span!("r82_function");
         let function = store
             .iter_function()
             .find(|function| function.read().unwrap().first_param == Some(self.id));
@@ -112,7 +107,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r14_parameter");
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.read().unwrap().next == Some(self.id));
@@ -128,7 +122,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Variable>>> {
-        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {

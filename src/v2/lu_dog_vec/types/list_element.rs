@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::expression::Expression;
@@ -47,7 +46,6 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-struct-impl-nav-forward-to-expression"}}}
     /// Navigate to [`Expression`] across R55(1-*)
     pub fn r55_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r55_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -57,7 +55,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<ListElement>>> {
-        span!("r53_list_element");
         match self.next {
             Some(ref next) => vec![store.exhume_list_element(&next).unwrap()],
             None => Vec::new(),
@@ -70,7 +67,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<ListElement>>> {
-        span!("r53_list_element");
         let list_element = store
             .iter_list_element()
             .find(|list_element| list_element.borrow().next == Some(self.id));
@@ -86,7 +82,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<ListExpression>>> {
-        span!("r54_list_expression");
         vec![store
             .iter_list_expression()
             .find(|list_expression| list_expression.borrow().elements == Some(self.id))
@@ -96,7 +91,6 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

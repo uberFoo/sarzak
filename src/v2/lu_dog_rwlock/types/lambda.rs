@@ -5,7 +5,7 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_rwlock::types::block::Block;
+use crate::v2::lu_dog_rwlock::types::body::Body;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
@@ -27,8 +27,8 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Lambda {
     pub id: Uuid,
-    /// R73: [`Lambda`] 'contains a' [`Block`]
-    pub block: Option<Uuid>,
+    /// R73: [`Lambda`] 'contains a' [`Body`]
+    pub body: Option<Uuid>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: Uuid,
 }
@@ -38,14 +38,14 @@ impl Lambda {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-new"}}}
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
-        block: Option<&Arc<RwLock<Block>>>,
+        body: Option<&Arc<RwLock<Body>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Lambda>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Lambda {
             id,
-            block: block.map(|block| block.read().unwrap().id),
+            body: body.map(|body| body.read().unwrap().id),
             return_type: return_type.read().unwrap().id(),
         }));
         store.inter_lambda(new.clone());
@@ -53,11 +53,12 @@ impl Lambda {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-block"}}}
-    /// Navigate to [`Block`] across R73(1-*c)
-    pub fn r73_block<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r73_block");
-        match self.block {
-            Some(ref block) => vec![store.exhume_block(&block).unwrap()],
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-body"}}}
+    /// Navigate to [`Body`] across R73(1-*c)
+    pub fn r73_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
+        span!("r73_body");
+        match self.body {
+            Some(ref body) => vec![store.exhume_body(&body).unwrap()],
             None => Vec::new(),
         }
     }

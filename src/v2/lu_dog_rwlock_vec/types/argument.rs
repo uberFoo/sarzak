@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::call::Call;
@@ -57,14 +56,12 @@ impl Argument {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r37_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Call`] across R28(1-*)
     pub fn r28_call<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Call>>> {
-        span!("r28_call");
         vec![store.exhume_call(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -74,7 +71,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r27_argument");
         match self.next {
             Some(ref next) => vec![store.exhume_argument(&next).unwrap()],
             None => Vec::new(),
@@ -87,7 +83,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r27_argument");
         let argument = store
             .iter_argument()
             .find(|argument| argument.read().unwrap().next == Some(self.id));
@@ -100,7 +95,6 @@ impl Argument {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"argument-struct-impl-nav-backward-one-bi-cond-to-call"}}}
     /// Navigate to [`Call`] across R81(1c-1c)
     pub fn r81c_call<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Call>>> {
-        span!("r81_call");
         let call = store
             .iter_call()
             .find(|call| call.read().unwrap().argument == Some(self.id));

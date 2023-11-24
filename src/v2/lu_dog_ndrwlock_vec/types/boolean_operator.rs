@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::and::AND;
@@ -61,7 +60,6 @@ impl BooleanOperator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-impl-nav-subtype-to-supertype-binary"}}}
     // Navigate to [`Binary`] across R48(isa)
     pub fn r48_binary<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Binary>>> {
-        span!("r48_binary");
         vec![store
             .iter_binary()
             .find(|binary| {

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
@@ -131,7 +130,6 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r58_expression");
         match self.lhs {
             Some(ref lhs) => vec![store.exhume_expression(&lhs).unwrap()],
             None => Vec::new(),
@@ -144,7 +142,6 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r59_expression");
         match self.rhs {
             Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
             None => Vec::new(),
@@ -157,7 +154,6 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

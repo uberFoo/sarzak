@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::item::Item;
@@ -43,7 +42,6 @@ impl DwarfSourceFile {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-item"}}}
     /// Navigate to [`Item`] across R25(1-M)
     pub fn r25_item<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r25_item");
         store
             .iter_item()
             .filter(|item| item.read().unwrap().source == self.id)
@@ -53,7 +51,6 @@ impl DwarfSourceFile {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"dwarf_source_file-struct-impl-nav-backward-1_M-to-span"}}}
     /// Navigate to [`Span`] across R64(1-M)
     pub fn r64_span<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Span>>> {
-        span!("r64_span");
         store
             .iter_span()
             .filter(|span| span.read().unwrap().source == self.id)

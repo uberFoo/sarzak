@@ -5,7 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog::types::block::Block;
+use crate::v2::lu_dog::types::body::Body;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog::types::value_type::ValueType;
@@ -27,8 +27,8 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Lambda {
     pub id: Uuid,
-    /// R73: [`Lambda`] 'contains a' [`Block`]
-    pub block: Option<Uuid>,
+    /// R73: [`Lambda`] 'contains a' [`Body`]
+    pub body: Option<Uuid>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: Uuid,
 }
@@ -38,14 +38,14 @@ impl Lambda {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-new"}}}
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
-        block: Option<&Rc<RefCell<Block>>>,
+        body: Option<&Rc<RefCell<Body>>>,
         return_type: &Rc<RefCell<ValueType>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Lambda>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Lambda {
             id,
-            block: block.map(|block| block.borrow().id),
+            body: body.map(|body| body.borrow().id),
             return_type: return_type.borrow().id(),
         }));
         store.inter_lambda(new.clone());
@@ -53,11 +53,12 @@ impl Lambda {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-block"}}}
-    /// Navigate to [`Block`] across R73(1-*c)
-    pub fn r73_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r73_block");
-        match self.block {
-            Some(ref block) => vec![store.exhume_block(&block).unwrap()],
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-body"}}}
+    /// Navigate to [`Body`] across R73(1-*c)
+    pub fn r73_body<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Body>>> {
+        span!("r73_body");
+        match self.body {
+            Some(ref body) => vec![store.exhume_body(&body).unwrap()],
             None => Vec::new(),
         }
     }

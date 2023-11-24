@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::dwarf_source_file::DwarfSourceFile;
@@ -65,7 +64,6 @@ impl Span {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
-        span!("r64_dwarf_source_file");
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -75,7 +73,6 @@ impl Span {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r62_value_type");
         match self.ty {
             Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
             None => Vec::new(),
@@ -85,7 +82,6 @@ impl Span {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"span-struct-impl-nav-forward-cond-to-x_value"}}}
     /// Navigate to [`XValue`] across R63(1-*c)
     pub fn r63_x_value<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r63_x_value");
         match self.x_value {
             Some(ref x_value) => vec![store.exhume_x_value(&x_value).unwrap()],
             None => Vec::new(),

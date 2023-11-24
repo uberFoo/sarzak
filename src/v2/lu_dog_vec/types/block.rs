@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::body::Body;
@@ -10,7 +9,6 @@ use crate::v2::lu_dog_vec::types::body::BodyEnum;
 use crate::v2::lu_dog_vec::types::expression::Expression;
 use crate::v2::lu_dog_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_vec::types::for_loop::ForLoop;
-use crate::v2::lu_dog_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_vec::types::statement::Statement;
 use crate::v2::lu_dog_vec::types::x_if::XIf;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
@@ -37,10 +35,11 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Block {
+    pub a_sink: bool,
     pub bug: Uuid,
     pub id: usize,
     /// R93: [`Block`] '' [`Block`]
-    pub next: Option<usize>,
+    pub parent: Option<usize>,
     /// R71: [`Block`] '' [`Statement`]
     pub statement: Option<usize>,
 }
@@ -50,27 +49,29 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(
+        a_sink: bool,
         bug: Uuid,
-        next: Option<&Rc<RefCell<Block>>>,
+        parent: Option<&Rc<RefCell<Block>>>,
         statement: Option<&Rc<RefCell<Statement>>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Block>> {
         store.inter_block(|id| {
             Rc::new(RefCell::new(Block {
+                a_sink,
                 bug,
                 id,
-                next: next.map(|block| block.borrow().id),
+                parent: parent.map(|block| block.borrow().id),
                 statement: statement.map(|statement| statement.borrow().id),
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-next"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-parent"}}}
     /// Navigate to [`Block`] across R93(1-*c)
     pub fn r93_block<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r93_block");
-        match self.next {
-            Some(ref next) => vec![store.exhume_block(&next).unwrap()],
+        match self.parent {
+            Some(ref parent) => vec![store.exhume_block(&parent).unwrap()],
             None => Vec::new(),
         }
     }
@@ -78,7 +79,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-statement"}}}
     /// Navigate to [`Statement`] across R71(1-*c)
     pub fn r71_statement<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Statement>>> {
-        span!("r71_statement");
         match self.statement {
             Some(ref statement) => vec![store.exhume_statement(&statement).unwrap()],
             None => Vec::new(),
@@ -88,10 +88,9 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-block"}}}
     /// Navigate to [`Block`] across R93(1c-1c)
     pub fn r93c_block<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r93_block");
         let block = store
             .iter_block()
-            .find(|block| block.borrow().next == Some(self.id));
+            .find(|block| block.borrow().parent == Some(self.id));
         match block {
             Some(ref block) => vec![block.clone()],
             None => Vec::new(),
@@ -101,7 +100,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-for_loop"}}}
     /// Navigate to [`ForLoop`] across R43(1-M)
     pub fn r43_for_loop<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ForLoop>>> {
-        span!("r43_for_loop");
         store
             .iter_for_loop()
             .filter(|for_loop| for_loop.borrow().block == self.id)
@@ -114,7 +112,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R46(1-M)
     pub fn r46_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
-        span!("r46_x_if");
         store
             .iter_x_if()
             .filter(|x_if| x_if.borrow().true_block == self.id)
@@ -124,7 +121,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
     /// Navigate to [`XIf`] across R52(1-Mc)
     pub fn r52_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
-        span!("r52_x_if");
         store
             .iter_x_if()
             .filter(|x_if| x_if.borrow().false_block == Some(self.id))
@@ -134,22 +130,10 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-cond-to-lambda"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
-    /// Navigate to [`Lambda`] across R73(1c-1c)
-    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Lambda>>> {
-        span!("r73_lambda");
-        let lambda = store
-            .iter_lambda()
-            .find(|lambda| lambda.borrow().block == Some(self.id));
-        match lambda {
-            Some(ref lambda) => vec![lambda.clone()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R18(1-M)
     pub fn r18_statement<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Statement>>> {
-        span!("r18_statement");
         store
             .iter_statement()
             .filter(|statement| statement.borrow().block == self.id)
@@ -159,7 +143,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R33(1-M)
     pub fn r33_x_value<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XValue>>> {
-        span!("r33_x_value");
         store
             .iter_x_value()
             .filter(|x_value| x_value.borrow().block == self.id)
@@ -169,7 +152,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-body"}}}
     // Navigate to [`Body`] across R80(isa)
     pub fn r80_body<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Body>>> {
-        span!("r80_body");
         vec![store
             .iter_body()
             .find(|body| {
@@ -185,7 +167,6 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {
@@ -203,7 +184,10 @@ impl Block {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-implementation"}}}
 impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
-        self.bug == other.bug && self.next == other.next && self.statement == other.statement
+        self.a_sink == other.a_sink
+            && self.bug == other.bug
+            && self.parent == other.parent
+            && self.statement == other.statement
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -20,8 +20,6 @@
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`XError`]
-//! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
@@ -60,9 +58,9 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
+//! * [`Plugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
-//! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
 //! * [`Span`]
@@ -93,19 +91,19 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
-    Operator, Parameter, PathElement, Pattern, RangeExpression, Reference, ResultStatement, Span,
-    Statement, StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric,
-    TupleField, TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable,
-    VariableExpression, WoogStruct, XError, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn,
-    XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
+    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
+    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, Plugin, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
     FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
     ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug)]
@@ -137,10 +135,6 @@ pub struct ObjectStore {
     enumeration_free_list: std::sync::Mutex<Vec<usize>>,
     enumeration: Arc<RwLock<Vec<Option<Arc<RwLock<Enumeration>>>>>>,
     enumeration_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
-    x_error_free_list: std::sync::Mutex<Vec<usize>>,
-    x_error: Arc<RwLock<Vec<Option<Arc<RwLock<XError>>>>>>,
-    error_expression_free_list: std::sync::Mutex<Vec<usize>>,
-    error_expression: Arc<RwLock<Vec<Option<Arc<RwLock<ErrorExpression>>>>>>,
     expression_free_list: std::sync::Mutex<Vec<usize>>,
     expression: Arc<RwLock<Vec<Option<Arc<RwLock<Expression>>>>>>,
     expression_statement_free_list: std::sync::Mutex<Vec<usize>>,
@@ -220,12 +214,12 @@ pub struct ObjectStore {
     path_element: Arc<RwLock<Vec<Option<Arc<RwLock<PathElement>>>>>>,
     pattern_free_list: std::sync::Mutex<Vec<usize>>,
     pattern: Arc<RwLock<Vec<Option<Arc<RwLock<Pattern>>>>>>,
+    plugin_free_list: std::sync::Mutex<Vec<usize>>,
+    plugin: Arc<RwLock<Vec<Option<Arc<RwLock<Plugin>>>>>>,
     x_print_free_list: std::sync::Mutex<Vec<usize>>,
     x_print: Arc<RwLock<Vec<Option<Arc<RwLock<XPrint>>>>>>,
     range_expression_free_list: std::sync::Mutex<Vec<usize>>,
     range_expression: Arc<RwLock<Vec<Option<Arc<RwLock<RangeExpression>>>>>>,
-    reference_free_list: std::sync::Mutex<Vec<usize>>,
-    reference: Arc<RwLock<Vec<Option<Arc<RwLock<Reference>>>>>>,
     result_statement_free_list: std::sync::Mutex<Vec<usize>>,
     result_statement: Arc<RwLock<Vec<Option<Arc<RwLock<ResultStatement>>>>>>,
     x_return_free_list: std::sync::Mutex<Vec<usize>>,
@@ -297,10 +291,6 @@ impl ObjectStore {
             enumeration_free_list: std::sync::Mutex::new(Vec::new()),
             enumeration: Arc::new(RwLock::new(Vec::new())),
             enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
-            x_error_free_list: std::sync::Mutex::new(Vec::new()),
-            x_error: Arc::new(RwLock::new(Vec::new())),
-            error_expression_free_list: std::sync::Mutex::new(Vec::new()),
-            error_expression: Arc::new(RwLock::new(Vec::new())),
             expression_free_list: std::sync::Mutex::new(Vec::new()),
             expression: Arc::new(RwLock::new(Vec::new())),
             expression_statement_free_list: std::sync::Mutex::new(Vec::new()),
@@ -380,12 +370,12 @@ impl ObjectStore {
             path_element: Arc::new(RwLock::new(Vec::new())),
             pattern_free_list: std::sync::Mutex::new(Vec::new()),
             pattern: Arc::new(RwLock::new(Vec::new())),
+            plugin_free_list: std::sync::Mutex::new(Vec::new()),
+            plugin: Arc::new(RwLock::new(Vec::new())),
             x_print_free_list: std::sync::Mutex::new(Vec::new()),
             x_print: Arc::new(RwLock::new(Vec::new())),
             range_expression_free_list: std::sync::Mutex::new(Vec::new()),
             range_expression: Arc::new(RwLock::new(Vec::new())),
-            reference_free_list: std::sync::Mutex::new(Vec::new()),
-            reference: Arc::new(RwLock::new(Vec::new())),
             result_statement_free_list: std::sync::Mutex::new(Vec::new()),
             result_statement: Arc::new(RwLock::new(Vec::new())),
             x_return_free_list: std::sync::Mutex::new(Vec::new()),
@@ -521,15 +511,15 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_x_error(|id| {
-            Arc::new(RwLock::new(XError {
-                subtype: super::XErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
+        store.inter_expression(|id| {
+            Arc::new(RwLock::new(Expression {
+                subtype: super::ExpressionEnum::Debugger(DEBUGGER),
                 id,
             }))
         });
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: super::ExpressionEnum::Debugger(DEBUGGER),
+                subtype: super::ExpressionEnum::EmptyExpression(EMPTY_EXPRESSION),
                 id,
             }))
         });
@@ -565,6 +555,12 @@ impl ObjectStore {
         });
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
+                subtype: super::ValueTypeEnum::Task(TASK),
+                id,
+            }))
+        });
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
                 subtype: super::ValueTypeEnum::Unknown(UNKNOWN),
                 id,
             }))
@@ -576,6 +572,7 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog_ndrwlock_vec-object-store-methods"}}}
     /// Inter (insert) [`Argument`] into the store.
     ///
+    #[inline]
     pub fn inter_argument<F>(&mut self, argument: F) -> Arc<RwLock<Argument>>
     where
         F: Fn(usize) -> Arc<RwLock<Argument>>,
@@ -617,6 +614,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Argument`] from the store.
     ///
+    #[inline]
     pub fn exhume_argument(&self, id: &usize) -> Option<Arc<RwLock<Argument>>> {
         match self.argument.read().unwrap().get(*id) {
             Some(argument) => argument.clone(),
@@ -626,6 +624,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Argument`] from the store.
     ///
+    #[inline]
     pub fn exorcise_argument(&mut self, id: &usize) -> Option<Arc<RwLock<Argument>>> {
         log::debug!(target: "store", "exorcising argument slot: {id}.");
         let result = self.argument.write().unwrap()[*id].take();
@@ -635,6 +634,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
     ///
+    #[inline]
     pub fn iter_argument(&self) -> impl Iterator<Item = Arc<RwLock<Argument>>> + '_ {
         let len = self.argument.read().unwrap().len();
         (0..len)
@@ -649,6 +649,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`AWait`] into the store.
     ///
+    #[inline]
     pub fn inter_a_wait<F>(&mut self, a_wait: F) -> Arc<RwLock<AWait>>
     where
         F: Fn(usize) -> Arc<RwLock<AWait>>,
@@ -690,6 +691,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`AWait`] from the store.
     ///
+    #[inline]
     pub fn exhume_a_wait(&self, id: &usize) -> Option<Arc<RwLock<AWait>>> {
         match self.a_wait.read().unwrap().get(*id) {
             Some(a_wait) => a_wait.clone(),
@@ -699,6 +701,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`AWait`] from the store.
     ///
+    #[inline]
     pub fn exorcise_a_wait(&mut self, id: &usize) -> Option<Arc<RwLock<AWait>>> {
         log::debug!(target: "store", "exorcising a_wait slot: {id}.");
         let result = self.a_wait.write().unwrap()[*id].take();
@@ -708,6 +711,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, AWait>`.
     ///
+    #[inline]
     pub fn iter_a_wait(&self) -> impl Iterator<Item = Arc<RwLock<AWait>>> + '_ {
         let len = self.a_wait.read().unwrap().len();
         (0..len)
@@ -722,6 +726,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Binary`] into the store.
     ///
+    #[inline]
     pub fn inter_binary<F>(&mut self, binary: F) -> Arc<RwLock<Binary>>
     where
         F: Fn(usize) -> Arc<RwLock<Binary>>,
@@ -763,6 +768,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Binary`] from the store.
     ///
+    #[inline]
     pub fn exhume_binary(&self, id: &usize) -> Option<Arc<RwLock<Binary>>> {
         match self.binary.read().unwrap().get(*id) {
             Some(binary) => binary.clone(),
@@ -772,6 +778,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Binary`] from the store.
     ///
+    #[inline]
     pub fn exorcise_binary(&mut self, id: &usize) -> Option<Arc<RwLock<Binary>>> {
         log::debug!(target: "store", "exorcising binary slot: {id}.");
         let result = self.binary.write().unwrap()[*id].take();
@@ -781,6 +788,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
+    #[inline]
     pub fn iter_binary(&self) -> impl Iterator<Item = Arc<RwLock<Binary>>> + '_ {
         let len = self.binary.read().unwrap().len();
         (0..len)
@@ -795,6 +803,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Block`] into the store.
     ///
+    #[inline]
     pub fn inter_block<F>(&mut self, block: F) -> Arc<RwLock<Block>>
     where
         F: Fn(usize) -> Arc<RwLock<Block>>,
@@ -836,6 +845,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Block`] from the store.
     ///
+    #[inline]
     pub fn exhume_block(&self, id: &usize) -> Option<Arc<RwLock<Block>>> {
         match self.block.read().unwrap().get(*id) {
             Some(block) => block.clone(),
@@ -845,6 +855,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Block`] from the store.
     ///
+    #[inline]
     pub fn exorcise_block(&mut self, id: &usize) -> Option<Arc<RwLock<Block>>> {
         log::debug!(target: "store", "exorcising block slot: {id}.");
         let result = self.block.write().unwrap()[*id].take();
@@ -854,6 +865,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
+    #[inline]
     pub fn iter_block(&self) -> impl Iterator<Item = Arc<RwLock<Block>>> + '_ {
         let len = self.block.read().unwrap().len();
         (0..len)
@@ -868,6 +880,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Body`] into the store.
     ///
+    #[inline]
     pub fn inter_body<F>(&mut self, body: F) -> Arc<RwLock<Body>>
     where
         F: Fn(usize) -> Arc<RwLock<Body>>,
@@ -909,6 +922,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Body`] from the store.
     ///
+    #[inline]
     pub fn exhume_body(&self, id: &usize) -> Option<Arc<RwLock<Body>>> {
         match self.body.read().unwrap().get(*id) {
             Some(body) => body.clone(),
@@ -918,6 +932,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Body`] from the store.
     ///
+    #[inline]
     pub fn exorcise_body(&mut self, id: &usize) -> Option<Arc<RwLock<Body>>> {
         log::debug!(target: "store", "exorcising body slot: {id}.");
         let result = self.body.write().unwrap()[*id].take();
@@ -927,6 +942,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Body>`.
     ///
+    #[inline]
     pub fn iter_body(&self) -> impl Iterator<Item = Arc<RwLock<Body>>> + '_ {
         let len = self.body.read().unwrap().len();
         (0..len)
@@ -941,6 +957,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_boolean_literal<F>(&mut self, boolean_literal: F) -> Arc<RwLock<BooleanLiteral>>
     where
         F: Fn(usize) -> Arc<RwLock<BooleanLiteral>>,
@@ -983,6 +1000,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_boolean_literal(&self, id: &usize) -> Option<Arc<RwLock<BooleanLiteral>>> {
         match self.boolean_literal.read().unwrap().get(*id) {
             Some(boolean_literal) => boolean_literal.clone(),
@@ -992,6 +1010,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_boolean_literal(&mut self, id: &usize) -> Option<Arc<RwLock<BooleanLiteral>>> {
         log::debug!(target: "store", "exorcising boolean_literal slot: {id}.");
         let result = self.boolean_literal.write().unwrap()[*id].take();
@@ -1001,6 +1020,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
     ///
+    #[inline]
     pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Arc<RwLock<BooleanLiteral>>> + '_ {
         let len = self.boolean_literal.read().unwrap().len();
         (0..len)
@@ -1015,6 +1035,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanOperator`] into the store.
     ///
+    #[inline]
     pub fn inter_boolean_operator<F>(&mut self, boolean_operator: F) -> Arc<RwLock<BooleanOperator>>
     where
         F: Fn(usize) -> Arc<RwLock<BooleanOperator>>,
@@ -1057,6 +1078,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`BooleanOperator`] from the store.
     ///
+    #[inline]
     pub fn exhume_boolean_operator(&self, id: &usize) -> Option<Arc<RwLock<BooleanOperator>>> {
         match self.boolean_operator.read().unwrap().get(*id) {
             Some(boolean_operator) => boolean_operator.clone(),
@@ -1066,6 +1088,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`BooleanOperator`] from the store.
     ///
+    #[inline]
     pub fn exorcise_boolean_operator(
         &mut self,
         id: &usize,
@@ -1078,6 +1101,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
     ///
+    #[inline]
     pub fn iter_boolean_operator(&self) -> impl Iterator<Item = Arc<RwLock<BooleanOperator>>> + '_ {
         let len = self.boolean_operator.read().unwrap().len();
         (0..len)
@@ -1092,6 +1116,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Call`] into the store.
     ///
+    #[inline]
     pub fn inter_call<F>(&mut self, call: F) -> Arc<RwLock<Call>>
     where
         F: Fn(usize) -> Arc<RwLock<Call>>,
@@ -1133,6 +1158,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Call`] from the store.
     ///
+    #[inline]
     pub fn exhume_call(&self, id: &usize) -> Option<Arc<RwLock<Call>>> {
         match self.call.read().unwrap().get(*id) {
             Some(call) => call.clone(),
@@ -1142,6 +1168,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Call`] from the store.
     ///
+    #[inline]
     pub fn exorcise_call(&mut self, id: &usize) -> Option<Arc<RwLock<Call>>> {
         log::debug!(target: "store", "exorcising call slot: {id}.");
         let result = self.call.write().unwrap()[*id].take();
@@ -1151,6 +1178,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
+    #[inline]
     pub fn iter_call(&self) -> impl Iterator<Item = Arc<RwLock<Call>>> + '_ {
         let len = self.call.read().unwrap().len();
         (0..len)
@@ -1165,6 +1193,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Comparison`] into the store.
     ///
+    #[inline]
     pub fn inter_comparison<F>(&mut self, comparison: F) -> Arc<RwLock<Comparison>>
     where
         F: Fn(usize) -> Arc<RwLock<Comparison>>,
@@ -1207,6 +1236,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Comparison`] from the store.
     ///
+    #[inline]
     pub fn exhume_comparison(&self, id: &usize) -> Option<Arc<RwLock<Comparison>>> {
         match self.comparison.read().unwrap().get(*id) {
             Some(comparison) => comparison.clone(),
@@ -1216,6 +1246,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
+    #[inline]
     pub fn exorcise_comparison(&mut self, id: &usize) -> Option<Arc<RwLock<Comparison>>> {
         log::debug!(target: "store", "exorcising comparison slot: {id}.");
         let result = self.comparison.write().unwrap()[*id].take();
@@ -1225,6 +1256,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
     ///
+    #[inline]
     pub fn iter_comparison(&self) -> impl Iterator<Item = Arc<RwLock<Comparison>>> + '_ {
         let len = self.comparison.read().unwrap().len();
         (0..len)
@@ -1239,6 +1271,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`DataStructure`] into the store.
     ///
+    #[inline]
     pub fn inter_data_structure<F>(&mut self, data_structure: F) -> Arc<RwLock<DataStructure>>
     where
         F: Fn(usize) -> Arc<RwLock<DataStructure>>,
@@ -1281,6 +1314,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`DataStructure`] from the store.
     ///
+    #[inline]
     pub fn exhume_data_structure(&self, id: &usize) -> Option<Arc<RwLock<DataStructure>>> {
         match self.data_structure.read().unwrap().get(*id) {
             Some(data_structure) => data_structure.clone(),
@@ -1290,6 +1324,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`DataStructure`] from the store.
     ///
+    #[inline]
     pub fn exorcise_data_structure(&mut self, id: &usize) -> Option<Arc<RwLock<DataStructure>>> {
         log::debug!(target: "store", "exorcising data_structure slot: {id}.");
         let result = self.data_structure.write().unwrap()[*id].take();
@@ -1299,6 +1334,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, DataStructure>`.
     ///
+    #[inline]
     pub fn iter_data_structure(&self) -> impl Iterator<Item = Arc<RwLock<DataStructure>>> + '_ {
         let len = self.data_structure.read().unwrap().len();
         (0..len)
@@ -1313,6 +1349,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
+    #[inline]
     pub fn inter_dwarf_source_file<F>(
         &mut self,
         dwarf_source_file: F,
@@ -1365,6 +1402,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`DwarfSourceFile`] from the store.
     ///
+    #[inline]
     pub fn exhume_dwarf_source_file(&self, id: &usize) -> Option<Arc<RwLock<DwarfSourceFile>>> {
         match self.dwarf_source_file.read().unwrap().get(*id) {
             Some(dwarf_source_file) => dwarf_source_file.clone(),
@@ -1374,6 +1412,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`DwarfSourceFile`] from the store.
     ///
+    #[inline]
     pub fn exorcise_dwarf_source_file(
         &mut self,
         id: &usize,
@@ -1386,6 +1425,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
     ///
+    #[inline]
     pub fn iter_dwarf_source_file(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
@@ -1402,6 +1442,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`EnumField`] into the store.
     ///
+    #[inline]
     pub fn inter_enum_field<F>(&mut self, enum_field: F) -> Arc<RwLock<EnumField>>
     where
         F: Fn(usize) -> Arc<RwLock<EnumField>>,
@@ -1444,6 +1485,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`EnumField`] from the store.
     ///
+    #[inline]
     pub fn exhume_enum_field(&self, id: &usize) -> Option<Arc<RwLock<EnumField>>> {
         match self.enum_field.read().unwrap().get(*id) {
             Some(enum_field) => enum_field.clone(),
@@ -1453,6 +1495,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`EnumField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Arc<RwLock<EnumField>>> {
         log::debug!(target: "store", "exorcising enum_field slot: {id}.");
         let result = self.enum_field.write().unwrap()[*id].take();
@@ -1462,6 +1505,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, EnumField>`.
     ///
+    #[inline]
     pub fn iter_enum_field(&self) -> impl Iterator<Item = Arc<RwLock<EnumField>>> + '_ {
         let len = self.enum_field.read().unwrap().len();
         (0..len)
@@ -1476,6 +1520,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Enumeration`] into the store.
     ///
+    #[inline]
     pub fn inter_enumeration<F>(&mut self, enumeration: F) -> Arc<RwLock<Enumeration>>
     where
         F: Fn(usize) -> Arc<RwLock<Enumeration>>,
@@ -1523,6 +1568,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Enumeration`] from the store.
     ///
+    #[inline]
     pub fn exhume_enumeration(&self, id: &usize) -> Option<Arc<RwLock<Enumeration>>> {
         match self.enumeration.read().unwrap().get(*id) {
             Some(enumeration) => enumeration.clone(),
@@ -1532,6 +1578,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Enumeration`] from the store.
     ///
+    #[inline]
     pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Arc<RwLock<Enumeration>>> {
         log::debug!(target: "store", "exorcising enumeration slot: {id}.");
         let result = self.enumeration.write().unwrap()[*id].take();
@@ -1541,6 +1588,7 @@ impl ObjectStore {
 
     /// Exorcise [`Enumeration`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<usize> {
         self.enumeration_id_by_name
             .read()
@@ -1551,6 +1599,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
     ///
+    #[inline]
     pub fn iter_enumeration(&self) -> impl Iterator<Item = Arc<RwLock<Enumeration>>> + '_ {
         let len = self.enumeration.read().unwrap().len();
         (0..len)
@@ -1563,158 +1612,9 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`XError`] into the store.
-    ///
-    pub fn inter_x_error<F>(&mut self, x_error: F) -> Arc<RwLock<XError>>
-    where
-        F: Fn(usize) -> Arc<RwLock<XError>>,
-    {
-        let _index = if let Some(_index) = self.x_error_free_list.lock().unwrap().pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.x_error.read().unwrap().len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.x_error.write().unwrap().push(None);
-            _index
-        };
-
-        let x_error = x_error(_index);
-
-        let found = if let Some(x_error) = self.x_error.read().unwrap().iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.read().unwrap() == *x_error.read().unwrap()
-            } else {
-                false
-            }
-        }) {
-            x_error.clone()
-        } else {
-            None
-        };
-
-        if let Some(x_error) = found {
-            log::debug!(target: "store", "found duplicate {x_error:?}.");
-            self.x_error_free_list.lock().unwrap().push(_index);
-            x_error.clone()
-        } else {
-            log::debug!(target: "store", "interring {x_error:?}.");
-            self.x_error.write().unwrap()[_index] = Some(x_error.clone());
-            x_error
-        }
-    }
-
-    /// Exhume (get) [`XError`] from the store.
-    ///
-    pub fn exhume_x_error(&self, id: &usize) -> Option<Arc<RwLock<XError>>> {
-        match self.x_error.read().unwrap().get(*id) {
-            Some(x_error) => x_error.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`XError`] from the store.
-    ///
-    pub fn exorcise_x_error(&mut self, id: &usize) -> Option<Arc<RwLock<XError>>> {
-        log::debug!(target: "store", "exorcising x_error slot: {id}.");
-        let result = self.x_error.write().unwrap()[*id].take();
-        self.x_error_free_list.lock().unwrap().push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
-    ///
-    pub fn iter_x_error(&self) -> impl Iterator<Item = Arc<RwLock<XError>>> + '_ {
-        let len = self.x_error.read().unwrap().len();
-        (0..len)
-            .filter(|i| self.x_error.read().unwrap()[*i].is_some())
-            .map(move |i| {
-                self.x_error.read().unwrap()[i]
-                    .as_ref()
-                    .map(|x_error| x_error.clone())
-                    .unwrap()
-            })
-    }
-
-    /// Inter (insert) [`ErrorExpression`] into the store.
-    ///
-    pub fn inter_error_expression<F>(&mut self, error_expression: F) -> Arc<RwLock<ErrorExpression>>
-    where
-        F: Fn(usize) -> Arc<RwLock<ErrorExpression>>,
-    {
-        let _index = if let Some(_index) = self.error_expression_free_list.lock().unwrap().pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.error_expression.read().unwrap().len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.error_expression.write().unwrap().push(None);
-            _index
-        };
-
-        let error_expression = error_expression(_index);
-
-        let found = if let Some(error_expression) =
-            self.error_expression.read().unwrap().iter().find(|stored| {
-                if let Some(stored) = stored {
-                    *stored.read().unwrap() == *error_expression.read().unwrap()
-                } else {
-                    false
-                }
-            }) {
-            error_expression.clone()
-        } else {
-            None
-        };
-
-        if let Some(error_expression) = found {
-            log::debug!(target: "store", "found duplicate {error_expression:?}.");
-            self.error_expression_free_list.lock().unwrap().push(_index);
-            error_expression.clone()
-        } else {
-            log::debug!(target: "store", "interring {error_expression:?}.");
-            self.error_expression.write().unwrap()[_index] = Some(error_expression.clone());
-            error_expression
-        }
-    }
-
-    /// Exhume (get) [`ErrorExpression`] from the store.
-    ///
-    pub fn exhume_error_expression(&self, id: &usize) -> Option<Arc<RwLock<ErrorExpression>>> {
-        match self.error_expression.read().unwrap().get(*id) {
-            Some(error_expression) => error_expression.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`ErrorExpression`] from the store.
-    ///
-    pub fn exorcise_error_expression(
-        &mut self,
-        id: &usize,
-    ) -> Option<Arc<RwLock<ErrorExpression>>> {
-        log::debug!(target: "store", "exorcising error_expression slot: {id}.");
-        let result = self.error_expression.write().unwrap()[*id].take();
-        self.error_expression_free_list.lock().unwrap().push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
-    ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Arc<RwLock<ErrorExpression>>> + '_ {
-        let len = self.error_expression.read().unwrap().len();
-        (0..len)
-            .filter(|i| self.error_expression.read().unwrap()[*i].is_some())
-            .map(move |i| {
-                self.error_expression.read().unwrap()[i]
-                    .as_ref()
-                    .map(|error_expression| error_expression.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`Expression`] into the store.
     ///
+    #[inline]
     pub fn inter_expression<F>(&mut self, expression: F) -> Arc<RwLock<Expression>>
     where
         F: Fn(usize) -> Arc<RwLock<Expression>>,
@@ -1757,6 +1657,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Expression`] from the store.
     ///
+    #[inline]
     pub fn exhume_expression(&self, id: &usize) -> Option<Arc<RwLock<Expression>>> {
         match self.expression.read().unwrap().get(*id) {
             Some(expression) => expression.clone(),
@@ -1766,6 +1667,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Expression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_expression(&mut self, id: &usize) -> Option<Arc<RwLock<Expression>>> {
         log::debug!(target: "store", "exorcising expression slot: {id}.");
         let result = self.expression.write().unwrap()[*id].take();
@@ -1775,6 +1677,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
+    #[inline]
     pub fn iter_expression(&self) -> impl Iterator<Item = Arc<RwLock<Expression>>> + '_ {
         let len = self.expression.read().unwrap().len();
         (0..len)
@@ -1789,6 +1692,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_expression_statement<F>(
         &mut self,
         expression_statement: F,
@@ -1842,6 +1746,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ExpressionStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_expression_statement(
         &self,
         id: &usize,
@@ -1854,6 +1759,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ExpressionStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_expression_statement(
         &mut self,
         id: &usize,
@@ -1869,6 +1775,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
     ///
+    #[inline]
     pub fn iter_expression_statement(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<ExpressionStatement>>> + '_ {
@@ -1885,6 +1792,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ExternalImplementation`] into the store.
     ///
+    #[inline]
     pub fn inter_external_implementation<F>(
         &mut self,
         external_implementation: F,
@@ -1939,6 +1847,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ExternalImplementation`] from the store.
     ///
+    #[inline]
     pub fn exhume_external_implementation(
         &self,
         id: &usize,
@@ -1951,6 +1860,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ExternalImplementation`] from the store.
     ///
+    #[inline]
     pub fn exorcise_external_implementation(
         &mut self,
         id: &usize,
@@ -1966,6 +1876,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExternalImplementation>`.
     ///
+    #[inline]
     pub fn iter_external_implementation(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<ExternalImplementation>>> + '_ {
@@ -1982,6 +1893,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Field`] into the store.
     ///
+    #[inline]
     pub fn inter_field<F>(&mut self, field: F) -> Arc<RwLock<Field>>
     where
         F: Fn(usize) -> Arc<RwLock<Field>>,
@@ -2028,6 +1940,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Field`] from the store.
     ///
+    #[inline]
     pub fn exhume_field(&self, id: &usize) -> Option<Arc<RwLock<Field>>> {
         match self.field.read().unwrap().get(*id) {
             Some(field) => field.clone(),
@@ -2037,6 +1950,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Field`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field(&mut self, id: &usize) -> Option<Arc<RwLock<Field>>> {
         log::debug!(target: "store", "exorcising field slot: {id}.");
         let result = self.field.write().unwrap()[*id].take();
@@ -2046,6 +1960,7 @@ impl ObjectStore {
 
     /// Exorcise [`Field`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_field_id_by_name(&self, name: &str) -> Option<usize> {
         self.field_id_by_name
             .read()
@@ -2056,6 +1971,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
     ///
+    #[inline]
     pub fn iter_field(&self) -> impl Iterator<Item = Arc<RwLock<Field>>> + '_ {
         let len = self.field.read().unwrap().len();
         (0..len)
@@ -2070,6 +1986,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccess`] into the store.
     ///
+    #[inline]
     pub fn inter_field_access<F>(&mut self, field_access: F) -> Arc<RwLock<FieldAccess>>
     where
         F: Fn(usize) -> Arc<RwLock<FieldAccess>>,
@@ -2112,6 +2029,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldAccess`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_access(&self, id: &usize) -> Option<Arc<RwLock<FieldAccess>>> {
         match self.field_access.read().unwrap().get(*id) {
             Some(field_access) => field_access.clone(),
@@ -2121,6 +2039,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_access(&mut self, id: &usize) -> Option<Arc<RwLock<FieldAccess>>> {
         log::debug!(target: "store", "exorcising field_access slot: {id}.");
         let result = self.field_access.write().unwrap()[*id].take();
@@ -2130,6 +2049,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
     ///
+    #[inline]
     pub fn iter_field_access(&self) -> impl Iterator<Item = Arc<RwLock<FieldAccess>>> + '_ {
         let len = self.field_access.read().unwrap().len();
         (0..len)
@@ -2144,6 +2064,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccessTarget`] into the store.
     ///
+    #[inline]
     pub fn inter_field_access_target<F>(
         &mut self,
         field_access_target: F,
@@ -2197,6 +2118,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_access_target(&self, id: &usize) -> Option<Arc<RwLock<FieldAccessTarget>>> {
         match self.field_access_target.read().unwrap().get(*id) {
             Some(field_access_target) => field_access_target.clone(),
@@ -2206,6 +2128,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldAccessTarget`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_access_target(
         &mut self,
         id: &usize,
@@ -2218,6 +2141,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccessTarget>`.
     ///
+    #[inline]
     pub fn iter_field_access_target(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<FieldAccessTarget>>> + '_ {
@@ -2234,6 +2158,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_field_expression<F>(&mut self, field_expression: F) -> Arc<RwLock<FieldExpression>>
     where
         F: Fn(usize) -> Arc<RwLock<FieldExpression>>,
@@ -2276,6 +2201,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_expression(&self, id: &usize) -> Option<Arc<RwLock<FieldExpression>>> {
         match self.field_expression.read().unwrap().get(*id) {
             Some(field_expression) => field_expression.clone(),
@@ -2285,6 +2211,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_expression(
         &mut self,
         id: &usize,
@@ -2297,6 +2224,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
     ///
+    #[inline]
     pub fn iter_field_expression(&self) -> impl Iterator<Item = Arc<RwLock<FieldExpression>>> + '_ {
         let len = self.field_expression.read().unwrap().len();
         (0..len)
@@ -2311,6 +2239,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FloatLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_float_literal<F>(&mut self, float_literal: F) -> Arc<RwLock<FloatLiteral>>
     where
         F: Fn(usize) -> Arc<RwLock<FloatLiteral>>,
@@ -2353,6 +2282,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FloatLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_float_literal(&self, id: &usize) -> Option<Arc<RwLock<FloatLiteral>>> {
         match self.float_literal.read().unwrap().get(*id) {
             Some(float_literal) => float_literal.clone(),
@@ -2362,6 +2292,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_float_literal(&mut self, id: &usize) -> Option<Arc<RwLock<FloatLiteral>>> {
         log::debug!(target: "store", "exorcising float_literal slot: {id}.");
         let result = self.float_literal.write().unwrap()[*id].take();
@@ -2371,6 +2302,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
     ///
+    #[inline]
     pub fn iter_float_literal(&self) -> impl Iterator<Item = Arc<RwLock<FloatLiteral>>> + '_ {
         let len = self.float_literal.read().unwrap().len();
         (0..len)
@@ -2385,6 +2317,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ForLoop`] into the store.
     ///
+    #[inline]
     pub fn inter_for_loop<F>(&mut self, for_loop: F) -> Arc<RwLock<ForLoop>>
     where
         F: Fn(usize) -> Arc<RwLock<ForLoop>>,
@@ -2426,6 +2359,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ForLoop`] from the store.
     ///
+    #[inline]
     pub fn exhume_for_loop(&self, id: &usize) -> Option<Arc<RwLock<ForLoop>>> {
         match self.for_loop.read().unwrap().get(*id) {
             Some(for_loop) => for_loop.clone(),
@@ -2435,6 +2369,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
+    #[inline]
     pub fn exorcise_for_loop(&mut self, id: &usize) -> Option<Arc<RwLock<ForLoop>>> {
         log::debug!(target: "store", "exorcising for_loop slot: {id}.");
         let result = self.for_loop.write().unwrap()[*id].take();
@@ -2444,6 +2379,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
     ///
+    #[inline]
     pub fn iter_for_loop(&self) -> impl Iterator<Item = Arc<RwLock<ForLoop>>> + '_ {
         let len = self.for_loop.read().unwrap().len();
         (0..len)
@@ -2458,6 +2394,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Function`] into the store.
     ///
+    #[inline]
     pub fn inter_function<F>(&mut self, function: F) -> Arc<RwLock<Function>>
     where
         F: Fn(usize) -> Arc<RwLock<Function>>,
@@ -2504,6 +2441,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Function`] from the store.
     ///
+    #[inline]
     pub fn exhume_function(&self, id: &usize) -> Option<Arc<RwLock<Function>>> {
         match self.function.read().unwrap().get(*id) {
             Some(function) => function.clone(),
@@ -2513,6 +2451,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Function`] from the store.
     ///
+    #[inline]
     pub fn exorcise_function(&mut self, id: &usize) -> Option<Arc<RwLock<Function>>> {
         log::debug!(target: "store", "exorcising function slot: {id}.");
         let result = self.function.write().unwrap()[*id].take();
@@ -2522,6 +2461,7 @@ impl ObjectStore {
 
     /// Exorcise [`Function`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_function_id_by_name(&self, name: &str) -> Option<usize> {
         self.function_id_by_name
             .read()
@@ -2532,6 +2472,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
     ///
+    #[inline]
     pub fn iter_function(&self) -> impl Iterator<Item = Arc<RwLock<Function>>> + '_ {
         let len = self.function.read().unwrap().len();
         (0..len)
@@ -2546,6 +2487,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XFuture`] into the store.
     ///
+    #[inline]
     pub fn inter_x_future<F>(&mut self, x_future: F) -> Arc<RwLock<XFuture>>
     where
         F: Fn(usize) -> Arc<RwLock<XFuture>>,
@@ -2587,6 +2529,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XFuture`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_future(&self, id: &usize) -> Option<Arc<RwLock<XFuture>>> {
         match self.x_future.read().unwrap().get(*id) {
             Some(x_future) => x_future.clone(),
@@ -2596,6 +2539,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XFuture`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_future(&mut self, id: &usize) -> Option<Arc<RwLock<XFuture>>> {
         log::debug!(target: "store", "exorcising x_future slot: {id}.");
         let result = self.x_future.write().unwrap()[*id].take();
@@ -2605,6 +2549,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XFuture>`.
     ///
+    #[inline]
     pub fn iter_x_future(&self) -> impl Iterator<Item = Arc<RwLock<XFuture>>> + '_ {
         let len = self.x_future.read().unwrap().len();
         (0..len)
@@ -2619,6 +2564,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Generic`] into the store.
     ///
+    #[inline]
     pub fn inter_generic<F>(&mut self, generic: F) -> Arc<RwLock<Generic>>
     where
         F: Fn(usize) -> Arc<RwLock<Generic>>,
@@ -2660,6 +2606,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Generic`] from the store.
     ///
+    #[inline]
     pub fn exhume_generic(&self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
         match self.generic.read().unwrap().get(*id) {
             Some(generic) => generic.clone(),
@@ -2669,6 +2616,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Generic`] from the store.
     ///
+    #[inline]
     pub fn exorcise_generic(&mut self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
         log::debug!(target: "store", "exorcising generic slot: {id}.");
         let result = self.generic.write().unwrap()[*id].take();
@@ -2678,6 +2626,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
     ///
+    #[inline]
     pub fn iter_generic(&self) -> impl Iterator<Item = Arc<RwLock<Generic>>> + '_ {
         let len = self.generic.read().unwrap().len();
         (0..len)
@@ -2692,6 +2641,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Grouped`] into the store.
     ///
+    #[inline]
     pub fn inter_grouped<F>(&mut self, grouped: F) -> Arc<RwLock<Grouped>>
     where
         F: Fn(usize) -> Arc<RwLock<Grouped>>,
@@ -2733,6 +2683,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Grouped`] from the store.
     ///
+    #[inline]
     pub fn exhume_grouped(&self, id: &usize) -> Option<Arc<RwLock<Grouped>>> {
         match self.grouped.read().unwrap().get(*id) {
             Some(grouped) => grouped.clone(),
@@ -2742,6 +2693,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
+    #[inline]
     pub fn exorcise_grouped(&mut self, id: &usize) -> Option<Arc<RwLock<Grouped>>> {
         log::debug!(target: "store", "exorcising grouped slot: {id}.");
         let result = self.grouped.write().unwrap()[*id].take();
@@ -2751,6 +2703,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
     ///
+    #[inline]
     pub fn iter_grouped(&self) -> impl Iterator<Item = Arc<RwLock<Grouped>>> + '_ {
         let len = self.grouped.read().unwrap().len();
         (0..len)
@@ -2765,6 +2718,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XIf`] into the store.
     ///
+    #[inline]
     pub fn inter_x_if<F>(&mut self, x_if: F) -> Arc<RwLock<XIf>>
     where
         F: Fn(usize) -> Arc<RwLock<XIf>>,
@@ -2806,6 +2760,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XIf`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_if(&self, id: &usize) -> Option<Arc<RwLock<XIf>>> {
         match self.x_if.read().unwrap().get(*id) {
             Some(x_if) => x_if.clone(),
@@ -2815,6 +2770,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XIf`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_if(&mut self, id: &usize) -> Option<Arc<RwLock<XIf>>> {
         log::debug!(target: "store", "exorcising x_if slot: {id}.");
         let result = self.x_if.write().unwrap()[*id].take();
@@ -2824,6 +2780,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
     ///
+    #[inline]
     pub fn iter_x_if(&self) -> impl Iterator<Item = Arc<RwLock<XIf>>> + '_ {
         let len = self.x_if.read().unwrap().len();
         (0..len)
@@ -2838,6 +2795,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ImplementationBlock`] into the store.
     ///
+    #[inline]
     pub fn inter_implementation_block<F>(
         &mut self,
         implementation_block: F,
@@ -2891,6 +2849,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ImplementationBlock`] from the store.
     ///
+    #[inline]
     pub fn exhume_implementation_block(
         &self,
         id: &usize,
@@ -2903,6 +2862,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ImplementationBlock`] from the store.
     ///
+    #[inline]
     pub fn exorcise_implementation_block(
         &mut self,
         id: &usize,
@@ -2918,6 +2878,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ImplementationBlock>`.
     ///
+    #[inline]
     pub fn iter_implementation_block(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
@@ -2934,6 +2895,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Import`] into the store.
     ///
+    #[inline]
     pub fn inter_import<F>(&mut self, import: F) -> Arc<RwLock<Import>>
     where
         F: Fn(usize) -> Arc<RwLock<Import>>,
@@ -2975,6 +2937,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Import`] from the store.
     ///
+    #[inline]
     pub fn exhume_import(&self, id: &usize) -> Option<Arc<RwLock<Import>>> {
         match self.import.read().unwrap().get(*id) {
             Some(import) => import.clone(),
@@ -2984,6 +2947,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Import`] from the store.
     ///
+    #[inline]
     pub fn exorcise_import(&mut self, id: &usize) -> Option<Arc<RwLock<Import>>> {
         log::debug!(target: "store", "exorcising import slot: {id}.");
         let result = self.import.write().unwrap()[*id].take();
@@ -2993,6 +2957,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
     ///
+    #[inline]
     pub fn iter_import(&self) -> impl Iterator<Item = Arc<RwLock<Import>>> + '_ {
         let len = self.import.read().unwrap().len();
         (0..len)
@@ -3007,6 +2972,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Index`] into the store.
     ///
+    #[inline]
     pub fn inter_index<F>(&mut self, index: F) -> Arc<RwLock<Index>>
     where
         F: Fn(usize) -> Arc<RwLock<Index>>,
@@ -3048,6 +3014,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Index`] from the store.
     ///
+    #[inline]
     pub fn exhume_index(&self, id: &usize) -> Option<Arc<RwLock<Index>>> {
         match self.index.read().unwrap().get(*id) {
             Some(index) => index.clone(),
@@ -3057,6 +3024,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Index`] from the store.
     ///
+    #[inline]
     pub fn exorcise_index(&mut self, id: &usize) -> Option<Arc<RwLock<Index>>> {
         log::debug!(target: "store", "exorcising index slot: {id}.");
         let result = self.index.write().unwrap()[*id].take();
@@ -3066,6 +3034,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
     ///
+    #[inline]
     pub fn iter_index(&self) -> impl Iterator<Item = Arc<RwLock<Index>>> + '_ {
         let len = self.index.read().unwrap().len();
         (0..len)
@@ -3080,6 +3049,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`IntegerLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_integer_literal<F>(&mut self, integer_literal: F) -> Arc<RwLock<IntegerLiteral>>
     where
         F: Fn(usize) -> Arc<RwLock<IntegerLiteral>>,
@@ -3122,6 +3092,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`IntegerLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_integer_literal(&self, id: &usize) -> Option<Arc<RwLock<IntegerLiteral>>> {
         match self.integer_literal.read().unwrap().get(*id) {
             Some(integer_literal) => integer_literal.clone(),
@@ -3131,6 +3102,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_integer_literal(&mut self, id: &usize) -> Option<Arc<RwLock<IntegerLiteral>>> {
         log::debug!(target: "store", "exorcising integer_literal slot: {id}.");
         let result = self.integer_literal.write().unwrap()[*id].take();
@@ -3140,6 +3112,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
     ///
+    #[inline]
     pub fn iter_integer_literal(&self) -> impl Iterator<Item = Arc<RwLock<IntegerLiteral>>> + '_ {
         let len = self.integer_literal.read().unwrap().len();
         (0..len)
@@ -3154,6 +3127,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Item`] into the store.
     ///
+    #[inline]
     pub fn inter_item<F>(&mut self, item: F) -> Arc<RwLock<Item>>
     where
         F: Fn(usize) -> Arc<RwLock<Item>>,
@@ -3195,6 +3169,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Item`] from the store.
     ///
+    #[inline]
     pub fn exhume_item(&self, id: &usize) -> Option<Arc<RwLock<Item>>> {
         match self.item.read().unwrap().get(*id) {
             Some(item) => item.clone(),
@@ -3204,6 +3179,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Item`] from the store.
     ///
+    #[inline]
     pub fn exorcise_item(&mut self, id: &usize) -> Option<Arc<RwLock<Item>>> {
         log::debug!(target: "store", "exorcising item slot: {id}.");
         let result = self.item.write().unwrap()[*id].take();
@@ -3213,6 +3189,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
     ///
+    #[inline]
     pub fn iter_item(&self) -> impl Iterator<Item = Arc<RwLock<Item>>> + '_ {
         let len = self.item.read().unwrap().len();
         (0..len)
@@ -3227,6 +3204,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Lambda`] into the store.
     ///
+    #[inline]
     pub fn inter_lambda<F>(&mut self, lambda: F) -> Arc<RwLock<Lambda>>
     where
         F: Fn(usize) -> Arc<RwLock<Lambda>>,
@@ -3268,6 +3246,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Lambda`] from the store.
     ///
+    #[inline]
     pub fn exhume_lambda(&self, id: &usize) -> Option<Arc<RwLock<Lambda>>> {
         match self.lambda.read().unwrap().get(*id) {
             Some(lambda) => lambda.clone(),
@@ -3277,6 +3256,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Lambda`] from the store.
     ///
+    #[inline]
     pub fn exorcise_lambda(&mut self, id: &usize) -> Option<Arc<RwLock<Lambda>>> {
         log::debug!(target: "store", "exorcising lambda slot: {id}.");
         let result = self.lambda.write().unwrap()[*id].take();
@@ -3286,6 +3266,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Lambda>`.
     ///
+    #[inline]
     pub fn iter_lambda(&self) -> impl Iterator<Item = Arc<RwLock<Lambda>>> + '_ {
         let len = self.lambda.read().unwrap().len();
         (0..len)
@@ -3300,6 +3281,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LambdaParameter`] into the store.
     ///
+    #[inline]
     pub fn inter_lambda_parameter<F>(&mut self, lambda_parameter: F) -> Arc<RwLock<LambdaParameter>>
     where
         F: Fn(usize) -> Arc<RwLock<LambdaParameter>>,
@@ -3342,6 +3324,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LambdaParameter`] from the store.
     ///
+    #[inline]
     pub fn exhume_lambda_parameter(&self, id: &usize) -> Option<Arc<RwLock<LambdaParameter>>> {
         match self.lambda_parameter.read().unwrap().get(*id) {
             Some(lambda_parameter) => lambda_parameter.clone(),
@@ -3351,6 +3334,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LambdaParameter`] from the store.
     ///
+    #[inline]
     pub fn exorcise_lambda_parameter(
         &mut self,
         id: &usize,
@@ -3363,6 +3347,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LambdaParameter>`.
     ///
+    #[inline]
     pub fn iter_lambda_parameter(&self) -> impl Iterator<Item = Arc<RwLock<LambdaParameter>>> + '_ {
         let len = self.lambda_parameter.read().unwrap().len();
         (0..len)
@@ -3377,6 +3362,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LetStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_let_statement<F>(&mut self, let_statement: F) -> Arc<RwLock<LetStatement>>
     where
         F: Fn(usize) -> Arc<RwLock<LetStatement>>,
@@ -3419,6 +3405,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LetStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_let_statement(&self, id: &usize) -> Option<Arc<RwLock<LetStatement>>> {
         match self.let_statement.read().unwrap().get(*id) {
             Some(let_statement) => let_statement.clone(),
@@ -3428,6 +3415,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_let_statement(&mut self, id: &usize) -> Option<Arc<RwLock<LetStatement>>> {
         log::debug!(target: "store", "exorcising let_statement slot: {id}.");
         let result = self.let_statement.write().unwrap()[*id].take();
@@ -3437,6 +3425,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
     ///
+    #[inline]
     pub fn iter_let_statement(&self) -> impl Iterator<Item = Arc<RwLock<LetStatement>>> + '_ {
         let len = self.let_statement.read().unwrap().len();
         (0..len)
@@ -3451,6 +3440,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`List`] into the store.
     ///
+    #[inline]
     pub fn inter_list<F>(&mut self, list: F) -> Arc<RwLock<List>>
     where
         F: Fn(usize) -> Arc<RwLock<List>>,
@@ -3492,6 +3482,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`List`] from the store.
     ///
+    #[inline]
     pub fn exhume_list(&self, id: &usize) -> Option<Arc<RwLock<List>>> {
         match self.list.read().unwrap().get(*id) {
             Some(list) => list.clone(),
@@ -3501,6 +3492,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`List`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list(&mut self, id: &usize) -> Option<Arc<RwLock<List>>> {
         log::debug!(target: "store", "exorcising list slot: {id}.");
         let result = self.list.write().unwrap()[*id].take();
@@ -3510,6 +3502,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
     ///
+    #[inline]
     pub fn iter_list(&self) -> impl Iterator<Item = Arc<RwLock<List>>> + '_ {
         let len = self.list.read().unwrap().len();
         (0..len)
@@ -3524,6 +3517,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListElement`] into the store.
     ///
+    #[inline]
     pub fn inter_list_element<F>(&mut self, list_element: F) -> Arc<RwLock<ListElement>>
     where
         F: Fn(usize) -> Arc<RwLock<ListElement>>,
@@ -3566,6 +3560,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ListElement`] from the store.
     ///
+    #[inline]
     pub fn exhume_list_element(&self, id: &usize) -> Option<Arc<RwLock<ListElement>>> {
         match self.list_element.read().unwrap().get(*id) {
             Some(list_element) => list_element.clone(),
@@ -3575,6 +3570,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list_element(&mut self, id: &usize) -> Option<Arc<RwLock<ListElement>>> {
         log::debug!(target: "store", "exorcising list_element slot: {id}.");
         let result = self.list_element.write().unwrap()[*id].take();
@@ -3584,6 +3580,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
     ///
+    #[inline]
     pub fn iter_list_element(&self) -> impl Iterator<Item = Arc<RwLock<ListElement>>> + '_ {
         let len = self.list_element.read().unwrap().len();
         (0..len)
@@ -3598,6 +3595,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_list_expression<F>(&mut self, list_expression: F) -> Arc<RwLock<ListExpression>>
     where
         F: Fn(usize) -> Arc<RwLock<ListExpression>>,
@@ -3640,6 +3638,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ListExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_list_expression(&self, id: &usize) -> Option<Arc<RwLock<ListExpression>>> {
         match self.list_expression.read().unwrap().get(*id) {
             Some(list_expression) => list_expression.clone(),
@@ -3649,6 +3648,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list_expression(&mut self, id: &usize) -> Option<Arc<RwLock<ListExpression>>> {
         log::debug!(target: "store", "exorcising list_expression slot: {id}.");
         let result = self.list_expression.write().unwrap()[*id].take();
@@ -3658,6 +3658,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
     ///
+    #[inline]
     pub fn iter_list_expression(&self) -> impl Iterator<Item = Arc<RwLock<ListExpression>>> + '_ {
         let len = self.list_expression.read().unwrap().len();
         (0..len)
@@ -3672,6 +3673,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Literal`] into the store.
     ///
+    #[inline]
     pub fn inter_literal<F>(&mut self, literal: F) -> Arc<RwLock<Literal>>
     where
         F: Fn(usize) -> Arc<RwLock<Literal>>,
@@ -3713,6 +3715,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Literal`] from the store.
     ///
+    #[inline]
     pub fn exhume_literal(&self, id: &usize) -> Option<Arc<RwLock<Literal>>> {
         match self.literal.read().unwrap().get(*id) {
             Some(literal) => literal.clone(),
@@ -3722,6 +3725,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Literal`] from the store.
     ///
+    #[inline]
     pub fn exorcise_literal(&mut self, id: &usize) -> Option<Arc<RwLock<Literal>>> {
         log::debug!(target: "store", "exorcising literal slot: {id}.");
         let result = self.literal.write().unwrap()[*id].take();
@@ -3731,6 +3735,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
     ///
+    #[inline]
     pub fn iter_literal(&self) -> impl Iterator<Item = Arc<RwLock<Literal>>> + '_ {
         let len = self.literal.read().unwrap().len();
         (0..len)
@@ -3745,6 +3750,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LocalVariable`] into the store.
     ///
+    #[inline]
     pub fn inter_local_variable<F>(&mut self, local_variable: F) -> Arc<RwLock<LocalVariable>>
     where
         F: Fn(usize) -> Arc<RwLock<LocalVariable>>,
@@ -3787,6 +3793,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LocalVariable`] from the store.
     ///
+    #[inline]
     pub fn exhume_local_variable(&self, id: &usize) -> Option<Arc<RwLock<LocalVariable>>> {
         match self.local_variable.read().unwrap().get(*id) {
             Some(local_variable) => local_variable.clone(),
@@ -3796,6 +3803,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
+    #[inline]
     pub fn exorcise_local_variable(&mut self, id: &usize) -> Option<Arc<RwLock<LocalVariable>>> {
         log::debug!(target: "store", "exorcising local_variable slot: {id}.");
         let result = self.local_variable.write().unwrap()[*id].take();
@@ -3805,6 +3813,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
     ///
+    #[inline]
     pub fn iter_local_variable(&self) -> impl Iterator<Item = Arc<RwLock<LocalVariable>>> + '_ {
         let len = self.local_variable.read().unwrap().len();
         (0..len)
@@ -3819,6 +3828,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XMacro`] into the store.
     ///
+    #[inline]
     pub fn inter_x_macro<F>(&mut self, x_macro: F) -> Arc<RwLock<XMacro>>
     where
         F: Fn(usize) -> Arc<RwLock<XMacro>>,
@@ -3860,6 +3870,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XMacro`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_macro(&self, id: &usize) -> Option<Arc<RwLock<XMacro>>> {
         match self.x_macro.read().unwrap().get(*id) {
             Some(x_macro) => x_macro.clone(),
@@ -3869,6 +3880,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XMacro`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_macro(&mut self, id: &usize) -> Option<Arc<RwLock<XMacro>>> {
         log::debug!(target: "store", "exorcising x_macro slot: {id}.");
         let result = self.x_macro.write().unwrap()[*id].take();
@@ -3878,6 +3890,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XMacro>`.
     ///
+    #[inline]
     pub fn iter_x_macro(&self) -> impl Iterator<Item = Arc<RwLock<XMacro>>> + '_ {
         let len = self.x_macro.read().unwrap().len();
         (0..len)
@@ -3892,6 +3905,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XMatch`] into the store.
     ///
+    #[inline]
     pub fn inter_x_match<F>(&mut self, x_match: F) -> Arc<RwLock<XMatch>>
     where
         F: Fn(usize) -> Arc<RwLock<XMatch>>,
@@ -3933,6 +3947,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XMatch`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_match(&self, id: &usize) -> Option<Arc<RwLock<XMatch>>> {
         match self.x_match.read().unwrap().get(*id) {
             Some(x_match) => x_match.clone(),
@@ -3942,6 +3957,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XMatch`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_match(&mut self, id: &usize) -> Option<Arc<RwLock<XMatch>>> {
         log::debug!(target: "store", "exorcising x_match slot: {id}.");
         let result = self.x_match.write().unwrap()[*id].take();
@@ -3951,6 +3967,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XMatch>`.
     ///
+    #[inline]
     pub fn iter_x_match(&self) -> impl Iterator<Item = Arc<RwLock<XMatch>>> + '_ {
         let len = self.x_match.read().unwrap().len();
         (0..len)
@@ -3965,6 +3982,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`MethodCall`] into the store.
     ///
+    #[inline]
     pub fn inter_method_call<F>(&mut self, method_call: F) -> Arc<RwLock<MethodCall>>
     where
         F: Fn(usize) -> Arc<RwLock<MethodCall>>,
@@ -4007,6 +4025,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`MethodCall`] from the store.
     ///
+    #[inline]
     pub fn exhume_method_call(&self, id: &usize) -> Option<Arc<RwLock<MethodCall>>> {
         match self.method_call.read().unwrap().get(*id) {
             Some(method_call) => method_call.clone(),
@@ -4016,6 +4035,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
+    #[inline]
     pub fn exorcise_method_call(&mut self, id: &usize) -> Option<Arc<RwLock<MethodCall>>> {
         log::debug!(target: "store", "exorcising method_call slot: {id}.");
         let result = self.method_call.write().unwrap()[*id].take();
@@ -4025,6 +4045,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
     ///
+    #[inline]
     pub fn iter_method_call(&self) -> impl Iterator<Item = Arc<RwLock<MethodCall>>> + '_ {
         let len = self.method_call.read().unwrap().len();
         (0..len)
@@ -4039,6 +4060,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`NamedFieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_named_field_expression<F>(
         &mut self,
         named_field_expression: F,
@@ -4093,6 +4115,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`NamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_named_field_expression(
         &self,
         id: &usize,
@@ -4105,6 +4128,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`NamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_named_field_expression(
         &mut self,
         id: &usize,
@@ -4120,6 +4144,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, NamedFieldExpression>`.
     ///
+    #[inline]
     pub fn iter_named_field_expression(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<NamedFieldExpression>>> + '_ {
@@ -4136,6 +4161,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
+    #[inline]
     pub fn inter_z_object_store<F>(&mut self, z_object_store: F) -> Arc<RwLock<ZObjectStore>>
     where
         F: Fn(usize) -> Arc<RwLock<ZObjectStore>>,
@@ -4183,6 +4209,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ZObjectStore`] from the store.
     ///
+    #[inline]
     pub fn exhume_z_object_store(&self, id: &usize) -> Option<Arc<RwLock<ZObjectStore>>> {
         match self.z_object_store.read().unwrap().get(*id) {
             Some(z_object_store) => z_object_store.clone(),
@@ -4192,6 +4219,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
+    #[inline]
     pub fn exorcise_z_object_store(&mut self, id: &usize) -> Option<Arc<RwLock<ZObjectStore>>> {
         log::debug!(target: "store", "exorcising z_object_store slot: {id}.");
         let result = self.z_object_store.write().unwrap()[*id].take();
@@ -4201,6 +4229,7 @@ impl ObjectStore {
 
     /// Exorcise [`ZObjectStore`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<usize> {
         self.z_object_store_id_by_name
             .read()
@@ -4211,6 +4240,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
     ///
+    #[inline]
     pub fn iter_z_object_store(&self) -> impl Iterator<Item = Arc<RwLock<ZObjectStore>>> + '_ {
         let len = self.z_object_store.read().unwrap().len();
         (0..len)
@@ -4225,6 +4255,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ObjectWrapper`] into the store.
     ///
+    #[inline]
     pub fn inter_object_wrapper<F>(&mut self, object_wrapper: F) -> Arc<RwLock<ObjectWrapper>>
     where
         F: Fn(usize) -> Arc<RwLock<ObjectWrapper>>,
@@ -4267,6 +4298,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ObjectWrapper`] from the store.
     ///
+    #[inline]
     pub fn exhume_object_wrapper(&self, id: &usize) -> Option<Arc<RwLock<ObjectWrapper>>> {
         match self.object_wrapper.read().unwrap().get(*id) {
             Some(object_wrapper) => object_wrapper.clone(),
@@ -4276,6 +4308,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ObjectWrapper`] from the store.
     ///
+    #[inline]
     pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Arc<RwLock<ObjectWrapper>>> {
         log::debug!(target: "store", "exorcising object_wrapper slot: {id}.");
         let result = self.object_wrapper.write().unwrap()[*id].take();
@@ -4285,6 +4318,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectWrapper>`.
     ///
+    #[inline]
     pub fn iter_object_wrapper(&self) -> impl Iterator<Item = Arc<RwLock<ObjectWrapper>>> + '_ {
         let len = self.object_wrapper.read().unwrap().len();
         (0..len)
@@ -4299,6 +4333,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Operator`] into the store.
     ///
+    #[inline]
     pub fn inter_operator<F>(&mut self, operator: F) -> Arc<RwLock<Operator>>
     where
         F: Fn(usize) -> Arc<RwLock<Operator>>,
@@ -4340,6 +4375,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Operator`] from the store.
     ///
+    #[inline]
     pub fn exhume_operator(&self, id: &usize) -> Option<Arc<RwLock<Operator>>> {
         match self.operator.read().unwrap().get(*id) {
             Some(operator) => operator.clone(),
@@ -4349,6 +4385,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Operator`] from the store.
     ///
+    #[inline]
     pub fn exorcise_operator(&mut self, id: &usize) -> Option<Arc<RwLock<Operator>>> {
         log::debug!(target: "store", "exorcising operator slot: {id}.");
         let result = self.operator.write().unwrap()[*id].take();
@@ -4358,6 +4395,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
     ///
+    #[inline]
     pub fn iter_operator(&self) -> impl Iterator<Item = Arc<RwLock<Operator>>> + '_ {
         let len = self.operator.read().unwrap().len();
         (0..len)
@@ -4372,6 +4410,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Parameter`] into the store.
     ///
+    #[inline]
     pub fn inter_parameter<F>(&mut self, parameter: F) -> Arc<RwLock<Parameter>>
     where
         F: Fn(usize) -> Arc<RwLock<Parameter>>,
@@ -4413,6 +4452,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Parameter`] from the store.
     ///
+    #[inline]
     pub fn exhume_parameter(&self, id: &usize) -> Option<Arc<RwLock<Parameter>>> {
         match self.parameter.read().unwrap().get(*id) {
             Some(parameter) => parameter.clone(),
@@ -4422,6 +4462,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
+    #[inline]
     pub fn exorcise_parameter(&mut self, id: &usize) -> Option<Arc<RwLock<Parameter>>> {
         log::debug!(target: "store", "exorcising parameter slot: {id}.");
         let result = self.parameter.write().unwrap()[*id].take();
@@ -4431,6 +4472,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
+    #[inline]
     pub fn iter_parameter(&self) -> impl Iterator<Item = Arc<RwLock<Parameter>>> + '_ {
         let len = self.parameter.read().unwrap().len();
         (0..len)
@@ -4445,6 +4487,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XPath`] into the store.
     ///
+    #[inline]
     pub fn inter_x_path<F>(&mut self, x_path: F) -> Arc<RwLock<XPath>>
     where
         F: Fn(usize) -> Arc<RwLock<XPath>>,
@@ -4486,6 +4529,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XPath`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_path(&self, id: &usize) -> Option<Arc<RwLock<XPath>>> {
         match self.x_path.read().unwrap().get(*id) {
             Some(x_path) => x_path.clone(),
@@ -4495,6 +4539,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XPath`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_path(&mut self, id: &usize) -> Option<Arc<RwLock<XPath>>> {
         log::debug!(target: "store", "exorcising x_path slot: {id}.");
         let result = self.x_path.write().unwrap()[*id].take();
@@ -4504,6 +4549,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPath>`.
     ///
+    #[inline]
     pub fn iter_x_path(&self) -> impl Iterator<Item = Arc<RwLock<XPath>>> + '_ {
         let len = self.x_path.read().unwrap().len();
         (0..len)
@@ -4518,6 +4564,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`PathElement`] into the store.
     ///
+    #[inline]
     pub fn inter_path_element<F>(&mut self, path_element: F) -> Arc<RwLock<PathElement>>
     where
         F: Fn(usize) -> Arc<RwLock<PathElement>>,
@@ -4560,6 +4607,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`PathElement`] from the store.
     ///
+    #[inline]
     pub fn exhume_path_element(&self, id: &usize) -> Option<Arc<RwLock<PathElement>>> {
         match self.path_element.read().unwrap().get(*id) {
             Some(path_element) => path_element.clone(),
@@ -4569,6 +4617,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`PathElement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_path_element(&mut self, id: &usize) -> Option<Arc<RwLock<PathElement>>> {
         log::debug!(target: "store", "exorcising path_element slot: {id}.");
         let result = self.path_element.write().unwrap()[*id].take();
@@ -4578,6 +4627,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, PathElement>`.
     ///
+    #[inline]
     pub fn iter_path_element(&self) -> impl Iterator<Item = Arc<RwLock<PathElement>>> + '_ {
         let len = self.path_element.read().unwrap().len();
         (0..len)
@@ -4592,6 +4642,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Pattern`] into the store.
     ///
+    #[inline]
     pub fn inter_pattern<F>(&mut self, pattern: F) -> Arc<RwLock<Pattern>>
     where
         F: Fn(usize) -> Arc<RwLock<Pattern>>,
@@ -4633,6 +4684,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Pattern`] from the store.
     ///
+    #[inline]
     pub fn exhume_pattern(&self, id: &usize) -> Option<Arc<RwLock<Pattern>>> {
         match self.pattern.read().unwrap().get(*id) {
             Some(pattern) => pattern.clone(),
@@ -4642,6 +4694,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Pattern`] from the store.
     ///
+    #[inline]
     pub fn exorcise_pattern(&mut self, id: &usize) -> Option<Arc<RwLock<Pattern>>> {
         log::debug!(target: "store", "exorcising pattern slot: {id}.");
         let result = self.pattern.write().unwrap()[*id].take();
@@ -4651,6 +4704,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Pattern>`.
     ///
+    #[inline]
     pub fn iter_pattern(&self) -> impl Iterator<Item = Arc<RwLock<Pattern>>> + '_ {
         let len = self.pattern.read().unwrap().len();
         (0..len)
@@ -4663,8 +4717,86 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`Plugin`] into the store.
+    ///
+    #[inline]
+    pub fn inter_plugin<F>(&mut self, plugin: F) -> Arc<RwLock<Plugin>>
+    where
+        F: Fn(usize) -> Arc<RwLock<Plugin>>,
+    {
+        let _index = if let Some(_index) = self.plugin_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.plugin.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.plugin.write().unwrap().push(None);
+            _index
+        };
+
+        let plugin = plugin(_index);
+
+        let found = if let Some(plugin) = self.plugin.read().unwrap().iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.read().unwrap() == *plugin.read().unwrap()
+            } else {
+                false
+            }
+        }) {
+            plugin.clone()
+        } else {
+            None
+        };
+
+        if let Some(plugin) = found {
+            log::debug!(target: "store", "found duplicate {plugin:?}.");
+            self.plugin_free_list.lock().unwrap().push(_index);
+            plugin.clone()
+        } else {
+            log::debug!(target: "store", "interring {plugin:?}.");
+            self.plugin.write().unwrap()[_index] = Some(plugin.clone());
+            plugin
+        }
+    }
+
+    /// Exhume (get) [`Plugin`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_plugin(&self, id: &usize) -> Option<Arc<RwLock<Plugin>>> {
+        match self.plugin.read().unwrap().get(*id) {
+            Some(plugin) => plugin.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Plugin`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_plugin(&mut self, id: &usize) -> Option<Arc<RwLock<Plugin>>> {
+        log::debug!(target: "store", "exorcising plugin slot: {id}.");
+        let result = self.plugin.write().unwrap()[*id].take();
+        self.plugin_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Plugin>`.
+    ///
+    #[inline]
+    pub fn iter_plugin(&self) -> impl Iterator<Item = Arc<RwLock<Plugin>>> + '_ {
+        let len = self.plugin.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.plugin.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.plugin.read().unwrap()[i]
+                    .as_ref()
+                    .map(|plugin| plugin.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`XPrint`] into the store.
     ///
+    #[inline]
     pub fn inter_x_print<F>(&mut self, x_print: F) -> Arc<RwLock<XPrint>>
     where
         F: Fn(usize) -> Arc<RwLock<XPrint>>,
@@ -4706,6 +4838,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XPrint`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_print(&self, id: &usize) -> Option<Arc<RwLock<XPrint>>> {
         match self.x_print.read().unwrap().get(*id) {
             Some(x_print) => x_print.clone(),
@@ -4715,6 +4848,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XPrint`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_print(&mut self, id: &usize) -> Option<Arc<RwLock<XPrint>>> {
         log::debug!(target: "store", "exorcising x_print slot: {id}.");
         let result = self.x_print.write().unwrap()[*id].take();
@@ -4724,6 +4858,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPrint>`.
     ///
+    #[inline]
     pub fn iter_x_print(&self) -> impl Iterator<Item = Arc<RwLock<XPrint>>> + '_ {
         let len = self.x_print.read().unwrap().len();
         (0..len)
@@ -4738,6 +4873,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`RangeExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_range_expression<F>(&mut self, range_expression: F) -> Arc<RwLock<RangeExpression>>
     where
         F: Fn(usize) -> Arc<RwLock<RangeExpression>>,
@@ -4780,6 +4916,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`RangeExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_range_expression(&self, id: &usize) -> Option<Arc<RwLock<RangeExpression>>> {
         match self.range_expression.read().unwrap().get(*id) {
             Some(range_expression) => range_expression.clone(),
@@ -4789,6 +4926,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`RangeExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_range_expression(
         &mut self,
         id: &usize,
@@ -4801,6 +4939,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
     ///
+    #[inline]
     pub fn iter_range_expression(&self) -> impl Iterator<Item = Arc<RwLock<RangeExpression>>> + '_ {
         let len = self.range_expression.read().unwrap().len();
         (0..len)
@@ -4813,81 +4952,9 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Reference`] into the store.
-    ///
-    pub fn inter_reference<F>(&mut self, reference: F) -> Arc<RwLock<Reference>>
-    where
-        F: Fn(usize) -> Arc<RwLock<Reference>>,
-    {
-        let _index = if let Some(_index) = self.reference_free_list.lock().unwrap().pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.reference.read().unwrap().len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.reference.write().unwrap().push(None);
-            _index
-        };
-
-        let reference = reference(_index);
-
-        let found = if let Some(reference) = self.reference.read().unwrap().iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.read().unwrap() == *reference.read().unwrap()
-            } else {
-                false
-            }
-        }) {
-            reference.clone()
-        } else {
-            None
-        };
-
-        if let Some(reference) = found {
-            log::debug!(target: "store", "found duplicate {reference:?}.");
-            self.reference_free_list.lock().unwrap().push(_index);
-            reference.clone()
-        } else {
-            log::debug!(target: "store", "interring {reference:?}.");
-            self.reference.write().unwrap()[_index] = Some(reference.clone());
-            reference
-        }
-    }
-
-    /// Exhume (get) [`Reference`] from the store.
-    ///
-    pub fn exhume_reference(&self, id: &usize) -> Option<Arc<RwLock<Reference>>> {
-        match self.reference.read().unwrap().get(*id) {
-            Some(reference) => reference.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`Reference`] from the store.
-    ///
-    pub fn exorcise_reference(&mut self, id: &usize) -> Option<Arc<RwLock<Reference>>> {
-        log::debug!(target: "store", "exorcising reference slot: {id}.");
-        let result = self.reference.write().unwrap()[*id].take();
-        self.reference_free_list.lock().unwrap().push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
-    ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Arc<RwLock<Reference>>> + '_ {
-        let len = self.reference.read().unwrap().len();
-        (0..len)
-            .filter(|i| self.reference.read().unwrap()[*i].is_some())
-            .map(move |i| {
-                self.reference.read().unwrap()[i]
-                    .as_ref()
-                    .map(|reference| reference.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_result_statement<F>(&mut self, result_statement: F) -> Arc<RwLock<ResultStatement>>
     where
         F: Fn(usize) -> Arc<RwLock<ResultStatement>>,
@@ -4930,6 +4997,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ResultStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_result_statement(&self, id: &usize) -> Option<Arc<RwLock<ResultStatement>>> {
         match self.result_statement.read().unwrap().get(*id) {
             Some(result_statement) => result_statement.clone(),
@@ -4939,6 +5007,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ResultStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_result_statement(
         &mut self,
         id: &usize,
@@ -4951,6 +5020,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
     ///
+    #[inline]
     pub fn iter_result_statement(&self) -> impl Iterator<Item = Arc<RwLock<ResultStatement>>> + '_ {
         let len = self.result_statement.read().unwrap().len();
         (0..len)
@@ -4965,6 +5035,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XReturn`] into the store.
     ///
+    #[inline]
     pub fn inter_x_return<F>(&mut self, x_return: F) -> Arc<RwLock<XReturn>>
     where
         F: Fn(usize) -> Arc<RwLock<XReturn>>,
@@ -5006,6 +5077,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XReturn`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_return(&self, id: &usize) -> Option<Arc<RwLock<XReturn>>> {
         match self.x_return.read().unwrap().get(*id) {
             Some(x_return) => x_return.clone(),
@@ -5015,6 +5087,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_return(&mut self, id: &usize) -> Option<Arc<RwLock<XReturn>>> {
         log::debug!(target: "store", "exorcising x_return slot: {id}.");
         let result = self.x_return.write().unwrap()[*id].take();
@@ -5024,6 +5097,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
     ///
+    #[inline]
     pub fn iter_x_return(&self) -> impl Iterator<Item = Arc<RwLock<XReturn>>> + '_ {
         let len = self.x_return.read().unwrap().len();
         (0..len)
@@ -5038,6 +5112,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Span`] into the store.
     ///
+    #[inline]
     pub fn inter_span<F>(&mut self, span: F) -> Arc<RwLock<Span>>
     where
         F: Fn(usize) -> Arc<RwLock<Span>>,
@@ -5079,6 +5154,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Span`] from the store.
     ///
+    #[inline]
     pub fn exhume_span(&self, id: &usize) -> Option<Arc<RwLock<Span>>> {
         match self.span.read().unwrap().get(*id) {
             Some(span) => span.clone(),
@@ -5088,6 +5164,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Span`] from the store.
     ///
+    #[inline]
     pub fn exorcise_span(&mut self, id: &usize) -> Option<Arc<RwLock<Span>>> {
         log::debug!(target: "store", "exorcising span slot: {id}.");
         let result = self.span.write().unwrap()[*id].take();
@@ -5097,6 +5174,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
     ///
+    #[inline]
     pub fn iter_span(&self) -> impl Iterator<Item = Arc<RwLock<Span>>> + '_ {
         let len = self.span.read().unwrap().len();
         (0..len)
@@ -5111,6 +5189,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Statement`] into the store.
     ///
+    #[inline]
     pub fn inter_statement<F>(&mut self, statement: F) -> Arc<RwLock<Statement>>
     where
         F: Fn(usize) -> Arc<RwLock<Statement>>,
@@ -5152,6 +5231,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Statement`] from the store.
     ///
+    #[inline]
     pub fn exhume_statement(&self, id: &usize) -> Option<Arc<RwLock<Statement>>> {
         match self.statement.read().unwrap().get(*id) {
             Some(statement) => statement.clone(),
@@ -5161,6 +5241,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Statement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_statement(&mut self, id: &usize) -> Option<Arc<RwLock<Statement>>> {
         log::debug!(target: "store", "exorcising statement slot: {id}.");
         let result = self.statement.write().unwrap()[*id].take();
@@ -5170,6 +5251,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
+    #[inline]
     pub fn iter_statement(&self) -> impl Iterator<Item = Arc<RwLock<Statement>>> + '_ {
         let len = self.statement.read().unwrap().len();
         (0..len)
@@ -5184,6 +5266,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StaticMethodCall`] into the store.
     ///
+    #[inline]
     pub fn inter_static_method_call<F>(
         &mut self,
         static_method_call: F,
@@ -5236,6 +5319,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StaticMethodCall`] from the store.
     ///
+    #[inline]
     pub fn exhume_static_method_call(&self, id: &usize) -> Option<Arc<RwLock<StaticMethodCall>>> {
         match self.static_method_call.read().unwrap().get(*id) {
             Some(static_method_call) => static_method_call.clone(),
@@ -5245,6 +5329,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StaticMethodCall`] from the store.
     ///
+    #[inline]
     pub fn exorcise_static_method_call(
         &mut self,
         id: &usize,
@@ -5257,6 +5342,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StaticMethodCall>`.
     ///
+    #[inline]
     pub fn iter_static_method_call(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<StaticMethodCall>>> + '_ {
@@ -5273,6 +5359,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_string_literal<F>(&mut self, string_literal: F) -> Arc<RwLock<StringLiteral>>
     where
         F: Fn(usize) -> Arc<RwLock<StringLiteral>>,
@@ -5315,6 +5402,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StringLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_string_literal(&self, id: &usize) -> Option<Arc<RwLock<StringLiteral>>> {
         match self.string_literal.read().unwrap().get(*id) {
             Some(string_literal) => string_literal.clone(),
@@ -5324,6 +5412,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_string_literal(&mut self, id: &usize) -> Option<Arc<RwLock<StringLiteral>>> {
         log::debug!(target: "store", "exorcising string_literal slot: {id}.");
         let result = self.string_literal.write().unwrap()[*id].take();
@@ -5333,6 +5422,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
     ///
+    #[inline]
     pub fn iter_string_literal(&self) -> impl Iterator<Item = Arc<RwLock<StringLiteral>>> + '_ {
         let len = self.string_literal.read().unwrap().len();
         (0..len)
@@ -5347,6 +5437,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogStruct`] into the store.
     ///
+    #[inline]
     pub fn inter_woog_struct<F>(&mut self, woog_struct: F) -> Arc<RwLock<WoogStruct>>
     where
         F: Fn(usize) -> Arc<RwLock<WoogStruct>>,
@@ -5394,6 +5485,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`WoogStruct`] from the store.
     ///
+    #[inline]
     pub fn exhume_woog_struct(&self, id: &usize) -> Option<Arc<RwLock<WoogStruct>>> {
         match self.woog_struct.read().unwrap().get(*id) {
             Some(woog_struct) => woog_struct.clone(),
@@ -5403,6 +5495,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
+    #[inline]
     pub fn exorcise_woog_struct(&mut self, id: &usize) -> Option<Arc<RwLock<WoogStruct>>> {
         log::debug!(target: "store", "exorcising woog_struct slot: {id}.");
         let result = self.woog_struct.write().unwrap()[*id].take();
@@ -5412,6 +5505,7 @@ impl ObjectStore {
 
     /// Exorcise [`WoogStruct`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_woog_struct_id_by_name(&self, name: &str) -> Option<usize> {
         self.woog_struct_id_by_name
             .read()
@@ -5422,6 +5516,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogStruct>`.
     ///
+    #[inline]
     pub fn iter_woog_struct(&self) -> impl Iterator<Item = Arc<RwLock<WoogStruct>>> + '_ {
         let len = self.woog_struct.read().unwrap().len();
         (0..len)
@@ -5436,6 +5531,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_expression<F>(
         &mut self,
         struct_expression: F,
@@ -5488,6 +5584,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_expression(&self, id: &usize) -> Option<Arc<RwLock<StructExpression>>> {
         match self.struct_expression.read().unwrap().get(*id) {
             Some(struct_expression) => struct_expression.clone(),
@@ -5497,6 +5594,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_expression(
         &mut self,
         id: &usize,
@@ -5509,6 +5607,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
     ///
+    #[inline]
     pub fn iter_struct_expression(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<StructExpression>>> + '_ {
@@ -5525,6 +5624,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructField`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_field<F>(&mut self, struct_field: F) -> Arc<RwLock<StructField>>
     where
         F: Fn(usize) -> Arc<RwLock<StructField>>,
@@ -5567,6 +5667,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructField`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_field(&self, id: &usize) -> Option<Arc<RwLock<StructField>>> {
         match self.struct_field.read().unwrap().get(*id) {
             Some(struct_field) => struct_field.clone(),
@@ -5576,6 +5677,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Arc<RwLock<StructField>>> {
         log::debug!(target: "store", "exorcising struct_field slot: {id}.");
         let result = self.struct_field.write().unwrap()[*id].take();
@@ -5585,6 +5687,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructField>`.
     ///
+    #[inline]
     pub fn iter_struct_field(&self) -> impl Iterator<Item = Arc<RwLock<StructField>>> + '_ {
         let len = self.struct_field.read().unwrap().len();
         (0..len)
@@ -5599,6 +5702,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructGeneric`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_generic<F>(&mut self, struct_generic: F) -> Arc<RwLock<StructGeneric>>
     where
         F: Fn(usize) -> Arc<RwLock<StructGeneric>>,
@@ -5641,6 +5745,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructGeneric`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_generic(&self, id: &usize) -> Option<Arc<RwLock<StructGeneric>>> {
         match self.struct_generic.read().unwrap().get(*id) {
             Some(struct_generic) => struct_generic.clone(),
@@ -5650,6 +5755,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructGeneric`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_generic(&mut self, id: &usize) -> Option<Arc<RwLock<StructGeneric>>> {
         log::debug!(target: "store", "exorcising struct_generic slot: {id}.");
         let result = self.struct_generic.write().unwrap()[*id].take();
@@ -5659,6 +5765,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructGeneric>`.
     ///
+    #[inline]
     pub fn iter_struct_generic(&self) -> impl Iterator<Item = Arc<RwLock<StructGeneric>>> + '_ {
         let len = self.struct_generic.read().unwrap().len();
         (0..len)
@@ -5673,6 +5780,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`TupleField`] into the store.
     ///
+    #[inline]
     pub fn inter_tuple_field<F>(&mut self, tuple_field: F) -> Arc<RwLock<TupleField>>
     where
         F: Fn(usize) -> Arc<RwLock<TupleField>>,
@@ -5715,6 +5823,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`TupleField`] from the store.
     ///
+    #[inline]
     pub fn exhume_tuple_field(&self, id: &usize) -> Option<Arc<RwLock<TupleField>>> {
         match self.tuple_field.read().unwrap().get(*id) {
             Some(tuple_field) => tuple_field.clone(),
@@ -5724,6 +5833,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`TupleField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Arc<RwLock<TupleField>>> {
         log::debug!(target: "store", "exorcising tuple_field slot: {id}.");
         let result = self.tuple_field.write().unwrap()[*id].take();
@@ -5733,6 +5843,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, TupleField>`.
     ///
+    #[inline]
     pub fn iter_tuple_field(&self) -> impl Iterator<Item = Arc<RwLock<TupleField>>> + '_ {
         let len = self.tuple_field.read().unwrap().len();
         (0..len)
@@ -5747,6 +5858,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`TypeCast`] into the store.
     ///
+    #[inline]
     pub fn inter_type_cast<F>(&mut self, type_cast: F) -> Arc<RwLock<TypeCast>>
     where
         F: Fn(usize) -> Arc<RwLock<TypeCast>>,
@@ -5788,6 +5900,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`TypeCast`] from the store.
     ///
+    #[inline]
     pub fn exhume_type_cast(&self, id: &usize) -> Option<Arc<RwLock<TypeCast>>> {
         match self.type_cast.read().unwrap().get(*id) {
             Some(type_cast) => type_cast.clone(),
@@ -5797,6 +5910,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
+    #[inline]
     pub fn exorcise_type_cast(&mut self, id: &usize) -> Option<Arc<RwLock<TypeCast>>> {
         log::debug!(target: "store", "exorcising type_cast slot: {id}.");
         let result = self.type_cast.write().unwrap()[*id].take();
@@ -5806,6 +5920,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
     ///
+    #[inline]
     pub fn iter_type_cast(&self) -> impl Iterator<Item = Arc<RwLock<TypeCast>>> + '_ {
         let len = self.type_cast.read().unwrap().len();
         (0..len)
@@ -5820,6 +5935,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Unary`] into the store.
     ///
+    #[inline]
     pub fn inter_unary<F>(&mut self, unary: F) -> Arc<RwLock<Unary>>
     where
         F: Fn(usize) -> Arc<RwLock<Unary>>,
@@ -5861,6 +5977,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Unary`] from the store.
     ///
+    #[inline]
     pub fn exhume_unary(&self, id: &usize) -> Option<Arc<RwLock<Unary>>> {
         match self.unary.read().unwrap().get(*id) {
             Some(unary) => unary.clone(),
@@ -5870,6 +5987,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Unary`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unary(&mut self, id: &usize) -> Option<Arc<RwLock<Unary>>> {
         log::debug!(target: "store", "exorcising unary slot: {id}.");
         let result = self.unary.write().unwrap()[*id].take();
@@ -5879,6 +5997,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
     ///
+    #[inline]
     pub fn iter_unary(&self) -> impl Iterator<Item = Arc<RwLock<Unary>>> + '_ {
         let len = self.unary.read().unwrap().len();
         (0..len)
@@ -5893,6 +6012,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Unit`] into the store.
     ///
+    #[inline]
     pub fn inter_unit<F>(&mut self, unit: F) -> Arc<RwLock<Unit>>
     where
         F: Fn(usize) -> Arc<RwLock<Unit>>,
@@ -5934,6 +6054,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Unit`] from the store.
     ///
+    #[inline]
     pub fn exhume_unit(&self, id: &usize) -> Option<Arc<RwLock<Unit>>> {
         match self.unit.read().unwrap().get(*id) {
             Some(unit) => unit.clone(),
@@ -5943,6 +6064,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Unit`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unit(&mut self, id: &usize) -> Option<Arc<RwLock<Unit>>> {
         log::debug!(target: "store", "exorcising unit slot: {id}.");
         let result = self.unit.write().unwrap()[*id].take();
@@ -5952,6 +6074,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unit>`.
     ///
+    #[inline]
     pub fn iter_unit(&self) -> impl Iterator<Item = Arc<RwLock<Unit>>> + '_ {
         let len = self.unit.read().unwrap().len();
         (0..len)
@@ -5966,6 +6089,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`UnnamedFieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_unnamed_field_expression<F>(
         &mut self,
         unnamed_field_expression: F,
@@ -6024,6 +6148,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`UnnamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_unnamed_field_expression(
         &self,
         id: &usize,
@@ -6036,6 +6161,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`UnnamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unnamed_field_expression(
         &mut self,
         id: &usize,
@@ -6051,6 +6177,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, UnnamedFieldExpression>`.
     ///
+    #[inline]
     pub fn iter_unnamed_field_expression(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<UnnamedFieldExpression>>> + '_ {
@@ -6067,6 +6194,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XValue`] into the store.
     ///
+    #[inline]
     pub fn inter_x_value<F>(&mut self, x_value: F) -> Arc<RwLock<XValue>>
     where
         F: Fn(usize) -> Arc<RwLock<XValue>>,
@@ -6108,6 +6236,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XValue`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_value(&self, id: &usize) -> Option<Arc<RwLock<XValue>>> {
         match self.x_value.read().unwrap().get(*id) {
             Some(x_value) => x_value.clone(),
@@ -6117,6 +6246,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XValue`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_value(&mut self, id: &usize) -> Option<Arc<RwLock<XValue>>> {
         log::debug!(target: "store", "exorcising x_value slot: {id}.");
         let result = self.x_value.write().unwrap()[*id].take();
@@ -6126,6 +6256,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
+    #[inline]
     pub fn iter_x_value(&self) -> impl Iterator<Item = Arc<RwLock<XValue>>> + '_ {
         let len = self.x_value.read().unwrap().len();
         (0..len)
@@ -6140,6 +6271,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ValueType`] into the store.
     ///
+    #[inline]
     pub fn inter_value_type<F>(&mut self, value_type: F) -> Arc<RwLock<ValueType>>
     where
         F: Fn(usize) -> Arc<RwLock<ValueType>>,
@@ -6182,6 +6314,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ValueType`] from the store.
     ///
+    #[inline]
     pub fn exhume_value_type(&self, id: &usize) -> Option<Arc<RwLock<ValueType>>> {
         match self.value_type.read().unwrap().get(*id) {
             Some(value_type) => value_type.clone(),
@@ -6191,6 +6324,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
+    #[inline]
     pub fn exorcise_value_type(&mut self, id: &usize) -> Option<Arc<RwLock<ValueType>>> {
         log::debug!(target: "store", "exorcising value_type slot: {id}.");
         let result = self.value_type.write().unwrap()[*id].take();
@@ -6200,6 +6334,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
     ///
+    #[inline]
     pub fn iter_value_type(&self) -> impl Iterator<Item = Arc<RwLock<ValueType>>> + '_ {
         let len = self.value_type.read().unwrap().len();
         (0..len)
@@ -6214,6 +6349,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Variable`] into the store.
     ///
+    #[inline]
     pub fn inter_variable<F>(&mut self, variable: F) -> Arc<RwLock<Variable>>
     where
         F: Fn(usize) -> Arc<RwLock<Variable>>,
@@ -6255,6 +6391,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Variable`] from the store.
     ///
+    #[inline]
     pub fn exhume_variable(&self, id: &usize) -> Option<Arc<RwLock<Variable>>> {
         match self.variable.read().unwrap().get(*id) {
             Some(variable) => variable.clone(),
@@ -6264,6 +6401,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Variable`] from the store.
     ///
+    #[inline]
     pub fn exorcise_variable(&mut self, id: &usize) -> Option<Arc<RwLock<Variable>>> {
         log::debug!(target: "store", "exorcising variable slot: {id}.");
         let result = self.variable.write().unwrap()[*id].take();
@@ -6273,6 +6411,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
     ///
+    #[inline]
     pub fn iter_variable(&self) -> impl Iterator<Item = Arc<RwLock<Variable>>> + '_ {
         let len = self.variable.read().unwrap().len();
         (0..len)
@@ -6287,6 +6426,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`VariableExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_variable_expression<F>(
         &mut self,
         variable_expression: F,
@@ -6340,6 +6480,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`VariableExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_variable_expression(
         &self,
         id: &usize,
@@ -6352,6 +6493,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`VariableExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_variable_expression(
         &mut self,
         id: &usize,
@@ -6364,6 +6506,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
     ///
+    #[inline]
     pub fn iter_variable_expression(
         &self,
     ) -> impl Iterator<Item = Arc<RwLock<VariableExpression>>> + '_ {

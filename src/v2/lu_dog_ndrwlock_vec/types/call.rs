@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::argument::Argument;
@@ -129,7 +128,6 @@ impl Call {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r81_argument");
         match self.argument {
             Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
             None => Vec::new(),
@@ -142,7 +140,6 @@ impl Call {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r29_expression");
         match self.expression {
             Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
@@ -155,7 +152,6 @@ impl Call {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r28_argument");
         store
             .iter_argument()
             .filter(|argument| argument.read().unwrap().function == self.id)
@@ -168,7 +164,6 @@ impl Call {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

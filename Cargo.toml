@@ -32,9 +32,8 @@ nut = { git = "https://github.com/uberFoo/nut" }
 parking_lot = { version = "0.12.1", features = [
     "serde",
     "hardware-lock-elision",
-    "deadlock_detection",
+    # "deadlock_detection",
 ] }
-pretty_env_logger = "0.4.0"
 rustc-hash = "1.1.0"
 serde = { version = "1.0.152", features = ["derive"] }
 snafu = "0.7.4"
@@ -50,6 +49,7 @@ crate-type = ["lib", "staticlib"]
 
 [dev-dependencies]
 env_logger = "0.10.0"
+pretty_env_logger = "0.5.0"
 
 [features]
 default = ["lu-dog-vec"]

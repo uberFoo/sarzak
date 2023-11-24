@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::enumeration::Enumeration;
@@ -57,7 +56,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r8_woog_struct");
         match self.model_type {
             Some(ref model_type) => vec![store.exhume_woog_struct(&model_type).unwrap()],
             None => Vec::new(),
@@ -70,7 +68,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ZObjectStore>>> {
-        span!("r83_z_object_store");
         match self.object_store {
             Some(ref object_store) => vec![store.exhume_z_object_store(&object_store).unwrap()],
             None => Vec::new(),
@@ -83,7 +80,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Enumeration>>> {
-        span!("r84_enumeration");
         let enumeration = store
             .iter_enumeration()
             .find(|enumeration| enumeration.read().unwrap().implementation == Some(self.id));
@@ -96,7 +92,6 @@ impl ImplementationBlock {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-1_Mc-to-function"}}}
     /// Navigate to [`Function`] across R9(1-Mc)
     pub fn r9_function<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Function>>> {
-        span!("r9_function");
         store
             .iter_function()
             .filter(|function| function.read().unwrap().impl_block == Some(self.id))
@@ -108,7 +103,6 @@ impl ImplementationBlock {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {

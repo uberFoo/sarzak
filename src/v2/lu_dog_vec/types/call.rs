@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::argument::Argument;
@@ -126,7 +125,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R81(1-*c)
     pub fn r81_argument<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Argument>>> {
-        span!("r81_argument");
         match self.argument {
             Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
             None => Vec::new(),
@@ -136,7 +134,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
     /// Navigate to [`Expression`] across R29(1-*c)
     pub fn r29_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r29_expression");
         match self.expression {
             Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
@@ -146,7 +143,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R28(1-M)
     pub fn r28_argument<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Argument>>> {
-        span!("r28_argument");
         store
             .iter_argument()
             .filter(|argument| argument.borrow().function == self.id)
@@ -156,7 +152,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

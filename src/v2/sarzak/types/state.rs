@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::acknowledged_event::AcknowledgedEvent;
@@ -49,7 +48,6 @@ impl State {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R18(1-*)
     pub fn r18_object<'a>(&'a self, store: &'a SarzakStore) -> Vec<Arc<RwLock<Object>>> {
-        span!("r18_object");
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -60,7 +58,6 @@ impl State {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<Arc<RwLock<AcknowledgedEvent>>> {
-        span!("r20_acknowledged_event");
         store
             .iter_acknowledged_event()
             .filter(|acknowledged_event| acknowledged_event.read().unwrap().state_id == self.id)

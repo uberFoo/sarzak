@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_wrapper-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::z_object_store::ZObjectStore;
@@ -52,7 +51,6 @@ impl ObjectWrapper {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r78_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -62,7 +60,6 @@ impl ObjectWrapper {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ZObjectStore>>> {
-        span!("r78_z_object_store");
         vec![store.exhume_z_object_store(&self.z_store).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

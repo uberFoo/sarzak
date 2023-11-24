@@ -8,6 +8,7 @@
 //! # Contents:
 //!
 //! * [`Argument`]
+//! * [`AWait`]
 //! * [`Binary`]
 //! * [`Block`]
 //! * [`Body`]
@@ -15,11 +16,10 @@
 //! * [`BooleanOperator`]
 //! * [`Call`]
 //! * [`Comparison`]
+//! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`XError`]
-//! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
@@ -30,6 +30,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
@@ -49,19 +50,18 @@
 //! * [`XMacro`]
 //! * [`XMatch`]
 //! * [`MethodCall`]
+//! * [`NamedFieldExpression`]
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
-//! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`XPath`]
+//! * [`PathElement`]
 //! * [`Pattern`]
-//! * [`Plain`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
-//! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
-//! * [`ZSome`]
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -69,9 +69,12 @@
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
 //! * [`StructField`]
+//! * [`StructGeneric`]
 //! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
+//! * [`Unit`]
+//! * [`UnnamedFieldExpression`]
 //! * [`XValue`]
 //! * [`ValueType`]
 //! * [`Variable`]
@@ -91,23 +94,25 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression, ExpressionStatement,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
+    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
     ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
     ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
     Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Pattern, Plain, RangeExpression,
-    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
-    StructField, TupleField, TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XError, XIf, XMacro, XMatch, XPrint, XReturn, XValue, ZObjectStore, ZSome,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, GREATER_THAN,
+    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR,
+    DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
     GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
-    OR, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    OR, PLUGIN, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     argument: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Argument>>>>>,
+    a_wait: Rc<RefCell<HashMap<Uuid, Rc<RefCell<AWait>>>>>,
     binary: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Binary>>>>>,
     block: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Block>>>>>,
     body: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Body>>>>>,
@@ -115,11 +120,10 @@ pub struct ObjectStore {
     boolean_operator: Rc<RefCell<HashMap<Uuid, Rc<RefCell<BooleanOperator>>>>>,
     call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Call>>>>>,
     comparison: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Comparison>>>>>,
+    data_structure: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DataStructure>>>>>,
     dwarf_source_file: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DwarfSourceFile>>>>>,
     enum_field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<EnumField>>>>>,
     enumeration: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Enumeration>>>>>,
-    x_error: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XError>>>>>,
-    error_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ErrorExpression>>>>>,
     expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Expression>>>>>,
     expression_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExpressionStatement>>>>>,
     external_implementation: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExternalImplementation>>>>>,
@@ -132,6 +136,7 @@ pub struct ObjectStore {
     for_loop: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ForLoop>>>>>,
     function: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Function>>>>>,
     function_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
+    x_future: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XFuture>>>>>,
     generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Generic>>>>>,
     grouped: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Grouped>>>>>,
     x_if: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XIf>>>>>,
@@ -151,19 +156,18 @@ pub struct ObjectStore {
     x_macro: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XMacro>>>>>,
     x_match: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XMatch>>>>>,
     method_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<MethodCall>>>>>,
+    named_field_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<NamedFieldExpression>>>>>,
     z_object_store: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ZObjectStore>>>>>,
     object_wrapper: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ObjectWrapper>>>>>,
     operator: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Operator>>>>>,
-    woog_option: Rc<RefCell<HashMap<Uuid, Rc<RefCell<WoogOption>>>>>,
     parameter: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Parameter>>>>>,
+    x_path: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPath>>>>>,
+    path_element: Rc<RefCell<HashMap<Uuid, Rc<RefCell<PathElement>>>>>,
     pattern: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Pattern>>>>>,
-    plain: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Plain>>>>>,
     x_print: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPrint>>>>>,
     range_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<RangeExpression>>>>>,
-    reference: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Reference>>>>>,
     result_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ResultStatement>>>>>,
     x_return: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XReturn>>>>>,
-    z_some: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ZSome>>>>>,
     span: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Span>>>>>,
     statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Statement>>>>>,
     static_method_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StaticMethodCall>>>>>,
@@ -172,9 +176,12 @@ pub struct ObjectStore {
     woog_struct_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     struct_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StructExpression>>>>>,
     struct_field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StructField>>>>>,
+    struct_generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StructGeneric>>>>>,
     tuple_field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<TupleField>>>>>,
     type_cast: Rc<RefCell<HashMap<Uuid, Rc<RefCell<TypeCast>>>>>,
     unary: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Unary>>>>>,
+    unit: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Unit>>>>>,
+    unnamed_field_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<UnnamedFieldExpression>>>>>,
     x_value: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XValue>>>>>,
     value_type: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ValueType>>>>>,
     variable: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Variable>>>>>,
@@ -185,6 +192,7 @@ impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
             argument: Rc::new(RefCell::new(HashMap::default())),
+            a_wait: Rc::new(RefCell::new(HashMap::default())),
             binary: Rc::new(RefCell::new(HashMap::default())),
             block: Rc::new(RefCell::new(HashMap::default())),
             body: Rc::new(RefCell::new(HashMap::default())),
@@ -192,11 +200,10 @@ impl ObjectStore {
             boolean_operator: Rc::new(RefCell::new(HashMap::default())),
             call: Rc::new(RefCell::new(HashMap::default())),
             comparison: Rc::new(RefCell::new(HashMap::default())),
+            data_structure: Rc::new(RefCell::new(HashMap::default())),
             dwarf_source_file: Rc::new(RefCell::new(HashMap::default())),
             enum_field: Rc::new(RefCell::new(HashMap::default())),
             enumeration: Rc::new(RefCell::new(HashMap::default())),
-            x_error: Rc::new(RefCell::new(HashMap::default())),
-            error_expression: Rc::new(RefCell::new(HashMap::default())),
             expression: Rc::new(RefCell::new(HashMap::default())),
             expression_statement: Rc::new(RefCell::new(HashMap::default())),
             external_implementation: Rc::new(RefCell::new(HashMap::default())),
@@ -209,6 +216,7 @@ impl ObjectStore {
             for_loop: Rc::new(RefCell::new(HashMap::default())),
             function: Rc::new(RefCell::new(HashMap::default())),
             function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
+            x_future: Rc::new(RefCell::new(HashMap::default())),
             generic: Rc::new(RefCell::new(HashMap::default())),
             grouped: Rc::new(RefCell::new(HashMap::default())),
             x_if: Rc::new(RefCell::new(HashMap::default())),
@@ -228,19 +236,18 @@ impl ObjectStore {
             x_macro: Rc::new(RefCell::new(HashMap::default())),
             x_match: Rc::new(RefCell::new(HashMap::default())),
             method_call: Rc::new(RefCell::new(HashMap::default())),
+            named_field_expression: Rc::new(RefCell::new(HashMap::default())),
             z_object_store: Rc::new(RefCell::new(HashMap::default())),
             object_wrapper: Rc::new(RefCell::new(HashMap::default())),
             operator: Rc::new(RefCell::new(HashMap::default())),
-            woog_option: Rc::new(RefCell::new(HashMap::default())),
             parameter: Rc::new(RefCell::new(HashMap::default())),
+            x_path: Rc::new(RefCell::new(HashMap::default())),
+            path_element: Rc::new(RefCell::new(HashMap::default())),
             pattern: Rc::new(RefCell::new(HashMap::default())),
-            plain: Rc::new(RefCell::new(HashMap::default())),
             x_print: Rc::new(RefCell::new(HashMap::default())),
             range_expression: Rc::new(RefCell::new(HashMap::default())),
-            reference: Rc::new(RefCell::new(HashMap::default())),
             result_statement: Rc::new(RefCell::new(HashMap::default())),
             x_return: Rc::new(RefCell::new(HashMap::default())),
-            z_some: Rc::new(RefCell::new(HashMap::default())),
             span: Rc::new(RefCell::new(HashMap::default())),
             statement: Rc::new(RefCell::new(HashMap::default())),
             static_method_call: Rc::new(RefCell::new(HashMap::default())),
@@ -249,9 +256,12 @@ impl ObjectStore {
             woog_struct_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             struct_expression: Rc::new(RefCell::new(HashMap::default())),
             struct_field: Rc::new(RefCell::new(HashMap::default())),
+            struct_generic: Rc::new(RefCell::new(HashMap::default())),
             tuple_field: Rc::new(RefCell::new(HashMap::default())),
             type_cast: Rc::new(RefCell::new(HashMap::default())),
             unary: Rc::new(RefCell::new(HashMap::default())),
+            unit: Rc::new(RefCell::new(HashMap::default())),
+            unnamed_field_expression: Rc::new(RefCell::new(HashMap::default())),
             x_value: Rc::new(RefCell::new(HashMap::default())),
             value_type: Rc::new(RefCell::new(HashMap::default())),
             variable: Rc::new(RefCell::new(HashMap::default())),
@@ -293,17 +303,16 @@ impl ObjectStore {
             LESS_THAN_OR_EQUAL,
         ))));
         store.inter_comparison(Rc::new(RefCell::new(Comparison::NotEqual(NOT_EQUAL))));
-        store.inter_x_error(Rc::new(RefCell::new(XError::UnknownVariable(
-            UNKNOWN_VARIABLE,
-        ))));
         store.inter_expression(Rc::new(RefCell::new(Expression::Debugger(DEBUGGER))));
+        store.inter_expression(Rc::new(RefCell::new(Expression::EmptyExpression(
+            EMPTY_EXPRESSION,
+        ))));
         store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
         ))));
         store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Rc::new(RefCell::new(Expression::ZNone(Z_NONE))));
         store.inter_literal(Rc::new(RefCell::new(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ))));
@@ -314,10 +323,9 @@ impl ObjectStore {
         store.inter_unary(Rc::new(RefCell::new(Unary::Not(NOT))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Char(CHAR))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::XError(
-            XError::UnknownVariable(UNKNOWN_VARIABLE).id(),
-        ))));
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Plugin(PLUGIN))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Range(RANGE))));
+        store.inter_value_type(Rc::new(RefCell::new(ValueType::Task(TASK))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Unknown(UNKNOWN))));
 
         store
@@ -357,6 +365,41 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|argument| argument.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`AWait`] into the store.
+    ///
+    pub fn inter_a_wait(&mut self, a_wait: Rc<RefCell<AWait>>) {
+        let read = a_wait.borrow();
+        self.a_wait.borrow_mut().insert(read.id, a_wait.clone());
+    }
+
+    /// Exhume (get) [`AWait`] from the store.
+    ///
+    pub fn exhume_a_wait(&self, id: &Uuid) -> Option<Rc<RefCell<AWait>>> {
+        self.a_wait.borrow().get(id).map(|a_wait| a_wait.clone())
+    }
+
+    /// Exorcise (remove) [`AWait`] from the store.
+    ///
+    pub fn exorcise_a_wait(&mut self, id: &Uuid) -> Option<Rc<RefCell<AWait>>> {
+        self.a_wait
+            .borrow_mut()
+            .remove(id)
+            .map(|a_wait| a_wait.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, AWait>`.
+    ///
+    pub fn iter_a_wait(&self) -> impl Iterator<Item = Rc<RefCell<AWait>>> + '_ {
+        let values: Vec<Rc<RefCell<AWait>>> = self
+            .a_wait
+            .borrow()
+            .values()
+            .map(|a_wait| a_wait.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -436,7 +479,7 @@ impl ObjectStore {
     ///
     pub fn inter_body(&mut self, body: Rc<RefCell<Body>>) {
         let read = body.borrow();
-        self.body.borrow_mut().insert(read.id(), body.clone());
+        self.body.borrow_mut().insert(read.id, body.clone());
     }
 
     /// Exhume (get) [`Body`] from the store.
@@ -616,6 +659,46 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`DataStructure`] into the store.
+    ///
+    pub fn inter_data_structure(&mut self, data_structure: Rc<RefCell<DataStructure>>) {
+        let read = data_structure.borrow();
+        self.data_structure
+            .borrow_mut()
+            .insert(read.id(), data_structure.clone());
+    }
+
+    /// Exhume (get) [`DataStructure`] from the store.
+    ///
+    pub fn exhume_data_structure(&self, id: &Uuid) -> Option<Rc<RefCell<DataStructure>>> {
+        self.data_structure
+            .borrow()
+            .get(id)
+            .map(|data_structure| data_structure.clone())
+    }
+
+    /// Exorcise (remove) [`DataStructure`] from the store.
+    ///
+    pub fn exorcise_data_structure(&mut self, id: &Uuid) -> Option<Rc<RefCell<DataStructure>>> {
+        self.data_structure
+            .borrow_mut()
+            .remove(id)
+            .map(|data_structure| data_structure.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, DataStructure>`.
+    ///
+    pub fn iter_data_structure(&self) -> impl Iterator<Item = Rc<RefCell<DataStructure>>> + '_ {
+        let values: Vec<Rc<RefCell<DataStructure>>> = self
+            .data_structure
+            .borrow()
+            .values()
+            .map(|data_structure| data_structure.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
     pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Rc<RefCell<DwarfSourceFile>>) {
@@ -736,81 +819,6 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|enumeration| enumeration.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`XError`] into the store.
-    ///
-    pub fn inter_x_error(&mut self, x_error: Rc<RefCell<XError>>) {
-        let read = x_error.borrow();
-        self.x_error.borrow_mut().insert(read.id(), x_error.clone());
-    }
-
-    /// Exhume (get) [`XError`] from the store.
-    ///
-    pub fn exhume_x_error(&self, id: &Uuid) -> Option<Rc<RefCell<XError>>> {
-        self.x_error.borrow().get(id).map(|x_error| x_error.clone())
-    }
-
-    /// Exorcise (remove) [`XError`] from the store.
-    ///
-    pub fn exorcise_x_error(&mut self, id: &Uuid) -> Option<Rc<RefCell<XError>>> {
-        self.x_error
-            .borrow_mut()
-            .remove(id)
-            .map(|x_error| x_error.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
-    ///
-    pub fn iter_x_error(&self) -> impl Iterator<Item = Rc<RefCell<XError>>> + '_ {
-        let values: Vec<Rc<RefCell<XError>>> = self
-            .x_error
-            .borrow()
-            .values()
-            .map(|x_error| x_error.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`ErrorExpression`] into the store.
-    ///
-    pub fn inter_error_expression(&mut self, error_expression: Rc<RefCell<ErrorExpression>>) {
-        let read = error_expression.borrow();
-        self.error_expression
-            .borrow_mut()
-            .insert(read.id, error_expression.clone());
-    }
-
-    /// Exhume (get) [`ErrorExpression`] from the store.
-    ///
-    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Rc<RefCell<ErrorExpression>>> {
-        self.error_expression
-            .borrow()
-            .get(id)
-            .map(|error_expression| error_expression.clone())
-    }
-
-    /// Exorcise (remove) [`ErrorExpression`] from the store.
-    ///
-    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Rc<RefCell<ErrorExpression>>> {
-        self.error_expression
-            .borrow_mut()
-            .remove(id)
-            .map(|error_expression| error_expression.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
-    ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Rc<RefCell<ErrorExpression>>> + '_ {
-        let values: Vec<Rc<RefCell<ErrorExpression>>> = self
-            .error_expression
-            .borrow()
-            .values()
-            .map(|error_expression| error_expression.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -1253,6 +1261,44 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|function| function.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`XFuture`] into the store.
+    ///
+    pub fn inter_x_future(&mut self, x_future: Rc<RefCell<XFuture>>) {
+        let read = x_future.borrow();
+        self.x_future.borrow_mut().insert(read.id, x_future.clone());
+    }
+
+    /// Exhume (get) [`XFuture`] from the store.
+    ///
+    pub fn exhume_x_future(&self, id: &Uuid) -> Option<Rc<RefCell<XFuture>>> {
+        self.x_future
+            .borrow()
+            .get(id)
+            .map(|x_future| x_future.clone())
+    }
+
+    /// Exorcise (remove) [`XFuture`] from the store.
+    ///
+    pub fn exorcise_x_future(&mut self, id: &Uuid) -> Option<Rc<RefCell<XFuture>>> {
+        self.x_future
+            .borrow_mut()
+            .remove(id)
+            .map(|x_future| x_future.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XFuture>`.
+    ///
+    pub fn iter_x_future(&self) -> impl Iterator<Item = Rc<RefCell<XFuture>>> + '_ {
+        let values: Vec<Rc<RefCell<XFuture>>> = self
+            .x_future
+            .borrow()
+            .values()
+            .map(|x_future| x_future.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -1965,6 +2011,57 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`NamedFieldExpression`] into the store.
+    ///
+    pub fn inter_named_field_expression(
+        &mut self,
+        named_field_expression: Rc<RefCell<NamedFieldExpression>>,
+    ) {
+        let read = named_field_expression.borrow();
+        self.named_field_expression
+            .borrow_mut()
+            .insert(read.id, named_field_expression.clone());
+    }
+
+    /// Exhume (get) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_named_field_expression(
+        &self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<NamedFieldExpression>>> {
+        self.named_field_expression
+            .borrow()
+            .get(id)
+            .map(|named_field_expression| named_field_expression.clone())
+    }
+
+    /// Exorcise (remove) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_named_field_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<NamedFieldExpression>>> {
+        self.named_field_expression
+            .borrow_mut()
+            .remove(id)
+            .map(|named_field_expression| named_field_expression.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, NamedFieldExpression>`.
+    ///
+    pub fn iter_named_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<NamedFieldExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<NamedFieldExpression>>> = self
+            .named_field_expression
+            .borrow()
+            .values()
+            .map(|named_field_expression| named_field_expression.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Rc<RefCell<ZObjectStore>>) {
@@ -2083,46 +2180,6 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter (insert) [`WoogOption`] into the store.
-    ///
-    pub fn inter_woog_option(&mut self, woog_option: Rc<RefCell<WoogOption>>) {
-        let read = woog_option.borrow();
-        self.woog_option
-            .borrow_mut()
-            .insert(read.id, woog_option.clone());
-    }
-
-    /// Exhume (get) [`WoogOption`] from the store.
-    ///
-    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Rc<RefCell<WoogOption>>> {
-        self.woog_option
-            .borrow()
-            .get(id)
-            .map(|woog_option| woog_option.clone())
-    }
-
-    /// Exorcise (remove) [`WoogOption`] from the store.
-    ///
-    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Rc<RefCell<WoogOption>>> {
-        self.woog_option
-            .borrow_mut()
-            .remove(id)
-            .map(|woog_option| woog_option.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
-    ///
-    pub fn iter_woog_option(&self) -> impl Iterator<Item = Rc<RefCell<WoogOption>>> + '_ {
-        let values: Vec<Rc<RefCell<WoogOption>>> = self
-            .woog_option
-            .borrow()
-            .values()
-            .map(|woog_option| woog_option.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
     /// Inter (insert) [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Rc<RefCell<Parameter>>) {
@@ -2163,6 +2220,81 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`XPath`] into the store.
+    ///
+    pub fn inter_x_path(&mut self, x_path: Rc<RefCell<XPath>>) {
+        let read = x_path.borrow();
+        self.x_path.borrow_mut().insert(read.id, x_path.clone());
+    }
+
+    /// Exhume (get) [`XPath`] from the store.
+    ///
+    pub fn exhume_x_path(&self, id: &Uuid) -> Option<Rc<RefCell<XPath>>> {
+        self.x_path.borrow().get(id).map(|x_path| x_path.clone())
+    }
+
+    /// Exorcise (remove) [`XPath`] from the store.
+    ///
+    pub fn exorcise_x_path(&mut self, id: &Uuid) -> Option<Rc<RefCell<XPath>>> {
+        self.x_path
+            .borrow_mut()
+            .remove(id)
+            .map(|x_path| x_path.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XPath>`.
+    ///
+    pub fn iter_x_path(&self) -> impl Iterator<Item = Rc<RefCell<XPath>>> + '_ {
+        let values: Vec<Rc<RefCell<XPath>>> = self
+            .x_path
+            .borrow()
+            .values()
+            .map(|x_path| x_path.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`PathElement`] into the store.
+    ///
+    pub fn inter_path_element(&mut self, path_element: Rc<RefCell<PathElement>>) {
+        let read = path_element.borrow();
+        self.path_element
+            .borrow_mut()
+            .insert(read.id, path_element.clone());
+    }
+
+    /// Exhume (get) [`PathElement`] from the store.
+    ///
+    pub fn exhume_path_element(&self, id: &Uuid) -> Option<Rc<RefCell<PathElement>>> {
+        self.path_element
+            .borrow()
+            .get(id)
+            .map(|path_element| path_element.clone())
+    }
+
+    /// Exorcise (remove) [`PathElement`] from the store.
+    ///
+    pub fn exorcise_path_element(&mut self, id: &Uuid) -> Option<Rc<RefCell<PathElement>>> {
+        self.path_element
+            .borrow_mut()
+            .remove(id)
+            .map(|path_element| path_element.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, PathElement>`.
+    ///
+    pub fn iter_path_element(&self) -> impl Iterator<Item = Rc<RefCell<PathElement>>> + '_ {
+        let values: Vec<Rc<RefCell<PathElement>>> = self
+            .path_element
+            .borrow()
+            .values()
+            .map(|path_element| path_element.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`Pattern`] into the store.
     ///
     pub fn inter_pattern(&mut self, pattern: Rc<RefCell<Pattern>>) {
@@ -2193,41 +2325,6 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|pattern| pattern.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`Plain`] into the store.
-    ///
-    pub fn inter_plain(&mut self, plain: Rc<RefCell<Plain>>) {
-        let read = plain.borrow();
-        self.plain.borrow_mut().insert(read.id, plain.clone());
-    }
-
-    /// Exhume (get) [`Plain`] from the store.
-    ///
-    pub fn exhume_plain(&self, id: &Uuid) -> Option<Rc<RefCell<Plain>>> {
-        self.plain.borrow().get(id).map(|plain| plain.clone())
-    }
-
-    /// Exorcise (remove) [`Plain`] from the store.
-    ///
-    pub fn exorcise_plain(&mut self, id: &Uuid) -> Option<Rc<RefCell<Plain>>> {
-        self.plain
-            .borrow_mut()
-            .remove(id)
-            .map(|plain| plain.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Plain>`.
-    ///
-    pub fn iter_plain(&self) -> impl Iterator<Item = Rc<RefCell<Plain>>> + '_ {
-        let values: Vec<Rc<RefCell<Plain>>> = self
-            .plain
-            .borrow()
-            .values()
-            .map(|plain| plain.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2308,46 +2405,6 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter (insert) [`Reference`] into the store.
-    ///
-    pub fn inter_reference(&mut self, reference: Rc<RefCell<Reference>>) {
-        let read = reference.borrow();
-        self.reference
-            .borrow_mut()
-            .insert(read.id, reference.clone());
-    }
-
-    /// Exhume (get) [`Reference`] from the store.
-    ///
-    pub fn exhume_reference(&self, id: &Uuid) -> Option<Rc<RefCell<Reference>>> {
-        self.reference
-            .borrow()
-            .get(id)
-            .map(|reference| reference.clone())
-    }
-
-    /// Exorcise (remove) [`Reference`] from the store.
-    ///
-    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Rc<RefCell<Reference>>> {
-        self.reference
-            .borrow_mut()
-            .remove(id)
-            .map(|reference| reference.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
-    ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Rc<RefCell<Reference>>> + '_ {
-        let values: Vec<Rc<RefCell<Reference>>> = self
-            .reference
-            .borrow()
-            .values()
-            .map(|reference| reference.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
     pub fn inter_result_statement(&mut self, result_statement: Rc<RefCell<ResultStatement>>) {
@@ -2421,41 +2478,6 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|x_return| x_return.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`ZSome`] into the store.
-    ///
-    pub fn inter_z_some(&mut self, z_some: Rc<RefCell<ZSome>>) {
-        let read = z_some.borrow();
-        self.z_some.borrow_mut().insert(read.id, z_some.clone());
-    }
-
-    /// Exhume (get) [`ZSome`] from the store.
-    ///
-    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Rc<RefCell<ZSome>>> {
-        self.z_some.borrow().get(id).map(|z_some| z_some.clone())
-    }
-
-    /// Exorcise (remove) [`ZSome`] from the store.
-    ///
-    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Rc<RefCell<ZSome>>> {
-        self.z_some
-            .borrow_mut()
-            .remove(id)
-            .map(|z_some| z_some.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
-    ///
-    pub fn iter_z_some(&self) -> impl Iterator<Item = Rc<RefCell<ZSome>>> + '_ {
-        let values: Vec<Rc<RefCell<ZSome>>> = self
-            .z_some
-            .borrow()
-            .values()
-            .map(|z_some| z_some.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2755,6 +2777,46 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`StructGeneric`] into the store.
+    ///
+    pub fn inter_struct_generic(&mut self, struct_generic: Rc<RefCell<StructGeneric>>) {
+        let read = struct_generic.borrow();
+        self.struct_generic
+            .borrow_mut()
+            .insert(read.id, struct_generic.clone());
+    }
+
+    /// Exhume (get) [`StructGeneric`] from the store.
+    ///
+    pub fn exhume_struct_generic(&self, id: &Uuid) -> Option<Rc<RefCell<StructGeneric>>> {
+        self.struct_generic
+            .borrow()
+            .get(id)
+            .map(|struct_generic| struct_generic.clone())
+    }
+
+    /// Exorcise (remove) [`StructGeneric`] from the store.
+    ///
+    pub fn exorcise_struct_generic(&mut self, id: &Uuid) -> Option<Rc<RefCell<StructGeneric>>> {
+        self.struct_generic
+            .borrow_mut()
+            .remove(id)
+            .map(|struct_generic| struct_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StructGeneric>`.
+    ///
+    pub fn iter_struct_generic(&self) -> impl Iterator<Item = Rc<RefCell<StructGeneric>>> + '_ {
+        let values: Vec<Rc<RefCell<StructGeneric>>> = self
+            .struct_generic
+            .borrow()
+            .values()
+            .map(|struct_generic| struct_generic.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`TupleField`] into the store.
     ///
     pub fn inter_tuple_field(&mut self, tuple_field: Rc<RefCell<TupleField>>) {
@@ -2865,6 +2927,89 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|unary| unary.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`Unit`] into the store.
+    ///
+    pub fn inter_unit(&mut self, unit: Rc<RefCell<Unit>>) {
+        let read = unit.borrow();
+        self.unit.borrow_mut().insert(read.id, unit.clone());
+    }
+
+    /// Exhume (get) [`Unit`] from the store.
+    ///
+    pub fn exhume_unit(&self, id: &Uuid) -> Option<Rc<RefCell<Unit>>> {
+        self.unit.borrow().get(id).map(|unit| unit.clone())
+    }
+
+    /// Exorcise (remove) [`Unit`] from the store.
+    ///
+    pub fn exorcise_unit(&mut self, id: &Uuid) -> Option<Rc<RefCell<Unit>>> {
+        self.unit.borrow_mut().remove(id).map(|unit| unit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Unit>`.
+    ///
+    pub fn iter_unit(&self) -> impl Iterator<Item = Rc<RefCell<Unit>>> + '_ {
+        let values: Vec<Rc<RefCell<Unit>>> = self
+            .unit
+            .borrow()
+            .values()
+            .map(|unit| unit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`UnnamedFieldExpression`] into the store.
+    ///
+    pub fn inter_unnamed_field_expression(
+        &mut self,
+        unnamed_field_expression: Rc<RefCell<UnnamedFieldExpression>>,
+    ) {
+        let read = unnamed_field_expression.borrow();
+        self.unnamed_field_expression
+            .borrow_mut()
+            .insert(read.id, unnamed_field_expression.clone());
+    }
+
+    /// Exhume (get) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_unnamed_field_expression(
+        &self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<UnnamedFieldExpression>>> {
+        self.unnamed_field_expression
+            .borrow()
+            .get(id)
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
+    }
+
+    /// Exorcise (remove) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_unnamed_field_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Rc<RefCell<UnnamedFieldExpression>>> {
+        self.unnamed_field_expression
+            .borrow_mut()
+            .remove(id)
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, UnnamedFieldExpression>`.
+    ///
+    pub fn iter_unnamed_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Rc<RefCell<UnnamedFieldExpression>>> + '_ {
+        let values: Vec<Rc<RefCell<UnnamedFieldExpression>>> = self
+            .unnamed_field_expression
+            .borrow()
+            .values()
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3069,6 +3214,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Await.
+        {
+            let path = path.join("a_wait");
+            fs::create_dir_all(&path)?;
+            for a_wait in self.a_wait.borrow().values() {
+                let path = path.join(format!("{}.json", a_wait.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &a_wait)?;
+            }
+        }
+
         // Persist Binary.
         {
             let path = path.join("binary");
@@ -3098,7 +3255,7 @@ impl ObjectStore {
             let path = path.join("body");
             fs::create_dir_all(&path)?;
             for body in self.body.borrow().values() {
-                let path = path.join(format!("{}.json", body.borrow().id()));
+                let path = path.join(format!("{}.json", body.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &body)?;
@@ -3153,6 +3310,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Data Structure.
+        {
+            let path = path.join("data_structure");
+            fs::create_dir_all(&path)?;
+            for data_structure in self.data_structure.borrow().values() {
+                let path = path.join(format!("{}.json", data_structure.borrow().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &data_structure)?;
+            }
+        }
+
         // Persist Dwarf Source File.
         {
             let path = path.join("dwarf_source_file");
@@ -3186,30 +3355,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &enumeration)?;
-            }
-        }
-
-        // Persist Error.
-        {
-            let path = path.join("x_error");
-            fs::create_dir_all(&path)?;
-            for x_error in self.x_error.borrow().values() {
-                let path = path.join(format!("{}.json", x_error.borrow().id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &x_error)?;
-            }
-        }
-
-        // Persist Error Expression.
-        {
-            let path = path.join("error_expression");
-            fs::create_dir_all(&path)?;
-            for error_expression in self.error_expression.borrow().values() {
-                let path = path.join(format!("{}.json", error_expression.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &error_expression)?;
             }
         }
 
@@ -3330,6 +3475,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &function)?;
+            }
+        }
+
+        // Persist Future.
+        {
+            let path = path.join("x_future");
+            fs::create_dir_all(&path)?;
+            for x_future in self.x_future.borrow().values() {
+                let path = path.join(format!("{}.json", x_future.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_future)?;
             }
         }
 
@@ -3561,6 +3718,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            fs::create_dir_all(&path)?;
+            for named_field_expression in self.named_field_expression.borrow().values() {
+                let path = path.join(format!("{}.json", named_field_expression.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &named_field_expression)?;
+            }
+        }
+
         // Persist Object Store.
         {
             let path = path.join("z_object_store");
@@ -3597,18 +3766,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Option.
-        {
-            let path = path.join("woog_option");
-            fs::create_dir_all(&path)?;
-            for woog_option in self.woog_option.borrow().values() {
-                let path = path.join(format!("{}.json", woog_option.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &woog_option)?;
-            }
-        }
-
         // Persist Parameter.
         {
             let path = path.join("parameter");
@@ -3621,6 +3778,30 @@ impl ObjectStore {
             }
         }
 
+        // Persist Path.
+        {
+            let path = path.join("x_path");
+            fs::create_dir_all(&path)?;
+            for x_path in self.x_path.borrow().values() {
+                let path = path.join(format!("{}.json", x_path.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_path)?;
+            }
+        }
+
+        // Persist Path Element.
+        {
+            let path = path.join("path_element");
+            fs::create_dir_all(&path)?;
+            for path_element in self.path_element.borrow().values() {
+                let path = path.join(format!("{}.json", path_element.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &path_element)?;
+            }
+        }
+
         // Persist Pattern.
         {
             let path = path.join("pattern");
@@ -3630,18 +3811,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &pattern)?;
-            }
-        }
-
-        // Persist Plain.
-        {
-            let path = path.join("plain");
-            fs::create_dir_all(&path)?;
-            for plain in self.plain.borrow().values() {
-                let path = path.join(format!("{}.json", plain.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &plain)?;
             }
         }
 
@@ -3669,18 +3838,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Reference.
-        {
-            let path = path.join("reference");
-            fs::create_dir_all(&path)?;
-            for reference in self.reference.borrow().values() {
-                let path = path.join(format!("{}.json", reference.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &reference)?;
-            }
-        }
-
         // Persist Result Statement.
         {
             let path = path.join("result_statement");
@@ -3702,18 +3859,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &x_return)?;
-            }
-        }
-
-        // Persist Some.
-        {
-            let path = path.join("z_some");
-            fs::create_dir_all(&path)?;
-            for z_some in self.z_some.borrow().values() {
-                let path = path.join(format!("{}.json", z_some.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &z_some)?;
             }
         }
 
@@ -3801,6 +3946,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            fs::create_dir_all(&path)?;
+            for struct_generic in self.struct_generic.borrow().values() {
+                let path = path.join(format!("{}.json", struct_generic.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &struct_generic)?;
+            }
+        }
+
         // Persist Tuple Field.
         {
             let path = path.join("tuple_field");
@@ -3834,6 +3991,30 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &unary)?;
+            }
+        }
+
+        // Persist Unit.
+        {
+            let path = path.join("unit");
+            fs::create_dir_all(&path)?;
+            for unit in self.unit.borrow().values() {
+                let path = path.join(format!("{}.json", unit.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &unit)?;
+            }
+        }
+
+        // Persist Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            fs::create_dir_all(&path)?;
+            for unnamed_field_expression in self.unnamed_field_expression.borrow().values() {
+                let path = path.join(format!("{}.json", unnamed_field_expression.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &unnamed_field_expression)?;
             }
         }
 
@@ -3929,6 +4110,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Await.
+        {
+            let path = path.join("a_wait");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let a_wait: Rc<RefCell<AWait>> = serde_json::from_reader(reader)?;
+                store
+                    .a_wait
+                    .borrow_mut()
+                    .insert(a_wait.borrow().id, a_wait.clone());
+            }
+        }
+
         // Load Binary.
         {
             let path = path.join("binary");
@@ -3976,7 +4174,7 @@ impl ObjectStore {
                 store
                     .body
                     .borrow_mut()
-                    .insert(body.borrow().id(), body.clone());
+                    .insert(body.borrow().id, body.clone());
             }
         }
 
@@ -4049,6 +4247,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Data Structure.
+        {
+            let path = path.join("data_structure");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let data_structure: Rc<RefCell<DataStructure>> = serde_json::from_reader(reader)?;
+                store
+                    .data_structure
+                    .borrow_mut()
+                    .insert(data_structure.borrow().id(), data_structure.clone());
+            }
+        }
+
         // Load Dwarf Source File.
         {
             let path = path.join("dwarf_source_file");
@@ -4098,41 +4313,6 @@ impl ObjectStore {
                     .enumeration
                     .borrow_mut()
                     .insert(enumeration.borrow().id, enumeration.clone());
-            }
-        }
-
-        // Load Error.
-        {
-            let path = path.join("x_error");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let x_error: Rc<RefCell<XError>> = serde_json::from_reader(reader)?;
-                store
-                    .x_error
-                    .borrow_mut()
-                    .insert(x_error.borrow().id(), x_error.clone());
-            }
-        }
-
-        // Load Error Expression.
-        {
-            let path = path.join("error_expression");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let error_expression: Rc<RefCell<ErrorExpression>> =
-                    serde_json::from_reader(reader)?;
-                store
-                    .error_expression
-                    .borrow_mut()
-                    .insert(error_expression.borrow().id, error_expression.clone());
             }
         }
 
@@ -4315,6 +4495,23 @@ impl ObjectStore {
                     .function
                     .borrow_mut()
                     .insert(function.borrow().id, function.clone());
+            }
+        }
+
+        // Load Future.
+        {
+            let path = path.join("x_future");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_future: Rc<RefCell<XFuture>> = serde_json::from_reader(reader)?;
+                store
+                    .x_future
+                    .borrow_mut()
+                    .insert(x_future.borrow().id, x_future.clone());
             }
         }
 
@@ -4643,6 +4840,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let named_field_expression: Rc<RefCell<NamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.named_field_expression.borrow_mut().insert(
+                    named_field_expression.borrow().id,
+                    named_field_expression.clone(),
+                );
+            }
+        }
+
         // Load Object Store.
         {
             let path = path.join("z_object_store");
@@ -4694,23 +4909,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Option.
-        {
-            let path = path.join("woog_option");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let woog_option: Rc<RefCell<WoogOption>> = serde_json::from_reader(reader)?;
-                store
-                    .woog_option
-                    .borrow_mut()
-                    .insert(woog_option.borrow().id, woog_option.clone());
-            }
-        }
-
         // Load Parameter.
         {
             let path = path.join("parameter");
@@ -4728,6 +4926,40 @@ impl ObjectStore {
             }
         }
 
+        // Load Path.
+        {
+            let path = path.join("x_path");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_path: Rc<RefCell<XPath>> = serde_json::from_reader(reader)?;
+                store
+                    .x_path
+                    .borrow_mut()
+                    .insert(x_path.borrow().id, x_path.clone());
+            }
+        }
+
+        // Load Path Element.
+        {
+            let path = path.join("path_element");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let path_element: Rc<RefCell<PathElement>> = serde_json::from_reader(reader)?;
+                store
+                    .path_element
+                    .borrow_mut()
+                    .insert(path_element.borrow().id, path_element.clone());
+            }
+        }
+
         // Load Pattern.
         {
             let path = path.join("pattern");
@@ -4742,23 +4974,6 @@ impl ObjectStore {
                     .pattern
                     .borrow_mut()
                     .insert(pattern.borrow().id, pattern.clone());
-            }
-        }
-
-        // Load Plain.
-        {
-            let path = path.join("plain");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let plain: Rc<RefCell<Plain>> = serde_json::from_reader(reader)?;
-                store
-                    .plain
-                    .borrow_mut()
-                    .insert(plain.borrow().id, plain.clone());
             }
         }
 
@@ -4797,23 +5012,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Reference.
-        {
-            let path = path.join("reference");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let reference: Rc<RefCell<Reference>> = serde_json::from_reader(reader)?;
-                store
-                    .reference
-                    .borrow_mut()
-                    .insert(reference.borrow().id, reference.clone());
-            }
-        }
-
         // Load Result Statement.
         {
             let path = path.join("result_statement");
@@ -4846,23 +5044,6 @@ impl ObjectStore {
                     .x_return
                     .borrow_mut()
                     .insert(x_return.borrow().id, x_return.clone());
-            }
-        }
-
-        // Load Some.
-        {
-            let path = path.join("z_some");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let z_some: Rc<RefCell<ZSome>> = serde_json::from_reader(reader)?;
-                store
-                    .z_some
-                    .borrow_mut()
-                    .insert(z_some.borrow().id, z_some.clone());
             }
         }
 
@@ -4991,6 +5172,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let struct_generic: Rc<RefCell<StructGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .struct_generic
+                    .borrow_mut()
+                    .insert(struct_generic.borrow().id, struct_generic.clone());
+            }
+        }
+
         // Load Tuple Field.
         {
             let path = path.join("tuple_field");
@@ -5039,6 +5237,41 @@ impl ObjectStore {
                     .unary
                     .borrow_mut()
                     .insert(unary.borrow().id(), unary.clone());
+            }
+        }
+
+        // Load Unit.
+        {
+            let path = path.join("unit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unit: Rc<RefCell<Unit>> = serde_json::from_reader(reader)?;
+                store
+                    .unit
+                    .borrow_mut()
+                    .insert(unit.borrow().id, unit.clone());
+            }
+        }
+
+        // Load Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unnamed_field_expression: Rc<RefCell<UnnamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.unnamed_field_expression.borrow_mut().insert(
+                    unnamed_field_expression.borrow().id,
+                    unnamed_field_expression.clone(),
+                );
             }
         }
 

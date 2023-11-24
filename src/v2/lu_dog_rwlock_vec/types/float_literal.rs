@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::literal::Literal;
@@ -36,7 +35,6 @@ impl FloatLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"float_literal-impl-nav-subtype-to-supertype-literal"}}}
     // Navigate to [`Literal`] across R22(isa)
     pub fn r22_literal<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Literal>>> {
-        span!("r22_literal");
         vec![store
             .iter_literal()
             .find(|literal| {

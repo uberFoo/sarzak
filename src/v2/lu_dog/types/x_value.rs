@@ -10,7 +10,6 @@ use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::span::Span;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::variable::Variable;
-use crate::v2::lu_dog::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -54,7 +53,7 @@ impl XValue {
         let new = Rc::new(RefCell::new(XValue {
             block: block.borrow().id,
             ty: ty.borrow().id(),
-            subtype: XValueEnum::Expression(subtype.borrow().id()),
+            subtype: XValueEnum::Expression(subtype.borrow().id()), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -73,7 +72,7 @@ impl XValue {
         let new = Rc::new(RefCell::new(XValue {
             block: block.borrow().id,
             ty: ty.borrow().id(),
-            subtype: XValueEnum::Variable(subtype.borrow().id),
+            subtype: XValueEnum::Variable(subtype.borrow().id), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -92,16 +91,8 @@ impl XValue {
     pub fn r24_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
         span!("r24_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
-    /// Navigate to [`ZSome`] across R23(1-M)
-    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ZSome>>> {
-        span!("r23_z_some");
-        store
-            .iter_z_some()
-            .filter(|z_some| z_some.borrow().inner == self.id)
-            .collect()
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_Mc-to-span"}}}

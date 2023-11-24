@@ -12,15 +12,15 @@ use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock::types::list::List;
 use crate::v2::lu_dog_rwlock::types::parameter::Parameter;
+use crate::v2::lu_dog_rwlock::types::plugin::PLUGIN;
 use crate::v2::lu_dog_rwlock::types::range::RANGE;
-use crate::v2::lu_dog_rwlock::types::reference::Reference;
 use crate::v2::lu_dog_rwlock::types::span::Span;
+use crate::v2::lu_dog_rwlock::types::task::TASK;
 use crate::v2::lu_dog_rwlock::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock::types::unknown::UNKNOWN;
-use crate::v2::lu_dog_rwlock::types::woog_option::WoogOption;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
-use crate::v2::lu_dog_rwlock::types::x_error::XError;
+use crate::v2::lu_dog_rwlock::types::x_future::XFuture;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -57,17 +57,17 @@ pub enum ValueType {
     Char(Uuid),
     Empty(Uuid),
     Enumeration(Uuid),
-    XError(Uuid),
     Function(Uuid),
+    XFuture(Uuid),
     Generic(Uuid),
     Import(Uuid),
     Lambda(Uuid),
     List(Uuid),
     ZObjectStore(Uuid),
-    WoogOption(Uuid),
+    Plugin(Uuid),
     Range(Uuid),
-    Reference(Uuid),
     WoogStruct(Uuid),
+    Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
 }
@@ -102,21 +102,6 @@ impl ValueType {
         }
     } // wtf?
 
-    /// Create a new instance of ValueType::XError
-    pub fn new_x_error(
-        x_error: &Arc<RwLock<XError>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = x_error.read().unwrap().id();
-        if let Some(x_error) = store.exhume_value_type(&id) {
-            x_error
-        } else {
-            let new = Arc::new(RwLock::new(Self::XError(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
     /// Create a new instance of ValueType::Function
     pub fn new_function(
         function: &Arc<RwLock<Function>>,
@@ -127,6 +112,21 @@ impl ValueType {
             function
         } else {
             let new = Arc::new(RwLock::new(Self::Function(id)));
+            store.inter_value_type(new.clone());
+            new
+        }
+    } // wtf?
+
+    /// Create a new instance of ValueType::XFuture
+    pub fn new_x_future(
+        x_future: &Arc<RwLock<XFuture>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Self>> {
+        let id = x_future.read().unwrap().id;
+        if let Some(x_future) = store.exhume_value_type(&id) {
+            x_future
+        } else {
+            let new = Arc::new(RwLock::new(Self::XFuture(id)));
             store.inter_value_type(new.clone());
             new
         }
@@ -204,41 +204,17 @@ impl ValueType {
         }
     } // wtf?
 
-    /// Create a new instance of ValueType::WoogOption
-    pub fn new_woog_option(
-        woog_option: &Arc<RwLock<WoogOption>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = woog_option.read().unwrap().id;
-        if let Some(woog_option) = store.exhume_value_type(&id) {
-            woog_option
-        } else {
-            let new = Arc::new(RwLock::new(Self::WoogOption(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
+    /// Create a new instance of ValueType::Plugin
+    pub fn new_plugin(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&PLUGIN).unwrap()
+    }
 
     /// Create a new instance of ValueType::Range
     pub fn new_range(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
         // This is already in the store.
         store.exhume_value_type(&RANGE).unwrap()
     }
-
-    /// Create a new instance of ValueType::Reference
-    pub fn new_reference(
-        reference: &Arc<RwLock<Reference>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = reference.read().unwrap().id;
-        if let Some(reference) = store.exhume_value_type(&id) {
-            reference
-        } else {
-            let new = Arc::new(RwLock::new(Self::Reference(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
 
     /// Create a new instance of ValueType::WoogStruct
     pub fn new_woog_struct(
@@ -254,6 +230,12 @@ impl ValueType {
             new
         }
     } // wtf?
+
+    /// Create a new instance of ValueType::Task
+    pub fn new_task(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
+        // This is already in the store.
+        store.exhume_value_type(&TASK).unwrap()
+    }
 
     /// Create a new instance of ValueType::Ty
     pub fn new_ty(ty: &Arc<RwLock<Ty>>, store: &mut LuDogRwlockStore) -> Arc<RwLock<Self>> {
@@ -280,17 +262,17 @@ impl ValueType {
             Self::Char(id) => *id,
             Self::Empty(id) => *id,
             Self::Enumeration(id) => *id,
-            Self::XError(id) => *id,
             Self::Function(id) => *id,
+            Self::XFuture(id) => *id,
             Self::Generic(id) => *id,
             Self::Import(id) => *id,
             Self::Lambda(id) => *id,
             Self::List(id) => *id,
             Self::ZObjectStore(id) => *id,
-            Self::WoogOption(id) => *id,
+            Self::Plugin(id) => *id,
             Self::Range(id) => *id,
-            Self::Reference(id) => *id,
             Self::WoogStruct(id) => *id,
+            Self::Task(id) => *id,
             Self::Ty(id) => *id,
             Self::Unknown(id) => *id,
         }
@@ -313,6 +295,26 @@ impl ValueType {
         store
             .iter_function()
             .filter(|function| function.read().unwrap().return_type == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
+    /// Navigate to [`XFuture`] across R2(1-M)
+    pub fn r2_x_future<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XFuture>>> {
+        span!("r2_x_future");
+        store
+            .iter_x_future()
+            .filter(|x_future| x_future.read().unwrap().x_value == self.id())
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
+    /// Navigate to [`Generic`] across R99(1-Mc)
+    pub fn r99_generic<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Generic>>> {
+        span!("r99_generic");
+        store
+            .iter_generic()
+            .filter(|generic| generic.read().unwrap().ty == Some(self.id()))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -350,17 +352,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
-    /// Navigate to [`WoogOption`] across R2(1-M)
-    pub fn r2_woog_option<'a>(
-        &'a self,
-        store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<WoogOption>>> {
-        span!("r2_woog_option");
-        store
-            .iter_woog_option()
-            .filter(|woog_option| woog_option.read().unwrap().ty == self.id())
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R79(1-M)
@@ -369,16 +360,8 @@ impl ValueType {
         store
             .iter_parameter()
             .filter(|parameter| parameter.read().unwrap().ty == self.id())
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
-    /// Navigate to [`Reference`] across R35(1-M)
-    pub fn r35_reference<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Reference>>> {
-        span!("r35_reference");
-        store
-            .iter_reference()
-            .filter(|reference| reference.read().unwrap().ty == self.id())
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

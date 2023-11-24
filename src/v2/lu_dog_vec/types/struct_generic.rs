@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_generic-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::woog_struct::WoogStruct;
@@ -52,7 +51,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<StructGeneric>>> {
-        span!("r101_struct_generic");
         match self.next {
             Some(ref next) => vec![store.exhume_struct_generic(&next).unwrap()],
             None => Vec::new(),
@@ -65,7 +63,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<WoogStruct>>> {
-        span!("r100_woog_struct");
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -75,7 +72,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<WoogStruct>>> {
-        span!("r102_woog_struct");
         vec![store
             .iter_woog_struct()
             .find(|woog_struct| woog_struct.borrow().first_generic == Some(self.id))
@@ -88,7 +84,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<StructGeneric>>> {
-        span!("r101_struct_generic");
         let struct_generic = store
             .iter_struct_generic()
             .find(|struct_generic| struct_generic.borrow().next == Some(self.id));

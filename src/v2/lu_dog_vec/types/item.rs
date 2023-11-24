@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::dwarf_source_file::DwarfSourceFile;
@@ -142,7 +141,6 @@ impl Item {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<DwarfSourceFile>>> {
-        span!("r25_dwarf_source_file");
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

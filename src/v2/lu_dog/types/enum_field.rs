@@ -6,11 +6,10 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::enumeration::Enumeration;
-use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
-use crate::v2::lu_dog::types::plain::Plain;
 use crate::v2::lu_dog::types::struct_field::StructField;
 use crate::v2::lu_dog::types::tuple_field::TupleField;
+use crate::v2::lu_dog::types::unit::Unit;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -35,32 +34,14 @@ pub struct EnumField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum EnumFieldEnum {
-    Plain(Uuid),
     StructField(Uuid),
     TupleField(Uuid),
+    Unit(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-implementation"}}}
 impl EnumField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_plain"}}}
-    /// Inter a new EnumField in the store, and return it's `id`.
-    pub fn new_plain(
-        name: String,
-        woog_enum: &Rc<RefCell<Enumeration>>,
-        subtype: &Rc<RefCell<Plain>>,
-        store: &mut LuDogStore,
-    ) -> Rc<RefCell<EnumField>> {
-        let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(EnumField {
-            name: name,
-            woog_enum: woog_enum.borrow().id,
-            subtype: EnumFieldEnum::Plain(subtype.borrow().id),
-            id,
-        }));
-        store.inter_enum_field(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub fn new_struct_field(
@@ -73,13 +54,14 @@ impl EnumField {
         let new = Rc::new(RefCell::new(EnumField {
             name: name,
             woog_enum: woog_enum.borrow().id,
-            subtype: EnumFieldEnum::StructField(subtype.borrow().id),
+            subtype: EnumFieldEnum::StructField(subtype.borrow().id), // b
             id,
         }));
         store.inter_enum_field(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub fn new_tuple_field(
@@ -92,7 +74,27 @@ impl EnumField {
         let new = Rc::new(RefCell::new(EnumField {
             name: name,
             woog_enum: woog_enum.borrow().id,
-            subtype: EnumFieldEnum::TupleField(subtype.borrow().id),
+            subtype: EnumFieldEnum::TupleField(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_enum_field(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_unit"}}}
+    /// Inter a new EnumField in the store, and return it's `id`.
+    pub fn new_unit(
+        name: String,
+        woog_enum: &Rc<RefCell<Enumeration>>,
+        subtype: &Rc<RefCell<Unit>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<EnumField>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(EnumField {
+            name: name,
+            woog_enum: woog_enum.borrow().id,
+            subtype: EnumFieldEnum::Unit(subtype.borrow().id), // b
             id,
         }));
         store.inter_enum_field(new.clone());
@@ -104,13 +106,8 @@ impl EnumField {
     pub fn r88_enumeration<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Enumeration>>> {
         span!("r88_enumeration");
         vec![store.exhume_enumeration(&self.woog_enum).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
-    // Navigate to [`Expression`] across R15(isa)
-    pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-field_access_target"}}}

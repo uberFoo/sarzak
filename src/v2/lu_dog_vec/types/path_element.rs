@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::x_path::XPath;
@@ -52,7 +51,6 @@ impl PathElement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r89_path_element");
         match self.next {
             Some(ref next) => vec![store.exhume_path_element(&next).unwrap()],
             None => Vec::new(),
@@ -63,7 +61,6 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-forward-to-x_path"}}}
     /// Navigate to [`XPath`] across R90(1-*)
     pub fn r90_x_path<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XPath>>> {
-        span!("r90_x_path");
         vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -71,7 +68,6 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-backward-one-to-x_path"}}}
     /// Navigate to [`XPath`] across R97(1-1)
     pub fn r97_x_path<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XPath>>> {
-        span!("r97_x_path");
         vec![store
             .iter_x_path()
             .find(|x_path| x_path.borrow().first == Some(self.id))
@@ -84,7 +80,6 @@ impl PathElement {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r89_path_element");
         let path_element = store
             .iter_path_element()
             .find(|path_element| path_element.borrow().next == Some(self.id));

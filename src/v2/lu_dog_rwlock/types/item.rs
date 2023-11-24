@@ -49,7 +49,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::Enumeration(subtype.read().unwrap().id),
+            subtype: ItemEnum::Enumeration(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -66,7 +66,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::Function(subtype.read().unwrap().id),
+            subtype: ItemEnum::Function(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -84,7 +84,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::ImplementationBlock(subtype.read().unwrap().id),
+            subtype: ItemEnum::ImplementationBlock(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -101,7 +101,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::Import(subtype.read().unwrap().id),
+            subtype: ItemEnum::Import(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -118,7 +118,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::XMacro(subtype.read().unwrap().id),
+            subtype: ItemEnum::XMacro(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -135,7 +135,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Item {
             source: source.read().unwrap().id,
-            subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id),
+            subtype: ItemEnum::WoogStruct(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_item(new.clone());

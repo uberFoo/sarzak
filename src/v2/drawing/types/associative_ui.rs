@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
@@ -66,7 +65,6 @@ impl AssociativeUi {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Associative>>> {
-        span!("r20_associative");
         vec![store.exhume_associative(&self.associative_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -85,14 +83,12 @@ impl AssociativeUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-from"}}}
     /// Navigate to [`Point`] across R17(1-*)
     pub fn r17_point<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Point>>> {
-        span!("r17_point");
         vec![store.exhume_point(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-middle"}}}
     /// Navigate to [`Anchor`] across R16(1-*)
     pub fn r16_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r16_anchor");
         vec![store.exhume_anchor(&self.middle).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -100,7 +96,6 @@ impl AssociativeUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-one"}}}
     /// Navigate to [`Anchor`] across R14(1-*)
     pub fn r14_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r14_anchor");
         vec![store.exhume_anchor(&self.one).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -108,7 +103,6 @@ impl AssociativeUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_ui-struct-impl-nav-forward-to-other"}}}
     /// Navigate to [`Anchor`] across R15(1-*)
     pub fn r15_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r15_anchor");
         vec![store.exhume_anchor(&self.other).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -118,7 +112,6 @@ impl AssociativeUi {
         &'a self,
         store: &'a DrawingStore,
     ) -> Vec<Arc<RwLock<RelationshipUi>>> {
-        span!("r6_relationship_ui");
         vec![store.exhume_relationship_ui(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

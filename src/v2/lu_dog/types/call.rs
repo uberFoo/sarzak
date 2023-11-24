@@ -98,7 +98,7 @@ impl Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
-            subtype: CallEnum::MethodCall(subtype.borrow().id),
+            subtype: CallEnum::MethodCall(subtype.borrow().id), // b
             id,
         }));
         store.inter_call(new.clone());
@@ -119,7 +119,7 @@ impl Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
-            subtype: CallEnum::StaticMethodCall(subtype.borrow().id),
+            subtype: CallEnum::StaticMethodCall(subtype.borrow().id), // b
             id,
         }));
         store.inter_call(new.clone());

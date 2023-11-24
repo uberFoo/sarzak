@@ -10,7 +10,6 @@ use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::span::Span;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use crate::v2::lu_dog_rwlock::types::variable::Variable;
-use crate::v2::lu_dog_rwlock::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -54,7 +53,7 @@ impl XValue {
         let new = Arc::new(RwLock::new(XValue {
             block: block.read().unwrap().id,
             ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Expression(subtype.read().unwrap().id()),
+            subtype: XValueEnum::Expression(subtype.read().unwrap().id()), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -73,7 +72,7 @@ impl XValue {
         let new = Arc::new(RwLock::new(XValue {
             block: block.read().unwrap().id,
             ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Variable(subtype.read().unwrap().id),
+            subtype: XValueEnum::Variable(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -95,16 +94,8 @@ impl XValue {
     ) -> Vec<Arc<RwLock<ValueType>>> {
         span!("r24_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
-    /// Navigate to [`ZSome`] across R23(1-M)
-    pub fn r23_z_some<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ZSome>>> {
-        span!("r23_z_some");
-        store
-            .iter_z_some()
-            .filter(|z_some| z_some.read().unwrap().inner == self.id)
-            .collect()
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_Mc-to-span"}}}

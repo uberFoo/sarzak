@@ -1,11 +1,17 @@
+#
+# Lu Dog
+#
 [modules."v2/lu_dog"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog".compiler.target]
 optimization_level = "None"
 is_meta_model = true
@@ -15,14 +21,20 @@ persist_timestamps = false
 uber_store = "Single"
 target = "domain"
 
+#
+# Lu Dog Vec
+#
 [modules."v2/lu_dog_vec"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_vec".compiler.target]
 optimization_level = "Vec"
 is_meta_model = true
@@ -32,14 +44,20 @@ persist_timestamps = false
 uber_store = "Single"
 target = "domain"
 
+#
+# Lu Dog RwLock Vec
+#
 [modules."v2/lu_dog_rwlock_vec"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_rwlock_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_rwlock_vec".compiler.target]
 optimization_level = "Vec"
 is_meta_model = true
@@ -49,14 +67,20 @@ persist_timestamps = false
 uber_store = "StdRwLock"
 target = "domain"
 
+#
+# Lu Dog No Deadlocks RwLock Vec
+#
 [modules."v2/lu_dog_ndrwlock_vec"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_ndrwlock_vec".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_ndrwlock_vec".compiler.target]
 optimization_level = "Vec"
 is_meta_model = true
@@ -66,14 +90,20 @@ persist_timestamps = false
 uber_store = "NDRwLock"
 target = "domain"
 
+#
+# Lu Dog Async
+#
 [modules."v2/lu_dog_async"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_async".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_async".compiler.target]
 optimization_level = "Vec"
 is_meta_model = true
@@ -83,14 +113,20 @@ persist_timestamps = false
 uber_store = "AsyncRwLock"
 target = "domain"
 
+#
+# Lu Dog WTF?
+#
 [modules."v2/lu_dog_vanilla"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_vanilla".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_vanilla".compiler.target]
 optimization_level = "None"
 is_meta_model = true
@@ -100,14 +136,20 @@ persist_timestamps = false
 uber_store = "Disabled"
 target = "domain"
 
+#
+# Lu Dog RwLock
+#
 [modules."v2/lu_dog_rwlock"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_rwlock".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_rwlock".compiler.target]
 optimization_level = "None"
 is_meta_model = true
@@ -117,14 +159,20 @@ persist_timestamps = false
 uber_store = "StdRwLock"
 target = "domain"
 
+#
+# Lu Dog Parking Lot Mutex
+#
 [modules."v2/lu_dog_pl_mutex"]
 model = "models/lu_dog.json"
+
 [[modules."v2/lu_dog_pl_mutex".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/lu_dog_pl_mutex".compiler.target]
 optimization_level = "None"
 is_meta_model = true
@@ -134,14 +182,20 @@ persist_timestamps = false
 uber_store = "ParkingLotMutex"
 target = "domain"
 
+#
+# Drawing
+#
 [modules."v2/drawing"]
 model = "models/drawing.json"
+
 [[modules."v2/drawing".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/drawing".compiler.target]
 optimization_level = "None"
 from_module = "v1::drawing"
@@ -153,14 +207,20 @@ persist_timestamps = true
 uber_store = "StdRwLock"
 target = "domain"
 
+#
+# Merlin
+#
 [modules."v2/merlin"]
 model = "models/merlin.json"
+
 [[modules."v2/merlin".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/merlin".compiler.target]
 optimization_level = "None"
 is_meta_model = true
@@ -170,13 +230,19 @@ persist_timestamps = false
 uber_store = "StdRwLock"
 target = "domain"
 
+#
+# Sarzak
+#
 [modules."v2/sarzak"]
 model = "models/sarzak.json"
+
 [[modules."v2/sarzak".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/sarzak".compiler.target]
 optimization_level = "None"
 from_module = "v1::sarzak"
@@ -188,14 +254,20 @@ persist_timestamps = true
 uber_store = "StdRwLock"
 target = "domain"
 
+#
+# Woog
+#
 [modules."v2/woog"]
 model = "models/woog.json"
+
 [[modules."v2/woog".compiler]]
 always_process = true
 compiler = "grace"
 derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
 imported_domains = ["crate/v2/sarzak"]
 use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
 [modules."v2/woog".compiler.target]
 optimization_level = "None"
 is_meta_model = true

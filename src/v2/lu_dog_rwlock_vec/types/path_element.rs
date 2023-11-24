@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::x_path::XPath;
@@ -52,7 +51,6 @@ impl PathElement {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r89_path_element");
         match self.next {
             Some(ref next) => vec![store.exhume_path_element(&next).unwrap()],
             None => Vec::new(),
@@ -62,14 +60,12 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-forward-to-x_path"}}}
     /// Navigate to [`XPath`] across R90(1-*)
     pub fn r90_x_path<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPath>>> {
-        span!("r90_x_path");
         vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-backward-one-to-x_path"}}}
     /// Navigate to [`XPath`] across R97(1-1)
     pub fn r97_x_path<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPath>>> {
-        span!("r97_x_path");
         vec![store
             .iter_x_path()
             .find(|x_path| x_path.read().unwrap().first == Some(self.id))
@@ -82,7 +78,6 @@ impl PathElement {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r89_path_element");
         let path_element = store
             .iter_path_element()
             .find(|path_element| path_element.read().unwrap().next == Some(self.id));

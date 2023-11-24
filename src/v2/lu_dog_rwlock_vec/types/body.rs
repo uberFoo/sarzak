@@ -2,12 +2,12 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::block::Block;
 use crate::v2::lu_dog_rwlock_vec::types::external_implementation::ExternalImplementation;
 use crate::v2::lu_dog_rwlock_vec::types::function::Function;
+use crate::v2::lu_dog_rwlock_vec::types::lambda::Lambda;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
@@ -73,12 +73,24 @@ impl Body {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Function>>> {
-        span!("r19_function");
         let function = store
             .iter_function()
             .find(|function| function.read().unwrap().body == self.id);
         match function {
             Some(ref function) => vec![function.clone()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-cond-to-lambda"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1c-1c)
+    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Lambda>>> {
+        let lambda = store
+            .iter_lambda()
+            .find(|lambda| lambda.read().unwrap().body == Some(self.id));
+        match lambda {
+            Some(ref lambda) => vec![lambda.clone()],
             None => Vec::new(),
         }
     }

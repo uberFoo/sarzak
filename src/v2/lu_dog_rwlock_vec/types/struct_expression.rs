@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::data_structure::DataStructure;
@@ -59,14 +58,12 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<DataStructure>>> {
-        span!("r39_data_structure");
         vec![store.exhume_data_structure(&self.data).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-x_path"}}}
     /// Navigate to [`XPath`] across R96(1-*)
     pub fn r96_x_path<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPath>>> {
-        span!("r96_x_path");
         vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,7 +73,6 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
-        span!("r26_field_expression");
         store
             .iter_field_expression()
             .filter(|field_expression| field_expression.read().unwrap().woog_struct == self.id)
@@ -91,7 +87,6 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

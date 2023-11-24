@@ -265,7 +265,7 @@ impl From<&FromExternal> for External {
             id: src.id,
             ctor: "new".to_owned(),
             name: src.name.clone(),
-            path: src.path.clone(),
+            x_path: src.path.clone(),
         }
     }
 }

@@ -6,9 +6,9 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::body::Body;
+use crate::v2::lu_dog_rwlock::types::body::BodyEnum;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::for_loop::ForLoop;
-use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock::types::statement::Statement;
 use crate::v2::lu_dog_rwlock::types::x_if::XIf;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
@@ -35,10 +35,11 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Block {
+    pub a_sink: bool,
     pub bug: Uuid,
     pub id: Uuid,
     /// R93: [`Block`] '' [`Block`]
-    pub next: Option<Uuid>,
+    pub parent: Option<Uuid>,
     /// R71: [`Block`] '' [`Statement`]
     pub statement: Option<Uuid>,
 }
@@ -48,16 +49,18 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-new"}}}
     /// Inter a new 'Block' in the store, and return it's `id`.
     pub fn new(
+        a_sink: bool,
         bug: Uuid,
-        next: Option<&Arc<RwLock<Block>>>,
+        parent: Option<&Arc<RwLock<Block>>>,
         statement: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Block>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Block {
+            a_sink,
             bug,
             id,
-            next: next.map(|block| block.read().unwrap().id),
+            parent: parent.map(|block| block.read().unwrap().id),
             statement: statement.map(|statement| statement.read().unwrap().id),
         }));
         store.inter_block(new.clone());
@@ -65,11 +68,12 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-next"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-forward-cond-to-parent"}}}
     /// Navigate to [`Block`] across R93(1-*c)
     pub fn r93_block<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Block>>> {
         span!("r93_block");
-        match self.next {
-            Some(ref next) => vec![store.exhume_block(&next).unwrap()],
+        match self.parent {
+            Some(ref parent) => vec![store.exhume_block(&parent).unwrap()],
             None => Vec::new(),
         }
     }
@@ -90,7 +94,7 @@ impl Block {
         span!("r93_block");
         let block = store
             .iter_block()
-            .find(|block| block.read().unwrap().next == Some(self.id));
+            .find(|block| block.read().unwrap().parent == Some(self.id));
         match block {
             Some(ref block) => vec![block.clone()],
             None => Vec::new(),
@@ -130,17 +134,6 @@ impl Block {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
-    /// Navigate to [`Lambda`] across R73(1c-1c)
-    pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
-        span!("r73_lambda");
-        let lambda = store
-            .iter_lambda()
-            .find(|lambda| lambda.read().unwrap().block == Some(self.id));
-        match lambda {
-            Some(ref lambda) => vec![lambda.clone()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-statement"}}}
     /// Navigate to [`Statement`] across R18(1-M)
@@ -166,7 +159,16 @@ impl Block {
     // Navigate to [`Body`] across R80(isa)
     pub fn r80_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
         span!("r80_body");
-        vec![store.exhume_body(&self.id).unwrap()]
+        vec![store
+            .iter_body()
+            .find(|body| {
+                if let BodyEnum::Block(id) = body.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}

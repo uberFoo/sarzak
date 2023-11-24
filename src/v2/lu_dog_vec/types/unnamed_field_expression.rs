@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unnamed_field_expression-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::field_expression::FieldExpression;
@@ -35,7 +34,6 @@ impl UnnamedFieldExpression {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<FieldExpression>>> {
-        span!("r94_field_expression");
         vec![store
             .iter_field_expression()
             .find(|field_expression| {

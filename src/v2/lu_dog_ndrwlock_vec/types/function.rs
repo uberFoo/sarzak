@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::body::Body;
@@ -69,7 +68,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
     /// Navigate to [`Body`] across R19(1-*)
     pub fn r19_body<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Body>>> {
-        span!("r19_body");
         vec![store.exhume_body(&self.body).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -79,7 +77,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r82_parameter");
         match self.first_param {
             Some(ref first_param) => vec![store.exhume_parameter(&first_param).unwrap()],
             None => Vec::new(),
@@ -92,7 +89,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        span!("r9_implementation_block");
         match self.impl_block {
             Some(ref impl_block) => vec![store.exhume_implementation_block(&impl_block).unwrap()],
             None => Vec::new(),
@@ -105,7 +101,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r10_value_type");
         vec![store.exhume_value_type(&self.return_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -115,7 +110,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r13_parameter");
         store
             .iter_parameter()
             .filter(|parameter| parameter.read().unwrap().function == self.id)
@@ -128,7 +122,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         vec![store
             .iter_field_access_target()
             .find(|field_access_target| {
@@ -146,7 +139,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -165,7 +157,6 @@ impl Function {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::block::Block;
@@ -126,7 +125,6 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
     pub fn r18_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r18_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -136,7 +134,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Statement>>> {
-        span!("r17_statement");
         match self.next {
             Some(ref next) => vec![store.exhume_statement(&next).unwrap()],
             None => Vec::new(),
@@ -146,7 +143,6 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-block"}}}
     /// Navigate to [`Block`] across R71(1c-1c)
     pub fn r71c_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r71_block");
         let block = store
             .iter_block()
             .find(|block| block.read().unwrap().statement == Some(self.id));
@@ -162,7 +158,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Statement>>> {
-        span!("r17_statement");
         let statement = store
             .iter_statement()
             .find(|statement| statement.read().unwrap().next == Some(self.id));

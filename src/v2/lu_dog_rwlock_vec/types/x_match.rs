@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_match-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
@@ -51,14 +50,12 @@ impl XMatch {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r91_expression");
         vec![store.exhume_expression(&self.scrutinee).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_match-struct-impl-nav-backward-assoc-many-to-pattern"}}}
     /// Navigate to [`Pattern`] across R87(1-M)
     pub fn r87_pattern<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Pattern>>> {
-        span!("r87_pattern");
         store
             .iter_pattern()
             .filter(|pattern| pattern.read().unwrap().x_match == self.id)
@@ -71,7 +68,6 @@ impl XMatch {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::a_wait::AWait;
@@ -10,7 +9,7 @@ use crate::v2::lu_dog_rwlock_vec::types::argument::Argument;
 use crate::v2::lu_dog_rwlock_vec::types::block::Block;
 use crate::v2::lu_dog_rwlock_vec::types::call::Call;
 use crate::v2::lu_dog_rwlock_vec::types::debugger::DEBUGGER;
-use crate::v2::lu_dog_rwlock_vec::types::error_expression::ErrorExpression;
+use crate::v2::lu_dog_rwlock_vec::types::empty_expression::EMPTY_EXPRESSION;
 use crate::v2::lu_dog_rwlock_vec::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_rwlock_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_rwlock_vec::types::field_expression::FieldExpression;
@@ -61,7 +60,7 @@ pub enum ExpressionEnum {
     Block(usize),
     Call(usize),
     Debugger(Uuid),
-    ErrorExpression(usize),
+    EmptyExpression(Uuid),
     FieldAccess(usize),
     FieldExpression(usize),
     ForLoop(usize),
@@ -98,6 +97,8 @@ impl Expression {
             }))
         })
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_a_wait"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_block"}}}
     /// Inter a new Expression in the store, and return it's `id`.
@@ -141,14 +142,12 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_enum_field"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_error_expression"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_empty_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_error_expression(
-        subtype: &Arc<RwLock<ErrorExpression>>,
-        store: &mut LuDogRwlockVecStore,
-    ) -> Arc<RwLock<Expression>> {
+    pub fn new_empty_expression(store: &mut LuDogRwlockVecStore) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
-                subtype: ExpressionEnum::ErrorExpression(subtype.read().unwrap().id), // b
+                subtype: ExpressionEnum::EmptyExpression(EMPTY_EXPRESSION),
                 id,
             }))
         })
@@ -431,7 +430,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r37_argument");
         store
             .iter_argument()
             .filter(|argument| argument.read().unwrap().expression == self.id)
@@ -439,9 +437,10 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-a_wait"}}}
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-a_wait"}}}
     /// Navigate to [`AWait`] across R98(1-1c)
     pub fn r98c_a_wait<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<AWait>>> {
-        span!("r98_a_wait");
         let a_wait = store
             .iter_a_wait()
             .find(|a_wait| a_wait.read().unwrap().x_future == self.id);
@@ -454,7 +453,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
     /// Navigate to [`Call`] across R29(1-Mc)
     pub fn r29_call<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Call>>> {
-        span!("r29_call");
         store
             .iter_call()
             .filter(|call| call.read().unwrap().expression == Some(self.id))
@@ -467,7 +465,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ExpressionStatement>>> {
-        span!("r31_expression_statement");
         store
             .iter_expression_statement()
             .filter(|expression_statement| {
@@ -482,7 +479,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldAccess>>> {
-        span!("r27_field_access");
         store
             .iter_field_access()
             .filter(|field_access| field_access.read().unwrap().expression == self.id)
@@ -495,7 +491,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
-        span!("r38_field_expression");
         store
             .iter_field_expression()
             .filter(|field_expression| field_expression.read().unwrap().expression == self.id)
@@ -505,7 +500,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
     /// Navigate to [`ForLoop`] across R42(1-M)
     pub fn r42_for_loop<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<ForLoop>>> {
-        span!("r42_for_loop");
         store
             .iter_for_loop()
             .filter(|for_loop| for_loop.read().unwrap().expression == self.id)
@@ -515,7 +509,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-grouped"}}}
     /// Navigate to [`Grouped`] across R61(1-M)
     pub fn r61_grouped<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Grouped>>> {
-        span!("r61_grouped");
         store
             .iter_grouped()
             .filter(|grouped| grouped.read().unwrap().expression == self.id)
@@ -525,7 +518,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_if"}}}
     /// Navigate to [`XIf`] across R44(1-M)
     pub fn r44_x_if<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XIf>>> {
-        span!("r44_x_if");
         store
             .iter_x_if()
             .filter(|x_if| x_if.read().unwrap().test == self.id)
@@ -535,7 +527,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R56(1-M)
     pub fn r56_index<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Index>>> {
-        span!("r56_index");
         store
             .iter_index()
             .filter(|index| index.read().unwrap().index == self.id)
@@ -545,7 +536,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R57(1-M)
     pub fn r57_index<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Index>>> {
-        span!("r57_index");
         store
             .iter_index()
             .filter(|index| index.read().unwrap().target == self.id)
@@ -558,7 +548,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<LetStatement>>> {
-        span!("r20_let_statement");
         let let_statement = store
             .iter_let_statement()
             .find(|let_statement| let_statement.read().unwrap().expression == self.id);
@@ -574,7 +563,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ListElement>>> {
-        span!("r55_list_element");
         store
             .iter_list_element()
             .filter(|list_element| list_element.read().unwrap().expression == self.id)
@@ -585,7 +573,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_match"}}}
     /// Navigate to [`XMatch`] across R91(1-M)
     pub fn r91_x_match<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XMatch>>> {
-        span!("r91_x_match");
         store
             .iter_x_match()
             .filter(|x_match| x_match.read().unwrap().scrutinee == self.id)
@@ -598,7 +585,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r51_operator");
         store
             .iter_operator()
             .filter(|operator| operator.read().unwrap().rhs == Some(self.id))
@@ -612,7 +598,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r50_operator");
         store
             .iter_operator()
             .filter(|operator| operator.read().unwrap().lhs == self.id)
@@ -622,7 +607,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-pattern"}}}
     /// Navigate to [`Pattern`] across R92(1-M)
     pub fn r92_pattern<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Pattern>>> {
-        span!("r92_pattern");
         store
             .iter_pattern()
             .filter(|pattern| pattern.read().unwrap().expression == self.id)
@@ -633,7 +617,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_print"}}}
     /// Navigate to [`XPrint`] across R32(1-M)
     pub fn r32_x_print<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XPrint>>> {
-        span!("r32_x_print");
         store
             .iter_x_print()
             .filter(|x_print| x_print.read().unwrap().expression == self.id)
@@ -646,7 +629,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<RangeExpression>>> {
-        span!("r58_range_expression");
         store
             .iter_range_expression()
             .filter(|range_expression| range_expression.read().unwrap().lhs == Some(self.id))
@@ -659,7 +641,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<RangeExpression>>> {
-        span!("r59_range_expression");
         store
             .iter_range_expression()
             .filter(|range_expression| range_expression.read().unwrap().rhs == Some(self.id))
@@ -672,7 +653,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ResultStatement>>> {
-        span!("r41_result_statement");
         store
             .iter_result_statement()
             .filter(|result_statement| result_statement.read().unwrap().expression == self.id)
@@ -682,7 +662,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_return"}}}
     /// Navigate to [`XReturn`] across R45(1-M)
     pub fn r45_x_return<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XReturn>>> {
-        span!("r45_x_return");
         store
             .iter_x_return()
             .filter(|x_return| x_return.read().unwrap().expression == self.id)
@@ -699,7 +678,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<TypeCast>>> {
-        span!("r68_type_cast");
         store
             .iter_type_cast()
             .filter(|type_cast| type_cast.read().unwrap().lhs == self.id)
@@ -709,7 +687,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-assoc-many-to-pattern"}}}
     /// Navigate to [`Pattern`] across R87(1-M)
     pub fn r87_pattern<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Pattern>>> {
-        span!("r87_pattern");
         store
             .iter_pattern()
             .filter(|pattern| pattern.read().unwrap().match_expr == self.id)
@@ -719,7 +696,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R11(isa)
     pub fn r11_x_value<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r11_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {

@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock::types::data_structure::DataStructure;
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::item::Item;
@@ -77,6 +78,16 @@ impl Enumeration {
             .iter_enum_field()
             .filter(|enum_field| enum_field.read().unwrap().woog_enum == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub fn r95_data_structure<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<DataStructure>>> {
+        span!("r95_data_structure");
+        vec![store.exhume_data_structure(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}

@@ -58,7 +58,7 @@ impl Statement {
             index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::ExpressionStatement(subtype.read().unwrap().id),
+            subtype: StatementEnum::ExpressionStatement(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_statement(new.clone());
@@ -99,7 +99,7 @@ impl Statement {
             index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::LetStatement(subtype.read().unwrap().id),
+            subtype: StatementEnum::LetStatement(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_statement(new.clone());
@@ -120,7 +120,7 @@ impl Statement {
             index: index,
             block: block.read().unwrap().id,
             next: next.map(|statement| statement.read().unwrap().id),
-            subtype: StatementEnum::ResultStatement(subtype.read().unwrap().id),
+            subtype: StatementEnum::ResultStatement(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_statement(new.clone());

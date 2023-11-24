@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumFieldEnum;
-use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
 
@@ -36,8 +35,6 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 pub struct TupleField {
     pub id: Uuid,
     pub xyzzy: Uuid,
-    /// R90: [`TupleField`] 'is constructed via' [`Expression`]
-    pub expression: Option<Uuid>,
     /// R86: [`TupleField`] 'must have a type' [`ValueType`]
     pub ty: Uuid,
 }
@@ -48,7 +45,6 @@ impl TupleField {
     /// Inter a new 'Tuple Field' in the store, and return it's `id`.
     pub fn new(
         xyzzy: Uuid,
-        expression: Option<&Arc<RwLock<Expression>>>,
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<TupleField>> {
@@ -56,24 +52,12 @@ impl TupleField {
         let new = Arc::new(RwLock::new(TupleField {
             id,
             xyzzy,
-            expression: expression.map(|expression| expression.read().unwrap().id()),
             ty: ty.read().unwrap().id(),
         }));
         store.inter_tuple_field(new.clone());
         new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-cond-to-expression"}}}
-    /// Navigate to [`Expression`] across R90(1-*c)
-    pub fn r90_expression<'a>(
-        &'a self,
-        store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r90_expression");
-        match self.expression {
-            Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
-            None => Vec::new(),
-        }
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-cond-to-expression"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-to-ty"}}}

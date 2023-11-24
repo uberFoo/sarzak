@@ -5,12 +5,13 @@ use std::sync::RwLock;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock::types::data_structure::DataStructure;
 use crate::v2::lu_dog_rwlock::types::field::Field;
 use crate::v2::lu_dog_rwlock::types::field_access::FieldAccess;
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::item::Item;
 use crate::v2::lu_dog_rwlock::types::item::ItemEnum;
-use crate::v2::lu_dog_rwlock::types::struct_expression::StructExpression;
+use crate::v2::lu_dog_rwlock::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use crate::v2::sarzak::types::object::Object;
 use serde::{Deserialize, Serialize};
@@ -30,6 +31,8 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: Uuid,
     pub name: String,
+    /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
+    pub first_generic: Option<Uuid>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -40,6 +43,7 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        first_generic: Option<&Arc<RwLock<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<WoogStruct>> {
@@ -47,10 +51,24 @@ impl WoogStruct {
         let new = Arc::new(RwLock::new(WoogStruct {
             id,
             name,
+            first_generic: first_generic.map(|struct_generic| struct_generic.read().unwrap().id),
             object: object.as_ref().map(|object| object.id),
         }));
         store.inter_woog_struct(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`StructGeneric`] across R102(1-*c)
+    pub fn r102_struct_generic<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<StructGeneric>>> {
+        span!("r102_struct_generic");
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_struct_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
@@ -110,16 +128,27 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
-    /// Navigate to [`StructExpression`] across R39(1-M)
-    pub fn r39_struct_expression<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_generic"}}}
+    /// Navigate to [`StructGeneric`] across R100(1-M)
+    pub fn r100_struct_generic<'a>(
         &'a self,
         store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r39_struct_expression");
+    ) -> Vec<Arc<RwLock<StructGeneric>>> {
+        span!("r100_struct_generic");
         store
-            .iter_struct_expression()
-            .filter(|struct_expression| struct_expression.read().unwrap().woog_struct == self.id)
+            .iter_struct_generic()
+            .filter(|struct_generic| struct_generic.read().unwrap().woog_struct == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub fn r95_data_structure<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<DataStructure>>> {
+        span!("r95_data_structure");
+        vec![store.exhume_data_structure(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

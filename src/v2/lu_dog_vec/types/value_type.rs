@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::char::CHAR;
@@ -16,14 +15,14 @@ use crate::v2::lu_dog_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_vec::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_vec::types::list::List;
 use crate::v2::lu_dog_vec::types::parameter::Parameter;
+use crate::v2::lu_dog_vec::types::plugin::Plugin;
 use crate::v2::lu_dog_vec::types::range::RANGE;
-use crate::v2::lu_dog_vec::types::reference::Reference;
 use crate::v2::lu_dog_vec::types::span::Span;
+use crate::v2::lu_dog_vec::types::task::TASK;
 use crate::v2::lu_dog_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_vec::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_vec::types::woog_struct::WoogStruct;
-use crate::v2::lu_dog_vec::types::x_error::XError;
 use crate::v2::lu_dog_vec::types::x_future::XFuture;
 use crate::v2::lu_dog_vec::types::x_value::XValue;
 use crate::v2::lu_dog_vec::types::z_object_store::ZObjectStore;
@@ -66,7 +65,6 @@ pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
     Enumeration(usize),
-    XError(usize),
     Function(usize),
     XFuture(usize),
     Generic(usize),
@@ -74,9 +72,10 @@ pub enum ValueTypeEnum {
     Lambda(usize),
     List(usize),
     ZObjectStore(usize),
+    Plugin(usize),
     Range(Uuid),
-    Reference(usize),
     WoogStruct(usize),
+    Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
 }
@@ -121,18 +120,6 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_error"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_error"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_x_error(
-        subtype: &Rc<RefCell<XError>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<ValueType>> {
-        store.inter_value_type(|id| {
-            Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::XError(subtype.borrow().id), // b
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
@@ -236,25 +223,27 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_option"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_plugin"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_range(store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_plugin(
+        subtype: &Rc<RefCell<Plugin>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Range(RANGE),
+                subtype: ValueTypeEnum::Plugin(subtype.borrow().id), // b
                 id,
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_reference"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_reference(
-        subtype: &Rc<RefCell<Reference>>,
-        store: &mut LuDogVecStore,
-    ) -> Rc<RefCell<ValueType>> {
+    pub fn new_range(store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
-                subtype: ValueTypeEnum::Reference(subtype.borrow().id), // b
+                subtype: ValueTypeEnum::Range(RANGE),
                 id,
             }))
         })
@@ -269,6 +258,17 @@ impl ValueType {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
                 subtype: ValueTypeEnum::WoogStruct(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_task(store: &mut LuDogVecStore) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                subtype: ValueTypeEnum::Task(TASK),
                 id,
             }))
         })
@@ -302,7 +302,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R5(1-M)
     pub fn r5_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Field>>> {
-        span!("r5_field");
         store
             .iter_field()
             .filter(|field| field.borrow().ty == self.id)
@@ -312,7 +311,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-function"}}}
     /// Navigate to [`Function`] across R10(1-M)
     pub fn r10_function<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Function>>> {
-        span!("r10_function");
         store
             .iter_function()
             .filter(|function| function.borrow().return_type == self.id)
@@ -323,7 +321,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
     /// Navigate to [`XFuture`] across R2(1-M)
     pub fn r2_x_future<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XFuture>>> {
-        span!("r2_x_future");
         store
             .iter_x_future()
             .filter(|x_future| x_future.borrow().x_value == self.id)
@@ -334,7 +331,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
     /// Navigate to [`Generic`] across R99(1-Mc)
     pub fn r99_generic<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Generic>>> {
-        span!("r99_generic");
         store
             .iter_generic()
             .filter(|generic| generic.borrow().ty == Some(self.id))
@@ -344,7 +340,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)
     pub fn r74_lambda<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Lambda>>> {
-        span!("r74_lambda");
         store
             .iter_lambda()
             .filter(|lambda| lambda.borrow().return_type == self.id)
@@ -357,7 +352,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogVecStore,
     ) -> Vec<Rc<RefCell<LambdaParameter>>> {
-        span!("r77_lambda_parameter");
         store
             .iter_lambda_parameter()
             .filter(|lambda_parameter| lambda_parameter.borrow().ty == Some(self.id))
@@ -367,7 +361,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-list"}}}
     /// Navigate to [`List`] across R36(1-M)
     pub fn r36_list<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<List>>> {
-        span!("r36_list");
         store
             .iter_list()
             .filter(|list| list.borrow().ty == self.id)
@@ -379,27 +372,17 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R79(1-M)
     pub fn r79_parameter<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Parameter>>> {
-        span!("r79_parameter");
         store
             .iter_parameter()
             .filter(|parameter| parameter.borrow().ty == self.id)
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
-    /// Navigate to [`Reference`] across R35(1-M)
-    pub fn r35_reference<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Reference>>> {
-        span!("r35_reference");
-        store
-            .iter_reference()
-            .filter(|reference| reference.borrow().ty == self.id)
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-span"}}}
     /// Navigate to [`Span`] across R62(1-Mc)
     pub fn r62_span<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Span>>> {
-        span!("r62_span");
         store
             .iter_span()
             .filter(|span| span.borrow().ty == Some(self.id))
@@ -409,7 +392,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-tuple_field"}}}
     /// Navigate to [`TupleField`] across R86(1-M)
     pub fn r86_tuple_field<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<TupleField>>> {
-        span!("r86_tuple_field");
         store
             .iter_tuple_field()
             .filter(|tuple_field| tuple_field.borrow().ty == self.id)
@@ -419,7 +401,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-type_cast"}}}
     /// Navigate to [`TypeCast`] across R69(1-M)
     pub fn r69_type_cast<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<TypeCast>>> {
-        span!("r69_type_cast");
         store
             .iter_type_cast()
             .filter(|type_cast| type_cast.borrow().ty == self.id)
@@ -429,7 +410,6 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R24(1-M)
     pub fn r24_x_value<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XValue>>> {
-        span!("r24_x_value");
         store
             .iter_x_value()
             .filter(|x_value| x_value.borrow().ty == self.id)

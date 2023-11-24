@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"local_variable-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::let_statement::LetStatement;
@@ -40,7 +39,6 @@ impl LocalVariable {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<LetStatement>>> {
-        span!("r21_let_statement");
         vec![store
             .iter_let_statement()
             .find(|let_statement| let_statement.read().unwrap().variable == self.id)
@@ -53,7 +51,6 @@ impl LocalVariable {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Variable>>> {
-        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {

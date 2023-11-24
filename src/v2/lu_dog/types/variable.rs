@@ -51,7 +51,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Variable {
             name: name,
-            subtype: VariableEnum::LambdaParameter(subtype.borrow().id),
+            subtype: VariableEnum::LambdaParameter(subtype.borrow().id), // b
             id,
         }));
         store.inter_variable(new.clone());
@@ -68,7 +68,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Variable {
             name: name,
-            subtype: VariableEnum::LocalVariable(subtype.borrow().id),
+            subtype: VariableEnum::LocalVariable(subtype.borrow().id), // b
             id,
         }));
         store.inter_variable(new.clone());
@@ -85,7 +85,7 @@ impl Variable {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Variable {
             name: name,
-            subtype: VariableEnum::Parameter(subtype.borrow().id),
+            subtype: VariableEnum::Parameter(subtype.borrow().id), // b
             id,
         }));
         store.inter_variable(new.clone());

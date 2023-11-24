@@ -8,6 +8,7 @@
 //! # Contents:
 //!
 //! * [`Argument`]
+//! * [`AWait`]
 //! * [`Binary`]
 //! * [`Block`]
 //! * [`Body`]
@@ -15,11 +16,10 @@
 //! * [`BooleanOperator`]
 //! * [`Call`]
 //! * [`Comparison`]
+//! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`XError`]
-//! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
@@ -30,6 +30,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
@@ -49,19 +50,18 @@
 //! * [`XMacro`]
 //! * [`XMatch`]
 //! * [`MethodCall`]
+//! * [`NamedFieldExpression`]
 //! * [`ZObjectStore`]
 //! * [`ObjectWrapper`]
 //! * [`Operator`]
-//! * [`WoogOption`]
 //! * [`Parameter`]
+//! * [`XPath`]
+//! * [`PathElement`]
 //! * [`Pattern`]
-//! * [`Plain`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
-//! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
-//! * [`ZSome`]
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
@@ -69,9 +69,12 @@
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
 //! * [`StructField`]
+//! * [`StructGeneric`]
 //! * [`TupleField`]
 //! * [`TypeCast`]
 //! * [`Unary`]
+//! * [`Unit`]
+//! * [`UnnamedFieldExpression`]
 //! * [`XValue`]
 //! * [`ValueType`]
 //! * [`Variable`]
@@ -91,23 +94,25 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::{
-    Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression, ExpressionStatement,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
+    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
     ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
     ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
     Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, ObjectWrapper, Operator, Parameter, Pattern, Plain, RangeExpression,
-    Reference, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral, StructExpression,
-    StructField, TupleField, TypeCast, Unary, ValueType, Variable, VariableExpression, WoogOption,
-    WoogStruct, XError, XIf, XMacro, XMatch, XPrint, XReturn, XValue, ZObjectStore, ZSome,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL, FALSE_LITERAL, GREATER_THAN,
+    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR,
+    DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
     GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
-    OR, RANGE, SUBTRACTION, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE, Z_NONE,
+    OR, PLUGIN, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ObjectStore {
     argument: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Argument>>>>>,
+    a_wait: Arc<RwLock<HashMap<Uuid, Arc<RwLock<AWait>>>>>,
     binary: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Binary>>>>>,
     block: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Block>>>>>,
     body: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Body>>>>>,
@@ -115,11 +120,10 @@ pub struct ObjectStore {
     boolean_operator: Arc<RwLock<HashMap<Uuid, Arc<RwLock<BooleanOperator>>>>>,
     call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Call>>>>>,
     comparison: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Comparison>>>>>,
+    data_structure: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DataStructure>>>>>,
     dwarf_source_file: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DwarfSourceFile>>>>>,
     enum_field: Arc<RwLock<HashMap<Uuid, Arc<RwLock<EnumField>>>>>,
     enumeration: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Enumeration>>>>>,
-    x_error: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XError>>>>>,
-    error_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ErrorExpression>>>>>,
     expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Expression>>>>>,
     expression_statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExpressionStatement>>>>>,
     external_implementation: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExternalImplementation>>>>>,
@@ -132,6 +136,7 @@ pub struct ObjectStore {
     for_loop: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ForLoop>>>>>,
     function: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Function>>>>>,
     function_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
+    x_future: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XFuture>>>>>,
     generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Generic>>>>>,
     grouped: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Grouped>>>>>,
     x_if: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XIf>>>>>,
@@ -151,19 +156,18 @@ pub struct ObjectStore {
     x_macro: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XMacro>>>>>,
     x_match: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XMatch>>>>>,
     method_call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<MethodCall>>>>>,
+    named_field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<NamedFieldExpression>>>>>,
     z_object_store: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ZObjectStore>>>>>,
     object_wrapper: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ObjectWrapper>>>>>,
     operator: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Operator>>>>>,
-    woog_option: Arc<RwLock<HashMap<Uuid, Arc<RwLock<WoogOption>>>>>,
     parameter: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Parameter>>>>>,
+    x_path: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XPath>>>>>,
+    path_element: Arc<RwLock<HashMap<Uuid, Arc<RwLock<PathElement>>>>>,
     pattern: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Pattern>>>>>,
-    plain: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Plain>>>>>,
     x_print: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XPrint>>>>>,
     range_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RangeExpression>>>>>,
-    reference: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Reference>>>>>,
     result_statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ResultStatement>>>>>,
     x_return: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XReturn>>>>>,
-    z_some: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ZSome>>>>>,
     span: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Span>>>>>,
     statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Statement>>>>>,
     static_method_call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StaticMethodCall>>>>>,
@@ -172,9 +176,12 @@ pub struct ObjectStore {
     woog_struct_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
     struct_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StructExpression>>>>>,
     struct_field: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StructField>>>>>,
+    struct_generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StructGeneric>>>>>,
     tuple_field: Arc<RwLock<HashMap<Uuid, Arc<RwLock<TupleField>>>>>,
     type_cast: Arc<RwLock<HashMap<Uuid, Arc<RwLock<TypeCast>>>>>,
     unary: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Unary>>>>>,
+    unit: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Unit>>>>>,
+    unnamed_field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<UnnamedFieldExpression>>>>>,
     x_value: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XValue>>>>>,
     value_type: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ValueType>>>>>,
     variable: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Variable>>>>>,
@@ -185,6 +192,7 @@ impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
             argument: Arc::new(RwLock::new(HashMap::default())),
+            a_wait: Arc::new(RwLock::new(HashMap::default())),
             binary: Arc::new(RwLock::new(HashMap::default())),
             block: Arc::new(RwLock::new(HashMap::default())),
             body: Arc::new(RwLock::new(HashMap::default())),
@@ -192,11 +200,10 @@ impl ObjectStore {
             boolean_operator: Arc::new(RwLock::new(HashMap::default())),
             call: Arc::new(RwLock::new(HashMap::default())),
             comparison: Arc::new(RwLock::new(HashMap::default())),
+            data_structure: Arc::new(RwLock::new(HashMap::default())),
             dwarf_source_file: Arc::new(RwLock::new(HashMap::default())),
             enum_field: Arc::new(RwLock::new(HashMap::default())),
             enumeration: Arc::new(RwLock::new(HashMap::default())),
-            x_error: Arc::new(RwLock::new(HashMap::default())),
-            error_expression: Arc::new(RwLock::new(HashMap::default())),
             expression: Arc::new(RwLock::new(HashMap::default())),
             expression_statement: Arc::new(RwLock::new(HashMap::default())),
             external_implementation: Arc::new(RwLock::new(HashMap::default())),
@@ -209,6 +216,7 @@ impl ObjectStore {
             for_loop: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
             function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
+            x_future: Arc::new(RwLock::new(HashMap::default())),
             generic: Arc::new(RwLock::new(HashMap::default())),
             grouped: Arc::new(RwLock::new(HashMap::default())),
             x_if: Arc::new(RwLock::new(HashMap::default())),
@@ -228,19 +236,18 @@ impl ObjectStore {
             x_macro: Arc::new(RwLock::new(HashMap::default())),
             x_match: Arc::new(RwLock::new(HashMap::default())),
             method_call: Arc::new(RwLock::new(HashMap::default())),
+            named_field_expression: Arc::new(RwLock::new(HashMap::default())),
             z_object_store: Arc::new(RwLock::new(HashMap::default())),
             object_wrapper: Arc::new(RwLock::new(HashMap::default())),
             operator: Arc::new(RwLock::new(HashMap::default())),
-            woog_option: Arc::new(RwLock::new(HashMap::default())),
             parameter: Arc::new(RwLock::new(HashMap::default())),
+            x_path: Arc::new(RwLock::new(HashMap::default())),
+            path_element: Arc::new(RwLock::new(HashMap::default())),
             pattern: Arc::new(RwLock::new(HashMap::default())),
-            plain: Arc::new(RwLock::new(HashMap::default())),
             x_print: Arc::new(RwLock::new(HashMap::default())),
             range_expression: Arc::new(RwLock::new(HashMap::default())),
-            reference: Arc::new(RwLock::new(HashMap::default())),
             result_statement: Arc::new(RwLock::new(HashMap::default())),
             x_return: Arc::new(RwLock::new(HashMap::default())),
-            z_some: Arc::new(RwLock::new(HashMap::default())),
             span: Arc::new(RwLock::new(HashMap::default())),
             statement: Arc::new(RwLock::new(HashMap::default())),
             static_method_call: Arc::new(RwLock::new(HashMap::default())),
@@ -249,9 +256,12 @@ impl ObjectStore {
             woog_struct_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             struct_expression: Arc::new(RwLock::new(HashMap::default())),
             struct_field: Arc::new(RwLock::new(HashMap::default())),
+            struct_generic: Arc::new(RwLock::new(HashMap::default())),
             tuple_field: Arc::new(RwLock::new(HashMap::default())),
             type_cast: Arc::new(RwLock::new(HashMap::default())),
             unary: Arc::new(RwLock::new(HashMap::default())),
+            unit: Arc::new(RwLock::new(HashMap::default())),
+            unnamed_field_expression: Arc::new(RwLock::new(HashMap::default())),
             x_value: Arc::new(RwLock::new(HashMap::default())),
             value_type: Arc::new(RwLock::new(HashMap::default())),
             variable: Arc::new(RwLock::new(HashMap::default())),
@@ -293,17 +303,16 @@ impl ObjectStore {
             LESS_THAN_OR_EQUAL,
         ))));
         store.inter_comparison(Arc::new(RwLock::new(Comparison::NotEqual(NOT_EQUAL))));
-        store.inter_x_error(Arc::new(RwLock::new(XError::UnknownVariable(
-            UNKNOWN_VARIABLE,
-        ))));
         store.inter_expression(Arc::new(RwLock::new(Expression::Debugger(DEBUGGER))));
+        store.inter_expression(Arc::new(RwLock::new(Expression::EmptyExpression(
+            EMPTY_EXPRESSION,
+        ))));
         store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
         ))));
         store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
             Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
         ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::ZNone(Z_NONE))));
         store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
             BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
         ))));
@@ -314,10 +323,9 @@ impl ObjectStore {
         store.inter_unary(Arc::new(RwLock::new(Unary::Not(NOT))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Char(CHAR))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::XError(
-            XError::UnknownVariable(UNKNOWN_VARIABLE).id(),
-        ))));
+        store.inter_value_type(Arc::new(RwLock::new(ValueType::Plugin(PLUGIN))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Range(RANGE))));
+        store.inter_value_type(Arc::new(RwLock::new(ValueType::Task(TASK))));
         store.inter_value_type(Arc::new(RwLock::new(ValueType::Unknown(UNKNOWN))));
 
         store
@@ -363,6 +371,47 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|argument| argument.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`AWait`] into the store.
+    ///
+    pub fn inter_a_wait(&mut self, a_wait: Arc<RwLock<AWait>>) {
+        let read = a_wait.read().unwrap();
+        self.a_wait.write().unwrap().insert(read.id, a_wait.clone());
+    }
+
+    /// Exhume (get) [`AWait`] from the store.
+    ///
+    pub fn exhume_a_wait(&self, id: &Uuid) -> Option<Arc<RwLock<AWait>>> {
+        self.a_wait
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|a_wait| a_wait.clone())
+    }
+
+    /// Exorcise (remove) [`AWait`] from the store.
+    ///
+    pub fn exorcise_a_wait(&mut self, id: &Uuid) -> Option<Arc<RwLock<AWait>>> {
+        self.a_wait
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|a_wait| a_wait.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, AWait>`.
+    ///
+    pub fn iter_a_wait(&self) -> impl Iterator<Item = Arc<RwLock<AWait>>> + '_ {
+        let values: Vec<Arc<RwLock<AWait>>> = self
+            .a_wait
+            .read()
+            .unwrap()
+            .values()
+            .map(|a_wait| a_wait.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -457,7 +506,7 @@ impl ObjectStore {
     ///
     pub fn inter_body(&mut self, body: Arc<RwLock<Body>>) {
         let read = body.read().unwrap();
-        self.body.write().unwrap().insert(read.id(), body.clone());
+        self.body.write().unwrap().insert(read.id, body.clone());
     }
 
     /// Exhume (get) [`Body`] from the store.
@@ -659,6 +708,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`DataStructure`] into the store.
+    ///
+    pub fn inter_data_structure(&mut self, data_structure: Arc<RwLock<DataStructure>>) {
+        let read = data_structure.read().unwrap();
+        self.data_structure
+            .write()
+            .unwrap()
+            .insert(read.id(), data_structure.clone());
+    }
+
+    /// Exhume (get) [`DataStructure`] from the store.
+    ///
+    pub fn exhume_data_structure(&self, id: &Uuid) -> Option<Arc<RwLock<DataStructure>>> {
+        self.data_structure
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|data_structure| data_structure.clone())
+    }
+
+    /// Exorcise (remove) [`DataStructure`] from the store.
+    ///
+    pub fn exorcise_data_structure(&mut self, id: &Uuid) -> Option<Arc<RwLock<DataStructure>>> {
+        self.data_structure
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|data_structure| data_structure.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, DataStructure>`.
+    ///
+    pub fn iter_data_structure(&self) -> impl Iterator<Item = Arc<RwLock<DataStructure>>> + '_ {
+        let values: Vec<Arc<RwLock<DataStructure>>> = self
+            .data_structure
+            .read()
+            .unwrap()
+            .values()
+            .map(|data_structure| data_structure.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
     pub fn inter_dwarf_source_file(&mut self, dwarf_source_file: Arc<RwLock<DwarfSourceFile>>) {
@@ -791,94 +884,6 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|enumeration| enumeration.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`XError`] into the store.
-    ///
-    pub fn inter_x_error(&mut self, x_error: Arc<RwLock<XError>>) {
-        let read = x_error.read().unwrap();
-        self.x_error
-            .write()
-            .unwrap()
-            .insert(read.id(), x_error.clone());
-    }
-
-    /// Exhume (get) [`XError`] from the store.
-    ///
-    pub fn exhume_x_error(&self, id: &Uuid) -> Option<Arc<RwLock<XError>>> {
-        self.x_error
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|x_error| x_error.clone())
-    }
-
-    /// Exorcise (remove) [`XError`] from the store.
-    ///
-    pub fn exorcise_x_error(&mut self, id: &Uuid) -> Option<Arc<RwLock<XError>>> {
-        self.x_error
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|x_error| x_error.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
-    ///
-    pub fn iter_x_error(&self) -> impl Iterator<Item = Arc<RwLock<XError>>> + '_ {
-        let values: Vec<Arc<RwLock<XError>>> = self
-            .x_error
-            .read()
-            .unwrap()
-            .values()
-            .map(|x_error| x_error.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`ErrorExpression`] into the store.
-    ///
-    pub fn inter_error_expression(&mut self, error_expression: Arc<RwLock<ErrorExpression>>) {
-        let read = error_expression.read().unwrap();
-        self.error_expression
-            .write()
-            .unwrap()
-            .insert(read.id, error_expression.clone());
-    }
-
-    /// Exhume (get) [`ErrorExpression`] from the store.
-    ///
-    pub fn exhume_error_expression(&self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
-        self.error_expression
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|error_expression| error_expression.clone())
-    }
-
-    /// Exorcise (remove) [`ErrorExpression`] from the store.
-    ///
-    pub fn exorcise_error_expression(&mut self, id: &Uuid) -> Option<Arc<RwLock<ErrorExpression>>> {
-        self.error_expression
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|error_expression| error_expression.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
-    ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Arc<RwLock<ErrorExpression>>> + '_ {
-        let values: Vec<Arc<RwLock<ErrorExpression>>> = self
-            .error_expression
-            .read()
-            .unwrap()
-            .values()
-            .map(|error_expression| error_expression.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -1374,6 +1379,50 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|function| function.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`XFuture`] into the store.
+    ///
+    pub fn inter_x_future(&mut self, x_future: Arc<RwLock<XFuture>>) {
+        let read = x_future.read().unwrap();
+        self.x_future
+            .write()
+            .unwrap()
+            .insert(read.id, x_future.clone());
+    }
+
+    /// Exhume (get) [`XFuture`] from the store.
+    ///
+    pub fn exhume_x_future(&self, id: &Uuid) -> Option<Arc<RwLock<XFuture>>> {
+        self.x_future
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_future| x_future.clone())
+    }
+
+    /// Exorcise (remove) [`XFuture`] from the store.
+    ///
+    pub fn exorcise_x_future(&mut self, id: &Uuid) -> Option<Arc<RwLock<XFuture>>> {
+        self.x_future
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|x_future| x_future.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XFuture>`.
+    ///
+    pub fn iter_x_future(&self) -> impl Iterator<Item = Arc<RwLock<XFuture>>> + '_ {
+        let values: Vec<Arc<RwLock<XFuture>>> = self
+            .x_future
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_future| x_future.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2196,6 +2245,61 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`NamedFieldExpression`] into the store.
+    ///
+    pub fn inter_named_field_expression(
+        &mut self,
+        named_field_expression: Arc<RwLock<NamedFieldExpression>>,
+    ) {
+        let read = named_field_expression.read().unwrap();
+        self.named_field_expression
+            .write()
+            .unwrap()
+            .insert(read.id, named_field_expression.clone());
+    }
+
+    /// Exhume (get) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_named_field_expression(
+        &self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<NamedFieldExpression>>> {
+        self.named_field_expression
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|named_field_expression| named_field_expression.clone())
+    }
+
+    /// Exorcise (remove) [`NamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_named_field_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<NamedFieldExpression>>> {
+        self.named_field_expression
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|named_field_expression| named_field_expression.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, NamedFieldExpression>`.
+    ///
+    pub fn iter_named_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<NamedFieldExpression>>> + '_ {
+        let values: Vec<Arc<RwLock<NamedFieldExpression>>> = self
+            .named_field_expression
+            .read()
+            .unwrap()
+            .values()
+            .map(|named_field_expression| named_field_expression.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Arc<RwLock<ZObjectStore>>) {
@@ -2328,50 +2432,6 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter (insert) [`WoogOption`] into the store.
-    ///
-    pub fn inter_woog_option(&mut self, woog_option: Arc<RwLock<WoogOption>>) {
-        let read = woog_option.read().unwrap();
-        self.woog_option
-            .write()
-            .unwrap()
-            .insert(read.id, woog_option.clone());
-    }
-
-    /// Exhume (get) [`WoogOption`] from the store.
-    ///
-    pub fn exhume_woog_option(&self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
-        self.woog_option
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|woog_option| woog_option.clone())
-    }
-
-    /// Exorcise (remove) [`WoogOption`] from the store.
-    ///
-    pub fn exorcise_woog_option(&mut self, id: &Uuid) -> Option<Arc<RwLock<WoogOption>>> {
-        self.woog_option
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|woog_option| woog_option.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, WoogOption>`.
-    ///
-    pub fn iter_woog_option(&self) -> impl Iterator<Item = Arc<RwLock<WoogOption>>> + '_ {
-        let values: Vec<Arc<RwLock<WoogOption>>> = self
-            .woog_option
-            .read()
-            .unwrap()
-            .values()
-            .map(|woog_option| woog_option.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
     /// Inter (insert) [`Parameter`] into the store.
     ///
     pub fn inter_parameter(&mut self, parameter: Arc<RwLock<Parameter>>) {
@@ -2416,6 +2476,91 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`XPath`] into the store.
+    ///
+    pub fn inter_x_path(&mut self, x_path: Arc<RwLock<XPath>>) {
+        let read = x_path.read().unwrap();
+        self.x_path.write().unwrap().insert(read.id, x_path.clone());
+    }
+
+    /// Exhume (get) [`XPath`] from the store.
+    ///
+    pub fn exhume_x_path(&self, id: &Uuid) -> Option<Arc<RwLock<XPath>>> {
+        self.x_path
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_path| x_path.clone())
+    }
+
+    /// Exorcise (remove) [`XPath`] from the store.
+    ///
+    pub fn exorcise_x_path(&mut self, id: &Uuid) -> Option<Arc<RwLock<XPath>>> {
+        self.x_path
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|x_path| x_path.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XPath>`.
+    ///
+    pub fn iter_x_path(&self) -> impl Iterator<Item = Arc<RwLock<XPath>>> + '_ {
+        let values: Vec<Arc<RwLock<XPath>>> = self
+            .x_path
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_path| x_path.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`PathElement`] into the store.
+    ///
+    pub fn inter_path_element(&mut self, path_element: Arc<RwLock<PathElement>>) {
+        let read = path_element.read().unwrap();
+        self.path_element
+            .write()
+            .unwrap()
+            .insert(read.id, path_element.clone());
+    }
+
+    /// Exhume (get) [`PathElement`] from the store.
+    ///
+    pub fn exhume_path_element(&self, id: &Uuid) -> Option<Arc<RwLock<PathElement>>> {
+        self.path_element
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|path_element| path_element.clone())
+    }
+
+    /// Exorcise (remove) [`PathElement`] from the store.
+    ///
+    pub fn exorcise_path_element(&mut self, id: &Uuid) -> Option<Arc<RwLock<PathElement>>> {
+        self.path_element
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|path_element| path_element.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, PathElement>`.
+    ///
+    pub fn iter_path_element(&self) -> impl Iterator<Item = Arc<RwLock<PathElement>>> + '_ {
+        let values: Vec<Arc<RwLock<PathElement>>> = self
+            .path_element
+            .read()
+            .unwrap()
+            .values()
+            .map(|path_element| path_element.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`Pattern`] into the store.
     ///
     pub fn inter_pattern(&mut self, pattern: Arc<RwLock<Pattern>>) {
@@ -2455,47 +2600,6 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|pattern| pattern.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`Plain`] into the store.
-    ///
-    pub fn inter_plain(&mut self, plain: Arc<RwLock<Plain>>) {
-        let read = plain.read().unwrap();
-        self.plain.write().unwrap().insert(read.id, plain.clone());
-    }
-
-    /// Exhume (get) [`Plain`] from the store.
-    ///
-    pub fn exhume_plain(&self, id: &Uuid) -> Option<Arc<RwLock<Plain>>> {
-        self.plain
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|plain| plain.clone())
-    }
-
-    /// Exorcise (remove) [`Plain`] from the store.
-    ///
-    pub fn exorcise_plain(&mut self, id: &Uuid) -> Option<Arc<RwLock<Plain>>> {
-        self.plain
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|plain| plain.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Plain>`.
-    ///
-    pub fn iter_plain(&self) -> impl Iterator<Item = Arc<RwLock<Plain>>> + '_ {
-        let values: Vec<Arc<RwLock<Plain>>> = self
-            .plain
-            .read()
-            .unwrap()
-            .values()
-            .map(|plain| plain.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2589,50 +2693,6 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter (insert) [`Reference`] into the store.
-    ///
-    pub fn inter_reference(&mut self, reference: Arc<RwLock<Reference>>) {
-        let read = reference.read().unwrap();
-        self.reference
-            .write()
-            .unwrap()
-            .insert(read.id, reference.clone());
-    }
-
-    /// Exhume (get) [`Reference`] from the store.
-    ///
-    pub fn exhume_reference(&self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
-        self.reference
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|reference| reference.clone())
-    }
-
-    /// Exorcise (remove) [`Reference`] from the store.
-    ///
-    pub fn exorcise_reference(&mut self, id: &Uuid) -> Option<Arc<RwLock<Reference>>> {
-        self.reference
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|reference| reference.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
-    ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Arc<RwLock<Reference>>> + '_ {
-        let values: Vec<Arc<RwLock<Reference>>> = self
-            .reference
-            .read()
-            .unwrap()
-            .values()
-            .map(|reference| reference.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
     pub fn inter_result_statement(&mut self, result_statement: Arc<RwLock<ResultStatement>>) {
@@ -2716,47 +2776,6 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|x_return| x_return.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`ZSome`] into the store.
-    ///
-    pub fn inter_z_some(&mut self, z_some: Arc<RwLock<ZSome>>) {
-        let read = z_some.read().unwrap();
-        self.z_some.write().unwrap().insert(read.id, z_some.clone());
-    }
-
-    /// Exhume (get) [`ZSome`] from the store.
-    ///
-    pub fn exhume_z_some(&self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
-        self.z_some
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|z_some| z_some.clone())
-    }
-
-    /// Exorcise (remove) [`ZSome`] from the store.
-    ///
-    pub fn exorcise_z_some(&mut self, id: &Uuid) -> Option<Arc<RwLock<ZSome>>> {
-        self.z_some
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|z_some| z_some.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ZSome>`.
-    ///
-    pub fn iter_z_some(&self) -> impl Iterator<Item = Arc<RwLock<ZSome>>> + '_ {
-        let values: Vec<Arc<RwLock<ZSome>>> = self
-            .z_some
-            .read()
-            .unwrap()
-            .values()
-            .map(|z_some| z_some.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3087,6 +3106,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`StructGeneric`] into the store.
+    ///
+    pub fn inter_struct_generic(&mut self, struct_generic: Arc<RwLock<StructGeneric>>) {
+        let read = struct_generic.read().unwrap();
+        self.struct_generic
+            .write()
+            .unwrap()
+            .insert(read.id, struct_generic.clone());
+    }
+
+    /// Exhume (get) [`StructGeneric`] from the store.
+    ///
+    pub fn exhume_struct_generic(&self, id: &Uuid) -> Option<Arc<RwLock<StructGeneric>>> {
+        self.struct_generic
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|struct_generic| struct_generic.clone())
+    }
+
+    /// Exorcise (remove) [`StructGeneric`] from the store.
+    ///
+    pub fn exorcise_struct_generic(&mut self, id: &Uuid) -> Option<Arc<RwLock<StructGeneric>>> {
+        self.struct_generic
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|struct_generic| struct_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StructGeneric>`.
+    ///
+    pub fn iter_struct_generic(&self) -> impl Iterator<Item = Arc<RwLock<StructGeneric>>> + '_ {
+        let values: Vec<Arc<RwLock<StructGeneric>>> = self
+            .struct_generic
+            .read()
+            .unwrap()
+            .values()
+            .map(|struct_generic| struct_generic.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`TupleField`] into the store.
     ///
     pub fn inter_tuple_field(&mut self, tuple_field: Arc<RwLock<TupleField>>) {
@@ -3211,6 +3274,98 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|unary| unary.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`Unit`] into the store.
+    ///
+    pub fn inter_unit(&mut self, unit: Arc<RwLock<Unit>>) {
+        let read = unit.read().unwrap();
+        self.unit.write().unwrap().insert(read.id, unit.clone());
+    }
+
+    /// Exhume (get) [`Unit`] from the store.
+    ///
+    pub fn exhume_unit(&self, id: &Uuid) -> Option<Arc<RwLock<Unit>>> {
+        self.unit.read().unwrap().get(id).map(|unit| unit.clone())
+    }
+
+    /// Exorcise (remove) [`Unit`] from the store.
+    ///
+    pub fn exorcise_unit(&mut self, id: &Uuid) -> Option<Arc<RwLock<Unit>>> {
+        self.unit
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|unit| unit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Unit>`.
+    ///
+    pub fn iter_unit(&self) -> impl Iterator<Item = Arc<RwLock<Unit>>> + '_ {
+        let values: Vec<Arc<RwLock<Unit>>> = self
+            .unit
+            .read()
+            .unwrap()
+            .values()
+            .map(|unit| unit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`UnnamedFieldExpression`] into the store.
+    ///
+    pub fn inter_unnamed_field_expression(
+        &mut self,
+        unnamed_field_expression: Arc<RwLock<UnnamedFieldExpression>>,
+    ) {
+        let read = unnamed_field_expression.read().unwrap();
+        self.unnamed_field_expression
+            .write()
+            .unwrap()
+            .insert(read.id, unnamed_field_expression.clone());
+    }
+
+    /// Exhume (get) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exhume_unnamed_field_expression(
+        &self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<UnnamedFieldExpression>>> {
+        self.unnamed_field_expression
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
+    }
+
+    /// Exorcise (remove) [`UnnamedFieldExpression`] from the store.
+    ///
+    pub fn exorcise_unnamed_field_expression(
+        &mut self,
+        id: &Uuid,
+    ) -> Option<Arc<RwLock<UnnamedFieldExpression>>> {
+        self.unnamed_field_expression
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, UnnamedFieldExpression>`.
+    ///
+    pub fn iter_unnamed_field_expression(
+        &self,
+    ) -> impl Iterator<Item = Arc<RwLock<UnnamedFieldExpression>>> + '_ {
+        let values: Vec<Arc<RwLock<UnnamedFieldExpression>>> = self
+            .unnamed_field_expression
+            .read()
+            .unwrap()
+            .values()
+            .map(|unnamed_field_expression| unnamed_field_expression.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3438,6 +3593,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Await.
+        {
+            let path = path.join("a_wait");
+            fs::create_dir_all(&path)?;
+            for a_wait in self.a_wait.read().unwrap().values() {
+                let path = path.join(format!("{}.json", a_wait.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &a_wait)?;
+            }
+        }
+
         // Persist Binary.
         {
             let path = path.join("binary");
@@ -3467,7 +3634,7 @@ impl ObjectStore {
             let path = path.join("body");
             fs::create_dir_all(&path)?;
             for body in self.body.read().unwrap().values() {
-                let path = path.join(format!("{}.json", body.read().unwrap().id()));
+                let path = path.join(format!("{}.json", body.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &body)?;
@@ -3522,6 +3689,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Data Structure.
+        {
+            let path = path.join("data_structure");
+            fs::create_dir_all(&path)?;
+            for data_structure in self.data_structure.read().unwrap().values() {
+                let path = path.join(format!("{}.json", data_structure.read().unwrap().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &data_structure)?;
+            }
+        }
+
         // Persist Dwarf Source File.
         {
             let path = path.join("dwarf_source_file");
@@ -3555,30 +3734,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &enumeration)?;
-            }
-        }
-
-        // Persist Error.
-        {
-            let path = path.join("x_error");
-            fs::create_dir_all(&path)?;
-            for x_error in self.x_error.read().unwrap().values() {
-                let path = path.join(format!("{}.json", x_error.read().unwrap().id()));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &x_error)?;
-            }
-        }
-
-        // Persist Error Expression.
-        {
-            let path = path.join("error_expression");
-            fs::create_dir_all(&path)?;
-            for error_expression in self.error_expression.read().unwrap().values() {
-                let path = path.join(format!("{}.json", error_expression.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &error_expression)?;
             }
         }
 
@@ -3702,6 +3857,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &function)?;
+            }
+        }
+
+        // Persist Future.
+        {
+            let path = path.join("x_future");
+            fs::create_dir_all(&path)?;
+            for x_future in self.x_future.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_future.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_future)?;
             }
         }
 
@@ -3933,6 +4100,21 @@ impl ObjectStore {
             }
         }
 
+        // Persist Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            fs::create_dir_all(&path)?;
+            for named_field_expression in self.named_field_expression.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    named_field_expression.read().unwrap().id
+                ));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &named_field_expression)?;
+            }
+        }
+
         // Persist Object Store.
         {
             let path = path.join("z_object_store");
@@ -3969,18 +4151,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Option.
-        {
-            let path = path.join("woog_option");
-            fs::create_dir_all(&path)?;
-            for woog_option in self.woog_option.read().unwrap().values() {
-                let path = path.join(format!("{}.json", woog_option.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &woog_option)?;
-            }
-        }
-
         // Persist Parameter.
         {
             let path = path.join("parameter");
@@ -3993,6 +4163,30 @@ impl ObjectStore {
             }
         }
 
+        // Persist Path.
+        {
+            let path = path.join("x_path");
+            fs::create_dir_all(&path)?;
+            for x_path in self.x_path.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_path.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_path)?;
+            }
+        }
+
+        // Persist Path Element.
+        {
+            let path = path.join("path_element");
+            fs::create_dir_all(&path)?;
+            for path_element in self.path_element.read().unwrap().values() {
+                let path = path.join(format!("{}.json", path_element.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &path_element)?;
+            }
+        }
+
         // Persist Pattern.
         {
             let path = path.join("pattern");
@@ -4002,18 +4196,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &pattern)?;
-            }
-        }
-
-        // Persist Plain.
-        {
-            let path = path.join("plain");
-            fs::create_dir_all(&path)?;
-            for plain in self.plain.read().unwrap().values() {
-                let path = path.join(format!("{}.json", plain.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &plain)?;
             }
         }
 
@@ -4041,18 +4223,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Reference.
-        {
-            let path = path.join("reference");
-            fs::create_dir_all(&path)?;
-            for reference in self.reference.read().unwrap().values() {
-                let path = path.join(format!("{}.json", reference.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &reference)?;
-            }
-        }
-
         // Persist Result Statement.
         {
             let path = path.join("result_statement");
@@ -4074,18 +4244,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &x_return)?;
-            }
-        }
-
-        // Persist Some.
-        {
-            let path = path.join("z_some");
-            fs::create_dir_all(&path)?;
-            for z_some in self.z_some.read().unwrap().values() {
-                let path = path.join(format!("{}.json", z_some.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &z_some)?;
             }
         }
 
@@ -4173,6 +4331,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            fs::create_dir_all(&path)?;
+            for struct_generic in self.struct_generic.read().unwrap().values() {
+                let path = path.join(format!("{}.json", struct_generic.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &struct_generic)?;
+            }
+        }
+
         // Persist Tuple Field.
         {
             let path = path.join("tuple_field");
@@ -4206,6 +4376,33 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &unary)?;
+            }
+        }
+
+        // Persist Unit.
+        {
+            let path = path.join("unit");
+            fs::create_dir_all(&path)?;
+            for unit in self.unit.read().unwrap().values() {
+                let path = path.join(format!("{}.json", unit.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &unit)?;
+            }
+        }
+
+        // Persist Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            fs::create_dir_all(&path)?;
+            for unnamed_field_expression in self.unnamed_field_expression.read().unwrap().values() {
+                let path = path.join(format!(
+                    "{}.json",
+                    unnamed_field_expression.read().unwrap().id
+                ));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &unnamed_field_expression)?;
             }
         }
 
@@ -4302,6 +4499,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Await.
+        {
+            let path = path.join("a_wait");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let a_wait: Arc<RwLock<AWait>> = serde_json::from_reader(reader)?;
+                store
+                    .a_wait
+                    .write()
+                    .unwrap()
+                    .insert(a_wait.read().unwrap().id, a_wait.clone());
+            }
+        }
+
         // Load Binary.
         {
             let path = path.join("binary");
@@ -4352,7 +4567,7 @@ impl ObjectStore {
                     .body
                     .write()
                     .unwrap()
-                    .insert(body.read().unwrap().id(), body.clone());
+                    .insert(body.read().unwrap().id, body.clone());
             }
         }
 
@@ -4427,6 +4642,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Data Structure.
+        {
+            let path = path.join("data_structure");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let data_structure: Arc<RwLock<DataStructure>> = serde_json::from_reader(reader)?;
+                store
+                    .data_structure
+                    .write()
+                    .unwrap()
+                    .insert(data_structure.read().unwrap().id(), data_structure.clone());
+            }
+        }
+
         // Load Dwarf Source File.
         {
             let path = path.join("dwarf_source_file");
@@ -4478,42 +4711,6 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(enumeration.read().unwrap().id, enumeration.clone());
-            }
-        }
-
-        // Load Error.
-        {
-            let path = path.join("x_error");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let x_error: Arc<RwLock<XError>> = serde_json::from_reader(reader)?;
-                store
-                    .x_error
-                    .write()
-                    .unwrap()
-                    .insert(x_error.read().unwrap().id(), x_error.clone());
-            }
-        }
-
-        // Load Error Expression.
-        {
-            let path = path.join("error_expression");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let error_expression: Arc<RwLock<ErrorExpression>> =
-                    serde_json::from_reader(reader)?;
-                store.error_expression.write().unwrap().insert(
-                    error_expression.read().unwrap().id,
-                    error_expression.clone(),
-                );
             }
         }
 
@@ -4702,6 +4899,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(function.read().unwrap().id, function.clone());
+            }
+        }
+
+        // Load Future.
+        {
+            let path = path.join("x_future");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_future: Arc<RwLock<XFuture>> = serde_json::from_reader(reader)?;
+                store
+                    .x_future
+                    .write()
+                    .unwrap()
+                    .insert(x_future.read().unwrap().id, x_future.clone());
             }
         }
 
@@ -5047,6 +5262,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Named Field Expression.
+        {
+            let path = path.join("named_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let named_field_expression: Arc<RwLock<NamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.named_field_expression.write().unwrap().insert(
+                    named_field_expression.read().unwrap().id,
+                    named_field_expression.clone(),
+                );
+            }
+        }
+
         // Load Object Store.
         {
             let path = path.join("z_object_store");
@@ -5101,24 +5334,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Option.
-        {
-            let path = path.join("woog_option");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let woog_option: Arc<RwLock<WoogOption>> = serde_json::from_reader(reader)?;
-                store
-                    .woog_option
-                    .write()
-                    .unwrap()
-                    .insert(woog_option.read().unwrap().id, woog_option.clone());
-            }
-        }
-
         // Load Parameter.
         {
             let path = path.join("parameter");
@@ -5137,6 +5352,42 @@ impl ObjectStore {
             }
         }
 
+        // Load Path.
+        {
+            let path = path.join("x_path");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_path: Arc<RwLock<XPath>> = serde_json::from_reader(reader)?;
+                store
+                    .x_path
+                    .write()
+                    .unwrap()
+                    .insert(x_path.read().unwrap().id, x_path.clone());
+            }
+        }
+
+        // Load Path Element.
+        {
+            let path = path.join("path_element");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let path_element: Arc<RwLock<PathElement>> = serde_json::from_reader(reader)?;
+                store
+                    .path_element
+                    .write()
+                    .unwrap()
+                    .insert(path_element.read().unwrap().id, path_element.clone());
+            }
+        }
+
         // Load Pattern.
         {
             let path = path.join("pattern");
@@ -5152,24 +5403,6 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(pattern.read().unwrap().id, pattern.clone());
-            }
-        }
-
-        // Load Plain.
-        {
-            let path = path.join("plain");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let plain: Arc<RwLock<Plain>> = serde_json::from_reader(reader)?;
-                store
-                    .plain
-                    .write()
-                    .unwrap()
-                    .insert(plain.read().unwrap().id, plain.clone());
             }
         }
 
@@ -5209,24 +5442,6 @@ impl ObjectStore {
             }
         }
 
-        // Load Reference.
-        {
-            let path = path.join("reference");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let reference: Arc<RwLock<Reference>> = serde_json::from_reader(reader)?;
-                store
-                    .reference
-                    .write()
-                    .unwrap()
-                    .insert(reference.read().unwrap().id, reference.clone());
-            }
-        }
-
         // Load Result Statement.
         {
             let path = path.join("result_statement");
@@ -5260,24 +5475,6 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(x_return.read().unwrap().id, x_return.clone());
-            }
-        }
-
-        // Load Some.
-        {
-            let path = path.join("z_some");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let z_some: Arc<RwLock<ZSome>> = serde_json::from_reader(reader)?;
-                store
-                    .z_some
-                    .write()
-                    .unwrap()
-                    .insert(z_some.read().unwrap().id, z_some.clone());
             }
         }
 
@@ -5411,6 +5608,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Struct Generic.
+        {
+            let path = path.join("struct_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let struct_generic: Arc<RwLock<StructGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .struct_generic
+                    .write()
+                    .unwrap()
+                    .insert(struct_generic.read().unwrap().id, struct_generic.clone());
+            }
+        }
+
         // Load Tuple Field.
         {
             let path = path.join("tuple_field");
@@ -5462,6 +5677,42 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(unary.read().unwrap().id(), unary.clone());
+            }
+        }
+
+        // Load Unit.
+        {
+            let path = path.join("unit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unit: Arc<RwLock<Unit>> = serde_json::from_reader(reader)?;
+                store
+                    .unit
+                    .write()
+                    .unwrap()
+                    .insert(unit.read().unwrap().id, unit.clone());
+            }
+        }
+
+        // Load Unnamed Field Expression.
+        {
+            let path = path.join("unnamed_field_expression");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let unnamed_field_expression: Arc<RwLock<UnnamedFieldExpression>> =
+                    serde_json::from_reader(reader)?;
+                store.unnamed_field_expression.write().unwrap().insert(
+                    unnamed_field_expression.read().unwrap().id,
+                    unnamed_field_expression.clone(),
+                );
             }
         }
 

@@ -54,7 +54,7 @@ impl Function {
         let new = Rc::new(RefCell::new(Function {
             id,
             name,
-            body: body.borrow().id(),
+            body: body.borrow().id,
             first_param: first_param.map(|parameter| parameter.borrow().id),
             impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
             return_type: return_type.borrow().id(),

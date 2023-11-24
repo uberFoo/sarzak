@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generic-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueType;
@@ -53,7 +52,6 @@ impl Generic {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generic-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Generic`] across R3(1-*c)
     pub fn r3_generic<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Generic>>> {
-        span!("r3_generic");
         match self.next {
             Some(ref next) => vec![store.exhume_generic(&next).unwrap()],
             None => Vec::new(),
@@ -66,7 +64,6 @@ impl Generic {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r99_value_type");
         match self.ty {
             Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
             None => Vec::new(),
@@ -76,7 +73,6 @@ impl Generic {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generic-struct-impl-nav-backward-one-bi-cond-to-generic"}}}
     /// Navigate to [`Generic`] across R3(1c-1c)
     pub fn r3c_generic<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Generic>>> {
-        span!("r3_generic");
         let generic = store
             .iter_generic()
             .find(|generic| generic.read().unwrap().next == Some(self.id));
@@ -92,7 +88,6 @@ impl Generic {
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         vec![store
             .iter_value_type()
             .find(|value_type| {

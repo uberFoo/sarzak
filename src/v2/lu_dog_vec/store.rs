@@ -20,8 +20,6 @@
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
 //! * [`Enumeration`]
-//! * [`XError`]
-//! * [`ErrorExpression`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
@@ -60,9 +58,9 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
+//! * [`Plugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
-//! * [`Reference`]
 //! * [`ResultStatement`]
 //! * [`XReturn`]
 //! * [`Span`]
@@ -98,19 +96,19 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, ErrorExpression, Expression,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
-    Operator, Parameter, PathElement, Pattern, RangeExpression, Reference, ResultStatement, Span,
-    Statement, StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric,
-    TupleField, TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable,
-    VariableExpression, WoogStruct, XError, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn,
-    XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EQUAL,
+    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
+    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
+    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
+    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
+    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, Plugin, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore,
+    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
     FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
     ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, UNKNOWN_VARIABLE,
+    NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -142,10 +140,6 @@ pub struct ObjectStore {
     enumeration_free_list: Vec<usize>,
     enumeration: Vec<Option<Rc<RefCell<Enumeration>>>>,
     enumeration_id_by_name: HashMap<String, usize>,
-    x_error_free_list: Vec<usize>,
-    x_error: Vec<Option<Rc<RefCell<XError>>>>,
-    error_expression_free_list: Vec<usize>,
-    error_expression: Vec<Option<Rc<RefCell<ErrorExpression>>>>,
     expression_free_list: Vec<usize>,
     expression: Vec<Option<Rc<RefCell<Expression>>>>,
     expression_statement_free_list: Vec<usize>,
@@ -225,12 +219,12 @@ pub struct ObjectStore {
     path_element: Vec<Option<Rc<RefCell<PathElement>>>>,
     pattern_free_list: Vec<usize>,
     pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
+    plugin_free_list: Vec<usize>,
+    plugin: Vec<Option<Rc<RefCell<Plugin>>>>,
     x_print_free_list: Vec<usize>,
     x_print: Vec<Option<Rc<RefCell<XPrint>>>>,
     range_expression_free_list: Vec<usize>,
     range_expression: Vec<Option<Rc<RefCell<RangeExpression>>>>,
-    reference_free_list: Vec<usize>,
-    reference: Vec<Option<Rc<RefCell<Reference>>>>,
     result_statement_free_list: Vec<usize>,
     result_statement: Vec<Option<Rc<RefCell<ResultStatement>>>>,
     x_return_free_list: Vec<usize>,
@@ -302,10 +296,6 @@ impl ObjectStore {
             enumeration_free_list: Vec::new(),
             enumeration: Vec::new(),
             enumeration_id_by_name: HashMap::default(),
-            x_error_free_list: Vec::new(),
-            x_error: Vec::new(),
-            error_expression_free_list: Vec::new(),
-            error_expression: Vec::new(),
             expression_free_list: Vec::new(),
             expression: Vec::new(),
             expression_statement_free_list: Vec::new(),
@@ -385,12 +375,12 @@ impl ObjectStore {
             path_element: Vec::new(),
             pattern_free_list: Vec::new(),
             pattern: Vec::new(),
+            plugin_free_list: Vec::new(),
+            plugin: Vec::new(),
             x_print_free_list: Vec::new(),
             x_print: Vec::new(),
             range_expression_free_list: Vec::new(),
             range_expression: Vec::new(),
-            reference_free_list: Vec::new(),
-            reference: Vec::new(),
             result_statement_free_list: Vec::new(),
             result_statement: Vec::new(),
             x_return_free_list: Vec::new(),
@@ -526,15 +516,15 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_x_error(|id| {
-            Rc::new(RefCell::new(XError {
-                subtype: super::XErrorEnum::UnknownVariable(UNKNOWN_VARIABLE),
+        store.inter_expression(|id| {
+            Rc::new(RefCell::new(Expression {
+                subtype: super::ExpressionEnum::Debugger(DEBUGGER),
                 id,
             }))
         });
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
-                subtype: super::ExpressionEnum::Debugger(DEBUGGER),
+                subtype: super::ExpressionEnum::EmptyExpression(EMPTY_EXPRESSION),
                 id,
             }))
         });
@@ -570,6 +560,12 @@ impl ObjectStore {
         });
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                subtype: super::ValueTypeEnum::Task(TASK),
+                id,
+            }))
+        });
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
                 subtype: super::ValueTypeEnum::Unknown(UNKNOWN),
                 id,
             }))
@@ -581,6 +577,7 @@ impl ObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog_vec-object-store-methods"}}}
     /// Inter (insert) [`Argument`] into the store.
     ///
+    #[inline]
     pub fn inter_argument<F>(&mut self, argument: F) -> Rc<RefCell<Argument>>
     where
         F: Fn(usize) -> Rc<RefCell<Argument>>,
@@ -616,6 +613,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Argument`] from the store.
     ///
+    #[inline]
     pub fn exhume_argument(&self, id: &usize) -> Option<Rc<RefCell<Argument>>> {
         match self.argument.get(*id) {
             Some(argument) => argument.clone(),
@@ -625,6 +623,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Argument`] from the store.
     ///
+    #[inline]
     pub fn exorcise_argument(&mut self, id: &usize) -> Option<Rc<RefCell<Argument>>> {
         log::debug!(target: "store", "exorcising argument slot: {id}.");
         let result = self.argument[*id].take();
@@ -634,6 +633,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Argument>`.
     ///
+    #[inline]
     pub fn iter_argument(&self) -> impl Iterator<Item = Rc<RefCell<Argument>>> + '_ {
         let len = self.argument.len();
         (0..len)
@@ -648,6 +648,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`AWait`] into the store.
     ///
+    #[inline]
     pub fn inter_a_wait<F>(&mut self, a_wait: F) -> Rc<RefCell<AWait>>
     where
         F: Fn(usize) -> Rc<RefCell<AWait>>,
@@ -683,6 +684,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`AWait`] from the store.
     ///
+    #[inline]
     pub fn exhume_a_wait(&self, id: &usize) -> Option<Rc<RefCell<AWait>>> {
         match self.a_wait.get(*id) {
             Some(a_wait) => a_wait.clone(),
@@ -692,6 +694,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`AWait`] from the store.
     ///
+    #[inline]
     pub fn exorcise_a_wait(&mut self, id: &usize) -> Option<Rc<RefCell<AWait>>> {
         log::debug!(target: "store", "exorcising a_wait slot: {id}.");
         let result = self.a_wait[*id].take();
@@ -701,6 +704,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, AWait>`.
     ///
+    #[inline]
     pub fn iter_a_wait(&self) -> impl Iterator<Item = Rc<RefCell<AWait>>> + '_ {
         let len = self.a_wait.len();
         (0..len)
@@ -715,6 +719,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Binary`] into the store.
     ///
+    #[inline]
     pub fn inter_binary<F>(&mut self, binary: F) -> Rc<RefCell<Binary>>
     where
         F: Fn(usize) -> Rc<RefCell<Binary>>,
@@ -750,6 +755,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Binary`] from the store.
     ///
+    #[inline]
     pub fn exhume_binary(&self, id: &usize) -> Option<Rc<RefCell<Binary>>> {
         match self.binary.get(*id) {
             Some(binary) => binary.clone(),
@@ -759,6 +765,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Binary`] from the store.
     ///
+    #[inline]
     pub fn exorcise_binary(&mut self, id: &usize) -> Option<Rc<RefCell<Binary>>> {
         log::debug!(target: "store", "exorcising binary slot: {id}.");
         let result = self.binary[*id].take();
@@ -768,6 +775,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Binary>`.
     ///
+    #[inline]
     pub fn iter_binary(&self) -> impl Iterator<Item = Rc<RefCell<Binary>>> + '_ {
         let len = self.binary.len();
         (0..len)
@@ -782,6 +790,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Block`] into the store.
     ///
+    #[inline]
     pub fn inter_block<F>(&mut self, block: F) -> Rc<RefCell<Block>>
     where
         F: Fn(usize) -> Rc<RefCell<Block>>,
@@ -817,6 +826,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Block`] from the store.
     ///
+    #[inline]
     pub fn exhume_block(&self, id: &usize) -> Option<Rc<RefCell<Block>>> {
         match self.block.get(*id) {
             Some(block) => block.clone(),
@@ -826,6 +836,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Block`] from the store.
     ///
+    #[inline]
     pub fn exorcise_block(&mut self, id: &usize) -> Option<Rc<RefCell<Block>>> {
         log::debug!(target: "store", "exorcising block slot: {id}.");
         let result = self.block[*id].take();
@@ -835,6 +846,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Block>`.
     ///
+    #[inline]
     pub fn iter_block(&self) -> impl Iterator<Item = Rc<RefCell<Block>>> + '_ {
         let len = self.block.len();
         (0..len)
@@ -844,6 +856,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Body`] into the store.
     ///
+    #[inline]
     pub fn inter_body<F>(&mut self, body: F) -> Rc<RefCell<Body>>
     where
         F: Fn(usize) -> Rc<RefCell<Body>>,
@@ -879,6 +892,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Body`] from the store.
     ///
+    #[inline]
     pub fn exhume_body(&self, id: &usize) -> Option<Rc<RefCell<Body>>> {
         match self.body.get(*id) {
             Some(body) => body.clone(),
@@ -888,6 +902,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Body`] from the store.
     ///
+    #[inline]
     pub fn exorcise_body(&mut self, id: &usize) -> Option<Rc<RefCell<Body>>> {
         log::debug!(target: "store", "exorcising body slot: {id}.");
         let result = self.body[*id].take();
@@ -897,6 +912,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Body>`.
     ///
+    #[inline]
     pub fn iter_body(&self) -> impl Iterator<Item = Rc<RefCell<Body>>> + '_ {
         let len = self.body.len();
         (0..len)
@@ -906,6 +922,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_boolean_literal<F>(&mut self, boolean_literal: F) -> Rc<RefCell<BooleanLiteral>>
     where
         F: Fn(usize) -> Rc<RefCell<BooleanLiteral>>,
@@ -941,6 +958,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_boolean_literal(&self, id: &usize) -> Option<Rc<RefCell<BooleanLiteral>>> {
         match self.boolean_literal.get(*id) {
             Some(boolean_literal) => boolean_literal.clone(),
@@ -950,6 +968,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`BooleanLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_boolean_literal(&mut self, id: &usize) -> Option<Rc<RefCell<BooleanLiteral>>> {
         log::debug!(target: "store", "exorcising boolean_literal slot: {id}.");
         let result = self.boolean_literal[*id].take();
@@ -959,6 +978,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanLiteral>`.
     ///
+    #[inline]
     pub fn iter_boolean_literal(&self) -> impl Iterator<Item = Rc<RefCell<BooleanLiteral>>> + '_ {
         let len = self.boolean_literal.len();
         (0..len)
@@ -973,6 +993,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`BooleanOperator`] into the store.
     ///
+    #[inline]
     pub fn inter_boolean_operator<F>(&mut self, boolean_operator: F) -> Rc<RefCell<BooleanOperator>>
     where
         F: Fn(usize) -> Rc<RefCell<BooleanOperator>>,
@@ -1008,6 +1029,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`BooleanOperator`] from the store.
     ///
+    #[inline]
     pub fn exhume_boolean_operator(&self, id: &usize) -> Option<Rc<RefCell<BooleanOperator>>> {
         match self.boolean_operator.get(*id) {
             Some(boolean_operator) => boolean_operator.clone(),
@@ -1017,6 +1039,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`BooleanOperator`] from the store.
     ///
+    #[inline]
     pub fn exorcise_boolean_operator(
         &mut self,
         id: &usize,
@@ -1029,6 +1052,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, BooleanOperator>`.
     ///
+    #[inline]
     pub fn iter_boolean_operator(&self) -> impl Iterator<Item = Rc<RefCell<BooleanOperator>>> + '_ {
         let len = self.boolean_operator.len();
         (0..len)
@@ -1043,6 +1067,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Call`] into the store.
     ///
+    #[inline]
     pub fn inter_call<F>(&mut self, call: F) -> Rc<RefCell<Call>>
     where
         F: Fn(usize) -> Rc<RefCell<Call>>,
@@ -1078,6 +1103,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Call`] from the store.
     ///
+    #[inline]
     pub fn exhume_call(&self, id: &usize) -> Option<Rc<RefCell<Call>>> {
         match self.call.get(*id) {
             Some(call) => call.clone(),
@@ -1087,6 +1113,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Call`] from the store.
     ///
+    #[inline]
     pub fn exorcise_call(&mut self, id: &usize) -> Option<Rc<RefCell<Call>>> {
         log::debug!(target: "store", "exorcising call slot: {id}.");
         let result = self.call[*id].take();
@@ -1096,6 +1123,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Call>`.
     ///
+    #[inline]
     pub fn iter_call(&self) -> impl Iterator<Item = Rc<RefCell<Call>>> + '_ {
         let len = self.call.len();
         (0..len)
@@ -1105,6 +1133,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Comparison`] into the store.
     ///
+    #[inline]
     pub fn inter_comparison<F>(&mut self, comparison: F) -> Rc<RefCell<Comparison>>
     where
         F: Fn(usize) -> Rc<RefCell<Comparison>>,
@@ -1140,6 +1169,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Comparison`] from the store.
     ///
+    #[inline]
     pub fn exhume_comparison(&self, id: &usize) -> Option<Rc<RefCell<Comparison>>> {
         match self.comparison.get(*id) {
             Some(comparison) => comparison.clone(),
@@ -1149,6 +1179,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Comparison`] from the store.
     ///
+    #[inline]
     pub fn exorcise_comparison(&mut self, id: &usize) -> Option<Rc<RefCell<Comparison>>> {
         log::debug!(target: "store", "exorcising comparison slot: {id}.");
         let result = self.comparison[*id].take();
@@ -1158,6 +1189,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Comparison>`.
     ///
+    #[inline]
     pub fn iter_comparison(&self) -> impl Iterator<Item = Rc<RefCell<Comparison>>> + '_ {
         let len = self.comparison.len();
         (0..len)
@@ -1172,6 +1204,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`DataStructure`] into the store.
     ///
+    #[inline]
     pub fn inter_data_structure<F>(&mut self, data_structure: F) -> Rc<RefCell<DataStructure>>
     where
         F: Fn(usize) -> Rc<RefCell<DataStructure>>,
@@ -1207,6 +1240,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`DataStructure`] from the store.
     ///
+    #[inline]
     pub fn exhume_data_structure(&self, id: &usize) -> Option<Rc<RefCell<DataStructure>>> {
         match self.data_structure.get(*id) {
             Some(data_structure) => data_structure.clone(),
@@ -1216,6 +1250,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`DataStructure`] from the store.
     ///
+    #[inline]
     pub fn exorcise_data_structure(&mut self, id: &usize) -> Option<Rc<RefCell<DataStructure>>> {
         log::debug!(target: "store", "exorcising data_structure slot: {id}.");
         let result = self.data_structure[*id].take();
@@ -1225,6 +1260,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, DataStructure>`.
     ///
+    #[inline]
     pub fn iter_data_structure(&self) -> impl Iterator<Item = Rc<RefCell<DataStructure>>> + '_ {
         let len = self.data_structure.len();
         (0..len)
@@ -1239,6 +1275,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`DwarfSourceFile`] into the store.
     ///
+    #[inline]
     pub fn inter_dwarf_source_file<F>(
         &mut self,
         dwarf_source_file: F,
@@ -1277,6 +1314,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`DwarfSourceFile`] from the store.
     ///
+    #[inline]
     pub fn exhume_dwarf_source_file(&self, id: &usize) -> Option<Rc<RefCell<DwarfSourceFile>>> {
         match self.dwarf_source_file.get(*id) {
             Some(dwarf_source_file) => dwarf_source_file.clone(),
@@ -1286,6 +1324,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`DwarfSourceFile`] from the store.
     ///
+    #[inline]
     pub fn exorcise_dwarf_source_file(
         &mut self,
         id: &usize,
@@ -1298,6 +1337,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, DwarfSourceFile>`.
     ///
+    #[inline]
     pub fn iter_dwarf_source_file(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<DwarfSourceFile>>> + '_ {
@@ -1314,6 +1354,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`EnumField`] into the store.
     ///
+    #[inline]
     pub fn inter_enum_field<F>(&mut self, enum_field: F) -> Rc<RefCell<EnumField>>
     where
         F: Fn(usize) -> Rc<RefCell<EnumField>>,
@@ -1349,6 +1390,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`EnumField`] from the store.
     ///
+    #[inline]
     pub fn exhume_enum_field(&self, id: &usize) -> Option<Rc<RefCell<EnumField>>> {
         match self.enum_field.get(*id) {
             Some(enum_field) => enum_field.clone(),
@@ -1358,6 +1400,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`EnumField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_enum_field(&mut self, id: &usize) -> Option<Rc<RefCell<EnumField>>> {
         log::debug!(target: "store", "exorcising enum_field slot: {id}.");
         let result = self.enum_field[*id].take();
@@ -1367,6 +1410,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, EnumField>`.
     ///
+    #[inline]
     pub fn iter_enum_field(&self) -> impl Iterator<Item = Rc<RefCell<EnumField>>> + '_ {
         let len = self.enum_field.len();
         (0..len)
@@ -1381,6 +1425,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Enumeration`] into the store.
     ///
+    #[inline]
     pub fn inter_enumeration<F>(&mut self, enumeration: F) -> Rc<RefCell<Enumeration>>
     where
         F: Fn(usize) -> Rc<RefCell<Enumeration>>,
@@ -1421,6 +1466,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Enumeration`] from the store.
     ///
+    #[inline]
     pub fn exhume_enumeration(&self, id: &usize) -> Option<Rc<RefCell<Enumeration>>> {
         match self.enumeration.get(*id) {
             Some(enumeration) => enumeration.clone(),
@@ -1430,6 +1476,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Enumeration`] from the store.
     ///
+    #[inline]
     pub fn exorcise_enumeration(&mut self, id: &usize) -> Option<Rc<RefCell<Enumeration>>> {
         log::debug!(target: "store", "exorcising enumeration slot: {id}.");
         let result = self.enumeration[*id].take();
@@ -1439,6 +1486,7 @@ impl ObjectStore {
 
     /// Exorcise [`Enumeration`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<usize> {
         self.enumeration_id_by_name
             .get(name)
@@ -1447,6 +1495,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
     ///
+    #[inline]
     pub fn iter_enumeration(&self) -> impl Iterator<Item = Rc<RefCell<Enumeration>>> + '_ {
         let len = self.enumeration.len();
         (0..len)
@@ -1459,145 +1508,9 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`XError`] into the store.
-    ///
-    pub fn inter_x_error<F>(&mut self, x_error: F) -> Rc<RefCell<XError>>
-    where
-        F: Fn(usize) -> Rc<RefCell<XError>>,
-    {
-        let _index = if let Some(_index) = self.x_error_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.x_error.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.x_error.push(None);
-            _index
-        };
-
-        let x_error = x_error(_index);
-
-        if let Some(Some(x_error)) = self.x_error.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *x_error.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {x_error:?}.");
-            self.x_error_free_list.push(_index);
-            x_error.clone()
-        } else {
-            log::debug!(target: "store", "interring {x_error:?}.");
-            self.x_error[_index] = Some(x_error.clone());
-            x_error
-        }
-    }
-
-    /// Exhume (get) [`XError`] from the store.
-    ///
-    pub fn exhume_x_error(&self, id: &usize) -> Option<Rc<RefCell<XError>>> {
-        match self.x_error.get(*id) {
-            Some(x_error) => x_error.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`XError`] from the store.
-    ///
-    pub fn exorcise_x_error(&mut self, id: &usize) -> Option<Rc<RefCell<XError>>> {
-        log::debug!(target: "store", "exorcising x_error slot: {id}.");
-        let result = self.x_error[*id].take();
-        self.x_error_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, XError>`.
-    ///
-    pub fn iter_x_error(&self) -> impl Iterator<Item = Rc<RefCell<XError>>> + '_ {
-        let len = self.x_error.len();
-        (0..len)
-            .filter(|i| self.x_error[*i].is_some())
-            .map(move |i| {
-                self.x_error[i]
-                    .as_ref()
-                    .map(|x_error| x_error.clone())
-                    .unwrap()
-            })
-    }
-
-    /// Inter (insert) [`ErrorExpression`] into the store.
-    ///
-    pub fn inter_error_expression<F>(&mut self, error_expression: F) -> Rc<RefCell<ErrorExpression>>
-    where
-        F: Fn(usize) -> Rc<RefCell<ErrorExpression>>,
-    {
-        let _index = if let Some(_index) = self.error_expression_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.error_expression.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.error_expression.push(None);
-            _index
-        };
-
-        let error_expression = error_expression(_index);
-
-        if let Some(Some(error_expression)) = self.error_expression.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *error_expression.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {error_expression:?}.");
-            self.error_expression_free_list.push(_index);
-            error_expression.clone()
-        } else {
-            log::debug!(target: "store", "interring {error_expression:?}.");
-            self.error_expression[_index] = Some(error_expression.clone());
-            error_expression
-        }
-    }
-
-    /// Exhume (get) [`ErrorExpression`] from the store.
-    ///
-    pub fn exhume_error_expression(&self, id: &usize) -> Option<Rc<RefCell<ErrorExpression>>> {
-        match self.error_expression.get(*id) {
-            Some(error_expression) => error_expression.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`ErrorExpression`] from the store.
-    ///
-    pub fn exorcise_error_expression(
-        &mut self,
-        id: &usize,
-    ) -> Option<Rc<RefCell<ErrorExpression>>> {
-        log::debug!(target: "store", "exorcising error_expression slot: {id}.");
-        let result = self.error_expression[*id].take();
-        self.error_expression_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, ErrorExpression>`.
-    ///
-    pub fn iter_error_expression(&self) -> impl Iterator<Item = Rc<RefCell<ErrorExpression>>> + '_ {
-        let len = self.error_expression.len();
-        (0..len)
-            .filter(|i| self.error_expression[*i].is_some())
-            .map(move |i| {
-                self.error_expression[i]
-                    .as_ref()
-                    .map(|error_expression| error_expression.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`Expression`] into the store.
     ///
+    #[inline]
     pub fn inter_expression<F>(&mut self, expression: F) -> Rc<RefCell<Expression>>
     where
         F: Fn(usize) -> Rc<RefCell<Expression>>,
@@ -1633,6 +1546,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Expression`] from the store.
     ///
+    #[inline]
     pub fn exhume_expression(&self, id: &usize) -> Option<Rc<RefCell<Expression>>> {
         match self.expression.get(*id) {
             Some(expression) => expression.clone(),
@@ -1642,6 +1556,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Expression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_expression(&mut self, id: &usize) -> Option<Rc<RefCell<Expression>>> {
         log::debug!(target: "store", "exorcising expression slot: {id}.");
         let result = self.expression[*id].take();
@@ -1651,6 +1566,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Expression>`.
     ///
+    #[inline]
     pub fn iter_expression(&self) -> impl Iterator<Item = Rc<RefCell<Expression>>> + '_ {
         let len = self.expression.len();
         (0..len)
@@ -1665,6 +1581,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_expression_statement<F>(
         &mut self,
         expression_statement: F,
@@ -1703,6 +1620,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ExpressionStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_expression_statement(
         &self,
         id: &usize,
@@ -1715,6 +1633,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ExpressionStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_expression_statement(
         &mut self,
         id: &usize,
@@ -1727,6 +1646,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExpressionStatement>`.
     ///
+    #[inline]
     pub fn iter_expression_statement(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<ExpressionStatement>>> + '_ {
@@ -1743,6 +1663,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ExternalImplementation`] into the store.
     ///
+    #[inline]
     pub fn inter_external_implementation<F>(
         &mut self,
         external_implementation: F,
@@ -1783,6 +1704,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ExternalImplementation`] from the store.
     ///
+    #[inline]
     pub fn exhume_external_implementation(
         &self,
         id: &usize,
@@ -1795,6 +1717,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ExternalImplementation`] from the store.
     ///
+    #[inline]
     pub fn exorcise_external_implementation(
         &mut self,
         id: &usize,
@@ -1807,6 +1730,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ExternalImplementation>`.
     ///
+    #[inline]
     pub fn iter_external_implementation(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<ExternalImplementation>>> + '_ {
@@ -1823,6 +1747,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Field`] into the store.
     ///
+    #[inline]
     pub fn inter_field<F>(&mut self, field: F) -> Rc<RefCell<Field>>
     where
         F: Fn(usize) -> Rc<RefCell<Field>>,
@@ -1861,6 +1786,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Field`] from the store.
     ///
+    #[inline]
     pub fn exhume_field(&self, id: &usize) -> Option<Rc<RefCell<Field>>> {
         match self.field.get(*id) {
             Some(field) => field.clone(),
@@ -1870,6 +1796,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Field`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field(&mut self, id: &usize) -> Option<Rc<RefCell<Field>>> {
         log::debug!(target: "store", "exorcising field slot: {id}.");
         let result = self.field[*id].take();
@@ -1879,12 +1806,14 @@ impl ObjectStore {
 
     /// Exorcise [`Field`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_field_id_by_name(&self, name: &str) -> Option<usize> {
         self.field_id_by_name.get(name).map(|field| *field)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Field>`.
     ///
+    #[inline]
     pub fn iter_field(&self) -> impl Iterator<Item = Rc<RefCell<Field>>> + '_ {
         let len = self.field.len();
         (0..len)
@@ -1894,6 +1823,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccess`] into the store.
     ///
+    #[inline]
     pub fn inter_field_access<F>(&mut self, field_access: F) -> Rc<RefCell<FieldAccess>>
     where
         F: Fn(usize) -> Rc<RefCell<FieldAccess>>,
@@ -1929,6 +1859,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldAccess`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_access(&self, id: &usize) -> Option<Rc<RefCell<FieldAccess>>> {
         match self.field_access.get(*id) {
             Some(field_access) => field_access.clone(),
@@ -1938,6 +1869,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldAccess`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_access(&mut self, id: &usize) -> Option<Rc<RefCell<FieldAccess>>> {
         log::debug!(target: "store", "exorcising field_access slot: {id}.");
         let result = self.field_access[*id].take();
@@ -1947,6 +1879,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccess>`.
     ///
+    #[inline]
     pub fn iter_field_access(&self) -> impl Iterator<Item = Rc<RefCell<FieldAccess>>> + '_ {
         let len = self.field_access.len();
         (0..len)
@@ -1961,6 +1894,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldAccessTarget`] into the store.
     ///
+    #[inline]
     pub fn inter_field_access_target<F>(
         &mut self,
         field_access_target: F,
@@ -1999,6 +1933,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_access_target(&self, id: &usize) -> Option<Rc<RefCell<FieldAccessTarget>>> {
         match self.field_access_target.get(*id) {
             Some(field_access_target) => field_access_target.clone(),
@@ -2008,6 +1943,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldAccessTarget`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_access_target(
         &mut self,
         id: &usize,
@@ -2020,6 +1956,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldAccessTarget>`.
     ///
+    #[inline]
     pub fn iter_field_access_target(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<FieldAccessTarget>>> + '_ {
@@ -2036,6 +1973,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_field_expression<F>(&mut self, field_expression: F) -> Rc<RefCell<FieldExpression>>
     where
         F: Fn(usize) -> Rc<RefCell<FieldExpression>>,
@@ -2071,6 +2009,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_field_expression(&self, id: &usize) -> Option<Rc<RefCell<FieldExpression>>> {
         match self.field_expression.get(*id) {
             Some(field_expression) => field_expression.clone(),
@@ -2080,6 +2019,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_field_expression(
         &mut self,
         id: &usize,
@@ -2092,6 +2032,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FieldExpression>`.
     ///
+    #[inline]
     pub fn iter_field_expression(&self) -> impl Iterator<Item = Rc<RefCell<FieldExpression>>> + '_ {
         let len = self.field_expression.len();
         (0..len)
@@ -2106,6 +2047,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`FloatLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_float_literal<F>(&mut self, float_literal: F) -> Rc<RefCell<FloatLiteral>>
     where
         F: Fn(usize) -> Rc<RefCell<FloatLiteral>>,
@@ -2141,6 +2083,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`FloatLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_float_literal(&self, id: &usize) -> Option<Rc<RefCell<FloatLiteral>>> {
         match self.float_literal.get(*id) {
             Some(float_literal) => float_literal.clone(),
@@ -2150,6 +2093,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`FloatLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_float_literal(&mut self, id: &usize) -> Option<Rc<RefCell<FloatLiteral>>> {
         log::debug!(target: "store", "exorcising float_literal slot: {id}.");
         let result = self.float_literal[*id].take();
@@ -2159,6 +2103,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, FloatLiteral>`.
     ///
+    #[inline]
     pub fn iter_float_literal(&self) -> impl Iterator<Item = Rc<RefCell<FloatLiteral>>> + '_ {
         let len = self.float_literal.len();
         (0..len)
@@ -2173,6 +2118,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ForLoop`] into the store.
     ///
+    #[inline]
     pub fn inter_for_loop<F>(&mut self, for_loop: F) -> Rc<RefCell<ForLoop>>
     where
         F: Fn(usize) -> Rc<RefCell<ForLoop>>,
@@ -2208,6 +2154,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ForLoop`] from the store.
     ///
+    #[inline]
     pub fn exhume_for_loop(&self, id: &usize) -> Option<Rc<RefCell<ForLoop>>> {
         match self.for_loop.get(*id) {
             Some(for_loop) => for_loop.clone(),
@@ -2217,6 +2164,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ForLoop`] from the store.
     ///
+    #[inline]
     pub fn exorcise_for_loop(&mut self, id: &usize) -> Option<Rc<RefCell<ForLoop>>> {
         log::debug!(target: "store", "exorcising for_loop slot: {id}.");
         let result = self.for_loop[*id].take();
@@ -2226,6 +2174,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ForLoop>`.
     ///
+    #[inline]
     pub fn iter_for_loop(&self) -> impl Iterator<Item = Rc<RefCell<ForLoop>>> + '_ {
         let len = self.for_loop.len();
         (0..len)
@@ -2240,6 +2189,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Function`] into the store.
     ///
+    #[inline]
     pub fn inter_function<F>(&mut self, function: F) -> Rc<RefCell<Function>>
     where
         F: Fn(usize) -> Rc<RefCell<Function>>,
@@ -2278,6 +2228,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Function`] from the store.
     ///
+    #[inline]
     pub fn exhume_function(&self, id: &usize) -> Option<Rc<RefCell<Function>>> {
         match self.function.get(*id) {
             Some(function) => function.clone(),
@@ -2287,6 +2238,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Function`] from the store.
     ///
+    #[inline]
     pub fn exorcise_function(&mut self, id: &usize) -> Option<Rc<RefCell<Function>>> {
         log::debug!(target: "store", "exorcising function slot: {id}.");
         let result = self.function[*id].take();
@@ -2296,12 +2248,14 @@ impl ObjectStore {
 
     /// Exorcise [`Function`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_function_id_by_name(&self, name: &str) -> Option<usize> {
         self.function_id_by_name.get(name).map(|function| *function)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Function>`.
     ///
+    #[inline]
     pub fn iter_function(&self) -> impl Iterator<Item = Rc<RefCell<Function>>> + '_ {
         let len = self.function.len();
         (0..len)
@@ -2316,6 +2270,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XFuture`] into the store.
     ///
+    #[inline]
     pub fn inter_x_future<F>(&mut self, x_future: F) -> Rc<RefCell<XFuture>>
     where
         F: Fn(usize) -> Rc<RefCell<XFuture>>,
@@ -2351,6 +2306,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XFuture`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_future(&self, id: &usize) -> Option<Rc<RefCell<XFuture>>> {
         match self.x_future.get(*id) {
             Some(x_future) => x_future.clone(),
@@ -2360,6 +2316,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XFuture`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_future(&mut self, id: &usize) -> Option<Rc<RefCell<XFuture>>> {
         log::debug!(target: "store", "exorcising x_future slot: {id}.");
         let result = self.x_future[*id].take();
@@ -2369,6 +2326,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XFuture>`.
     ///
+    #[inline]
     pub fn iter_x_future(&self) -> impl Iterator<Item = Rc<RefCell<XFuture>>> + '_ {
         let len = self.x_future.len();
         (0..len)
@@ -2383,6 +2341,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Generic`] into the store.
     ///
+    #[inline]
     pub fn inter_generic<F>(&mut self, generic: F) -> Rc<RefCell<Generic>>
     where
         F: Fn(usize) -> Rc<RefCell<Generic>>,
@@ -2418,6 +2377,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Generic`] from the store.
     ///
+    #[inline]
     pub fn exhume_generic(&self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
         match self.generic.get(*id) {
             Some(generic) => generic.clone(),
@@ -2427,6 +2387,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Generic`] from the store.
     ///
+    #[inline]
     pub fn exorcise_generic(&mut self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
         log::debug!(target: "store", "exorcising generic slot: {id}.");
         let result = self.generic[*id].take();
@@ -2436,6 +2397,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
     ///
+    #[inline]
     pub fn iter_generic(&self) -> impl Iterator<Item = Rc<RefCell<Generic>>> + '_ {
         let len = self.generic.len();
         (0..len)
@@ -2450,6 +2412,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Grouped`] into the store.
     ///
+    #[inline]
     pub fn inter_grouped<F>(&mut self, grouped: F) -> Rc<RefCell<Grouped>>
     where
         F: Fn(usize) -> Rc<RefCell<Grouped>>,
@@ -2485,6 +2448,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Grouped`] from the store.
     ///
+    #[inline]
     pub fn exhume_grouped(&self, id: &usize) -> Option<Rc<RefCell<Grouped>>> {
         match self.grouped.get(*id) {
             Some(grouped) => grouped.clone(),
@@ -2494,6 +2458,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Grouped`] from the store.
     ///
+    #[inline]
     pub fn exorcise_grouped(&mut self, id: &usize) -> Option<Rc<RefCell<Grouped>>> {
         log::debug!(target: "store", "exorcising grouped slot: {id}.");
         let result = self.grouped[*id].take();
@@ -2503,6 +2468,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Grouped>`.
     ///
+    #[inline]
     pub fn iter_grouped(&self) -> impl Iterator<Item = Rc<RefCell<Grouped>>> + '_ {
         let len = self.grouped.len();
         (0..len)
@@ -2517,6 +2483,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XIf`] into the store.
     ///
+    #[inline]
     pub fn inter_x_if<F>(&mut self, x_if: F) -> Rc<RefCell<XIf>>
     where
         F: Fn(usize) -> Rc<RefCell<XIf>>,
@@ -2552,6 +2519,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XIf`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_if(&self, id: &usize) -> Option<Rc<RefCell<XIf>>> {
         match self.x_if.get(*id) {
             Some(x_if) => x_if.clone(),
@@ -2561,6 +2529,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XIf`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_if(&mut self, id: &usize) -> Option<Rc<RefCell<XIf>>> {
         log::debug!(target: "store", "exorcising x_if slot: {id}.");
         let result = self.x_if[*id].take();
@@ -2570,6 +2539,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XIf>`.
     ///
+    #[inline]
     pub fn iter_x_if(&self) -> impl Iterator<Item = Rc<RefCell<XIf>>> + '_ {
         let len = self.x_if.len();
         (0..len)
@@ -2579,6 +2549,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ImplementationBlock`] into the store.
     ///
+    #[inline]
     pub fn inter_implementation_block<F>(
         &mut self,
         implementation_block: F,
@@ -2617,6 +2588,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ImplementationBlock`] from the store.
     ///
+    #[inline]
     pub fn exhume_implementation_block(
         &self,
         id: &usize,
@@ -2629,6 +2601,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ImplementationBlock`] from the store.
     ///
+    #[inline]
     pub fn exorcise_implementation_block(
         &mut self,
         id: &usize,
@@ -2641,6 +2614,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ImplementationBlock>`.
     ///
+    #[inline]
     pub fn iter_implementation_block(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<ImplementationBlock>>> + '_ {
@@ -2657,6 +2631,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Import`] into the store.
     ///
+    #[inline]
     pub fn inter_import<F>(&mut self, import: F) -> Rc<RefCell<Import>>
     where
         F: Fn(usize) -> Rc<RefCell<Import>>,
@@ -2692,6 +2667,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Import`] from the store.
     ///
+    #[inline]
     pub fn exhume_import(&self, id: &usize) -> Option<Rc<RefCell<Import>>> {
         match self.import.get(*id) {
             Some(import) => import.clone(),
@@ -2701,6 +2677,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Import`] from the store.
     ///
+    #[inline]
     pub fn exorcise_import(&mut self, id: &usize) -> Option<Rc<RefCell<Import>>> {
         log::debug!(target: "store", "exorcising import slot: {id}.");
         let result = self.import[*id].take();
@@ -2710,6 +2687,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Import>`.
     ///
+    #[inline]
     pub fn iter_import(&self) -> impl Iterator<Item = Rc<RefCell<Import>>> + '_ {
         let len = self.import.len();
         (0..len)
@@ -2724,6 +2702,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Index`] into the store.
     ///
+    #[inline]
     pub fn inter_index<F>(&mut self, index: F) -> Rc<RefCell<Index>>
     where
         F: Fn(usize) -> Rc<RefCell<Index>>,
@@ -2759,6 +2738,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Index`] from the store.
     ///
+    #[inline]
     pub fn exhume_index(&self, id: &usize) -> Option<Rc<RefCell<Index>>> {
         match self.index.get(*id) {
             Some(index) => index.clone(),
@@ -2768,6 +2748,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Index`] from the store.
     ///
+    #[inline]
     pub fn exorcise_index(&mut self, id: &usize) -> Option<Rc<RefCell<Index>>> {
         log::debug!(target: "store", "exorcising index slot: {id}.");
         let result = self.index[*id].take();
@@ -2777,6 +2758,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Index>`.
     ///
+    #[inline]
     pub fn iter_index(&self) -> impl Iterator<Item = Rc<RefCell<Index>>> + '_ {
         let len = self.index.len();
         (0..len)
@@ -2786,6 +2768,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`IntegerLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_integer_literal<F>(&mut self, integer_literal: F) -> Rc<RefCell<IntegerLiteral>>
     where
         F: Fn(usize) -> Rc<RefCell<IntegerLiteral>>,
@@ -2821,6 +2804,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`IntegerLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_integer_literal(&self, id: &usize) -> Option<Rc<RefCell<IntegerLiteral>>> {
         match self.integer_literal.get(*id) {
             Some(integer_literal) => integer_literal.clone(),
@@ -2830,6 +2814,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`IntegerLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_integer_literal(&mut self, id: &usize) -> Option<Rc<RefCell<IntegerLiteral>>> {
         log::debug!(target: "store", "exorcising integer_literal slot: {id}.");
         let result = self.integer_literal[*id].take();
@@ -2839,6 +2824,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, IntegerLiteral>`.
     ///
+    #[inline]
     pub fn iter_integer_literal(&self) -> impl Iterator<Item = Rc<RefCell<IntegerLiteral>>> + '_ {
         let len = self.integer_literal.len();
         (0..len)
@@ -2853,6 +2839,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Item`] into the store.
     ///
+    #[inline]
     pub fn inter_item<F>(&mut self, item: F) -> Rc<RefCell<Item>>
     where
         F: Fn(usize) -> Rc<RefCell<Item>>,
@@ -2888,6 +2875,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Item`] from the store.
     ///
+    #[inline]
     pub fn exhume_item(&self, id: &usize) -> Option<Rc<RefCell<Item>>> {
         match self.item.get(*id) {
             Some(item) => item.clone(),
@@ -2897,6 +2885,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Item`] from the store.
     ///
+    #[inline]
     pub fn exorcise_item(&mut self, id: &usize) -> Option<Rc<RefCell<Item>>> {
         log::debug!(target: "store", "exorcising item slot: {id}.");
         let result = self.item[*id].take();
@@ -2906,6 +2895,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Item>`.
     ///
+    #[inline]
     pub fn iter_item(&self) -> impl Iterator<Item = Rc<RefCell<Item>>> + '_ {
         let len = self.item.len();
         (0..len)
@@ -2915,6 +2905,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Lambda`] into the store.
     ///
+    #[inline]
     pub fn inter_lambda<F>(&mut self, lambda: F) -> Rc<RefCell<Lambda>>
     where
         F: Fn(usize) -> Rc<RefCell<Lambda>>,
@@ -2950,6 +2941,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Lambda`] from the store.
     ///
+    #[inline]
     pub fn exhume_lambda(&self, id: &usize) -> Option<Rc<RefCell<Lambda>>> {
         match self.lambda.get(*id) {
             Some(lambda) => lambda.clone(),
@@ -2959,6 +2951,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Lambda`] from the store.
     ///
+    #[inline]
     pub fn exorcise_lambda(&mut self, id: &usize) -> Option<Rc<RefCell<Lambda>>> {
         log::debug!(target: "store", "exorcising lambda slot: {id}.");
         let result = self.lambda[*id].take();
@@ -2968,6 +2961,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Lambda>`.
     ///
+    #[inline]
     pub fn iter_lambda(&self) -> impl Iterator<Item = Rc<RefCell<Lambda>>> + '_ {
         let len = self.lambda.len();
         (0..len)
@@ -2982,6 +2976,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LambdaParameter`] into the store.
     ///
+    #[inline]
     pub fn inter_lambda_parameter<F>(&mut self, lambda_parameter: F) -> Rc<RefCell<LambdaParameter>>
     where
         F: Fn(usize) -> Rc<RefCell<LambdaParameter>>,
@@ -3017,6 +3012,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LambdaParameter`] from the store.
     ///
+    #[inline]
     pub fn exhume_lambda_parameter(&self, id: &usize) -> Option<Rc<RefCell<LambdaParameter>>> {
         match self.lambda_parameter.get(*id) {
             Some(lambda_parameter) => lambda_parameter.clone(),
@@ -3026,6 +3022,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LambdaParameter`] from the store.
     ///
+    #[inline]
     pub fn exorcise_lambda_parameter(
         &mut self,
         id: &usize,
@@ -3038,6 +3035,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LambdaParameter>`.
     ///
+    #[inline]
     pub fn iter_lambda_parameter(&self) -> impl Iterator<Item = Rc<RefCell<LambdaParameter>>> + '_ {
         let len = self.lambda_parameter.len();
         (0..len)
@@ -3052,6 +3050,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LetStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_let_statement<F>(&mut self, let_statement: F) -> Rc<RefCell<LetStatement>>
     where
         F: Fn(usize) -> Rc<RefCell<LetStatement>>,
@@ -3087,6 +3086,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LetStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_let_statement(&self, id: &usize) -> Option<Rc<RefCell<LetStatement>>> {
         match self.let_statement.get(*id) {
             Some(let_statement) => let_statement.clone(),
@@ -3096,6 +3096,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LetStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_let_statement(&mut self, id: &usize) -> Option<Rc<RefCell<LetStatement>>> {
         log::debug!(target: "store", "exorcising let_statement slot: {id}.");
         let result = self.let_statement[*id].take();
@@ -3105,6 +3106,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LetStatement>`.
     ///
+    #[inline]
     pub fn iter_let_statement(&self) -> impl Iterator<Item = Rc<RefCell<LetStatement>>> + '_ {
         let len = self.let_statement.len();
         (0..len)
@@ -3119,6 +3121,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`List`] into the store.
     ///
+    #[inline]
     pub fn inter_list<F>(&mut self, list: F) -> Rc<RefCell<List>>
     where
         F: Fn(usize) -> Rc<RefCell<List>>,
@@ -3154,6 +3157,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`List`] from the store.
     ///
+    #[inline]
     pub fn exhume_list(&self, id: &usize) -> Option<Rc<RefCell<List>>> {
         match self.list.get(*id) {
             Some(list) => list.clone(),
@@ -3163,6 +3167,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`List`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list(&mut self, id: &usize) -> Option<Rc<RefCell<List>>> {
         log::debug!(target: "store", "exorcising list slot: {id}.");
         let result = self.list[*id].take();
@@ -3172,6 +3177,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, List>`.
     ///
+    #[inline]
     pub fn iter_list(&self) -> impl Iterator<Item = Rc<RefCell<List>>> + '_ {
         let len = self.list.len();
         (0..len)
@@ -3181,6 +3187,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListElement`] into the store.
     ///
+    #[inline]
     pub fn inter_list_element<F>(&mut self, list_element: F) -> Rc<RefCell<ListElement>>
     where
         F: Fn(usize) -> Rc<RefCell<ListElement>>,
@@ -3216,6 +3223,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ListElement`] from the store.
     ///
+    #[inline]
     pub fn exhume_list_element(&self, id: &usize) -> Option<Rc<RefCell<ListElement>>> {
         match self.list_element.get(*id) {
             Some(list_element) => list_element.clone(),
@@ -3225,6 +3233,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ListElement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list_element(&mut self, id: &usize) -> Option<Rc<RefCell<ListElement>>> {
         log::debug!(target: "store", "exorcising list_element slot: {id}.");
         let result = self.list_element[*id].take();
@@ -3234,6 +3243,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListElement>`.
     ///
+    #[inline]
     pub fn iter_list_element(&self) -> impl Iterator<Item = Rc<RefCell<ListElement>>> + '_ {
         let len = self.list_element.len();
         (0..len)
@@ -3248,6 +3258,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ListExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_list_expression<F>(&mut self, list_expression: F) -> Rc<RefCell<ListExpression>>
     where
         F: Fn(usize) -> Rc<RefCell<ListExpression>>,
@@ -3283,6 +3294,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ListExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_list_expression(&self, id: &usize) -> Option<Rc<RefCell<ListExpression>>> {
         match self.list_expression.get(*id) {
             Some(list_expression) => list_expression.clone(),
@@ -3292,6 +3304,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ListExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_list_expression(&mut self, id: &usize) -> Option<Rc<RefCell<ListExpression>>> {
         log::debug!(target: "store", "exorcising list_expression slot: {id}.");
         let result = self.list_expression[*id].take();
@@ -3301,6 +3314,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ListExpression>`.
     ///
+    #[inline]
     pub fn iter_list_expression(&self) -> impl Iterator<Item = Rc<RefCell<ListExpression>>> + '_ {
         let len = self.list_expression.len();
         (0..len)
@@ -3315,6 +3329,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Literal`] into the store.
     ///
+    #[inline]
     pub fn inter_literal<F>(&mut self, literal: F) -> Rc<RefCell<Literal>>
     where
         F: Fn(usize) -> Rc<RefCell<Literal>>,
@@ -3350,6 +3365,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Literal`] from the store.
     ///
+    #[inline]
     pub fn exhume_literal(&self, id: &usize) -> Option<Rc<RefCell<Literal>>> {
         match self.literal.get(*id) {
             Some(literal) => literal.clone(),
@@ -3359,6 +3375,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Literal`] from the store.
     ///
+    #[inline]
     pub fn exorcise_literal(&mut self, id: &usize) -> Option<Rc<RefCell<Literal>>> {
         log::debug!(target: "store", "exorcising literal slot: {id}.");
         let result = self.literal[*id].take();
@@ -3368,6 +3385,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Literal>`.
     ///
+    #[inline]
     pub fn iter_literal(&self) -> impl Iterator<Item = Rc<RefCell<Literal>>> + '_ {
         let len = self.literal.len();
         (0..len)
@@ -3382,6 +3400,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`LocalVariable`] into the store.
     ///
+    #[inline]
     pub fn inter_local_variable<F>(&mut self, local_variable: F) -> Rc<RefCell<LocalVariable>>
     where
         F: Fn(usize) -> Rc<RefCell<LocalVariable>>,
@@ -3417,6 +3436,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`LocalVariable`] from the store.
     ///
+    #[inline]
     pub fn exhume_local_variable(&self, id: &usize) -> Option<Rc<RefCell<LocalVariable>>> {
         match self.local_variable.get(*id) {
             Some(local_variable) => local_variable.clone(),
@@ -3426,6 +3446,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`LocalVariable`] from the store.
     ///
+    #[inline]
     pub fn exorcise_local_variable(&mut self, id: &usize) -> Option<Rc<RefCell<LocalVariable>>> {
         log::debug!(target: "store", "exorcising local_variable slot: {id}.");
         let result = self.local_variable[*id].take();
@@ -3435,6 +3456,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, LocalVariable>`.
     ///
+    #[inline]
     pub fn iter_local_variable(&self) -> impl Iterator<Item = Rc<RefCell<LocalVariable>>> + '_ {
         let len = self.local_variable.len();
         (0..len)
@@ -3449,6 +3471,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XMacro`] into the store.
     ///
+    #[inline]
     pub fn inter_x_macro<F>(&mut self, x_macro: F) -> Rc<RefCell<XMacro>>
     where
         F: Fn(usize) -> Rc<RefCell<XMacro>>,
@@ -3484,6 +3507,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XMacro`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_macro(&self, id: &usize) -> Option<Rc<RefCell<XMacro>>> {
         match self.x_macro.get(*id) {
             Some(x_macro) => x_macro.clone(),
@@ -3493,6 +3517,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XMacro`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_macro(&mut self, id: &usize) -> Option<Rc<RefCell<XMacro>>> {
         log::debug!(target: "store", "exorcising x_macro slot: {id}.");
         let result = self.x_macro[*id].take();
@@ -3502,6 +3527,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XMacro>`.
     ///
+    #[inline]
     pub fn iter_x_macro(&self) -> impl Iterator<Item = Rc<RefCell<XMacro>>> + '_ {
         let len = self.x_macro.len();
         (0..len)
@@ -3516,6 +3542,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XMatch`] into the store.
     ///
+    #[inline]
     pub fn inter_x_match<F>(&mut self, x_match: F) -> Rc<RefCell<XMatch>>
     where
         F: Fn(usize) -> Rc<RefCell<XMatch>>,
@@ -3551,6 +3578,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XMatch`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_match(&self, id: &usize) -> Option<Rc<RefCell<XMatch>>> {
         match self.x_match.get(*id) {
             Some(x_match) => x_match.clone(),
@@ -3560,6 +3588,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XMatch`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_match(&mut self, id: &usize) -> Option<Rc<RefCell<XMatch>>> {
         log::debug!(target: "store", "exorcising x_match slot: {id}.");
         let result = self.x_match[*id].take();
@@ -3569,6 +3598,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XMatch>`.
     ///
+    #[inline]
     pub fn iter_x_match(&self) -> impl Iterator<Item = Rc<RefCell<XMatch>>> + '_ {
         let len = self.x_match.len();
         (0..len)
@@ -3583,6 +3613,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`MethodCall`] into the store.
     ///
+    #[inline]
     pub fn inter_method_call<F>(&mut self, method_call: F) -> Rc<RefCell<MethodCall>>
     where
         F: Fn(usize) -> Rc<RefCell<MethodCall>>,
@@ -3618,6 +3649,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`MethodCall`] from the store.
     ///
+    #[inline]
     pub fn exhume_method_call(&self, id: &usize) -> Option<Rc<RefCell<MethodCall>>> {
         match self.method_call.get(*id) {
             Some(method_call) => method_call.clone(),
@@ -3627,6 +3659,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`MethodCall`] from the store.
     ///
+    #[inline]
     pub fn exorcise_method_call(&mut self, id: &usize) -> Option<Rc<RefCell<MethodCall>>> {
         log::debug!(target: "store", "exorcising method_call slot: {id}.");
         let result = self.method_call[*id].take();
@@ -3636,6 +3669,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, MethodCall>`.
     ///
+    #[inline]
     pub fn iter_method_call(&self) -> impl Iterator<Item = Rc<RefCell<MethodCall>>> + '_ {
         let len = self.method_call.len();
         (0..len)
@@ -3650,6 +3684,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`NamedFieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_named_field_expression<F>(
         &mut self,
         named_field_expression: F,
@@ -3690,6 +3725,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`NamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_named_field_expression(
         &self,
         id: &usize,
@@ -3702,6 +3738,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`NamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_named_field_expression(
         &mut self,
         id: &usize,
@@ -3714,6 +3751,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, NamedFieldExpression>`.
     ///
+    #[inline]
     pub fn iter_named_field_expression(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<NamedFieldExpression>>> + '_ {
@@ -3730,6 +3768,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ZObjectStore`] into the store.
     ///
+    #[inline]
     pub fn inter_z_object_store<F>(&mut self, z_object_store: F) -> Rc<RefCell<ZObjectStore>>
     where
         F: Fn(usize) -> Rc<RefCell<ZObjectStore>>,
@@ -3771,6 +3810,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ZObjectStore`] from the store.
     ///
+    #[inline]
     pub fn exhume_z_object_store(&self, id: &usize) -> Option<Rc<RefCell<ZObjectStore>>> {
         match self.z_object_store.get(*id) {
             Some(z_object_store) => z_object_store.clone(),
@@ -3780,6 +3820,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ZObjectStore`] from the store.
     ///
+    #[inline]
     pub fn exorcise_z_object_store(&mut self, id: &usize) -> Option<Rc<RefCell<ZObjectStore>>> {
         log::debug!(target: "store", "exorcising z_object_store slot: {id}.");
         let result = self.z_object_store[*id].take();
@@ -3789,6 +3830,7 @@ impl ObjectStore {
 
     /// Exorcise [`ZObjectStore`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<usize> {
         self.z_object_store_id_by_name
             .get(name)
@@ -3797,6 +3839,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
     ///
+    #[inline]
     pub fn iter_z_object_store(&self) -> impl Iterator<Item = Rc<RefCell<ZObjectStore>>> + '_ {
         let len = self.z_object_store.len();
         (0..len)
@@ -3811,6 +3854,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ObjectWrapper`] into the store.
     ///
+    #[inline]
     pub fn inter_object_wrapper<F>(&mut self, object_wrapper: F) -> Rc<RefCell<ObjectWrapper>>
     where
         F: Fn(usize) -> Rc<RefCell<ObjectWrapper>>,
@@ -3846,6 +3890,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ObjectWrapper`] from the store.
     ///
+    #[inline]
     pub fn exhume_object_wrapper(&self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
         match self.object_wrapper.get(*id) {
             Some(object_wrapper) => object_wrapper.clone(),
@@ -3855,6 +3900,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ObjectWrapper`] from the store.
     ///
+    #[inline]
     pub fn exorcise_object_wrapper(&mut self, id: &usize) -> Option<Rc<RefCell<ObjectWrapper>>> {
         log::debug!(target: "store", "exorcising object_wrapper slot: {id}.");
         let result = self.object_wrapper[*id].take();
@@ -3864,6 +3910,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ObjectWrapper>`.
     ///
+    #[inline]
     pub fn iter_object_wrapper(&self) -> impl Iterator<Item = Rc<RefCell<ObjectWrapper>>> + '_ {
         let len = self.object_wrapper.len();
         (0..len)
@@ -3878,6 +3925,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Operator`] into the store.
     ///
+    #[inline]
     pub fn inter_operator<F>(&mut self, operator: F) -> Rc<RefCell<Operator>>
     where
         F: Fn(usize) -> Rc<RefCell<Operator>>,
@@ -3913,6 +3961,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Operator`] from the store.
     ///
+    #[inline]
     pub fn exhume_operator(&self, id: &usize) -> Option<Rc<RefCell<Operator>>> {
         match self.operator.get(*id) {
             Some(operator) => operator.clone(),
@@ -3922,6 +3971,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Operator`] from the store.
     ///
+    #[inline]
     pub fn exorcise_operator(&mut self, id: &usize) -> Option<Rc<RefCell<Operator>>> {
         log::debug!(target: "store", "exorcising operator slot: {id}.");
         let result = self.operator[*id].take();
@@ -3931,6 +3981,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Operator>`.
     ///
+    #[inline]
     pub fn iter_operator(&self) -> impl Iterator<Item = Rc<RefCell<Operator>>> + '_ {
         let len = self.operator.len();
         (0..len)
@@ -3945,6 +3996,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Parameter`] into the store.
     ///
+    #[inline]
     pub fn inter_parameter<F>(&mut self, parameter: F) -> Rc<RefCell<Parameter>>
     where
         F: Fn(usize) -> Rc<RefCell<Parameter>>,
@@ -3980,6 +4032,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Parameter`] from the store.
     ///
+    #[inline]
     pub fn exhume_parameter(&self, id: &usize) -> Option<Rc<RefCell<Parameter>>> {
         match self.parameter.get(*id) {
             Some(parameter) => parameter.clone(),
@@ -3989,6 +4042,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Parameter`] from the store.
     ///
+    #[inline]
     pub fn exorcise_parameter(&mut self, id: &usize) -> Option<Rc<RefCell<Parameter>>> {
         log::debug!(target: "store", "exorcising parameter slot: {id}.");
         let result = self.parameter[*id].take();
@@ -3998,6 +4052,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Parameter>`.
     ///
+    #[inline]
     pub fn iter_parameter(&self) -> impl Iterator<Item = Rc<RefCell<Parameter>>> + '_ {
         let len = self.parameter.len();
         (0..len)
@@ -4012,6 +4067,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XPath`] into the store.
     ///
+    #[inline]
     pub fn inter_x_path<F>(&mut self, x_path: F) -> Rc<RefCell<XPath>>
     where
         F: Fn(usize) -> Rc<RefCell<XPath>>,
@@ -4047,6 +4103,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XPath`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_path(&self, id: &usize) -> Option<Rc<RefCell<XPath>>> {
         match self.x_path.get(*id) {
             Some(x_path) => x_path.clone(),
@@ -4056,6 +4113,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XPath`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_path(&mut self, id: &usize) -> Option<Rc<RefCell<XPath>>> {
         log::debug!(target: "store", "exorcising x_path slot: {id}.");
         let result = self.x_path[*id].take();
@@ -4065,6 +4123,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPath>`.
     ///
+    #[inline]
     pub fn iter_x_path(&self) -> impl Iterator<Item = Rc<RefCell<XPath>>> + '_ {
         let len = self.x_path.len();
         (0..len)
@@ -4079,6 +4138,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`PathElement`] into the store.
     ///
+    #[inline]
     pub fn inter_path_element<F>(&mut self, path_element: F) -> Rc<RefCell<PathElement>>
     where
         F: Fn(usize) -> Rc<RefCell<PathElement>>,
@@ -4114,6 +4174,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`PathElement`] from the store.
     ///
+    #[inline]
     pub fn exhume_path_element(&self, id: &usize) -> Option<Rc<RefCell<PathElement>>> {
         match self.path_element.get(*id) {
             Some(path_element) => path_element.clone(),
@@ -4123,6 +4184,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`PathElement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_path_element(&mut self, id: &usize) -> Option<Rc<RefCell<PathElement>>> {
         log::debug!(target: "store", "exorcising path_element slot: {id}.");
         let result = self.path_element[*id].take();
@@ -4132,6 +4194,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, PathElement>`.
     ///
+    #[inline]
     pub fn iter_path_element(&self) -> impl Iterator<Item = Rc<RefCell<PathElement>>> + '_ {
         let len = self.path_element.len();
         (0..len)
@@ -4146,6 +4209,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Pattern`] into the store.
     ///
+    #[inline]
     pub fn inter_pattern<F>(&mut self, pattern: F) -> Rc<RefCell<Pattern>>
     where
         F: Fn(usize) -> Rc<RefCell<Pattern>>,
@@ -4181,6 +4245,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Pattern`] from the store.
     ///
+    #[inline]
     pub fn exhume_pattern(&self, id: &usize) -> Option<Rc<RefCell<Pattern>>> {
         match self.pattern.get(*id) {
             Some(pattern) => pattern.clone(),
@@ -4190,6 +4255,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Pattern`] from the store.
     ///
+    #[inline]
     pub fn exorcise_pattern(&mut self, id: &usize) -> Option<Rc<RefCell<Pattern>>> {
         log::debug!(target: "store", "exorcising pattern slot: {id}.");
         let result = self.pattern[*id].take();
@@ -4199,6 +4265,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Pattern>`.
     ///
+    #[inline]
     pub fn iter_pattern(&self) -> impl Iterator<Item = Rc<RefCell<Pattern>>> + '_ {
         let len = self.pattern.len();
         (0..len)
@@ -4211,8 +4278,80 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`Plugin`] into the store.
+    ///
+    #[inline]
+    pub fn inter_plugin<F>(&mut self, plugin: F) -> Rc<RefCell<Plugin>>
+    where
+        F: Fn(usize) -> Rc<RefCell<Plugin>>,
+    {
+        let _index = if let Some(_index) = self.plugin_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.plugin.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.plugin.push(None);
+            _index
+        };
+
+        let plugin = plugin(_index);
+
+        if let Some(Some(plugin)) = self.plugin.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *plugin.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {plugin:?}.");
+            self.plugin_free_list.push(_index);
+            plugin.clone()
+        } else {
+            log::debug!(target: "store", "interring {plugin:?}.");
+            self.plugin[_index] = Some(plugin.clone());
+            plugin
+        }
+    }
+
+    /// Exhume (get) [`Plugin`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_plugin(&self, id: &usize) -> Option<Rc<RefCell<Plugin>>> {
+        match self.plugin.get(*id) {
+            Some(plugin) => plugin.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`Plugin`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_plugin(&mut self, id: &usize) -> Option<Rc<RefCell<Plugin>>> {
+        log::debug!(target: "store", "exorcising plugin slot: {id}.");
+        let result = self.plugin[*id].take();
+        self.plugin_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, Plugin>`.
+    ///
+    #[inline]
+    pub fn iter_plugin(&self) -> impl Iterator<Item = Rc<RefCell<Plugin>>> + '_ {
+        let len = self.plugin.len();
+        (0..len)
+            .filter(|i| self.plugin[*i].is_some())
+            .map(move |i| {
+                self.plugin[i]
+                    .as_ref()
+                    .map(|plugin| plugin.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`XPrint`] into the store.
     ///
+    #[inline]
     pub fn inter_x_print<F>(&mut self, x_print: F) -> Rc<RefCell<XPrint>>
     where
         F: Fn(usize) -> Rc<RefCell<XPrint>>,
@@ -4248,6 +4387,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XPrint`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_print(&self, id: &usize) -> Option<Rc<RefCell<XPrint>>> {
         match self.x_print.get(*id) {
             Some(x_print) => x_print.clone(),
@@ -4257,6 +4397,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XPrint`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_print(&mut self, id: &usize) -> Option<Rc<RefCell<XPrint>>> {
         log::debug!(target: "store", "exorcising x_print slot: {id}.");
         let result = self.x_print[*id].take();
@@ -4266,6 +4407,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPrint>`.
     ///
+    #[inline]
     pub fn iter_x_print(&self) -> impl Iterator<Item = Rc<RefCell<XPrint>>> + '_ {
         let len = self.x_print.len();
         (0..len)
@@ -4280,6 +4422,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`RangeExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_range_expression<F>(&mut self, range_expression: F) -> Rc<RefCell<RangeExpression>>
     where
         F: Fn(usize) -> Rc<RefCell<RangeExpression>>,
@@ -4315,6 +4458,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`RangeExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_range_expression(&self, id: &usize) -> Option<Rc<RefCell<RangeExpression>>> {
         match self.range_expression.get(*id) {
             Some(range_expression) => range_expression.clone(),
@@ -4324,6 +4468,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`RangeExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_range_expression(
         &mut self,
         id: &usize,
@@ -4336,6 +4481,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, RangeExpression>`.
     ///
+    #[inline]
     pub fn iter_range_expression(&self) -> impl Iterator<Item = Rc<RefCell<RangeExpression>>> + '_ {
         let len = self.range_expression.len();
         (0..len)
@@ -4348,75 +4494,9 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Reference`] into the store.
-    ///
-    pub fn inter_reference<F>(&mut self, reference: F) -> Rc<RefCell<Reference>>
-    where
-        F: Fn(usize) -> Rc<RefCell<Reference>>,
-    {
-        let _index = if let Some(_index) = self.reference_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.reference.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.reference.push(None);
-            _index
-        };
-
-        let reference = reference(_index);
-
-        if let Some(Some(reference)) = self.reference.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *reference.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {reference:?}.");
-            self.reference_free_list.push(_index);
-            reference.clone()
-        } else {
-            log::debug!(target: "store", "interring {reference:?}.");
-            self.reference[_index] = Some(reference.clone());
-            reference
-        }
-    }
-
-    /// Exhume (get) [`Reference`] from the store.
-    ///
-    pub fn exhume_reference(&self, id: &usize) -> Option<Rc<RefCell<Reference>>> {
-        match self.reference.get(*id) {
-            Some(reference) => reference.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`Reference`] from the store.
-    ///
-    pub fn exorcise_reference(&mut self, id: &usize) -> Option<Rc<RefCell<Reference>>> {
-        log::debug!(target: "store", "exorcising reference slot: {id}.");
-        let result = self.reference[*id].take();
-        self.reference_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Reference>`.
-    ///
-    pub fn iter_reference(&self) -> impl Iterator<Item = Rc<RefCell<Reference>>> + '_ {
-        let len = self.reference.len();
-        (0..len)
-            .filter(|i| self.reference[*i].is_some())
-            .map(move |i| {
-                self.reference[i]
-                    .as_ref()
-                    .map(|reference| reference.clone())
-                    .unwrap()
-            })
-    }
-
     /// Inter (insert) [`ResultStatement`] into the store.
     ///
+    #[inline]
     pub fn inter_result_statement<F>(&mut self, result_statement: F) -> Rc<RefCell<ResultStatement>>
     where
         F: Fn(usize) -> Rc<RefCell<ResultStatement>>,
@@ -4452,6 +4532,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ResultStatement`] from the store.
     ///
+    #[inline]
     pub fn exhume_result_statement(&self, id: &usize) -> Option<Rc<RefCell<ResultStatement>>> {
         match self.result_statement.get(*id) {
             Some(result_statement) => result_statement.clone(),
@@ -4461,6 +4542,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ResultStatement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_result_statement(
         &mut self,
         id: &usize,
@@ -4473,6 +4555,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ResultStatement>`.
     ///
+    #[inline]
     pub fn iter_result_statement(&self) -> impl Iterator<Item = Rc<RefCell<ResultStatement>>> + '_ {
         let len = self.result_statement.len();
         (0..len)
@@ -4487,6 +4570,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XReturn`] into the store.
     ///
+    #[inline]
     pub fn inter_x_return<F>(&mut self, x_return: F) -> Rc<RefCell<XReturn>>
     where
         F: Fn(usize) -> Rc<RefCell<XReturn>>,
@@ -4522,6 +4606,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XReturn`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_return(&self, id: &usize) -> Option<Rc<RefCell<XReturn>>> {
         match self.x_return.get(*id) {
             Some(x_return) => x_return.clone(),
@@ -4531,6 +4616,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XReturn`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_return(&mut self, id: &usize) -> Option<Rc<RefCell<XReturn>>> {
         log::debug!(target: "store", "exorcising x_return slot: {id}.");
         let result = self.x_return[*id].take();
@@ -4540,6 +4626,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XReturn>`.
     ///
+    #[inline]
     pub fn iter_x_return(&self) -> impl Iterator<Item = Rc<RefCell<XReturn>>> + '_ {
         let len = self.x_return.len();
         (0..len)
@@ -4554,6 +4641,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Span`] into the store.
     ///
+    #[inline]
     pub fn inter_span<F>(&mut self, span: F) -> Rc<RefCell<Span>>
     where
         F: Fn(usize) -> Rc<RefCell<Span>>,
@@ -4589,6 +4677,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Span`] from the store.
     ///
+    #[inline]
     pub fn exhume_span(&self, id: &usize) -> Option<Rc<RefCell<Span>>> {
         match self.span.get(*id) {
             Some(span) => span.clone(),
@@ -4598,6 +4687,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Span`] from the store.
     ///
+    #[inline]
     pub fn exorcise_span(&mut self, id: &usize) -> Option<Rc<RefCell<Span>>> {
         log::debug!(target: "store", "exorcising span slot: {id}.");
         let result = self.span[*id].take();
@@ -4607,6 +4697,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Span>`.
     ///
+    #[inline]
     pub fn iter_span(&self) -> impl Iterator<Item = Rc<RefCell<Span>>> + '_ {
         let len = self.span.len();
         (0..len)
@@ -4616,6 +4707,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Statement`] into the store.
     ///
+    #[inline]
     pub fn inter_statement<F>(&mut self, statement: F) -> Rc<RefCell<Statement>>
     where
         F: Fn(usize) -> Rc<RefCell<Statement>>,
@@ -4651,6 +4743,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Statement`] from the store.
     ///
+    #[inline]
     pub fn exhume_statement(&self, id: &usize) -> Option<Rc<RefCell<Statement>>> {
         match self.statement.get(*id) {
             Some(statement) => statement.clone(),
@@ -4660,6 +4753,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Statement`] from the store.
     ///
+    #[inline]
     pub fn exorcise_statement(&mut self, id: &usize) -> Option<Rc<RefCell<Statement>>> {
         log::debug!(target: "store", "exorcising statement slot: {id}.");
         let result = self.statement[*id].take();
@@ -4669,6 +4763,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Statement>`.
     ///
+    #[inline]
     pub fn iter_statement(&self) -> impl Iterator<Item = Rc<RefCell<Statement>>> + '_ {
         let len = self.statement.len();
         (0..len)
@@ -4683,6 +4778,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StaticMethodCall`] into the store.
     ///
+    #[inline]
     pub fn inter_static_method_call<F>(
         &mut self,
         static_method_call: F,
@@ -4721,6 +4817,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StaticMethodCall`] from the store.
     ///
+    #[inline]
     pub fn exhume_static_method_call(&self, id: &usize) -> Option<Rc<RefCell<StaticMethodCall>>> {
         match self.static_method_call.get(*id) {
             Some(static_method_call) => static_method_call.clone(),
@@ -4730,6 +4827,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StaticMethodCall`] from the store.
     ///
+    #[inline]
     pub fn exorcise_static_method_call(
         &mut self,
         id: &usize,
@@ -4742,6 +4840,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StaticMethodCall>`.
     ///
+    #[inline]
     pub fn iter_static_method_call(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<StaticMethodCall>>> + '_ {
@@ -4758,6 +4857,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
+    #[inline]
     pub fn inter_string_literal<F>(&mut self, string_literal: F) -> Rc<RefCell<StringLiteral>>
     where
         F: Fn(usize) -> Rc<RefCell<StringLiteral>>,
@@ -4793,6 +4893,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StringLiteral`] from the store.
     ///
+    #[inline]
     pub fn exhume_string_literal(&self, id: &usize) -> Option<Rc<RefCell<StringLiteral>>> {
         match self.string_literal.get(*id) {
             Some(string_literal) => string_literal.clone(),
@@ -4802,6 +4903,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StringLiteral`] from the store.
     ///
+    #[inline]
     pub fn exorcise_string_literal(&mut self, id: &usize) -> Option<Rc<RefCell<StringLiteral>>> {
         log::debug!(target: "store", "exorcising string_literal slot: {id}.");
         let result = self.string_literal[*id].take();
@@ -4811,6 +4913,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StringLiteral>`.
     ///
+    #[inline]
     pub fn iter_string_literal(&self) -> impl Iterator<Item = Rc<RefCell<StringLiteral>>> + '_ {
         let len = self.string_literal.len();
         (0..len)
@@ -4825,6 +4928,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`WoogStruct`] into the store.
     ///
+    #[inline]
     pub fn inter_woog_struct<F>(&mut self, woog_struct: F) -> Rc<RefCell<WoogStruct>>
     where
         F: Fn(usize) -> Rc<RefCell<WoogStruct>>,
@@ -4865,6 +4969,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`WoogStruct`] from the store.
     ///
+    #[inline]
     pub fn exhume_woog_struct(&self, id: &usize) -> Option<Rc<RefCell<WoogStruct>>> {
         match self.woog_struct.get(*id) {
             Some(woog_struct) => woog_struct.clone(),
@@ -4874,6 +4979,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`WoogStruct`] from the store.
     ///
+    #[inline]
     pub fn exorcise_woog_struct(&mut self, id: &usize) -> Option<Rc<RefCell<WoogStruct>>> {
         log::debug!(target: "store", "exorcising woog_struct slot: {id}.");
         let result = self.woog_struct[*id].take();
@@ -4883,6 +4989,7 @@ impl ObjectStore {
 
     /// Exorcise [`WoogStruct`] id from the store by name.
     ///
+    #[inline]
     pub fn exhume_woog_struct_id_by_name(&self, name: &str) -> Option<usize> {
         self.woog_struct_id_by_name
             .get(name)
@@ -4891,6 +4998,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, WoogStruct>`.
     ///
+    #[inline]
     pub fn iter_woog_struct(&self) -> impl Iterator<Item = Rc<RefCell<WoogStruct>>> + '_ {
         let len = self.woog_struct.len();
         (0..len)
@@ -4905,6 +5013,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_expression<F>(
         &mut self,
         struct_expression: F,
@@ -4943,6 +5052,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_expression(&self, id: &usize) -> Option<Rc<RefCell<StructExpression>>> {
         match self.struct_expression.get(*id) {
             Some(struct_expression) => struct_expression.clone(),
@@ -4952,6 +5062,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_expression(
         &mut self,
         id: &usize,
@@ -4964,6 +5075,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructExpression>`.
     ///
+    #[inline]
     pub fn iter_struct_expression(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<StructExpression>>> + '_ {
@@ -4980,6 +5092,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructField`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_field<F>(&mut self, struct_field: F) -> Rc<RefCell<StructField>>
     where
         F: Fn(usize) -> Rc<RefCell<StructField>>,
@@ -5015,6 +5128,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructField`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_field(&self, id: &usize) -> Option<Rc<RefCell<StructField>>> {
         match self.struct_field.get(*id) {
             Some(struct_field) => struct_field.clone(),
@@ -5024,6 +5138,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_field(&mut self, id: &usize) -> Option<Rc<RefCell<StructField>>> {
         log::debug!(target: "store", "exorcising struct_field slot: {id}.");
         let result = self.struct_field[*id].take();
@@ -5033,6 +5148,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructField>`.
     ///
+    #[inline]
     pub fn iter_struct_field(&self) -> impl Iterator<Item = Rc<RefCell<StructField>>> + '_ {
         let len = self.struct_field.len();
         (0..len)
@@ -5047,6 +5163,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`StructGeneric`] into the store.
     ///
+    #[inline]
     pub fn inter_struct_generic<F>(&mut self, struct_generic: F) -> Rc<RefCell<StructGeneric>>
     where
         F: Fn(usize) -> Rc<RefCell<StructGeneric>>,
@@ -5082,6 +5199,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`StructGeneric`] from the store.
     ///
+    #[inline]
     pub fn exhume_struct_generic(&self, id: &usize) -> Option<Rc<RefCell<StructGeneric>>> {
         match self.struct_generic.get(*id) {
             Some(struct_generic) => struct_generic.clone(),
@@ -5091,6 +5209,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`StructGeneric`] from the store.
     ///
+    #[inline]
     pub fn exorcise_struct_generic(&mut self, id: &usize) -> Option<Rc<RefCell<StructGeneric>>> {
         log::debug!(target: "store", "exorcising struct_generic slot: {id}.");
         let result = self.struct_generic[*id].take();
@@ -5100,6 +5219,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, StructGeneric>`.
     ///
+    #[inline]
     pub fn iter_struct_generic(&self) -> impl Iterator<Item = Rc<RefCell<StructGeneric>>> + '_ {
         let len = self.struct_generic.len();
         (0..len)
@@ -5114,6 +5234,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`TupleField`] into the store.
     ///
+    #[inline]
     pub fn inter_tuple_field<F>(&mut self, tuple_field: F) -> Rc<RefCell<TupleField>>
     where
         F: Fn(usize) -> Rc<RefCell<TupleField>>,
@@ -5149,6 +5270,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`TupleField`] from the store.
     ///
+    #[inline]
     pub fn exhume_tuple_field(&self, id: &usize) -> Option<Rc<RefCell<TupleField>>> {
         match self.tuple_field.get(*id) {
             Some(tuple_field) => tuple_field.clone(),
@@ -5158,6 +5280,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`TupleField`] from the store.
     ///
+    #[inline]
     pub fn exorcise_tuple_field(&mut self, id: &usize) -> Option<Rc<RefCell<TupleField>>> {
         log::debug!(target: "store", "exorcising tuple_field slot: {id}.");
         let result = self.tuple_field[*id].take();
@@ -5167,6 +5290,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, TupleField>`.
     ///
+    #[inline]
     pub fn iter_tuple_field(&self) -> impl Iterator<Item = Rc<RefCell<TupleField>>> + '_ {
         let len = self.tuple_field.len();
         (0..len)
@@ -5181,6 +5305,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`TypeCast`] into the store.
     ///
+    #[inline]
     pub fn inter_type_cast<F>(&mut self, type_cast: F) -> Rc<RefCell<TypeCast>>
     where
         F: Fn(usize) -> Rc<RefCell<TypeCast>>,
@@ -5216,6 +5341,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`TypeCast`] from the store.
     ///
+    #[inline]
     pub fn exhume_type_cast(&self, id: &usize) -> Option<Rc<RefCell<TypeCast>>> {
         match self.type_cast.get(*id) {
             Some(type_cast) => type_cast.clone(),
@@ -5225,6 +5351,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`TypeCast`] from the store.
     ///
+    #[inline]
     pub fn exorcise_type_cast(&mut self, id: &usize) -> Option<Rc<RefCell<TypeCast>>> {
         log::debug!(target: "store", "exorcising type_cast slot: {id}.");
         let result = self.type_cast[*id].take();
@@ -5234,6 +5361,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, TypeCast>`.
     ///
+    #[inline]
     pub fn iter_type_cast(&self) -> impl Iterator<Item = Rc<RefCell<TypeCast>>> + '_ {
         let len = self.type_cast.len();
         (0..len)
@@ -5248,6 +5376,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Unary`] into the store.
     ///
+    #[inline]
     pub fn inter_unary<F>(&mut self, unary: F) -> Rc<RefCell<Unary>>
     where
         F: Fn(usize) -> Rc<RefCell<Unary>>,
@@ -5283,6 +5412,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Unary`] from the store.
     ///
+    #[inline]
     pub fn exhume_unary(&self, id: &usize) -> Option<Rc<RefCell<Unary>>> {
         match self.unary.get(*id) {
             Some(unary) => unary.clone(),
@@ -5292,6 +5422,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Unary`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unary(&mut self, id: &usize) -> Option<Rc<RefCell<Unary>>> {
         log::debug!(target: "store", "exorcising unary slot: {id}.");
         let result = self.unary[*id].take();
@@ -5301,6 +5432,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unary>`.
     ///
+    #[inline]
     pub fn iter_unary(&self) -> impl Iterator<Item = Rc<RefCell<Unary>>> + '_ {
         let len = self.unary.len();
         (0..len)
@@ -5310,6 +5442,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Unit`] into the store.
     ///
+    #[inline]
     pub fn inter_unit<F>(&mut self, unit: F) -> Rc<RefCell<Unit>>
     where
         F: Fn(usize) -> Rc<RefCell<Unit>>,
@@ -5345,6 +5478,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Unit`] from the store.
     ///
+    #[inline]
     pub fn exhume_unit(&self, id: &usize) -> Option<Rc<RefCell<Unit>>> {
         match self.unit.get(*id) {
             Some(unit) => unit.clone(),
@@ -5354,6 +5488,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Unit`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unit(&mut self, id: &usize) -> Option<Rc<RefCell<Unit>>> {
         log::debug!(target: "store", "exorcising unit slot: {id}.");
         let result = self.unit[*id].take();
@@ -5363,6 +5498,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Unit>`.
     ///
+    #[inline]
     pub fn iter_unit(&self) -> impl Iterator<Item = Rc<RefCell<Unit>>> + '_ {
         let len = self.unit.len();
         (0..len)
@@ -5372,6 +5508,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`UnnamedFieldExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_unnamed_field_expression<F>(
         &mut self,
         unnamed_field_expression: F,
@@ -5412,6 +5549,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`UnnamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_unnamed_field_expression(
         &self,
         id: &usize,
@@ -5424,6 +5562,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`UnnamedFieldExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_unnamed_field_expression(
         &mut self,
         id: &usize,
@@ -5436,6 +5575,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, UnnamedFieldExpression>`.
     ///
+    #[inline]
     pub fn iter_unnamed_field_expression(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<UnnamedFieldExpression>>> + '_ {
@@ -5452,6 +5592,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`XValue`] into the store.
     ///
+    #[inline]
     pub fn inter_x_value<F>(&mut self, x_value: F) -> Rc<RefCell<XValue>>
     where
         F: Fn(usize) -> Rc<RefCell<XValue>>,
@@ -5487,6 +5628,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`XValue`] from the store.
     ///
+    #[inline]
     pub fn exhume_x_value(&self, id: &usize) -> Option<Rc<RefCell<XValue>>> {
         match self.x_value.get(*id) {
             Some(x_value) => x_value.clone(),
@@ -5496,6 +5638,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`XValue`] from the store.
     ///
+    #[inline]
     pub fn exorcise_x_value(&mut self, id: &usize) -> Option<Rc<RefCell<XValue>>> {
         log::debug!(target: "store", "exorcising x_value slot: {id}.");
         let result = self.x_value[*id].take();
@@ -5505,6 +5648,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, XValue>`.
     ///
+    #[inline]
     pub fn iter_x_value(&self) -> impl Iterator<Item = Rc<RefCell<XValue>>> + '_ {
         let len = self.x_value.len();
         (0..len)
@@ -5519,6 +5663,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`ValueType`] into the store.
     ///
+    #[inline]
     pub fn inter_value_type<F>(&mut self, value_type: F) -> Rc<RefCell<ValueType>>
     where
         F: Fn(usize) -> Rc<RefCell<ValueType>>,
@@ -5554,6 +5699,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`ValueType`] from the store.
     ///
+    #[inline]
     pub fn exhume_value_type(&self, id: &usize) -> Option<Rc<RefCell<ValueType>>> {
         match self.value_type.get(*id) {
             Some(value_type) => value_type.clone(),
@@ -5563,6 +5709,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`ValueType`] from the store.
     ///
+    #[inline]
     pub fn exorcise_value_type(&mut self, id: &usize) -> Option<Rc<RefCell<ValueType>>> {
         log::debug!(target: "store", "exorcising value_type slot: {id}.");
         let result = self.value_type[*id].take();
@@ -5572,6 +5719,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, ValueType>`.
     ///
+    #[inline]
     pub fn iter_value_type(&self) -> impl Iterator<Item = Rc<RefCell<ValueType>>> + '_ {
         let len = self.value_type.len();
         (0..len)
@@ -5586,6 +5734,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`Variable`] into the store.
     ///
+    #[inline]
     pub fn inter_variable<F>(&mut self, variable: F) -> Rc<RefCell<Variable>>
     where
         F: Fn(usize) -> Rc<RefCell<Variable>>,
@@ -5621,6 +5770,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`Variable`] from the store.
     ///
+    #[inline]
     pub fn exhume_variable(&self, id: &usize) -> Option<Rc<RefCell<Variable>>> {
         match self.variable.get(*id) {
             Some(variable) => variable.clone(),
@@ -5630,6 +5780,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`Variable`] from the store.
     ///
+    #[inline]
     pub fn exorcise_variable(&mut self, id: &usize) -> Option<Rc<RefCell<Variable>>> {
         log::debug!(target: "store", "exorcising variable slot: {id}.");
         let result = self.variable[*id].take();
@@ -5639,6 +5790,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, Variable>`.
     ///
+    #[inline]
     pub fn iter_variable(&self) -> impl Iterator<Item = Rc<RefCell<Variable>>> + '_ {
         let len = self.variable.len();
         (0..len)
@@ -5653,6 +5805,7 @@ impl ObjectStore {
 
     /// Inter (insert) [`VariableExpression`] into the store.
     ///
+    #[inline]
     pub fn inter_variable_expression<F>(
         &mut self,
         variable_expression: F,
@@ -5691,6 +5844,7 @@ impl ObjectStore {
 
     /// Exhume (get) [`VariableExpression`] from the store.
     ///
+    #[inline]
     pub fn exhume_variable_expression(
         &self,
         id: &usize,
@@ -5703,6 +5857,7 @@ impl ObjectStore {
 
     /// Exorcise (remove) [`VariableExpression`] from the store.
     ///
+    #[inline]
     pub fn exorcise_variable_expression(
         &mut self,
         id: &usize,
@@ -5715,6 +5870,7 @@ impl ObjectStore {
 
     /// Get an iterator over the internal `HashMap<&Uuid, VariableExpression>`.
     ///
+    #[inline]
     pub fn iter_variable_expression(
         &self,
     ) -> impl Iterator<Item = Rc<RefCell<VariableExpression>>> + '_ {
@@ -5933,34 +6089,6 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &enumeration)?;
-                }
-            }
-        }
-
-        // Persist Error.
-        {
-            let path = path.join("x_error");
-            fs::create_dir_all(&path)?;
-            for x_error in &self.x_error {
-                if let Some(x_error) = x_error {
-                    let path = path.join(format!("{}.json", x_error.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &x_error)?;
-                }
-            }
-        }
-
-        // Persist Error Expression.
-        {
-            let path = path.join("error_expression");
-            fs::create_dir_all(&path)?;
-            for error_expression in &self.error_expression {
-                if let Some(error_expression) = error_expression {
-                    let path = path.join(format!("{}.json", error_expression.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &error_expression)?;
                 }
             }
         }
@@ -6497,6 +6625,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Plugin.
+        {
+            let path = path.join("plugin");
+            fs::create_dir_all(&path)?;
+            for plugin in &self.plugin {
+                if let Some(plugin) = plugin {
+                    let path = path.join(format!("{}.json", plugin.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &plugin)?;
+                }
+            }
+        }
+
         // Persist Print.
         {
             let path = path.join("x_print");
@@ -6521,20 +6663,6 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &range_expression)?;
-                }
-            }
-        }
-
-        // Persist Reference.
-        {
-            let path = path.join("reference");
-            fs::create_dir_all(&path)?;
-            for reference in &self.reference {
-                if let Some(reference) = reference {
-                    let path = path.join(format!("{}.json", reference.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &reference)?;
                 }
             }
         }
@@ -7038,39 +7166,6 @@ impl ObjectStore {
                 store
                     .enumeration
                     .insert(enumeration.borrow().id, Some(enumeration.clone()));
-            }
-        }
-
-        // Load Error.
-        {
-            let path = path.join("x_error");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let x_error: Rc<RefCell<XError>> = serde_json::from_reader(reader)?;
-                store
-                    .x_error
-                    .insert(x_error.borrow().id, Some(x_error.clone()));
-            }
-        }
-
-        // Load Error Expression.
-        {
-            let path = path.join("error_expression");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let error_expression: Rc<RefCell<ErrorExpression>> =
-                    serde_json::from_reader(reader)?;
-                store
-                    .error_expression
-                    .insert(error_expression.borrow().id, Some(error_expression.clone()));
             }
         }
 
@@ -7694,6 +7789,22 @@ impl ObjectStore {
             }
         }
 
+        // Load Plugin.
+        {
+            let path = path.join("plugin");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let plugin: Rc<RefCell<Plugin>> = serde_json::from_reader(reader)?;
+                store
+                    .plugin
+                    .insert(plugin.borrow().id, Some(plugin.clone()));
+            }
+        }
+
         // Load Print.
         {
             let path = path.join("x_print");
@@ -7724,22 +7835,6 @@ impl ObjectStore {
                 store
                     .range_expression
                     .insert(range_expression.borrow().id, Some(range_expression.clone()));
-            }
-        }
-
-        // Load Reference.
-        {
-            let path = path.join("reference");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let reference: Rc<RefCell<Reference>> = serde_json::from_reader(reader)?;
-                store
-                    .reference
-                    .insert(reference.borrow().id, Some(reference.clone()));
             }
         }
 

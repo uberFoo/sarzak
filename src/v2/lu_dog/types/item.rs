@@ -49,7 +49,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::Enumeration(subtype.borrow().id),
+            subtype: ItemEnum::Enumeration(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -66,7 +66,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::Function(subtype.borrow().id),
+            subtype: ItemEnum::Function(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -84,7 +84,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::ImplementationBlock(subtype.borrow().id),
+            subtype: ItemEnum::ImplementationBlock(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -101,7 +101,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::Import(subtype.borrow().id),
+            subtype: ItemEnum::Import(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -118,7 +118,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::XMacro(subtype.borrow().id),
+            subtype: ItemEnum::XMacro(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());
@@ -135,7 +135,7 @@ impl Item {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Item {
             source: source.borrow().id,
-            subtype: ItemEnum::WoogStruct(subtype.borrow().id),
+            subtype: ItemEnum::WoogStruct(subtype.borrow().id), // b
             id,
         }));
         store.inter_item(new.clone());

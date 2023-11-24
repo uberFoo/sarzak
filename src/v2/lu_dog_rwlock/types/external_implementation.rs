@@ -6,6 +6,7 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::body::Body;
+use crate::v2::lu_dog_rwlock::types::body::BodyEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -49,7 +50,16 @@ impl ExternalImplementation {
     // Navigate to [`Body`] across R80(isa)
     pub fn r80_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
         span!("r80_body");
-        vec![store.exhume_body(&self.id).unwrap()]
+        vec![store
+            .iter_body()
+            .find(|body| {
+                if let BodyEnum::ExternalImplementation(id) = body.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

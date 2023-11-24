@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-use-statements"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
@@ -52,7 +51,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r97_path_element");
         match self.first {
             Some(ref first) => vec![store.exhume_path_element(&first).unwrap()],
             None => Vec::new(),
@@ -65,7 +63,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r90_path_element");
         store
             .iter_path_element()
             .filter(|path_element| path_element.read().unwrap().x_path == self.id)
@@ -78,7 +75,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r96_struct_expression");
         store
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.read().unwrap().x_path == self.id)
@@ -91,7 +87,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogNdrwlockVecStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         vec![store
             .iter_expression()
             .find(|expression| {

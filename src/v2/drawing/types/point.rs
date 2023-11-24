@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
@@ -41,7 +40,6 @@ impl Point {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R4(1-1c)
     pub fn r4c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r4_anchor");
         let anchor = store
             .iter_anchor()
             .find(|anchor| anchor.read().unwrap().location == self.id);
@@ -54,7 +52,6 @@ impl Point {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R5(1-1c)
     pub fn r5c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r5_anchor");
         let anchor = store
             .iter_anchor()
             .find(|anchor| anchor.read().unwrap().offset == self.id);
@@ -70,7 +67,6 @@ impl Point {
         &'a self,
         store: &'a DrawingStore,
     ) -> Vec<Arc<RwLock<AssociativeUi>>> {
-        span!("r17_associative_ui");
         let associative_ui = store
             .iter_associative_ui()
             .find(|associative_ui| associative_ui.read().unwrap().from == self.id);
@@ -83,7 +79,6 @@ impl Point {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-struct-impl-nav-backward-cond-to-object_ui"}}}
     /// Navigate to [`ObjectUi`] across R13(1-1c)
     pub fn r13c_object_ui<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<ObjectUi>>> {
-        span!("r13_object_ui");
         let object_ui = store
             .iter_object_ui()
             .find(|object_ui| object_ui.read().unwrap().origin == self.id);

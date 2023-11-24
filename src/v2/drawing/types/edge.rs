@@ -10,7 +10,6 @@ use crate::v2::drawing::types::top::TOP;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -84,7 +83,6 @@ impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-1c)
     pub fn r3c_anchor<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r3_anchor");
         let anchor = store
             .iter_anchor()
             .find(|anchor| anchor.read().unwrap().edge == self.id());
@@ -97,7 +95,6 @@ impl Edge {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"edge-struct-impl-nav-backward-cond-to-object_edge"}}}
     /// Navigate to [`ObjectEdge`] across R19(1-1c)
     pub fn r19c_object_edge<'a>(&'a self, store: &'a DrawingStore) -> Vec<Arc<RwLock<ObjectEdge>>> {
-        span!("r19_object_edge");
         let object_edge = store
             .iter_object_edge()
             .find(|object_edge| object_edge.read().unwrap().edge == self.id());
