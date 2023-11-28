@@ -45,6 +45,29 @@ uber_store = "Single"
 target = "domain"
 
 #
+# Lu Dog Vec Tracy
+#
+[modules."v2/lu_dog_vec_tracy"]
+model = "models/lu_dog.json"
+
+[[modules."v2/lu_dog_vec_tracy".compiler]]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "Serialize"]
+imported_domains = ["crate/v2/sarzak"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = true
+
+[modules."v2/lu_dog_vec_tracy".compiler.target]
+optimization_level = "Vec"
+is_meta_model = true
+is_sarzak = false
+persist = true
+persist_timestamps = false
+uber_store = "Single"
+target = "domain"
+
+#
 # Lu Dog RwLock Vec
 #
 [modules."v2/lu_dog_rwlock_vec"]

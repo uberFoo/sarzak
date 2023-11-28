@@ -18,6 +18,8 @@ cfg_if::cfg_if! {
         pub use v2::lu_dog;
     } else if #[cfg(feature = "lu-dog-vec")] {
         pub use v2::lu_dog_vec as lu_dog;
+    } else if #[cfg(feature = "lu-dog-vec-tracy")] {
+        pub use v2::lu_dog_vec_tracy as lu_dog;
     } else if #[cfg(feature = "lu-dog-async-vec")] {
         pub use v2::lu_dog_async as lu_dog;
     } else if #[cfg(feature = "lu-dog-rwlock-vec")] {

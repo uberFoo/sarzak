@@ -30,6 +30,8 @@ pub struct Lambda {
     pub id: usize,
     /// R73: [`Lambda`] 'contains a' [`Body`]
     pub body: Option<usize>,
+    /// R103: [`Lambda`] 'may have a' [`LambdaParameter`]
+    pub first_param: Option<usize>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: usize,
 }
@@ -40,6 +42,7 @@ impl Lambda {
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
         body: Option<&Arc<RwLock<Body>>>,
+        first_param: Option<&Arc<RwLock<LambdaParameter>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Lambda>> {
@@ -47,6 +50,8 @@ impl Lambda {
             Arc::new(RwLock::new(Lambda {
                 id,
                 body: body.map(|body| body.read().unwrap().id),
+                first_param: first_param
+                    .map(|lambda_parameter| lambda_parameter.read().unwrap().id),
                 return_type: return_type.read().unwrap().id,
             }))
         })
@@ -58,6 +63,18 @@ impl Lambda {
     pub fn r73_body<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Body>>> {
         match self.body {
             Some(ref body) => vec![store.exhume_body(&body).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-first_param"}}}
+    /// Navigate to [`LambdaParameter`] across R103(1-*c)
+    pub fn r103_lambda_parameter<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<LambdaParameter>>> {
+        match self.first_param {
+            Some(ref first_param) => vec![store.exhume_lambda_parameter(&first_param).unwrap()],
             None => Vec::new(),
         }
     }
@@ -124,7 +141,9 @@ impl Lambda {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-implementation"}}}
 impl PartialEq for Lambda {
     fn eq(&self, other: &Self) -> bool {
-        self.body == other.body && self.return_type == other.return_type
+        self.body == other.body
+            && self.first_param == other.first_param
+            && self.return_type == other.return_type
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

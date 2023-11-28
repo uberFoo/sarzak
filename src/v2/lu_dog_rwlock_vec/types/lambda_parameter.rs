@@ -82,6 +82,15 @@ impl LambdaParameter {
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R103(1-1)
+    pub fn r103_lambda<'a>(&'a self, store: &'a LuDogRwlockVecStore) -> Vec<Arc<RwLock<Lambda>>> {
+        vec![store
+            .iter_lambda()
+            .find(|lambda| lambda.read().unwrap().first_param == Some(self.id))
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-bi-cond-to-lambda_parameter"}}}
     /// Navigate to [`LambdaParameter`] across R75(1c-1c)
     pub fn r75c_lambda_parameter<'a>(

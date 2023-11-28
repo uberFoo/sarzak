@@ -6,6 +6,7 @@ pub mod lu_dog_ndrwlock_vec;
 pub mod lu_dog_rwlock;
 pub mod lu_dog_rwlock_vec;
 pub mod lu_dog_vec;
+pub mod lu_dog_vec_tracy;
 pub mod merlin;
 pub mod sarzak;
 pub mod woog;
