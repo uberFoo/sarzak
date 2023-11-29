@@ -10,8 +10,6 @@ use crate::v2::sarzak_single::types::object::Object;
 use crate::v2::sarzak_single::types::s_string::S_STRING;
 use crate::v2::sarzak_single::types::s_uuid::S_UUID;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -38,63 +36,47 @@ pub enum Ty {
 impl Ty {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-new-impl"}}}
     /// Create a new instance of Ty::Boolean
-    pub fn new_boolean(store: &SarzakSingleStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_ty(&BOOLEAN).unwrap()
+    pub fn new_boolean() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Boolean(BOOLEAN)
     }
 
     /// Create a new instance of Ty::External
-    pub fn new_external(
-        external: &Rc<RefCell<External>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = external.borrow().id;
-        if let Some(external) = store.exhume_ty(&id) {
-            external
-        } else {
-            let new = Rc::new(RefCell::new(Self::External(id)));
-            store.inter_ty(new.clone());
-            new
-        }
+    pub fn new_external(external: &External, store: &mut SarzakSingleStore) -> Self {
+        let new = Self::External(external.id);
+        store.inter_ty(new.clone());
+        new
     } // wtf?
 
     /// Create a new instance of Ty::Float
-    pub fn new_float(store: &SarzakSingleStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_ty(&FLOAT).unwrap()
+    pub fn new_float() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Float(FLOAT)
     }
 
     /// Create a new instance of Ty::Integer
-    pub fn new_integer(store: &SarzakSingleStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_ty(&INTEGER).unwrap()
+    pub fn new_integer() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::Integer(INTEGER)
     }
 
     /// Create a new instance of Ty::Object
-    pub fn new_object(
-        object: &Rc<RefCell<Object>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = object.borrow().id;
-        if let Some(object) = store.exhume_ty(&id) {
-            object
-        } else {
-            let new = Rc::new(RefCell::new(Self::Object(id)));
-            store.inter_ty(new.clone());
-            new
-        }
+    pub fn new_object(object: &Object, store: &mut SarzakSingleStore) -> Self {
+        let new = Self::Object(object.id);
+        store.inter_ty(new.clone());
+        new
     } // wtf?
 
     /// Create a new instance of Ty::SString
-    pub fn new_s_string(store: &SarzakSingleStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_ty(&S_STRING).unwrap()
+    pub fn new_s_string() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::SString(S_STRING)
     }
 
     /// Create a new instance of Ty::SUuid
-    pub fn new_s_uuid(store: &SarzakSingleStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_ty(&S_UUID).unwrap()
+    pub fn new_s_uuid() -> Self {
+        // This is already in the store, see associated function `new` above.
+        Self::SUuid(S_UUID)
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -113,10 +95,10 @@ impl Ty {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-struct-impl-nav-backward-one-to-attribute"}}}
     /// Navigate to [`Attribute`] across R2(1-1)
-    pub fn r2_attribute<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Attribute>>> {
+    pub fn r2_attribute<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Attribute> {
         vec![store
             .iter_attribute()
-            .find(|attribute| attribute.borrow().ty == self.id())
+            .find(|attribute| attribute.ty == self.id())
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"binary-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::referent::Referent;
@@ -42,39 +40,36 @@ impl Binary {
     /// Inter a new 'Binary' in the store, and return it's `id`.
     pub fn new(
         number: i64,
-        from: &Rc<RefCell<Referrer>>,
-        to: &Rc<RefCell<Referent>>,
+        from: &Referrer,
+        to: &Referent,
         store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Binary>> {
+    ) -> Binary {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Binary {
+        let new = Binary {
             id,
             number,
-            from: from.borrow().id,
-            to: to.borrow().id,
-        }));
+            from: from.id,
+            to: to.id,
+        };
         store.inter_binary(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-nav-forward-to-from"}}}
     /// Navigate to [`Referrer`] across R6(1-*)
-    pub fn r6_referrer<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Referrer>>> {
+    pub fn r6_referrer<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Referrer> {
         vec![store.exhume_referrer(&self.from).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-nav-forward-to-to"}}}
     /// Navigate to [`Referent`] across R5(1-*)
-    pub fn r5_referent<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Referent>>> {
+    pub fn r5_referent<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Referent> {
         vec![store.exhume_referent(&self.to).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-impl-nav-subtype-to-supertype-relationship"}}}
     // Navigate to [`Relationship`] across R4(isa)
-    pub fn r4_relationship<'a>(
-        &'a self,
-        store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<Relationship>>> {
+    pub fn r4_relationship<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Relationship> {
         vec![store.exhume_relationship(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

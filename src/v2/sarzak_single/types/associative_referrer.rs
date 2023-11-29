@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"associative_referrer-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::associative::Associative;
@@ -34,44 +32,38 @@ impl AssociativeReferrer {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-new"}}}
     /// Inter a new 'Associative Referrer' in the store, and return it's `id`.
     pub fn new(
-        cardinality: &Rc<RefCell<Cardinality>>,
-        obj_id: &Rc<RefCell<Object>>,
+        cardinality: &Cardinality,
+        obj_id: &Object,
         store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<AssociativeReferrer>> {
+    ) -> AssociativeReferrer {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(AssociativeReferrer {
+        let new = AssociativeReferrer {
             id,
-            cardinality: cardinality.borrow().id(),
-            obj_id: obj_id.borrow().id,
-        }));
+            cardinality: cardinality.id(),
+            obj_id: obj_id.id,
+        };
         store.inter_associative_referrer(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-forward-to-cardinality"}}}
     /// Navigate to [`Cardinality`] across R89(1-*)
-    pub fn r89_cardinality<'a>(
-        &'a self,
-        store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<Cardinality>>> {
+    pub fn r89_cardinality<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Cardinality> {
         vec![store.exhume_cardinality(&self.cardinality).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R26(1-*)
-    pub fn r26_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r26_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-backward-one-to-associative"}}}
     /// Navigate to [`Associative`] across R21(1-1)
-    pub fn r21_associative<'a>(
-        &'a self,
-        store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<Associative>>> {
+    pub fn r21_associative<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Associative> {
         vec![store
             .iter_associative()
-            .find(|associative| associative.borrow().from == self.id)
+            .find(|associative| associative.from == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

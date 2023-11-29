@@ -21,8 +21,10 @@ use crate::v2::merlin::ObjectStore;
 use crate::v2::drawing::types::{Edge as FromEdge, ObjectUi, Point as FromPoint};
 use crate::v2::drawing::ObjectStore as DrawingStore;
 
-use crate::v2::sarzak::types::Cardinality;
-use crate::v2::sarzak::ObjectStore as SarzakStore;
+#[cfg(feature = "sarzak_multi")]
+use crate::v2::sarzak::{types::Cardinality, ObjectStore as SarzakStore};
+#[cfg(feature = "sarzak_single")]
+use crate::v2::sarzak_single::{types::Cardinality, ObjectStore as SarzakStore};
 
 /// Convert a v1 Drawing format into a v2 Drawing format
 ///
@@ -45,6 +47,7 @@ use crate::v2::sarzak::ObjectStore as SarzakStore;
 /// Well darn. There isn't a good way to get an object from an anchor, nor an
 /// anchor from an object -- not in the drawing domain anyway.
 ///
+#[cfg(feature = "sarzak_mulit")]
 impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
@@ -154,6 +157,155 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
             // Sort out the glyph.
             let card = &referent.read().unwrap().r8_cardinality(sarzak)[0];
             let glyph = match *card.read().unwrap() {
+                Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
+                Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
+            };
+
+            // Get the box.
+            let x_box = merlin
+                .exhume_x_box(&from_obj_ui.read().unwrap().id)
+                .unwrap()
+                .clone();
+
+            // Create the anchor.
+            let to_anchor = Anchor::new(
+                offset,
+                x,
+                y,
+                &Arc::new(RwLock::new(XyzzyEdge(&edge, &merlin).into())),
+                &glyph,
+                &x_box,
+                &line,
+                &mut merlin,
+            );
+
+            // Create the to point
+            let point = Point::new_anchor(
+                point.read().unwrap().x,
+                point.read().unwrap().y,
+                &to_anchor,
+                &mut merlin,
+            );
+
+            // Create the "line segment point"
+            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
+        }
+
+        merlin
+    }
+}
+
+#[cfg(feature = "sarzak_single")]
+impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
+    fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
+        let mut merlin = ObjectStore::new();
+
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Bottom(BOTTOM))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Left(LEFT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Right(RIGHT))));
+        merlin.inter_edge(Arc::new(RwLock::new(Edge::Top(TOP))));
+
+        for oui in drawing.iter_object_ui() {
+            let instance = Arc::new(RwLock::new(XBox::from((&*oui.read().unwrap(), drawing))));
+            merlin.inter_x_box(instance);
+        }
+
+        for bui in drawing.iter_binary_ui() {
+            let binary = &bui.read().unwrap();
+            let binary = binary.r12_binary(sarzak)[0];
+            let rel = &binary.r4_relationship(sarzak)[0];
+
+            let line = Line::new(&rel, &mut merlin);
+            let line_seg = LineSegment::new(&line, &mut merlin);
+
+            // Default to putting the relationship at the midpoint of the line,
+            let bisection = Bisection::new(0.5, &line_seg, &mut merlin);
+            let _name = RelationshipName::new(
+                format!("R{}", binary.number),
+                0,
+                0,
+                &line,
+                &bisection,
+                &mut merlin,
+            );
+
+            let from_anchor = &bui.read().unwrap().r7_anchor(drawing)[0];
+
+            // Our relationships are jacked up, so we have to do the dumb thing.
+            // Not that relationship navigation is any better, depending on the
+            // direction.
+            let referrer = &binary.r6_referrer(sarzak)[0];
+            let from_obj = &referrer.r17_object(sarzak)[0];
+            let from_obj_ui = drawing
+                .iter_object_ui()
+                .find(|oui| oui.read().unwrap().object_id == from_obj.id)
+                .unwrap();
+
+            // Get what we need to build the offset to which the line connects.
+            let point = &from_anchor.read().unwrap().r4_point(drawing)[0];
+            let edge = &from_anchor.read().unwrap().r3_edge(drawing)[0];
+            let (x, y) = get_anchor_offset(&point, &edge);
+
+            // Sort out how far along the edge the arrow should be drawn.
+            let origin = &from_obj_ui.read().unwrap().r13_point(drawing)[0];
+            let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
+
+            // Sort out the glyph.
+            let card = &referrer.r9_cardinality(sarzak)[0];
+            let glyph = match *card {
+                Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
+                Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
+            };
+
+            // Get the box.
+            let x_box = merlin
+                .exhume_x_box(&from_obj_ui.read().unwrap().id)
+                .unwrap()
+                .clone();
+
+            // Create the anchor.
+            let from_anchor = Anchor::new(
+                offset,
+                x,
+                y,
+                &Arc::new(RwLock::new(XyzzyEdge(&edge, &merlin).into())),
+                &glyph,
+                &x_box,
+                &line,
+                &mut merlin,
+            );
+
+            // Create the from point
+            let point = Point::new_anchor(
+                point.read().unwrap().x,
+                point.read().unwrap().y,
+                &from_anchor,
+                &mut merlin,
+            );
+
+            // Create the "line segment point"
+            LineSegmentPoint::new(&line_seg, &point, &mut merlin);
+
+            let to_anchor = &bui.read().unwrap().r8_anchor(drawing)[0];
+            let referent = &binary.r5_referent(sarzak)[0];
+            let from_obj = &referent.r16_object(sarzak)[0];
+            let from_obj_ui = drawing
+                .iter_object_ui()
+                .find(|oui| oui.read().unwrap().object_id == from_obj.id)
+                .unwrap();
+
+            // Get what we need to build the offset to which the line connects.
+            let point = &to_anchor.read().unwrap().r4_point(drawing)[0];
+            let edge = &to_anchor.read().unwrap().r3_edge(drawing)[0];
+            let (x, y) = get_anchor_offset(&point, &edge);
+
+            // Sort out how far along the edge the arrow should be drawn.
+            let origin = &from_obj_ui.read().unwrap().r13_point(drawing)[0];
+            let offset = get_anchor_line_offset(&edge, &point, &from_obj_ui, &origin);
+
+            // Sort out the glyph.
+            let card = &referent.r8_cardinality(sarzak)[0];
+            let glyph = match *card {
                 Cardinality::One(_) => Glyph::new_one(&line, &mut merlin),
                 Cardinality::Many(_) => Glyph::new_many(&line, &mut merlin),
             };

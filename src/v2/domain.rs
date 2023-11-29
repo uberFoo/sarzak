@@ -9,8 +9,14 @@ use uuid::Uuid;
 use crate::v1::domain::Domain as DomainV1;
 use crate::v2::{
     drawing::store::ObjectStore as DrawingStore, merlin::store::ObjectStore as MerlinStore,
-    sarzak::store::ObjectStore as SarzakStore,
 };
+
+#[cfg(feature = "sarzak_multi")]
+use crate::v2::sarzak::store::ObjectStore as SarzakStore;
+
+#[cfg(feature = "sarzak_single")]
+use crate::v2::sarzak_single::store::ObjectStore as SarzakStore;
+
 use crate::VERSION;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -11,3 +11,4 @@ pub mod merlin;
 pub mod sarzak;
 pub mod sarzak_single;
 pub mod woog;
+pub mod woog_single;

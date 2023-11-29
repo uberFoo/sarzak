@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"supertype-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::isa::Isa;
@@ -28,31 +26,28 @@ pub struct Supertype {
 impl Supertype {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-struct-impl-new"}}}
     /// Inter a new 'Supertype' in the store, and return it's `id`.
-    pub fn new(
-        obj_id: &Rc<RefCell<Object>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Supertype>> {
+    pub fn new(obj_id: &Object, store: &mut SarzakSingleStore) -> Supertype {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Supertype {
+        let new = Supertype {
             id,
-            obj_id: obj_id.borrow().id,
-        }));
+            obj_id: obj_id.id,
+        };
         store.inter_supertype(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R14(1-*)
-    pub fn r14_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r14_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"supertype-struct-impl-nav-backward-one-to-isa"}}}
     /// Navigate to [`Isa`] across R13(1-1)
-    pub fn r13_isa<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Isa>>> {
+    pub fn r13_isa<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Isa> {
         vec![store
             .iter_isa()
-            .find(|isa| isa.borrow().supertype == self.id)
+            .find(|isa| isa.supertype == self.id)
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

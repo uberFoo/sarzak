@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"attribute-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::object::Object;
@@ -32,32 +30,27 @@ pub struct Attribute {
 impl Attribute {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-new"}}}
     /// Inter a new 'Attribute' in the store, and return it's `id`.
-    pub fn new(
-        name: String,
-        obj_id: &Rc<RefCell<Object>>,
-        ty: &Rc<RefCell<Ty>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Attribute>> {
+    pub fn new(name: String, obj_id: &Object, ty: &Ty, store: &mut SarzakSingleStore) -> Attribute {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Attribute {
+        let new = Attribute {
             id,
             name,
-            obj_id: obj_id.borrow().id,
-            ty: ty.borrow().id(),
-        }));
+            obj_id: obj_id.id,
+            ty: ty.id(),
+        };
         store.inter_attribute(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R1(1-*)
-    pub fn r1_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r1_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"attribute-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`Ty`] across R2(1-*)
-    pub fn r2_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Ty>>> {
+    pub fn r2_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

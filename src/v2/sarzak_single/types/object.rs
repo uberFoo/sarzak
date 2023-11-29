@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"object-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::associative_referent::AssociativeReferent;
@@ -48,14 +46,14 @@ impl Object {
         key_letters: String,
         name: String,
         store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Object>> {
+    ) -> Object {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(Object {
+        let new = Object {
             description,
             id,
             key_letters,
             name,
-        }));
+        };
         store.inter_object(new.clone());
         new
     }
@@ -65,10 +63,10 @@ impl Object {
     pub fn r25_associative_referent<'a>(
         &'a self,
         store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<AssociativeReferent>>> {
+    ) -> Vec<&AssociativeReferent> {
         store
             .iter_associative_referent()
-            .filter(|associative_referent| associative_referent.borrow().obj_id == self.id)
+            .filter(|associative_referent| associative_referent.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -77,82 +75,79 @@ impl Object {
     pub fn r26_associative_referrer<'a>(
         &'a self,
         store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<AssociativeReferrer>>> {
+    ) -> Vec<&AssociativeReferrer> {
         store
             .iter_associative_referrer()
-            .filter(|associative_referrer| associative_referrer.borrow().obj_id == self.id)
+            .filter(|associative_referrer| associative_referrer.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-attribute"}}}
     /// Navigate to [`Attribute`] across R1(1-M)
-    pub fn r1_attribute<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Attribute>>> {
+    pub fn r1_attribute<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Attribute> {
         store
             .iter_attribute()
-            .filter(|attribute| attribute.borrow().obj_id == self.id)
+            .filter(|attribute| attribute.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-event"}}}
     /// Navigate to [`Event`] across R19(1-M)
-    pub fn r19_event<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Event>>> {
+    pub fn r19_event<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Event> {
         store
             .iter_event()
-            .filter(|event| event.borrow().obj_id == self.id)
+            .filter(|event| event.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-referent"}}}
     /// Navigate to [`Referent`] across R16(1-M)
-    pub fn r16_referent<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Referent>>> {
+    pub fn r16_referent<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Referent> {
         store
             .iter_referent()
-            .filter(|referent| referent.borrow().obj_id == self.id)
+            .filter(|referent| referent.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-referrer"}}}
     /// Navigate to [`Referrer`] across R17(1-M)
-    pub fn r17_referrer<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Referrer>>> {
+    pub fn r17_referrer<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Referrer> {
         store
             .iter_referrer()
-            .filter(|referrer| referrer.borrow().obj_id == self.id)
+            .filter(|referrer| referrer.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-state"}}}
     /// Navigate to [`State`] across R18(1-M)
-    pub fn r18_state<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<State>>> {
+    pub fn r18_state<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&State> {
         store
             .iter_state()
-            .filter(|state| state.borrow().obj_id == self.id)
+            .filter(|state| state.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-subtype"}}}
     /// Navigate to [`Subtype`] across R15(1-M)
-    pub fn r15_subtype<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Subtype>>> {
+    pub fn r15_subtype<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Subtype> {
         store
             .iter_subtype()
-            .filter(|subtype| subtype.borrow().obj_id == self.id)
+            .filter(|subtype| subtype.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-struct-impl-nav-backward-1_M-to-supertype"}}}
     /// Navigate to [`Supertype`] across R14(1-M)
-    pub fn r14_supertype<'a>(
-        &'a self,
-        store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<Supertype>>> {
+    pub fn r14_supertype<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Supertype> {
         store
             .iter_supertype()
-            .filter(|supertype| supertype.borrow().obj_id == self.id)
+            .filter(|supertype| supertype.obj_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
-    pub fn r3_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Ty>>> {
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

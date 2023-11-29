@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"state-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::acknowledged_event::AcknowledgedEvent;
@@ -28,24 +26,20 @@ pub struct State {
 impl State {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-new"}}}
     /// Inter a new 'State' in the store, and return it's `id`.
-    pub fn new(
-        name: String,
-        obj_id: &Rc<RefCell<Object>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<State>> {
+    pub fn new(name: String, obj_id: &Object, store: &mut SarzakSingleStore) -> State {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(State {
+        let new = State {
             id,
             name,
-            obj_id: obj_id.borrow().id,
-        }));
+            obj_id: obj_id.id,
+        };
         store.inter_state(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"state-struct-impl-nav-forward-to-obj_id"}}}
     /// Navigate to [`Object`] across R18(1-*)
-    pub fn r18_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Object>>> {
+    pub fn r18_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Object> {
         vec![store.exhume_object(&self.obj_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -54,10 +48,10 @@ impl State {
     pub fn r20_acknowledged_event<'a>(
         &'a self,
         store: &'a SarzakSingleStore,
-    ) -> Vec<Rc<RefCell<AcknowledgedEvent>>> {
+    ) -> Vec<&AcknowledgedEvent> {
         store
             .iter_acknowledged_event()
-            .filter(|acknowledged_event| acknowledged_event.borrow().state_id == self.id)
+            .filter(|acknowledged_event| acknowledged_event.state_id == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

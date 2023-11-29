@@ -298,7 +298,7 @@ is_meta_model = true
 is_sarzak = true
 persist = true
 persist_timestamps = true
-uber_store = "Single"
+uber_store = "Disabled"
 target = "domain"
 
 #
@@ -322,4 +322,27 @@ is_sarzak = false
 persist = true
 persist_timestamps = true
 uber_store = "StdRwLock"
+target = "domain"
+
+#
+# Woog Single
+#
+[modules."v2/woog_single"]
+model = "models/woog.json"
+
+[[modules."v2/woog_single".compiler]]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+imported_domains = ["crate/v2/sarzak"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
+[modules."v2/woog_single".compiler.target]
+optimization_level = "None"
+is_meta_model = true
+is_sarzak = false
+persist = true
+persist_timestamps = true
+uber_store = "Disabled"
 target = "domain"

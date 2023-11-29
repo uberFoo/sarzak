@@ -10,13 +10,20 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub use v2::drawing;
 pub use v2::merlin;
-pub use v2::woog;
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "sarzak_rwlock")] {
+    if #[cfg(feature = "sarzak-rwlock")] {
         pub use v2::sarzak;
-    } else if #[cfg(feature = "sarzak_single")] {
+    } else if #[cfg(feature = "sarzak-single")] {
         pub use v2::sarzak_single as sarzak;
+    }
+}
+
+cfg_if::cfg_if! {
+    if #[cfg(feature = "woog-rwlock")] {
+        pub use v2::woog;
+    } else if #[cfg(feature = "woog-single")] {
+        pub use v2::woog_single as woog;
     }
 }
 

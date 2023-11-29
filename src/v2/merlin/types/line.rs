@@ -10,11 +10,11 @@ use crate::v2::merlin::types::glyph::Glyph;
 use crate::v2::merlin::types::line_segment::LineSegment;
 use crate::v2::merlin::types::relationship_name::RelationshipName;
 use crate::v2::merlin::types::relationship_phrase::RelationshipPhrase;
-use crate::v2::sarzak::types::relationship::Relationship;
+use crate::v2::sarzak_single::types::relationship::Relationship;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::merlin::store::ObjectStore as MerlinStore;
-use crate::v2::sarzak::store::ObjectStore as SarzakStore;
+use crate::v2::sarzak_single::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-documentation"}}}
@@ -50,10 +50,7 @@ impl Line {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"line-struct-impl-nav-forward-to-relationship"}}}
     /// Navigate to [`Relationship`] across R2(1-*)
-    pub fn r2_relationship<'a>(
-        &'a self,
-        store: &'a SarzakStore,
-    ) -> Vec<std::sync::Arc<std::sync::RwLock<Relationship>>> {
+    pub fn r2_relationship<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Relationship> {
         span!("r2_relationship");
         vec![store.exhume_relationship(&self.relationship).unwrap()]
     }

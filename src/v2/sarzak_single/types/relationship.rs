@@ -5,8 +5,6 @@ use crate::v2::sarzak_single::types::associative::Associative;
 use crate::v2::sarzak_single::types::binary::Binary;
 use crate::v2::sarzak_single::types::isa::Isa;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -33,45 +31,24 @@ pub enum Relationship {
 impl Relationship {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"relationship-new-impl"}}}
     /// Create a new instance of Relationship::Associative
-    pub fn new_associative(
-        associative: &Rc<RefCell<Associative>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = associative.borrow().id;
-        if let Some(associative) = store.exhume_relationship(&id) {
-            associative
-        } else {
-            let new = Rc::new(RefCell::new(Self::Associative(id)));
-            store.inter_relationship(new.clone());
-            new
-        }
+    pub fn new_associative(associative: &Associative, store: &mut SarzakSingleStore) -> Self {
+        let new = Self::Associative(associative.id);
+        store.inter_relationship(new.clone());
+        new
     } // wtf?
 
     /// Create a new instance of Relationship::Binary
-    pub fn new_binary(
-        binary: &Rc<RefCell<Binary>>,
-        store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = binary.borrow().id;
-        if let Some(binary) = store.exhume_relationship(&id) {
-            binary
-        } else {
-            let new = Rc::new(RefCell::new(Self::Binary(id)));
-            store.inter_relationship(new.clone());
-            new
-        }
+    pub fn new_binary(binary: &Binary, store: &mut SarzakSingleStore) -> Self {
+        let new = Self::Binary(binary.id);
+        store.inter_relationship(new.clone());
+        new
     } // wtf?
 
     /// Create a new instance of Relationship::Isa
-    pub fn new_isa(isa: &Rc<RefCell<Isa>>, store: &mut SarzakSingleStore) -> Rc<RefCell<Self>> {
-        let id = isa.borrow().id;
-        if let Some(isa) = store.exhume_relationship(&id) {
-            isa
-        } else {
-            let new = Rc::new(RefCell::new(Self::Isa(id)));
-            store.inter_relationship(new.clone());
-            new
-        }
+    pub fn new_isa(isa: &Isa, store: &mut SarzakSingleStore) -> Self {
+        let new = Self::Isa(isa.id);
+        store.inter_relationship(new.clone());
+        new
     } // wtf?
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

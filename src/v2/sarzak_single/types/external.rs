@@ -1,7 +1,5 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"external-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-use-statements"}}}
-use std::cell::RefCell;
-use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::sarzak_single::types::ty::Ty;
@@ -49,21 +47,21 @@ impl External {
         name: String,
         x_path: String,
         store: &mut SarzakSingleStore,
-    ) -> Rc<RefCell<External>> {
+    ) -> External {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(External {
+        let new = External {
             ctor,
             id,
             name,
             x_path,
-        }));
+        };
         store.inter_external(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"external-impl-nav-subtype-to-supertype-ty"}}}
     // Navigate to [`Ty`] across R3(isa)
-    pub fn r3_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Ty>>> {
+    pub fn r3_ty<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<&Ty> {
         vec![store.exhume_ty(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

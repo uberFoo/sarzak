@@ -6,11 +6,17 @@ use uuid::Uuid;
 
 use crate::v2::drawing::types::anchor::Anchor;
 use crate::v2::drawing::types::relationship_ui::RelationshipUi;
+#[cfg(feature = "sarzak_multi")]
 use crate::v2::sarzak::types::binary::Binary;
+#[cfg(feature = "sarzak_single")]
+use crate::v2::sarzak_single::types::binary::Binary;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::drawing::store::ObjectStore as DrawingStore;
+#[cfg(feature = "sarzak_multi")]
 use crate::v2::sarzak::store::ObjectStore as SarzakStore;
+#[cfg(feature = "sarzak_single")]
+use crate::v2::sarzak_single::store::ObjectStore as SarzakStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-documentation"}}}
@@ -57,10 +63,7 @@ impl BinaryUi {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-to"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary_ui-struct-impl-nav-forward-to-binary_id"}}}
     /// Navigate to [`Binary`] across R12(1-*)
-    pub fn r12_binary<'a>(
-        &'a self,
-        store: &'a SarzakStore,
-    ) -> Vec<std::sync::Arc<std::sync::RwLock<Binary>>> {
+    pub fn r12_binary<'a>(&'a self, store: &'a SarzakStore) -> Vec<&Binary> {
         vec![store.exhume_binary(&self.binary_id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

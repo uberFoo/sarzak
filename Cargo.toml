@@ -1,6 +1,6 @@
 [package]
 name = "sarzak"
-version = "2.8.0"
+version = "2.11.0"
 edition = "2021"
 authors = ["Keith T. Star <uberfoo@me.com>"]
 categories = ["compilers", "memory-management"]
@@ -52,7 +52,7 @@ env_logger = "0.10.0"
 pretty_env_logger = "0.5.0"
 
 [features]
-default = ["lu-dog-vec", "sarzak_single"]
+default = ["lu-dog-vec", "sarzak-rwlock"]
 lu-dog-vec = []
 lu-dog-vec-tracy = []
 lu-dog-rwlock-vec = []
@@ -60,5 +60,7 @@ lu-dog-ndrwlock-vec = []
 lu-dog-rc = []
 lu-dog-rwlock = []
 lu-dog-async-vec = []
-sarzak_single = []
-sarzak_rwlock = []
+sarzak-single = []
+sarzak-rwlock = []
+woog-single = []
+woog-rwLock = []
