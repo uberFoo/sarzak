@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"point-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -52,7 +51,7 @@ impl Point {
         let new = Arc::new(RwLock::new(Point {
             x: x,
             y: y,
-            subtype: PointEnum::Anchor(subtype.read().unwrap().id),
+            subtype: PointEnum::Anchor(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_point(new.clone());
@@ -74,7 +73,7 @@ impl Point {
         let new = Arc::new(RwLock::new(Point {
             x: x,
             y: y,
-            subtype: PointEnum::Bisection(subtype.read().unwrap().id),
+            subtype: PointEnum::Bisection(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_point(new.clone());
@@ -107,7 +106,6 @@ impl Point {
         &'a self,
         store: &'a MerlinStore,
     ) -> Vec<Arc<RwLock<LineSegmentPoint>>> {
-        span!("r5_line_segment_point");
         vec![store
             .iter_line_segment_point()
             .find(|line_segment_point| line_segment_point.read().unwrap().point == self.id)

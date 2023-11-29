@@ -21,9 +21,9 @@ use crate::v2::merlin::ObjectStore;
 use crate::v2::drawing::types::{Edge as FromEdge, ObjectUi, Point as FromPoint};
 use crate::v2::drawing::ObjectStore as DrawingStore;
 
-#[cfg(feature = "sarzak_multi")]
+#[cfg(feature = "sarzak-rwlock")]
 use crate::v2::sarzak::{types::Cardinality, ObjectStore as SarzakStore};
-#[cfg(feature = "sarzak_single")]
+#[cfg(feature = "sarzak-single")]
 use crate::v2::sarzak_single::{types::Cardinality, ObjectStore as SarzakStore};
 
 /// Convert a v1 Drawing format into a v2 Drawing format
@@ -47,7 +47,7 @@ use crate::v2::sarzak_single::{types::Cardinality, ObjectStore as SarzakStore};
 /// Well darn. There isn't a good way to get an object from an anchor, nor an
 /// anchor from an object -- not in the drawing domain anyway.
 ///
-#[cfg(feature = "sarzak_mulit")]
+#[cfg(feature = "sarzak-rwlock")]
 impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();
@@ -195,7 +195,7 @@ impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     }
 }
 
-#[cfg(feature = "sarzak_single")]
+#[cfg(feature = "sarzak-single")]
 impl From<(&DrawingStore, &SarzakStore)> for ObjectStore {
     fn from((drawing, sarzak): (&DrawingStore, &SarzakStore)) -> Self {
         let mut merlin = ObjectStore::new();

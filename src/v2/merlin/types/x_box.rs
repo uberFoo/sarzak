@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::merlin::types::anchor::Anchor;
@@ -67,7 +66,6 @@ impl XBox {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r1_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -75,7 +73,6 @@ impl XBox {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_box-struct-impl-nav-backward-assoc-many-to-anchor"}}}
     /// Navigate to [`Anchor`] across R3(1-M)
     pub fn r3_anchor<'a>(&'a self, store: &'a MerlinStore) -> Vec<Arc<RwLock<Anchor>>> {
-        span!("r3_anchor");
         store
             .iter_anchor()
             .filter(|anchor| anchor.read().unwrap().x_box == self.id)
