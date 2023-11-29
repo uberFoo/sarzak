@@ -1,0 +1,80 @@
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"associative_referrer-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use uuid::Uuid;
+
+use crate::v2::sarzak_single::types::associative::Associative;
+use crate::v2::sarzak_single::types::cardinality::Cardinality;
+use crate::v2::sarzak_single::types::object::Object;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::sarzak_single::store::ObjectStore as SarzakSingleStore;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-documentation"}}}
+/// Associative Object
+///
+/// This is used in an [`Associative`] relationship to point to the Associative object itself
+/// . It's the box with the line pointing at another line.
+///
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct AssociativeReferrer {
+    pub id: Uuid,
+    /// R89: [`AssociativeReferrer`] 'has' [`Cardinality`]
+    pub cardinality: Uuid,
+    /// R26: [`AssociativeReferrer`] 'is also an' [`Object`]
+    pub obj_id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-implementation"}}}
+impl AssociativeReferrer {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-new"}}}
+    /// Inter a new 'Associative Referrer' in the store, and return it's `id`.
+    pub fn new(
+        cardinality: &Rc<RefCell<Cardinality>>,
+        obj_id: &Rc<RefCell<Object>>,
+        store: &mut SarzakSingleStore,
+    ) -> Rc<RefCell<AssociativeReferrer>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(AssociativeReferrer {
+            id,
+            cardinality: cardinality.borrow().id(),
+            obj_id: obj_id.borrow().id,
+        }));
+        store.inter_associative_referrer(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-forward-to-cardinality"}}}
+    /// Navigate to [`Cardinality`] across R89(1-*)
+    pub fn r89_cardinality<'a>(
+        &'a self,
+        store: &'a SarzakSingleStore,
+    ) -> Vec<Rc<RefCell<Cardinality>>> {
+        vec![store.exhume_cardinality(&self.cardinality).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-forward-to-obj_id"}}}
+    /// Navigate to [`Object`] across R26(1-*)
+    pub fn r26_object<'a>(&'a self, store: &'a SarzakSingleStore) -> Vec<Rc<RefCell<Object>>> {
+        vec![store.exhume_object(&self.obj_id).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"associative_referrer-struct-impl-nav-backward-one-to-associative"}}}
+    /// Navigate to [`Associative`] across R21(1-1)
+    pub fn r21_associative<'a>(
+        &'a self,
+        store: &'a SarzakSingleStore,
+    ) -> Vec<Rc<RefCell<Associative>>> {
+        vec![store
+            .iter_associative()
+            .find(|associative| associative.borrow().from == self.id)
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

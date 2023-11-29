@@ -278,6 +278,30 @@ uber_store = "StdRwLock"
 target = "domain"
 
 #
+# Sarzak Single
+#
+[modules."v2/sarzak_single"]
+model = "models/sarzak.json"
+
+[[modules."v2/sarzak_single".compiler]]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "PartialEq", "Serialize"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
+[modules."v2/sarzak_single".compiler.target]
+optimization_level = "None"
+from_module = "v1::sarzak"
+from_path = "models/sarzak.json"
+is_meta_model = true
+is_sarzak = true
+persist = true
+persist_timestamps = true
+uber_store = "Single"
+target = "domain"
+
+#
 # Woog
 #
 [modules."v2/woog"]

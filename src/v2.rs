@@ -9,4 +9,5 @@ pub mod lu_dog_vec;
 pub mod lu_dog_vec_tracy;
 pub mod merlin;
 pub mod sarzak;
+pub mod sarzak_single;
 pub mod woog;
