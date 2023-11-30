@@ -15,7 +15,6 @@ use crate::v2::lu_dog_rwlock_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock_vec::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock_vec::types::list::List;
 use crate::v2::lu_dog_rwlock_vec::types::parameter::Parameter;
-use crate::v2::lu_dog_rwlock_vec::types::plugin::Plugin;
 use crate::v2::lu_dog_rwlock_vec::types::range::RANGE;
 use crate::v2::lu_dog_rwlock_vec::types::span::Span;
 use crate::v2::lu_dog_rwlock_vec::types::task::TASK;
@@ -24,6 +23,7 @@ use crate::v2::lu_dog_rwlock_vec::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock_vec::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_rwlock_vec::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_rwlock_vec::types::x_future::XFuture;
+use crate::v2::lu_dog_rwlock_vec::types::x_plugin::XPlugin;
 use crate::v2::lu_dog_rwlock_vec::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock_vec::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -72,7 +72,7 @@ pub enum ValueTypeEnum {
     Lambda(usize),
     List(usize),
     ZObjectStore(usize),
-    Plugin(usize),
+    XPlugin(usize),
     Range(Uuid),
     WoogStruct(usize),
     Task(Uuid),
@@ -223,14 +223,15 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_plugin"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_plugin"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_plugin(
-        subtype: &Arc<RwLock<Plugin>>,
+    pub fn new_x_plugin(
+        subtype: &Arc<RwLock<XPlugin>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<ValueType>> {
         store.inter_value_type(|id| {
             Arc::new(RwLock::new(ValueType {
-                subtype: ValueTypeEnum::Plugin(subtype.read().unwrap().id), // b
+                subtype: ValueTypeEnum::XPlugin(subtype.read().unwrap().id), // b
                 id,
             }))
         })

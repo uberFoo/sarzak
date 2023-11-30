@@ -58,7 +58,7 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
-//! * [`Plugin`]
+//! * [`XPlugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`ResultStatement`]
@@ -101,14 +101,14 @@ use crate::v2::lu_dog_vec_tracy::types::{
     ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
     Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
     LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, Plugin, RangeExpression, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
+    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
+    FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -219,8 +219,8 @@ pub struct ObjectStore {
     path_element: Vec<Option<Rc<RefCell<PathElement>>>>,
     pattern_free_list: Vec<usize>,
     pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
-    plugin_free_list: Vec<usize>,
-    plugin: Vec<Option<Rc<RefCell<Plugin>>>>,
+    x_plugin_free_list: Vec<usize>,
+    x_plugin: Vec<Option<Rc<RefCell<XPlugin>>>>,
     x_print_free_list: Vec<usize>,
     x_print: Vec<Option<Rc<RefCell<XPrint>>>>,
     range_expression_free_list: Vec<usize>,
@@ -375,8 +375,8 @@ impl ObjectStore {
             path_element: Vec::new(),
             pattern_free_list: Vec::new(),
             pattern: Vec::new(),
-            plugin_free_list: Vec::new(),
-            plugin: Vec::new(),
+            x_plugin_free_list: Vec::new(),
+            x_plugin: Vec::new(),
             x_print_free_list: Vec::new(),
             x_print: Vec::new(),
             range_expression_free_list: Vec::new(),
@@ -4278,73 +4278,73 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Plugin`] into the store.
+    /// Inter (insert) [`XPlugin`] into the store.
     ///
     #[inline]
-    pub fn inter_plugin<F>(&mut self, plugin: F) -> Rc<RefCell<Plugin>>
+    pub fn inter_x_plugin<F>(&mut self, x_plugin: F) -> Rc<RefCell<XPlugin>>
     where
-        F: Fn(usize) -> Rc<RefCell<Plugin>>,
+        F: Fn(usize) -> Rc<RefCell<XPlugin>>,
     {
-        let _index = if let Some(_index) = self.plugin_free_list.pop() {
+        let _index = if let Some(_index) = self.x_plugin_free_list.pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.plugin.len();
+            let _index = self.x_plugin.len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.plugin.push(None);
+            self.x_plugin.push(None);
             _index
         };
 
-        let plugin = plugin(_index);
+        let x_plugin = x_plugin(_index);
 
-        if let Some(Some(plugin)) = self.plugin.iter().find(|stored| {
+        if let Some(Some(x_plugin)) = self.x_plugin.iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.borrow() == *plugin.borrow()
+                *stored.borrow() == *x_plugin.borrow()
             } else {
                 false
             }
         }) {
-            log::debug!(target: "store", "found duplicate {plugin:?}.");
-            self.plugin_free_list.push(_index);
-            plugin.clone()
+            log::debug!(target: "store", "found duplicate {x_plugin:?}.");
+            self.x_plugin_free_list.push(_index);
+            x_plugin.clone()
         } else {
-            log::debug!(target: "store", "interring {plugin:?}.");
-            self.plugin[_index] = Some(plugin.clone());
-            plugin
+            log::debug!(target: "store", "interring {x_plugin:?}.");
+            self.x_plugin[_index] = Some(x_plugin.clone());
+            x_plugin
         }
     }
 
-    /// Exhume (get) [`Plugin`] from the store.
+    /// Exhume (get) [`XPlugin`] from the store.
     ///
     #[inline]
-    pub fn exhume_plugin(&self, id: &usize) -> Option<Rc<RefCell<Plugin>>> {
-        match self.plugin.get(*id) {
-            Some(plugin) => plugin.clone(),
+    pub fn exhume_x_plugin(&self, id: &usize) -> Option<Rc<RefCell<XPlugin>>> {
+        match self.x_plugin.get(*id) {
+            Some(x_plugin) => x_plugin.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Plugin`] from the store.
+    /// Exorcise (remove) [`XPlugin`] from the store.
     ///
     #[inline]
-    pub fn exorcise_plugin(&mut self, id: &usize) -> Option<Rc<RefCell<Plugin>>> {
-        log::debug!(target: "store", "exorcising plugin slot: {id}.");
-        let result = self.plugin[*id].take();
-        self.plugin_free_list.push(*id);
+    pub fn exorcise_x_plugin(&mut self, id: &usize) -> Option<Rc<RefCell<XPlugin>>> {
+        log::debug!(target: "store", "exorcising x_plugin slot: {id}.");
+        let result = self.x_plugin[*id].take();
+        self.x_plugin_free_list.push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Plugin>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
     ///
     #[inline]
-    pub fn iter_plugin(&self) -> impl Iterator<Item = Rc<RefCell<Plugin>>> + '_ {
-        let len = self.plugin.len();
+    pub fn iter_x_plugin(&self) -> impl Iterator<Item = Rc<RefCell<XPlugin>>> + '_ {
+        let len = self.x_plugin.len();
         (0..len)
-            .filter(|i| self.plugin[*i].is_some())
+            .filter(|i| self.x_plugin[*i].is_some())
             .map(move |i| {
-                self.plugin[i]
+                self.x_plugin[i]
                     .as_ref()
-                    .map(|plugin| plugin.clone())
+                    .map(|x_plugin| x_plugin.clone())
                     .unwrap()
             })
     }
@@ -6627,14 +6627,14 @@ impl ObjectStore {
 
         // Persist Plugin.
         {
-            let path = path.join("plugin");
+            let path = path.join("x_plugin");
             fs::create_dir_all(&path)?;
-            for plugin in &self.plugin {
-                if let Some(plugin) = plugin {
-                    let path = path.join(format!("{}.json", plugin.borrow().id));
+            for x_plugin in &self.x_plugin {
+                if let Some(x_plugin) = x_plugin {
+                    let path = path.join(format!("{}.json", x_plugin.borrow().id));
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &plugin)?;
+                    serde_json::to_writer_pretty(&mut writer, &x_plugin)?;
                 }
             }
         }
@@ -7791,17 +7791,17 @@ impl ObjectStore {
 
         // Load Plugin.
         {
-            let path = path.join("plugin");
+            let path = path.join("x_plugin");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let plugin: Rc<RefCell<Plugin>> = serde_json::from_reader(reader)?;
+                let x_plugin: Rc<RefCell<XPlugin>> = serde_json::from_reader(reader)?;
                 store
-                    .plugin
-                    .insert(plugin.borrow().id, Some(plugin.clone()));
+                    .x_plugin
+                    .insert(x_plugin.borrow().id, Some(x_plugin.clone()));
             }
         }
 

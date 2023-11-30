@@ -58,7 +58,7 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
-//! * [`Plugin`]
+//! * [`XPlugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`ResultStatement`]
@@ -96,14 +96,14 @@ use crate::v2::lu_dog_ndrwlock_vec::types::{
     ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
     Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
     LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, Plugin, RangeExpression, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore,
-    ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
-    FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE,
-    ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT,
-    NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
+    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
+    FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug)]
@@ -214,8 +214,8 @@ pub struct ObjectStore {
     path_element: Arc<RwLock<Vec<Option<Arc<RwLock<PathElement>>>>>>,
     pattern_free_list: std::sync::Mutex<Vec<usize>>,
     pattern: Arc<RwLock<Vec<Option<Arc<RwLock<Pattern>>>>>>,
-    plugin_free_list: std::sync::Mutex<Vec<usize>>,
-    plugin: Arc<RwLock<Vec<Option<Arc<RwLock<Plugin>>>>>>,
+    x_plugin_free_list: std::sync::Mutex<Vec<usize>>,
+    x_plugin: Arc<RwLock<Vec<Option<Arc<RwLock<XPlugin>>>>>>,
     x_print_free_list: std::sync::Mutex<Vec<usize>>,
     x_print: Arc<RwLock<Vec<Option<Arc<RwLock<XPrint>>>>>>,
     range_expression_free_list: std::sync::Mutex<Vec<usize>>,
@@ -370,8 +370,8 @@ impl ObjectStore {
             path_element: Arc::new(RwLock::new(Vec::new())),
             pattern_free_list: std::sync::Mutex::new(Vec::new()),
             pattern: Arc::new(RwLock::new(Vec::new())),
-            plugin_free_list: std::sync::Mutex::new(Vec::new()),
-            plugin: Arc::new(RwLock::new(Vec::new())),
+            x_plugin_free_list: std::sync::Mutex::new(Vec::new()),
+            x_plugin: Arc::new(RwLock::new(Vec::new())),
             x_print_free_list: std::sync::Mutex::new(Vec::new()),
             x_print: Arc::new(RwLock::new(Vec::new())),
             range_expression_free_list: std::sync::Mutex::new(Vec::new()),
@@ -4717,79 +4717,79 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`Plugin`] into the store.
+    /// Inter (insert) [`XPlugin`] into the store.
     ///
     #[inline]
-    pub fn inter_plugin<F>(&mut self, plugin: F) -> Arc<RwLock<Plugin>>
+    pub fn inter_x_plugin<F>(&mut self, x_plugin: F) -> Arc<RwLock<XPlugin>>
     where
-        F: Fn(usize) -> Arc<RwLock<Plugin>>,
+        F: Fn(usize) -> Arc<RwLock<XPlugin>>,
     {
-        let _index = if let Some(_index) = self.plugin_free_list.lock().unwrap().pop() {
+        let _index = if let Some(_index) = self.x_plugin_free_list.lock().unwrap().pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.plugin.read().unwrap().len();
+            let _index = self.x_plugin.read().unwrap().len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.plugin.write().unwrap().push(None);
+            self.x_plugin.write().unwrap().push(None);
             _index
         };
 
-        let plugin = plugin(_index);
+        let x_plugin = x_plugin(_index);
 
-        let found = if let Some(plugin) = self.plugin.read().unwrap().iter().find(|stored| {
+        let found = if let Some(x_plugin) = self.x_plugin.read().unwrap().iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.read().unwrap() == *plugin.read().unwrap()
+                *stored.read().unwrap() == *x_plugin.read().unwrap()
             } else {
                 false
             }
         }) {
-            plugin.clone()
+            x_plugin.clone()
         } else {
             None
         };
 
-        if let Some(plugin) = found {
-            log::debug!(target: "store", "found duplicate {plugin:?}.");
-            self.plugin_free_list.lock().unwrap().push(_index);
-            plugin.clone()
+        if let Some(x_plugin) = found {
+            log::debug!(target: "store", "found duplicate {x_plugin:?}.");
+            self.x_plugin_free_list.lock().unwrap().push(_index);
+            x_plugin.clone()
         } else {
-            log::debug!(target: "store", "interring {plugin:?}.");
-            self.plugin.write().unwrap()[_index] = Some(plugin.clone());
-            plugin
+            log::debug!(target: "store", "interring {x_plugin:?}.");
+            self.x_plugin.write().unwrap()[_index] = Some(x_plugin.clone());
+            x_plugin
         }
     }
 
-    /// Exhume (get) [`Plugin`] from the store.
+    /// Exhume (get) [`XPlugin`] from the store.
     ///
     #[inline]
-    pub fn exhume_plugin(&self, id: &usize) -> Option<Arc<RwLock<Plugin>>> {
-        match self.plugin.read().unwrap().get(*id) {
-            Some(plugin) => plugin.clone(),
+    pub fn exhume_x_plugin(&self, id: &usize) -> Option<Arc<RwLock<XPlugin>>> {
+        match self.x_plugin.read().unwrap().get(*id) {
+            Some(x_plugin) => x_plugin.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`Plugin`] from the store.
+    /// Exorcise (remove) [`XPlugin`] from the store.
     ///
     #[inline]
-    pub fn exorcise_plugin(&mut self, id: &usize) -> Option<Arc<RwLock<Plugin>>> {
-        log::debug!(target: "store", "exorcising plugin slot: {id}.");
-        let result = self.plugin.write().unwrap()[*id].take();
-        self.plugin_free_list.lock().unwrap().push(*id);
+    pub fn exorcise_x_plugin(&mut self, id: &usize) -> Option<Arc<RwLock<XPlugin>>> {
+        log::debug!(target: "store", "exorcising x_plugin slot: {id}.");
+        let result = self.x_plugin.write().unwrap()[*id].take();
+        self.x_plugin_free_list.lock().unwrap().push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, Plugin>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
     ///
     #[inline]
-    pub fn iter_plugin(&self) -> impl Iterator<Item = Arc<RwLock<Plugin>>> + '_ {
-        let len = self.plugin.read().unwrap().len();
+    pub fn iter_x_plugin(&self) -> impl Iterator<Item = Arc<RwLock<XPlugin>>> + '_ {
+        let len = self.x_plugin.read().unwrap().len();
         (0..len)
-            .filter(|i| self.plugin.read().unwrap()[*i].is_some())
+            .filter(|i| self.x_plugin.read().unwrap()[*i].is_some())
             .map(move |i| {
-                self.plugin.read().unwrap()[i]
+                self.x_plugin.read().unwrap()[i]
                     .as_ref()
-                    .map(|plugin| plugin.clone())
+                    .map(|x_plugin| x_plugin.clone())
                     .unwrap()
             })
     }

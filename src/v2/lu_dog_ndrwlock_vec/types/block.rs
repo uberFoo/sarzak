@@ -23,13 +23,12 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 /// A block expression is an expression that consists of an ordered set of statements, living
 ///  between an opening `{`, and a closing `}`.
 ///
-///  Given that it's an expression it has a Type. The type is the value of the last expression
-///  in the block, if it's not closed by a `;`. If the last statement is termintat thusly, then
+/// Given that it's an expression it has a Type. The type is the value of the last expression
+///  in the block, if it's not closed by a `;`. If the last statement is terminated thusly, then
 ///  the value is `[Empty]`, or `()`.
 ///
-/// The `bug` attribute is there to force the compiler to generate code. Apparently there's
-///  some bug in grace that's causing this to be generated as a const. I don't want to get into
-///  it, and this is the most expedient solution.
+/// The `bug` attribute is just there to keep this thing unique. An issue that needs addressing
+/// .
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-definition"}}}
