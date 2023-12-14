@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog_vec::types::data_structure::DataStructure;
 use crate::v2::lu_dog_vec::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_vec::types::enum_field::EnumField;
+use crate::v2::lu_dog_vec::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
@@ -29,6 +30,8 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 pub struct Enumeration {
     pub id: usize,
     pub name: String,
+    /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
+    pub first_generic: Option<usize>,
     /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
     pub implementation: Option<usize>,
 }
@@ -39,6 +42,7 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        first_generic: Option<&Rc<RefCell<EnumGeneric>>>,
         implementation: Option<&Rc<RefCell<ImplementationBlock>>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<Enumeration>> {
@@ -46,10 +50,23 @@ impl Enumeration {
             Rc::new(RefCell::new(Enumeration {
                 id,
                 name: name.to_owned(),
+                first_generic: first_generic.map(|enum_generic| enum_generic.borrow().id),
                 implementation: implementation
                     .map(|implementation_block| implementation_block.borrow().id),
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R105(1-*c)
+    pub fn r105_enum_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<EnumGeneric>>> {
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_enum_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-implementation"}}}
@@ -73,6 +90,18 @@ impl Enumeration {
         store
             .iter_enum_field()
             .filter(|enum_field| enum_field.borrow().woog_enum == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R104(1-M)
+    pub fn r104_enum_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<EnumGeneric>>> {
+        store
+            .iter_enum_generic()
+            .filter(|enum_generic| enum_generic.borrow().woog_enum == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -129,7 +158,9 @@ impl Enumeration {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-implementation"}}}
 impl PartialEq for Enumeration {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.implementation == other.implementation
+        self.name == other.name
+            && self.first_generic == other.first_generic
+            && self.implementation == other.implementation
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -19,6 +19,7 @@
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
+//! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -91,19 +92,19 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
-    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
-    FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
-    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
-    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
+    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION,
+    EQUAL, FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
+    INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION,
+    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug)]
@@ -132,6 +133,8 @@ pub struct ObjectStore {
     dwarf_source_file: Arc<RwLock<Vec<Option<Arc<RwLock<DwarfSourceFile>>>>>>,
     enum_field_free_list: std::sync::Mutex<Vec<usize>>,
     enum_field: Arc<RwLock<Vec<Option<Arc<RwLock<EnumField>>>>>>,
+    enum_generic_free_list: std::sync::Mutex<Vec<usize>>,
+    enum_generic: Arc<RwLock<Vec<Option<Arc<RwLock<EnumGeneric>>>>>>,
     enumeration_free_list: std::sync::Mutex<Vec<usize>>,
     enumeration: Arc<RwLock<Vec<Option<Arc<RwLock<Enumeration>>>>>>,
     enumeration_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
@@ -288,6 +291,8 @@ impl ObjectStore {
             dwarf_source_file: Arc::new(RwLock::new(Vec::new())),
             enum_field_free_list: std::sync::Mutex::new(Vec::new()),
             enum_field: Arc::new(RwLock::new(Vec::new())),
+            enum_generic_free_list: std::sync::Mutex::new(Vec::new()),
+            enum_generic: Arc::new(RwLock::new(Vec::new())),
             enumeration_free_list: std::sync::Mutex::new(Vec::new()),
             enumeration: Arc::new(RwLock::new(Vec::new())),
             enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
@@ -1514,6 +1519,84 @@ impl ObjectStore {
                 self.enum_field.read().unwrap()[i]
                     .as_ref()
                     .map(|enum_field| enum_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`EnumGeneric`] into the store.
+    ///
+    #[inline]
+    pub fn inter_enum_generic<F>(&mut self, enum_generic: F) -> Arc<RwLock<EnumGeneric>>
+    where
+        F: Fn(usize) -> Arc<RwLock<EnumGeneric>>,
+    {
+        let _index = if let Some(_index) = self.enum_generic_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enum_generic.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enum_generic.write().unwrap().push(None);
+            _index
+        };
+
+        let enum_generic = enum_generic(_index);
+
+        let found = if let Some(enum_generic) =
+            self.enum_generic.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *enum_generic.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            enum_generic.clone()
+        } else {
+            None
+        };
+
+        if let Some(enum_generic) = found {
+            log::debug!(target: "store", "found duplicate {enum_generic:?}.");
+            self.enum_generic_free_list.lock().unwrap().push(_index);
+            enum_generic.clone()
+        } else {
+            log::debug!(target: "store", "interring {enum_generic:?}.");
+            self.enum_generic.write().unwrap()[_index] = Some(enum_generic.clone());
+            enum_generic
+        }
+    }
+
+    /// Exhume (get) [`EnumGeneric`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_enum_generic(&self, id: &usize) -> Option<Arc<RwLock<EnumGeneric>>> {
+        match self.enum_generic.read().unwrap().get(*id) {
+            Some(enum_generic) => enum_generic.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`EnumGeneric`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_enum_generic(&mut self, id: &usize) -> Option<Arc<RwLock<EnumGeneric>>> {
+        log::debug!(target: "store", "exorcising enum_generic slot: {id}.");
+        let result = self.enum_generic.write().unwrap()[*id].take();
+        self.enum_generic_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumGeneric>`.
+    ///
+    #[inline]
+    pub fn iter_enum_generic(&self) -> impl Iterator<Item = Arc<RwLock<EnumGeneric>>> + '_ {
+        let len = self.enum_generic.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.enum_generic.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.enum_generic.read().unwrap()[i]
+                    .as_ref()
+                    .map(|enum_generic| enum_generic.clone())
                     .unwrap()
             })
     }

@@ -19,6 +19,7 @@
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
+//! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -96,19 +97,19 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec_tracy::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
-    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
-    FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
-    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
-    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
+    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION,
+    EQUAL, FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
+    INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION,
+    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -137,6 +138,8 @@ pub struct ObjectStore {
     dwarf_source_file: Vec<Option<Rc<RefCell<DwarfSourceFile>>>>,
     enum_field_free_list: Vec<usize>,
     enum_field: Vec<Option<Rc<RefCell<EnumField>>>>,
+    enum_generic_free_list: Vec<usize>,
+    enum_generic: Vec<Option<Rc<RefCell<EnumGeneric>>>>,
     enumeration_free_list: Vec<usize>,
     enumeration: Vec<Option<Rc<RefCell<Enumeration>>>>,
     enumeration_id_by_name: HashMap<String, usize>,
@@ -293,6 +296,8 @@ impl ObjectStore {
             dwarf_source_file: Vec::new(),
             enum_field_free_list: Vec::new(),
             enum_field: Vec::new(),
+            enum_generic_free_list: Vec::new(),
+            enum_generic: Vec::new(),
             enumeration_free_list: Vec::new(),
             enumeration: Vec::new(),
             enumeration_id_by_name: HashMap::default(),
@@ -1419,6 +1424,77 @@ impl ObjectStore {
                 self.enum_field[i]
                     .as_ref()
                     .map(|enum_field| enum_field.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`EnumGeneric`] into the store.
+    ///
+    #[inline]
+    pub fn inter_enum_generic<F>(&mut self, enum_generic: F) -> Rc<RefCell<EnumGeneric>>
+    where
+        F: Fn(usize) -> Rc<RefCell<EnumGeneric>>,
+    {
+        let _index = if let Some(_index) = self.enum_generic_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.enum_generic.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.enum_generic.push(None);
+            _index
+        };
+
+        let enum_generic = enum_generic(_index);
+
+        if let Some(Some(enum_generic)) = self.enum_generic.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *enum_generic.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {enum_generic:?}.");
+            self.enum_generic_free_list.push(_index);
+            enum_generic.clone()
+        } else {
+            log::debug!(target: "store", "interring {enum_generic:?}.");
+            self.enum_generic[_index] = Some(enum_generic.clone());
+            enum_generic
+        }
+    }
+
+    /// Exhume (get) [`EnumGeneric`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_enum_generic(&self, id: &usize) -> Option<Rc<RefCell<EnumGeneric>>> {
+        match self.enum_generic.get(*id) {
+            Some(enum_generic) => enum_generic.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`EnumGeneric`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_enum_generic(&mut self, id: &usize) -> Option<Rc<RefCell<EnumGeneric>>> {
+        log::debug!(target: "store", "exorcising enum_generic slot: {id}.");
+        let result = self.enum_generic[*id].take();
+        self.enum_generic_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumGeneric>`.
+    ///
+    #[inline]
+    pub fn iter_enum_generic(&self) -> impl Iterator<Item = Rc<RefCell<EnumGeneric>>> + '_ {
+        let len = self.enum_generic.len();
+        (0..len)
+            .filter(|i| self.enum_generic[*i].is_some())
+            .map(move |i| {
+                self.enum_generic[i]
+                    .as_ref()
+                    .map(|enum_generic| enum_generic.clone())
                     .unwrap()
             })
     }
@@ -6079,6 +6155,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            fs::create_dir_all(&path)?;
+            for enum_generic in &self.enum_generic {
+                if let Some(enum_generic) = enum_generic {
+                    let path = path.join(format!("{}.json", enum_generic.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &enum_generic)?;
+                }
+            }
+        }
+
         // Persist Enumeration.
         {
             let path = path.join("enumeration");
@@ -7146,6 +7236,22 @@ impl ObjectStore {
                 store
                     .enum_field
                     .insert(enum_field.borrow().id, Some(enum_field.clone()));
+            }
+        }
+
+        // Load Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let enum_generic: Rc<RefCell<EnumGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .enum_generic
+                    .insert(enum_generic.borrow().id, Some(enum_generic.clone()));
             }
         }
 
