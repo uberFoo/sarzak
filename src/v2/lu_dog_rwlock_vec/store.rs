@@ -31,6 +31,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`FunctionCall`]
 //! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
@@ -99,17 +100,18 @@ use crate::v2::lu_dog_rwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
-    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
-    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION,
-    EQUAL, FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
-    INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION,
-    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
+    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
+    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
+    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
+    FULL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -165,6 +167,8 @@ pub struct ObjectStore {
     function_free_list: std::sync::Mutex<Vec<usize>>,
     function: Arc<RwLock<Vec<Option<Arc<RwLock<Function>>>>>>,
     function_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
+    function_call_free_list: std::sync::Mutex<Vec<usize>>,
+    function_call: Arc<RwLock<Vec<Option<Arc<RwLock<FunctionCall>>>>>>,
     x_future_free_list: std::sync::Mutex<Vec<usize>>,
     x_future: Arc<RwLock<Vec<Option<Arc<RwLock<XFuture>>>>>>,
     generic_free_list: std::sync::Mutex<Vec<usize>>,
@@ -323,6 +327,8 @@ impl ObjectStore {
             function_free_list: std::sync::Mutex::new(Vec::new()),
             function: Arc::new(RwLock::new(Vec::new())),
             function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
+            function_call_free_list: std::sync::Mutex::new(Vec::new()),
+            function_call: Arc::new(RwLock::new(Vec::new())),
             x_future_free_list: std::sync::Mutex::new(Vec::new()),
             x_future: Arc::new(RwLock::new(Vec::new())),
             generic_free_list: std::sync::Mutex::new(Vec::new()),
@@ -2569,6 +2575,84 @@ impl ObjectStore {
                 self.function.read().unwrap()[i]
                     .as_ref()
                     .map(|function| function.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FunctionCall`] into the store.
+    ///
+    #[inline]
+    pub fn inter_function_call<F>(&mut self, function_call: F) -> Arc<RwLock<FunctionCall>>
+    where
+        F: Fn(usize) -> Arc<RwLock<FunctionCall>>,
+    {
+        let _index = if let Some(_index) = self.function_call_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.function_call.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.function_call.write().unwrap().push(None);
+            _index
+        };
+
+        let function_call = function_call(_index);
+
+        let found = if let Some(function_call) =
+            self.function_call.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *function_call.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            function_call.clone()
+        } else {
+            None
+        };
+
+        if let Some(function_call) = found {
+            log::debug!(target: "store", "found duplicate {function_call:?}.");
+            self.function_call_free_list.lock().unwrap().push(_index);
+            function_call.clone()
+        } else {
+            log::debug!(target: "store", "interring {function_call:?}.");
+            self.function_call.write().unwrap()[_index] = Some(function_call.clone());
+            function_call
+        }
+    }
+
+    /// Exhume (get) [`FunctionCall`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_function_call(&self, id: &usize) -> Option<Arc<RwLock<FunctionCall>>> {
+        match self.function_call.read().unwrap().get(*id) {
+            Some(function_call) => function_call.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FunctionCall`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_function_call(&mut self, id: &usize) -> Option<Arc<RwLock<FunctionCall>>> {
+        log::debug!(target: "store", "exorcising function_call slot: {id}.");
+        let result = self.function_call.write().unwrap()[*id].take();
+        self.function_call_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FunctionCall>`.
+    ///
+    #[inline]
+    pub fn iter_function_call(&self) -> impl Iterator<Item = Arc<RwLock<FunctionCall>>> + '_ {
+        let len = self.function_call.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.function_call.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.function_call.read().unwrap()[i]
+                    .as_ref()
+                    .map(|function_call| function_call.clone())
                     .unwrap()
             })
     }
@@ -6976,6 +7060,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Function Call.
+        {
+            let path = path.join("function_call");
+            fs::create_dir_all(&path)?;
+            for function_call in &*self.function_call.read().unwrap() {
+                if let Some(function_call) = function_call {
+                    let path = path.join(format!("{}.json", function_call.read().unwrap().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &function_call)?;
+                }
+            }
+        }
+
         // Persist Future.
         {
             let path = path.join("x_future");
@@ -8149,6 +8247,23 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(function.read().unwrap().id, Some(function.clone()));
+            }
+        }
+
+        // Load Function Call.
+        {
+            let path = path.join("function_call");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let function_call: Arc<RwLock<FunctionCall>> = serde_json::from_reader(reader)?;
+                store.function_call.write().unwrap().insert(
+                    function_call.read().unwrap().id,
+                    Some(function_call.clone()),
+                );
             }
         }
 

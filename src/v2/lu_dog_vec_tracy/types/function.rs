@@ -105,6 +105,8 @@ impl Function {
     ) -> Vec<Rc<RefCell<ValueType>>> {
         span!("r10_value_type");
         vec![store.exhume_value_type(&self.return_type).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-function_call"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}

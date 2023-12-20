@@ -31,6 +31,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`FunctionCall`]
 //! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
@@ -99,17 +100,18 @@ use crate::v2::lu_dog_vec_tracy::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, Generic, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
-    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
-    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION,
-    EQUAL, FALSE_LITERAL, FROM, FULL, FUNCTION_CALL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
-    INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION,
-    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
+    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
+    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
+    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM,
+    FULL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN,
+    LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -165,6 +167,8 @@ pub struct ObjectStore {
     function_free_list: Vec<usize>,
     function: Vec<Option<Rc<RefCell<Function>>>>,
     function_id_by_name: HashMap<String, usize>,
+    function_call_free_list: Vec<usize>,
+    function_call: Vec<Option<Rc<RefCell<FunctionCall>>>>,
     x_future_free_list: Vec<usize>,
     x_future: Vec<Option<Rc<RefCell<XFuture>>>>,
     generic_free_list: Vec<usize>,
@@ -323,6 +327,8 @@ impl ObjectStore {
             function_free_list: Vec::new(),
             function: Vec::new(),
             function_id_by_name: HashMap::default(),
+            function_call_free_list: Vec::new(),
+            function_call: Vec::new(),
             x_future_free_list: Vec::new(),
             x_future: Vec::new(),
             generic_free_list: Vec::new(),
@@ -2340,6 +2346,77 @@ impl ObjectStore {
                 self.function[i]
                     .as_ref()
                     .map(|function| function.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FunctionCall`] into the store.
+    ///
+    #[inline]
+    pub fn inter_function_call<F>(&mut self, function_call: F) -> Rc<RefCell<FunctionCall>>
+    where
+        F: Fn(usize) -> Rc<RefCell<FunctionCall>>,
+    {
+        let _index = if let Some(_index) = self.function_call_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.function_call.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.function_call.push(None);
+            _index
+        };
+
+        let function_call = function_call(_index);
+
+        if let Some(Some(function_call)) = self.function_call.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *function_call.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {function_call:?}.");
+            self.function_call_free_list.push(_index);
+            function_call.clone()
+        } else {
+            log::debug!(target: "store", "interring {function_call:?}.");
+            self.function_call[_index] = Some(function_call.clone());
+            function_call
+        }
+    }
+
+    /// Exhume (get) [`FunctionCall`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_function_call(&self, id: &usize) -> Option<Rc<RefCell<FunctionCall>>> {
+        match self.function_call.get(*id) {
+            Some(function_call) => function_call.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FunctionCall`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_function_call(&mut self, id: &usize) -> Option<Rc<RefCell<FunctionCall>>> {
+        log::debug!(target: "store", "exorcising function_call slot: {id}.");
+        let result = self.function_call[*id].take();
+        self.function_call_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FunctionCall>`.
+    ///
+    #[inline]
+    pub fn iter_function_call(&self) -> impl Iterator<Item = Rc<RefCell<FunctionCall>>> + '_ {
+        let len = self.function_call.len();
+        (0..len)
+            .filter(|i| self.function_call[*i].is_some())
+            .map(move |i| {
+                self.function_call[i]
+                    .as_ref()
+                    .map(|function_call| function_call.clone())
                     .unwrap()
             })
     }
@@ -6323,6 +6400,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Function Call.
+        {
+            let path = path.join("function_call");
+            fs::create_dir_all(&path)?;
+            for function_call in &self.function_call {
+                if let Some(function_call) = function_call {
+                    let path = path.join(format!("{}.json", function_call.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &function_call)?;
+                }
+            }
+        }
+
         // Persist Future.
         {
             let path = path.join("x_future");
@@ -7443,6 +7534,22 @@ impl ObjectStore {
                 store
                     .function
                     .insert(function.borrow().id, Some(function.clone()));
+            }
+        }
+
+        // Load Function Call.
+        {
+            let path = path.join("function_call");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let function_call: Rc<RefCell<FunctionCall>> = serde_json::from_reader(reader)?;
+                store
+                    .function_call
+                    .insert(function_call.borrow().id, Some(function_call.clone()));
             }
         }
 

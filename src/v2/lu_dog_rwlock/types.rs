@@ -160,7 +160,6 @@ pub use crate::v2::lu_dog_rwlock::full::Full;
 pub use crate::v2::lu_dog_rwlock::full::FULL;
 pub use crate::v2::lu_dog_rwlock::function::Function;
 pub use crate::v2::lu_dog_rwlock::function_call::FunctionCall;
-pub use crate::v2::lu_dog_rwlock::function_call::FUNCTION_CALL;
 pub use crate::v2::lu_dog_rwlock::generic::Generic;
 pub use crate::v2::lu_dog_rwlock::greater_than::GreaterThan;
 pub use crate::v2::lu_dog_rwlock::greater_than::GREATER_THAN;

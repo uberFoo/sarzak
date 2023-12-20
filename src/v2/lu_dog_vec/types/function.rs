@@ -97,6 +97,8 @@ impl Function {
     /// Navigate to [`ValueType`] across R10(1-*)
     pub fn r10_value_type<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<ValueType>>> {
         vec![store.exhume_value_type(&self.return_type).unwrap()]
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-function_call"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}

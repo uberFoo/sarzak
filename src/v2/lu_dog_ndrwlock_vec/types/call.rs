@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog_ndrwlock_vec::types::argument::Argument;
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::Expression;
 use crate::v2::lu_dog_ndrwlock_vec::types::expression::ExpressionEnum;
-use crate::v2::lu_dog_ndrwlock_vec::types::function_call::FUNCTION_CALL;
+use crate::v2::lu_dog_ndrwlock_vec::types::function_call::FunctionCall;
 use crate::v2::lu_dog_ndrwlock_vec::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog_ndrwlock_vec::types::method_call::MethodCall;
 use crate::v2::lu_dog_ndrwlock_vec::types::static_method_call::StaticMethodCall;
@@ -36,7 +36,7 @@ pub struct Call {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum CallEnum {
-    FunctionCall(Uuid),
+    FunctionCall(usize),
     MacroCall(Uuid),
     MethodCall(usize),
     StaticMethodCall(usize),
@@ -50,6 +50,7 @@ impl Call {
         arg_check: bool,
         argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
+        subtype: &Arc<RwLock<FunctionCall>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Call>> {
         store.inter_call(|id| {
@@ -57,7 +58,7 @@ impl Call {
                 arg_check: arg_check,
                 argument: argument.map(|argument| argument.read().unwrap().id),
                 expression: expression.map(|expression| expression.read().unwrap().id),
-                subtype: CallEnum::FunctionCall(FUNCTION_CALL),
+                subtype: CallEnum::FunctionCall(subtype.read().unwrap().id), // b
                 id,
             }))
         })
