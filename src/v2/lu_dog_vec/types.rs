@@ -168,7 +168,6 @@ pub use crate::v2::lu_dog_vec::full::Full;
 pub use crate::v2::lu_dog_vec::full::FULL;
 pub use crate::v2::lu_dog_vec::function::Function;
 pub use crate::v2::lu_dog_vec::function_call::FunctionCall;
-pub use crate::v2::lu_dog_vec::function_call::FUNCTION_CALL;
 pub use crate::v2::lu_dog_vec::generic::Generic;
 pub use crate::v2::lu_dog_vec::greater_than::GreaterThan;
 pub use crate::v2::lu_dog_vec::greater_than::GREATER_THAN;
