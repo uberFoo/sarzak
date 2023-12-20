@@ -41,7 +41,7 @@ serde_json = "1.0.93"
 tracy-client = "0.15.2"
 uuid = { version = "1.2.2", features = ["v5", "serde"] }
 async-std = "1.12.0"
-futures = "0.3.28"
+futures = { version = "0.3.28", optional = true }
 
 [lib]
 doctest = true
@@ -53,13 +53,14 @@ pretty_env_logger = "0.5.0"
 
 [features]
 default = ["lu-dog-vec", "sarzak-rwlock"]
+lu-dog-orig = []
 lu-dog-vec = []
 lu-dog-vec-tracy = []
 lu-dog-rwlock-vec = []
 lu-dog-ndrwlock-vec = []
 lu-dog-rc = []
 lu-dog-rwlock = []
-lu-dog-async-vec = []
+lu-dog-async-vec = ["dep:futures"]
 sarzak-single = []
 sarzak-rwlock = []
 woog-single = []
