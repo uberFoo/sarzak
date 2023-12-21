@@ -9,7 +9,6 @@ use crate::v2::lu_dog_vec_tracy::types::body::Body;
 use crate::v2::lu_dog_vec_tracy::types::body::BodyEnum;
 use crate::v2::lu_dog_vec_tracy::types::expression::Expression;
 use crate::v2::lu_dog_vec_tracy::types::expression::ExpressionEnum;
-use crate::v2::lu_dog_vec_tracy::types::for_loop::ForLoop;
 use crate::v2::lu_dog_vec_tracy::types::statement::Statement;
 use crate::v2::lu_dog_vec_tracy::types::x_if::XIf;
 use crate::v2::lu_dog_vec_tracy::types::x_value::XValue;
@@ -100,16 +99,8 @@ impl Block {
             Some(ref block) => vec![block.clone()],
             None => Vec::new(),
         }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-for_loop"}}}
-    /// Navigate to [`ForLoop`] across R43(1-M)
-    pub fn r43_for_loop<'a>(&'a self, store: &'a LuDogVecTracyStore) -> Vec<Rc<RefCell<ForLoop>>> {
-        span!("r43_for_loop");
-        store
-            .iter_for_loop()
-            .filter(|for_loop| for_loop.borrow().block == self.id)
-            .collect()
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-for_loop"}}}
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_M-to-x_if"}}}

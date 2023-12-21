@@ -5,7 +5,6 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec_tracy::types::block::Block;
 use crate::v2::lu_dog_vec_tracy::types::expression::Expression;
 use crate::v2::lu_dog_vec_tracy::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
@@ -24,7 +23,7 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 pub struct ForLoop {
     pub id: usize,
     pub ident: String,
-    /// R43: [`ForLoop`] 'executes a' [`Block`]
+    /// R43: [`ForLoop`] 'executes a' [`Expression`]
     pub block: usize,
     /// R42: [`ForLoop`] 'iterates over an' [`Expression`]
     pub expression: usize,
@@ -36,7 +35,7 @@ impl ForLoop {
     /// Inter a new 'For Loop' in the store, and return it's `id`.
     pub fn new(
         ident: String,
-        block: &Rc<RefCell<Block>>,
+        block: &Rc<RefCell<Expression>>,
         expression: &Rc<RefCell<Expression>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ForLoop>> {
@@ -51,10 +50,13 @@ impl ForLoop {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R43(1-*)
-    pub fn r43_block<'a>(&'a self, store: &'a LuDogVecTracyStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r43_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+    /// Navigate to [`Expression`] across R43(1-*)
+    pub fn r43_expression<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<Expression>>> {
+        span!("r43_expression");
+        vec![store.exhume_expression(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-expression"}}}

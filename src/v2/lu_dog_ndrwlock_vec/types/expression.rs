@@ -494,6 +494,18 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
+    /// Navigate to [`ForLoop`] across R43(1-M)
+    pub fn r43_for_loop<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ForLoop>>> {
+        store
+            .iter_for_loop()
+            .filter(|for_loop| for_loop.read().unwrap().block == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
     /// Navigate to [`ForLoop`] across R42(1-M)
     pub fn r42_for_loop<'a>(
         &'a self,
