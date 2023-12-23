@@ -22,7 +22,7 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct XIf {
     pub id: usize,
-    /// R52: [`XIf`] 'false block' [`Block`]
+    /// R52: [`XIf`] 'false block' [`Expression`]
     pub false_block: Option<usize>,
     /// R44: [`XIf`] 'branches based on' [`Expression`]
     pub test: usize,
@@ -35,7 +35,7 @@ impl XIf {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-new"}}}
     /// Inter a new 'If' in the store, and return it's `id`.
     pub fn new(
-        false_block: Option<&Arc<RwLock<Block>>>,
+        false_block: Option<&Arc<RwLock<Expression>>>,
         test: &Arc<RwLock<Expression>>,
         true_block: &Arc<RwLock<Block>>,
         store: &mut LuDogNdrwlockVecStore,
@@ -43,7 +43,7 @@ impl XIf {
         store.inter_x_if(|id| {
             Arc::new(RwLock::new(XIf {
                 id,
-                false_block: false_block.map(|block| block.read().unwrap().id),
+                false_block: false_block.map(|expression| expression.read().unwrap().id),
                 test: test.read().unwrap().id,
                 true_block: true_block.read().unwrap().id,
             }))
@@ -51,10 +51,13 @@ impl XIf {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-cond-to-false_block"}}}
-    /// Navigate to [`Block`] across R52(1-*c)
-    pub fn r52_block<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<Block>>> {
+    /// Navigate to [`Expression`] across R52(1-*c)
+    pub fn r52_expression<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
         match self.false_block {
-            Some(ref false_block) => vec![store.exhume_block(&false_block).unwrap()],
+            Some(ref false_block) => vec![store.exhume_expression(&false_block).unwrap()],
             None => Vec::new(),
         }
     }

@@ -112,13 +112,6 @@ impl Block {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-1_Mc-to-x_if"}}}
-    /// Navigate to [`XIf`] across R52(1-Mc)
-    pub fn r52_x_if<'a>(&'a self, store: &'a LuDogNdrwlockVecStore) -> Vec<Arc<RwLock<XIf>>> {
-        store
-            .iter_x_if()
-            .filter(|x_if| x_if.read().unwrap().false_block == Some(self.id))
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

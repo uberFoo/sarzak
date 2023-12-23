@@ -525,6 +525,15 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-x_if"}}}
+    /// Navigate to [`XIf`] across R52(1-Mc)
+    pub fn r52_x_if<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<XIf>>> {
+        store
+            .iter_x_if()
+            .filter(|x_if| x_if.borrow().false_block == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-index"}}}
     /// Navigate to [`Index`] across R56(1-M)
     pub fn r56_index<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Index>>> {
