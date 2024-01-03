@@ -31,6 +31,7 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 pub struct Enumeration {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
     /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
     pub first_generic: Option<usize>,
     /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
@@ -43,6 +44,7 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
         first_generic: Option<&Rc<RefCell<EnumGeneric>>>,
         implementation: Option<&Rc<RefCell<ImplementationBlock>>>,
         store: &mut LuDogVecTracyStore,
@@ -51,6 +53,7 @@ impl Enumeration {
             Rc::new(RefCell::new(Enumeration {
                 id,
                 name: name.to_owned(),
+                x_path: x_path.to_owned(),
                 first_generic: first_generic.map(|enum_generic| enum_generic.borrow().id),
                 implementation: implementation
                     .map(|implementation_block| implementation_block.borrow().id),
@@ -172,6 +175,7 @@ impl Enumeration {
 impl PartialEq for Enumeration {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
+            && self.x_path == other.x_path
             && self.first_generic == other.first_generic
             && self.implementation == other.implementation
     }

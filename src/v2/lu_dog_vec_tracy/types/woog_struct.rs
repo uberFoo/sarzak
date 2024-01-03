@@ -33,6 +33,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
     /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
     pub first_generic: Option<usize>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
@@ -45,6 +46,7 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
         first_generic: Option<&Rc<RefCell<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogVecTracyStore,
@@ -53,6 +55,7 @@ impl WoogStruct {
             Rc::new(RefCell::new(WoogStruct {
                 id,
                 name: name.to_owned(),
+                x_path: x_path.to_owned(),
                 first_generic: first_generic.map(|struct_generic| struct_generic.borrow().id),
                 object: object.as_ref().map(|object| object.id),
             }))
@@ -197,6 +200,7 @@ impl WoogStruct {
 impl PartialEq for WoogStruct {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
+            && self.x_path == other.x_path
             && self.first_generic == other.first_generic
             && self.object == other.object
     }

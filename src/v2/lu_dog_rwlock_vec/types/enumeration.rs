@@ -30,6 +30,7 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct Enumeration {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
     /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
     pub first_generic: Option<usize>,
     /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
@@ -42,6 +43,7 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
         first_generic: Option<&Arc<RwLock<EnumGeneric>>>,
         implementation: Option<&Arc<RwLock<ImplementationBlock>>>,
         store: &mut LuDogRwlockVecStore,
@@ -50,6 +52,7 @@ impl Enumeration {
             Arc::new(RwLock::new(Enumeration {
                 id,
                 name: name.to_owned(),
+                x_path: x_path.to_owned(),
                 first_generic: first_generic.map(|enum_generic| enum_generic.read().unwrap().id),
                 implementation: implementation
                     .map(|implementation_block| implementation_block.read().unwrap().id),
@@ -165,6 +168,7 @@ impl Enumeration {
 impl PartialEq for Enumeration {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
+            && self.x_path == other.x_path
             && self.first_generic == other.first_generic
             && self.implementation == other.implementation
     }
