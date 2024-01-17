@@ -1,6 +1,6 @@
 pub mod domain;
 pub mod drawing;
-#[cfg(feature = "lu-dog-orig")]
+#[cfg(feature = "lu-dog-rc")]
 pub mod lu_dog;
 #[cfg(feature = "lu-dog-async-vec")]
 pub mod lu_dog_async;

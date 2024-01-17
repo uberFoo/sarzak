@@ -7,8 +7,8 @@ use crate::v2::sarzak_single::types::external::External;
 use crate::v2::sarzak_single::types::float::FLOAT;
 use crate::v2::sarzak_single::types::integer::INTEGER;
 use crate::v2::sarzak_single::types::object::Object;
-use crate::v2::sarzak_single::types::s_string::S_STRING;
-use crate::v2::sarzak_single::types::s_uuid::S_UUID;
+use crate::v2::sarzak_single::types::z_string::Z_STRING;
+use crate::v2::sarzak_single::types::z_uuid::Z_UUID;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -28,8 +28,8 @@ pub enum Ty {
     Float(Uuid),
     Integer(Uuid),
     Object(Uuid),
-    SString(Uuid),
-    SUuid(Uuid),
+    ZString(Uuid),
+    ZUuid(Uuid),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ty-implementation"}}}
@@ -67,16 +67,16 @@ impl Ty {
         new
     } // wtf?
 
-    /// Create a new instance of Ty::SString
-    pub fn new_s_string() -> Self {
+    /// Create a new instance of Ty::ZString
+    pub fn new_z_string() -> Self {
         // This is already in the store, see associated function `new` above.
-        Self::SString(S_STRING)
+        Self::ZString(Z_STRING)
     }
 
-    /// Create a new instance of Ty::SUuid
-    pub fn new_s_uuid() -> Self {
+    /// Create a new instance of Ty::ZUuid
+    pub fn new_z_uuid() -> Self {
         // This is already in the store, see associated function `new` above.
-        Self::SUuid(S_UUID)
+        Self::ZUuid(Z_UUID)
     }
 
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -88,8 +88,8 @@ impl Ty {
             Self::Float(id) => *id,
             Self::Integer(id) => *id,
             Self::Object(id) => *id,
-            Self::SString(id) => *id,
-            Self::SUuid(id) => *id,
+            Self::ZString(id) => *id,
+            Self::ZUuid(id) => *id,
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

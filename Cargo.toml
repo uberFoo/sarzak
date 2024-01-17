@@ -1,6 +1,6 @@
 [package]
 name = "sarzak"
-version = "2.12.9"
+version = "2.12.11"
 edition = "2021"
 authors = ["Keith T. Star <uberfoo@me.com>"]
 categories = ["compilers", "memory-management"]
@@ -51,7 +51,6 @@ pretty_env_logger = "0.5.0"
 
 [features]
 default = ["lu-dog-vec", "sarzak-rwlock"]
-lu-dog-orig = []
 lu-dog-vec = []
 lu-dog-vec-tracy = ["dep:tracy-client"]
 lu-dog-rwlock-vec = []

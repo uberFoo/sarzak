@@ -22,7 +22,7 @@ pub mod right;
 pub mod sub;
 pub mod top;
 pub mod x_box;
-pub mod x_super;
+pub mod z_super;
 
 pub use crate::v2::merlin::anchor::Anchor;
 pub use crate::v2::merlin::bisection::Bisection;
@@ -53,7 +53,7 @@ pub use crate::v2::merlin::sub::SUB;
 pub use crate::v2::merlin::top::Top;
 pub use crate::v2::merlin::top::TOP;
 pub use crate::v2::merlin::x_box::XBox;
-pub use crate::v2::merlin::x_super::XSuper;
-pub use crate::v2::merlin::x_super::X_SUPER;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+pub use crate::v2::merlin::z_super::ZSuper;
+pub use crate::v2::merlin::z_super::Z_SUPER;
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

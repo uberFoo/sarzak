@@ -226,7 +226,7 @@ from_path = "models/drawing.json"
 is_meta_model = true
 is_sarzak = false
 persist = true
-persist_timestamps = true
+persist_timestamps = false
 uber_store = "StdRwLock"
 target = "domain"
 
@@ -297,7 +297,7 @@ from_path = "models/sarzak.json"
 is_meta_model = true
 is_sarzak = true
 persist = true
-persist_timestamps = true
+persist_timestamps = false
 uber_store = "Disabled"
 target = "domain"
 
@@ -320,7 +320,7 @@ optimization_level = "None"
 is_meta_model = true
 is_sarzak = false
 persist = true
-persist_timestamps = true
+persist_timestamps = false
 uber_store = "StdRwLock"
 target = "domain"
 
@@ -343,6 +343,6 @@ optimization_level = "None"
 is_meta_model = true
 is_sarzak = false
 persist = true
-persist_timestamps = true
+persist_timestamps = false
 uber_store = "Disabled"
 target = "domain"
