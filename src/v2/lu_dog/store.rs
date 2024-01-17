@@ -126,6 +126,7 @@ pub struct ObjectStore {
     enum_field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<EnumField>>>>>,
     enum_generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<EnumGeneric>>>>>,
     enumeration: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Enumeration>>>>>,
+    enumeration_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Expression>>>>>,
     expression_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExpressionStatement>>>>>,
     external_implementation: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExternalImplementation>>>>>,
@@ -161,6 +162,7 @@ pub struct ObjectStore {
     method_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<MethodCall>>>>>,
     named_field_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<NamedFieldExpression>>>>>,
     z_object_store: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ZObjectStore>>>>>,
+    z_object_store_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     object_wrapper: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ObjectWrapper>>>>>,
     operator: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Operator>>>>>,
     parameter: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Parameter>>>>>,
@@ -209,6 +211,7 @@ impl ObjectStore {
             enum_field: Rc::new(RefCell::new(HashMap::default())),
             enum_generic: Rc::new(RefCell::new(HashMap::default())),
             enumeration: Rc::new(RefCell::new(HashMap::default())),
+            enumeration_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             expression: Rc::new(RefCell::new(HashMap::default())),
             expression_statement: Rc::new(RefCell::new(HashMap::default())),
             external_implementation: Rc::new(RefCell::new(HashMap::default())),
@@ -244,6 +247,7 @@ impl ObjectStore {
             method_call: Rc::new(RefCell::new(HashMap::default())),
             named_field_expression: Rc::new(RefCell::new(HashMap::default())),
             z_object_store: Rc::new(RefCell::new(HashMap::default())),
+            z_object_store_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             object_wrapper: Rc::new(RefCell::new(HashMap::default())),
             operator: Rc::new(RefCell::new(HashMap::default())),
             parameter: Rc::new(RefCell::new(HashMap::default())),
@@ -780,6 +784,9 @@ impl ObjectStore {
     ///
     pub fn inter_enumeration(&mut self, enumeration: Rc<RefCell<Enumeration>>) {
         let read = enumeration.borrow();
+        self.enumeration_id_by_name
+            .borrow_mut()
+            .insert(read.name.to_upper_camel_case(), read.id);
         self.enumeration
             .borrow_mut()
             .insert(read.id, enumeration.clone());
@@ -801,6 +808,15 @@ impl ObjectStore {
             .borrow_mut()
             .remove(id)
             .map(|enumeration| enumeration.clone())
+    }
+
+    /// Exhume [`Enumeration`] id from the store by name.
+    ///
+    pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.enumeration_id_by_name
+            .borrow()
+            .get(name)
+            .map(|enumeration| *enumeration)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
@@ -2098,6 +2114,9 @@ impl ObjectStore {
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Rc<RefCell<ZObjectStore>>) {
         let read = z_object_store.borrow();
+        self.z_object_store_id_by_name
+            .borrow_mut()
+            .insert(read.name.to_upper_camel_case(), read.id);
         self.z_object_store
             .borrow_mut()
             .insert(read.id, z_object_store.clone());
@@ -2119,6 +2138,15 @@ impl ObjectStore {
             .borrow_mut()
             .remove(id)
             .map(|z_object_store| z_object_store.clone())
+    }
+
+    /// Exhume [`ZObjectStore`] id from the store by name.
+    ///
+    pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.z_object_store_id_by_name
+            .borrow()
+            .get(name)
+            .map(|z_object_store| *z_object_store)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -4432,6 +4460,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: Rc<RefCell<Enumeration>> = serde_json::from_reader(reader)?;
+                store.enumeration_id_by_name.borrow_mut().insert(
+                    enumeration.borrow().name.to_upper_camel_case(),
+                    enumeration.borrow().id,
+                );
                 store
                     .enumeration
                     .borrow_mut()
@@ -5008,6 +5040,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_object_store: Rc<RefCell<ZObjectStore>> = serde_json::from_reader(reader)?;
+                store.z_object_store_id_by_name.borrow_mut().insert(
+                    z_object_store.borrow().name.to_upper_camel_case(),
+                    z_object_store.borrow().id,
+                );
                 store
                     .z_object_store
                     .borrow_mut()
