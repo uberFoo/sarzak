@@ -108,9 +108,9 @@ use crate::v2::lu_dog::types::{
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
     XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION,
-    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
+    ASSIGNMENT, DEBUGGER, DIVISION, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
+    GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
+    OR, SUBTRACTION, TRUE_LITERAL,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -331,11 +331,6 @@ impl ObjectStore {
         ))));
         store.inter_unary(Rc::new(RefCell::new(Unary::Negation(NEGATION))));
         store.inter_unary(Rc::new(RefCell::new(Unary::Not(NOT))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Char(CHAR))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Range(RANGE))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Task(TASK))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Unknown(UNKNOWN))));
 
         store
     }
@@ -3183,7 +3178,7 @@ impl ObjectStore {
         let read = value_type.borrow();
         self.value_type
             .borrow_mut()
-            .insert(read.id(), value_type.clone());
+            .insert(read.id, value_type.clone());
     }
 
     /// Exhume (get) [`ValueType`] from the store.
@@ -4198,7 +4193,7 @@ impl ObjectStore {
             let path = path.join("value_type");
             fs::create_dir_all(&path)?;
             for value_type in self.value_type.borrow().values() {
-                let path = path.join(format!("{}.json", value_type.borrow().id()));
+                let path = path.join(format!("{}.json", value_type.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &value_type)?;
@@ -5519,7 +5514,7 @@ impl ObjectStore {
                 store
                     .value_type
                     .borrow_mut()
-                    .insert(value_type.borrow().id(), value_type.clone());
+                    .insert(value_type.borrow().id, value_type.clone());
             }
         }
 

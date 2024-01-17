@@ -52,7 +52,7 @@ impl Span {
             id,
             start,
             source: source.borrow().id,
-            ty: ty.map(|value_type| value_type.borrow().id()),
+            ty: ty.map(|value_type| value_type.borrow().id),
             x_value: x_value.map(|x_value| x_value.borrow().id),
         }));
         store.inter_span(new.clone());

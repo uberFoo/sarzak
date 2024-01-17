@@ -546,36 +546,6 @@ impl ObjectStore {
                 id,
             }))
         });
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: super::ValueTypeEnum::Char(CHAR),
-                id,
-            }))
-        });
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: super::ValueTypeEnum::Empty(EMPTY),
-                id,
-            }))
-        });
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: super::ValueTypeEnum::Range(RANGE),
-                id,
-            }))
-        });
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: super::ValueTypeEnum::Task(TASK),
-                id,
-            }))
-        });
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                subtype: super::ValueTypeEnum::Unknown(UNKNOWN),
-                id,
-            }))
-        });
 
         store
     }

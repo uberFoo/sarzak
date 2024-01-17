@@ -51,7 +51,7 @@ impl Parameter {
             position,
             function: function.borrow().id,
             next: next.map(|parameter| parameter.borrow().id),
-            ty: ty.borrow().id(),
+            ty: ty.borrow().id,
         }));
         store.inter_parameter(new.clone());
         new

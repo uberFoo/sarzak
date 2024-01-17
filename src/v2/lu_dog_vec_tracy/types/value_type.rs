@@ -50,13 +50,16 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 ///  to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually
 /// ?
 ///
-/// Option for now. We'll see later...
+/// Option for now. We'll see later…
+///
+/// The bogus attribute is to force the compiler to generate a hybrid type.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ValueType {
     pub subtype: ValueTypeEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -85,9 +88,10 @@ pub enum ValueTypeEnum {
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_char(store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_char(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Char(CHAR),
                 id,
             }))
@@ -96,9 +100,10 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_empty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_empty(store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_empty(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Empty(EMPTY),
                 id,
             }))
@@ -108,11 +113,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_enumeration(
+        bogus: bool,
         subtype: &Rc<RefCell<Enumeration>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Enumeration(subtype.borrow().id), // b
                 id,
             }))
@@ -122,11 +129,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_function(
+        bogus: bool,
         subtype: &Rc<RefCell<Function>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Function(subtype.borrow().id), // b
                 id,
             }))
@@ -136,11 +145,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_future(
+        bogus: bool,
         subtype: &Rc<RefCell<XFuture>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::XFuture(subtype.borrow().id), // b
                 id,
             }))
@@ -150,11 +161,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_generic(
+        bogus: bool,
         subtype: &Rc<RefCell<Generic>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Generic(subtype.borrow().id), // b
                 id,
             }))
@@ -164,11 +177,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_import(
+        bogus: bool,
         subtype: &Rc<RefCell<Import>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Import(subtype.borrow().id), // b
                 id,
             }))
@@ -178,11 +193,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_lambda"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_lambda(
+        bogus: bool,
         subtype: &Rc<RefCell<Lambda>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Lambda(subtype.borrow().id), // b
                 id,
             }))
@@ -192,11 +209,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_list"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_list(
+        bogus: bool,
         subtype: &Rc<RefCell<List>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::List(subtype.borrow().id), // b
                 id,
             }))
@@ -206,11 +225,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_z_object_store"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_z_object_store(
+        bogus: bool,
         subtype: &Rc<RefCell<ZObjectStore>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::ZObjectStore(subtype.borrow().id), // b
                 id,
             }))
@@ -221,11 +242,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_plugin"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_plugin(
+        bogus: bool,
         subtype: &Rc<RefCell<XPlugin>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::XPlugin(subtype.borrow().id), // b
                 id,
             }))
@@ -234,9 +257,10 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_range(store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_range(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Range(RANGE),
                 id,
             }))
@@ -246,11 +270,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_woog_struct(
+        bogus: bool,
         subtype: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::WoogStruct(subtype.borrow().id), // b
                 id,
             }))
@@ -259,9 +285,10 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_task(store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_task(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Task(TASK),
                 id,
             }))
@@ -271,11 +298,13 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_ty(
+        bogus: bool,
         subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Ty(subtype.read().unwrap().id()),
                 id,
             }))
@@ -284,9 +313,10 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_unknown"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_unknown(store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+    pub fn new_unknown(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
         store.inter_value_type(|id| {
             Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
                 subtype: ValueTypeEnum::Unknown(UNKNOWN),
                 id,
             }))
@@ -430,7 +460,7 @@ impl ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl PartialEq for ValueType {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

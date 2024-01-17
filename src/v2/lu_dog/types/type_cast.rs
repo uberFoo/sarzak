@@ -40,7 +40,7 @@ impl TypeCast {
         let new = Rc::new(RefCell::new(TypeCast {
             id,
             lhs: lhs.borrow().id(),
-            ty: ty.borrow().id(),
+            ty: ty.borrow().id,
         }));
         store.inter_type_cast(new.clone());
         new

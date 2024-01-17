@@ -249,6 +249,7 @@ pub use crate::v2::lu_dog::unknown_variable::UnknownVariable;
 pub use crate::v2::lu_dog::unknown_variable::UNKNOWN_VARIABLE;
 pub use crate::v2::lu_dog::unnamed_field_expression::UnnamedFieldExpression;
 pub use crate::v2::lu_dog::value_type::ValueType;
+pub use crate::v2::lu_dog::value_type::ValueTypeEnum;
 pub use crate::v2::lu_dog::variable::Variable;
 pub use crate::v2::lu_dog::variable::VariableEnum;
 pub use crate::v2::lu_dog::variable_expression::VariableExpression;

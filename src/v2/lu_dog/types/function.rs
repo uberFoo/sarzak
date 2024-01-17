@@ -11,6 +11,7 @@ use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
 use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::value_type::ValueType;
+use crate::v2::lu_dog::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -56,7 +57,7 @@ impl Function {
             body: body.borrow().id,
             first_param: first_param.map(|parameter| parameter.borrow().id),
             impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
-            return_type: return_type.borrow().id(),
+            return_type: return_type.borrow().id,
         }));
         store.inter_function(new.clone());
         new
@@ -132,7 +133,16 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::Function(id) = value_type.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::value_type::ValueType;
+use crate::v2::lu_dog::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -43,7 +44,7 @@ impl Generic {
             id,
             name,
             next: next.map(|generic| generic.borrow().id),
-            ty: ty.map(|value_type| value_type.borrow().id()),
+            ty: ty.map(|value_type| value_type.borrow().id),
         }));
         store.inter_generic(new.clone());
         new
@@ -82,7 +83,16 @@ impl Generic {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generic-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::Generic(id) = value_type.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

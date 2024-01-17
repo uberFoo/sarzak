@@ -47,7 +47,7 @@ impl LambdaParameter {
             position,
             lambda: lambda.borrow().id,
             next: next.map(|lambda_parameter| lambda_parameter.borrow().id),
-            ty: ty.map(|value_type| value_type.borrow().id()),
+            ty: ty.map(|value_type| value_type.borrow().id),
         }));
         store.inter_lambda_parameter(new.clone());
         new

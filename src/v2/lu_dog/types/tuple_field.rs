@@ -51,7 +51,7 @@ impl TupleField {
         let new = Rc::new(RefCell::new(TupleField {
             id,
             xyzzy,
-            ty: ty.borrow().id(),
+            ty: ty.borrow().id,
         }));
         store.inter_tuple_field(new.clone());
         new

@@ -44,7 +44,7 @@ impl Field {
             id,
             name,
             x_model: x_model.borrow().id,
-            ty: ty.borrow().id(),
+            ty: ty.borrow().id,
         }));
         store.inter_field(new.clone());
         new

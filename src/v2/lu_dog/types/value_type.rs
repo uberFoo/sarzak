@@ -1,6 +1,9 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"value_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
-use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use std::cell::RefCell;
+use std::rc::Rc;
+use uuid::Uuid;
+
 use crate::v2::lu_dog::types::char::CHAR;
 use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::enumeration::Enumeration;
@@ -25,12 +28,12 @@ use crate::v2::lu_dog::types::x_value::XValue;
 use crate::v2::lu_dog::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
-use uuid::Uuid;
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-documentation"}}}
 /// Value Type
 ///
 /// This is the main type abstraction used in Lu Dog. We mostly rely on what is available in
@@ -47,12 +50,23 @@ use uuid::Uuid;
 ///  to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually
 /// ?
 ///
-/// Option for now. We'll see later...
+/// Option for now. We'll see later…
+///
+/// The bogus attribute is to force the compiler to generate a hybrid type.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum ValueType {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct ValueType {
+    pub subtype: ValueTypeEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
     Enumeration(Uuid),
@@ -74,210 +88,257 @@ pub enum ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
-    /// Create a new instance of ValueType::Char
-    pub fn new_char(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&CHAR).unwrap()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_char(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Char(CHAR),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Empty
-    pub fn new_empty(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&EMPTY).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_empty"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_empty(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Empty(EMPTY),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Enumeration
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_enumeration(
-        enumeration: &Rc<RefCell<Enumeration>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<Enumeration>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = enumeration.borrow().id;
-        if let Some(enumeration) = store.exhume_value_type(&id) {
-            enumeration
-        } else {
-            let new = Rc::new(RefCell::new(Self::Enumeration(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Function
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Enumeration(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_function(
-        function: &Rc<RefCell<Function>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<Function>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = function.borrow().id;
-        if let Some(function) = store.exhume_value_type(&id) {
-            function
-        } else {
-            let new = Rc::new(RefCell::new(Self::Function(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::XFuture
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Function(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_future(
-        x_future: &Rc<RefCell<XFuture>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<XFuture>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = x_future.borrow().id;
-        if let Some(x_future) = store.exhume_value_type(&id) {
-            x_future
-        } else {
-            let new = Rc::new(RefCell::new(Self::XFuture(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Generic
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::XFuture(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_generic(
-        generic: &Rc<RefCell<Generic>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<Generic>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = generic.borrow().id;
-        if let Some(generic) = store.exhume_value_type(&id) {
-            generic
-        } else {
-            let new = Rc::new(RefCell::new(Self::Generic(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Import
-    pub fn new_import(import: &Rc<RefCell<Import>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = import.borrow().id;
-        if let Some(import) = store.exhume_value_type(&id) {
-            import
-        } else {
-            let new = Rc::new(RefCell::new(Self::Import(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Lambda
-    pub fn new_lambda(lambda: &Rc<RefCell<Lambda>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = lambda.borrow().id;
-        if let Some(lambda) = store.exhume_value_type(&id) {
-            lambda
-        } else {
-            let new = Rc::new(RefCell::new(Self::Lambda(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::List
-    pub fn new_list(list: &Rc<RefCell<List>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = list.borrow().id;
-        if let Some(list) = store.exhume_value_type(&id) {
-            list
-        } else {
-            let new = Rc::new(RefCell::new(Self::List(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::ZObjectStore
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Generic(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_import(
+        bogus: bool,
+        subtype: &Rc<RefCell<Import>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Import(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_lambda"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_lambda(
+        bogus: bool,
+        subtype: &Rc<RefCell<Lambda>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Lambda(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_list"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_list(
+        bogus: bool,
+        subtype: &Rc<RefCell<List>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::List(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_z_object_store"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_z_object_store(
-        z_object_store: &Rc<RefCell<ZObjectStore>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<ZObjectStore>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = z_object_store.borrow().id;
-        if let Some(z_object_store) = store.exhume_value_type(&id) {
-            z_object_store
-        } else {
-            let new = Rc::new(RefCell::new(Self::ZObjectStore(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::XPlugin
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::ZObjectStore(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_plugin"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_plugin(
-        x_plugin: &Rc<RefCell<XPlugin>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<XPlugin>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = x_plugin.borrow().id;
-        if let Some(x_plugin) = store.exhume_value_type(&id) {
-            x_plugin
-        } else {
-            let new = Rc::new(RefCell::new(Self::XPlugin(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Range
-    pub fn new_range(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&RANGE).unwrap()
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::XPlugin(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::WoogStruct
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_range(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Range(RANGE),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_woog_struct(
-        woog_struct: &Rc<RefCell<WoogStruct>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = woog_struct.borrow().id;
-        if let Some(woog_struct) = store.exhume_value_type(&id) {
-            woog_struct
-        } else {
-            let new = Rc::new(RefCell::new(Self::WoogStruct(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Task
-    pub fn new_task(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&TASK).unwrap()
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::WoogStruct(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Ty
-    pub fn new_ty(ty: &Rc<RefCell<Ty>>, store: &mut LuDogStore) -> Rc<RefCell<Self>> {
-        let id = ty.borrow().id();
-        if let Some(ty) = store.exhume_value_type(&id) {
-            ty
-        } else {
-            let new = Rc::new(RefCell::new(Self::Ty(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Unknown
-    pub fn new_unknown(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&UNKNOWN).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_task(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Task(TASK),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::Char(id) => *id,
-            Self::Empty(id) => *id,
-            Self::Enumeration(id) => *id,
-            Self::Function(id) => *id,
-            Self::XFuture(id) => *id,
-            Self::Generic(id) => *id,
-            Self::Import(id) => *id,
-            Self::Lambda(id) => *id,
-            Self::List(id) => *id,
-            Self::ZObjectStore(id) => *id,
-            Self::XPlugin(id) => *id,
-            Self::Range(id) => *id,
-            Self::WoogStruct(id) => *id,
-            Self::Task(id) => *id,
-            Self::Ty(id) => *id,
-            Self::Unknown(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_ty(
+        bogus: bool,
+        subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Ty(subtype.read().unwrap().id()),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_unknown"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_unknown(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Unknown(UNKNOWN),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-field"}}}
@@ -285,7 +346,7 @@ impl ValueType {
     pub fn r5_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Field>>> {
         store
             .iter_field()
-            .filter(|field| field.borrow().ty == self.id())
+            .filter(|field| field.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -294,7 +355,7 @@ impl ValueType {
     pub fn r10_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
         store
             .iter_function()
-            .filter(|function| function.borrow().return_type == self.id())
+            .filter(|function| function.borrow().return_type == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -303,7 +364,7 @@ impl ValueType {
     pub fn r2_x_future<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XFuture>>> {
         store
             .iter_x_future()
-            .filter(|x_future| x_future.borrow().x_value == self.id())
+            .filter(|x_future| x_future.borrow().x_value == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -312,7 +373,7 @@ impl ValueType {
     pub fn r99_generic<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Generic>>> {
         store
             .iter_generic()
-            .filter(|generic| generic.borrow().ty == Some(self.id()))
+            .filter(|generic| generic.borrow().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -321,7 +382,7 @@ impl ValueType {
     pub fn r74_lambda<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Lambda>>> {
         store
             .iter_lambda()
-            .filter(|lambda| lambda.borrow().return_type == self.id())
+            .filter(|lambda| lambda.borrow().return_type == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -333,7 +394,7 @@ impl ValueType {
     ) -> Vec<Rc<RefCell<LambdaParameter>>> {
         store
             .iter_lambda_parameter()
-            .filter(|lambda_parameter| lambda_parameter.borrow().ty == Some(self.id()))
+            .filter(|lambda_parameter| lambda_parameter.borrow().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -342,7 +403,7 @@ impl ValueType {
     pub fn r36_list<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<List>>> {
         store
             .iter_list()
-            .filter(|list| list.borrow().ty == self.id())
+            .filter(|list| list.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -353,9 +414,9 @@ impl ValueType {
     pub fn r79_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
         store
             .iter_parameter()
-            .filter(|parameter| parameter.borrow().ty == self.id())
             // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
             // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
+            .filter(|parameter| parameter.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -364,7 +425,7 @@ impl ValueType {
     pub fn r62_span<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Span>>> {
         store
             .iter_span()
-            .filter(|span| span.borrow().ty == Some(self.id()))
+            .filter(|span| span.borrow().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -373,7 +434,7 @@ impl ValueType {
     pub fn r86_tuple_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<TupleField>>> {
         store
             .iter_tuple_field()
-            .filter(|tuple_field| tuple_field.borrow().ty == self.id())
+            .filter(|tuple_field| tuple_field.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -382,7 +443,7 @@ impl ValueType {
     pub fn r69_type_cast<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<TypeCast>>> {
         store
             .iter_type_cast()
-            .filter(|type_cast| type_cast.borrow().ty == self.id())
+            .filter(|type_cast| type_cast.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -391,7 +452,7 @@ impl ValueType {
     pub fn r24_x_value<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XValue>>> {
         store
             .iter_x_value()
-            .filter(|x_value| x_value.borrow().ty == self.id())
+            .filter(|x_value| x_value.borrow().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

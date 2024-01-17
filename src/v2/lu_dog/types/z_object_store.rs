@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog::types::object_wrapper::ObjectWrapper;
 use crate::v2::lu_dog::types::value_type::ValueType;
+use crate::v2::lu_dog::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -69,7 +70,16 @@ impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::ZObjectStore(id) = value_type.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
