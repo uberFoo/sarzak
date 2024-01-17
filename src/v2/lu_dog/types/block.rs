@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::body::Body;
 use crate::v2::lu_dog::types::body::BodyEnum;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::statement::Statement;
 use crate::v2::lu_dog::types::x_if::XIf;
 use crate::v2::lu_dog::types::x_value::XValue;
@@ -150,7 +151,16 @@ impl Block {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"block-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Block(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

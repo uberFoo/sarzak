@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
+use crate::v2::lu_dog::types::field_access_target::FieldAccessTargetEnum;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
@@ -68,7 +69,16 @@ impl Field {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
-        vec![store.exhume_field_access_target(&self.id).unwrap()]
+        vec![store
+            .iter_field_access_target()
+            .find(|field_access_target| {
+                if let FieldAccessTargetEnum::Field(id) = field_access_target.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

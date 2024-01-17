@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
 
@@ -39,7 +40,7 @@ impl TypeCast {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(TypeCast {
             id,
-            lhs: lhs.borrow().id(),
+            lhs: lhs.borrow().id,
             ty: ty.borrow().id,
         }));
         store.inter_type_cast(new.clone());
@@ -61,7 +62,16 @@ impl TypeCast {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::TypeCast(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::literal::Literal;
+use crate::v2::lu_dog::types::literal::LiteralEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -38,7 +39,16 @@ impl StringLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-impl-nav-subtype-to-supertype-literal"}}}
     // Navigate to [`Literal`] across R22(isa)
     pub fn r22_literal<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Literal>>> {
-        vec![store.exhume_literal(&self.id).unwrap()]
+        vec![store
+            .iter_literal()
+            .find(|literal| {
+                if let LiteralEnum::StringLiteral(id) = literal.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -23,6 +23,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BooleanOperator {
     pub subtype: BooleanOperatorEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -37,9 +38,10 @@ pub enum BooleanOperatorEnum {
 impl BooleanOperator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-struct-impl-new_and"}}}
     /// Inter a new BooleanOperator in the store, and return it's `id`.
-    pub fn new_and(store: &mut LuDogVecStore) -> Rc<RefCell<BooleanOperator>> {
+    pub fn new_and(bogus: bool, store: &mut LuDogVecStore) -> Rc<RefCell<BooleanOperator>> {
         store.inter_boolean_operator(|id| {
             Rc::new(RefCell::new(BooleanOperator {
+                bogus: bogus,
                 subtype: BooleanOperatorEnum::And(AND),
                 id,
             }))
@@ -48,9 +50,10 @@ impl BooleanOperator {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-struct-impl-new_or"}}}
     /// Inter a new BooleanOperator in the store, and return it's `id`.
-    pub fn new_or(store: &mut LuDogVecStore) -> Rc<RefCell<BooleanOperator>> {
+    pub fn new_or(bogus: bool, store: &mut LuDogVecStore) -> Rc<RefCell<BooleanOperator>> {
         store.inter_boolean_operator(|id| {
             Rc::new(RefCell::new(BooleanOperator {
+                bogus: bogus,
                 subtype: BooleanOperatorEnum::Or(OR),
                 id,
             }))
@@ -77,7 +80,7 @@ impl BooleanOperator {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-implementation"}}}
 impl PartialEq for BooleanOperator {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

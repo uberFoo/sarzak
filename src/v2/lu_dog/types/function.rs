@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::body::Body;
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
+use crate::v2::lu_dog::types::field_access_target::FieldAccessTargetEnum;
 use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
@@ -112,7 +113,16 @@ impl Function {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
-        vec![store.exhume_field_access_target(&self.id).unwrap()]
+        vec![store
+            .iter_field_access_target()
+            .find(|field_access_target| {
+                if let FieldAccessTargetEnum::Function(id) = field_access_target.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}

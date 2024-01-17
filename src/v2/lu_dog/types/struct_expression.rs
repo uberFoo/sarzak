@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::data_structure::DataStructure;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::field_expression::FieldExpression;
 use crate::v2::lu_dog::types::x_path::XPath;
 use serde::{Deserialize, Serialize};
@@ -44,7 +45,7 @@ impl StructExpression {
         let new = Rc::new(RefCell::new(StructExpression {
             bug,
             id,
-            data: data.borrow().id(),
+            data: data.borrow().id,
             x_path: x_path.borrow().id,
         }));
         store.inter_struct_expression(new.clone());
@@ -82,7 +83,16 @@ impl StructExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::StructExpression(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -50,6 +50,7 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Expression {
     pub subtype: ExpressionEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -87,11 +88,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_a_wait"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_a_wait(
+        bogus: bool,
         subtype: &Arc<RwLock<AWait>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::AWait(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -101,11 +104,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_block"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_block(
+        bogus: bool,
         subtype: &Arc<RwLock<Block>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Block(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -115,11 +120,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_call"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_call(
+        bogus: bool,
         subtype: &Arc<RwLock<Call>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Call(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -128,9 +135,10 @@ impl Expression {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_debugger"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_debugger(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Expression>> {
+    pub fn new_debugger(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Debugger(DEBUGGER),
                 id,
             }))
@@ -142,9 +150,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_error_expression"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_empty_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_empty_expression(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Expression>> {
+    pub fn new_empty_expression(
+        bogus: bool,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::EmptyExpression(EMPTY_EXPRESSION),
                 id,
             }))
@@ -154,11 +166,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_field_access"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_field_access(
+        bogus: bool,
         subtype: &Arc<RwLock<FieldAccess>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::FieldAccess(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -168,11 +182,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_field_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_field_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<FieldExpression>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::FieldExpression(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -182,11 +198,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_for_loop"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_for_loop(
+        bogus: bool,
         subtype: &Arc<RwLock<ForLoop>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::ForLoop(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -196,11 +214,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_grouped"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_grouped(
+        bogus: bool,
         subtype: &Arc<RwLock<Grouped>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Grouped(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -210,11 +230,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_if"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_if(
+        bogus: bool,
         subtype: &Arc<RwLock<XIf>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::XIf(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -224,11 +246,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_index"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_index(
+        bogus: bool,
         subtype: &Arc<RwLock<Index>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Index(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -238,11 +262,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_lambda"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_lambda(
+        bogus: bool,
         subtype: &Arc<RwLock<Lambda>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Lambda(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -252,11 +278,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_list_element"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_list_element(
+        bogus: bool,
         subtype: &Arc<RwLock<ListElement>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::ListElement(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -266,11 +294,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_list_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_list_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<ListExpression>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::ListExpression(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -280,11 +310,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_literal"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_literal(
+        bogus: bool,
         subtype: &Arc<RwLock<Literal>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Literal(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -294,11 +326,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_match"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_match(
+        bogus: bool,
         subtype: &Arc<RwLock<XMatch>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::XMatch(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -309,11 +343,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_operator"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_operator(
+        bogus: bool,
         subtype: &Arc<RwLock<Operator>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::Operator(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -324,11 +360,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_path"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_path(
+        bogus: bool,
         subtype: &Arc<RwLock<XPath>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::XPath(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -339,11 +377,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_print"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_print(
+        bogus: bool,
         subtype: &Arc<RwLock<XPrint>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::XPrint(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -353,11 +393,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_range_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_range_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<RangeExpression>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::RangeExpression(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -367,11 +409,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_return"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_x_return(
+        bogus: bool,
         subtype: &Arc<RwLock<XReturn>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::XReturn(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -383,11 +427,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_struct_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_struct_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<StructExpression>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::StructExpression(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -397,11 +443,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_type_cast"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_type_cast(
+        bogus: bool,
         subtype: &Arc<RwLock<TypeCast>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::TypeCast(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -411,11 +459,13 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_variable_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub fn new_variable_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<VariableExpression>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Expression>> {
         store.inter_expression(|id| {
             Arc::new(RwLock::new(Expression {
+                bogus: bogus,
                 subtype: ExpressionEnum::VariableExpression(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -743,7 +793,7 @@ impl Expression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl PartialEq for Expression {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

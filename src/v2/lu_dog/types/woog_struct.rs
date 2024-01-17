@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::data_structure::DataStructure;
+use crate::v2::lu_dog::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
 use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
@@ -139,7 +140,16 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<DataStructure>>> {
-        vec![store.exhume_data_structure(&self.id).unwrap()]
+        vec![store
+            .iter_data_structure()
+            .find(|data_structure| {
+                if let DataStructureEnum::WoogStruct(id) = data_structure.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}

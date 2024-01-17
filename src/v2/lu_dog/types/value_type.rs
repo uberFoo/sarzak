@@ -50,9 +50,7 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 ///  to generate dwarf. Dwarf needs to be typed? If so, when are they resolved to uuid's eventually
 /// ?
 ///
-/// Option for now. We'll see later…
-///
-/// The bogus attribute is to force the compiler to generate a hybrid type.
+/// Option for now. We'll see later...
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}

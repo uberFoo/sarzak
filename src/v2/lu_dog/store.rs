@@ -107,10 +107,7 @@ use crate::v2::lu_dog::types::{
     RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, DEBUGGER, DIVISION, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
-    GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
-    OR, SUBTRACTION, TRUE_LITERAL,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, NEGATION, NOT,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -282,53 +279,6 @@ impl ObjectStore {
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_binary(Rc::new(RefCell::new(Binary::Addition(ADDITION))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::Assignment(ASSIGNMENT))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::BooleanOperator(
-            BooleanOperator::And(AND).id(),
-        ))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::BooleanOperator(
-            BooleanOperator::Or(OR).id(),
-        ))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::Division(DIVISION))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::Multiplication(
-            MULTIPLICATION,
-        ))));
-        store.inter_binary(Rc::new(RefCell::new(Binary::Subtraction(SUBTRACTION))));
-        store.inter_boolean_literal(Rc::new(RefCell::new(BooleanLiteral::FalseLiteral(
-            FALSE_LITERAL,
-        ))));
-        store.inter_boolean_literal(Rc::new(RefCell::new(BooleanLiteral::TrueLiteral(
-            TRUE_LITERAL,
-        ))));
-        store.inter_boolean_operator(Rc::new(RefCell::new(BooleanOperator::And(AND))));
-        store.inter_boolean_operator(Rc::new(RefCell::new(BooleanOperator::Or(OR))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::Equal(EQUAL))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::GreaterThan(GREATER_THAN))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::GreaterThanOrEqual(
-            GREATER_THAN_OR_EQUAL,
-        ))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::LessThan(LESS_THAN))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::LessThanOrEqual(
-            LESS_THAN_OR_EQUAL,
-        ))));
-        store.inter_comparison(Rc::new(RefCell::new(Comparison::NotEqual(NOT_EQUAL))));
-        store.inter_expression(Rc::new(RefCell::new(Expression::Debugger(DEBUGGER))));
-        store.inter_expression(Rc::new(RefCell::new(Expression::EmptyExpression(
-            EMPTY_EXPRESSION,
-        ))));
-        store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
-            Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
-        ))));
-        store.inter_expression(Rc::new(RefCell::new(Expression::Literal(
-            Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
-        ))));
-        store.inter_literal(Rc::new(RefCell::new(Literal::BooleanLiteral(
-            BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
-        ))));
-        store.inter_literal(Rc::new(RefCell::new(Literal::BooleanLiteral(
-            BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
-        ))));
         store.inter_unary(Rc::new(RefCell::new(Unary::Negation(NEGATION))));
         store.inter_unary(Rc::new(RefCell::new(Unary::Not(NOT))));
 
@@ -413,7 +363,7 @@ impl ObjectStore {
     ///
     pub fn inter_binary(&mut self, binary: Rc<RefCell<Binary>>) {
         let read = binary.borrow();
-        self.binary.borrow_mut().insert(read.id(), binary.clone());
+        self.binary.borrow_mut().insert(read.id, binary.clone());
     }
 
     /// Exhume (get) [`Binary`] from the store.
@@ -517,7 +467,7 @@ impl ObjectStore {
         let read = boolean_literal.borrow();
         self.boolean_literal
             .borrow_mut()
-            .insert(read.id(), boolean_literal.clone());
+            .insert(read.id, boolean_literal.clone());
     }
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
@@ -557,7 +507,7 @@ impl ObjectStore {
         let read = boolean_operator.borrow();
         self.boolean_operator
             .borrow_mut()
-            .insert(read.id(), boolean_operator.clone());
+            .insert(read.id, boolean_operator.clone());
     }
 
     /// Exhume (get) [`BooleanOperator`] from the store.
@@ -629,7 +579,7 @@ impl ObjectStore {
         let read = comparison.borrow();
         self.comparison
             .borrow_mut()
-            .insert(read.id(), comparison.clone());
+            .insert(read.id, comparison.clone());
     }
 
     /// Exhume (get) [`Comparison`] from the store.
@@ -669,7 +619,7 @@ impl ObjectStore {
         let read = data_structure.borrow();
         self.data_structure
             .borrow_mut()
-            .insert(read.id(), data_structure.clone());
+            .insert(read.id, data_structure.clone());
     }
 
     /// Exhume (get) [`DataStructure`] from the store.
@@ -874,7 +824,7 @@ impl ObjectStore {
         let read = expression.borrow();
         self.expression
             .borrow_mut()
-            .insert(read.id(), expression.clone());
+            .insert(read.id, expression.clone());
     }
 
     /// Exhume (get) [`Expression`] from the store.
@@ -1103,7 +1053,7 @@ impl ObjectStore {
         let read = field_access_target.borrow();
         self.field_access_target
             .borrow_mut()
-            .insert(read.id(), field_access_target.clone());
+            .insert(read.id, field_access_target.clone());
     }
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
@@ -1914,7 +1864,7 @@ impl ObjectStore {
     ///
     pub fn inter_literal(&mut self, literal: Rc<RefCell<Literal>>) {
         let read = literal.borrow();
-        self.literal.borrow_mut().insert(read.id(), literal.clone());
+        self.literal.borrow_mut().insert(read.id, literal.clone());
     }
 
     /// Exhume (get) [`Literal`] from the store.
@@ -3353,7 +3303,7 @@ impl ObjectStore {
             let path = path.join("binary");
             fs::create_dir_all(&path)?;
             for binary in self.binary.borrow().values() {
-                let path = path.join(format!("{}.json", binary.borrow().id()));
+                let path = path.join(format!("{}.json", binary.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &binary)?;
@@ -3389,7 +3339,7 @@ impl ObjectStore {
             let path = path.join("boolean_literal");
             fs::create_dir_all(&path)?;
             for boolean_literal in self.boolean_literal.borrow().values() {
-                let path = path.join(format!("{}.json", boolean_literal.borrow().id()));
+                let path = path.join(format!("{}.json", boolean_literal.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &boolean_literal)?;
@@ -3401,7 +3351,7 @@ impl ObjectStore {
             let path = path.join("boolean_operator");
             fs::create_dir_all(&path)?;
             for boolean_operator in self.boolean_operator.borrow().values() {
-                let path = path.join(format!("{}.json", boolean_operator.borrow().id()));
+                let path = path.join(format!("{}.json", boolean_operator.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &boolean_operator)?;
@@ -3425,7 +3375,7 @@ impl ObjectStore {
             let path = path.join("comparison");
             fs::create_dir_all(&path)?;
             for comparison in self.comparison.borrow().values() {
-                let path = path.join(format!("{}.json", comparison.borrow().id()));
+                let path = path.join(format!("{}.json", comparison.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &comparison)?;
@@ -3437,7 +3387,7 @@ impl ObjectStore {
             let path = path.join("data_structure");
             fs::create_dir_all(&path)?;
             for data_structure in self.data_structure.borrow().values() {
-                let path = path.join(format!("{}.json", data_structure.borrow().id()));
+                let path = path.join(format!("{}.json", data_structure.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &data_structure)?;
@@ -3497,7 +3447,7 @@ impl ObjectStore {
             let path = path.join("expression");
             fs::create_dir_all(&path)?;
             for expression in self.expression.borrow().values() {
-                let path = path.join(format!("{}.json", expression.borrow().id()));
+                let path = path.join(format!("{}.json", expression.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &expression)?;
@@ -3557,7 +3507,7 @@ impl ObjectStore {
             let path = path.join("field_access_target");
             fs::create_dir_all(&path)?;
             for field_access_target in self.field_access_target.borrow().values() {
-                let path = path.join(format!("{}.json", field_access_target.borrow().id()));
+                let path = path.join(format!("{}.json", field_access_target.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &field_access_target)?;
@@ -3809,7 +3759,7 @@ impl ObjectStore {
             let path = path.join("literal");
             fs::create_dir_all(&path)?;
             for literal in self.literal.borrow().values() {
-                let path = path.join(format!("{}.json", literal.borrow().id()));
+                let path = path.join(format!("{}.json", literal.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &literal)?;
@@ -4298,7 +4248,7 @@ impl ObjectStore {
                 store
                     .binary
                     .borrow_mut()
-                    .insert(binary.borrow().id(), binary.clone());
+                    .insert(binary.borrow().id, binary.clone());
             }
         }
 
@@ -4349,7 +4299,7 @@ impl ObjectStore {
                 store
                     .boolean_literal
                     .borrow_mut()
-                    .insert(boolean_literal.borrow().id(), boolean_literal.clone());
+                    .insert(boolean_literal.borrow().id, boolean_literal.clone());
             }
         }
 
@@ -4367,7 +4317,7 @@ impl ObjectStore {
                 store
                     .boolean_operator
                     .borrow_mut()
-                    .insert(boolean_operator.borrow().id(), boolean_operator.clone());
+                    .insert(boolean_operator.borrow().id, boolean_operator.clone());
             }
         }
 
@@ -4401,7 +4351,7 @@ impl ObjectStore {
                 store
                     .comparison
                     .borrow_mut()
-                    .insert(comparison.borrow().id(), comparison.clone());
+                    .insert(comparison.borrow().id, comparison.clone());
             }
         }
 
@@ -4418,7 +4368,7 @@ impl ObjectStore {
                 store
                     .data_structure
                     .borrow_mut()
-                    .insert(data_structure.borrow().id(), data_structure.clone());
+                    .insert(data_structure.borrow().id, data_structure.clone());
             }
         }
 
@@ -4504,7 +4454,7 @@ impl ObjectStore {
                 store
                     .expression
                     .borrow_mut()
-                    .insert(expression.borrow().id(), expression.clone());
+                    .insert(expression.borrow().id, expression.clone());
             }
         }
 
@@ -4593,10 +4543,10 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let field_access_target: Rc<RefCell<FieldAccessTarget>> =
                     serde_json::from_reader(reader)?;
-                store.field_access_target.borrow_mut().insert(
-                    field_access_target.borrow().id(),
-                    field_access_target.clone(),
-                );
+                store
+                    .field_access_target
+                    .borrow_mut()
+                    .insert(field_access_target.borrow().id, field_access_target.clone());
             }
         }
 
@@ -4960,7 +4910,7 @@ impl ObjectStore {
                 store
                     .literal
                     .borrow_mut()
-                    .insert(literal.borrow().id(), literal.clone());
+                    .insert(literal.borrow().id, literal.clone());
             }
         }
 

@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -42,8 +43,8 @@ impl XIf {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(XIf {
             id,
-            false_block: false_block.map(|expression| expression.borrow().id()),
-            test: test.borrow().id(),
+            false_block: false_block.map(|expression| expression.borrow().id),
+            test: test.borrow().id,
             true_block: true_block.borrow().id,
         }));
         store.inter_x_if(new.clone());
@@ -78,7 +79,16 @@ impl XIf {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::XIf(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

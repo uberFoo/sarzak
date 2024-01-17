@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::argument::Argument;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::function_call::FunctionCall;
 use crate::v2::lu_dog::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog::types::method_call::MethodCall;
@@ -56,7 +57,7 @@ impl Call {
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
-            expression: expression.map(|expression| expression.borrow().id()),
+            expression: expression.map(|expression| expression.borrow().id),
             subtype: CallEnum::FunctionCall(subtype.borrow().id), // b
             id,
         }));
@@ -76,7 +77,7 @@ impl Call {
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
-            expression: expression.map(|expression| expression.borrow().id()),
+            expression: expression.map(|expression| expression.borrow().id),
             subtype: CallEnum::MacroCall(MACRO_CALL),
             id,
         }));
@@ -97,7 +98,7 @@ impl Call {
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
-            expression: expression.map(|expression| expression.borrow().id()),
+            expression: expression.map(|expression| expression.borrow().id),
             subtype: CallEnum::MethodCall(subtype.borrow().id), // b
             id,
         }));
@@ -118,7 +119,7 @@ impl Call {
         let new = Rc::new(RefCell::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
-            expression: expression.map(|expression| expression.borrow().id()),
+            expression: expression.map(|expression| expression.borrow().id),
             subtype: CallEnum::StaticMethodCall(subtype.borrow().id), // b
             id,
         }));
@@ -156,7 +157,16 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Call(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

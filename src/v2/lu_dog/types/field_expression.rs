@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::named_field_expression::NamedFieldExpression;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::unnamed_field_expression::UnnamedFieldExpression;
@@ -52,7 +53,7 @@ impl FieldExpression {
     ) -> Rc<RefCell<FieldExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(FieldExpression {
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
             woog_struct: woog_struct.borrow().id,
             subtype: FieldExpressionEnum::NamedFieldExpression(subtype.borrow().id), // b
             id,
@@ -71,7 +72,7 @@ impl FieldExpression {
     ) -> Rc<RefCell<FieldExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(FieldExpression {
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
             woog_struct: woog_struct.borrow().id,
             subtype: FieldExpressionEnum::UnnamedFieldExpression(subtype.borrow().id), // b
             id,
@@ -98,7 +99,16 @@ impl FieldExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::FieldExpression(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

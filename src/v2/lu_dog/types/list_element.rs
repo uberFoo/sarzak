@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::list_expression::ListExpression;
 use serde::{Deserialize, Serialize};
 
@@ -36,7 +37,7 @@ impl ListElement {
         let new = Rc::new(RefCell::new(ListElement {
             id,
             position,
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
             next: next.map(|list_element| list_element.borrow().id),
         }));
         store.inter_list_element(new.clone());
@@ -85,7 +86,16 @@ impl ListElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::ListElement(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

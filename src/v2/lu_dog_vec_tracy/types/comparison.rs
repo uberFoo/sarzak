@@ -28,6 +28,7 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Comparison {
     pub subtype: ComparisonEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -46,9 +47,10 @@ pub enum ComparisonEnum {
 impl Comparison {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_equal"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_equal(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_equal(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::Equal(EQUAL),
                 id,
             }))
@@ -57,9 +59,13 @@ impl Comparison {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_greater_than"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_greater_than(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_greater_than(
+        bogus: bool,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::GreaterThan(GREATER_THAN),
                 id,
             }))
@@ -68,9 +74,13 @@ impl Comparison {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_greater_than_or_equal"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_greater_than_or_equal(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_greater_than_or_equal(
+        bogus: bool,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::GreaterThanOrEqual(GREATER_THAN_OR_EQUAL),
                 id,
             }))
@@ -79,9 +89,10 @@ impl Comparison {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_less_than"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_less_than(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_less_than(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::LessThan(LESS_THAN),
                 id,
             }))
@@ -90,9 +101,13 @@ impl Comparison {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_less_than_or_equal"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_less_than_or_equal(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_less_than_or_equal(
+        bogus: bool,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::LessThanOrEqual(LESS_THAN_OR_EQUAL),
                 id,
             }))
@@ -101,9 +116,10 @@ impl Comparison {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_not_equal"}}}
     /// Inter a new Comparison in the store, and return it's `id`.
-    pub fn new_not_equal(store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
+    pub fn new_not_equal(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<Comparison>> {
         store.inter_comparison(|id| {
             Rc::new(RefCell::new(Comparison {
+                bogus: bogus,
                 subtype: ComparisonEnum::NotEqual(NOT_EQUAL),
                 id,
             }))
@@ -131,7 +147,7 @@ impl Comparison {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-implementation"}}}
 impl PartialEq for Comparison {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

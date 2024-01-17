@@ -16,6 +16,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DataStructure {
     pub subtype: DataStructureEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -31,11 +32,13 @@ impl DataStructure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-struct-impl-new_enumeration"}}}
     /// Inter a new DataStructure in the store, and return it's `id`.
     pub fn new_enumeration(
+        bogus: bool,
         subtype: &Rc<RefCell<Enumeration>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<DataStructure>> {
         store.inter_data_structure(|id| {
             Rc::new(RefCell::new(DataStructure {
+                bogus: bogus,
                 subtype: DataStructureEnum::Enumeration(subtype.borrow().id), // b
                 id,
             }))
@@ -45,11 +48,13 @@ impl DataStructure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-struct-impl-new_woog_struct"}}}
     /// Inter a new DataStructure in the store, and return it's `id`.
     pub fn new_woog_struct(
+        bogus: bool,
         subtype: &Rc<RefCell<WoogStruct>>,
         store: &mut LuDogVecStore,
     ) -> Rc<RefCell<DataStructure>> {
         store.inter_data_structure(|id| {
             Rc::new(RefCell::new(DataStructure {
+                bogus: bogus,
                 subtype: DataStructureEnum::WoogStruct(subtype.borrow().id), // b
                 id,
             }))
@@ -73,7 +78,7 @@ impl DataStructure {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-implementation"}}}
 impl PartialEq for DataStructure {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

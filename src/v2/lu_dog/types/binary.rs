@@ -1,6 +1,9 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"binary-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-use-statements"}}}
-use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use std::cell::RefCell;
+use std::rc::Rc;
+use uuid::Uuid;
+
 use crate::v2::lu_dog::types::addition::ADDITION;
 use crate::v2::lu_dog::types::assignment::ASSIGNMENT;
 use crate::v2::lu_dog::types::boolean_operator::BooleanOperator;
@@ -10,20 +13,29 @@ use crate::v2::lu_dog::types::operator::Operator;
 use crate::v2::lu_dog::types::operator::OperatorEnum;
 use crate::v2::lu_dog::types::subtraction::SUBTRACTION;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
-use uuid::Uuid;
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-hybrid-documentation"}}}
 /// Binary Operators
 ///
 /// +, -, etc.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Binary {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Binary {
+    pub subtype: BinaryEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum BinaryEnum {
     Addition(Uuid),
     Assignment(Uuid),
     BooleanOperator(Uuid),
@@ -35,62 +47,87 @@ pub enum Binary {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-implementation"}}}
 impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-new-impl"}}}
-    /// Create a new instance of Binary::Addition
-    pub fn new_addition(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_binary(&ADDITION).unwrap()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_addition"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
+    pub fn new_addition(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::Addition(ADDITION),
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
-
-    /// Create a new instance of Binary::Assignment
-    pub fn new_assignment(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_binary(&ASSIGNMENT).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_assignment"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
+    pub fn new_assignment(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::Assignment(ASSIGNMENT),
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
-
-    /// Create a new instance of Binary::BooleanOperator
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_boolean_operator"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
     pub fn new_boolean_operator(
-        boolean_operator: &Rc<RefCell<BooleanOperator>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<BooleanOperator>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = boolean_operator.borrow().id();
-        if let Some(boolean_operator) = store.exhume_binary(&id) {
-            boolean_operator
-        } else {
-            let new = Rc::new(RefCell::new(Self::BooleanOperator(id)));
-            store.inter_binary(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Binary::Division
-    pub fn new_division(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_binary(&DIVISION).unwrap()
+    ) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::BooleanOperator(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
-
-    /// Create a new instance of Binary::Multiplication
-    pub fn new_multiplication(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_binary(&MULTIPLICATION).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_division"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
+    pub fn new_division(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::Division(DIVISION),
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
-
-    /// Create a new instance of Binary::Subtraction
-    pub fn new_subtraction(store: &LuDogStore) -> Rc<RefCell<Self>> {
-        // This is already in the store.
-        store.exhume_binary(&SUBTRACTION).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_multiplication"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
+    pub fn new_multiplication(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::Multiplication(MULTIPLICATION),
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::Addition(id) => *id,
-            Self::Assignment(id) => *id,
-            Self::BooleanOperator(id) => *id,
-            Self::Division(id) => *id,
-            Self::Multiplication(id) => *id,
-            Self::Subtraction(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_subtraction"}}}
+    /// Inter a new Binary in the store, and return it's `id`.
+    pub fn new_subtraction(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Binary>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Binary {
+            bogus: bogus,
+            subtype: BinaryEnum::Subtraction(SUBTRACTION),
+            id,
+        }));
+        store.inter_binary(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-impl-nav-subtype-to-supertype-operator"}}}
@@ -100,7 +137,7 @@ impl Binary {
             .iter_operator()
             .find(|operator| {
                 if let OperatorEnum::Binary(id) = operator.borrow().subtype {
-                    id == self.id()
+                    id == self.id
                 } else {
                     false
                 }

@@ -16,6 +16,7 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DataStructure {
     pub subtype: DataStructureEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -31,11 +32,13 @@ impl DataStructure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-struct-impl-new_enumeration"}}}
     /// Inter a new DataStructure in the store, and return it's `id`.
     pub fn new_enumeration(
+        bogus: bool,
         subtype: &Arc<RwLock<Enumeration>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<DataStructure>> {
         store.inter_data_structure(|id| {
             Arc::new(RwLock::new(DataStructure {
+                bogus: bogus,
                 subtype: DataStructureEnum::Enumeration(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -45,11 +48,13 @@ impl DataStructure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-struct-impl-new_woog_struct"}}}
     /// Inter a new DataStructure in the store, and return it's `id`.
     pub fn new_woog_struct(
+        bogus: bool,
         subtype: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<DataStructure>> {
         store.inter_data_structure(|id| {
             Arc::new(RwLock::new(DataStructure {
+                bogus: bogus,
                 subtype: DataStructureEnum::WoogStruct(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -73,7 +78,7 @@ impl DataStructure {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"data_structure-implementation"}}}
 impl PartialEq for DataStructure {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

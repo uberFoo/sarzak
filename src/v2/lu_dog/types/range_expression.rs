@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::from::FROM;
 use crate::v2::lu_dog::types::full::FULL;
 use crate::v2::lu_dog::types::inclusive::INCLUSIVE;
@@ -47,8 +48,8 @@ impl RangeExpression {
     ) -> Rc<RefCell<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.borrow().id()),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.map(|expression| expression.borrow().id),
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: RangeExpressionEnum::From(FROM),
             id,
         }));
@@ -65,8 +66,8 @@ impl RangeExpression {
     ) -> Rc<RefCell<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.borrow().id()),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.map(|expression| expression.borrow().id),
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: RangeExpressionEnum::Full(FULL),
             id,
         }));
@@ -83,8 +84,8 @@ impl RangeExpression {
     ) -> Rc<RefCell<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.borrow().id()),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.map(|expression| expression.borrow().id),
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
             id,
         }));
@@ -101,8 +102,8 @@ impl RangeExpression {
     ) -> Rc<RefCell<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.borrow().id()),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.map(|expression| expression.borrow().id),
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: RangeExpressionEnum::To(TO),
             id,
         }));
@@ -119,8 +120,8 @@ impl RangeExpression {
     ) -> Rc<RefCell<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.borrow().id()),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.map(|expression| expression.borrow().id),
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
             id,
         }));
@@ -151,7 +152,16 @@ impl RangeExpression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::RangeExpression(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

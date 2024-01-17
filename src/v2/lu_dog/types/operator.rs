@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog::types::binary::Binary;
 use crate::v2::lu_dog::types::comparison::Comparison;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::unary::Unary;
 use serde::{Deserialize, Serialize};
 
@@ -50,9 +51,9 @@ impl Operator {
     ) -> Rc<RefCell<Operator>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Operator {
-            lhs: lhs.borrow().id(),
-            rhs: rhs.map(|expression| expression.borrow().id()),
-            subtype: OperatorEnum::Binary(subtype.borrow().id()), // b
+            lhs: lhs.borrow().id,
+            rhs: rhs.map(|expression| expression.borrow().id),
+            subtype: OperatorEnum::Binary(subtype.borrow().id), // b
             id,
         }));
         store.inter_operator(new.clone());
@@ -69,9 +70,9 @@ impl Operator {
     ) -> Rc<RefCell<Operator>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Operator {
-            lhs: lhs.borrow().id(),
-            rhs: rhs.map(|expression| expression.borrow().id()),
-            subtype: OperatorEnum::Comparison(subtype.borrow().id()), // b
+            lhs: lhs.borrow().id,
+            rhs: rhs.map(|expression| expression.borrow().id),
+            subtype: OperatorEnum::Comparison(subtype.borrow().id), // b
             id,
         }));
         store.inter_operator(new.clone());
@@ -89,8 +90,8 @@ impl Operator {
     ) -> Rc<RefCell<Operator>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Operator {
-            lhs: lhs.borrow().id(),
-            rhs: rhs.map(|expression| expression.borrow().id()),
+            lhs: lhs.borrow().id,
+            rhs: rhs.map(|expression| expression.borrow().id),
             subtype: OperatorEnum::Unary(subtype.borrow().id()), // b
             id,
         }));
@@ -118,7 +119,16 @@ impl Operator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"operator-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Operator(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

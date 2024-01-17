@@ -24,6 +24,7 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FieldAccessTarget {
     pub subtype: FieldAccessTargetEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -40,11 +41,13 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_enum_field"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub fn new_enum_field(
+        bogus: bool,
         subtype: &Rc<RefCell<EnumField>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
+                bogus: bogus,
                 subtype: FieldAccessTargetEnum::EnumField(subtype.borrow().id), // b
                 id,
             }))
@@ -54,11 +57,13 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_field"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub fn new_field(
+        bogus: bool,
         subtype: &Rc<RefCell<Field>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
+                bogus: bogus,
                 subtype: FieldAccessTargetEnum::Field(subtype.borrow().id), // b
                 id,
             }))
@@ -68,11 +73,13 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_function"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub fn new_function(
+        bogus: bool,
         subtype: &Rc<RefCell<Function>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<FieldAccessTarget>> {
         store.inter_field_access_target(|id| {
             Rc::new(RefCell::new(FieldAccessTarget {
+                bogus: bogus,
                 subtype: FieldAccessTargetEnum::Function(subtype.borrow().id), // b
                 id,
             }))
@@ -97,7 +104,7 @@ impl FieldAccessTarget {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-implementation"}}}
 impl PartialEq for FieldAccessTarget {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

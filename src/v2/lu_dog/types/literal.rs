@@ -1,26 +1,39 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-use-statements"}}}
-use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
+use std::cell::RefCell;
+use std::rc::Rc;
+use uuid::Uuid;
+
 use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::float_literal::FloatLiteral;
 use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::rc::Rc;
-use uuid::Uuid;
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-documentation"}}}
 /// A Literal Expression
 ///
 /// This is any literal value in the program.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Literal {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Literal {
+    pub subtype: LiteralEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum LiteralEnum {
     BooleanLiteral(Uuid),
     FloatLiteral(Uuid),
     IntegerLiteral(Uuid),
@@ -30,81 +43,89 @@ pub enum Literal {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-implementation"}}}
 impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
-    /// Create a new instance of Literal::BooleanLiteral
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_boolean_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
     pub fn new_boolean_literal(
-        boolean_literal: &Rc<RefCell<BooleanLiteral>>,
+        bogus: bool,
+        subtype: &Rc<RefCell<BooleanLiteral>>,
         store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = boolean_literal.borrow().id();
-        if let Some(boolean_literal) = store.exhume_literal(&id) {
-            boolean_literal
-        } else {
-            let new = Rc::new(RefCell::new(Self::BooleanLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::FloatLiteral
-    pub fn new_float_literal(
-        float_literal: &Rc<RefCell<FloatLiteral>>,
-        store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = float_literal.borrow().id;
-        if let Some(float_literal) = store.exhume_literal(&id) {
-            float_literal
-        } else {
-            let new = Rc::new(RefCell::new(Self::FloatLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::IntegerLiteral
-    pub fn new_integer_literal(
-        integer_literal: &Rc<RefCell<IntegerLiteral>>,
-        store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = integer_literal.borrow().id;
-        if let Some(integer_literal) = store.exhume_literal(&id) {
-            integer_literal
-        } else {
-            let new = Rc::new(RefCell::new(Self::IntegerLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::StringLiteral
-    pub fn new_string_literal(
-        string_literal: &Rc<RefCell<StringLiteral>>,
-        store: &mut LuDogStore,
-    ) -> Rc<RefCell<Self>> {
-        let id = string_literal.borrow().id;
-        if let Some(string_literal) = store.exhume_literal(&id) {
-            string_literal
-        } else {
-            let new = Rc::new(RefCell::new(Self::StringLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
+    ) -> Rc<RefCell<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::BooleanLiteral(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::BooleanLiteral(id) => *id,
-            Self::FloatLiteral(id) => *id,
-            Self::IntegerLiteral(id) => *id,
-            Self::StringLiteral(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_float_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_float_literal(
+        bogus: bool,
+        subtype: &Rc<RefCell<FloatLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::FloatLiteral(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_integer_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_integer_literal(
+        bogus: bool,
+        subtype: &Rc<RefCell<IntegerLiteral>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::IntegerLiteral(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_string_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_string_literal(
+        bogus: bool,
+        subtype: &Rc<RefCell<StringLiteral>>,
+        store: &mut LuDogStore,
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}
+    ) -> Rc<RefCell<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::StringLiteral(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id()).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Literal(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

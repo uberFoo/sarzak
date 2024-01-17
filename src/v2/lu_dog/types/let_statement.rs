@@ -41,7 +41,7 @@ impl LetStatement {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(LetStatement {
             id,
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
             variable: variable.borrow().id,
         }));
         store.inter_let_statement(new.clone());

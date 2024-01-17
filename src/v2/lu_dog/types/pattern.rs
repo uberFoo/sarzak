@@ -54,8 +54,8 @@ impl Pattern {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Pattern {
             id,
-            expression: expression.borrow().id(),
-            match_expr: match_expr.borrow().id(),
+            expression: expression.borrow().id,
+            match_expr: match_expr.borrow().id,
             x_match: x_match.borrow().id,
         }));
         store.inter_pattern(new.clone());

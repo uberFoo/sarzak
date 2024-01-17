@@ -52,7 +52,7 @@ impl XValue {
         let new = Rc::new(RefCell::new(XValue {
             block: block.borrow().id,
             ty: ty.borrow().id,
-            subtype: XValueEnum::Expression(subtype.borrow().id()), // b
+            subtype: XValueEnum::Expression(subtype.borrow().id), // b
             id,
         }));
         store.inter_x_value(new.clone());

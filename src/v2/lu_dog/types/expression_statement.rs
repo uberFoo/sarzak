@@ -35,7 +35,7 @@ impl ExpressionStatement {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(ExpressionStatement {
             id,
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
         }));
         store.inter_expression_statement(new.clone());
         new

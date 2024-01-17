@@ -27,6 +27,7 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Binary {
     pub subtype: BinaryEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -45,9 +46,10 @@ pub enum BinaryEnum {
 impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_addition"}}}
     /// Inter a new Binary in the store, and return it's `id`.
-    pub fn new_addition(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
+    pub fn new_addition(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::Addition(ADDITION),
                 id,
             }))
@@ -56,9 +58,10 @@ impl Binary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_assignment"}}}
     /// Inter a new Binary in the store, and return it's `id`.
-    pub fn new_assignment(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
+    pub fn new_assignment(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::Assignment(ASSIGNMENT),
                 id,
             }))
@@ -68,11 +71,13 @@ impl Binary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_boolean_operator"}}}
     /// Inter a new Binary in the store, and return it's `id`.
     pub fn new_boolean_operator(
+        bogus: bool,
         subtype: &Arc<RwLock<BooleanOperator>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::BooleanOperator(subtype.read().unwrap().id), // b
                 id,
             }))
@@ -81,9 +86,10 @@ impl Binary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_division"}}}
     /// Inter a new Binary in the store, and return it's `id`.
-    pub fn new_division(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
+    pub fn new_division(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::Division(DIVISION),
                 id,
             }))
@@ -92,9 +98,13 @@ impl Binary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_multiplication"}}}
     /// Inter a new Binary in the store, and return it's `id`.
-    pub fn new_multiplication(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
+    pub fn new_multiplication(
+        bogus: bool,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::Multiplication(MULTIPLICATION),
                 id,
             }))
@@ -103,9 +113,10 @@ impl Binary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-struct-impl-new_subtraction"}}}
     /// Inter a new Binary in the store, and return it's `id`.
-    pub fn new_subtraction(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
+    pub fn new_subtraction(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<Binary>> {
         store.inter_binary(|id| {
             Arc::new(RwLock::new(Binary {
+                bogus: bogus,
                 subtype: BinaryEnum::Subtraction(SUBTRACTION),
                 id,
             }))
@@ -135,7 +146,7 @@ impl Binary {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"binary-implementation"}}}
 impl PartialEq for Binary {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

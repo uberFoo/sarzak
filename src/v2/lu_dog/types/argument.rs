@@ -43,7 +43,7 @@ impl Argument {
         let new = Rc::new(RefCell::new(Argument {
             id,
             position,
-            expression: expression.borrow().id(),
+            expression: expression.borrow().id,
             function: function.borrow().id,
             next: next.map(|argument| argument.borrow().id),
         }));

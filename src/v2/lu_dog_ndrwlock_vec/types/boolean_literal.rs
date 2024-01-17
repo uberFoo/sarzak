@@ -23,6 +23,7 @@ use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BooleanLiteral {
     pub subtype: BooleanLiteralEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -37,9 +38,13 @@ pub enum BooleanLiteralEnum {
 impl BooleanLiteral {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-struct-impl-new_false_literal"}}}
     /// Inter a new BooleanLiteral in the store, and return it's `id`.
-    pub fn new_false_literal(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<BooleanLiteral>> {
+    pub fn new_false_literal(
+        bogus: bool,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<BooleanLiteral>> {
         store.inter_boolean_literal(|id| {
             Arc::new(RwLock::new(BooleanLiteral {
+                bogus: bogus,
                 subtype: BooleanLiteralEnum::FalseLiteral(FALSE_LITERAL),
                 id,
             }))
@@ -48,9 +53,13 @@ impl BooleanLiteral {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-struct-impl-new_true_literal"}}}
     /// Inter a new BooleanLiteral in the store, and return it's `id`.
-    pub fn new_true_literal(store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<BooleanLiteral>> {
+    pub fn new_true_literal(
+        bogus: bool,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<BooleanLiteral>> {
         store.inter_boolean_literal(|id| {
             Arc::new(RwLock::new(BooleanLiteral {
+                bogus: bogus,
                 subtype: BooleanLiteralEnum::TrueLiteral(TRUE_LITERAL),
                 id,
             }))
@@ -80,7 +89,7 @@ impl BooleanLiteral {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_literal-implementation"}}}
 impl PartialEq for BooleanLiteral {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

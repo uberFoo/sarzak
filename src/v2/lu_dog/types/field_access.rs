@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
+use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
@@ -43,8 +44,8 @@ impl FieldAccess {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(FieldAccess {
             id,
-            expression: expression.borrow().id(),
-            field: field.borrow().id(),
+            expression: expression.borrow().id,
+            field: field.borrow().id,
             woog_struct: woog_struct.borrow().id,
         }));
         store.inter_field_access(new.clone());
@@ -75,7 +76,16 @@ impl FieldAccess {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::FieldAccess(id) = expression.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
