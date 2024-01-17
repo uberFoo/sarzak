@@ -2,12 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::argument::Argument;
 use crate::v2::lu_dog::types::expression::Expression;
-use crate::v2::lu_dog::types::function_call::FUNCTION_CALL;
+use crate::v2::lu_dog::types::function_call::FunctionCall;
 use crate::v2::lu_dog::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog::types::method_call::MethodCall;
 use crate::v2::lu_dog::types::static_method_call::StaticMethodCall;
@@ -50,6 +49,7 @@ impl Call {
         arg_check: bool,
         argument: Option<&Rc<RefCell<Argument>>>,
         expression: Option<&Rc<RefCell<Expression>>>,
+        subtype: &Rc<RefCell<FunctionCall>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Call>> {
         let id = Uuid::new_v4();
@@ -57,7 +57,7 @@ impl Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.borrow().id),
             expression: expression.map(|expression| expression.borrow().id()),
-            subtype: CallEnum::FunctionCall(FUNCTION_CALL),
+            subtype: CallEnum::FunctionCall(subtype.borrow().id), // b
             id,
         }));
         store.inter_call(new.clone());
@@ -129,7 +129,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R81(1-*c)
     pub fn r81_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Argument>>> {
-        span!("r81_argument");
         match self.argument {
             Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
             None => Vec::new(),
@@ -139,7 +138,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-expression"}}}
     /// Navigate to [`Expression`] across R29(1-*c)
     pub fn r29_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r29_expression");
         match self.expression {
             Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
@@ -149,7 +147,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R28(1-M)
     pub fn r28_argument<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Argument>>> {
-        span!("r28_argument");
         store
             .iter_argument()
             .filter(|argument| argument.borrow().function == self.id)
@@ -159,7 +156,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -1,29 +1,50 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"function_call-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-use-statements"}}}
+use std::cell::RefCell;
+use std::rc::Rc;
+use uuid::Uuid;
+
+use crate::v2::lu_dog::types::call::Call;
+use crate::v2::lu_dog::types::call::CallEnum;
 use serde::{Deserialize, Serialize};
-use uuid::{uuid, Uuid};
+
+use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-const-definition"}}}
-pub const FUNCTION_CALL: Uuid = uuid!["e6133810-843b-5dab-90a4-c424232d5205"];
-
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-struct-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct FunctionCall;
-
-impl FunctionCall {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    pub fn id(&self) -> Uuid {
-        FUNCTION_CALL
-    }
+pub struct FunctionCall {
+    pub id: Uuid,
+    pub name: String,
 }
-
-impl Default for FunctionCall {
-    fn default() -> Self {
-        Self::new()
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-implementation"}}}
+impl FunctionCall {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-struct-impl-new"}}}
+    /// Inter a new 'Function Call' in the store, and return it's `id`.
+    pub fn new(name: String, store: &mut LuDogStore) -> Rc<RefCell<FunctionCall>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(FunctionCall { id, name }));
+        store.inter_function_call(new.clone());
+        new
     }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function_call-impl-nav-subtype-to-supertype-call"}}}
+    // Navigate to [`Call`] across R30(isa)
+    pub fn r30_call<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Call>>> {
+        vec![store
+            .iter_call()
+            .find(|call| {
+                if let CallEnum::FunctionCall(id) = call.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::function::Function;
@@ -61,14 +60,12 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-function"}}}
     /// Navigate to [`Function`] across R13(1-*)
     pub fn r13_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
-        span!("r13_function");
         vec![store.exhume_function(&self.function).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Parameter`] across R14(1-*c)
     pub fn r14_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
-        span!("r14_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_parameter(&next).unwrap()],
             None => Vec::new(),
@@ -78,14 +75,12 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R79(1-*)
     pub fn r79_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r79_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-function"}}}
     /// Navigate to [`Function`] across R82(1c-1c)
     pub fn r82c_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
-        span!("r82_function");
         let function = store
             .iter_function()
             .find(|function| function.borrow().first_param == Some(self.id));
@@ -98,7 +93,6 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R14(1c-1c)
     pub fn r14c_parameter<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Parameter>>> {
-        span!("r14_parameter");
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.borrow().next == Some(self.id));
@@ -111,7 +105,6 @@ impl Parameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
     pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Variable>>> {
-        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {

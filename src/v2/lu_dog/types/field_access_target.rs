@@ -8,7 +8,6 @@ use crate::v2::lu_dog::types::function::Function;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -84,7 +83,6 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-nav-backward-1_M-to-field_access"}}}
     /// Navigate to [`FieldAccess`] across R65(1-M)
     pub fn r65_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FieldAccess>>> {
-        span!("r65_field_access");
         store
             .iter_field_access()
             .filter(|field_access| field_access.borrow().field == self.id())

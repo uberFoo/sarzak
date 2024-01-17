@@ -2,11 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::data_structure::DataStructure;
 use crate::v2::lu_dog::types::enum_field::EnumField;
+use crate::v2::lu_dog::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog::types::item::Item;
 use crate::v2::lu_dog::types::item::ItemEnum;
@@ -28,6 +28,9 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct Enumeration {
     pub id: Uuid,
     pub name: String,
+    pub x_path: String,
+    /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
+    pub first_generic: Option<Uuid>,
     /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
     pub implementation: Option<Uuid>,
 }
@@ -38,6 +41,8 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
+        first_generic: Option<&Rc<RefCell<EnumGeneric>>>,
         implementation: Option<&Rc<RefCell<ImplementationBlock>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Enumeration>> {
@@ -45,11 +50,22 @@ impl Enumeration {
         let new = Rc::new(RefCell::new(Enumeration {
             id,
             name,
+            x_path,
+            first_generic: first_generic.map(|enum_generic| enum_generic.borrow().id),
             implementation: implementation
                 .map(|implementation_block| implementation_block.borrow().id),
         }));
         store.inter_enumeration(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R105(1-*c)
+    pub fn r105_enum_generic<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<EnumGeneric>>> {
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_enum_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-implementation"}}}
@@ -58,7 +74,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
-        span!("r84_implementation_block");
         match self.implementation {
             Some(ref implementation) => {
                 vec![store.exhume_implementation_block(&implementation).unwrap()]
@@ -70,10 +85,18 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_field"}}}
     /// Navigate to [`EnumField`] across R88(1-M)
     pub fn r88_enum_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<EnumField>>> {
-        span!("r88_enum_field");
         store
             .iter_enum_field()
             .filter(|enum_field| enum_field.borrow().woog_enum == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R104(1-M)
+    pub fn r104_enum_generic<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<EnumGeneric>>> {
+        store
+            .iter_enum_generic()
+            .filter(|enum_generic| enum_generic.borrow().woog_enum == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -83,14 +106,12 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<DataStructure>>> {
-        span!("r95_data_structure");
         vec![store.exhume_data_structure(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -106,7 +127,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r1_value_type");
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

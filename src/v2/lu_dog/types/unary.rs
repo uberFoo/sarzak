@@ -8,7 +8,6 @@ use crate::v2::lu_dog::types::operator::OperatorEnum;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -50,7 +49,6 @@ impl Unary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-impl-nav-subtype-to-supertype-operator"}}}
     // Navigate to [`Operator`] across R47(isa)
     pub fn r47_operator<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Operator>>> {
-        span!("r47_operator");
         vec![store
             .iter_operator()
             .find(|operator| {

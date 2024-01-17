@@ -19,6 +19,7 @@
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
+//! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -30,6 +31,7 @@
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
 //! * [`Function`]
+//! * [`FunctionCall`]
 //! * [`XFuture`]
 //! * [`Generic`]
 //! * [`Grouped`]
@@ -58,6 +60,7 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
+//! * [`XPlugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`ResultStatement`]
@@ -95,18 +98,19 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
-    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
+    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
+    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR,
-    DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
-    GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
-    OR, PLUGIN, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
+    ASSIGNMENT, CHAR, DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL,
+    GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION,
+    NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -123,6 +127,7 @@ pub struct ObjectStore {
     data_structure: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DataStructure>>>>>,
     dwarf_source_file: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DwarfSourceFile>>>>>,
     enum_field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<EnumField>>>>>,
+    enum_generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<EnumGeneric>>>>>,
     enumeration: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Enumeration>>>>>,
     expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Expression>>>>>,
     expression_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExpressionStatement>>>>>,
@@ -136,6 +141,7 @@ pub struct ObjectStore {
     for_loop: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ForLoop>>>>>,
     function: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Function>>>>>,
     function_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
+    function_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FunctionCall>>>>>,
     x_future: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XFuture>>>>>,
     generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Generic>>>>>,
     grouped: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Grouped>>>>>,
@@ -164,6 +170,7 @@ pub struct ObjectStore {
     x_path: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPath>>>>>,
     path_element: Rc<RefCell<HashMap<Uuid, Rc<RefCell<PathElement>>>>>,
     pattern: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Pattern>>>>>,
+    x_plugin: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPlugin>>>>>,
     x_print: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPrint>>>>>,
     range_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<RangeExpression>>>>>,
     result_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ResultStatement>>>>>,
@@ -203,6 +210,7 @@ impl ObjectStore {
             data_structure: Rc::new(RefCell::new(HashMap::default())),
             dwarf_source_file: Rc::new(RefCell::new(HashMap::default())),
             enum_field: Rc::new(RefCell::new(HashMap::default())),
+            enum_generic: Rc::new(RefCell::new(HashMap::default())),
             enumeration: Rc::new(RefCell::new(HashMap::default())),
             expression: Rc::new(RefCell::new(HashMap::default())),
             expression_statement: Rc::new(RefCell::new(HashMap::default())),
@@ -216,6 +224,7 @@ impl ObjectStore {
             for_loop: Rc::new(RefCell::new(HashMap::default())),
             function: Rc::new(RefCell::new(HashMap::default())),
             function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
+            function_call: Rc::new(RefCell::new(HashMap::default())),
             x_future: Rc::new(RefCell::new(HashMap::default())),
             generic: Rc::new(RefCell::new(HashMap::default())),
             grouped: Rc::new(RefCell::new(HashMap::default())),
@@ -244,6 +253,7 @@ impl ObjectStore {
             x_path: Rc::new(RefCell::new(HashMap::default())),
             path_element: Rc::new(RefCell::new(HashMap::default())),
             pattern: Rc::new(RefCell::new(HashMap::default())),
+            x_plugin: Rc::new(RefCell::new(HashMap::default())),
             x_print: Rc::new(RefCell::new(HashMap::default())),
             range_expression: Rc::new(RefCell::new(HashMap::default())),
             result_statement: Rc::new(RefCell::new(HashMap::default())),
@@ -323,7 +333,6 @@ impl ObjectStore {
         store.inter_unary(Rc::new(RefCell::new(Unary::Not(NOT))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Char(CHAR))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Rc::new(RefCell::new(ValueType::Plugin(PLUGIN))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Range(RANGE))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Task(TASK))));
         store.inter_value_type(Rc::new(RefCell::new(ValueType::Unknown(UNKNOWN))));
@@ -779,6 +788,46 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|enum_field| enum_field.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`EnumGeneric`] into the store.
+    ///
+    pub fn inter_enum_generic(&mut self, enum_generic: Rc<RefCell<EnumGeneric>>) {
+        let read = enum_generic.borrow();
+        self.enum_generic
+            .borrow_mut()
+            .insert(read.id, enum_generic.clone());
+    }
+
+    /// Exhume (get) [`EnumGeneric`] from the store.
+    ///
+    pub fn exhume_enum_generic(&self, id: &Uuid) -> Option<Rc<RefCell<EnumGeneric>>> {
+        self.enum_generic
+            .borrow()
+            .get(id)
+            .map(|enum_generic| enum_generic.clone())
+    }
+
+    /// Exorcise (remove) [`EnumGeneric`] from the store.
+    ///
+    pub fn exorcise_enum_generic(&mut self, id: &Uuid) -> Option<Rc<RefCell<EnumGeneric>>> {
+        self.enum_generic
+            .borrow_mut()
+            .remove(id)
+            .map(|enum_generic| enum_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumGeneric>`.
+    ///
+    pub fn iter_enum_generic(&self) -> impl Iterator<Item = Rc<RefCell<EnumGeneric>>> + '_ {
+        let values: Vec<Rc<RefCell<EnumGeneric>>> = self
+            .enum_generic
+            .borrow()
+            .values()
+            .map(|enum_generic| enum_generic.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -1261,6 +1310,46 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|function| function.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FunctionCall`] into the store.
+    ///
+    pub fn inter_function_call(&mut self, function_call: Rc<RefCell<FunctionCall>>) {
+        let read = function_call.borrow();
+        self.function_call
+            .borrow_mut()
+            .insert(read.id, function_call.clone());
+    }
+
+    /// Exhume (get) [`FunctionCall`] from the store.
+    ///
+    pub fn exhume_function_call(&self, id: &Uuid) -> Option<Rc<RefCell<FunctionCall>>> {
+        self.function_call
+            .borrow()
+            .get(id)
+            .map(|function_call| function_call.clone())
+    }
+
+    /// Exorcise (remove) [`FunctionCall`] from the store.
+    ///
+    pub fn exorcise_function_call(&mut self, id: &Uuid) -> Option<Rc<RefCell<FunctionCall>>> {
+        self.function_call
+            .borrow_mut()
+            .remove(id)
+            .map(|function_call| function_call.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FunctionCall>`.
+    ///
+    pub fn iter_function_call(&self) -> impl Iterator<Item = Rc<RefCell<FunctionCall>>> + '_ {
+        let values: Vec<Rc<RefCell<FunctionCall>>> = self
+            .function_call
+            .borrow()
+            .values()
+            .map(|function_call| function_call.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2330,6 +2419,44 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`XPlugin`] into the store.
+    ///
+    pub fn inter_x_plugin(&mut self, x_plugin: Rc<RefCell<XPlugin>>) {
+        let read = x_plugin.borrow();
+        self.x_plugin.borrow_mut().insert(read.id, x_plugin.clone());
+    }
+
+    /// Exhume (get) [`XPlugin`] from the store.
+    ///
+    pub fn exhume_x_plugin(&self, id: &Uuid) -> Option<Rc<RefCell<XPlugin>>> {
+        self.x_plugin
+            .borrow()
+            .get(id)
+            .map(|x_plugin| x_plugin.clone())
+    }
+
+    /// Exorcise (remove) [`XPlugin`] from the store.
+    ///
+    pub fn exorcise_x_plugin(&mut self, id: &Uuid) -> Option<Rc<RefCell<XPlugin>>> {
+        self.x_plugin
+            .borrow_mut()
+            .remove(id)
+            .map(|x_plugin| x_plugin.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
+    ///
+    pub fn iter_x_plugin(&self) -> impl Iterator<Item = Rc<RefCell<XPlugin>>> + '_ {
+        let values: Vec<Rc<RefCell<XPlugin>>> = self
+            .x_plugin
+            .borrow()
+            .values()
+            .map(|x_plugin| x_plugin.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`XPrint`] into the store.
     ///
     pub fn inter_x_print(&mut self, x_print: Rc<RefCell<XPrint>>) {
@@ -3346,6 +3473,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            fs::create_dir_all(&path)?;
+            for enum_generic in self.enum_generic.borrow().values() {
+                let path = path.join(format!("{}.json", enum_generic.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &enum_generic)?;
+            }
+        }
+
         // Persist Enumeration.
         {
             let path = path.join("enumeration");
@@ -3475,6 +3614,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &function)?;
+            }
+        }
+
+        // Persist Function Call.
+        {
+            let path = path.join("function_call");
+            fs::create_dir_all(&path)?;
+            for function_call in self.function_call.borrow().values() {
+                let path = path.join(format!("{}.json", function_call.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &function_call)?;
             }
         }
 
@@ -3811,6 +3962,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &pattern)?;
+            }
+        }
+
+        // Persist Plugin.
+        {
+            let path = path.join("x_plugin");
+            fs::create_dir_all(&path)?;
+            for x_plugin in self.x_plugin.borrow().values() {
+                let path = path.join(format!("{}.json", x_plugin.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_plugin)?;
             }
         }
 
@@ -4299,6 +4462,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let enum_generic: Rc<RefCell<EnumGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .enum_generic
+                    .borrow_mut()
+                    .insert(enum_generic.borrow().id, enum_generic.clone());
+            }
+        }
+
         // Load Enumeration.
         {
             let path = path.join("enumeration");
@@ -4495,6 +4675,23 @@ impl ObjectStore {
                     .function
                     .borrow_mut()
                     .insert(function.borrow().id, function.clone());
+            }
+        }
+
+        // Load Function Call.
+        {
+            let path = path.join("function_call");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let function_call: Rc<RefCell<FunctionCall>> = serde_json::from_reader(reader)?;
+                store
+                    .function_call
+                    .borrow_mut()
+                    .insert(function_call.borrow().id, function_call.clone());
             }
         }
 
@@ -4974,6 +5171,23 @@ impl ObjectStore {
                     .pattern
                     .borrow_mut()
                     .insert(pattern.borrow().id, pattern.clone());
+            }
+        }
+
+        // Load Plugin.
+        {
+            let path = path.join("x_plugin");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_plugin: Rc<RefCell<XPlugin>> = serde_json::from_reader(reader)?;
+                store
+                    .x_plugin
+                    .borrow_mut()
+                    .insert(x_plugin.borrow().id, x_plugin.clone());
             }
         }
 

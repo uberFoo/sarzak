@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::x_path::XPath;
@@ -50,7 +49,6 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`PathElement`] across R89(1-*c)
     pub fn r89_path_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r89_path_element");
         match self.next {
             Some(ref next) => vec![store.exhume_path_element(&next).unwrap()],
             None => Vec::new(),
@@ -60,14 +58,12 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-forward-to-x_path"}}}
     /// Navigate to [`XPath`] across R90(1-*)
     pub fn r90_x_path<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XPath>>> {
-        span!("r90_x_path");
         vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-backward-one-to-x_path"}}}
     /// Navigate to [`XPath`] across R97(1-1)
     pub fn r97_x_path<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<XPath>>> {
-        span!("r97_x_path");
         vec![store
             .iter_x_path()
             .find(|x_path| x_path.borrow().first == Some(self.id))
@@ -77,7 +73,6 @@ impl PathElement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"path_element-struct-impl-nav-backward-one-bi-cond-to-path_element"}}}
     /// Navigate to [`PathElement`] across R89(1c-1c)
     pub fn r89c_path_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r89_path_element");
         let path_element = store
             .iter_path_element()
             .find(|path_element| path_element.borrow().next == Some(self.id));

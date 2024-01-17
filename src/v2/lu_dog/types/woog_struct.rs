@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::data_structure::DataStructure;
@@ -31,6 +30,7 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: Uuid,
     pub name: String,
+    pub x_path: String,
     /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
     pub first_generic: Option<Uuid>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
@@ -43,6 +43,7 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
         first_generic: Option<&Rc<RefCell<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogStore,
@@ -51,6 +52,7 @@ impl WoogStruct {
         let new = Rc::new(RefCell::new(WoogStruct {
             id,
             name,
+            x_path,
             first_generic: first_generic.map(|struct_generic| struct_generic.borrow().id),
             object: object.as_ref().map(|object| object.id),
         }));
@@ -64,7 +66,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<StructGeneric>>> {
-        span!("r102_struct_generic");
         match self.first_generic {
             Some(ref first_generic) => vec![store.exhume_struct_generic(&first_generic).unwrap()],
             None => Vec::new(),
@@ -77,7 +78,6 @@ impl WoogStruct {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(&object).unwrap()],
             None => Vec::new(),
@@ -87,7 +87,6 @@ impl WoogStruct {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R7(1-M)
     pub fn r7_field<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Field>>> {
-        span!("r7_field");
         store
             .iter_field()
             .filter(|field| field.borrow().x_model == self.id)
@@ -97,7 +96,6 @@ impl WoogStruct {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-field_access"}}}
     /// Navigate to [`FieldAccess`] across R66(1-M)
     pub fn r66_field_access<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FieldAccess>>> {
-        span!("r66_field_access");
         store
             .iter_field_access()
             .filter(|field_access| field_access.borrow().woog_struct == self.id)
@@ -112,7 +110,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
-        span!("r8_implementation_block");
         let implementation_block = store
             .iter_implementation_block()
             .find(|implementation_block| implementation_block.borrow().model_type == Some(self.id));
@@ -129,7 +126,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<StructGeneric>>> {
-        span!("r100_struct_generic");
         store
             .iter_struct_generic()
             .filter(|struct_generic| struct_generic.borrow().woog_struct == self.id)
@@ -142,14 +138,12 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<DataStructure>>> {
-        span!("r95_data_structure");
         vec![store.exhume_data_structure(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -165,7 +159,6 @@ impl WoogStruct {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r1_value_type");
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

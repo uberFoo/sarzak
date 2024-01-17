@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
@@ -49,7 +48,6 @@ impl XPath {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-struct-impl-nav-forward-cond-to-first"}}}
     /// Navigate to [`PathElement`] across R97(1-*c)
     pub fn r97_path_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r97_path_element");
         match self.first {
             Some(ref first) => vec![store.exhume_path_element(&first).unwrap()],
             None => Vec::new(),
@@ -59,7 +57,6 @@ impl XPath {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-struct-impl-nav-backward-1_M-to-path_element"}}}
     /// Navigate to [`PathElement`] across R90(1-M)
     pub fn r90_path_element<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<PathElement>>> {
-        span!("r90_path_element");
         store
             .iter_path_element()
             .filter(|path_element| path_element.borrow().x_path == self.id)
@@ -72,7 +69,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<StructExpression>>> {
-        span!("r96_struct_expression");
         store
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.borrow().x_path == self.id)
@@ -82,7 +78,6 @@ impl XPath {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-impl-nav-subtype-to-supertype-expression"}}}
     // Navigate to [`Expression`] across R15(isa)
     pub fn r15_expression<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Expression>>> {
-        span!("r15_expression");
         vec![store.exhume_expression(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

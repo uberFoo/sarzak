@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::enumeration::Enumeration;
@@ -104,7 +103,6 @@ impl EnumField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-nav-forward-to-woog_enum"}}}
     /// Navigate to [`Enumeration`] across R88(1-*)
     pub fn r88_enumeration<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Enumeration>>> {
-        span!("r88_enumeration");
         vec![store.exhume_enumeration(&self.woog_enum).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
@@ -116,7 +114,6 @@ impl EnumField {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         vec![store.exhume_field_access_target(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

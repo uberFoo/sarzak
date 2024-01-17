@@ -7,7 +7,6 @@ use crate::v2::lu_dog::types::or::OR;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -51,7 +50,6 @@ impl BooleanOperator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-impl-nav-subtype-to-supertype-binary"}}}
     // Navigate to [`Binary`] across R48(isa)
     pub fn r48_binary<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Binary>>> {
-        span!("r48_binary");
         vec![store.exhume_binary(&self.id()).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

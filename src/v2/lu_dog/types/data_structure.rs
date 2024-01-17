@@ -7,7 +7,6 @@ use crate::v2::lu_dog::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -66,7 +65,6 @@ impl DataStructure {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<StructExpression>>> {
-        span!("r39_struct_expression");
         store
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.borrow().data == self.id())

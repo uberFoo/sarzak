@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::lambda::Lambda;
@@ -57,7 +56,6 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-to-lambda"}}}
     /// Navigate to [`Lambda`] across R76(1-*)
     pub fn r76_lambda<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Lambda>>> {
-        span!("r76_lambda");
         vec![store.exhume_lambda(&self.lambda).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -67,7 +65,6 @@ impl LambdaParameter {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<LambdaParameter>>> {
-        span!("r75_lambda_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_lambda_parameter(&next).unwrap()],
             None => Vec::new(),
@@ -77,11 +74,19 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-cond-to-ty"}}}
     /// Navigate to [`ValueType`] across R77(1-*c)
     pub fn r77_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r77_value_type");
         match self.ty {
             Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R103(1-1)
+    pub fn r103_lambda<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Lambda>>> {
+        vec![store
+            .iter_lambda()
+            .find(|lambda| lambda.borrow().first_param == Some(self.id))
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-bi-cond-to-lambda_parameter"}}}
@@ -90,7 +95,6 @@ impl LambdaParameter {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<LambdaParameter>>> {
-        span!("r75_lambda_parameter");
         let lambda_parameter = store
             .iter_lambda_parameter()
             .find(|lambda_parameter| lambda_parameter.borrow().next == Some(self.id));
@@ -103,7 +107,6 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
     pub fn r12_variable<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Variable>>> {
-        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {

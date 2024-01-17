@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::block::Block;
@@ -130,14 +129,12 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R18(1-*)
     pub fn r18_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r18_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-cond-to-next"}}}
     /// Navigate to [`Statement`] across R17(1-*c)
     pub fn r17_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
-        span!("r17_statement");
         match self.next {
             Some(ref next) => vec![store.exhume_statement(&next).unwrap()],
             None => Vec::new(),
@@ -147,7 +144,6 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-block"}}}
     /// Navigate to [`Block`] across R71(1c-1c)
     pub fn r71c_block<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Block>>> {
-        span!("r71_block");
         let block = store
             .iter_block()
             .find(|block| block.borrow().statement == Some(self.id));
@@ -160,7 +156,6 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-backward-one-bi-cond-to-statement"}}}
     /// Navigate to [`Statement`] across R17(1c-1c)
     pub fn r17c_statement<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Statement>>> {
-        span!("r17_statement");
         let statement = store
             .iter_statement()
             .find(|statement| statement.borrow().next == Some(self.id));

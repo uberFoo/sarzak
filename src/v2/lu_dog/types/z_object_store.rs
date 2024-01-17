@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-use-statements"}}}
 use std::cell::RefCell;
 use std::rc::Rc;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::implementation_block::ImplementationBlock;
@@ -44,7 +43,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
-        span!("r83_implementation_block");
         let implementation_block = store
             .iter_implementation_block()
             .find(|implementation_block| {
@@ -62,7 +60,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogStore,
     ) -> Vec<Rc<RefCell<ObjectWrapper>>> {
-        span!("r78_object_wrapper");
         store
             .iter_object_wrapper()
             .filter(|object_wrapper| object_wrapper.borrow().z_store == self.id)
@@ -72,7 +69,6 @@ impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<ValueType>>> {
-        span!("r1_value_type");
         vec![store.exhume_value_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
