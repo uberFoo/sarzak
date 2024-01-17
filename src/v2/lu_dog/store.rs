@@ -107,7 +107,7 @@ use crate::v2::lu_dog::types::{
     RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, NEGATION, NOT,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -194,7 +194,7 @@ pub struct ObjectStore {
 
 impl ObjectStore {
     pub fn new() -> Self {
-        let mut store = Self {
+        let store = Self {
             argument: Rc::new(RefCell::new(HashMap::default())),
             a_wait: Rc::new(RefCell::new(HashMap::default())),
             binary: Rc::new(RefCell::new(HashMap::default())),
@@ -279,8 +279,6 @@ impl ObjectStore {
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_unary(Rc::new(RefCell::new(Unary::Negation(NEGATION))));
-        store.inter_unary(Rc::new(RefCell::new(Unary::Not(NOT))));
 
         store
     }
@@ -2973,7 +2971,7 @@ impl ObjectStore {
     ///
     pub fn inter_unary(&mut self, unary: Rc<RefCell<Unary>>) {
         let read = unary.borrow();
-        self.unary.borrow_mut().insert(read.id(), unary.clone());
+        self.unary.borrow_mut().insert(read.id, unary.clone());
     }
 
     /// Exhume (get) [`Unary`] from the store.
@@ -4095,7 +4093,7 @@ impl ObjectStore {
             let path = path.join("unary");
             fs::create_dir_all(&path)?;
             for unary in self.unary.borrow().values() {
-                let path = path.join(format!("{}.json", unary.borrow().id()));
+                let path = path.join(format!("{}.json", unary.borrow().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &unary)?;
@@ -5395,7 +5393,7 @@ impl ObjectStore {
                 store
                     .unary
                     .borrow_mut()
-                    .insert(unary.borrow().id(), unary.clone());
+                    .insert(unary.borrow().id, unary.clone());
             }
         }
 

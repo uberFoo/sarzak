@@ -92,7 +92,7 @@ impl Operator {
         let new = Rc::new(RefCell::new(Operator {
             lhs: lhs.borrow().id,
             rhs: rhs.map(|expression| expression.borrow().id),
-            subtype: OperatorEnum::Unary(subtype.borrow().id()), // b
+            subtype: OperatorEnum::Unary(subtype.borrow().id), // b
             id,
         }));
         store.inter_operator(new.clone());

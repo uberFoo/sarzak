@@ -437,18 +437,6 @@ impl ObjectStore {
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_unary(|id| {
-            Rc::new(RefCell::new(Unary {
-                subtype: super::UnaryEnum::Negation(NEGATION),
-                id,
-            }))
-        });
-        store.inter_unary(|id| {
-            Rc::new(RefCell::new(Unary {
-                subtype: super::UnaryEnum::Not(NOT),
-                id,
-            }))
-        });
 
         store
     }

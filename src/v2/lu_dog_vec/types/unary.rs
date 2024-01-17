@@ -21,6 +21,7 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Unary {
     pub subtype: UnaryEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -35,9 +36,10 @@ pub enum UnaryEnum {
 impl Unary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-struct-impl-new_negation"}}}
     /// Inter a new Unary in the store, and return it's `id`.
-    pub fn new_negation(store: &mut LuDogVecStore) -> Rc<RefCell<Unary>> {
+    pub fn new_negation(bogus: bool, store: &mut LuDogVecStore) -> Rc<RefCell<Unary>> {
         store.inter_unary(|id| {
             Rc::new(RefCell::new(Unary {
+                bogus: bogus,
                 subtype: UnaryEnum::Negation(NEGATION),
                 id,
             }))
@@ -46,9 +48,10 @@ impl Unary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-struct-impl-new_not"}}}
     /// Inter a new Unary in the store, and return it's `id`.
-    pub fn new_not(store: &mut LuDogVecStore) -> Rc<RefCell<Unary>> {
+    pub fn new_not(bogus: bool, store: &mut LuDogVecStore) -> Rc<RefCell<Unary>> {
         store.inter_unary(|id| {
             Rc::new(RefCell::new(Unary {
+                bogus: bogus,
                 subtype: UnaryEnum::Not(NOT),
                 id,
             }))
@@ -75,7 +78,7 @@ impl Unary {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-implementation"}}}
 impl PartialEq for Unary {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -250,6 +250,7 @@ pub use crate::v2::lu_dog::true_literal::TRUE_LITERAL;
 pub use crate::v2::lu_dog::tuple_field::TupleField;
 pub use crate::v2::lu_dog::type_cast::TypeCast;
 pub use crate::v2::lu_dog::unary::Unary;
+pub use crate::v2::lu_dog::unary::UnaryEnum;
 pub use crate::v2::lu_dog::unit::Unit;
 pub use crate::v2::lu_dog::unknown::Unknown;
 pub use crate::v2::lu_dog::unknown::UNKNOWN;
