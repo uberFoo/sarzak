@@ -8,7 +8,6 @@ use crate::v2::lu_dog::types::a_wait::AWait;
 use crate::v2::lu_dog::types::argument::Argument;
 use crate::v2::lu_dog::types::block::Block;
 use crate::v2::lu_dog::types::call::Call;
-use crate::v2::lu_dog::types::debugger::DEBUGGER;
 use crate::v2::lu_dog::types::empty_expression::EMPTY_EXPRESSION;
 use crate::v2::lu_dog::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog::types::field_access::FieldAccess;
@@ -28,6 +27,7 @@ use crate::v2::lu_dog::types::result_statement::ResultStatement;
 use crate::v2::lu_dog::types::struct_expression::StructExpression;
 use crate::v2::lu_dog::types::type_cast::TypeCast;
 use crate::v2::lu_dog::types::variable_expression::VariableExpression;
+use crate::v2::lu_dog::types::x_debugger::X_DEBUGGER;
 use crate::v2::lu_dog::types::x_if::XIf;
 use crate::v2::lu_dog::types::x_match::XMatch;
 use crate::v2::lu_dog::types::x_path::XPath;
@@ -62,7 +62,7 @@ pub enum ExpressionEnum {
     AWait(Uuid),
     Block(Uuid),
     Call(Uuid),
-    Debugger(Uuid),
+    XDebugger(Uuid),
     EmptyExpression(Uuid),
     FieldAccess(Uuid),
     FieldExpression(Uuid),
@@ -140,12 +140,13 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_debugger"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_debugger"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_debugger(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Expression>> {
+    pub fn new_x_debugger(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<Expression>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(Expression {
             bogus: bogus,
-            subtype: ExpressionEnum::Debugger(DEBUGGER),
+            subtype: ExpressionEnum::XDebugger(X_DEBUGGER),
             id,
         }));
         store.inter_expression(new.clone());

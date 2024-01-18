@@ -9,7 +9,6 @@ use crate::v2::lu_dog_vec_tracy::types::a_wait::AWait;
 use crate::v2::lu_dog_vec_tracy::types::argument::Argument;
 use crate::v2::lu_dog_vec_tracy::types::block::Block;
 use crate::v2::lu_dog_vec_tracy::types::call::Call;
-use crate::v2::lu_dog_vec_tracy::types::debugger::DEBUGGER;
 use crate::v2::lu_dog_vec_tracy::types::empty_expression::EMPTY_EXPRESSION;
 use crate::v2::lu_dog_vec_tracy::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_vec_tracy::types::field_access::FieldAccess;
@@ -29,6 +28,7 @@ use crate::v2::lu_dog_vec_tracy::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_vec_tracy::types::struct_expression::StructExpression;
 use crate::v2::lu_dog_vec_tracy::types::type_cast::TypeCast;
 use crate::v2::lu_dog_vec_tracy::types::variable_expression::VariableExpression;
+use crate::v2::lu_dog_vec_tracy::types::x_debugger::X_DEBUGGER;
 use crate::v2::lu_dog_vec_tracy::types::x_if::XIf;
 use crate::v2::lu_dog_vec_tracy::types::x_match::XMatch;
 use crate::v2::lu_dog_vec_tracy::types::x_path::XPath;
@@ -61,7 +61,7 @@ pub enum ExpressionEnum {
     AWait(usize),
     Block(usize),
     Call(usize),
-    Debugger(Uuid),
+    XDebugger(Uuid),
     EmptyExpression(Uuid),
     FieldAccess(usize),
     FieldExpression(usize),
@@ -135,12 +135,13 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_debugger"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_debugger"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub fn new_debugger(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<Expression>> {
+    pub fn new_x_debugger(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<Expression>> {
         store.inter_expression(|id| {
             Rc::new(RefCell::new(Expression {
                 bogus: bogus,
-                subtype: ExpressionEnum::Debugger(DEBUGGER),
+                subtype: ExpressionEnum::XDebugger(X_DEBUGGER),
                 id,
             }))
         })
