@@ -170,6 +170,7 @@ pub struct ObjectStore {
     path_element: Rc<RefCell<HashMap<Uuid, Rc<RefCell<PathElement>>>>>,
     pattern: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Pattern>>>>>,
     x_plugin: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPlugin>>>>>,
+    x_plugin_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     x_print: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XPrint>>>>>,
     range_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<RangeExpression>>>>>,
     result_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ResultStatement>>>>>,
@@ -255,6 +256,7 @@ impl ObjectStore {
             path_element: Rc::new(RefCell::new(HashMap::default())),
             pattern: Rc::new(RefCell::new(HashMap::default())),
             x_plugin: Rc::new(RefCell::new(HashMap::default())),
+            x_plugin_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             x_print: Rc::new(RefCell::new(HashMap::default())),
             range_expression: Rc::new(RefCell::new(HashMap::default())),
             result_statement: Rc::new(RefCell::new(HashMap::default())),
@@ -2394,6 +2396,9 @@ impl ObjectStore {
     ///
     pub fn inter_x_plugin(&mut self, x_plugin: Rc<RefCell<XPlugin>>) {
         let read = x_plugin.borrow();
+        self.x_plugin_id_by_name
+            .borrow_mut()
+            .insert(read.name.to_upper_camel_case(), read.id);
         self.x_plugin.borrow_mut().insert(read.id, x_plugin.clone());
     }
 
@@ -2413,6 +2418,15 @@ impl ObjectStore {
             .borrow_mut()
             .remove(id)
             .map(|x_plugin| x_plugin.clone())
+    }
+
+    /// Exhume [`XPlugin`] id from the store by name.
+    ///
+    pub fn exhume_x_plugin_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.x_plugin_id_by_name
+            .borrow()
+            .get(name)
+            .map(|x_plugin| *x_plugin)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
@@ -5163,6 +5177,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_plugin: Rc<RefCell<XPlugin>> = serde_json::from_reader(reader)?;
+                store.x_plugin_id_by_name.borrow_mut().insert(
+                    x_plugin.borrow().name.to_upper_camel_case(),
+                    x_plugin.borrow().id,
+                );
                 store
                     .x_plugin
                     .borrow_mut()

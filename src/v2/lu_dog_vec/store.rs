@@ -228,6 +228,7 @@ pub struct ObjectStore {
     pattern: Vec<Option<Rc<RefCell<Pattern>>>>,
     x_plugin_free_list: Vec<usize>,
     x_plugin: Vec<Option<Rc<RefCell<XPlugin>>>>,
+    x_plugin_id_by_name: HashMap<String, usize>,
     x_print_free_list: Vec<usize>,
     x_print: Vec<Option<Rc<RefCell<XPrint>>>>,
     range_expression_free_list: Vec<usize>,
@@ -388,6 +389,7 @@ impl ObjectStore {
             pattern: Vec::new(),
             x_plugin_free_list: Vec::new(),
             x_plugin: Vec::new(),
+            x_plugin_id_by_name: HashMap::default(),
             x_print_free_list: Vec::new(),
             x_print: Vec::new(),
             range_expression_free_list: Vec::new(),
@@ -4306,7 +4308,7 @@ impl ObjectStore {
 
         let x_plugin = x_plugin(_index);
 
-        if let Some(Some(x_plugin)) = self.x_plugin.iter().find(|stored| {
+        let x_plugin = if let Some(Some(x_plugin)) = self.x_plugin.iter().find(|stored| {
             if let Some(stored) = stored {
                 *stored.borrow() == *x_plugin.borrow()
             } else {
@@ -4320,7 +4322,10 @@ impl ObjectStore {
             log::debug!(target: "store", "interring {x_plugin:?}.");
             self.x_plugin[_index] = Some(x_plugin.clone());
             x_plugin
-        }
+        };
+        self.x_plugin_id_by_name
+            .insert(x_plugin.borrow().name.to_owned(), x_plugin.borrow().id);
+        x_plugin
     }
 
     /// Exhume (get) [`XPlugin`] from the store.
@@ -4341,6 +4346,13 @@ impl ObjectStore {
         let result = self.x_plugin[*id].take();
         self.x_plugin_free_list.push(*id);
         result
+    }
+
+    /// Exorcise [`XPlugin`] id from the store by name.
+    ///
+    #[inline]
+    pub fn exhume_x_plugin_id_by_name(&self, name: &str) -> Option<usize> {
+        self.x_plugin_id_by_name.get(name).map(|x_plugin| *x_plugin)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
@@ -7868,6 +7880,9 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_plugin: Rc<RefCell<XPlugin>> = serde_json::from_reader(reader)?;
+                store
+                    .x_plugin_id_by_name
+                    .insert(x_plugin.borrow().name.to_owned(), x_plugin.borrow().id);
                 store
                     .x_plugin
                     .insert(x_plugin.borrow().id, Some(x_plugin.clone()));

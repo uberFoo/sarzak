@@ -228,6 +228,7 @@ pub struct ObjectStore {
     pattern: Arc<RwLock<Vec<Option<Arc<RwLock<Pattern>>>>>>,
     x_plugin_free_list: std::sync::Mutex<Vec<usize>>,
     x_plugin: Arc<RwLock<Vec<Option<Arc<RwLock<XPlugin>>>>>>,
+    x_plugin_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
     x_print_free_list: std::sync::Mutex<Vec<usize>>,
     x_print: Arc<RwLock<Vec<Option<Arc<RwLock<XPrint>>>>>>,
     range_expression_free_list: std::sync::Mutex<Vec<usize>>,
@@ -388,6 +389,7 @@ impl ObjectStore {
             pattern: Arc::new(RwLock::new(Vec::new())),
             x_plugin_free_list: std::sync::Mutex::new(Vec::new()),
             x_plugin: Arc::new(RwLock::new(Vec::new())),
+            x_plugin_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             x_print_free_list: std::sync::Mutex::new(Vec::new()),
             x_print: Arc::new(RwLock::new(Vec::new())),
             range_expression_free_list: std::sync::Mutex::new(Vec::new()),
@@ -4776,7 +4778,7 @@ impl ObjectStore {
             None
         };
 
-        if let Some(x_plugin) = found {
+        let x_plugin = if let Some(x_plugin) = found {
             log::debug!(target: "store", "found duplicate {x_plugin:?}.");
             self.x_plugin_free_list.lock().unwrap().push(_index);
             x_plugin.clone()
@@ -4784,7 +4786,12 @@ impl ObjectStore {
             log::debug!(target: "store", "interring {x_plugin:?}.");
             self.x_plugin.write().unwrap()[_index] = Some(x_plugin.clone());
             x_plugin
-        }
+        };
+        self.x_plugin_id_by_name.write().unwrap().insert(
+            x_plugin.read().unwrap().name.to_owned(),
+            x_plugin.read().unwrap().id,
+        );
+        x_plugin
     }
 
     /// Exhume (get) [`XPlugin`] from the store.
@@ -4805,6 +4812,17 @@ impl ObjectStore {
         let result = self.x_plugin.write().unwrap()[*id].take();
         self.x_plugin_free_list.lock().unwrap().push(*id);
         result
+    }
+
+    /// Exorcise [`XPlugin`] id from the store by name.
+    ///
+    #[inline]
+    pub fn exhume_x_plugin_id_by_name(&self, name: &str) -> Option<usize> {
+        self.x_plugin_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|x_plugin| *x_plugin)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
@@ -8635,6 +8653,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let x_plugin: Arc<RwLock<XPlugin>> = serde_json::from_reader(reader)?;
+                store.x_plugin_id_by_name.write().unwrap().insert(
+                    x_plugin.read().unwrap().name.to_owned(),
+                    x_plugin.read().unwrap().id,
+                );
                 store
                     .x_plugin
                     .write()
