@@ -20,17 +20,23 @@ use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
 pub struct XPlugin {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-implementation"}}}
 impl XPlugin {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-struct-impl-new"}}}
     /// Inter a new 'Plugin' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut LuDogRwlockVecStore) -> Arc<RwLock<XPlugin>> {
+    pub fn new(
+        name: String,
+        x_path: String,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<XPlugin>> {
         store.inter_x_plugin(|id| {
             Arc::new(RwLock::new(XPlugin {
                 id,
                 name: name.to_owned(),
+                x_path: x_path.to_owned(),
             }))
         })
     }
@@ -58,7 +64,7 @@ impl XPlugin {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-implementation"}}}
 impl PartialEq for XPlugin {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.name == other.name && self.x_path == other.x_path
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

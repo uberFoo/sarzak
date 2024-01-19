@@ -20,15 +20,16 @@ use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
 pub struct XPlugin {
     pub id: Uuid,
     pub name: String,
+    pub x_path: String,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-implementation"}}}
 impl XPlugin {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-struct-impl-new"}}}
     /// Inter a new 'Plugin' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut LuDogStore) -> Rc<RefCell<XPlugin>> {
+    pub fn new(name: String, x_path: String, store: &mut LuDogStore) -> Rc<RefCell<XPlugin>> {
         let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(XPlugin { id, name }));
+        let new = Rc::new(RefCell::new(XPlugin { id, name, x_path }));
         store.inter_x_plugin(new.clone());
         new
     }

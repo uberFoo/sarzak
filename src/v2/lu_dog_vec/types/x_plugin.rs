@@ -20,17 +20,19 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 pub struct XPlugin {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-implementation"}}}
 impl XPlugin {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-struct-impl-new"}}}
     /// Inter a new 'Plugin' in the store, and return it's `id`.
-    pub fn new(name: String, store: &mut LuDogVecStore) -> Rc<RefCell<XPlugin>> {
+    pub fn new(name: String, x_path: String, store: &mut LuDogVecStore) -> Rc<RefCell<XPlugin>> {
         store.inter_x_plugin(|id| {
             Rc::new(RefCell::new(XPlugin {
                 id,
                 name: name.to_owned(),
+                x_path: x_path.to_owned(),
             }))
         })
     }
@@ -55,7 +57,7 @@ impl XPlugin {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_plugin-implementation"}}}
 impl PartialEq for XPlugin {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.name == other.name && self.x_path == other.x_path
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
