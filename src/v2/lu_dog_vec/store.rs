@@ -33,7 +33,6 @@
 //! * [`Function`]
 //! * [`FunctionCall`]
 //! * [`XFuture`]
-//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -100,18 +99,17 @@ use crate::v2::lu_dog_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL,
-    MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO,
-    TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
+    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
+    FALSE_LITERAL, FROM, FULL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT,
+    LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -171,8 +169,6 @@ pub struct ObjectStore {
     function_call: Vec<Option<Rc<RefCell<FunctionCall>>>>,
     x_future_free_list: Vec<usize>,
     x_future: Vec<Option<Rc<RefCell<XFuture>>>>,
-    generic_free_list: Vec<usize>,
-    generic: Vec<Option<Rc<RefCell<Generic>>>>,
     grouped_free_list: Vec<usize>,
     grouped: Vec<Option<Rc<RefCell<Grouped>>>>,
     x_if_free_list: Vec<usize>,
@@ -332,8 +328,6 @@ impl ObjectStore {
             function_call: Vec::new(),
             x_future_free_list: Vec::new(),
             x_future: Vec::new(),
-            generic_free_list: Vec::new(),
-            generic: Vec::new(),
             grouped_free_list: Vec::new(),
             grouped: Vec::new(),
             x_if_free_list: Vec::new(),
@@ -2346,77 +2340,6 @@ impl ObjectStore {
                 self.x_future[i]
                     .as_ref()
                     .map(|x_future| x_future.clone())
-                    .unwrap()
-            })
-    }
-
-    /// Inter (insert) [`Generic`] into the store.
-    ///
-    #[inline]
-    pub fn inter_generic<F>(&mut self, generic: F) -> Rc<RefCell<Generic>>
-    where
-        F: Fn(usize) -> Rc<RefCell<Generic>>,
-    {
-        let _index = if let Some(_index) = self.generic_free_list.pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.generic.len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.generic.push(None);
-            _index
-        };
-
-        let generic = generic(_index);
-
-        if let Some(Some(generic)) = self.generic.iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.borrow() == *generic.borrow()
-            } else {
-                false
-            }
-        }) {
-            log::debug!(target: "store", "found duplicate {generic:?}.");
-            self.generic_free_list.push(_index);
-            generic.clone()
-        } else {
-            log::debug!(target: "store", "interring {generic:?}.");
-            self.generic[_index] = Some(generic.clone());
-            generic
-        }
-    }
-
-    /// Exhume (get) [`Generic`] from the store.
-    ///
-    #[inline]
-    pub fn exhume_generic(&self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
-        match self.generic.get(*id) {
-            Some(generic) => generic.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`Generic`] from the store.
-    ///
-    #[inline]
-    pub fn exorcise_generic(&mut self, id: &usize) -> Option<Rc<RefCell<Generic>>> {
-        log::debug!(target: "store", "exorcising generic slot: {id}.");
-        let result = self.generic[*id].take();
-        self.generic_free_list.push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
-    ///
-    #[inline]
-    pub fn iter_generic(&self) -> impl Iterator<Item = Rc<RefCell<Generic>>> + '_ {
-        let len = self.generic.len();
-        (0..len)
-            .filter(|i| self.generic[*i].is_some())
-            .map(move |i| {
-                self.generic[i]
-                    .as_ref()
-                    .map(|generic| generic.clone())
                     .unwrap()
             })
     }
@@ -6296,20 +6219,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Generic.
-        {
-            let path = path.join("generic");
-            fs::create_dir_all(&path)?;
-            for generic in &self.generic {
-                if let Some(generic) = generic {
-                    let path = path.join(format!("{}.json", generic.borrow().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &generic)?;
-                }
-            }
-        }
-
         // Persist Grouped.
         {
             let path = path.join("grouped");
@@ -7434,22 +7343,6 @@ impl ObjectStore {
                 store
                     .x_future
                     .insert(x_future.borrow().id, Some(x_future.clone()));
-            }
-        }
-
-        // Load Generic.
-        {
-            let path = path.join("generic");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let generic: Rc<RefCell<Generic>> = serde_json::from_reader(reader)?;
-                store
-                    .generic
-                    .insert(generic.borrow().id, Some(generic.clone()));
             }
         }
 

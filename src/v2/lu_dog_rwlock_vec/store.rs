@@ -33,7 +33,6 @@
 //! * [`Function`]
 //! * [`FunctionCall`]
 //! * [`XFuture`]
-//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -100,18 +99,17 @@ use crate::v2::lu_dog_rwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
-    GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL,
-    MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO,
-    TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
+    ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL,
+    FALSE_LITERAL, FROM, FULL, GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT,
+    LESS_THAN, LESS_THAN_OR_EQUAL, MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE,
+    SUBTRACTION, TASK, TO, TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -171,8 +169,6 @@ pub struct ObjectStore {
     function_call: Arc<RwLock<Vec<Option<Arc<RwLock<FunctionCall>>>>>>,
     x_future_free_list: std::sync::Mutex<Vec<usize>>,
     x_future: Arc<RwLock<Vec<Option<Arc<RwLock<XFuture>>>>>>,
-    generic_free_list: std::sync::Mutex<Vec<usize>>,
-    generic: Arc<RwLock<Vec<Option<Arc<RwLock<Generic>>>>>>,
     grouped_free_list: std::sync::Mutex<Vec<usize>>,
     grouped: Arc<RwLock<Vec<Option<Arc<RwLock<Grouped>>>>>>,
     x_if_free_list: std::sync::Mutex<Vec<usize>>,
@@ -332,8 +328,6 @@ impl ObjectStore {
             function_call: Arc::new(RwLock::new(Vec::new())),
             x_future_free_list: std::sync::Mutex::new(Vec::new()),
             x_future: Arc::new(RwLock::new(Vec::new())),
-            generic_free_list: std::sync::Mutex::new(Vec::new()),
-            generic: Arc::new(RwLock::new(Vec::new())),
             grouped_free_list: std::sync::Mutex::new(Vec::new()),
             grouped: Arc::new(RwLock::new(Vec::new())),
             x_if_free_list: std::sync::Mutex::new(Vec::new()),
@@ -2588,83 +2582,6 @@ impl ObjectStore {
                 self.x_future.read().unwrap()[i]
                     .as_ref()
                     .map(|x_future| x_future.clone())
-                    .unwrap()
-            })
-    }
-
-    /// Inter (insert) [`Generic`] into the store.
-    ///
-    #[inline]
-    pub fn inter_generic<F>(&mut self, generic: F) -> Arc<RwLock<Generic>>
-    where
-        F: Fn(usize) -> Arc<RwLock<Generic>>,
-    {
-        let _index = if let Some(_index) = self.generic_free_list.lock().unwrap().pop() {
-            log::trace!(target: "store", "recycling block {_index}.");
-            _index
-        } else {
-            let _index = self.generic.read().unwrap().len();
-            log::trace!(target: "store", "allocating block {_index}.");
-            self.generic.write().unwrap().push(None);
-            _index
-        };
-
-        let generic = generic(_index);
-
-        let found = if let Some(generic) = self.generic.read().unwrap().iter().find(|stored| {
-            if let Some(stored) = stored {
-                *stored.read().unwrap() == *generic.read().unwrap()
-            } else {
-                false
-            }
-        }) {
-            generic.clone()
-        } else {
-            None
-        };
-
-        if let Some(generic) = found {
-            log::debug!(target: "store", "found duplicate {generic:?}.");
-            self.generic_free_list.lock().unwrap().push(_index);
-            generic.clone()
-        } else {
-            log::debug!(target: "store", "interring {generic:?}.");
-            self.generic.write().unwrap()[_index] = Some(generic.clone());
-            generic
-        }
-    }
-
-    /// Exhume (get) [`Generic`] from the store.
-    ///
-    #[inline]
-    pub fn exhume_generic(&self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
-        match self.generic.read().unwrap().get(*id) {
-            Some(generic) => generic.clone(),
-            None => None,
-        }
-    }
-
-    /// Exorcise (remove) [`Generic`] from the store.
-    ///
-    #[inline]
-    pub fn exorcise_generic(&mut self, id: &usize) -> Option<Arc<RwLock<Generic>>> {
-        log::debug!(target: "store", "exorcising generic slot: {id}.");
-        let result = self.generic.write().unwrap()[*id].take();
-        self.generic_free_list.lock().unwrap().push(*id);
-        result
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
-    ///
-    #[inline]
-    pub fn iter_generic(&self) -> impl Iterator<Item = Arc<RwLock<Generic>>> + '_ {
-        let len = self.generic.read().unwrap().len();
-        (0..len)
-            .filter(|i| self.generic.read().unwrap()[*i].is_some())
-            .map(move |i| {
-                self.generic.read().unwrap()[i]
-                    .as_ref()
-                    .map(|generic| generic.clone())
                     .unwrap()
             })
     }
@@ -6962,20 +6879,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Generic.
-        {
-            let path = path.join("generic");
-            fs::create_dir_all(&path)?;
-            for generic in &*self.generic.read().unwrap() {
-                if let Some(generic) = generic {
-                    let path = path.join(format!("{}.json", generic.read().unwrap().id));
-                    let file = fs::File::create(path)?;
-                    let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &generic)?;
-                }
-            }
-        }
-
         // Persist Grouped.
         {
             let path = path.join("grouped");
@@ -8156,24 +8059,6 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(x_future.read().unwrap().id, Some(x_future.clone()));
-            }
-        }
-
-        // Load Generic.
-        {
-            let path = path.join("generic");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let generic: Arc<RwLock<Generic>> = serde_json::from_reader(reader)?;
-                store
-                    .generic
-                    .write()
-                    .unwrap()
-                    .insert(generic.read().unwrap().id, Some(generic.clone()));
             }
         }
 

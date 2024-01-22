@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::char::CHAR;
 use crate::v2::lu_dog_ndrwlock_vec::types::empty::EMPTY;
+use crate::v2::lu_dog_ndrwlock_vec::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_ndrwlock_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
 use crate::v2::lu_dog_ndrwlock_vec::types::function::Function;
-use crate::v2::lu_dog_ndrwlock_vec::types::generic::Generic;
 use crate::v2::lu_dog_ndrwlock_vec::types::import::Import;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda::Lambda;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda_parameter::LambdaParameter;
@@ -17,6 +17,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::list::List;
 use crate::v2::lu_dog_ndrwlock_vec::types::parameter::Parameter;
 use crate::v2::lu_dog_ndrwlock_vec::types::range::RANGE;
 use crate::v2::lu_dog_ndrwlock_vec::types::span::Span;
+use crate::v2::lu_dog_ndrwlock_vec::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_ndrwlock_vec::types::task::TASK;
 use crate::v2::lu_dog_ndrwlock_vec::types::tuple_field::TupleField;
 use crate::v2::lu_dog_ndrwlock_vec::types::type_cast::TypeCast;
@@ -65,10 +66,10 @@ pub struct ValueType {
 pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    EnumGeneric(usize),
     Enumeration(usize),
     Function(usize),
     XFuture(usize),
-    Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
@@ -76,6 +77,7 @@ pub enum ValueTypeEnum {
     XPlugin(usize),
     Range(Uuid),
     WoogStruct(usize),
+    StructGeneric(usize),
     Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
@@ -102,6 +104,22 @@ impl ValueType {
             Arc::new(RwLock::new(ValueType {
                 bogus: bogus,
                 subtype: ValueTypeEnum::Empty(EMPTY),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enum_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_enum_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<EnumGeneric>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::EnumGeneric(subtype.read().unwrap().id), // b
                 id,
             }))
         })
@@ -159,20 +177,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_generic(
-        bogus: bool,
-        subtype: &Arc<RwLock<Generic>>,
-        store: &mut LuDogNdrwlockVecStore,
-    ) -> Arc<RwLock<ValueType>> {
-        store.inter_value_type(|id| {
-            Arc::new(RwLock::new(ValueType {
-                bogus: bogus,
-                subtype: ValueTypeEnum::Generic(subtype.read().unwrap().id), // b
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
@@ -287,6 +291,22 @@ impl ValueType {
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_struct_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_struct_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<StructGeneric>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::StructGeneric(subtype.read().unwrap().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_task(bogus: bool, store: &mut LuDogNdrwlockVecStore) -> Arc<RwLock<ValueType>> {
@@ -361,16 +381,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
-    /// Navigate to [`Generic`] across R99(1-Mc)
-    pub fn r99_generic<'a>(
-        &'a self,
-        store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<Generic>>> {
-        store
-            .iter_generic()
-            .filter(|generic| generic.read().unwrap().ty == Some(self.id))
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)

@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::char::CHAR;
 use crate::v2::lu_dog::types::empty::EMPTY;
+use crate::v2::lu_dog::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog::types::enumeration::Enumeration;
 use crate::v2::lu_dog::types::field::Field;
 use crate::v2::lu_dog::types::function::Function;
-use crate::v2::lu_dog::types::generic::Generic;
 use crate::v2::lu_dog::types::import::Import;
 use crate::v2::lu_dog::types::lambda::Lambda;
 use crate::v2::lu_dog::types::lambda_parameter::LambdaParameter;
@@ -17,6 +17,7 @@ use crate::v2::lu_dog::types::list::List;
 use crate::v2::lu_dog::types::parameter::Parameter;
 use crate::v2::lu_dog::types::range::RANGE;
 use crate::v2::lu_dog::types::span::Span;
+use crate::v2::lu_dog::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog::types::task::TASK;
 use crate::v2::lu_dog::types::tuple_field::TupleField;
 use crate::v2::lu_dog::types::type_cast::TypeCast;
@@ -67,10 +68,10 @@ pub struct ValueType {
 pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    EnumGeneric(Uuid),
     Enumeration(Uuid),
     Function(Uuid),
     XFuture(Uuid),
-    Generic(Uuid),
     Import(Uuid),
     Lambda(Uuid),
     List(Uuid),
@@ -78,6 +79,7 @@ pub enum ValueTypeEnum {
     XPlugin(Uuid),
     Range(Uuid),
     WoogStruct(Uuid),
+    StructGeneric(Uuid),
     Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
@@ -113,6 +115,25 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enum_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_enum_generic(
+        bogus: bool,
+        subtype: &Rc<RefCell<EnumGeneric>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::EnumGeneric(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_enumeration(
         bogus: bool,
@@ -129,6 +150,7 @@ impl ValueType {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_function(
@@ -146,6 +168,7 @@ impl ValueType {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_future(
@@ -157,23 +180,6 @@ impl ValueType {
         let new = Rc::new(RefCell::new(ValueType {
             bogus: bogus,
             subtype: ValueTypeEnum::XFuture(subtype.borrow().id), // b
-            id,
-        }));
-        store.inter_value_type(new.clone());
-        new
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_generic(
-        bogus: bool,
-        subtype: &Rc<RefCell<Generic>>,
-        store: &mut LuDogStore,
-    ) -> Rc<RefCell<ValueType>> {
-        let id = Uuid::new_v4();
-        let new = Rc::new(RefCell::new(ValueType {
-            bogus: bogus,
-            subtype: ValueTypeEnum::Generic(subtype.borrow().id), // b
             id,
         }));
         store.inter_value_type(new.clone());
@@ -295,6 +301,23 @@ impl ValueType {
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_struct_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_struct_generic(
+        bogus: bool,
+        subtype: &Rc<RefCell<StructGeneric>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::StructGeneric(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_task(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
@@ -367,13 +390,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
-    /// Navigate to [`Generic`] across R99(1-Mc)
-    pub fn r99_generic<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Generic>>> {
-        store
-            .iter_generic()
-            .filter(|generic| generic.borrow().ty == Some(self.id))
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)

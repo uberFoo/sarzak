@@ -7,10 +7,10 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec_tracy::types::char::CHAR;
 use crate::v2::lu_dog_vec_tracy::types::empty::EMPTY;
+use crate::v2::lu_dog_vec_tracy::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_vec_tracy::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec_tracy::types::field::Field;
 use crate::v2::lu_dog_vec_tracy::types::function::Function;
-use crate::v2::lu_dog_vec_tracy::types::generic::Generic;
 use crate::v2::lu_dog_vec_tracy::types::import::Import;
 use crate::v2::lu_dog_vec_tracy::types::lambda::Lambda;
 use crate::v2::lu_dog_vec_tracy::types::lambda_parameter::LambdaParameter;
@@ -18,6 +18,7 @@ use crate::v2::lu_dog_vec_tracy::types::list::List;
 use crate::v2::lu_dog_vec_tracy::types::parameter::Parameter;
 use crate::v2::lu_dog_vec_tracy::types::range::RANGE;
 use crate::v2::lu_dog_vec_tracy::types::span::Span;
+use crate::v2::lu_dog_vec_tracy::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_vec_tracy::types::task::TASK;
 use crate::v2::lu_dog_vec_tracy::types::tuple_field::TupleField;
 use crate::v2::lu_dog_vec_tracy::types::type_cast::TypeCast;
@@ -66,10 +67,10 @@ pub struct ValueType {
 pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    EnumGeneric(usize),
     Enumeration(usize),
     Function(usize),
     XFuture(usize),
-    Generic(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
@@ -77,6 +78,7 @@ pub enum ValueTypeEnum {
     XPlugin(usize),
     Range(Uuid),
     WoogStruct(usize),
+    StructGeneric(usize),
     Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
@@ -103,6 +105,22 @@ impl ValueType {
             Rc::new(RefCell::new(ValueType {
                 bogus: bogus,
                 subtype: ValueTypeEnum::Empty(EMPTY),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enum_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_enum_generic(
+        bogus: bool,
+        subtype: &Rc<RefCell<EnumGeneric>>,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::EnumGeneric(subtype.borrow().id), // b
                 id,
             }))
         })
@@ -157,20 +175,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub fn new_generic(
-        bogus: bool,
-        subtype: &Rc<RefCell<Generic>>,
-        store: &mut LuDogVecTracyStore,
-    ) -> Rc<RefCell<ValueType>> {
-        store.inter_value_type(|id| {
-            Rc::new(RefCell::new(ValueType {
-                bogus: bogus,
-                subtype: ValueTypeEnum::Generic(subtype.borrow().id), // b
-                id,
-            }))
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
@@ -281,6 +285,22 @@ impl ValueType {
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_struct_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_struct_generic(
+        bogus: bool,
+        subtype: &Rc<RefCell<StructGeneric>>,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::StructGeneric(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_task(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
@@ -348,16 +368,8 @@ impl ValueType {
         store
             .iter_x_future()
             .filter(|x_future| x_future.borrow().x_value == self.id)
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
-    /// Navigate to [`Generic`] across R99(1-Mc)
-    pub fn r99_generic<'a>(&'a self, store: &'a LuDogVecTracyStore) -> Vec<Rc<RefCell<Generic>>> {
-        span!("r99_generic");
-        store
-            .iter_generic()
-            .filter(|generic| generic.borrow().ty == Some(self.id))
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

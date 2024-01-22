@@ -33,7 +33,6 @@
 //! * [`Function`]
 //! * [`FunctionCall`]
 //! * [`XFuture`]
-//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -100,14 +99,14 @@ use crate::v2::lu_dog::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Generic, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
+    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Grouped, ImplementationBlock,
+    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
+    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
+    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
+    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
+    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
+    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
+    ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -141,7 +140,6 @@ pub struct ObjectStore {
     function_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     function_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FunctionCall>>>>>,
     x_future: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XFuture>>>>>,
-    generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Generic>>>>>,
     grouped: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Grouped>>>>>,
     x_if: Rc<RefCell<HashMap<Uuid, Rc<RefCell<XIf>>>>>,
     implementation_block: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ImplementationBlock>>>>>,
@@ -227,7 +225,6 @@ impl ObjectStore {
             function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             function_call: Rc::new(RefCell::new(HashMap::default())),
             x_future: Rc::new(RefCell::new(HashMap::default())),
-            generic: Rc::new(RefCell::new(HashMap::default())),
             grouped: Rc::new(RefCell::new(HashMap::default())),
             x_if: Rc::new(RefCell::new(HashMap::default())),
             implementation_block: Rc::new(RefCell::new(HashMap::default())),
@@ -1349,41 +1346,6 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|x_future| x_future.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`Generic`] into the store.
-    ///
-    pub fn inter_generic(&mut self, generic: Rc<RefCell<Generic>>) {
-        let read = generic.borrow();
-        self.generic.borrow_mut().insert(read.id, generic.clone());
-    }
-
-    /// Exhume (get) [`Generic`] from the store.
-    ///
-    pub fn exhume_generic(&self, id: &Uuid) -> Option<Rc<RefCell<Generic>>> {
-        self.generic.borrow().get(id).map(|generic| generic.clone())
-    }
-
-    /// Exorcise (remove) [`Generic`] from the store.
-    ///
-    pub fn exorcise_generic(&mut self, id: &Uuid) -> Option<Rc<RefCell<Generic>>> {
-        self.generic
-            .borrow_mut()
-            .remove(id)
-            .map(|generic| generic.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
-    ///
-    pub fn iter_generic(&self) -> impl Iterator<Item = Rc<RefCell<Generic>>> + '_ {
-        let values: Vec<Rc<RefCell<Generic>>> = self
-            .generic
-            .borrow()
-            .values()
-            .map(|generic| generic.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3626,18 +3588,6 @@ impl ObjectStore {
             }
         }
 
-        // Persist Generic.
-        {
-            let path = path.join("generic");
-            fs::create_dir_all(&path)?;
-            for generic in self.generic.borrow().values() {
-                let path = path.join(format!("{}.json", generic.borrow().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &generic)?;
-            }
-        }
-
         // Persist Grouped.
         {
             let path = path.join("grouped");
@@ -4698,23 +4648,6 @@ impl ObjectStore {
                     .x_future
                     .borrow_mut()
                     .insert(x_future.borrow().id, x_future.clone());
-            }
-        }
-
-        // Load Generic.
-        {
-            let path = path.join("generic");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let generic: Rc<RefCell<Generic>> = serde_json::from_reader(reader)?;
-                store
-                    .generic
-                    .borrow_mut()
-                    .insert(generic.borrow().id, generic.clone());
             }
         }
 

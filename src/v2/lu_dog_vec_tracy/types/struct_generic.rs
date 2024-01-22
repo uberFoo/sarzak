@@ -5,6 +5,8 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec_tracy::types::value_type::ValueType;
+use crate::v2::lu_dog_vec_tracy::types::value_type::ValueTypeEnum;
 use crate::v2::lu_dog_vec_tracy::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
@@ -96,6 +98,25 @@ impl StructGeneric {
             Some(ref struct_generic) => vec![struct_generic.clone()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r1_value_type");
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::StructGeneric(id) = value_type.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
