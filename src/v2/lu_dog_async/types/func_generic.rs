@@ -6,6 +6,8 @@ use futures::stream::{self, StreamExt};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::function::Function;
+use crate::v2::lu_dog_async::types::value_type::ValueType;
+use crate::v2::lu_dog_async::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -36,12 +38,12 @@ impl FuncGeneric {
         next: Option<&Arc<RwLock<FuncGeneric>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FuncGeneric>> {
-        let function = match func {
-            Some(function) => Some(function.read().await.id),
-            None => None,
-        };
         let func_generic = match next {
             Some(func_generic) => Some(func_generic.read().await.id),
+            None => None,
+        };
+        let function = match func {
+            Some(function) => Some(function.read().await.id),
             None => None,
         };
         store
@@ -116,6 +118,26 @@ impl FuncGeneric {
                 None
             }
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub async fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
+        store
+            .iter_value_type()
+            .await
+            .filter_map(|value_type| async move {
+                if let ValueTypeEnum::FuncGeneric(id) = value_type.read().await.subtype {
+                    Some(value_type.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+            .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

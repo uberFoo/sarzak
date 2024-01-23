@@ -47,15 +47,15 @@ impl Span {
         x_value: Option<&Arc<RwLock<XValue>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Span>> {
+        let value_type = match ty {
+            Some(value_type) => Some(value_type.read().await.id),
+            None => None,
+        };
         let x_value = match x_value {
             Some(x_value) => Some(x_value.read().await.id),
             None => None,
         };
         let source = source.read().await.id;
-        let value_type = match ty {
-            Some(value_type) => Some(value_type.read().await.id),
-            None => None,
-        };
         store
             .inter_span(|id| {
                 Arc::new(RwLock::new(Span {

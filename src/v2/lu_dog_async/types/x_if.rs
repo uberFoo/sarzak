@@ -41,12 +41,12 @@ impl XIf {
         true_block: &Arc<RwLock<Block>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<XIf>> {
+        let true_block = true_block.read().await.id;
+        let test = test.read().await.id;
         let expression = match false_block {
             Some(expression) => Some(expression.read().await.id),
             None => None,
         };
-        let true_block = true_block.read().await.id;
-        let test = test.read().await.id;
         store
             .inter_x_if(|id| {
                 Arc::new(RwLock::new(XIf {

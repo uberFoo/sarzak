@@ -10,6 +10,7 @@ use crate::v2::lu_dog_vec_tracy::types::empty::EMPTY;
 use crate::v2::lu_dog_vec_tracy::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_vec_tracy::types::enumeration::Enumeration;
 use crate::v2::lu_dog_vec_tracy::types::field::Field;
+use crate::v2::lu_dog_vec_tracy::types::func_generic::FuncGeneric;
 use crate::v2::lu_dog_vec_tracy::types::function::Function;
 use crate::v2::lu_dog_vec_tracy::types::import::Import;
 use crate::v2::lu_dog_vec_tracy::types::lambda::Lambda;
@@ -69,6 +70,7 @@ pub enum ValueTypeEnum {
     Empty(Uuid),
     EnumGeneric(usize),
     Enumeration(usize),
+    FuncGeneric(usize),
     Function(usize),
     XFuture(usize),
     Import(usize),
@@ -137,6 +139,22 @@ impl ValueType {
             Rc::new(RefCell::new(ValueType {
                 bogus: bogus,
                 subtype: ValueTypeEnum::Enumeration(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_func_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_func_generic(
+        bogus: bool,
+        subtype: &Rc<RefCell<FuncGeneric>>,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::FuncGeneric(subtype.borrow().id), // b
                 id,
             }))
         })

@@ -129,14 +129,15 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
-    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_Mc-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-Mc)
     pub fn r107_func_generic<'a>(
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<FuncGeneric>>> {
         store
             .iter_func_generic()
-            .filter(|func_generic| func_generic.read().unwrap().func == self.id)
+            .filter(|func_generic| func_generic.read().unwrap().func == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -40,12 +40,12 @@ impl Argument {
         next: Option<&Arc<RwLock<Argument>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Argument>> {
-        let function = function.read().await.id;
-        let expression = expression.read().await.id;
         let argument = match next {
             Some(argument) => Some(argument.read().await.id),
             None => None,
         };
+        let function = function.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_argument(|id| {
                 Arc::new(RwLock::new(Argument {

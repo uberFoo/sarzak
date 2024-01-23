@@ -42,8 +42,8 @@ impl StructExpression {
         x_path: &Arc<RwLock<XPath>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<StructExpression>> {
-        let x_path = x_path.read().await.id;
         let data = data.read().await.id;
+        let x_path = x_path.read().await.id;
         store
             .inter_struct_expression(|id| {
                 Arc::new(RwLock::new(StructExpression {

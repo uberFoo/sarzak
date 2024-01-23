@@ -3,6 +3,8 @@
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vanilla::types::function::Function;
+use crate::v2::lu_dog_vanilla::types::value_type::ValueType;
+use crate::v2::lu_dog_vanilla::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_vanilla::store::ObjectStore as LuDogVanillaStore;
@@ -81,6 +83,21 @@ impl FuncGeneric {
         vec![store
             .iter_function()
             .find(|function| function.first_generic == Some(self.id))
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&ValueType> {
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::FuncGeneric(id) = value_type.subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

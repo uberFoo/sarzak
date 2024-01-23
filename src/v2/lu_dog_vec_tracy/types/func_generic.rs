@@ -6,6 +6,8 @@ use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec_tracy::types::function::Function;
+use crate::v2::lu_dog_vec_tracy::types::value_type::ValueType;
+use crate::v2::lu_dog_vec_tracy::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
@@ -96,6 +98,25 @@ impl FuncGeneric {
         vec![store
             .iter_function()
             .find(|function| function.borrow().first_generic == Some(self.id))
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<ValueType>>> {
+        span!("r1_value_type");
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::FuncGeneric(id) = value_type.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

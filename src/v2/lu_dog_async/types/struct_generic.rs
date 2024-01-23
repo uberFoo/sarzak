@@ -38,11 +38,11 @@ impl StructGeneric {
         woog_struct: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<StructGeneric>> {
+        let woog_struct = woog_struct.read().await.id;
         let struct_generic = match next {
             Some(struct_generic) => Some(struct_generic.read().await.id),
             None => None,
         };
-        let woog_struct = woog_struct.read().await.id;
         store
             .inter_struct_generic(|id| {
                 Arc::new(RwLock::new(StructGeneric {

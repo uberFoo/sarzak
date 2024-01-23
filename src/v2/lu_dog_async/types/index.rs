@@ -35,8 +35,8 @@ impl Index {
         target: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Index>> {
-        let target = target.read().await.id;
         let index = index.read().await.id;
+        let target = target.read().await.id;
         store
             .inter_index(|id| Arc::new(RwLock::new(Index { id, index, target })))
             .await

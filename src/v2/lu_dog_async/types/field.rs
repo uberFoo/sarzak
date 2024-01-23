@@ -41,8 +41,8 @@ impl Field {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Field>> {
-        let x_model = x_model.read().await.id;
         let ty = ty.read().await.id;
+        let x_model = x_model.read().await.id;
         store
             .inter_field(|id| {
                 Arc::new(RwLock::new(Field {

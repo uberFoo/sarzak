@@ -5,6 +5,8 @@ use std::sync::RwLock;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock_vec::types::function::Function;
+use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock_vec::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock_vec::store::ObjectStore as LuDogRwlockVecStore;
@@ -20,7 +22,7 @@ pub struct FuncGeneric {
     pub id: usize,
     pub name: String,
     /// R107: [`FuncGeneric`] '' [`Function`]
-    pub func: usize,
+    pub func: Option<usize>,
     /// R3: [`FuncGeneric`] '' [`FuncGeneric`]
     pub next: Option<usize>,
 }
@@ -31,7 +33,7 @@ impl FuncGeneric {
     /// Inter a new 'Func Generic' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        func: &Arc<RwLock<Function>>,
+        func: Option<&Arc<RwLock<Function>>>,
         next: Option<&Arc<RwLock<FuncGeneric>>>,
         store: &mut LuDogRwlockVecStore,
     ) -> Arc<RwLock<FuncGeneric>> {
@@ -39,19 +41,23 @@ impl FuncGeneric {
             Arc::new(RwLock::new(FuncGeneric {
                 id,
                 name: name.to_owned(),
-                func: func.read().unwrap().id,
+                func: func.map(|function| function.read().unwrap().id),
                 next: next.map(|func_generic| func_generic.read().unwrap().id),
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-to-func"}}}
-    /// Navigate to [`Function`] across R107(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-func"}}}
+    /// Navigate to [`Function`] across R107(1-*c)
     pub fn r107_function<'a>(
         &'a self,
         store: &'a LuDogRwlockVecStore,
     ) -> Vec<Arc<RwLock<Function>>> {
-        vec![store.exhume_function(&self.func).unwrap()]
+        match self.func {
+            Some(ref func) => vec![store.exhume_function(&func).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-next"}}}
@@ -90,6 +96,24 @@ impl FuncGeneric {
         vec![store
             .iter_function()
             .find(|function| function.read().unwrap().first_generic == Some(self.id))
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogRwlockVecStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::FuncGeneric(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

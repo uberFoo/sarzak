@@ -56,11 +56,6 @@ impl Function {
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Function>> {
-        let return_type = return_type.read().await.id;
-        let parameter = match first_param {
-            Some(parameter) => Some(parameter.read().await.id),
-            None => None,
-        };
         let body = body.read().await.id;
         let implementation_block = match impl_block {
             Some(implementation_block) => Some(implementation_block.read().await.id),
@@ -68,6 +63,11 @@ impl Function {
         };
         let func_generic = match first_generic {
             Some(func_generic) => Some(func_generic.read().await.id),
+            None => None,
+        };
+        let return_type = return_type.read().await.id;
+        let parameter = match first_param {
+            Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
         store
