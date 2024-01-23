@@ -128,7 +128,8 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
-    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_Mc-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-Mc)
     pub fn r107_func_generic<'a>(
         &'a self,
         store: &'a LuDogVecTracyStore,
@@ -136,7 +137,7 @@ impl Function {
         span!("r107_func_generic");
         store
             .iter_func_generic()
-            .filter(|func_generic| func_generic.borrow().func == self.id)
+            .filter(|func_generic| func_generic.borrow().func == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

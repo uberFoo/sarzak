@@ -46,11 +46,11 @@ impl LambdaParameter {
             Some(lambda_parameter) => Some(lambda_parameter.read().await.id),
             None => None,
         };
+        let lambda = lambda.read().await.id;
         let value_type = match ty {
             Some(value_type) => Some(value_type.read().await.id),
             None => None,
         };
-        let lambda = lambda.read().await.id;
         store
             .inter_lambda_parameter(|id| {
                 Arc::new(RwLock::new(LambdaParameter {

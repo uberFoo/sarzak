@@ -46,12 +46,12 @@ impl Parameter {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Parameter>> {
-        let ty = ty.read().await.id;
-        let function = function.read().await.id;
         let parameter = match next {
             Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
+        let ty = ty.read().await.id;
+        let function = function.read().await.id;
         store
             .inter_parameter(|id| {
                 Arc::new(RwLock::new(Parameter {

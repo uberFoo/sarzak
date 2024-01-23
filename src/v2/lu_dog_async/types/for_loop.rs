@@ -39,8 +39,8 @@ impl ForLoop {
         expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ForLoop>> {
-        let expression = expression.read().await.id;
         let block = block.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_for_loop(|id| {
                 Arc::new(RwLock::new(ForLoop {

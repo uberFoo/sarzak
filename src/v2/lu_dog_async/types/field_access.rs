@@ -42,9 +42,9 @@ impl FieldAccess {
         woog_struct: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccess>> {
-        let field = field.read().await.id;
         let expression = expression.read().await.id;
         let woog_struct = woog_struct.read().await.id;
+        let field = field.read().await.id;
         store
             .inter_field_access(|id| {
                 Arc::new(RwLock::new(FieldAccess {

@@ -20,7 +20,7 @@ pub struct FuncGeneric {
     pub id: Uuid,
     pub name: String,
     /// R107: [`FuncGeneric`] '' [`Function`]
-    pub func: Uuid,
+    pub func: Option<Uuid>,
     /// R3: [`FuncGeneric`] '' [`FuncGeneric`]
     pub next: Option<Uuid>,
 }
@@ -31,7 +31,7 @@ impl FuncGeneric {
     /// Inter a new 'Func Generic' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        func: &Rc<RefCell<Function>>,
+        func: Option<&Rc<RefCell<Function>>>,
         next: Option<&Rc<RefCell<FuncGeneric>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<FuncGeneric>> {
@@ -39,7 +39,7 @@ impl FuncGeneric {
         let new = Rc::new(RefCell::new(FuncGeneric {
             id,
             name,
-            func: func.borrow().id,
+            func: func.map(|function| function.borrow().id),
             next: next.map(|func_generic| func_generic.borrow().id),
         }));
         store.inter_func_generic(new.clone());
@@ -47,9 +47,13 @@ impl FuncGeneric {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-to-func"}}}
-    /// Navigate to [`Function`] across R107(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-func"}}}
+    /// Navigate to [`Function`] across R107(1-*c)
     pub fn r107_function<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<Function>>> {
-        vec![store.exhume_function(&self.func).unwrap()]
+        match self.func {
+            Some(ref func) => vec![store.exhume_function(&func).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-next"}}}

@@ -61,13 +61,13 @@ impl Function {
             Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
-        let func_generic = match first_generic {
-            Some(func_generic) => Some(func_generic.read().await.id),
-            None => None,
-        };
         let body = body.read().await.id;
         let implementation_block = match impl_block {
             Some(implementation_block) => Some(implementation_block.read().await.id),
+            None => None,
+        };
+        let func_generic = match first_generic {
+            Some(func_generic) => Some(func_generic.read().await.id),
             None => None,
         };
         store
@@ -146,7 +146,8 @@ impl Function {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
-    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_Mc-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-Mc)
     pub async fn r107_func_generic<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
@@ -154,9 +155,9 @@ impl Function {
         store
             .iter_func_generic()
             .await
-            .filter_map(|func_generic| async {
-                if func_generic.read().await.func == self.id {
-                    Some(func_generic)
+            .filter_map(move |func_generic| async move {
+                if func_generic.read().await.func == Some(self.id) {
+                    Some(func_generic.clone())
                 } else {
                     None
                 }

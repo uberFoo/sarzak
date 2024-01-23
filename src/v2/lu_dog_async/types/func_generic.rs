@@ -21,7 +21,7 @@ pub struct FuncGeneric {
     pub id: usize,
     pub name: String,
     /// R107: [`FuncGeneric`] '' [`Function`]
-    pub func: usize,
+    pub func: Option<usize>,
     /// R3: [`FuncGeneric`] '' [`FuncGeneric`]
     pub next: Option<usize>,
 }
@@ -32,21 +32,24 @@ impl FuncGeneric {
     /// Inter a new 'Func Generic' in the store, and return it's `id`.
     pub async fn new(
         name: String,
-        func: &Arc<RwLock<Function>>,
+        func: Option<&Arc<RwLock<Function>>>,
         next: Option<&Arc<RwLock<FuncGeneric>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FuncGeneric>> {
+        let function = match func {
+            Some(function) => Some(function.read().await.id),
+            None => None,
+        };
         let func_generic = match next {
             Some(func_generic) => Some(func_generic.read().await.id),
             None => None,
         };
-        let func = func.read().await.id;
         store
             .inter_func_generic(|id| {
                 Arc::new(RwLock::new(FuncGeneric {
                     id,
                     name: name.to_owned(),
-                    func,
+                    func: function,
                     next: func_generic,
                 }))
             })
@@ -54,12 +57,18 @@ impl FuncGeneric {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-to-func"}}}
-    /// Navigate to [`Function`] across R107(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-func"}}}
+    /// Navigate to [`Function`] across R107(1-*c)
     pub async fn r107_function<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
-        stream::iter(vec![store.exhume_function(&self.func).await.unwrap()].into_iter())
+        match self.func {
+            Some(ref func) => {
+                stream::iter(vec![store.exhume_function(func).await.unwrap()].into_iter())
+            }
+            None => stream::iter(vec![].into_iter()),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-next"}}}

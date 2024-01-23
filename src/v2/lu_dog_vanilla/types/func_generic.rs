@@ -18,7 +18,7 @@ pub struct FuncGeneric {
     pub id: Uuid,
     pub name: String,
     /// R107: [`FuncGeneric`] '' [`Function`]
-    pub func: Uuid,
+    pub func: Option<Uuid>,
     /// R3: [`FuncGeneric`] '' [`FuncGeneric`]
     pub next: Option<Uuid>,
 }
@@ -29,7 +29,7 @@ impl FuncGeneric {
     /// Inter a new 'Func Generic' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        func: &Function,
+        func: Option<&Function>,
         next: Option<&FuncGeneric>,
         store: &mut LuDogVanillaStore,
     ) -> FuncGeneric {
@@ -37,7 +37,7 @@ impl FuncGeneric {
         let new = FuncGeneric {
             id,
             name,
-            func: func.id,
+            func: func.as_ref().map(|function| function.id),
             next: next.as_ref().map(|func_generic| func_generic.id),
         };
         store.inter_func_generic(new.clone());
@@ -45,9 +45,13 @@ impl FuncGeneric {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-to-func"}}}
-    /// Navigate to [`Function`] across R107(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-func"}}}
+    /// Navigate to [`Function`] across R107(1-*c)
     pub fn r107_function<'a>(&'a self, store: &'a LuDogVanillaStore) -> Vec<&Function> {
-        vec![store.exhume_function(&self.func).unwrap()]
+        match self.func {
+            Some(ref func) => vec![store.exhume_function(func).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-next"}}}

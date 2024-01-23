@@ -1,6 +1,6 @@
 [package]
 name = "sarzak"
-version = "2.13.7"
+version = "2.13.8"
 edition = "2021"
 authors = ["Keith T. Star <uberfoo@me.com>"]
 categories = ["compilers", "memory-management"]

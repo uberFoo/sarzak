@@ -39,8 +39,8 @@ impl LetStatement {
         variable: &Arc<RwLock<LocalVariable>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<LetStatement>> {
-        let variable = variable.read().await.id;
         let expression = expression.read().await.id;
+        let variable = variable.read().await.id;
         store
             .inter_let_statement(|id| {
                 Arc::new(RwLock::new(LetStatement {

@@ -20,7 +20,7 @@ pub struct FuncGeneric {
     pub id: Uuid,
     pub name: String,
     /// R107: [`FuncGeneric`] '' [`Function`]
-    pub func: Uuid,
+    pub func: Option<Uuid>,
     /// R3: [`FuncGeneric`] '' [`FuncGeneric`]
     pub next: Option<Uuid>,
 }
@@ -31,7 +31,7 @@ impl FuncGeneric {
     /// Inter a new 'Func Generic' in the store, and return it's `id`.
     pub fn new(
         name: String,
-        func: &Arc<RwLock<Function>>,
+        func: Option<&Arc<RwLock<Function>>>,
         next: Option<&Arc<RwLock<FuncGeneric>>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<FuncGeneric>> {
@@ -39,7 +39,7 @@ impl FuncGeneric {
         let new = Arc::new(RwLock::new(FuncGeneric {
             id,
             name,
-            func: func.read().unwrap().id,
+            func: func.map(|function| function.read().unwrap().id),
             next: next.map(|func_generic| func_generic.read().unwrap().id),
         }));
         store.inter_func_generic(new.clone());
@@ -47,9 +47,13 @@ impl FuncGeneric {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-to-func"}}}
-    /// Navigate to [`Function`] across R107(1-*)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-func"}}}
+    /// Navigate to [`Function`] across R107(1-*c)
     pub fn r107_function<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Function>>> {
-        vec![store.exhume_function(&self.func).unwrap()]
+        match self.func {
+            Some(ref func) => vec![store.exhume_function(&func).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-struct-impl-nav-forward-cond-to-next"}}}

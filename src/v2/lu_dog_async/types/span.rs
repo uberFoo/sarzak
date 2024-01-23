@@ -51,11 +51,11 @@ impl Span {
             Some(x_value) => Some(x_value.read().await.id),
             None => None,
         };
+        let source = source.read().await.id;
         let value_type = match ty {
             Some(value_type) => Some(value_type.read().await.id),
             None => None,
         };
-        let source = source.read().await.id;
         store
             .inter_span(|id| {
                 Arc::new(RwLock::new(Span {

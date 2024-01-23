@@ -51,12 +51,12 @@ impl WoogStruct {
         object: Option<&Object>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<WoogStruct>> {
-        let object = match object {
-            Some(object) => Some(object.id),
-            None => None,
-        };
         let struct_generic = match first_generic {
             Some(struct_generic) => Some(struct_generic.read().await.id),
+            None => None,
+        };
+        let object = match object {
+            Some(object) => Some(object.id),
             None => None,
         };
         store

@@ -47,11 +47,11 @@ impl Lambda {
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Lambda>> {
+        let return_type = return_type.read().await.id;
         let lambda_parameter = match first_param {
             Some(lambda_parameter) => Some(lambda_parameter.read().await.id),
             None => None,
         };
-        let return_type = return_type.read().await.id;
         let body = match body {
             Some(body) => Some(body.read().await.id),
             None => None,

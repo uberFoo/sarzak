@@ -52,9 +52,9 @@ impl Pattern {
         x_match: &Arc<RwLock<XMatch>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Pattern>> {
-        let match_expr = match_expr.read().await.id;
         let expression = expression.read().await.id;
         let x_match = x_match.read().await.id;
+        let match_expr = match_expr.read().await.id;
         store
             .inter_pattern(|id| {
                 Arc::new(RwLock::new(Pattern {

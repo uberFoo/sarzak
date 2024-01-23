@@ -54,12 +54,12 @@ impl Block {
         statement: Option<&Arc<RwLock<Statement>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Block>> {
-        let block = match parent {
-            Some(block) => Some(block.read().await.id),
-            None => None,
-        };
         let statement = match statement {
             Some(statement) => Some(statement.read().await.id),
+            None => None,
+        };
+        let block = match parent {
+            Some(block) => Some(block.read().await.id),
             None => None,
         };
         store

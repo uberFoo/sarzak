@@ -49,12 +49,12 @@ impl Enumeration {
         implementation: Option<&Arc<RwLock<ImplementationBlock>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Enumeration>> {
-        let enum_generic = match first_generic {
-            Some(enum_generic) => Some(enum_generic.read().await.id),
-            None => None,
-        };
         let implementation_block = match implementation {
             Some(implementation_block) => Some(implementation_block.read().await.id),
+            None => None,
+        };
+        let enum_generic = match first_generic {
+            Some(enum_generic) => Some(enum_generic.read().await.id),
             None => None,
         };
         store
