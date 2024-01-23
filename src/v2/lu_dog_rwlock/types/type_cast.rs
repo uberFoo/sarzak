@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"type_cast-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
 
@@ -40,8 +40,8 @@ impl TypeCast {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(TypeCast {
             id,
-            lhs: lhs.read().unwrap().id(),
-            ty: ty.read().unwrap().id(),
+            lhs: lhs.read().unwrap().id,
+            ty: ty.read().unwrap().id,
         }));
         store.inter_type_cast(new.clone());
         new
@@ -53,7 +53,6 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r68_expression");
         vec![store.exhume_expression(&self.lhs).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -63,7 +62,6 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r69_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -73,8 +71,16 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::TypeCast(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

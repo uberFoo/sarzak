@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -59,7 +58,6 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r20_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -69,7 +67,6 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<LocalVariable>>> + '_ {
-        span!("r21_local_variable");
         stream::iter(vec![store.exhume_local_variable(&self.variable).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -79,7 +76,6 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Statement>>> {
-        span!("r16_statement");
         store
             .iter_statement()
             .await

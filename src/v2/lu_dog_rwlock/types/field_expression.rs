@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_expression-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::named_field_expression::NamedFieldExpression;
 use crate::v2::lu_dog_rwlock::types::struct_expression::StructExpression;
 use crate::v2::lu_dog_rwlock::types::unnamed_field_expression::UnnamedFieldExpression;
@@ -53,7 +53,7 @@ impl FieldExpression {
     ) -> Arc<RwLock<FieldExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(FieldExpression {
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
             woog_struct: woog_struct.read().unwrap().id,
             subtype: FieldExpressionEnum::NamedFieldExpression(subtype.read().unwrap().id), // b
             id,
@@ -72,7 +72,7 @@ impl FieldExpression {
     ) -> Arc<RwLock<FieldExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(FieldExpression {
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
             woog_struct: woog_struct.read().unwrap().id,
             subtype: FieldExpressionEnum::UnnamedFieldExpression(subtype.read().unwrap().id), // b
             id,
@@ -87,7 +87,6 @@ impl FieldExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r38_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -97,7 +96,6 @@ impl FieldExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r26_struct_expression");
         vec![store.exhume_struct_expression(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -107,8 +105,16 @@ impl FieldExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::FieldExpression(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

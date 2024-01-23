@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::value_type::ValueType;
@@ -47,7 +46,6 @@ impl List {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r36_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -57,7 +55,6 @@ impl List {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         store
             .iter_value_type()
             .await

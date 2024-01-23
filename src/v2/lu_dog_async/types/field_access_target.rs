@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::enum_field::EnumField;
@@ -25,6 +24,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FieldAccessTarget {
     pub subtype: FieldAccessTargetEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -41,6 +41,7 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_enum_field"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub async fn new_enum_field(
+        bogus: bool,
         subtype: &Arc<RwLock<EnumField>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccessTarget>> {
@@ -49,6 +50,7 @@ impl FieldAccessTarget {
         store
             .inter_field_access_target(|id| {
                 Arc::new(RwLock::new(FieldAccessTarget {
+                    bogus: bogus,
                     subtype: FieldAccessTargetEnum::EnumField(subtype),
                     id,
                 }))
@@ -59,6 +61,7 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_field"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub async fn new_field(
+        bogus: bool,
         subtype: &Arc<RwLock<Field>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccessTarget>> {
@@ -67,6 +70,7 @@ impl FieldAccessTarget {
         store
             .inter_field_access_target(|id| {
                 Arc::new(RwLock::new(FieldAccessTarget {
+                    bogus: bogus,
                     subtype: FieldAccessTargetEnum::Field(subtype),
                     id,
                 }))
@@ -77,6 +81,7 @@ impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_function"}}}
     /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub async fn new_function(
+        bogus: bool,
         subtype: &Arc<RwLock<Function>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccessTarget>> {
@@ -85,6 +90,7 @@ impl FieldAccessTarget {
         store
             .inter_field_access_target(|id| {
                 Arc::new(RwLock::new(FieldAccessTarget {
+                    bogus: bogus,
                     subtype: FieldAccessTargetEnum::Function(subtype),
                     id,
                 }))
@@ -98,7 +104,6 @@ impl FieldAccessTarget {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccess>>> + '_ {
-        span!("r65_field_access");
         store
             .iter_field_access()
             .await
@@ -116,7 +121,7 @@ impl FieldAccessTarget {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-implementation"}}}
 impl PartialEq for FieldAccessTarget {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

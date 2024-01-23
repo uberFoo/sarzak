@@ -3,29 +3,29 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::char::CHAR;
 use crate::v2::lu_dog_async::types::empty::EMPTY;
+use crate::v2::lu_dog_async::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_async::types::enumeration::Enumeration;
 use crate::v2::lu_dog_async::types::field::Field;
 use crate::v2::lu_dog_async::types::function::Function;
-use crate::v2::lu_dog_async::types::generic::Generic;
 use crate::v2::lu_dog_async::types::import::Import;
 use crate::v2::lu_dog_async::types::lambda::Lambda;
 use crate::v2::lu_dog_async::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_async::types::list::List;
 use crate::v2::lu_dog_async::types::parameter::Parameter;
 use crate::v2::lu_dog_async::types::range::RANGE;
-use crate::v2::lu_dog_async::types::reference::Reference;
 use crate::v2::lu_dog_async::types::span::Span;
+use crate::v2::lu_dog_async::types::struct_generic::StructGeneric;
+use crate::v2::lu_dog_async::types::task::TASK;
 use crate::v2::lu_dog_async::types::tuple_field::TupleField;
 use crate::v2::lu_dog_async::types::type_cast::TypeCast;
 use crate::v2::lu_dog_async::types::unknown::UNKNOWN;
-use crate::v2::lu_dog_async::types::woog_option::WoogOption;
 use crate::v2::lu_dog_async::types::woog_struct::WoogStruct;
-use crate::v2::lu_dog_async::types::x_error::XError;
+use crate::v2::lu_dog_async::types::x_future::XFuture;
+use crate::v2::lu_dog_async::types::x_plugin::XPlugin;
 use crate::v2::lu_dog_async::types::x_value::XValue;
 use crate::v2::lu_dog_async::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
@@ -58,6 +58,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ValueType {
     pub subtype: ValueTypeEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -66,18 +67,19 @@ pub struct ValueType {
 pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    EnumGeneric(usize),
     Enumeration(usize),
-    XError(usize),
     Function(usize),
-    Generic(usize),
+    XFuture(usize),
     Import(usize),
     Lambda(usize),
     List(usize),
     ZObjectStore(usize),
-    WoogOption(usize),
+    XPlugin(usize),
     Range(Uuid),
-    Reference(usize),
     WoogStruct(usize),
+    StructGeneric(usize),
+    Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
 }
@@ -86,10 +88,11 @@ pub enum ValueTypeEnum {
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_char(store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
+    pub async fn new_char(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Char(CHAR),
                     id,
                 }))
@@ -99,10 +102,11 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_empty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_empty(store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
+    pub async fn new_empty(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Empty(EMPTY),
                     id,
                 }))
@@ -111,8 +115,31 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enum_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub async fn new_enum_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<EnumGeneric>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let s_id = subtype.read().await.id;
+        let subtype = subtype.read().await.id;
+        store
+            .inter_value_type(|id| {
+                Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
+                    subtype: ValueTypeEnum::EnumGeneric(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_error"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_enumeration(
+        bogus: bool,
         subtype: &Arc<RwLock<Enumeration>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -121,25 +148,8 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Enumeration(subtype),
-                    id,
-                }))
-            })
-            .await
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_error"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_x_error(
-        subtype: &Arc<RwLock<XError>>,
-        store: &mut LuDogAsyncStore,
-    ) -> Arc<RwLock<ValueType>> {
-        let s_id = subtype.read().await.id;
-        let subtype = subtype.read().await.id;
-        store
-            .inter_value_type(|id| {
-                Arc::new(RwLock::new(ValueType {
-                    subtype: ValueTypeEnum::XError(subtype),
                     id,
                 }))
             })
@@ -149,6 +159,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_function(
+        bogus: bool,
         subtype: &Arc<RwLock<Function>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -157,6 +168,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Function(subtype),
                     id,
                 }))
@@ -165,9 +177,11 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_generic"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_generic(
-        subtype: &Arc<RwLock<Generic>>,
+    pub async fn new_x_future(
+        bogus: bool,
+        subtype: &Arc<RwLock<XFuture>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
         let s_id = subtype.read().await.id;
@@ -175,7 +189,8 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
-                    subtype: ValueTypeEnum::Generic(subtype),
+                    bogus: bogus,
+                    subtype: ValueTypeEnum::XFuture(subtype),
                     id,
                 }))
             })
@@ -185,6 +200,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_import(
+        bogus: bool,
         subtype: &Arc<RwLock<Import>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -193,6 +209,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Import(subtype),
                     id,
                 }))
@@ -203,6 +220,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_lambda"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_lambda(
+        bogus: bool,
         subtype: &Arc<RwLock<Lambda>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -211,6 +229,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Lambda(subtype),
                     id,
                 }))
@@ -221,6 +240,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_list"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_list(
+        bogus: bool,
         subtype: &Arc<RwLock<List>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -229,6 +249,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::List(subtype),
                     id,
                 }))
@@ -239,6 +260,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_z_object_store"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_z_object_store(
+        bogus: bool,
         subtype: &Arc<RwLock<ZObjectStore>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -247,6 +269,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::ZObjectStore(subtype),
                     id,
                 }))
@@ -255,9 +278,11 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_option"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_plugin"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_woog_option(
-        subtype: &Arc<RwLock<WoogOption>>,
+    pub async fn new_x_plugin(
+        bogus: bool,
+        subtype: &Arc<RwLock<XPlugin>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
         let s_id = subtype.read().await.id;
@@ -265,7 +290,8 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
-                    subtype: ValueTypeEnum::WoogOption(subtype),
+                    bogus: bogus,
+                    subtype: ValueTypeEnum::XPlugin(subtype),
                     id,
                 }))
             })
@@ -274,10 +300,11 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_range(store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
+    pub async fn new_range(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Range(RANGE),
                     id,
                 }))
@@ -286,26 +313,10 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_reference"}}}
-    /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_reference(
-        subtype: &Arc<RwLock<Reference>>,
-        store: &mut LuDogAsyncStore,
-    ) -> Arc<RwLock<ValueType>> {
-        let s_id = subtype.read().await.id;
-        let subtype = subtype.read().await.id;
-        store
-            .inter_value_type(|id| {
-                Arc::new(RwLock::new(ValueType {
-                    subtype: ValueTypeEnum::Reference(subtype),
-                    id,
-                }))
-            })
-            .await
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_woog_struct(
+        bogus: bool,
         subtype: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -314,7 +325,43 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::WoogStruct(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_struct_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub async fn new_struct_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<StructGeneric>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let s_id = subtype.read().await.id;
+        let subtype = subtype.read().await.id;
+        store
+            .inter_value_type(|id| {
+                Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
+                    subtype: ValueTypeEnum::StructGeneric(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub async fn new_task(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
+        store
+            .inter_value_type(|id| {
+                Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
+                    subtype: ValueTypeEnum::Task(TASK),
                     id,
                 }))
             })
@@ -324,6 +371,7 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub async fn new_ty(
+        bogus: bool,
         subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ValueType>> {
@@ -332,6 +380,7 @@ impl ValueType {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Ty(subtype),
                     id,
                 }))
@@ -341,10 +390,11 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_unknown"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
-    pub async fn new_unknown(store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
+    pub async fn new_unknown(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<ValueType>> {
         store
             .inter_value_type(|id| {
                 Arc::new(RwLock::new(ValueType {
+                    bogus: bogus,
                     subtype: ValueTypeEnum::Unknown(UNKNOWN),
                     id,
                 }))
@@ -358,7 +408,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Field>>> + '_ {
-        span!("r5_field");
         store.iter_field().await.filter_map(|field| async {
             if field.read().await.ty == self.id {
                 Some(field)
@@ -374,10 +423,24 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
-        span!("r10_function");
         store.iter_function().await.filter_map(|function| async {
             if function.read().await.return_type == self.id {
                 Some(function)
+            } else {
+                None
+            }
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
+    /// Navigate to [`XFuture`] across R2(1-M)
+    pub async fn r2_x_future<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XFuture>>> + '_ {
+        store.iter_x_future().await.filter_map(|x_future| async {
+            if x_future.read().await.x_value == self.id {
+                Some(x_future)
             } else {
                 None
             }
@@ -390,7 +453,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Lambda>>> + '_ {
-        span!("r74_lambda");
         store.iter_lambda().await.filter_map(|lambda| async {
             if lambda.read().await.return_type == self.id {
                 Some(lambda)
@@ -406,7 +468,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<LambdaParameter>>> + '_ {
-        span!("r77_lambda_parameter");
         store
             .iter_lambda_parameter()
             .await
@@ -425,7 +486,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<List>>> + '_ {
-        span!("r36_list");
         store.iter_list().await.filter_map(|list| async {
             if list.read().await.ty == self.id {
                 Some(list)
@@ -436,23 +496,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
-    /// Navigate to [`WoogOption`] across R2(1-M)
-    pub async fn r2_woog_option<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<WoogOption>>> + '_ {
-        span!("r2_woog_option");
-        store
-            .iter_woog_option()
-            .await
-            .filter_map(|woog_option| async {
-                if woog_option.read().await.ty == self.id {
-                    Some(woog_option)
-                } else {
-                    None
-                }
-            })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R79(1-M)
@@ -460,7 +503,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
-        span!("r79_parameter");
         store.iter_parameter().await.filter_map(|parameter| async {
             if parameter.read().await.ty == self.id {
                 Some(parameter)
@@ -471,20 +513,6 @@ impl ValueType {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
-    /// Navigate to [`Reference`] across R35(1-M)
-    pub async fn r35_reference<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<Reference>>> + '_ {
-        span!("r35_reference");
-        store.iter_reference().await.filter_map(|reference| async {
-            if reference.read().await.ty == self.id {
-                Some(reference)
-            } else {
-                None
-            }
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-span"}}}
     /// Navigate to [`Span`] across R62(1-Mc)
@@ -492,7 +520,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Span>>> + '_ {
-        span!("r62_span");
         store.iter_span().await.filter_map(move |span| async move {
             if span.read().await.ty == Some(self.id) {
                 Some(span.clone())
@@ -508,7 +535,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<TupleField>>> + '_ {
-        span!("r86_tuple_field");
         store
             .iter_tuple_field()
             .await
@@ -527,7 +553,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<TypeCast>>> + '_ {
-        span!("r69_type_cast");
         store.iter_type_cast().await.filter_map(|type_cast| async {
             if type_cast.read().await.ty == self.id {
                 Some(type_cast)
@@ -543,7 +568,6 @@ impl ValueType {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XValue>>> + '_ {
-        span!("r24_x_value");
         store.iter_x_value().await.filter_map(|x_value| async {
             if x_value.read().await.ty == self.id {
                 Some(x_value)
@@ -558,7 +582,7 @@ impl ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl PartialEq for ValueType {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

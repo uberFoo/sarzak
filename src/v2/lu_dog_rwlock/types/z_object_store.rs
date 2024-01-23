@@ -2,12 +2,12 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::object_wrapper::ObjectWrapper;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -48,7 +48,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        span!("r83_implementation_block");
         let implementation_block = store
             .iter_implementation_block()
             .find(|implementation_block| {
@@ -66,7 +65,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ObjectWrapper>>> {
-        span!("r78_object_wrapper");
         store
             .iter_object_wrapper()
             .filter(|object_wrapper| object_wrapper.read().unwrap().z_store == self.id)
@@ -76,8 +74,16 @@ impl ZObjectStore {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"z_object_store-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::ZObjectStore(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

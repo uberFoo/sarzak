@@ -3,10 +3,8 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_async::types::block::Block;
 use crate::v2::lu_dog_async::types::expression::Expression;
 use crate::v2::lu_dog_async::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
@@ -25,7 +23,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 pub struct ForLoop {
     pub id: usize,
     pub ident: String,
-    /// R43: [`ForLoop`] 'executes a' [`Block`]
+    /// R43: [`ForLoop`] 'executes a' [`Expression`]
     pub block: usize,
     /// R42: [`ForLoop`] 'iterates over an' [`Expression`]
     pub expression: usize,
@@ -37,12 +35,12 @@ impl ForLoop {
     /// Inter a new 'For Loop' in the store, and return it's `id`.
     pub async fn new(
         ident: String,
-        block: &Arc<RwLock<Block>>,
+        block: &Arc<RwLock<Expression>>,
         expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ForLoop>> {
-        let block = block.read().await.id;
         let expression = expression.read().await.id;
+        let block = block.read().await.id;
         store
             .inter_for_loop(|id| {
                 Arc::new(RwLock::new(ForLoop {
@@ -56,13 +54,12 @@ impl ForLoop {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R43(1-*)
-    pub async fn r43_block<'a>(
+    /// Navigate to [`Expression`] across R43(1-*)
+    pub async fn r43_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r43_block");
-        stream::iter(vec![store.exhume_block(&self.block).await.unwrap()].into_iter())
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
+        stream::iter(vec![store.exhume_expression(&self.block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-expression"}}}
@@ -71,7 +68,6 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r42_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -81,7 +77,6 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

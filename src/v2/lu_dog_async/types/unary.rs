@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::negation::NEGATION;
@@ -23,6 +22,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Unary {
     pub subtype: UnaryEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -37,10 +37,11 @@ pub enum UnaryEnum {
 impl Unary {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-struct-impl-new_negation"}}}
     /// Inter a new Unary in the store, and return it's `id`.
-    pub async fn new_negation(store: &mut LuDogAsyncStore) -> Arc<RwLock<Unary>> {
+    pub async fn new_negation(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<Unary>> {
         store
             .inter_unary(|id| {
                 Arc::new(RwLock::new(Unary {
+                    bogus: bogus,
                     subtype: UnaryEnum::Negation(NEGATION),
                     id,
                 }))
@@ -50,10 +51,11 @@ impl Unary {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-struct-impl-new_not"}}}
     /// Inter a new Unary in the store, and return it's `id`.
-    pub async fn new_not(store: &mut LuDogAsyncStore) -> Arc<RwLock<Unary>> {
+    pub async fn new_not(bogus: bool, store: &mut LuDogAsyncStore) -> Arc<RwLock<Unary>> {
         store
             .inter_unary(|id| {
                 Arc::new(RwLock::new(Unary {
+                    bogus: bogus,
                     subtype: UnaryEnum::Not(NOT),
                     id,
                 }))
@@ -67,7 +69,6 @@ impl Unary {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r47_operator");
         store
             .iter_operator()
             .await
@@ -87,7 +88,7 @@ impl Unary {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"unary-implementation"}}}
 impl PartialEq for Unary {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

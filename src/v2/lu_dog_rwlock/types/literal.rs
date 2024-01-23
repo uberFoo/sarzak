@@ -1,27 +1,39 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"literal-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-use-statements"}}}
-use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
+use std::sync::Arc;
+use std::sync::RwLock;
+use uuid::Uuid;
+
 use crate::v2::lu_dog_rwlock::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::float_literal::FloatLiteral;
 use crate::v2::lu_dog_rwlock::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog_rwlock::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use std::sync::RwLock;
-use tracy_client::span;
-use uuid::Uuid;
+
+use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-documentation"}}}
 /// A Literal Expression
 ///
 /// This is any literal value in the program.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Literal {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Literal {
+    pub subtype: LiteralEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum LiteralEnum {
     BooleanLiteral(Uuid),
     FloatLiteral(Uuid),
     IntegerLiteral(Uuid),
@@ -31,75 +43,74 @@ pub enum Literal {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-implementation"}}}
 impl Literal {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-new-impl"}}}
-    /// Create a new instance of Literal::BooleanLiteral
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_boolean_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
     pub fn new_boolean_literal(
-        boolean_literal: &Arc<RwLock<BooleanLiteral>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<BooleanLiteral>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = boolean_literal.read().unwrap().id();
-        if let Some(boolean_literal) = store.exhume_literal(&id) {
-            boolean_literal
-        } else {
-            let new = Arc::new(RwLock::new(Self::BooleanLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::FloatLiteral
-    pub fn new_float_literal(
-        float_literal: &Arc<RwLock<FloatLiteral>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = float_literal.read().unwrap().id;
-        if let Some(float_literal) = store.exhume_literal(&id) {
-            float_literal
-        } else {
-            let new = Arc::new(RwLock::new(Self::FloatLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::IntegerLiteral
-    pub fn new_integer_literal(
-        integer_literal: &Arc<RwLock<IntegerLiteral>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = integer_literal.read().unwrap().id;
-        if let Some(integer_literal) = store.exhume_literal(&id) {
-            integer_literal
-        } else {
-            let new = Arc::new(RwLock::new(Self::IntegerLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of Literal::StringLiteral
-    pub fn new_string_literal(
-        string_literal: &Arc<RwLock<StringLiteral>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = string_literal.read().unwrap().id;
-        if let Some(string_literal) = store.exhume_literal(&id) {
-            string_literal
-        } else {
-            let new = Arc::new(RwLock::new(Self::StringLiteral(id)));
-            store.inter_literal(new.clone());
-            new
-        }
-    } // wtf?
-
+    ) -> Arc<RwLock<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::BooleanLiteral(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::BooleanLiteral(id) => *id,
-            Self::FloatLiteral(id) => *id,
-            Self::IntegerLiteral(id) => *id,
-            Self::StringLiteral(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_float_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_float_literal(
+        bogus: bool,
+        subtype: &Arc<RwLock<FloatLiteral>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::FloatLiteral(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_integer_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_integer_literal(
+        bogus: bool,
+        subtype: &Arc<RwLock<IntegerLiteral>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::IntegerLiteral(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_string_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_string_literal(
+        bogus: bool,
+        subtype: &Arc<RwLock<StringLiteral>>,
+        store: &mut LuDogRwlockStore,
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-get-id-impl"}}}
+    ) -> Arc<RwLock<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::StringLiteral(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-impl-nav-subtype-to-supertype-expression"}}}
@@ -108,8 +119,16 @@ impl Literal {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id()).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Literal(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

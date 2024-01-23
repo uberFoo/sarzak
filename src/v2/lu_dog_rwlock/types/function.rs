@@ -2,16 +2,18 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::body::Body;
 use crate::v2::lu_dog_rwlock::types::field_access_target::FieldAccessTarget;
+use crate::v2::lu_dog_rwlock::types::field_access_target::FieldAccessTargetEnum;
+use crate::v2::lu_dog_rwlock::types::func_generic::FuncGeneric;
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::item::Item;
 use crate::v2::lu_dog_rwlock::types::item::ItemEnum;
 use crate::v2::lu_dog_rwlock::types::parameter::Parameter;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -30,6 +32,8 @@ pub struct Function {
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
     pub body: Uuid,
+    /// R99: [`Function`] '' [`FuncGeneric`]
+    pub first_generic: Option<Uuid>,
     /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
     pub first_param: Option<Uuid>,
     /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
@@ -45,6 +49,7 @@ impl Function {
     pub fn new(
         name: String,
         body: &Arc<RwLock<Body>>,
+        first_generic: Option<&Arc<RwLock<FuncGeneric>>>,
         first_param: Option<&Arc<RwLock<Parameter>>>,
         impl_block: Option<&Arc<RwLock<ImplementationBlock>>>,
         return_type: &Arc<RwLock<ValueType>>,
@@ -55,10 +60,11 @@ impl Function {
             id,
             name,
             body: body.read().unwrap().id,
+            first_generic: first_generic.map(|func_generic| func_generic.read().unwrap().id),
             first_param: first_param.map(|parameter| parameter.read().unwrap().id),
             impl_block: impl_block
                 .map(|implementation_block| implementation_block.read().unwrap().id),
-            return_type: return_type.read().unwrap().id(),
+            return_type: return_type.read().unwrap().id,
         }));
         store.inter_function(new.clone());
         new
@@ -68,14 +74,24 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-to-body"}}}
     /// Navigate to [`Body`] across R19(1-*)
     pub fn r19_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
-        span!("r19_body");
         vec![store.exhume_body(&self.body).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R99(1-*c)
+    pub fn r99_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<FuncGeneric>>> {
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_func_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
     /// Navigate to [`Parameter`] across R82(1-*c)
     pub fn r82_parameter<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r82_parameter");
         match self.first_param {
             Some(ref first_param) => vec![store.exhume_parameter(&first_param).unwrap()],
             None => Vec::new(),
@@ -88,7 +104,6 @@ impl Function {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        span!("r9_implementation_block");
         match self.impl_block {
             Some(ref impl_block) => vec![store.exhume_implementation_block(&impl_block).unwrap()],
             None => Vec::new(),
@@ -101,14 +116,24 @@ impl Function {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r10_value_type");
         vec![store.exhume_value_type(&self.return_type).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    pub fn r107_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<FuncGeneric>>> {
+        store
+            .iter_func_generic()
+            .filter(|func_generic| func_generic.read().unwrap().func == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R13(1-M)
     pub fn r13_parameter<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r13_parameter");
         store
             .iter_parameter()
             .filter(|parameter| parameter.read().unwrap().function == self.id)
@@ -121,14 +146,23 @@ impl Function {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
-        vec![store.exhume_field_access_target(&self.id).unwrap()]
+        vec![store
+            .iter_field_access_target()
+            .find(|field_access_target| {
+                if let FieldAccessTargetEnum::Function(id) =
+                    field_access_target.read().unwrap().subtype
+                {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -144,8 +178,16 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::Function(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

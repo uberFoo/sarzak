@@ -3,12 +3,12 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::block::Block;
 use crate::v2::lu_dog_async::types::external_implementation::ExternalImplementation;
 use crate::v2::lu_dog_async::types::function::Function;
+use crate::v2::lu_dog_async::types::lambda::Lambda;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -23,6 +23,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Body {
     pub subtype: BodyEnum,
+    pub a_sink: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -38,6 +39,7 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_block"}}}
     /// Inter a new Body in the store, and return it's `id`.
     pub async fn new_block(
+        a_sink: bool,
         subtype: &Arc<RwLock<Block>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Body>> {
@@ -46,6 +48,7 @@ impl Body {
         store
             .inter_body(|id| {
                 Arc::new(RwLock::new(Body {
+                    a_sink: a_sink,
                     subtype: BodyEnum::Block(subtype),
                     id,
                 }))
@@ -56,6 +59,7 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-new_external_implementation"}}}
     /// Inter a new Body in the store, and return it's `id`.
     pub async fn new_external_implementation(
+        a_sink: bool,
         subtype: &Arc<RwLock<ExternalImplementation>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Body>> {
@@ -64,6 +68,7 @@ impl Body {
         store
             .inter_body(|id| {
                 Arc::new(RwLock::new(Body {
+                    a_sink: a_sink,
                     subtype: BodyEnum::ExternalImplementation(subtype),
                     id,
                 }))
@@ -91,12 +96,30 @@ impl Body {
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R73(1c-1c)
+    pub async fn r73c_lambda<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<Lambda>>> + '_ {
+        store
+            .iter_lambda()
+            .await
+            .filter_map(move |lambda| async move {
+                if lambda.read().await.body == Some(self.id) {
+                    Some(lambda.clone())
+                } else {
+                    None
+                }
+            })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-implementation"}}}
 impl PartialEq for Body {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.a_sink == other.a_sink
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

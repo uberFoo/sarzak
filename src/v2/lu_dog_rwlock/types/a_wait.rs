@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"a_wait-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -30,7 +30,7 @@ impl AWait {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(AWait {
             id,
-            x_future: x_future.read().unwrap().id(),
+            x_future: x_future.read().unwrap().id,
         }));
         store.inter_a_wait(new.clone());
         new
@@ -42,7 +42,6 @@ impl AWait {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r98_expression");
         vec![store.exhume_expression(&self.x_future).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -52,8 +51,16 @@ impl AWait {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::AWait(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

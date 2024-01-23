@@ -1,37 +1,40 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"value_type-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-use-statements"}}}
-use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
+use std::sync::Arc;
+use std::sync::RwLock;
+use uuid::Uuid;
+
 use crate::v2::lu_dog_rwlock::types::char::CHAR;
 use crate::v2::lu_dog_rwlock::types::empty::EMPTY;
+use crate::v2::lu_dog_rwlock::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_rwlock::types::enumeration::Enumeration;
 use crate::v2::lu_dog_rwlock::types::field::Field;
 use crate::v2::lu_dog_rwlock::types::function::Function;
-use crate::v2::lu_dog_rwlock::types::generic::Generic;
 use crate::v2::lu_dog_rwlock::types::import::Import;
 use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
 use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock::types::list::List;
 use crate::v2::lu_dog_rwlock::types::parameter::Parameter;
-use crate::v2::lu_dog_rwlock::types::plugin::PLUGIN;
 use crate::v2::lu_dog_rwlock::types::range::RANGE;
 use crate::v2::lu_dog_rwlock::types::span::Span;
+use crate::v2::lu_dog_rwlock::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_rwlock::types::task::TASK;
 use crate::v2::lu_dog_rwlock::types::tuple_field::TupleField;
 use crate::v2::lu_dog_rwlock::types::type_cast::TypeCast;
 use crate::v2::lu_dog_rwlock::types::unknown::UNKNOWN;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
 use crate::v2::lu_dog_rwlock::types::x_future::XFuture;
+use crate::v2::lu_dog_rwlock::types::x_plugin::XPlugin;
 use crate::v2::lu_dog_rwlock::types::x_value::XValue;
 use crate::v2::lu_dog_rwlock::types::z_object_store::ZObjectStore;
 use crate::v2::sarzak::types::ty::Ty;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use std::sync::RwLock;
-use tracy_client::span;
-use uuid::Uuid;
+
+use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-documentation"}}}
 /// Value Type
 ///
 /// This is the main type abstraction used in Lu Dog. We mostly rely on what is available in
@@ -52,21 +55,31 @@ use uuid::Uuid;
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum ValueType {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct ValueType {
+    pub subtype: ValueTypeEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum ValueTypeEnum {
     Char(Uuid),
     Empty(Uuid),
+    EnumGeneric(Uuid),
     Enumeration(Uuid),
     Function(Uuid),
     XFuture(Uuid),
-    Generic(Uuid),
     Import(Uuid),
     Lambda(Uuid),
     List(Uuid),
     ZObjectStore(Uuid),
-    Plugin(Uuid),
+    XPlugin(Uuid),
     Range(Uuid),
     WoogStruct(Uuid),
+    StructGeneric(Uuid),
     Task(Uuid),
     Ty(Uuid),
     Unknown(Uuid),
@@ -75,256 +88,311 @@ pub enum ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
-    /// Create a new instance of ValueType::Char
-    pub fn new_char(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&CHAR).unwrap()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_char(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Char(CHAR),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Empty
-    pub fn new_empty(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&EMPTY).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_empty"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_empty(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Empty(EMPTY),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Enumeration
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enum_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_enum_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<EnumGeneric>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::EnumGeneric(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_enumeration"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_enumeration(
-        enumeration: &Arc<RwLock<Enumeration>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<Enumeration>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = enumeration.read().unwrap().id;
-        if let Some(enumeration) = store.exhume_value_type(&id) {
-            enumeration
-        } else {
-            let new = Arc::new(RwLock::new(Self::Enumeration(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Function
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Enumeration(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_function(
-        function: &Arc<RwLock<Function>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<Function>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = function.read().unwrap().id;
-        if let Some(function) = store.exhume_value_type(&id) {
-            function
-        } else {
-            let new = Arc::new(RwLock::new(Self::Function(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::XFuture
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Function(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_future"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_x_future(
-        x_future: &Arc<RwLock<XFuture>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<XFuture>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = x_future.read().unwrap().id;
-        if let Some(x_future) = store.exhume_value_type(&id) {
-            x_future
-        } else {
-            let new = Arc::new(RwLock::new(Self::XFuture(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Generic
-    pub fn new_generic(
-        generic: &Arc<RwLock<Generic>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = generic.read().unwrap().id;
-        if let Some(generic) = store.exhume_value_type(&id) {
-            generic
-        } else {
-            let new = Arc::new(RwLock::new(Self::Generic(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Import
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::XFuture(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_import"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_import(
-        import: &Arc<RwLock<Import>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<Import>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = import.read().unwrap().id;
-        if let Some(import) = store.exhume_value_type(&id) {
-            import
-        } else {
-            let new = Arc::new(RwLock::new(Self::Import(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Lambda
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Import(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_lambda"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_lambda(
-        lambda: &Arc<RwLock<Lambda>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<Lambda>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = lambda.read().unwrap().id;
-        if let Some(lambda) = store.exhume_value_type(&id) {
-            lambda
-        } else {
-            let new = Arc::new(RwLock::new(Self::Lambda(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::List
-    pub fn new_list(list: &Arc<RwLock<List>>, store: &mut LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        let id = list.read().unwrap().id;
-        if let Some(list) = store.exhume_value_type(&id) {
-            list
-        } else {
-            let new = Arc::new(RwLock::new(Self::List(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::ZObjectStore
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Lambda(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_list"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_list(
+        bogus: bool,
+        subtype: &Arc<RwLock<List>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::List(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_z_object_store"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_z_object_store(
-        z_object_store: &Arc<RwLock<ZObjectStore>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<ZObjectStore>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = z_object_store.read().unwrap().id;
-        if let Some(z_object_store) = store.exhume_value_type(&id) {
-            z_object_store
-        } else {
-            let new = Arc::new(RwLock::new(Self::ZObjectStore(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Plugin
-    pub fn new_plugin(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&PLUGIN).unwrap()
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::ZObjectStore(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Range
-    pub fn new_range(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&RANGE).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_plugin"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_x_plugin(
+        bogus: bool,
+        subtype: &Arc<RwLock<XPlugin>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::XPlugin(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::WoogStruct
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_range"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_range(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Range(RANGE),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_woog_struct"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_woog_struct(
-        woog_struct: &Arc<RwLock<WoogStruct>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<WoogStruct>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = woog_struct.read().unwrap().id;
-        if let Some(woog_struct) = store.exhume_value_type(&id) {
-            woog_struct
-        } else {
-            let new = Arc::new(RwLock::new(Self::WoogStruct(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Task
-    pub fn new_task(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&TASK).unwrap()
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::WoogStruct(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
-    /// Create a new instance of ValueType::Ty
-    pub fn new_ty(ty: &Arc<RwLock<Ty>>, store: &mut LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        let id = ty.read().unwrap().id();
-        if let Some(ty) = store.exhume_value_type(&id) {
-            ty
-        } else {
-            let new = Arc::new(RwLock::new(Self::Ty(id)));
-            store.inter_value_type(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of ValueType::Unknown
-    pub fn new_unknown(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_value_type(&UNKNOWN).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_struct_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_struct_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<StructGeneric>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::StructGeneric(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::Char(id) => *id,
-            Self::Empty(id) => *id,
-            Self::Enumeration(id) => *id,
-            Self::Function(id) => *id,
-            Self::XFuture(id) => *id,
-            Self::Generic(id) => *id,
-            Self::Import(id) => *id,
-            Self::Lambda(id) => *id,
-            Self::List(id) => *id,
-            Self::ZObjectStore(id) => *id,
-            Self::Plugin(id) => *id,
-            Self::Range(id) => *id,
-            Self::WoogStruct(id) => *id,
-            Self::Task(id) => *id,
-            Self::Ty(id) => *id,
-            Self::Unknown(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_task"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_task(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Task(TASK),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_ty"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_ty(
+        bogus: bool,
+        subtype: &std::sync::Arc<std::sync::RwLock<Ty>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Ty(subtype.read().unwrap().id()),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_unknown"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_unknown(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::Unknown(UNKNOWN),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R5(1-M)
     pub fn r5_field<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Field>>> {
-        span!("r5_field");
         store
             .iter_field()
-            .filter(|field| field.read().unwrap().ty == self.id())
+            .filter(|field| field.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-function"}}}
     /// Navigate to [`Function`] across R10(1-M)
     pub fn r10_function<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Function>>> {
-        span!("r10_function");
         store
             .iter_function()
-            .filter(|function| function.read().unwrap().return_type == self.id())
+            .filter(|function| function.read().unwrap().return_type == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_future"}}}
     /// Navigate to [`XFuture`] across R2(1-M)
     pub fn r2_x_future<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XFuture>>> {
-        span!("r2_x_future");
         store
             .iter_x_future()
-            .filter(|x_future| x_future.read().unwrap().x_value == self.id())
+            .filter(|x_future| x_future.read().unwrap().x_value == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-generic"}}}
-    /// Navigate to [`Generic`] across R99(1-Mc)
-    pub fn r99_generic<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Generic>>> {
-        span!("r99_generic");
-        store
-            .iter_generic()
-            .filter(|generic| generic.read().unwrap().ty == Some(self.id()))
-            .collect()
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-lambda"}}}
     /// Navigate to [`Lambda`] across R74(1-M)
     pub fn r74_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
-        span!("r74_lambda");
         store
             .iter_lambda()
-            .filter(|lambda| lambda.read().unwrap().return_type == self.id())
+            .filter(|lambda| lambda.read().unwrap().return_type == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -334,20 +402,18 @@ impl ValueType {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<LambdaParameter>>> {
-        span!("r77_lambda_parameter");
         store
             .iter_lambda_parameter()
-            .filter(|lambda_parameter| lambda_parameter.read().unwrap().ty == Some(self.id()))
+            .filter(|lambda_parameter| lambda_parameter.read().unwrap().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-list"}}}
     /// Navigate to [`List`] across R36(1-M)
     pub fn r36_list<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<List>>> {
-        span!("r36_list");
         store
             .iter_list()
-            .filter(|list| list.read().unwrap().ty == self.id())
+            .filter(|list| list.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -356,22 +422,20 @@ impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-parameter"}}}
     /// Navigate to [`Parameter`] across R79(1-M)
     pub fn r79_parameter<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r79_parameter");
         store
             .iter_parameter()
-            .filter(|parameter| parameter.read().unwrap().ty == self.id())
             // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
             // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-reference"}}}
+            .filter(|parameter| parameter.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_Mc-to-span"}}}
     /// Navigate to [`Span`] across R62(1-Mc)
     pub fn r62_span<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Span>>> {
-        span!("r62_span");
         store
             .iter_span()
-            .filter(|span| span.read().unwrap().ty == Some(self.id()))
+            .filter(|span| span.read().unwrap().ty == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -381,30 +445,27 @@ impl ValueType {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<TupleField>>> {
-        span!("r86_tuple_field");
         store
             .iter_tuple_field()
-            .filter(|tuple_field| tuple_field.read().unwrap().ty == self.id())
+            .filter(|tuple_field| tuple_field.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-type_cast"}}}
     /// Navigate to [`TypeCast`] across R69(1-M)
     pub fn r69_type_cast<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<TypeCast>>> {
-        span!("r69_type_cast");
         store
             .iter_type_cast()
-            .filter(|type_cast| type_cast.read().unwrap().ty == self.id())
+            .filter(|type_cast| type_cast.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R24(1-M)
     pub fn r24_x_value<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r24_x_value");
         store
             .iter_x_value()
-            .filter(|x_value| x_value.read().unwrap().ty == self.id())
+            .filter(|x_value| x_value.read().unwrap().ty == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

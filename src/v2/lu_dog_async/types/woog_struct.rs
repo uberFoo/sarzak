@@ -3,15 +3,16 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_async::types::data_structure::DataStructure;
+use crate::v2::lu_dog_async::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_async::types::field::Field;
 use crate::v2::lu_dog_async::types::field_access::FieldAccess;
 use crate::v2::lu_dog_async::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_async::types::item::Item;
 use crate::v2::lu_dog_async::types::item::ItemEnum;
-use crate::v2::lu_dog_async::types::struct_expression::StructExpression;
+use crate::v2::lu_dog_async::types::struct_generic::StructGeneric;
 use crate::v2::lu_dog_async::types::value_type::ValueType;
 use crate::v2::lu_dog_async::types::value_type::ValueTypeEnum;
 use crate::v2::sarzak::types::object::Object;
@@ -32,6 +33,9 @@ use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 pub struct WoogStruct {
     pub id: usize,
     pub name: String,
+    pub x_path: String,
+    /// R102: [`WoogStruct`] 'may have a ' [`StructGeneric`]
+    pub first_generic: Option<usize>,
     /// R4: [`WoogStruct`] 'mirrors an' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -42,6 +46,8 @@ impl WoogStruct {
     /// Inter a new 'Struct' in the store, and return it's `id`.
     pub async fn new(
         name: String,
+        x_path: String,
+        first_generic: Option<&Arc<RwLock<StructGeneric>>>,
         object: Option<&Object>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<WoogStruct>> {
@@ -49,15 +55,35 @@ impl WoogStruct {
             Some(object) => Some(object.id),
             None => None,
         };
+        let struct_generic = match first_generic {
+            Some(struct_generic) => Some(struct_generic.read().await.id),
+            None => None,
+        };
         store
             .inter_woog_struct(|id| {
                 Arc::new(RwLock::new(WoogStruct {
                     id,
                     name: name.to_owned(),
+                    x_path: x_path.to_owned(),
+                    first_generic: struct_generic,
                     object,
                 }))
             })
             .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`StructGeneric`] across R102(1-*c)
+    pub async fn r102_struct_generic<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<StructGeneric>>> + '_ {
+        match self.first_generic {
+            Some(ref first_generic) => stream::iter(
+                vec![store.exhume_struct_generic(first_generic).await.unwrap()].into_iter(),
+            ),
+            None => stream::iter(vec![].into_iter()),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-forward-cond-to-object"}}}
@@ -66,7 +92,6 @@ impl WoogStruct {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r4_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(object).unwrap()],
             None => Vec::new(),
@@ -79,7 +104,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Field>>> + '_ {
-        span!("r7_field");
         store.iter_field().await.filter_map(|field| async {
             if field.read().await.x_model == self.id {
                 Some(field)
@@ -95,7 +119,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccess>>> + '_ {
-        span!("r66_field_access");
         store
             .iter_field_access()
             .await
@@ -114,7 +137,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
-        span!("r8_implementation_block");
         store
             .iter_implementation_block()
             .await
@@ -128,28 +150,47 @@ impl WoogStruct {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_expression"}}}
-    /// Navigate to [`StructExpression`] across R39(1-M)
-    pub async fn r39_struct_expression<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-struct-impl-nav-backward-1_M-to-struct_generic"}}}
+    /// Navigate to [`StructGeneric`] across R100(1-M)
+    pub async fn r100_struct_generic<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<StructExpression>>> + '_ {
-        span!("r39_struct_expression");
+    ) -> impl futures::Stream<Item = Arc<RwLock<StructGeneric>>> + '_ {
         store
-            .iter_struct_expression()
+            .iter_struct_generic()
             .await
-            .filter_map(|struct_expression| async {
-                if struct_expression.read().await.woog_struct == self.id {
-                    Some(struct_expression)
+            .filter_map(|struct_generic| async {
+                if struct_generic.read().await.woog_struct == self.id {
+                    Some(struct_generic)
                 } else {
                     None
                 }
             })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-data_structure"}}}
+    // Navigate to [`DataStructure`] across R95(isa)
+    pub async fn r95_data_structure<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> Vec<Arc<RwLock<DataStructure>>> {
+        store
+            .iter_data_structure()
+            .await
+            .filter_map(|data_structure| async move {
+                if let DataStructureEnum::WoogStruct(id) = data_structure.read().await.subtype {
+                    Some(data_structure.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub async fn r6_item<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         store
             .iter_item()
             .await
@@ -170,7 +211,6 @@ impl WoogStruct {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         store
             .iter_value_type()
             .await
@@ -190,7 +230,10 @@ impl WoogStruct {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"woog_struct-implementation"}}}
 impl PartialEq for WoogStruct {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.object == other.object
+        self.name == other.name
+            && self.x_path == other.x_path
+            && self.first_generic == other.first_generic
+            && self.object == other.object
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

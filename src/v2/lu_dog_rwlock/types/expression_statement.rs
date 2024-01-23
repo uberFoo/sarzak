@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
@@ -36,7 +35,7 @@ impl ExpressionStatement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ExpressionStatement {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
         }));
         store.inter_expression_statement(new.clone());
         new
@@ -48,14 +47,12 @@ impl ExpressionStatement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r31_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
     pub fn r16_statement<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Statement>>> {
-        span!("r16_statement");
         vec![store
             .iter_statement()
             .find(|statement| {

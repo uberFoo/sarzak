@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::v2::lu_dog_vec::types::body::Body;
 use crate::v2::lu_dog_vec::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_vec::types::field_access_target::FieldAccessTargetEnum;
+use crate::v2::lu_dog_vec::types::func_generic::FuncGeneric;
 use crate::v2::lu_dog_vec::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_vec::types::item::Item;
 use crate::v2::lu_dog_vec::types::item::ItemEnum;
@@ -31,6 +32,8 @@ pub struct Function {
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
     pub body: usize,
+    /// R99: [`Function`] '' [`FuncGeneric`]
+    pub first_generic: Option<usize>,
     /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
     pub first_param: Option<usize>,
     /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
@@ -46,6 +49,7 @@ impl Function {
     pub fn new(
         name: String,
         body: &Rc<RefCell<Body>>,
+        first_generic: Option<&Rc<RefCell<FuncGeneric>>>,
         first_param: Option<&Rc<RefCell<Parameter>>>,
         impl_block: Option<&Rc<RefCell<ImplementationBlock>>>,
         return_type: &Rc<RefCell<ValueType>>,
@@ -56,6 +60,7 @@ impl Function {
                 id,
                 name: name.to_owned(),
                 body: body.borrow().id,
+                first_generic: first_generic.map(|func_generic| func_generic.borrow().id),
                 first_param: first_param.map(|parameter| parameter.borrow().id),
                 impl_block: impl_block.map(|implementation_block| implementation_block.borrow().id),
                 return_type: return_type.borrow().id,
@@ -70,6 +75,18 @@ impl Function {
     /// Navigate to [`Body`] across R19(1-*)
     pub fn r19_body<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<Body>>> {
         vec![store.exhume_body(&self.body).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R99(1-*c)
+    pub fn r99_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<FuncGeneric>>> {
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_func_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
@@ -99,6 +116,18 @@ impl Function {
         vec![store.exhume_value_type(&self.return_type).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-function_call"}}}
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    pub fn r107_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<FuncGeneric>>> {
+        store
+            .iter_func_generic()
+            .filter(|func_generic| func_generic.borrow().func == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}
@@ -165,6 +194,7 @@ impl PartialEq for Function {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
             && self.body == other.body
+            && self.first_generic == other.first_generic
             && self.first_param == other.first_param
             && self.impl_block == other.impl_block
             && self.return_type == other.return_type

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::lambda::Lambda;
@@ -48,7 +47,7 @@ impl LambdaParameter {
             position,
             lambda: lambda.read().unwrap().id,
             next: next.map(|lambda_parameter| lambda_parameter.read().unwrap().id),
-            ty: ty.map(|value_type| value_type.read().unwrap().id()),
+            ty: ty.map(|value_type| value_type.read().unwrap().id),
         }));
         store.inter_lambda_parameter(new.clone());
         new
@@ -57,7 +56,6 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-forward-to-lambda"}}}
     /// Navigate to [`Lambda`] across R76(1-*)
     pub fn r76_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
-        span!("r76_lambda");
         vec![store.exhume_lambda(&self.lambda).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -67,7 +65,6 @@ impl LambdaParameter {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<LambdaParameter>>> {
-        span!("r75_lambda_parameter");
         match self.next {
             Some(ref next) => vec![store.exhume_lambda_parameter(&next).unwrap()],
             None => Vec::new(),
@@ -80,11 +77,19 @@ impl LambdaParameter {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r77_value_type");
         match self.ty {
             Some(ref ty) => vec![store.exhume_value_type(&ty).unwrap()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-to-lambda"}}}
+    /// Navigate to [`Lambda`] across R103(1-1)
+    pub fn r103_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
+        vec![store
+            .iter_lambda()
+            .find(|lambda| lambda.read().unwrap().first_param == Some(self.id))
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-struct-impl-nav-backward-one-bi-cond-to-lambda_parameter"}}}
@@ -93,7 +98,6 @@ impl LambdaParameter {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<LambdaParameter>>> {
-        span!("r75_lambda_parameter");
         let lambda_parameter = store
             .iter_lambda_parameter()
             .find(|lambda_parameter| lambda_parameter.read().unwrap().next == Some(self.id));
@@ -106,7 +110,6 @@ impl LambdaParameter {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda_parameter-impl-nav-subtype-to-supertype-variable"}}}
     // Navigate to [`Variable`] across R12(isa)
     pub fn r12_variable<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Variable>>> {
-        span!("r12_variable");
         vec![store
             .iter_variable()
             .find(|variable| {

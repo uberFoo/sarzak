@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::field_access_target::FieldAccessTarget;
@@ -42,8 +41,8 @@ impl Field {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Field>> {
-        let x_model = x_model.read().await.id;
         let ty = ty.read().await.id;
+        let x_model = x_model.read().await.id;
         store
             .inter_field(|id| {
                 Arc::new(RwLock::new(Field {
@@ -62,7 +61,6 @@ impl Field {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
-        span!("r7_woog_struct");
         stream::iter(vec![store.exhume_woog_struct(&self.x_model).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -72,7 +70,6 @@ impl Field {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r5_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -82,7 +79,6 @@ impl Field {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         store
             .iter_field_access_target()
             .await

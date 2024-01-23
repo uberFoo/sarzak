@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::field::Field;
@@ -55,7 +54,6 @@ impl StructureField {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<StructureField>>> {
-        span!("r30_structure_field");
         match self.next {
             Some(ref next) => vec![store.exhume_structure_field(&next).unwrap()],
             None => Vec::new(),
@@ -68,7 +66,6 @@ impl StructureField {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<StructureField>>> {
-        span!("r30_structure_field");
         let structure_field = store
             .iter_structure_field()
             .find(|structure_field| structure_field.read().unwrap().next == Some(self.id));
@@ -81,14 +78,12 @@ impl StructureField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-woog_struct"}}}
     /// Navigate to [`Field`] across R27(1-*)
     pub fn r27_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Field>>> {
-        span!("r27_field");
         vec![store.exhume_field(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Structure`] across R27(1-*)
     pub fn r27_structure<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Structure>>> {
-        span!("r27_structure");
         vec![store.exhume_structure(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -3,12 +3,12 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::body::Body;
 use crate::v2::lu_dog_async::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_async::types::field_access_target::FieldAccessTargetEnum;
+use crate::v2::lu_dog_async::types::func_generic::FuncGeneric;
 use crate::v2::lu_dog_async::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_async::types::item::Item;
 use crate::v2::lu_dog_async::types::item::ItemEnum;
@@ -33,6 +33,8 @@ pub struct Function {
     pub name: String,
     /// R19: [`Function`] 'executes statements in a' [`Body`]
     pub body: usize,
+    /// R99: [`Function`] '' [`FuncGeneric`]
+    pub first_generic: Option<usize>,
     /// R82: [`Function`] 'may have a first parameter' [`Parameter`]
     pub first_param: Option<usize>,
     /// R9: [`Function`] 'may be contained in an' [`ImplementationBlock`]
@@ -48,16 +50,21 @@ impl Function {
     pub async fn new(
         name: String,
         body: &Arc<RwLock<Body>>,
+        first_generic: Option<&Arc<RwLock<FuncGeneric>>>,
         first_param: Option<&Arc<RwLock<Parameter>>>,
         impl_block: Option<&Arc<RwLock<ImplementationBlock>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Function>> {
+        let return_type = return_type.read().await.id;
         let parameter = match first_param {
             Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
-        let return_type = return_type.read().await.id;
+        let func_generic = match first_generic {
+            Some(func_generic) => Some(func_generic.read().await.id),
+            None => None,
+        };
         let body = body.read().await.id;
         let implementation_block = match impl_block {
             Some(implementation_block) => Some(implementation_block.read().await.id),
@@ -69,6 +76,7 @@ impl Function {
                     id,
                     name: name.to_owned(),
                     body,
+                    first_generic: func_generic,
                     first_param: parameter,
                     impl_block: implementation_block,
                     return_type,
@@ -83,8 +91,21 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Body>>> + '_ {
-        span!("r19_body");
         stream::iter(vec![store.exhume_body(&self.body).await.unwrap()].into_iter())
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R99(1-*c)
+    pub async fn r99_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<FuncGeneric>>> + '_ {
+        match self.first_generic {
+            Some(ref first_generic) => stream::iter(
+                vec![store.exhume_func_generic(first_generic).await.unwrap()].into_iter(),
+            ),
+            None => stream::iter(vec![].into_iter()),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-forward-cond-to-first_param"}}}
@@ -93,7 +114,6 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
-        span!("r82_parameter");
         match self.first_param {
             Some(ref first_param) => {
                 stream::iter(vec![store.exhume_parameter(first_param).await.unwrap()].into_iter())
@@ -108,7 +128,6 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
-        span!("r9_implementation_block");
         match self.impl_block {
             Some(ref impl_block) => stream::iter(
                 vec![store.exhume_implementation_block(impl_block).await.unwrap()].into_iter(),
@@ -123,8 +142,25 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r10_value_type");
         stream::iter(vec![store.exhume_value_type(&self.return_type).await.unwrap()].into_iter())
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-func_generic"}}}
+    /// Navigate to [`FuncGeneric`] across R107(1-M)
+    pub async fn r107_func_generic<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<FuncGeneric>>> + '_ {
+        store
+            .iter_func_generic()
+            .await
+            .filter_map(|func_generic| async {
+                if func_generic.read().await.func == self.id {
+                    Some(func_generic)
+                } else {
+                    None
+                }
+            })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-1_M-to-parameter"}}}
@@ -133,7 +169,6 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
-        span!("r13_parameter");
         store.iter_parameter().await.filter_map(|parameter| async {
             if parameter.read().await.function == self.id {
                 Some(parameter)
@@ -149,7 +184,6 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         store
             .iter_field_access_target()
             .await
@@ -169,7 +203,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub async fn r6_item<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         store
             .iter_item()
             .await
@@ -190,7 +223,6 @@ impl Function {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         store
             .iter_value_type()
             .await
@@ -212,6 +244,7 @@ impl PartialEq for Function {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
             && self.body == other.body
+            && self.first_generic == other.first_generic
             && self.first_param == other.first_param
             && self.impl_block == other.impl_block
             && self.return_type == other.return_type

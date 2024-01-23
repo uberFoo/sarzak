@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"pattern-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
@@ -55,8 +54,8 @@ impl Pattern {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Pattern {
             id,
-            expression: expression.read().unwrap().id(),
-            match_expr: match_expr.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
+            match_expr: match_expr.read().unwrap().id,
             x_match: x_match.read().unwrap().id,
         }));
         store.inter_pattern(new.clone());
@@ -69,7 +68,6 @@ impl Pattern {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r92_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -79,14 +77,12 @@ impl Pattern {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r87_expression");
         vec![store.exhume_expression(&self.match_expr).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"pattern-struct-impl-nav-forward-assoc-to-x_match"}}}
     /// Navigate to [`XMatch`] across R87(1-*)
     pub fn r87_x_match<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XMatch>>> {
-        span!("r87_x_match");
         vec![store.exhume_x_match(&self.x_match).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
@@ -44,8 +44,8 @@ impl FieldAccess {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(FieldAccess {
             id,
-            expression: expression.read().unwrap().id(),
-            field: field.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
+            field: field.read().unwrap().id,
             woog_struct: woog_struct.read().unwrap().id,
         }));
         store.inter_field_access(new.clone());
@@ -58,7 +58,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r27_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -68,7 +67,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r65_field_access_target");
         vec![store.exhume_field_access_target(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -78,7 +76,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r66_woog_struct");
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -88,8 +85,16 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::FieldAccess(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

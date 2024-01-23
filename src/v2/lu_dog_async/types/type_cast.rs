@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -39,8 +38,8 @@ impl TypeCast {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<TypeCast>> {
-        let lhs = lhs.read().await.id;
         let ty = ty.read().await.id;
+        let lhs = lhs.read().await.id;
         store
             .inter_type_cast(|id| Arc::new(RwLock::new(TypeCast { id, lhs, ty })))
             .await
@@ -52,7 +51,6 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r68_expression");
         stream::iter(vec![store.exhume_expression(&self.lhs).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -62,7 +60,6 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r69_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -72,7 +69,6 @@ impl TypeCast {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

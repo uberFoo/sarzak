@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
@@ -49,14 +48,12 @@ impl Reference {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r13_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-impl-nav-subtype-to-supertype-grace_type"}}}
     // Navigate to [`GraceType`] across R2(isa)
     pub fn r2_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
-        span!("r2_grace_type");
         vec![store.exhume_grace_type(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

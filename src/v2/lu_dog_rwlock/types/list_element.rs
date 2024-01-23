@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_element-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::list_expression::ListExpression;
 use serde::{Deserialize, Serialize};
 
@@ -37,7 +37,7 @@ impl ListElement {
         let new = Arc::new(RwLock::new(ListElement {
             id,
             position,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
             next: next.map(|list_element| list_element.read().unwrap().id),
         }));
         store.inter_list_element(new.clone());
@@ -50,7 +50,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r55_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -60,7 +59,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ListElement>>> {
-        span!("r53_list_element");
         match self.next {
             Some(ref next) => vec![store.exhume_list_element(&next).unwrap()],
             None => Vec::new(),
@@ -73,7 +71,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ListElement>>> {
-        span!("r53_list_element");
         let list_element = store
             .iter_list_element()
             .find(|list_element| list_element.read().unwrap().next == Some(self.id));
@@ -89,7 +86,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ListExpression>>> {
-        span!("r54_list_expression");
         vec![store
             .iter_list_expression()
             .find(|list_expression| list_expression.read().unwrap().elements == Some(self.id))
@@ -102,8 +98,16 @@ impl ListElement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::ListElement(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::function::Function;
@@ -47,12 +46,12 @@ impl Parameter {
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Parameter>> {
+        let ty = ty.read().await.id;
         let function = function.read().await.id;
         let parameter = match next {
             Some(parameter) => Some(parameter.read().await.id),
             None => None,
         };
-        let ty = ty.read().await.id;
         store
             .inter_parameter(|id| {
                 Arc::new(RwLock::new(Parameter {
@@ -72,7 +71,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
-        span!("r13_function");
         stream::iter(vec![store.exhume_function(&self.function).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -82,7 +80,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
-        span!("r14_parameter");
         match self.next {
             Some(ref next) => {
                 stream::iter(vec![store.exhume_parameter(next).await.unwrap()].into_iter())
@@ -97,7 +94,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r79_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -107,7 +103,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
-        span!("r82_function");
         store
             .iter_function()
             .await
@@ -126,7 +121,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Parameter>>> + '_ {
-        span!("r14_parameter");
         store
             .iter_parameter()
             .await
@@ -145,7 +139,6 @@ impl Parameter {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Variable>>> {
-        span!("r12_variable");
         store
             .iter_variable()
             .await

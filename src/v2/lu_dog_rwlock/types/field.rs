@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::field_access_target::FieldAccessTarget;
+use crate::v2::lu_dog_rwlock::types::field_access_target::FieldAccessTargetEnum;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ impl Field {
             id,
             name,
             x_model: x_model.read().unwrap().id,
-            ty: ty.read().unwrap().id(),
+            ty: ty.read().unwrap().id,
         }));
         store.inter_field(new.clone());
         new
@@ -57,14 +57,12 @@ impl Field {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r7_woog_struct");
         vec![store.exhume_woog_struct(&self.x_model).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R5(1-*)
     pub fn r5_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r5_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -74,8 +72,18 @@ impl Field {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
-        vec![store.exhume_field_access_target(&self.id).unwrap()]
+        vec![store
+            .iter_field_access_target()
+            .find(|field_access_target| {
+                if let FieldAccessTargetEnum::Field(id) =
+                    field_access_target.read().unwrap().subtype
+                {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

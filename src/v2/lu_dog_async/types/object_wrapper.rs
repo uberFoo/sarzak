@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::z_object_store::ZObjectStore;
@@ -38,8 +37,8 @@ impl ObjectWrapper {
         z_store: &Arc<RwLock<ZObjectStore>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ObjectWrapper>> {
-        let object = object.id;
         let z_store = z_store.read().await.id;
+        let object = object.id;
         store
             .inter_object_wrapper(|id| {
                 Arc::new(RwLock::new(ObjectWrapper {
@@ -57,7 +56,6 @@ impl ObjectWrapper {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r78_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -67,7 +65,6 @@ impl ObjectWrapper {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ZObjectStore>>> {
-        span!("r78_z_object_store");
         vec![store.exhume_z_object_store(&self.z_store).await.unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

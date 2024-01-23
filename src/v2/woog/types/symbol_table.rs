@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::block::Block;
@@ -43,14 +42,12 @@ impl SymbolTable {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R24(1-*)
     pub fn r24_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r24_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"symbol_table-struct-impl-nav-backward-1_M-to-variable"}}}
     /// Navigate to [`Variable`] across R20(1-M)
     pub fn r20_variable<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Variable>>> {
-        span!("r20_variable");
         store
             .iter_variable()
             .filter(|variable| variable.read().unwrap().symbol_table == self.id)

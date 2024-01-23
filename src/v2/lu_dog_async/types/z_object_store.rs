@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::implementation_block::ImplementationBlock;
@@ -55,7 +54,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ImplementationBlock>>> + '_ {
-        span!("r83_implementation_block");
         store
             .iter_implementation_block()
             .await
@@ -74,7 +72,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ObjectWrapper>>> {
-        span!("r78_object_wrapper");
         store
             .iter_object_wrapper()
             .await
@@ -95,7 +92,6 @@ impl ZObjectStore {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         store
             .iter_value_type()
             .await

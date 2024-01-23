@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::block::Block;
@@ -24,7 +23,7 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct XIf {
     pub id: usize,
-    /// R52: [`XIf`] 'false block' [`Block`]
+    /// R52: [`XIf`] 'false block' [`Expression`]
     pub false_block: Option<usize>,
     /// R44: [`XIf`] 'branches based on' [`Expression`]
     pub test: usize,
@@ -37,14 +36,14 @@ impl XIf {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-new"}}}
     /// Inter a new 'If' in the store, and return it's `id`.
     pub async fn new(
-        false_block: Option<&Arc<RwLock<Block>>>,
+        false_block: Option<&Arc<RwLock<Expression>>>,
         test: &Arc<RwLock<Expression>>,
         true_block: &Arc<RwLock<Block>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<XIf>> {
         let test = test.read().await.id;
-        let block = match false_block {
-            Some(block) => Some(block.read().await.id),
+        let expression = match false_block {
+            Some(expression) => Some(expression.read().await.id),
             None => None,
         };
         let true_block = true_block.read().await.id;
@@ -52,7 +51,7 @@ impl XIf {
             .inter_x_if(|id| {
                 Arc::new(RwLock::new(XIf {
                     id,
-                    false_block: block,
+                    false_block: expression,
                     test,
                     true_block,
                 }))
@@ -61,15 +60,14 @@ impl XIf {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-cond-to-false_block"}}}
-    /// Navigate to [`Block`] across R52(1-*c)
-    pub async fn r52_block<'a>(
+    /// Navigate to [`Expression`] across R52(1-*c)
+    pub async fn r52_expression<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r52_block");
+    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
         match self.false_block {
             Some(ref false_block) => {
-                stream::iter(vec![store.exhume_block(false_block).await.unwrap()].into_iter())
+                stream::iter(vec![store.exhume_expression(false_block).await.unwrap()].into_iter())
             }
             None => stream::iter(vec![].into_iter()),
         }
@@ -81,7 +79,6 @@ impl XIf {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r44_expression");
         stream::iter(vec![store.exhume_expression(&self.test).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -91,7 +88,6 @@ impl XIf {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r46_block");
         stream::iter(vec![store.exhume_block(&self.true_block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -101,7 +97,6 @@ impl XIf {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

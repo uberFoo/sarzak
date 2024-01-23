@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::binary::Binary;
@@ -130,7 +129,6 @@ impl Operator {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r50_expression");
         stream::iter(vec![store.exhume_expression(&self.lhs).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -140,7 +138,6 @@ impl Operator {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r51_expression");
         match self.rhs {
             Some(ref rhs) => {
                 stream::iter(vec![store.exhume_expression(rhs).await.unwrap()].into_iter())
@@ -155,7 +152,6 @@ impl Operator {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

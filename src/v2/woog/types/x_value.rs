@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::access::Access;
@@ -61,7 +60,7 @@ impl XValue {
         let new = Arc::new(RwLock::new(XValue {
             access: access.read().unwrap().id,
             ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Expression(subtype.read().unwrap().id()),
+            subtype: XValueEnum::Expression(subtype.read().unwrap().id()), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -80,7 +79,7 @@ impl XValue {
         let new = Arc::new(RwLock::new(XValue {
             access: access.read().unwrap().id,
             ty: ty.read().unwrap().id(),
-            subtype: XValueEnum::Variable(subtype.read().unwrap().id),
+            subtype: XValueEnum::Variable(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_x_value(new.clone());
@@ -90,14 +89,12 @@ impl XValue {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-forward-to-access"}}}
     /// Navigate to [`Access`] across R16(1-*)
     pub fn r16_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Access>>> {
-        span!("r16_access");
         vec![store.exhume_access(&self.access).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R3(1-*)
     pub fn r3_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
-        span!("r3_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

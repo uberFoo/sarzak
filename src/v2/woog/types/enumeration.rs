@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::enumeration_field::EnumerationField;
@@ -44,7 +43,6 @@ impl Enumeration {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<EnumerationField>>> {
-        span!("r28_enumeration_field");
         store
             .iter_enumeration_field()
             .filter(|enumeration_field| enumeration_field.read().unwrap().field == self.id)
@@ -54,7 +52,6 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
     pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

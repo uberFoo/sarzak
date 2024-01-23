@@ -2,11 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::block::Block;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -22,7 +22,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct XIf {
     pub id: Uuid,
-    /// R52: [`XIf`] 'false block' [`Block`]
+    /// R52: [`XIf`] 'false block' [`Expression`]
     pub false_block: Option<Uuid>,
     /// R44: [`XIf`] 'branches based on' [`Expression`]
     pub test: Uuid,
@@ -35,7 +35,7 @@ impl XIf {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-new"}}}
     /// Inter a new 'If' in the store, and return it's `id`.
     pub fn new(
-        false_block: Option<&Arc<RwLock<Block>>>,
+        false_block: Option<&Arc<RwLock<Expression>>>,
         test: &Arc<RwLock<Expression>>,
         true_block: &Arc<RwLock<Block>>,
         store: &mut LuDogRwlockStore,
@@ -43,8 +43,8 @@ impl XIf {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(XIf {
             id,
-            false_block: false_block.map(|block| block.read().unwrap().id),
-            test: test.read().unwrap().id(),
+            false_block: false_block.map(|expression| expression.read().unwrap().id),
+            test: test.read().unwrap().id,
             true_block: true_block.read().unwrap().id,
         }));
         store.inter_x_if(new.clone());
@@ -52,11 +52,13 @@ impl XIf {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-cond-to-false_block"}}}
-    /// Navigate to [`Block`] across R52(1-*c)
-    pub fn r52_block<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r52_block");
+    /// Navigate to [`Expression`] across R52(1-*c)
+    pub fn r52_expression<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
         match self.false_block {
-            Some(ref false_block) => vec![store.exhume_block(&false_block).unwrap()],
+            Some(ref false_block) => vec![store.exhume_expression(&false_block).unwrap()],
             None => Vec::new(),
         }
     }
@@ -69,14 +71,12 @@ impl XIf {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r44_expression");
         vec![store.exhume_expression(&self.test).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_if-struct-impl-nav-forward-to-true_block"}}}
     /// Navigate to [`Block`] across R46(1-*)
     pub fn r46_block<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r46_block");
         vec![store.exhume_block(&self.true_block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -86,8 +86,16 @@ impl XIf {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::XIf(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

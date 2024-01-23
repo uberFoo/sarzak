@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_path-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::path_element::PathElement;
 use crate::v2::lu_dog_rwlock::types::struct_expression::StructExpression;
 use serde::{Deserialize, Serialize};
@@ -52,7 +52,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r97_path_element");
         match self.first {
             Some(ref first) => vec![store.exhume_path_element(&first).unwrap()],
             None => Vec::new(),
@@ -65,7 +64,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<PathElement>>> {
-        span!("r90_path_element");
         store
             .iter_path_element()
             .filter(|path_element| path_element.read().unwrap().x_path == self.id)
@@ -78,7 +76,6 @@ impl XPath {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<StructExpression>>> {
-        span!("r96_struct_expression");
         store
             .iter_struct_expression()
             .filter(|struct_expression| struct_expression.read().unwrap().x_path == self.id)
@@ -91,8 +88,16 @@ impl XPath {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::XPath(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -2,12 +2,12 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::argument::Argument;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
-use crate::v2::lu_dog_rwlock::types::function_call::FUNCTION_CALL;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
+use crate::v2::lu_dog_rwlock::types::function_call::FunctionCall;
 use crate::v2::lu_dog_rwlock::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog_rwlock::types::method_call::MethodCall;
 use crate::v2::lu_dog_rwlock::types::static_method_call::StaticMethodCall;
@@ -50,14 +50,15 @@ impl Call {
         arg_check: bool,
         argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
+        subtype: &Arc<RwLock<FunctionCall>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Call>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.read().unwrap().id),
-            expression: expression.map(|expression| expression.read().unwrap().id()),
-            subtype: CallEnum::FunctionCall(FUNCTION_CALL),
+            expression: expression.map(|expression| expression.read().unwrap().id),
+            subtype: CallEnum::FunctionCall(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_call(new.clone());
@@ -76,7 +77,7 @@ impl Call {
         let new = Arc::new(RwLock::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.read().unwrap().id),
-            expression: expression.map(|expression| expression.read().unwrap().id()),
+            expression: expression.map(|expression| expression.read().unwrap().id),
             subtype: CallEnum::MacroCall(MACRO_CALL),
             id,
         }));
@@ -97,7 +98,7 @@ impl Call {
         let new = Arc::new(RwLock::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.read().unwrap().id),
-            expression: expression.map(|expression| expression.read().unwrap().id()),
+            expression: expression.map(|expression| expression.read().unwrap().id),
             subtype: CallEnum::MethodCall(subtype.read().unwrap().id), // b
             id,
         }));
@@ -118,7 +119,7 @@ impl Call {
         let new = Arc::new(RwLock::new(Call {
             arg_check: arg_check,
             argument: argument.map(|argument| argument.read().unwrap().id),
-            expression: expression.map(|expression| expression.read().unwrap().id()),
+            expression: expression.map(|expression| expression.read().unwrap().id),
             subtype: CallEnum::StaticMethodCall(subtype.read().unwrap().id), // b
             id,
         }));
@@ -129,7 +130,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-forward-cond-to-argument"}}}
     /// Navigate to [`Argument`] across R81(1-*c)
     pub fn r81_argument<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r81_argument");
         match self.argument {
             Some(ref argument) => vec![store.exhume_argument(&argument).unwrap()],
             None => Vec::new(),
@@ -142,7 +142,6 @@ impl Call {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r29_expression");
         match self.expression {
             Some(ref expression) => vec![store.exhume_expression(&expression).unwrap()],
             None => Vec::new(),
@@ -152,7 +151,6 @@ impl Call {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-struct-impl-nav-backward-1_M-to-argument"}}}
     /// Navigate to [`Argument`] across R28(1-M)
     pub fn r28_argument<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Argument>>> {
-        span!("r28_argument");
         store
             .iter_argument()
             .filter(|argument| argument.read().unwrap().function == self.id)
@@ -165,8 +163,16 @@ impl Call {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Call(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::enumeration_field::EnumerationField;
@@ -51,7 +50,6 @@ impl Field {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`GraceType`] across R29(1-*)
     pub fn r29_grace_type<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<GraceType>>> {
-        span!("r29_grace_type");
         vec![store.exhume_grace_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -61,7 +59,6 @@ impl Field {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<StructureField>>> {
-        span!("r27_structure_field");
         let structure_field = store
             .iter_structure_field()
             .find(|structure_field| structure_field.read().unwrap().woog_struct == self.id);
@@ -77,7 +74,6 @@ impl Field {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<EnumerationField>>> {
-        span!("r28_enumeration_field");
         let enumeration_field = store
             .iter_enumeration_field()
             .find(|enumeration_field| enumeration_field.read().unwrap().woog_enum == self.id);

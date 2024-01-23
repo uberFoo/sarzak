@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::block::Block;
@@ -11,7 +10,6 @@ use crate::v2::lu_dog_async::types::expression::Expression;
 use crate::v2::lu_dog_async::types::span::Span;
 use crate::v2::lu_dog_async::types::value_type::ValueType;
 use crate::v2::lu_dog_async::types::variable::Variable;
-use crate::v2::lu_dog_async::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -97,7 +95,6 @@ impl XValue {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r33_block");
         stream::iter(vec![store.exhume_block(&self.block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -107,25 +104,10 @@ impl XValue {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r24_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_M-to-z_some"}}}
-    /// Navigate to [`ZSome`] across R23(1-M)
-    pub async fn r23_z_some<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<ZSome>>> + '_ {
-        span!("r23_z_some");
-        store.iter_z_some().await.filter_map(|z_some| async {
-            if z_some.read().await.inner == self.id {
-                Some(z_some)
-            } else {
-                None
-            }
-        })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"x_value-struct-impl-nav-backward-1_Mc-to-span"}}}
     /// Navigate to [`Span`] across R63(1-Mc)
@@ -133,7 +115,6 @@ impl XValue {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Span>>> + '_ {
-        span!("r63_span");
         store.iter_span().await.filter_map(move |span| async move {
             if span.read().await.x_value == Some(self.id) {
                 Some(span.clone())

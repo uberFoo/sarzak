@@ -3,15 +3,13 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_async::types::a_wait::AWait;
 use crate::v2::lu_dog_async::types::argument::Argument;
 use crate::v2::lu_dog_async::types::block::Block;
 use crate::v2::lu_dog_async::types::call::Call;
-use crate::v2::lu_dog_async::types::debugger::DEBUGGER;
-use crate::v2::lu_dog_async::types::enum_field::EnumField;
-use crate::v2::lu_dog_async::types::error_expression::ErrorExpression;
+use crate::v2::lu_dog_async::types::empty_expression::EMPTY_EXPRESSION;
 use crate::v2::lu_dog_async::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_async::types::field_access::FieldAccess;
 use crate::v2::lu_dog_async::types::field_expression::FieldExpression;
@@ -28,18 +26,16 @@ use crate::v2::lu_dog_async::types::pattern::Pattern;
 use crate::v2::lu_dog_async::types::range_expression::RangeExpression;
 use crate::v2::lu_dog_async::types::result_statement::ResultStatement;
 use crate::v2::lu_dog_async::types::struct_expression::StructExpression;
-use crate::v2::lu_dog_async::types::struct_field::StructField;
-use crate::v2::lu_dog_async::types::tuple_field::TupleField;
 use crate::v2::lu_dog_async::types::type_cast::TypeCast;
 use crate::v2::lu_dog_async::types::variable_expression::VariableExpression;
+use crate::v2::lu_dog_async::types::x_debugger::X_DEBUGGER;
 use crate::v2::lu_dog_async::types::x_if::XIf;
 use crate::v2::lu_dog_async::types::x_match::XMatch;
+use crate::v2::lu_dog_async::types::x_path::XPath;
 use crate::v2::lu_dog_async::types::x_print::XPrint;
 use crate::v2::lu_dog_async::types::x_return::XReturn;
 use crate::v2::lu_dog_async::types::x_value::XValue;
 use crate::v2::lu_dog_async::types::x_value::XValueEnum;
-use crate::v2::lu_dog_async::types::z_none::Z_NONE;
-use crate::v2::lu_dog_async::types::z_some::ZSome;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -55,17 +51,18 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Expression {
     pub subtype: ExpressionEnum,
+    pub bogus: bool,
     pub id: usize,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum ExpressionEnum {
+    AWait(usize),
     Block(usize),
     Call(usize),
-    Debugger(Uuid),
-    EnumField(usize),
-    ErrorExpression(usize),
+    XDebugger(Uuid),
+    EmptyExpression(Uuid),
     FieldAccess(usize),
     FieldExpression(usize),
     ForLoop(usize),
@@ -77,12 +74,11 @@ pub enum ExpressionEnum {
     ListExpression(usize),
     Literal(usize),
     XMatch(usize),
-    ZNone(Uuid),
     Operator(usize),
+    XPath(usize),
     XPrint(usize),
     RangeExpression(usize),
     XReturn(usize),
-    ZSome(usize),
     StructExpression(usize),
     TypeCast(usize),
     VariableExpression(usize),
@@ -91,8 +87,31 @@ pub enum ExpressionEnum {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_block"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_a_wait"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub async fn new_a_wait(
+        bogus: bool,
+        subtype: &Arc<RwLock<AWait>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<Expression>> {
+        let s_id = subtype.read().await.id;
+        let subtype = subtype.read().await.id;
+        store
+            .inter_expression(|id| {
+                Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
+                    subtype: ExpressionEnum::AWait(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_call"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_block"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_block(
+        bogus: bool,
         subtype: &Arc<RwLock<Block>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -101,6 +120,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Block(subtype),
                     id,
                 }))
@@ -108,9 +128,11 @@ impl Expression {
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_debugger"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_call"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_call(
+        bogus: bool,
         subtype: &Arc<RwLock<Call>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -119,6 +141,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Call(subtype),
                     id,
                 }))
@@ -126,31 +149,18 @@ impl Expression {
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_debugger"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub async fn new_debugger(store: &mut LuDogAsyncStore) -> Arc<RwLock<Expression>> {
-        store
-            .inter_expression(|id| {
-                Arc::new(RwLock::new(Expression {
-                    subtype: ExpressionEnum::Debugger(DEBUGGER),
-                    id,
-                }))
-            })
-            .await
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_enum_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_debugger"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub async fn new_enum_field(
-        subtype: &Arc<RwLock<EnumField>>,
+    pub async fn new_x_debugger(
+        bogus: bool,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
-        let s_id = subtype.read().await.id;
-        let subtype = subtype.read().await.id;
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
-                    subtype: ExpressionEnum::EnumField(subtype),
+                    bogus: bogus,
+                    subtype: ExpressionEnum::XDebugger(X_DEBUGGER),
                     id,
                 }))
             })
@@ -158,17 +168,17 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_error_expression"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_empty_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
-    pub async fn new_error_expression(
-        subtype: &Arc<RwLock<ErrorExpression>>,
+    pub async fn new_empty_expression(
+        bogus: bool,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
-        let s_id = subtype.read().await.id;
-        let subtype = subtype.read().await.id;
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
-                    subtype: ExpressionEnum::ErrorExpression(subtype),
+                    bogus: bogus,
+                    subtype: ExpressionEnum::EmptyExpression(EMPTY_EXPRESSION),
                     id,
                 }))
             })
@@ -178,6 +188,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_field_access"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_field_access(
+        bogus: bool,
         subtype: &Arc<RwLock<FieldAccess>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -186,6 +197,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::FieldAccess(subtype),
                     id,
                 }))
@@ -196,6 +208,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_field_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_field_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<FieldExpression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -204,6 +217,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::FieldExpression(subtype),
                     id,
                 }))
@@ -214,6 +228,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_for_loop"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_for_loop(
+        bogus: bool,
         subtype: &Arc<RwLock<ForLoop>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -222,6 +237,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::ForLoop(subtype),
                     id,
                 }))
@@ -232,6 +248,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_grouped"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_grouped(
+        bogus: bool,
         subtype: &Arc<RwLock<Grouped>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -240,6 +257,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Grouped(subtype),
                     id,
                 }))
@@ -250,6 +268,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_if"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_x_if(
+        bogus: bool,
         subtype: &Arc<RwLock<XIf>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -258,6 +277,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::XIf(subtype),
                     id,
                 }))
@@ -268,6 +288,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_index"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_index(
+        bogus: bool,
         subtype: &Arc<RwLock<Index>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -276,6 +297,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Index(subtype),
                     id,
                 }))
@@ -286,6 +308,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_lambda"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_lambda(
+        bogus: bool,
         subtype: &Arc<RwLock<Lambda>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -294,6 +317,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Lambda(subtype),
                     id,
                 }))
@@ -304,6 +328,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_list_element"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_list_element(
+        bogus: bool,
         subtype: &Arc<RwLock<ListElement>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -312,6 +337,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::ListElement(subtype),
                     id,
                 }))
@@ -322,6 +348,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_list_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_list_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<ListExpression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -330,6 +357,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::ListExpression(subtype),
                     id,
                 }))
@@ -340,6 +368,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_literal"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_literal(
+        bogus: bool,
         subtype: &Arc<RwLock<Literal>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -348,6 +377,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Literal(subtype),
                     id,
                 }))
@@ -358,6 +388,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_match"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_x_match(
+        bogus: bool,
         subtype: &Arc<RwLock<XMatch>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -366,6 +397,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::XMatch(subtype),
                     id,
                 }))
@@ -374,21 +406,10 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_z_none"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub async fn new_z_none(store: &mut LuDogAsyncStore) -> Arc<RwLock<Expression>> {
-        store
-            .inter_expression(|id| {
-                Arc::new(RwLock::new(Expression {
-                    subtype: ExpressionEnum::ZNone(Z_NONE),
-                    id,
-                }))
-            })
-            .await
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_operator"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_operator(
+        bogus: bool,
         subtype: &Arc<RwLock<Operator>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -397,7 +418,29 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::Operator(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_operator"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_path"}}}
+    /// Inter a new Expression in the store, and return it's `id`.
+    pub async fn new_x_path(
+        bogus: bool,
+        subtype: &Arc<RwLock<XPath>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<Expression>> {
+        let s_id = subtype.read().await.id;
+        let subtype = subtype.read().await.id;
+        store
+            .inter_expression(|id| {
+                Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
+                    subtype: ExpressionEnum::XPath(subtype),
                     id,
                 }))
             })
@@ -407,6 +450,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_print"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_x_print(
+        bogus: bool,
         subtype: &Arc<RwLock<XPrint>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -415,6 +459,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::XPrint(subtype),
                     id,
                 }))
@@ -425,6 +470,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_range_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_range_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<RangeExpression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -433,6 +479,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::RangeExpression(subtype),
                     id,
                 }))
@@ -443,6 +490,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_x_return"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_x_return(
+        bogus: bool,
         subtype: &Arc<RwLock<XReturn>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -451,6 +499,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::XReturn(subtype),
                     id,
                 }))
@@ -459,26 +508,11 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_z_some"}}}
-    /// Inter a new Expression in the store, and return it's `id`.
-    pub async fn new_z_some(
-        subtype: &Arc<RwLock<ZSome>>,
-        store: &mut LuDogAsyncStore,
-    ) -> Arc<RwLock<Expression>> {
-        let s_id = subtype.read().await.id;
-        let subtype = subtype.read().await.id;
-        store
-            .inter_expression(|id| {
-                Arc::new(RwLock::new(Expression {
-                    subtype: ExpressionEnum::ZSome(subtype),
-                    id,
-                }))
-            })
-            .await
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_struct_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_struct_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<StructExpression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -487,6 +521,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::StructExpression(subtype),
                     id,
                 }))
@@ -497,6 +532,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_type_cast"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_type_cast(
+        bogus: bool,
         subtype: &Arc<RwLock<TypeCast>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -505,6 +541,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::TypeCast(subtype),
                     id,
                 }))
@@ -515,6 +552,7 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-new_variable_expression"}}}
     /// Inter a new Expression in the store, and return it's `id`.
     pub async fn new_variable_expression(
+        bogus: bool,
         subtype: &Arc<RwLock<VariableExpression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Expression>> {
@@ -523,6 +561,7 @@ impl Expression {
         store
             .inter_expression(|id| {
                 Arc::new(RwLock::new(Expression {
+                    bogus: bogus,
                     subtype: ExpressionEnum::VariableExpression(subtype),
                     id,
                 }))
@@ -536,7 +575,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
-        span!("r37_argument");
         store.iter_argument().await.filter_map(|argument| async {
             if argument.read().await.expression == self.id {
                 Some(argument)
@@ -546,13 +584,29 @@ impl Expression {
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-cond-to-a_wait"}}}
+    /// Navigate to [`AWait`] across R98(1-1c)
+    pub async fn r98c_a_wait<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<AWait>>> {
+        store
+            .iter_a_wait()
+            .await
+            .filter_map(|a_wait| async {
+                if a_wait.read().await.x_future == self.id {
+                    Some(a_wait)
+                } else {
+                    None
+                }
+            })
+            .collect()
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-call"}}}
     /// Navigate to [`Call`] across R29(1-Mc)
     pub async fn r29_call<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Call>>> + '_ {
-        span!("r29_call");
         store.iter_call().await.filter_map(move |call| async move {
             if call.read().await.expression == Some(self.id) {
                 Some(call.clone())
@@ -568,7 +622,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ExpressionStatement>>> + '_ {
-        span!("r31_expression_statement");
         store
             .iter_expression_statement()
             .await
@@ -587,7 +640,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccess>>> + '_ {
-        span!("r27_field_access");
         store
             .iter_field_access()
             .await
@@ -606,7 +658,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<FieldExpression>>> + '_ {
-        span!("r38_field_expression");
         store
             .iter_field_expression()
             .await
@@ -620,12 +671,26 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
+    /// Navigate to [`ForLoop`] across R43(1-M)
+    pub async fn r43_for_loop<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<ForLoop>>> + '_ {
+        store.iter_for_loop().await.filter_map(|for_loop| async {
+            if for_loop.read().await.block == self.id {
+                Some(for_loop)
+            } else {
+                None
+            }
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-for_loop"}}}
     /// Navigate to [`ForLoop`] across R42(1-M)
     pub async fn r42_for_loop<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ForLoop>>> + '_ {
-        span!("r42_for_loop");
         store.iter_for_loop().await.filter_map(|for_loop| async {
             if for_loop.read().await.expression == self.id {
                 Some(for_loop)
@@ -641,7 +706,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Grouped>>> + '_ {
-        span!("r61_grouped");
         store.iter_grouped().await.filter_map(|grouped| async {
             if grouped.read().await.expression == self.id {
                 Some(grouped)
@@ -657,10 +721,24 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XIf>>> + '_ {
-        span!("r44_x_if");
         store.iter_x_if().await.filter_map(|x_if| async {
             if x_if.read().await.test == self.id {
                 Some(x_if)
+            } else {
+                None
+            }
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-x_if"}}}
+    /// Navigate to [`XIf`] across R52(1-Mc)
+    pub async fn r52_x_if<'a>(
+        &'a self,
+        store: &'a LuDogAsyncStore,
+    ) -> impl futures::Stream<Item = Arc<RwLock<XIf>>> + '_ {
+        store.iter_x_if().await.filter_map(move |x_if| async move {
+            if x_if.read().await.false_block == Some(self.id) {
+                Some(x_if.clone())
             } else {
                 None
             }
@@ -673,7 +751,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Index>>> + '_ {
-        span!("r56_index");
         store.iter_index().await.filter_map(|index| async {
             if index.read().await.index == self.id {
                 Some(index)
@@ -689,7 +766,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Index>>> + '_ {
-        span!("r57_index");
         store.iter_index().await.filter_map(|index| async {
             if index.read().await.target == self.id {
                 Some(index)
@@ -725,7 +801,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
-        span!("r55_list_element");
         store
             .iter_list_element()
             .await
@@ -744,7 +819,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XMatch>>> + '_ {
-        span!("r91_x_match");
         store.iter_x_match().await.filter_map(|x_match| async {
             if x_match.read().await.scrutinee == self.id {
                 Some(x_match)
@@ -760,7 +834,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Operator>>> + '_ {
-        span!("r51_operator");
         store
             .iter_operator()
             .await
@@ -779,7 +852,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Operator>>> + '_ {
-        span!("r50_operator");
         store.iter_operator().await.filter_map(|operator| async {
             if operator.read().await.lhs == self.id {
                 Some(operator)
@@ -795,7 +867,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Pattern>>> + '_ {
-        span!("r92_pattern");
         store.iter_pattern().await.filter_map(|pattern| async {
             if pattern.read().await.expression == self.id {
                 Some(pattern)
@@ -811,7 +882,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XPrint>>> + '_ {
-        span!("r32_x_print");
         store.iter_x_print().await.filter_map(|x_print| async {
             if x_print.read().await.expression == self.id {
                 Some(x_print)
@@ -827,7 +897,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<RangeExpression>>> + '_ {
-        span!("r58_range_expression");
         store
             .iter_range_expression()
             .await
@@ -846,7 +915,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<RangeExpression>>> + '_ {
-        span!("r59_range_expression");
         store
             .iter_range_expression()
             .await
@@ -865,7 +933,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ResultStatement>>> + '_ {
-        span!("r41_result_statement");
         store
             .iter_result_statement()
             .await
@@ -884,7 +951,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XReturn>>> + '_ {
-        span!("r45_x_return");
         store.iter_x_return().await.filter_map(|x_return| async {
             if x_return.read().await.expression == self.id {
                 Some(x_return)
@@ -895,42 +961,8 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-struct_field"}}}
-    /// Navigate to [`StructField`] across R89(1-Mc)
-    pub async fn r89_struct_field<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<StructField>>> + '_ {
-        span!("r89_struct_field");
-        store
-            .iter_struct_field()
-            .await
-            .filter_map(move |struct_field| async move {
-                if struct_field.read().await.expression == Some(self.id) {
-                    Some(struct_field.clone())
-                } else {
-                    None
-                }
-            })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-tuple_field"}}}
-    /// Navigate to [`TupleField`] across R90(1-Mc)
-    pub async fn r90_tuple_field<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<TupleField>>> + '_ {
-        span!("r90_tuple_field");
-        store
-            .iter_tuple_field()
-            .await
-            .filter_map(move |tuple_field| async move {
-                if tuple_field.read().await.expression == Some(self.id) {
-                    Some(tuple_field.clone())
-                } else {
-                    None
-                }
-            })
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-type_cast"}}}
     /// Navigate to [`TypeCast`] across R68(1-M)
@@ -938,7 +970,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<TypeCast>>> + '_ {
-        span!("r68_type_cast");
         store.iter_type_cast().await.filter_map(|type_cast| async {
             if type_cast.read().await.lhs == self.id {
                 Some(type_cast)
@@ -954,7 +985,6 @@ impl Expression {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Pattern>>> {
-        span!("r87_pattern");
         store
             .iter_pattern()
             .await
@@ -972,7 +1002,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R11(isa)
     pub async fn r11_x_value<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r11_x_value");
         store
             .iter_x_value()
             .await
@@ -992,7 +1021,7 @@ impl Expression {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-implementation"}}}
 impl PartialEq for Expression {
     fn eq(&self, other: &Self) -> bool {
-        self.subtype == other.subtype
+        self.subtype == other.subtype && self.bogus == other.bogus
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

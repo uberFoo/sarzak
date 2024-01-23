@@ -30,6 +30,7 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FuncGeneric`]
 //! * [`Function`]
 //! * [`FunctionCall`]
 //! * [`XFuture`]
@@ -99,14 +100,14 @@ use crate::v2::lu_dog::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, Function, FunctionCall, Grouped, ImplementationBlock,
-    Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement,
-    ListExpression, Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper,
-    Operator, Parameter, PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement,
-    StaticMethodCall, StringLiteral, StructExpression, StructField, StructGeneric, TupleField,
-    TypeCast, Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression,
-    WoogStruct, XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue,
-    ZObjectStore,
+    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
+    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
+    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -136,6 +137,7 @@ pub struct ObjectStore {
     field_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FieldExpression>>>>>,
     float_literal: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FloatLiteral>>>>>,
     for_loop: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ForLoop>>>>>,
+    func_generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FuncGeneric>>>>>,
     function: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Function>>>>>,
     function_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     function_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FunctionCall>>>>>,
@@ -221,6 +223,7 @@ impl ObjectStore {
             field_expression: Rc::new(RefCell::new(HashMap::default())),
             float_literal: Rc::new(RefCell::new(HashMap::default())),
             for_loop: Rc::new(RefCell::new(HashMap::default())),
+            func_generic: Rc::new(RefCell::new(HashMap::default())),
             function: Rc::new(RefCell::new(HashMap::default())),
             function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             function_call: Rc::new(RefCell::new(HashMap::default())),
@@ -1218,6 +1221,46 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|for_loop| for_loop.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FuncGeneric`] into the store.
+    ///
+    pub fn inter_func_generic(&mut self, func_generic: Rc<RefCell<FuncGeneric>>) {
+        let read = func_generic.borrow();
+        self.func_generic
+            .borrow_mut()
+            .insert(read.id, func_generic.clone());
+    }
+
+    /// Exhume (get) [`FuncGeneric`] from the store.
+    ///
+    pub fn exhume_func_generic(&self, id: &Uuid) -> Option<Rc<RefCell<FuncGeneric>>> {
+        self.func_generic
+            .borrow()
+            .get(id)
+            .map(|func_generic| func_generic.clone())
+    }
+
+    /// Exorcise (remove) [`FuncGeneric`] from the store.
+    ///
+    pub fn exorcise_func_generic(&mut self, id: &Uuid) -> Option<Rc<RefCell<FuncGeneric>>> {
+        self.func_generic
+            .borrow_mut()
+            .remove(id)
+            .map(|func_generic| func_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FuncGeneric>`.
+    ///
+    pub fn iter_func_generic(&self) -> impl Iterator<Item = Rc<RefCell<FuncGeneric>>> + '_ {
+        let values: Vec<Rc<RefCell<FuncGeneric>>> = self
+            .func_generic
+            .borrow()
+            .values()
+            .map(|func_generic| func_generic.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3552,6 +3595,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Func Generic.
+        {
+            let path = path.join("func_generic");
+            fs::create_dir_all(&path)?;
+            for func_generic in self.func_generic.borrow().values() {
+                let path = path.join(format!("{}.json", func_generic.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &func_generic)?;
+            }
+        }
+
         // Persist Function.
         {
             let path = path.join("function");
@@ -4593,6 +4648,23 @@ impl ObjectStore {
                     .for_loop
                     .borrow_mut()
                     .insert(for_loop.borrow().id, for_loop.clone());
+            }
+        }
+
+        // Load Func Generic.
+        {
+            let path = path.join("func_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let func_generic: Rc<RefCell<FuncGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .func_generic
+                    .borrow_mut()
+                    .insert(func_generic.borrow().id, func_generic.clone());
             }
         }
 

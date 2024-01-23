@@ -25,13 +25,13 @@ pub mod one;
 pub mod referent;
 pub mod referrer;
 pub mod relationship;
-pub mod s_string;
-pub mod s_uuid;
 pub mod state;
 pub mod subtype;
 pub mod supertype;
 pub mod ty;
 pub mod unconditional;
+pub mod z_string;
+pub mod z_uuid;
 
 pub use crate::v2::sarzak::acknowledged_event::AcknowledgedEvent;
 pub use crate::v2::sarzak::an_associative_referent::AnAssociativeReferent;
@@ -61,10 +61,6 @@ pub use crate::v2::sarzak::one::ONE;
 pub use crate::v2::sarzak::referent::Referent;
 pub use crate::v2::sarzak::referrer::Referrer;
 pub use crate::v2::sarzak::relationship::Relationship;
-pub use crate::v2::sarzak::s_string::SString;
-pub use crate::v2::sarzak::s_string::S_STRING;
-pub use crate::v2::sarzak::s_uuid::SUuid;
-pub use crate::v2::sarzak::s_uuid::S_UUID;
 pub use crate::v2::sarzak::state::State;
 pub use crate::v2::sarzak::subtype::Subtype;
 pub use crate::v2::sarzak::supertype::Supertype;
@@ -72,4 +68,8 @@ pub use crate::v2::sarzak::ty::Ty;
 pub use crate::v2::sarzak::unconditional::Unconditional;
 pub use crate::v2::sarzak::unconditional::UNCONDITIONAL;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+pub use crate::v2::sarzak::z_string::ZString;
+pub use crate::v2::sarzak::z_string::Z_STRING;
+pub use crate::v2::sarzak::z_uuid::ZUuid;
+pub use crate::v2::sarzak::z_uuid::Z_UUID;
 // {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

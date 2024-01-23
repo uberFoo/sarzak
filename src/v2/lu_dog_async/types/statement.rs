@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::block::Block;
@@ -164,7 +163,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r18_block");
         stream::iter(vec![store.exhume_block(&self.block).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -174,7 +172,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
-        span!("r17_statement");
         match self.next {
             Some(ref next) => {
                 stream::iter(vec![store.exhume_statement(next).await.unwrap()].into_iter())
@@ -189,7 +186,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Block>>> + '_ {
-        span!("r71_block");
         store
             .iter_block()
             .await
@@ -208,7 +204,6 @@ impl Statement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Statement>>> + '_ {
-        span!("r17_statement");
         store
             .iter_statement()
             .await

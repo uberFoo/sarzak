@@ -2,15 +2,17 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::data_structure::DataStructure;
+use crate::v2::lu_dog_rwlock::types::data_structure::DataStructureEnum;
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
+use crate::v2::lu_dog_rwlock::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_rwlock::types::implementation_block::ImplementationBlock;
 use crate::v2::lu_dog_rwlock::types::item::Item;
 use crate::v2::lu_dog_rwlock::types::item::ItemEnum;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -28,6 +30,9 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 pub struct Enumeration {
     pub id: Uuid,
     pub name: String,
+    pub x_path: String,
+    /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
+    pub first_generic: Option<Uuid>,
     /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
     pub implementation: Option<Uuid>,
 }
@@ -38,6 +43,8 @@ impl Enumeration {
     /// Inter a new 'Enumeration' in the store, and return it's `id`.
     pub fn new(
         name: String,
+        x_path: String,
+        first_generic: Option<&Arc<RwLock<EnumGeneric>>>,
         implementation: Option<&Arc<RwLock<ImplementationBlock>>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Enumeration>> {
@@ -45,11 +52,25 @@ impl Enumeration {
         let new = Arc::new(RwLock::new(Enumeration {
             id,
             name,
+            x_path,
+            first_generic: first_generic.map(|enum_generic| enum_generic.read().unwrap().id),
             implementation: implementation
                 .map(|implementation_block| implementation_block.read().unwrap().id),
         }));
         store.inter_enumeration(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-first_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R105(1-*c)
+    pub fn r105_enum_generic<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<EnumGeneric>>> {
+        match self.first_generic {
+            Some(ref first_generic) => vec![store.exhume_enum_generic(&first_generic).unwrap()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-implementation"}}}
@@ -58,7 +79,6 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        span!("r84_implementation_block");
         match self.implementation {
             Some(ref implementation) => {
                 vec![store.exhume_implementation_block(&implementation).unwrap()]
@@ -73,10 +93,21 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r88_enum_field");
         store
             .iter_enum_field()
             .filter(|enum_field| enum_field.read().unwrap().woog_enum == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_generic"}}}
+    /// Navigate to [`EnumGeneric`] across R104(1-M)
+    pub fn r104_enum_generic<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<EnumGeneric>>> {
+        store
+            .iter_enum_generic()
+            .filter(|enum_generic| enum_generic.read().unwrap().woog_enum == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -86,14 +117,21 @@ impl Enumeration {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<DataStructure>>> {
-        span!("r95_data_structure");
-        vec![store.exhume_data_structure(&self.id).unwrap()]
+        vec![store
+            .iter_data_structure()
+            .find(|data_structure| {
+                if let DataStructureEnum::Enumeration(id) = data_structure.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub fn r6_item<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         vec![store
             .iter_item()
             .find(|item| {
@@ -109,8 +147,16 @@ impl Enumeration {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::Enumeration(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

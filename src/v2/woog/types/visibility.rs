@@ -8,7 +8,6 @@ use crate::v2::woog::types::public::PUBLIC;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -65,7 +64,6 @@ impl Visibility {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"visibility-struct-impl-nav-backward-1_M-to-access"}}}
     /// Navigate to [`Access`] across R14(1-M)
     pub fn r14_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Access>>> {
-        span!("r14_access");
         store
             .iter_access()
             .filter(|access| access.read().unwrap().visibility == self.id())

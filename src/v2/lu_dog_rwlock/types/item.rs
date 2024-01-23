@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"item-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::dwarf_source_file::DwarfSourceFile;
@@ -148,7 +147,6 @@ impl Item {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<DwarfSourceFile>>> {
-        span!("r25_dwarf_source_file");
         vec![store.exhume_dwarf_source_file(&self.source).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

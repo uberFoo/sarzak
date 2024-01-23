@@ -1,26 +1,37 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"field_access_target-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-use-statements"}}}
-use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
+use std::sync::Arc;
+use std::sync::RwLock;
+use uuid::Uuid;
+
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
 use crate::v2::lu_dog_rwlock::types::field::Field;
 use crate::v2::lu_dog_rwlock::types::field_access::FieldAccess;
 use crate::v2::lu_dog_rwlock::types::function::Function;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use std::sync::RwLock;
-use tracy_client::span;
-use uuid::Uuid;
+
+use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-hybrid-documentation"}}}
 /// The target of a field access.
 ///
 /// It may be either a [`Field`] or a [`Function`].
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum FieldAccessTarget {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct FieldAccessTarget {
+    pub subtype: FieldAccessTargetEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum FieldAccessTargetEnum {
     EnumField(Uuid),
     Field(Uuid),
     Function(Uuid),
@@ -29,59 +40,57 @@ pub enum FieldAccessTarget {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-implementation"}}}
 impl FieldAccessTarget {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-new-impl"}}}
-    /// Create a new instance of FieldAccessTarget::EnumField
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_enum_field"}}}
+    /// Inter a new FieldAccessTarget in the store, and return it's `id`.
     pub fn new_enum_field(
-        enum_field: &Arc<RwLock<EnumField>>,
+        bogus: bool,
+        subtype: &Arc<RwLock<EnumField>>,
         store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = enum_field.read().unwrap().id;
-        if let Some(enum_field) = store.exhume_field_access_target(&id) {
-            enum_field
-        } else {
-            let new = Arc::new(RwLock::new(Self::EnumField(id)));
-            store.inter_field_access_target(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of FieldAccessTarget::Field
-    pub fn new_field(
-        field: &Arc<RwLock<Field>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = field.read().unwrap().id;
-        if let Some(field) = store.exhume_field_access_target(&id) {
-            field
-        } else {
-            let new = Arc::new(RwLock::new(Self::Field(id)));
-            store.inter_field_access_target(new.clone());
-            new
-        }
-    } // wtf?
-
-    /// Create a new instance of FieldAccessTarget::Function
-    pub fn new_function(
-        function: &Arc<RwLock<Function>>,
-        store: &mut LuDogRwlockStore,
-    ) -> Arc<RwLock<Self>> {
-        let id = function.read().unwrap().id;
-        if let Some(function) = store.exhume_field_access_target(&id) {
-            function
-        } else {
-            let new = Arc::new(RwLock::new(Self::Function(id)));
-            store.inter_field_access_target(new.clone());
-            new
-        }
-    } // wtf?
-
+    ) -> Arc<RwLock<FieldAccessTarget>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(FieldAccessTarget {
+            bogus: bogus,
+            subtype: FieldAccessTargetEnum::EnumField(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_field_access_target(new.clone());
+        new
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::EnumField(id) => *id,
-            Self::Field(id) => *id,
-            Self::Function(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_field"}}}
+    /// Inter a new FieldAccessTarget in the store, and return it's `id`.
+    pub fn new_field(
+        bogus: bool,
+        subtype: &Arc<RwLock<Field>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<FieldAccessTarget>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(FieldAccessTarget {
+            bogus: bogus,
+            subtype: FieldAccessTargetEnum::Field(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_field_access_target(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-new_function"}}}
+    /// Inter a new FieldAccessTarget in the store, and return it's `id`.
+    pub fn new_function(
+        bogus: bool,
+        subtype: &Arc<RwLock<Function>>,
+        store: &mut LuDogRwlockStore,
+        // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+        // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-get-id-impl"}}}
+    ) -> Arc<RwLock<FieldAccessTarget>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(FieldAccessTarget {
+            bogus: bogus,
+            subtype: FieldAccessTargetEnum::Function(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_field_access_target(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"field_access_target-struct-impl-nav-backward-1_M-to-field_access"}}}
@@ -90,10 +99,9 @@ impl FieldAccessTarget {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FieldAccess>>> {
-        span!("r65_field_access");
         store
             .iter_field_access()
-            .filter(|field_access| field_access.read().unwrap().field == self.id())
+            .filter(|field_access| field_access.read().unwrap().field == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

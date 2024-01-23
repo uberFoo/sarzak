@@ -2,10 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"range_expression-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::from::FROM;
 use crate::v2::lu_dog_rwlock::types::full::FULL;
 use crate::v2::lu_dog_rwlock::types::inclusive::INCLUSIVE;
@@ -48,8 +48,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().unwrap().id),
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
             subtype: RangeExpressionEnum::From(FROM),
             id,
         }));
@@ -66,8 +66,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().unwrap().id),
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
             subtype: RangeExpressionEnum::Full(FULL),
             id,
         }));
@@ -84,8 +84,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().unwrap().id),
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
             subtype: RangeExpressionEnum::Inclusive(INCLUSIVE),
             id,
         }));
@@ -102,8 +102,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().unwrap().id),
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
             subtype: RangeExpressionEnum::To(TO),
             id,
         }));
@@ -120,8 +120,8 @@ impl RangeExpression {
     ) -> Arc<RwLock<RangeExpression>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(RangeExpression {
-            lhs: lhs.map(|expression| expression.read().unwrap().id()),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
+            lhs: lhs.map(|expression| expression.read().unwrap().id),
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
             subtype: RangeExpressionEnum::ToInclusive(TO_INCLUSIVE),
             id,
         }));
@@ -135,7 +135,6 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r58_expression");
         match self.lhs {
             Some(ref lhs) => vec![store.exhume_expression(&lhs).unwrap()],
             None => Vec::new(),
@@ -148,7 +147,6 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r59_expression");
         match self.rhs {
             Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
             None => Vec::new(),
@@ -161,8 +159,16 @@ impl RangeExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::RangeExpression(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

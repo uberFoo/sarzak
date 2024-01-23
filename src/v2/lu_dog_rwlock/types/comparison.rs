@@ -1,6 +1,9 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"comparison-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-use-statements"}}}
-use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
+use std::sync::Arc;
+use std::sync::RwLock;
+use uuid::Uuid;
+
 use crate::v2::lu_dog_rwlock::types::equal::EQUAL;
 use crate::v2::lu_dog_rwlock::types::greater_than::GREATER_THAN;
 use crate::v2::lu_dog_rwlock::types::greater_than_or_equal::GREATER_THAN_OR_EQUAL;
@@ -10,21 +13,29 @@ use crate::v2::lu_dog_rwlock::types::not_equal::NOT_EQUAL;
 use crate::v2::lu_dog_rwlock::types::operator::Operator;
 use crate::v2::lu_dog_rwlock::types::operator::OperatorEnum;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use std::sync::RwLock;
-use tracy_client::span;
-use uuid::Uuid;
+
+use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-hybrid-documentation"}}}
 /// Comparison Operators
 ///
 /// Things like == and !=, etc.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum Comparison {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Comparison {
+    pub subtype: ComparisonEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum ComparisonEnum {
     Equal(Uuid),
     GreaterThan(Uuid),
     GreaterThanOrEqual(Uuid),
@@ -36,64 +47,99 @@ pub enum Comparison {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-implementation"}}}
 impl Comparison {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-new-impl"}}}
-    /// Create a new instance of Comparison::Equal
-    pub fn new_equal(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&EQUAL).unwrap()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_equal"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_equal(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::Equal(EQUAL),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
-
-    /// Create a new instance of Comparison::GreaterThan
-    pub fn new_greater_than(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&GREATER_THAN).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_greater_than"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_greater_than(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::GreaterThan(GREATER_THAN),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
-
-    /// Create a new instance of Comparison::GreaterThanOrEqual
-    pub fn new_greater_than_or_equal(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&GREATER_THAN_OR_EQUAL).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_greater_than_or_equal"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_greater_than_or_equal(
+        bogus: bool,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::GreaterThanOrEqual(GREATER_THAN_OR_EQUAL),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
-
-    /// Create a new instance of Comparison::LessThan
-    pub fn new_less_than(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&LESS_THAN).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_less_than"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_less_than(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::LessThan(LESS_THAN),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
-
-    /// Create a new instance of Comparison::LessThanOrEqual
-    pub fn new_less_than_or_equal(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&LESS_THAN_OR_EQUAL).unwrap()
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_less_than_or_equal"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_less_than_or_equal(
+        bogus: bool,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::LessThanOrEqual(LESS_THAN_OR_EQUAL),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
-
-    /// Create a new instance of Comparison::NotEqual
-    pub fn new_not_equal(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_comparison(&NOT_EQUAL).unwrap()
-    }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::Equal(id) => *id,
-            Self::GreaterThan(id) => *id,
-            Self::GreaterThanOrEqual(id) => *id,
-            Self::LessThan(id) => *id,
-            Self::LessThanOrEqual(id) => *id,
-            Self::NotEqual(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-struct-impl-new_not_equal"}}}
+    /// Inter a new Comparison in the store, and return it's `id`.
+    pub fn new_not_equal(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<Comparison>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Comparison {
+            bogus: bogus,
+            subtype: ComparisonEnum::NotEqual(NOT_EQUAL),
+            id,
+        }));
+        store.inter_comparison(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"comparison-impl-nav-subtype-to-supertype-operator"}}}
     // Navigate to [`Operator`] across R47(isa)
     pub fn r47_operator<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Operator>>> {
-        span!("r47_operator");
         vec![store
             .iter_operator()
             .find(|operator| {
                 if let OperatorEnum::Comparison(id) = operator.read().unwrap().subtype {
-                    id == self.id()
+                    id == self.id
                 } else {
                     false
                 }

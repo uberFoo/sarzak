@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::enumeration::Enumeration;
@@ -48,14 +47,12 @@ impl EnumerationField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-field"}}}
     /// Navigate to [`Enumeration`] across R28(1-*)
     pub fn r28_enumeration<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Enumeration>>> {
-        span!("r28_enumeration");
         vec![store.exhume_enumeration(&self.field).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration_field-struct-impl-nav-forward-assoc-to-woog_enum"}}}
     /// Navigate to [`Field`] across R28(1-*)
     pub fn r28_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Field>>> {
-        span!("r28_field");
         vec![store.exhume_field(&self.woog_enum).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

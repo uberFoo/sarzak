@@ -2,11 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"reference-use-statements"}}}
 use uuid::Uuid;
 
-use crate::v2::sarzak_single::types::object::Object;
+use crate::v2::sarzak::types::object::Object;
 use crate::v2::woog_single::types::grace_type::GraceType;
 use serde::{Deserialize, Serialize};
 
-use crate::v2::sarzak_single::store::ObjectStore as SarzakStore;
+use crate::v2::sarzak::store::ObjectStore as SarzakStore;
 use crate::v2::woog_single::store::ObjectStore as WoogSingleStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 

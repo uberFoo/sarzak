@@ -3,12 +3,10 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::enum_field::EnumField;
 use crate::v2::lu_dog_async::types::enum_field::EnumFieldEnum;
-use crate::v2::lu_dog_async::types::expression::Expression;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -23,48 +21,24 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 pub struct StructField {
     pub id: usize,
     pub name: String,
-    /// R89: [`StructField`] 'is composed with a' [`Expression`]
-    pub expression: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-implementation"}}}
 impl StructField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-struct-impl-new"}}}
     /// Inter a new 'Struct Field' in the store, and return it's `id`.
-    pub async fn new(
-        name: String,
-        expression: Option<&Arc<RwLock<Expression>>>,
-        store: &mut LuDogAsyncStore,
-    ) -> Arc<RwLock<StructField>> {
-        let expression = match expression {
-            Some(expression) => Some(expression.read().await.id),
-            None => None,
-        };
+    pub async fn new(name: String, store: &mut LuDogAsyncStore) -> Arc<RwLock<StructField>> {
         store
             .inter_struct_field(|id| {
                 Arc::new(RwLock::new(StructField {
                     id,
                     name: name.to_owned(),
-                    expression,
                 }))
             })
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-struct-impl-nav-forward-cond-to-expression"}}}
-    /// Navigate to [`Expression`] across R89(1-*c)
-    pub async fn r89_expression<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r89_expression");
-        match self.expression {
-            Some(ref expression) => {
-                stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
-            }
-            None => stream::iter(vec![].into_iter()),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-impl-nav-subtype-to-supertype-enum_field"}}}
     // Navigate to [`EnumField`] across R85(isa)
@@ -72,7 +46,6 @@ impl StructField {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r85_enum_field");
         store
             .iter_enum_field()
             .await
@@ -92,7 +65,7 @@ impl StructField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_field-implementation"}}}
 impl PartialEq for StructField {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.expression == other.expression
+        self.name == other.name
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

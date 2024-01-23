@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::item::Item;
@@ -42,7 +41,6 @@ impl Structure {
         &'a self,
         store: &'a WoogStore,
     ) -> Vec<Arc<RwLock<StructureField>>> {
-        span!("r27_structure_field");
         store
             .iter_structure_field()
             .filter(|structure_field| structure_field.read().unwrap().field == self.id)
@@ -52,7 +50,6 @@ impl Structure {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"structure-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
     pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

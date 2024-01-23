@@ -2,12 +2,12 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"operator-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::binary::Binary;
 use crate::v2::lu_dog_rwlock::types::comparison::Comparison;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::unary::Unary;
 use serde::{Deserialize, Serialize};
 
@@ -51,9 +51,9 @@ impl Operator {
     ) -> Arc<RwLock<Operator>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Operator {
-            lhs: lhs.read().unwrap().id(),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
-            subtype: OperatorEnum::Binary(subtype.read().unwrap().id()), // b
+            lhs: lhs.read().unwrap().id,
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
+            subtype: OperatorEnum::Binary(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_operator(new.clone());
@@ -70,9 +70,9 @@ impl Operator {
     ) -> Arc<RwLock<Operator>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Operator {
-            lhs: lhs.read().unwrap().id(),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
-            subtype: OperatorEnum::Comparison(subtype.read().unwrap().id()), // b
+            lhs: lhs.read().unwrap().id,
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
+            subtype: OperatorEnum::Comparison(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_operator(new.clone());
@@ -89,9 +89,9 @@ impl Operator {
     ) -> Arc<RwLock<Operator>> {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Operator {
-            lhs: lhs.read().unwrap().id(),
-            rhs: rhs.map(|expression| expression.read().unwrap().id()),
-            subtype: OperatorEnum::Unary(subtype.read().unwrap().id()), // b
+            lhs: lhs.read().unwrap().id,
+            rhs: rhs.map(|expression| expression.read().unwrap().id),
+            subtype: OperatorEnum::Unary(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_operator(new.clone());
@@ -104,7 +104,6 @@ impl Operator {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r50_expression");
         vec![store.exhume_expression(&self.lhs).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -114,7 +113,6 @@ impl Operator {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r51_expression");
         match self.rhs {
             Some(ref rhs) => vec![store.exhume_expression(&rhs).unwrap()],
             None => Vec::new(),
@@ -129,8 +127,16 @@ impl Operator {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Operator(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

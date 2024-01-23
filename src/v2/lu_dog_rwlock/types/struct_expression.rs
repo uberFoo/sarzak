@@ -2,11 +2,11 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::data_structure::DataStructure;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::field_expression::FieldExpression;
 use crate::v2::lu_dog_rwlock::types::x_path::XPath;
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ impl StructExpression {
         let new = Arc::new(RwLock::new(StructExpression {
             bug,
             id,
-            data: data.read().unwrap().id(),
+            data: data.read().unwrap().id,
             x_path: x_path.read().unwrap().id,
         }));
         store.inter_struct_expression(new.clone());
@@ -59,14 +59,12 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<DataStructure>>> {
-        span!("r39_data_structure");
         vec![store.exhume_data_structure(&self.data).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_expression-struct-impl-nav-forward-to-x_path"}}}
     /// Navigate to [`XPath`] across R96(1-*)
     pub fn r96_x_path<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<XPath>>> {
-        span!("r96_x_path");
         vec![store.exhume_x_path(&self.x_path).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,7 +74,6 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FieldExpression>>> {
-        span!("r26_field_expression");
         store
             .iter_field_expression()
             .filter(|field_expression| field_expression.read().unwrap().woog_struct == self.id)
@@ -89,8 +86,16 @@ impl StructExpression {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::StructExpression(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

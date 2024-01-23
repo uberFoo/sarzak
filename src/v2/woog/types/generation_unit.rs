@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
@@ -45,7 +44,6 @@ impl GenerationUnit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}
     /// Navigate to [`TimeStamp`] across R21(1-*)
     pub fn r21_time_stamp<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<TimeStamp>>> {
-        span!("r21_time_stamp");
         vec![store.exhume_time_stamp(&self.creation_time).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -55,7 +53,6 @@ impl GenerationUnit {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r22_object");
         vec![store.exhume_object(&self.object).unwrap()]
         // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
         // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"generation_unit-struct-impl-nav-forward-to-creation_time"}}}

@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::dwarf_source_file::DwarfSourceFile;
@@ -48,15 +47,15 @@ impl Span {
         x_value: Option<&Arc<RwLock<XValue>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Span>> {
+        let x_value = match x_value {
+            Some(x_value) => Some(x_value.read().await.id),
+            None => None,
+        };
         let value_type = match ty {
             Some(value_type) => Some(value_type.read().await.id),
             None => None,
         };
         let source = source.read().await.id;
-        let x_value = match x_value {
-            Some(x_value) => Some(x_value.read().await.id),
-            None => None,
-        };
         store
             .inter_span(|id| {
                 Arc::new(RwLock::new(Span {
@@ -77,7 +76,6 @@ impl Span {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
-        span!("r64_dwarf_source_file");
         stream::iter(vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -87,7 +85,6 @@ impl Span {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r62_value_type");
         match self.ty {
             Some(ref ty) => {
                 stream::iter(vec![store.exhume_value_type(ty).await.unwrap()].into_iter())
@@ -102,7 +99,6 @@ impl Span {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<XValue>>> + '_ {
-        span!("r63_x_value");
         match self.x_value {
             Some(ref x_value) => {
                 stream::iter(vec![store.exhume_x_value(x_value).await.unwrap()].into_iter())

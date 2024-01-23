@@ -3,17 +3,14 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::enumeration::Enumeration;
-use crate::v2::lu_dog_async::types::expression::Expression;
-use crate::v2::lu_dog_async::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_async::types::field_access_target::FieldAccessTarget;
 use crate::v2::lu_dog_async::types::field_access_target::FieldAccessTargetEnum;
-use crate::v2::lu_dog_async::types::plain::Plain;
 use crate::v2::lu_dog_async::types::struct_field::StructField;
 use crate::v2::lu_dog_async::types::tuple_field::TupleField;
+use crate::v2::lu_dog_async::types::unit::Unit;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
@@ -38,36 +35,14 @@ pub struct EnumField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum EnumFieldEnum {
-    Plain(usize),
     StructField(usize),
     TupleField(usize),
+    Unit(usize),
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-implementation"}}}
 impl EnumField {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_plain"}}}
-    /// Inter a new EnumField in the store, and return it's `id`.
-    pub async fn new_plain(
-        name: String,
-        woog_enum: &Arc<RwLock<Enumeration>>,
-        subtype: &Arc<RwLock<Plain>>,
-        store: &mut LuDogAsyncStore,
-    ) -> Arc<RwLock<EnumField>> {
-        let s_id = subtype.read().await.id;
-        let woog_enum = woog_enum.read().await.id;
-        let subtype = subtype.read().await.id;
-        store
-            .inter_enum_field(|id| {
-                Arc::new(RwLock::new(EnumField {
-                    name: name.to_owned(),
-                    woog_enum, // (b)
-                    subtype: EnumFieldEnum::Plain(subtype),
-                    id,
-                }))
-            })
-            .await
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub async fn new_struct_field(
@@ -91,6 +66,7 @@ impl EnumField {
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_struct_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
     /// Inter a new EnumField in the store, and return it's `id`.
     pub async fn new_tuple_field(
@@ -114,36 +90,40 @@ impl EnumField {
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_tuple_field"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-new_unit"}}}
+    /// Inter a new EnumField in the store, and return it's `id`.
+    pub async fn new_unit(
+        name: String,
+        woog_enum: &Arc<RwLock<Enumeration>>,
+        subtype: &Arc<RwLock<Unit>>,
+        store: &mut LuDogAsyncStore,
+    ) -> Arc<RwLock<EnumField>> {
+        let s_id = subtype.read().await.id;
+        let woog_enum = woog_enum.read().await.id;
+        let subtype = subtype.read().await.id;
+        store
+            .inter_enum_field(|id| {
+                Arc::new(RwLock::new(EnumField {
+                    name: name.to_owned(),
+                    woog_enum, // (b)
+                    subtype: EnumFieldEnum::Unit(subtype),
+                    id,
+                }))
+            })
+            .await
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-struct-impl-nav-forward-to-woog_enum"}}}
     /// Navigate to [`Enumeration`] across R88(1-*)
     pub async fn r88_enumeration<'a>(
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Enumeration>>> + '_ {
-        span!("r88_enumeration");
         stream::iter(vec![store.exhume_enumeration(&self.woog_enum).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-expression"}}}
-    // Navigate to [`Expression`] across R15(isa)
-    pub async fn r15_expression<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        store
-            .iter_expression()
-            .await
-            .filter_map(|expression| async move {
-                if let ExpressionEnum::EnumField(id) = expression.read().await.subtype {
-                    Some(expression.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-            .await
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enum_field-impl-nav-subtype-to-supertype-field_access_target"}}}
     // Navigate to [`FieldAccessTarget`] across R67(isa)
@@ -151,7 +131,6 @@ impl EnumField {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<FieldAccessTarget>>> {
-        span!("r67_field_access_target");
         store
             .iter_field_access_target()
             .await

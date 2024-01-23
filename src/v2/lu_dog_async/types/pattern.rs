@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -53,8 +52,8 @@ impl Pattern {
         x_match: &Arc<RwLock<XMatch>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Pattern>> {
-        let expression = expression.read().await.id;
         let match_expr = match_expr.read().await.id;
+        let expression = expression.read().await.id;
         let x_match = x_match.read().await.id;
         store
             .inter_pattern(|id| {
@@ -74,7 +73,6 @@ impl Pattern {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r92_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -84,14 +82,12 @@ impl Pattern {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r87_expression");
         vec![store.exhume_expression(&self.match_expr).await.unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"pattern-struct-impl-nav-forward-assoc-to-x_match"}}}
     /// Navigate to [`XMatch`] across R87(1-*)
     pub async fn r87_x_match<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<XMatch>>> {
-        span!("r87_x_match");
         vec![store.exhume_x_match(&self.x_match).await.unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

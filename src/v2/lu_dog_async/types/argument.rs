@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::call::Call;
@@ -41,12 +40,12 @@ impl Argument {
         next: Option<&Arc<RwLock<Argument>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Argument>> {
-        let expression = expression.read().await.id;
         let argument = match next {
             Some(argument) => Some(argument.read().await.id),
             None => None,
         };
         let function = function.read().await.id;
+        let expression = expression.read().await.id;
         store
             .inter_argument(|id| {
                 Arc::new(RwLock::new(Argument {
@@ -66,7 +65,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r37_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,7 +74,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Call>>> + '_ {
-        span!("r28_call");
         stream::iter(vec![store.exhume_call(&self.function).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -86,7 +83,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
-        span!("r27_argument");
         match self.next {
             Some(ref next) => {
                 stream::iter(vec![store.exhume_argument(next).await.unwrap()].into_iter())
@@ -101,7 +97,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
-        span!("r27_argument");
         store
             .iter_argument()
             .await
@@ -120,7 +115,6 @@ impl Argument {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Call>>> + '_ {
-        span!("r81_call");
         store.iter_call().await.filter_map(move |call| async move {
             if call.read().await.argument == Some(self.id) {
                 Some(call.clone())

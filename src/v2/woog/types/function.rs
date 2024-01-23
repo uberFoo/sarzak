@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::item::Item;
@@ -48,7 +47,7 @@ impl Function {
         let new = Arc::new(RwLock::new(Function {
             description: description,
             name: name,
-            subtype: FunctionEnum::ObjectMethod(subtype.read().unwrap().id),
+            subtype: FunctionEnum::ObjectMethod(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_function(new.clone());
@@ -58,7 +57,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-struct-impl-nav-backward-one-bi-cond-to-parameter"}}}
     /// Navigate to [`Parameter`] across R5(1c-1c)
     pub fn r5c_parameter<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Parameter>>> {
-        span!("r5_parameter");
         let parameter = store
             .iter_parameter()
             .find(|parameter| parameter.read().unwrap().function == Some(self.id));
@@ -71,7 +69,6 @@ impl Function {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"function-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R26(isa)
     pub fn r26_item<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r26_item");
         vec![store.exhume_item(&self.id).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
@@ -42,7 +41,7 @@ impl LetStatement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(LetStatement {
             id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
             variable: variable.read().unwrap().id,
         }));
         store.inter_let_statement(new.clone());
@@ -55,7 +54,6 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r20_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -65,14 +63,12 @@ impl LetStatement {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<LocalVariable>>> {
-        span!("r21_local_variable");
         vec![store.exhume_local_variable(&self.variable).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"let_statement-impl-nav-subtype-to-supertype-statement"}}}
     // Navigate to [`Statement`] across R16(isa)
     pub fn r16_statement<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Statement>>> {
-        span!("r16_statement");
         vec![store
             .iter_statement()
             .find(|statement| {

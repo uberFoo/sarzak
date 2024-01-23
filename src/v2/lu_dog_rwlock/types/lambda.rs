@@ -2,13 +2,14 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::body::Body;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::lambda_parameter::LambdaParameter;
 use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -29,6 +30,8 @@ pub struct Lambda {
     pub id: Uuid,
     /// R73: [`Lambda`] 'contains a' [`Body`]
     pub body: Option<Uuid>,
+    /// R103: [`Lambda`] 'may have a' [`LambdaParameter`]
+    pub first_param: Option<Uuid>,
     /// R74: [`Lambda`] 'has a' [`ValueType`]
     pub return_type: Uuid,
 }
@@ -39,6 +42,7 @@ impl Lambda {
     /// Inter a new 'Lambda' in the store, and return it's `id`.
     pub fn new(
         body: Option<&Arc<RwLock<Body>>>,
+        first_param: Option<&Arc<RwLock<LambdaParameter>>>,
         return_type: &Arc<RwLock<ValueType>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<Lambda>> {
@@ -46,7 +50,8 @@ impl Lambda {
         let new = Arc::new(RwLock::new(Lambda {
             id,
             body: body.map(|body| body.read().unwrap().id),
-            return_type: return_type.read().unwrap().id(),
+            first_param: first_param.map(|lambda_parameter| lambda_parameter.read().unwrap().id),
+            return_type: return_type.read().unwrap().id,
         }));
         store.inter_lambda(new.clone());
         new
@@ -56,9 +61,20 @@ impl Lambda {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-body"}}}
     /// Navigate to [`Body`] across R73(1-*c)
     pub fn r73_body<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Body>>> {
-        span!("r73_body");
         match self.body {
             Some(ref body) => vec![store.exhume_body(&body).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-struct-impl-nav-forward-cond-to-first_param"}}}
+    /// Navigate to [`LambdaParameter`] across R103(1-*c)
+    pub fn r103_lambda_parameter<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<LambdaParameter>>> {
+        match self.first_param {
+            Some(ref first_param) => vec![store.exhume_lambda_parameter(&first_param).unwrap()],
             None => Vec::new(),
         }
     }
@@ -69,7 +85,6 @@ impl Lambda {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r74_value_type");
         vec![store.exhume_value_type(&self.return_type).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -79,7 +94,6 @@ impl Lambda {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<LambdaParameter>>> {
-        span!("r76_lambda_parameter");
         store
             .iter_lambda_parameter()
             .filter(|lambda_parameter| lambda_parameter.read().unwrap().lambda == self.id)
@@ -92,15 +106,31 @@ impl Lambda {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::Lambda(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"lambda-impl-nav-subtype-to-supertype-value_type"}}}
     // Navigate to [`ValueType`] across R1(isa)
     pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
-        vec![store.exhume_value_type(&self.id).unwrap()]
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::Lambda(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

@@ -10,7 +10,6 @@ use crate::v2::woog::types::x_value::XValueEnum;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -78,7 +77,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-x_let"}}}
     /// Navigate to [`XLet`] across R18(1-M)
     pub fn r18_x_let<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XLet>>> {
-        span!("r18_x_let");
         store
             .iter_x_let()
             .filter(|x_let| x_let.read().unwrap().expression == self.id())
@@ -89,7 +87,6 @@ impl Expression {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-impl-nav-subtype-to-supertype-x_value"}}}
     // Navigate to [`XValue`] across R7(isa)
     pub fn r7_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r7_x_value");
         vec![store
             .iter_x_value()
             .find(|x_value| {

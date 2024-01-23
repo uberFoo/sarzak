@@ -2,11 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_rwlock::types::block::Block;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
+use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -23,7 +22,7 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 pub struct ForLoop {
     pub id: Uuid,
     pub ident: String,
-    /// R43: [`ForLoop`] 'executes a' [`Block`]
+    /// R43: [`ForLoop`] 'executes a' [`Expression`]
     pub block: Uuid,
     /// R42: [`ForLoop`] 'iterates over an' [`Expression`]
     pub expression: Uuid,
@@ -35,7 +34,7 @@ impl ForLoop {
     /// Inter a new 'For Loop' in the store, and return it's `id`.
     pub fn new(
         ident: String,
-        block: &Arc<RwLock<Block>>,
+        block: &Arc<RwLock<Expression>>,
         expression: &Arc<RwLock<Expression>>,
         store: &mut LuDogRwlockStore,
     ) -> Arc<RwLock<ForLoop>> {
@@ -44,17 +43,19 @@ impl ForLoop {
             id,
             ident,
             block: block.read().unwrap().id,
-            expression: expression.read().unwrap().id(),
+            expression: expression.read().unwrap().id,
         }));
         store.inter_for_loop(new.clone());
         new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-block"}}}
-    /// Navigate to [`Block`] across R43(1-*)
-    pub fn r43_block<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r43_block");
-        vec![store.exhume_block(&self.block).unwrap()]
+    /// Navigate to [`Expression`] across R43(1-*)
+    pub fn r43_expression<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<Expression>>> {
+        vec![store.exhume_expression(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"for_loop-struct-impl-nav-forward-to-expression"}}}
@@ -63,7 +64,6 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r42_expression");
         vec![store.exhume_expression(&self.expression).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -73,8 +73,16 @@ impl ForLoop {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
-        vec![store.exhume_expression(&self.id).unwrap()]
+        vec![store
+            .iter_expression()
+            .find(|expression| {
+                if let ExpressionEnum::ForLoop(id) = expression.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

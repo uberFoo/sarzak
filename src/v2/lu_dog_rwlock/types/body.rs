@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::block::Block;
@@ -78,7 +77,6 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-cond-to-function"}}}
     /// Navigate to [`Function`] across R19(1-1c)
     pub fn r19c_function<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Function>>> {
-        span!("r19_function");
         let function = store
             .iter_function()
             .find(|function| function.read().unwrap().body == self.id);
@@ -91,7 +89,6 @@ impl Body {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"body-struct-impl-nav-backward-one-bi-cond-to-lambda"}}}
     /// Navigate to [`Lambda`] across R73(1c-1c)
     pub fn r73c_lambda<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Lambda>>> {
-        span!("r73_lambda");
         let lambda = store
             .iter_lambda()
             .find(|lambda| lambda.read().unwrap().body == Some(self.id));

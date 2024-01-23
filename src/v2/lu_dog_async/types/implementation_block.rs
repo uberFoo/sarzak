@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::enumeration::Enumeration;
@@ -42,12 +41,12 @@ impl ImplementationBlock {
         object_store: Option<&Arc<RwLock<ZObjectStore>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ImplementationBlock>> {
-        let woog_struct = match model_type {
-            Some(woog_struct) => Some(woog_struct.read().await.id),
-            None => None,
-        };
         let z_object_store = match object_store {
             Some(z_object_store) => Some(z_object_store.read().await.id),
+            None => None,
+        };
+        let woog_struct = match model_type {
+            Some(woog_struct) => Some(woog_struct.read().await.id),
             None => None,
         };
         store
@@ -67,7 +66,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
-        span!("r8_woog_struct");
         match self.model_type {
             Some(ref model_type) => {
                 stream::iter(vec![store.exhume_woog_struct(model_type).await.unwrap()].into_iter())
@@ -82,7 +80,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ZObjectStore>>> + '_ {
-        span!("r83_z_object_store");
         match self.object_store {
             Some(ref object_store) => stream::iter(
                 vec![store.exhume_z_object_store(object_store).await.unwrap()].into_iter(),
@@ -97,7 +94,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Enumeration>>> + '_ {
-        span!("r84_enumeration");
         store
             .iter_enumeration()
             .await
@@ -116,7 +112,6 @@ impl ImplementationBlock {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Function>>> + '_ {
-        span!("r9_function");
         store
             .iter_function()
             .await
@@ -132,7 +127,6 @@ impl ImplementationBlock {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub async fn r6_item<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         store
             .iter_item()
             .await

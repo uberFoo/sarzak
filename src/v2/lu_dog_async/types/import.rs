@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::item::Item;
@@ -39,7 +38,7 @@ pub struct Import {
     pub has_alias: bool,
     pub id: usize,
     pub name: String,
-    pub path: String,
+    pub x_path: String,
     /// R40: [`Import`] '' [`Object`]
     pub object: Option<Uuid>,
 }
@@ -52,7 +51,7 @@ impl Import {
         alias: String,
         has_alias: bool,
         name: String,
-        path: String,
+        x_path: String,
         object: Option<&Object>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Import>> {
@@ -67,7 +66,7 @@ impl Import {
                     has_alias,
                     id,
                     name: name.to_owned(),
-                    path: path.to_owned(),
+                    x_path: x_path.to_owned(),
                     object,
                 }))
             })
@@ -80,7 +79,6 @@ impl Import {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r40_object");
         match self.object {
             Some(ref object) => vec![store.exhume_object(object).unwrap()],
             None => Vec::new(),
@@ -90,7 +88,6 @@ impl Import {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"import-impl-nav-subtype-to-supertype-item"}}}
     // Navigate to [`Item`] across R6(isa)
     pub async fn r6_item<'a>(&'a self, store: &'a LuDogAsyncStore) -> Vec<Arc<RwLock<Item>>> {
-        span!("r6_item");
         store
             .iter_item()
             .await
@@ -111,7 +108,6 @@ impl Import {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r1_value_type");
         store
             .iter_value_type()
             .await
@@ -134,7 +130,7 @@ impl PartialEq for Import {
         self.alias == other.alias
             && self.has_alias == other.has_alias
             && self.name == other.name
-            && self.path == other.path
+            && self.x_path == other.x_path
             && self.object == other.object
     }
 }

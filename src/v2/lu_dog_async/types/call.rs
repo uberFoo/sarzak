@@ -3,13 +3,12 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::argument::Argument;
 use crate::v2::lu_dog_async::types::expression::Expression;
 use crate::v2::lu_dog_async::types::expression::ExpressionEnum;
-use crate::v2::lu_dog_async::types::function_call::FUNCTION_CALL;
+use crate::v2::lu_dog_async::types::function_call::FunctionCall;
 use crate::v2::lu_dog_async::types::macro_call::MACRO_CALL;
 use crate::v2::lu_dog_async::types::method_call::MethodCall;
 use crate::v2::lu_dog_async::types::static_method_call::StaticMethodCall;
@@ -38,7 +37,7 @@ pub struct Call {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"call-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum CallEnum {
-    FunctionCall(Uuid),
+    FunctionCall(usize),
     MacroCall(Uuid),
     MethodCall(usize),
     StaticMethodCall(usize),
@@ -52,8 +51,10 @@ impl Call {
         arg_check: bool,
         argument: Option<&Arc<RwLock<Argument>>>,
         expression: Option<&Arc<RwLock<Expression>>>,
+        subtype: &Arc<RwLock<FunctionCall>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Call>> {
+        let s_id = subtype.read().await.id;
         let argument = match argument {
             Some(argument) => Some(argument.read().await.id),
             None => None,
@@ -62,13 +63,14 @@ impl Call {
             Some(expression) => Some(expression.read().await.id),
             None => None,
         };
+        let subtype = subtype.read().await.id;
         store
             .inter_call(|id| {
                 Arc::new(RwLock::new(Call {
                     arg_check: arg_check,
                     argument,   // (a)
                     expression, // (a)
-                    subtype: CallEnum::FunctionCall(FUNCTION_CALL),
+                    subtype: CallEnum::FunctionCall(subtype),
                     id,
                 }))
             })
@@ -174,7 +176,6 @@ impl Call {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
-        span!("r81_argument");
         match self.argument {
             Some(ref argument) => {
                 stream::iter(vec![store.exhume_argument(argument).await.unwrap()].into_iter())
@@ -189,7 +190,6 @@ impl Call {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r29_expression");
         match self.expression {
             Some(ref expression) => {
                 stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
@@ -204,7 +204,6 @@ impl Call {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Argument>>> + '_ {
-        span!("r28_argument");
         store.iter_argument().await.filter_map(|argument| async {
             if argument.read().await.function == self.id {
                 Some(argument)
@@ -220,7 +219,6 @@ impl Call {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

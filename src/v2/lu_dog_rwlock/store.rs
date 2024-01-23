@@ -19,6 +19,7 @@
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
 //! * [`EnumField`]
+//! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
 //! * [`ExpressionStatement`]
@@ -29,9 +30,10 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FuncGeneric`]
 //! * [`Function`]
+//! * [`FunctionCall`]
 //! * [`XFuture`]
-//! * [`Generic`]
 //! * [`Grouped`]
 //! * [`XIf`]
 //! * [`ImplementationBlock`]
@@ -58,6 +60,7 @@
 //! * [`XPath`]
 //! * [`PathElement`]
 //! * [`Pattern`]
+//! * [`XPlugin`]
 //! * [`XPrint`]
 //! * [`RangeExpression`]
 //! * [`ResultStatement`]
@@ -95,18 +98,16 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, Enumeration, Expression, ExpressionStatement,
-    ExternalImplementation, Field, FieldAccess, FieldAccessTarget, FieldExpression, FloatLiteral,
-    ForLoop, Function, Generic, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item,
-    Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal,
-    LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
-    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
-    StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
+    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
+    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
+    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
+    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND, ASSIGNMENT, CHAR,
-    DEBUGGER, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, GREATER_THAN,
-    GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL,
-    OR, PLUGIN, RANGE, SUBTRACTION, TASK, TRUE_LITERAL, UNKNOWN,
+    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -123,7 +124,9 @@ pub struct ObjectStore {
     data_structure: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DataStructure>>>>>,
     dwarf_source_file: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DwarfSourceFile>>>>>,
     enum_field: Arc<RwLock<HashMap<Uuid, Arc<RwLock<EnumField>>>>>,
+    enum_generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<EnumGeneric>>>>>,
     enumeration: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Enumeration>>>>>,
+    enumeration_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
     expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Expression>>>>>,
     expression_statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExpressionStatement>>>>>,
     external_implementation: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExternalImplementation>>>>>,
@@ -134,10 +137,11 @@ pub struct ObjectStore {
     field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FieldExpression>>>>>,
     float_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FloatLiteral>>>>>,
     for_loop: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ForLoop>>>>>,
+    func_generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FuncGeneric>>>>>,
     function: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Function>>>>>,
     function_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
+    function_call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FunctionCall>>>>>,
     x_future: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XFuture>>>>>,
-    generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Generic>>>>>,
     grouped: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Grouped>>>>>,
     x_if: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XIf>>>>>,
     implementation_block: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ImplementationBlock>>>>>,
@@ -158,12 +162,15 @@ pub struct ObjectStore {
     method_call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<MethodCall>>>>>,
     named_field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<NamedFieldExpression>>>>>,
     z_object_store: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ZObjectStore>>>>>,
+    z_object_store_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
     object_wrapper: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ObjectWrapper>>>>>,
     operator: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Operator>>>>>,
     parameter: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Parameter>>>>>,
     x_path: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XPath>>>>>,
     path_element: Arc<RwLock<HashMap<Uuid, Arc<RwLock<PathElement>>>>>,
     pattern: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Pattern>>>>>,
+    x_plugin: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XPlugin>>>>>,
+    x_plugin_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
     x_print: Arc<RwLock<HashMap<Uuid, Arc<RwLock<XPrint>>>>>,
     range_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<RangeExpression>>>>>,
     result_statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ResultStatement>>>>>,
@@ -190,7 +197,7 @@ pub struct ObjectStore {
 
 impl ObjectStore {
     pub fn new() -> Self {
-        let mut store = Self {
+        let store = Self {
             argument: Arc::new(RwLock::new(HashMap::default())),
             a_wait: Arc::new(RwLock::new(HashMap::default())),
             binary: Arc::new(RwLock::new(HashMap::default())),
@@ -203,7 +210,9 @@ impl ObjectStore {
             data_structure: Arc::new(RwLock::new(HashMap::default())),
             dwarf_source_file: Arc::new(RwLock::new(HashMap::default())),
             enum_field: Arc::new(RwLock::new(HashMap::default())),
+            enum_generic: Arc::new(RwLock::new(HashMap::default())),
             enumeration: Arc::new(RwLock::new(HashMap::default())),
+            enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             expression: Arc::new(RwLock::new(HashMap::default())),
             expression_statement: Arc::new(RwLock::new(HashMap::default())),
             external_implementation: Arc::new(RwLock::new(HashMap::default())),
@@ -214,10 +223,11 @@ impl ObjectStore {
             field_expression: Arc::new(RwLock::new(HashMap::default())),
             float_literal: Arc::new(RwLock::new(HashMap::default())),
             for_loop: Arc::new(RwLock::new(HashMap::default())),
+            func_generic: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
             function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
+            function_call: Arc::new(RwLock::new(HashMap::default())),
             x_future: Arc::new(RwLock::new(HashMap::default())),
-            generic: Arc::new(RwLock::new(HashMap::default())),
             grouped: Arc::new(RwLock::new(HashMap::default())),
             x_if: Arc::new(RwLock::new(HashMap::default())),
             implementation_block: Arc::new(RwLock::new(HashMap::default())),
@@ -238,12 +248,15 @@ impl ObjectStore {
             method_call: Arc::new(RwLock::new(HashMap::default())),
             named_field_expression: Arc::new(RwLock::new(HashMap::default())),
             z_object_store: Arc::new(RwLock::new(HashMap::default())),
+            z_object_store_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             object_wrapper: Arc::new(RwLock::new(HashMap::default())),
             operator: Arc::new(RwLock::new(HashMap::default())),
             parameter: Arc::new(RwLock::new(HashMap::default())),
             x_path: Arc::new(RwLock::new(HashMap::default())),
             path_element: Arc::new(RwLock::new(HashMap::default())),
             pattern: Arc::new(RwLock::new(HashMap::default())),
+            x_plugin: Arc::new(RwLock::new(HashMap::default())),
+            x_plugin_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             x_print: Arc::new(RwLock::new(HashMap::default())),
             range_expression: Arc::new(RwLock::new(HashMap::default())),
             result_statement: Arc::new(RwLock::new(HashMap::default())),
@@ -272,61 +285,6 @@ impl ObjectStore {
         // 💥 Look at how beautiful this generated code is for super/sub-type graphs!
         // I remember having a bit of a struggle making it work. It's recursive, with
         // a lot of special cases, and I think it calls other recursive functions...💥
-        store.inter_binary(Arc::new(RwLock::new(Binary::Addition(ADDITION))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Assignment(ASSIGNMENT))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::BooleanOperator(
-            BooleanOperator::And(AND).id(),
-        ))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::BooleanOperator(
-            BooleanOperator::Or(OR).id(),
-        ))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Division(DIVISION))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Multiplication(
-            MULTIPLICATION,
-        ))));
-        store.inter_binary(Arc::new(RwLock::new(Binary::Subtraction(SUBTRACTION))));
-        store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::FalseLiteral(
-            FALSE_LITERAL,
-        ))));
-        store.inter_boolean_literal(Arc::new(RwLock::new(BooleanLiteral::TrueLiteral(
-            TRUE_LITERAL,
-        ))));
-        store.inter_boolean_operator(Arc::new(RwLock::new(BooleanOperator::And(AND))));
-        store.inter_boolean_operator(Arc::new(RwLock::new(BooleanOperator::Or(OR))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::Equal(EQUAL))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::GreaterThan(GREATER_THAN))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::GreaterThanOrEqual(
-            GREATER_THAN_OR_EQUAL,
-        ))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::LessThan(LESS_THAN))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::LessThanOrEqual(
-            LESS_THAN_OR_EQUAL,
-        ))));
-        store.inter_comparison(Arc::new(RwLock::new(Comparison::NotEqual(NOT_EQUAL))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Debugger(DEBUGGER))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::EmptyExpression(
-            EMPTY_EXPRESSION,
-        ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
-            Literal::BooleanLiteral(BooleanLiteral::FalseLiteral(FALSE_LITERAL).id()).id(),
-        ))));
-        store.inter_expression(Arc::new(RwLock::new(Expression::Literal(
-            Literal::BooleanLiteral(BooleanLiteral::TrueLiteral(TRUE_LITERAL).id()).id(),
-        ))));
-        store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
-            BooleanLiteral::FalseLiteral(FALSE_LITERAL).id(),
-        ))));
-        store.inter_literal(Arc::new(RwLock::new(Literal::BooleanLiteral(
-            BooleanLiteral::TrueLiteral(TRUE_LITERAL).id(),
-        ))));
-        store.inter_unary(Arc::new(RwLock::new(Unary::Negation(NEGATION))));
-        store.inter_unary(Arc::new(RwLock::new(Unary::Not(NOT))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Char(CHAR))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Empty(EMPTY))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Plugin(PLUGIN))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Range(RANGE))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Task(TASK))));
-        store.inter_value_type(Arc::new(RwLock::new(ValueType::Unknown(UNKNOWN))));
 
         store
     }
@@ -421,10 +379,7 @@ impl ObjectStore {
     ///
     pub fn inter_binary(&mut self, binary: Arc<RwLock<Binary>>) {
         let read = binary.read().unwrap();
-        self.binary
-            .write()
-            .unwrap()
-            .insert(read.id(), binary.clone());
+        self.binary.write().unwrap().insert(read.id, binary.clone());
     }
 
     /// Exhume (get) [`Binary`] from the store.
@@ -546,7 +501,7 @@ impl ObjectStore {
         self.boolean_literal
             .write()
             .unwrap()
-            .insert(read.id(), boolean_literal.clone());
+            .insert(read.id, boolean_literal.clone());
     }
 
     /// Exhume (get) [`BooleanLiteral`] from the store.
@@ -590,7 +545,7 @@ impl ObjectStore {
         self.boolean_operator
             .write()
             .unwrap()
-            .insert(read.id(), boolean_operator.clone());
+            .insert(read.id, boolean_operator.clone());
     }
 
     /// Exhume (get) [`BooleanOperator`] from the store.
@@ -671,7 +626,7 @@ impl ObjectStore {
         self.comparison
             .write()
             .unwrap()
-            .insert(read.id(), comparison.clone());
+            .insert(read.id, comparison.clone());
     }
 
     /// Exhume (get) [`Comparison`] from the store.
@@ -715,7 +670,7 @@ impl ObjectStore {
         self.data_structure
             .write()
             .unwrap()
-            .insert(read.id(), data_structure.clone());
+            .insert(read.id, data_structure.clone());
     }
 
     /// Exhume (get) [`DataStructure`] from the store.
@@ -845,10 +800,58 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`EnumGeneric`] into the store.
+    ///
+    pub fn inter_enum_generic(&mut self, enum_generic: Arc<RwLock<EnumGeneric>>) {
+        let read = enum_generic.read().unwrap();
+        self.enum_generic
+            .write()
+            .unwrap()
+            .insert(read.id, enum_generic.clone());
+    }
+
+    /// Exhume (get) [`EnumGeneric`] from the store.
+    ///
+    pub fn exhume_enum_generic(&self, id: &Uuid) -> Option<Arc<RwLock<EnumGeneric>>> {
+        self.enum_generic
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|enum_generic| enum_generic.clone())
+    }
+
+    /// Exorcise (remove) [`EnumGeneric`] from the store.
+    ///
+    pub fn exorcise_enum_generic(&mut self, id: &Uuid) -> Option<Arc<RwLock<EnumGeneric>>> {
+        self.enum_generic
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|enum_generic| enum_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, EnumGeneric>`.
+    ///
+    pub fn iter_enum_generic(&self) -> impl Iterator<Item = Arc<RwLock<EnumGeneric>>> + '_ {
+        let values: Vec<Arc<RwLock<EnumGeneric>>> = self
+            .enum_generic
+            .read()
+            .unwrap()
+            .values()
+            .map(|enum_generic| enum_generic.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`Enumeration`] into the store.
     ///
     pub fn inter_enumeration(&mut self, enumeration: Arc<RwLock<Enumeration>>) {
         let read = enumeration.read().unwrap();
+        self.enumeration_id_by_name
+            .write()
+            .unwrap()
+            .insert(read.name.to_upper_camel_case(), read.id);
         self.enumeration
             .write()
             .unwrap()
@@ -875,6 +878,16 @@ impl ObjectStore {
             .map(|enumeration| enumeration.clone())
     }
 
+    /// Exhume [`Enumeration`] id from the store by name.
+    ///
+    pub fn exhume_enumeration_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.enumeration_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|enumeration| *enumeration)
+    }
+
     /// Get an iterator over the internal `HashMap<&Uuid, Enumeration>`.
     ///
     pub fn iter_enumeration(&self) -> impl Iterator<Item = Arc<RwLock<Enumeration>>> + '_ {
@@ -896,7 +909,7 @@ impl ObjectStore {
         self.expression
             .write()
             .unwrap()
-            .insert(read.id(), expression.clone());
+            .insert(read.id, expression.clone());
     }
 
     /// Exhume (get) [`Expression`] from the store.
@@ -1152,7 +1165,7 @@ impl ObjectStore {
         self.field_access_target
             .write()
             .unwrap()
-            .insert(read.id(), field_access_target.clone());
+            .insert(read.id, field_access_target.clone());
     }
 
     /// Exhume (get) [`FieldAccessTarget`] from the store.
@@ -1326,6 +1339,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`FuncGeneric`] into the store.
+    ///
+    pub fn inter_func_generic(&mut self, func_generic: Arc<RwLock<FuncGeneric>>) {
+        let read = func_generic.read().unwrap();
+        self.func_generic
+            .write()
+            .unwrap()
+            .insert(read.id, func_generic.clone());
+    }
+
+    /// Exhume (get) [`FuncGeneric`] from the store.
+    ///
+    pub fn exhume_func_generic(&self, id: &Uuid) -> Option<Arc<RwLock<FuncGeneric>>> {
+        self.func_generic
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|func_generic| func_generic.clone())
+    }
+
+    /// Exorcise (remove) [`FuncGeneric`] from the store.
+    ///
+    pub fn exorcise_func_generic(&mut self, id: &Uuid) -> Option<Arc<RwLock<FuncGeneric>>> {
+        self.func_generic
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|func_generic| func_generic.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FuncGeneric>`.
+    ///
+    pub fn iter_func_generic(&self) -> impl Iterator<Item = Arc<RwLock<FuncGeneric>>> + '_ {
+        let values: Vec<Arc<RwLock<FuncGeneric>>> = self
+            .func_generic
+            .read()
+            .unwrap()
+            .values()
+            .map(|func_generic| func_generic.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`Function`] into the store.
     ///
     pub fn inter_function(&mut self, function: Arc<RwLock<Function>>) {
@@ -1384,6 +1441,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`FunctionCall`] into the store.
+    ///
+    pub fn inter_function_call(&mut self, function_call: Arc<RwLock<FunctionCall>>) {
+        let read = function_call.read().unwrap();
+        self.function_call
+            .write()
+            .unwrap()
+            .insert(read.id, function_call.clone());
+    }
+
+    /// Exhume (get) [`FunctionCall`] from the store.
+    ///
+    pub fn exhume_function_call(&self, id: &Uuid) -> Option<Arc<RwLock<FunctionCall>>> {
+        self.function_call
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|function_call| function_call.clone())
+    }
+
+    /// Exorcise (remove) [`FunctionCall`] from the store.
+    ///
+    pub fn exorcise_function_call(&mut self, id: &Uuid) -> Option<Arc<RwLock<FunctionCall>>> {
+        self.function_call
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|function_call| function_call.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FunctionCall>`.
+    ///
+    pub fn iter_function_call(&self) -> impl Iterator<Item = Arc<RwLock<FunctionCall>>> + '_ {
+        let values: Vec<Arc<RwLock<FunctionCall>>> = self
+            .function_call
+            .read()
+            .unwrap()
+            .values()
+            .map(|function_call| function_call.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`XFuture`] into the store.
     ///
     pub fn inter_x_future(&mut self, x_future: Arc<RwLock<XFuture>>) {
@@ -1423,50 +1524,6 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|x_future| x_future.clone())
-            .collect();
-        let len = values.len();
-        (0..len).map(move |i| values[i].clone())
-    }
-
-    /// Inter (insert) [`Generic`] into the store.
-    ///
-    pub fn inter_generic(&mut self, generic: Arc<RwLock<Generic>>) {
-        let read = generic.read().unwrap();
-        self.generic
-            .write()
-            .unwrap()
-            .insert(read.id, generic.clone());
-    }
-
-    /// Exhume (get) [`Generic`] from the store.
-    ///
-    pub fn exhume_generic(&self, id: &Uuid) -> Option<Arc<RwLock<Generic>>> {
-        self.generic
-            .read()
-            .unwrap()
-            .get(id)
-            .map(|generic| generic.clone())
-    }
-
-    /// Exorcise (remove) [`Generic`] from the store.
-    ///
-    pub fn exorcise_generic(&mut self, id: &Uuid) -> Option<Arc<RwLock<Generic>>> {
-        self.generic
-            .write()
-            .unwrap()
-            .remove(id)
-            .map(|generic| generic.clone())
-    }
-
-    /// Get an iterator over the internal `HashMap<&Uuid, Generic>`.
-    ///
-    pub fn iter_generic(&self) -> impl Iterator<Item = Arc<RwLock<Generic>>> + '_ {
-        let values: Vec<Arc<RwLock<Generic>>> = self
-            .generic
-            .read()
-            .unwrap()
-            .values()
-            .map(|generic| generic.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2032,7 +2089,7 @@ impl ObjectStore {
         self.literal
             .write()
             .unwrap()
-            .insert(read.id(), literal.clone());
+            .insert(read.id, literal.clone());
     }
 
     /// Exhume (get) [`Literal`] from the store.
@@ -2304,6 +2361,10 @@ impl ObjectStore {
     ///
     pub fn inter_z_object_store(&mut self, z_object_store: Arc<RwLock<ZObjectStore>>) {
         let read = z_object_store.read().unwrap();
+        self.z_object_store_id_by_name
+            .write()
+            .unwrap()
+            .insert(read.name.to_upper_camel_case(), read.id);
         self.z_object_store
             .write()
             .unwrap()
@@ -2328,6 +2389,16 @@ impl ObjectStore {
             .unwrap()
             .remove(id)
             .map(|z_object_store| z_object_store.clone())
+    }
+
+    /// Exhume [`ZObjectStore`] id from the store by name.
+    ///
+    pub fn exhume_z_object_store_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.z_object_store_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|z_object_store| *z_object_store)
     }
 
     /// Get an iterator over the internal `HashMap<&Uuid, ZObjectStore>`.
@@ -2600,6 +2671,64 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|pattern| pattern.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`XPlugin`] into the store.
+    ///
+    pub fn inter_x_plugin(&mut self, x_plugin: Arc<RwLock<XPlugin>>) {
+        let read = x_plugin.read().unwrap();
+        self.x_plugin_id_by_name
+            .write()
+            .unwrap()
+            .insert(read.name.to_upper_camel_case(), read.id);
+        self.x_plugin
+            .write()
+            .unwrap()
+            .insert(read.id, x_plugin.clone());
+    }
+
+    /// Exhume (get) [`XPlugin`] from the store.
+    ///
+    pub fn exhume_x_plugin(&self, id: &Uuid) -> Option<Arc<RwLock<XPlugin>>> {
+        self.x_plugin
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|x_plugin| x_plugin.clone())
+    }
+
+    /// Exorcise (remove) [`XPlugin`] from the store.
+    ///
+    pub fn exorcise_x_plugin(&mut self, id: &Uuid) -> Option<Arc<RwLock<XPlugin>>> {
+        self.x_plugin
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|x_plugin| x_plugin.clone())
+    }
+
+    /// Exhume [`XPlugin`] id from the store by name.
+    ///
+    pub fn exhume_x_plugin_id_by_name(&self, name: &str) -> Option<Uuid> {
+        self.x_plugin_id_by_name
+            .read()
+            .unwrap()
+            .get(name)
+            .map(|x_plugin| *x_plugin)
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, XPlugin>`.
+    ///
+    pub fn iter_x_plugin(&self) -> impl Iterator<Item = Arc<RwLock<XPlugin>>> + '_ {
+        let values: Vec<Arc<RwLock<XPlugin>>> = self
+            .x_plugin
+            .read()
+            .unwrap()
+            .values()
+            .map(|x_plugin| x_plugin.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3242,7 +3371,7 @@ impl ObjectStore {
     ///
     pub fn inter_unary(&mut self, unary: Arc<RwLock<Unary>>) {
         let read = unary.read().unwrap();
-        self.unary.write().unwrap().insert(read.id(), unary.clone());
+        self.unary.write().unwrap().insert(read.id, unary.clone());
     }
 
     /// Exhume (get) [`Unary`] from the store.
@@ -3422,7 +3551,7 @@ impl ObjectStore {
         self.value_type
             .write()
             .unwrap()
-            .insert(read.id(), value_type.clone());
+            .insert(read.id, value_type.clone());
     }
 
     /// Exhume (get) [`ValueType`] from the store.
@@ -3610,7 +3739,7 @@ impl ObjectStore {
             let path = path.join("binary");
             fs::create_dir_all(&path)?;
             for binary in self.binary.read().unwrap().values() {
-                let path = path.join(format!("{}.json", binary.read().unwrap().id()));
+                let path = path.join(format!("{}.json", binary.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &binary)?;
@@ -3646,7 +3775,7 @@ impl ObjectStore {
             let path = path.join("boolean_literal");
             fs::create_dir_all(&path)?;
             for boolean_literal in self.boolean_literal.read().unwrap().values() {
-                let path = path.join(format!("{}.json", boolean_literal.read().unwrap().id()));
+                let path = path.join(format!("{}.json", boolean_literal.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &boolean_literal)?;
@@ -3658,7 +3787,7 @@ impl ObjectStore {
             let path = path.join("boolean_operator");
             fs::create_dir_all(&path)?;
             for boolean_operator in self.boolean_operator.read().unwrap().values() {
-                let path = path.join(format!("{}.json", boolean_operator.read().unwrap().id()));
+                let path = path.join(format!("{}.json", boolean_operator.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &boolean_operator)?;
@@ -3682,7 +3811,7 @@ impl ObjectStore {
             let path = path.join("comparison");
             fs::create_dir_all(&path)?;
             for comparison in self.comparison.read().unwrap().values() {
-                let path = path.join(format!("{}.json", comparison.read().unwrap().id()));
+                let path = path.join(format!("{}.json", comparison.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &comparison)?;
@@ -3694,7 +3823,7 @@ impl ObjectStore {
             let path = path.join("data_structure");
             fs::create_dir_all(&path)?;
             for data_structure in self.data_structure.read().unwrap().values() {
-                let path = path.join(format!("{}.json", data_structure.read().unwrap().id()));
+                let path = path.join(format!("{}.json", data_structure.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &data_structure)?;
@@ -3725,6 +3854,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            fs::create_dir_all(&path)?;
+            for enum_generic in self.enum_generic.read().unwrap().values() {
+                let path = path.join(format!("{}.json", enum_generic.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &enum_generic)?;
+            }
+        }
+
         // Persist Enumeration.
         {
             let path = path.join("enumeration");
@@ -3742,7 +3883,7 @@ impl ObjectStore {
             let path = path.join("expression");
             fs::create_dir_all(&path)?;
             for expression in self.expression.read().unwrap().values() {
-                let path = path.join(format!("{}.json", expression.read().unwrap().id()));
+                let path = path.join(format!("{}.json", expression.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &expression)?;
@@ -3805,7 +3946,7 @@ impl ObjectStore {
             let path = path.join("field_access_target");
             fs::create_dir_all(&path)?;
             for field_access_target in self.field_access_target.read().unwrap().values() {
-                let path = path.join(format!("{}.json", field_access_target.read().unwrap().id()));
+                let path = path.join(format!("{}.json", field_access_target.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &field_access_target)?;
@@ -3848,6 +3989,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Func Generic.
+        {
+            let path = path.join("func_generic");
+            fs::create_dir_all(&path)?;
+            for func_generic in self.func_generic.read().unwrap().values() {
+                let path = path.join(format!("{}.json", func_generic.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &func_generic)?;
+            }
+        }
+
         // Persist Function.
         {
             let path = path.join("function");
@@ -3860,6 +4013,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Function Call.
+        {
+            let path = path.join("function_call");
+            fs::create_dir_all(&path)?;
+            for function_call in self.function_call.read().unwrap().values() {
+                let path = path.join(format!("{}.json", function_call.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &function_call)?;
+            }
+        }
+
         // Persist Future.
         {
             let path = path.join("x_future");
@@ -3869,18 +4034,6 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &x_future)?;
-            }
-        }
-
-        // Persist Generic.
-        {
-            let path = path.join("generic");
-            fs::create_dir_all(&path)?;
-            for generic in self.generic.read().unwrap().values() {
-                let path = path.join(format!("{}.json", generic.read().unwrap().id));
-                let file = fs::File::create(path)?;
-                let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &generic)?;
             }
         }
 
@@ -4045,7 +4198,7 @@ impl ObjectStore {
             let path = path.join("literal");
             fs::create_dir_all(&path)?;
             for literal in self.literal.read().unwrap().values() {
-                let path = path.join(format!("{}.json", literal.read().unwrap().id()));
+                let path = path.join(format!("{}.json", literal.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &literal)?;
@@ -4196,6 +4349,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &pattern)?;
+            }
+        }
+
+        // Persist Plugin.
+        {
+            let path = path.join("x_plugin");
+            fs::create_dir_all(&path)?;
+            for x_plugin in self.x_plugin.read().unwrap().values() {
+                let path = path.join(format!("{}.json", x_plugin.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &x_plugin)?;
             }
         }
 
@@ -4372,7 +4537,7 @@ impl ObjectStore {
             let path = path.join("unary");
             fs::create_dir_all(&path)?;
             for unary in self.unary.read().unwrap().values() {
-                let path = path.join(format!("{}.json", unary.read().unwrap().id()));
+                let path = path.join(format!("{}.json", unary.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &unary)?;
@@ -4423,7 +4588,7 @@ impl ObjectStore {
             let path = path.join("value_type");
             fs::create_dir_all(&path)?;
             for value_type in self.value_type.read().unwrap().values() {
-                let path = path.join(format!("{}.json", value_type.read().unwrap().id()));
+                let path = path.join(format!("{}.json", value_type.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &value_type)?;
@@ -4531,7 +4696,7 @@ impl ObjectStore {
                     .binary
                     .write()
                     .unwrap()
-                    .insert(binary.read().unwrap().id(), binary.clone());
+                    .insert(binary.read().unwrap().id, binary.clone());
             }
         }
 
@@ -4581,10 +4746,11 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let boolean_literal: Arc<RwLock<BooleanLiteral>> = serde_json::from_reader(reader)?;
-                store.boolean_literal.write().unwrap().insert(
-                    boolean_literal.read().unwrap().id(),
-                    boolean_literal.clone(),
-                );
+                store
+                    .boolean_literal
+                    .write()
+                    .unwrap()
+                    .insert(boolean_literal.read().unwrap().id, boolean_literal.clone());
             }
         }
 
@@ -4600,7 +4766,7 @@ impl ObjectStore {
                 let boolean_operator: Arc<RwLock<BooleanOperator>> =
                     serde_json::from_reader(reader)?;
                 store.boolean_operator.write().unwrap().insert(
-                    boolean_operator.read().unwrap().id(),
+                    boolean_operator.read().unwrap().id,
                     boolean_operator.clone(),
                 );
             }
@@ -4638,7 +4804,7 @@ impl ObjectStore {
                     .comparison
                     .write()
                     .unwrap()
-                    .insert(comparison.read().unwrap().id(), comparison.clone());
+                    .insert(comparison.read().unwrap().id, comparison.clone());
             }
         }
 
@@ -4656,7 +4822,7 @@ impl ObjectStore {
                     .data_structure
                     .write()
                     .unwrap()
-                    .insert(data_structure.read().unwrap().id(), data_structure.clone());
+                    .insert(data_structure.read().unwrap().id, data_structure.clone());
             }
         }
 
@@ -4696,6 +4862,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Enum Generic.
+        {
+            let path = path.join("enum_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let enum_generic: Arc<RwLock<EnumGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .enum_generic
+                    .write()
+                    .unwrap()
+                    .insert(enum_generic.read().unwrap().id, enum_generic.clone());
+            }
+        }
+
         // Load Enumeration.
         {
             let path = path.join("enumeration");
@@ -4706,6 +4890,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let enumeration: Arc<RwLock<Enumeration>> = serde_json::from_reader(reader)?;
+                store.enumeration_id_by_name.write().unwrap().insert(
+                    enumeration.read().unwrap().name.to_upper_camel_case(),
+                    enumeration.read().unwrap().id,
+                );
                 store
                     .enumeration
                     .write()
@@ -4728,7 +4916,7 @@ impl ObjectStore {
                     .expression
                     .write()
                     .unwrap()
-                    .insert(expression.read().unwrap().id(), expression.clone());
+                    .insert(expression.read().unwrap().id, expression.clone());
             }
         }
 
@@ -4820,7 +5008,7 @@ impl ObjectStore {
                 let field_access_target: Arc<RwLock<FieldAccessTarget>> =
                     serde_json::from_reader(reader)?;
                 store.field_access_target.write().unwrap().insert(
-                    field_access_target.read().unwrap().id(),
+                    field_access_target.read().unwrap().id,
                     field_access_target.clone(),
                 );
             }
@@ -4880,6 +5068,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Func Generic.
+        {
+            let path = path.join("func_generic");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let func_generic: Arc<RwLock<FuncGeneric>> = serde_json::from_reader(reader)?;
+                store
+                    .func_generic
+                    .write()
+                    .unwrap()
+                    .insert(func_generic.read().unwrap().id, func_generic.clone());
+            }
+        }
+
         // Load Function.
         {
             let path = path.join("function");
@@ -4902,6 +5108,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Function Call.
+        {
+            let path = path.join("function_call");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let function_call: Arc<RwLock<FunctionCall>> = serde_json::from_reader(reader)?;
+                store
+                    .function_call
+                    .write()
+                    .unwrap()
+                    .insert(function_call.read().unwrap().id, function_call.clone());
+            }
+        }
+
         // Load Future.
         {
             let path = path.join("x_future");
@@ -4917,24 +5141,6 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(x_future.read().unwrap().id, x_future.clone());
-            }
-        }
-
-        // Load Generic.
-        {
-            let path = path.join("generic");
-            let entries = fs::read_dir(path)?;
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                let file = fs::File::open(path)?;
-                let reader = io::BufReader::new(file);
-                let generic: Arc<RwLock<Generic>> = serde_json::from_reader(reader)?;
-                store
-                    .generic
-                    .write()
-                    .unwrap()
-                    .insert(generic.read().unwrap().id, generic.clone());
             }
         }
 
@@ -5186,7 +5392,7 @@ impl ObjectStore {
                     .literal
                     .write()
                     .unwrap()
-                    .insert(literal.read().unwrap().id(), literal.clone());
+                    .insert(literal.read().unwrap().id, literal.clone());
             }
         }
 
@@ -5290,6 +5496,10 @@ impl ObjectStore {
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
                 let z_object_store: Arc<RwLock<ZObjectStore>> = serde_json::from_reader(reader)?;
+                store.z_object_store_id_by_name.write().unwrap().insert(
+                    z_object_store.read().unwrap().name.to_upper_camel_case(),
+                    z_object_store.read().unwrap().id,
+                );
                 store
                     .z_object_store
                     .write()
@@ -5403,6 +5613,28 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(pattern.read().unwrap().id, pattern.clone());
+            }
+        }
+
+        // Load Plugin.
+        {
+            let path = path.join("x_plugin");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let x_plugin: Arc<RwLock<XPlugin>> = serde_json::from_reader(reader)?;
+                store.x_plugin_id_by_name.write().unwrap().insert(
+                    x_plugin.read().unwrap().name.to_upper_camel_case(),
+                    x_plugin.read().unwrap().id,
+                );
+                store
+                    .x_plugin
+                    .write()
+                    .unwrap()
+                    .insert(x_plugin.read().unwrap().id, x_plugin.clone());
             }
         }
 
@@ -5676,7 +5908,7 @@ impl ObjectStore {
                     .unary
                     .write()
                     .unwrap()
-                    .insert(unary.read().unwrap().id(), unary.clone());
+                    .insert(unary.read().unwrap().id, unary.clone());
             }
         }
 
@@ -5748,7 +5980,7 @@ impl ObjectStore {
                     .value_type
                     .write()
                     .unwrap()
-                    .insert(value_type.read().unwrap().id(), value_type.clone());
+                    .insert(value_type.read().unwrap().id, value_type.clone());
             }
         }
 

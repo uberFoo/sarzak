@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::sarzak::types::object::Object;
@@ -64,7 +63,6 @@ impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R23(1-*)
     pub fn r23_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r23_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -74,14 +72,12 @@ impl ObjectMethod {
         &'a self,
         store: &'a SarzakStore,
     ) -> Vec<std::sync::Arc<std::sync::RwLock<Object>>> {
-        span!("r4_object");
         vec![store.exhume_object(&self.object).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-struct-impl-nav-backward-1_M-to-call"}}}
     /// Navigate to [`Call`] across R19(1-M)
     pub fn r19_call<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Call>>> {
-        span!("r19_call");
         store
             .iter_call()
             .filter(|call| call.read().unwrap().method == self.id)
@@ -91,7 +87,6 @@ impl ObjectMethod {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"object_method-impl-nav-subtype-to-supertype-function"}}}
     // Navigate to [`Function`] across R25(isa)
     pub fn r25_function<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Function>>> {
-        span!("r25_function");
         vec![store
             .iter_function()
             .find(|function| {

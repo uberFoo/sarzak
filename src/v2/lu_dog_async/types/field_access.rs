@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -44,8 +43,8 @@ impl FieldAccess {
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<FieldAccess>> {
         let field = field.read().await.id;
-        let woog_struct = woog_struct.read().await.id;
         let expression = expression.read().await.id;
+        let woog_struct = woog_struct.read().await.id;
         store
             .inter_field_access(|id| {
                 Arc::new(RwLock::new(FieldAccess {
@@ -64,7 +63,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r27_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -74,7 +72,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<FieldAccessTarget>>> + '_ {
-        span!("r65_field_access_target");
         stream::iter(vec![store.exhume_field_access_target(&self.field).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -84,7 +81,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<WoogStruct>>> + '_ {
-        span!("r66_woog_struct");
         stream::iter(vec![store.exhume_woog_struct(&self.woog_struct).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -94,7 +90,6 @@ impl FieldAccess {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

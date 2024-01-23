@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::dwarf_source_file::DwarfSourceFile;
@@ -172,7 +171,6 @@ impl Item {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<DwarfSourceFile>>> + '_ {
-        span!("r25_dwarf_source_file");
         stream::iter(vec![store.exhume_dwarf_source_file(&self.source).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

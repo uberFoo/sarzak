@@ -2,9 +2,10 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_generic-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_rwlock::types::value_type::ValueType;
+use crate::v2::lu_dog_rwlock::types::value_type::ValueTypeEnum;
 use crate::v2::lu_dog_rwlock::types::woog_struct::WoogStruct;
 use serde::{Deserialize, Serialize};
 
@@ -53,7 +54,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<StructGeneric>>> {
-        span!("r101_struct_generic");
         match self.next {
             Some(ref next) => vec![store.exhume_struct_generic(&next).unwrap()],
             None => Vec::new(),
@@ -66,7 +66,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r100_woog_struct");
         vec![store.exhume_woog_struct(&self.woog_struct).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,7 +75,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<WoogStruct>>> {
-        span!("r102_woog_struct");
         vec![store
             .iter_woog_struct()
             .find(|woog_struct| woog_struct.read().unwrap().first_generic == Some(self.id))
@@ -89,7 +87,6 @@ impl StructGeneric {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<StructGeneric>>> {
-        span!("r101_struct_generic");
         let struct_generic = store
             .iter_struct_generic()
             .find(|struct_generic| struct_generic.read().unwrap().next == Some(self.id));
@@ -97,6 +94,21 @@ impl StructGeneric {
             Some(ref struct_generic) => vec![struct_generic.clone()],
             None => Vec::new(),
         }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"struct_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<ValueType>>> {
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::StructGeneric(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

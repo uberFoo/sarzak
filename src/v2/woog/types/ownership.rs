@@ -8,7 +8,6 @@ use crate::v2::woog::types::owned::OWNED;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -61,7 +60,6 @@ impl Ownership {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"ownership-struct-impl-nav-backward-1_M-to-access"}}}
     /// Navigate to [`Access`] across R15(1-M)
     pub fn r15_access<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Access>>> {
-        span!("r15_access");
         store
             .iter_access()
             .filter(|access| access.read().unwrap().ownership == self.id())

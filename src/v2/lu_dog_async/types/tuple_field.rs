@@ -3,12 +3,10 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::enum_field::EnumField;
 use crate::v2::lu_dog_async::types::enum_field::EnumFieldEnum;
-use crate::v2::lu_dog_async::types::expression::Expression;
 use crate::v2::lu_dog_async::types::value_type::ValueType;
 use serde::{Deserialize, Serialize};
 
@@ -37,8 +35,6 @@ use crate::v2::lu_dog_async::store::ObjectStore as LuDogAsyncStore;
 pub struct TupleField {
     pub id: usize,
     pub xyzzy: Uuid,
-    /// R90: [`TupleField`] 'is constructed via' [`Expression`]
-    pub expression: Option<usize>,
     /// R86: [`TupleField`] 'must have a type' [`ValueType`]
     pub ty: usize,
 }
@@ -49,41 +45,16 @@ impl TupleField {
     /// Inter a new 'Tuple Field' in the store, and return it's `id`.
     pub async fn new(
         xyzzy: Uuid,
-        expression: Option<&Arc<RwLock<Expression>>>,
         ty: &Arc<RwLock<ValueType>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<TupleField>> {
         let ty = ty.read().await.id;
-        let expression = match expression {
-            Some(expression) => Some(expression.read().await.id),
-            None => None,
-        };
         store
-            .inter_tuple_field(|id| {
-                Arc::new(RwLock::new(TupleField {
-                    id,
-                    xyzzy,
-                    expression,
-                    ty,
-                }))
-            })
+            .inter_tuple_field(|id| Arc::new(RwLock::new(TupleField { id, xyzzy, ty })))
             .await
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-cond-to-expression"}}}
-    /// Navigate to [`Expression`] across R90(1-*c)
-    pub async fn r90_expression<'a>(
-        &'a self,
-        store: &'a LuDogAsyncStore,
-    ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r90_expression");
-        match self.expression {
-            Some(ref expression) => {
-                stream::iter(vec![store.exhume_expression(expression).await.unwrap()].into_iter())
-            }
-            None => stream::iter(vec![].into_iter()),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-struct-impl-nav-forward-to-ty"}}}
     /// Navigate to [`ValueType`] across R86(1-*)
@@ -91,7 +62,6 @@ impl TupleField {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ValueType>>> + '_ {
-        span!("r86_value_type");
         stream::iter(vec![store.exhume_value_type(&self.ty).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -101,7 +71,6 @@ impl TupleField {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r85_enum_field");
         store
             .iter_enum_field()
             .await
@@ -121,7 +90,7 @@ impl TupleField {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-implementation"}}}
 impl PartialEq for TupleField {
     fn eq(&self, other: &Self) -> bool {
-        self.xyzzy == other.xyzzy && self.expression == other.expression && self.ty == other.ty
+        self.xyzzy == other.xyzzy && self.ty == other.ty
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

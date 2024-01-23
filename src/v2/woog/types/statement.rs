@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::woog::types::block::Block;
@@ -68,7 +67,7 @@ impl Statement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
-            subtype: StatementEnum::Item(subtype.read().unwrap().id()),
+            subtype: StatementEnum::Item(subtype.read().unwrap().id()), // b
             id,
         }));
         store.inter_statement(new.clone());
@@ -85,7 +84,7 @@ impl Statement {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(Statement {
             block: block.read().unwrap().id,
-            subtype: StatementEnum::XLet(subtype.read().unwrap().id),
+            subtype: StatementEnum::XLet(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_statement(new.clone());
@@ -111,7 +110,6 @@ impl Statement {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"statement-struct-impl-nav-forward-to-block"}}}
     /// Navigate to [`Block`] across R12(1-*)
     pub fn r12_block<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Block>>> {
-        span!("r12_block");
         vec![store.exhume_block(&self.block).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

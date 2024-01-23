@@ -11,7 +11,6 @@ use crate::v2::woog::types::x_value::XValue;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
@@ -116,7 +115,6 @@ impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-field"}}}
     /// Navigate to [`Field`] across R29(1-M)
     pub fn r29_field<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<Field>>> {
-        span!("r29_field");
         store
             .iter_field()
             .filter(|field| field.read().unwrap().ty == self.id())
@@ -126,7 +124,6 @@ impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-woog_option"}}}
     /// Navigate to [`WoogOption`] across R20(1-M)
     pub fn r20_woog_option<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<WoogOption>>> {
-        span!("r20_woog_option");
         store
             .iter_woog_option()
             .filter(|woog_option| woog_option.read().unwrap().ty == self.id())
@@ -137,7 +134,6 @@ impl GraceType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"grace_type-struct-impl-nav-backward-1_M-to-x_value"}}}
     /// Navigate to [`XValue`] across R3(1-M)
     pub fn r3_x_value<'a>(&'a self, store: &'a WoogStore) -> Vec<Arc<RwLock<XValue>>> {
-        span!("r3_x_value");
         store
             .iter_x_value()
             .filter(|x_value| x_value.read().unwrap().ty == self.id())

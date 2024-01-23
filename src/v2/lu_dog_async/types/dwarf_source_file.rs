@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::item::Item;
@@ -49,7 +48,6 @@ impl DwarfSourceFile {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Item>>> + '_ {
-        span!("r25_item");
         store.iter_item().await.filter_map(|item| async {
             if item.read().await.source == self.id {
                 Some(item)
@@ -65,7 +63,6 @@ impl DwarfSourceFile {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Span>>> + '_ {
-        span!("r64_span");
         store.iter_span().await.filter_map(|span| async {
             if span.read().await.source == self.id {
                 Some(span)

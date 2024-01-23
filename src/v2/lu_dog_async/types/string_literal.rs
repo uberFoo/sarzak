@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::literal::Literal;
@@ -48,7 +47,6 @@ impl StringLiteral {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Literal>>> {
-        span!("r22_literal");
         store
             .iter_literal()
             .await

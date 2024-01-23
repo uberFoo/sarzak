@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -35,11 +34,11 @@ impl ListElement {
         next: Option<&Arc<RwLock<ListElement>>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<ListElement>> {
+        let expression = expression.read().await.id;
         let list_element = match next {
             Some(list_element) => Some(list_element.read().await.id),
             None => None,
         };
-        let expression = expression.read().await.id;
         store
             .inter_list_element(|id| {
                 Arc::new(RwLock::new(ListElement {
@@ -58,7 +57,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r55_expression");
         stream::iter(vec![store.exhume_expression(&self.expression).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -68,7 +66,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
-        span!("r53_list_element");
         match self.next {
             Some(ref next) => {
                 stream::iter(vec![store.exhume_list_element(next).await.unwrap()].into_iter())
@@ -83,7 +80,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ListElement>>> + '_ {
-        span!("r53_list_element");
         store
             .iter_list_element()
             .await
@@ -102,7 +98,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<ListExpression>>> + '_ {
-        span!("r54_list_expression");
         store
             .iter_list_expression()
             .await
@@ -121,7 +116,6 @@ impl ListElement {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

@@ -2,7 +2,6 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"tuple_field-use-statements"}}}
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::enum_field::EnumField;
@@ -52,7 +51,7 @@ impl TupleField {
         let new = Arc::new(RwLock::new(TupleField {
             id,
             xyzzy,
-            ty: ty.read().unwrap().id(),
+            ty: ty.read().unwrap().id,
         }));
         store.inter_tuple_field(new.clone());
         new
@@ -66,7 +65,6 @@ impl TupleField {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<ValueType>>> {
-        span!("r86_value_type");
         vec![store.exhume_value_type(&self.ty).unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -76,7 +74,6 @@ impl TupleField {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<EnumField>>> {
-        span!("r85_enum_field");
         vec![store
             .iter_enum_field()
             .find(|enum_field| {

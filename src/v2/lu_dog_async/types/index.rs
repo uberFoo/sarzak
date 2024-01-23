@@ -3,7 +3,6 @@
 use async_std::sync::Arc;
 use async_std::sync::RwLock;
 use futures::stream::{self, StreamExt};
-use tracy_client::span;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_async::types::expression::Expression;
@@ -36,8 +35,8 @@ impl Index {
         target: &Arc<RwLock<Expression>>,
         store: &mut LuDogAsyncStore,
     ) -> Arc<RwLock<Index>> {
-        let index = index.read().await.id;
         let target = target.read().await.id;
+        let index = index.read().await.id;
         store
             .inter_index(|id| Arc::new(RwLock::new(Index { id, index, target })))
             .await
@@ -49,7 +48,6 @@ impl Index {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r56_expression");
         stream::iter(vec![store.exhume_expression(&self.index).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -59,7 +57,6 @@ impl Index {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> impl futures::Stream<Item = Arc<RwLock<Expression>>> + '_ {
-        span!("r57_expression");
         stream::iter(vec![store.exhume_expression(&self.target).await.unwrap()].into_iter())
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -69,7 +66,6 @@ impl Index {
         &'a self,
         store: &'a LuDogAsyncStore,
     ) -> Vec<Arc<RwLock<Expression>>> {
-        span!("r15_expression");
         store
             .iter_expression()
             .await

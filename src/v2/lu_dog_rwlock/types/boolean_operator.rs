@@ -1,25 +1,37 @@
 // {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"boolean_operator-struct-definition-file"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-use-statements"}}}
-use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
-use crate::v2::lu_dog_rwlock::types::and::AND;
-use crate::v2::lu_dog_rwlock::types::binary::Binary;
-use crate::v2::lu_dog_rwlock::types::or::OR;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::RwLock;
-use tracy_client::span;
 use uuid::Uuid;
+
+use crate::v2::lu_dog_rwlock::types::and::AND;
+use crate::v2::lu_dog_rwlock::types::binary::Binary;
+use crate::v2::lu_dog_rwlock::types::binary::BinaryEnum;
+use crate::v2::lu_dog_rwlock::types::or::OR;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-enum-documentation"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-hybrid-documentation"}}}
 /// A Boolean Operaator
 ///
 /// There are two — || and &&.
 ///
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-enum-definition"}}}
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum BooleanOperator {
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-hybrid-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct BooleanOperator {
+    pub subtype: BooleanOperatorEnum,
+    pub bogus: bool,
+    pub id: Uuid,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-hybrid-enum-definition"}}}
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub enum BooleanOperatorEnum {
     And(Uuid),
     Or(Uuid),
 }
@@ -27,32 +39,46 @@ pub enum BooleanOperator {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-implementation"}}}
 impl BooleanOperator {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-new-impl"}}}
-    /// Create a new instance of BooleanOperator::And
-    pub fn new_and(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_boolean_operator(&AND).unwrap()
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-struct-impl-new_and"}}}
+    /// Inter a new BooleanOperator in the store, and return it's `id`.
+    pub fn new_and(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<BooleanOperator>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(BooleanOperator {
+            bogus: bogus,
+            subtype: BooleanOperatorEnum::And(AND),
+            id,
+        }));
+        store.inter_boolean_operator(new.clone());
+        new
     }
-
-    /// Create a new instance of BooleanOperator::Or
-    pub fn new_or(store: &LuDogRwlockStore) -> Arc<RwLock<Self>> {
-        // This is already in the store.
-        store.exhume_boolean_operator(&OR).unwrap()
-    }
-
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-get-id-impl"}}}
-    pub fn id(&self) -> Uuid {
-        match self {
-            Self::And(id) => *id,
-            Self::Or(id) => *id,
-        }
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-struct-impl-new_or"}}}
+    /// Inter a new BooleanOperator in the store, and return it's `id`.
+    pub fn new_or(bogus: bool, store: &mut LuDogRwlockStore) -> Arc<RwLock<BooleanOperator>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(BooleanOperator {
+            bogus: bogus,
+            subtype: BooleanOperatorEnum::Or(OR),
+            id,
+        }));
+        store.inter_boolean_operator(new.clone());
+        new
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"boolean_operator-impl-nav-subtype-to-supertype-binary"}}}
     // Navigate to [`Binary`] across R48(isa)
     pub fn r48_binary<'a>(&'a self, store: &'a LuDogRwlockStore) -> Vec<Arc<RwLock<Binary>>> {
-        span!("r48_binary");
-        vec![store.exhume_binary(&self.id()).unwrap()]
+        vec![store
+            .iter_binary()
+            .find(|binary| {
+                if let BinaryEnum::BooleanOperator(id) = binary.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
