@@ -5,6 +5,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::function::Function;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueType;
+use crate::v2::lu_dog_ndrwlock_vec::types::value_type::ValueTypeEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
@@ -94,6 +96,24 @@ impl FuncGeneric {
         vec![store
             .iter_function()
             .find(|function| function.read().unwrap().first_generic == Some(self.id))
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"func_generic-impl-nav-subtype-to-supertype-value_type"}}}
+    // Navigate to [`ValueType`] across R1(isa)
+    pub fn r1_value_type<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ValueType>>> {
+        vec![store
+            .iter_value_type()
+            .find(|value_type| {
+                if let ValueTypeEnum::FuncGeneric(id) = value_type.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
             .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

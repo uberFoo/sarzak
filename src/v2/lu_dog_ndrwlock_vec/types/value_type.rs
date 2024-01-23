@@ -9,6 +9,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::empty::EMPTY;
 use crate::v2::lu_dog_ndrwlock_vec::types::enum_generic::EnumGeneric;
 use crate::v2::lu_dog_ndrwlock_vec::types::enumeration::Enumeration;
 use crate::v2::lu_dog_ndrwlock_vec::types::field::Field;
+use crate::v2::lu_dog_ndrwlock_vec::types::func_generic::FuncGeneric;
 use crate::v2::lu_dog_ndrwlock_vec::types::function::Function;
 use crate::v2::lu_dog_ndrwlock_vec::types::import::Import;
 use crate::v2::lu_dog_ndrwlock_vec::types::lambda::Lambda;
@@ -68,6 +69,7 @@ pub enum ValueTypeEnum {
     Empty(Uuid),
     EnumGeneric(usize),
     Enumeration(usize),
+    FuncGeneric(usize),
     Function(usize),
     XFuture(usize),
     Import(usize),
@@ -143,6 +145,21 @@ impl ValueType {
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_error"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_x_error"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_func_generic"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_func_generic(
+        bogus: bool,
+        subtype: &Arc<RwLock<FuncGeneric>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<ValueType>> {
+        store.inter_value_type(|id| {
+            Arc::new(RwLock::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::FuncGeneric(subtype.read().unwrap().id), // b
+                id,
+            }))
+        })
+    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_function"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
