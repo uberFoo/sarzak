@@ -87,7 +87,30 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = false
-uber_store = "StdRwLock"
+uber_store = "ParkingLotRwLock"
+target = "domain"
+
+#
+# Lu Dog Parking Lot Vec
+#
+[modules."v2/lu_dog_pl_vec"]
+model = "models/lu_dog.json"
+
+[[modules."v2/lu_dog_pl_vec".compiler]]
+always_process = true
+compiler = "grace"
+derive = ["Clone", "Debug", "Deserialize", "Serialize"]
+imported_domains = ["crate/v2/sarzak"]
+use_paths = ["serde::{Deserialize, Serialize}"]
+tracy = false
+
+[modules."v2/lu_dog_pl_vec".compiler.target]
+optimization_level = "Vec"
+is_meta_model = true
+is_sarzak = false
+persist = true
+persist_timestamps = false
+uber_store = "ParkingLotRwLock"
 target = "domain"
 
 #

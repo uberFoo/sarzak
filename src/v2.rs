@@ -6,6 +6,8 @@ pub mod lu_dog;
 pub mod lu_dog_async;
 #[cfg(feature = "lu-dog-ndrwlock-vec")]
 pub mod lu_dog_ndrwlock_vec;
+#[cfg(feature = "lu-dog-pl-vec")]
+pub mod lu_dog_pl_vec;
 #[cfg(feature = "lu-dog-rwlock")]
 pub mod lu_dog_rwlock;
 #[cfg(feature = "lu-dog-rwlock-vec")]

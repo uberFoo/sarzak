@@ -1,6 +1,6 @@
 [package]
 name = "sarzak"
-version = "2.13.10"
+version = "2.13.11"
 edition = "2021"
 authors = ["Keith T. Star <uberfoo@me.com>"]
 categories = ["compilers", "memory-management"]
@@ -33,7 +33,7 @@ parking_lot = { version = "0.12.1", features = [
     "serde",
     "hardware-lock-elision",
     # "deadlock_detection",
-] }
+], optional = true }
 rustc-hash = "1.1.0"
 serde = { version = "1.0.152", features = ["derive"] }
 snafu = "0.7.4"
@@ -55,6 +55,7 @@ lu-dog-vec = []
 lu-dog-vec-tracy = ["dep:tracy-client"]
 lu-dog-rwlock-vec = []
 lu-dog-ndrwlock-vec = ["dep:no_deadlocks"]
+lu-dog-pl-vec = ["dep:parking_lot"]
 lu-dog-rc = []
 lu-dog-rwlock = []
 lu-dog-async-vec = ["dep:futures", "dep:async-std"]
