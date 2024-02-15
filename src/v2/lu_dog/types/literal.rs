@@ -8,6 +8,7 @@ use crate::v2::lu_dog::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::expression::ExpressionEnum;
 use crate::v2::lu_dog::types::float_literal::FloatLiteral;
+use crate::v2::lu_dog::types::format_string::FormatString;
 use crate::v2::lu_dog::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
@@ -36,6 +37,7 @@ pub struct Literal {
 pub enum LiteralEnum {
     BooleanLiteral(Uuid),
     FloatLiteral(Uuid),
+    FormatString(Uuid),
     IntegerLiteral(Uuid),
     StringLiteral(Uuid),
 }
@@ -71,6 +73,23 @@ impl Literal {
         let new = Rc::new(RefCell::new(Literal {
             bogus: bogus,
             subtype: LiteralEnum::FloatLiteral(subtype.borrow().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_format_string"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_format_string(
+        bogus: bool,
+        subtype: &Rc<RefCell<FormatString>>,
+        store: &mut LuDogStore,
+    ) -> Rc<RefCell<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::FormatString(subtype.borrow().id), // b
             id,
         }));
         store.inter_literal(new.clone());

@@ -8,6 +8,7 @@ use crate::v2::lu_dog_rwlock_vec::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog_rwlock_vec::types::expression::Expression;
 use crate::v2::lu_dog_rwlock_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock_vec::types::float_literal::FloatLiteral;
+use crate::v2::lu_dog_rwlock_vec::types::format_string::FormatString;
 use crate::v2::lu_dog_rwlock_vec::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog_rwlock_vec::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ pub struct Literal {
 pub enum LiteralEnum {
     BooleanLiteral(usize),
     FloatLiteral(usize),
+    FormatString(usize),
     IntegerLiteral(usize),
     StringLiteral(usize),
 }
@@ -67,6 +69,22 @@ impl Literal {
             Arc::new(RwLock::new(Literal {
                 bogus: bogus,
                 subtype: LiteralEnum::FloatLiteral(subtype.read().unwrap().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_format_string"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_format_string(
+        bogus: bool,
+        subtype: &Arc<RwLock<FormatString>>,
+        store: &mut LuDogRwlockVecStore,
+    ) -> Arc<RwLock<Literal>> {
+        store.inter_literal(|id| {
+            Arc::new(RwLock::new(Literal {
+                bogus: bogus,
+                subtype: LiteralEnum::FormatString(subtype.read().unwrap().id), // b
                 id,
             }))
         })

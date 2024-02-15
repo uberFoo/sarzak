@@ -22,6 +22,7 @@
 //! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
+//! * [`ExpressionBit`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
 //! * [`Field`]
@@ -30,6 +31,8 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FormatBits`]
+//! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
 //! * [`FunctionCall`]
@@ -68,6 +71,7 @@
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
+//! * [`StringBit`]
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
@@ -98,13 +102,13 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
     XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
@@ -128,6 +132,7 @@ pub struct ObjectStore {
     enumeration: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Enumeration>>>>>,
     enumeration_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
     expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Expression>>>>>,
+    expression_bit: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExpressionBit>>>>>,
     expression_statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExpressionStatement>>>>>,
     external_implementation: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ExternalImplementation>>>>>,
     field: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Field>>>>>,
@@ -137,6 +142,8 @@ pub struct ObjectStore {
     field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FieldExpression>>>>>,
     float_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FloatLiteral>>>>>,
     for_loop: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ForLoop>>>>>,
+    format_bits: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FormatBits>>>>>,
+    format_string: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FormatString>>>>>,
     func_generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FuncGeneric>>>>>,
     function: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Function>>>>>,
     function_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
@@ -178,6 +185,7 @@ pub struct ObjectStore {
     span: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Span>>>>>,
     statement: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Statement>>>>>,
     static_method_call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StaticMethodCall>>>>>,
+    string_bit: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StringBit>>>>>,
     string_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<StringLiteral>>>>>,
     woog_struct: Arc<RwLock<HashMap<Uuid, Arc<RwLock<WoogStruct>>>>>,
     woog_struct_id_by_name: Arc<RwLock<HashMap<String, Uuid>>>,
@@ -214,6 +222,7 @@ impl ObjectStore {
             enumeration: Arc::new(RwLock::new(HashMap::default())),
             enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             expression: Arc::new(RwLock::new(HashMap::default())),
+            expression_bit: Arc::new(RwLock::new(HashMap::default())),
             expression_statement: Arc::new(RwLock::new(HashMap::default())),
             external_implementation: Arc::new(RwLock::new(HashMap::default())),
             field: Arc::new(RwLock::new(HashMap::default())),
@@ -223,6 +232,8 @@ impl ObjectStore {
             field_expression: Arc::new(RwLock::new(HashMap::default())),
             float_literal: Arc::new(RwLock::new(HashMap::default())),
             for_loop: Arc::new(RwLock::new(HashMap::default())),
+            format_bits: Arc::new(RwLock::new(HashMap::default())),
+            format_string: Arc::new(RwLock::new(HashMap::default())),
             func_generic: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
             function_id_by_name: Arc::new(RwLock::new(HashMap::default())),
@@ -264,6 +275,7 @@ impl ObjectStore {
             span: Arc::new(RwLock::new(HashMap::default())),
             statement: Arc::new(RwLock::new(HashMap::default())),
             static_method_call: Arc::new(RwLock::new(HashMap::default())),
+            string_bit: Arc::new(RwLock::new(HashMap::default())),
             string_literal: Arc::new(RwLock::new(HashMap::default())),
             woog_struct: Arc::new(RwLock::new(HashMap::default())),
             woog_struct_id_by_name: Arc::new(RwLock::new(HashMap::default())),
@@ -946,6 +958,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`ExpressionBit`] into the store.
+    ///
+    pub fn inter_expression_bit(&mut self, expression_bit: Arc<RwLock<ExpressionBit>>) {
+        let read = expression_bit.read().unwrap();
+        self.expression_bit
+            .write()
+            .unwrap()
+            .insert(read.id, expression_bit.clone());
+    }
+
+    /// Exhume (get) [`ExpressionBit`] from the store.
+    ///
+    pub fn exhume_expression_bit(&self, id: &Uuid) -> Option<Arc<RwLock<ExpressionBit>>> {
+        self.expression_bit
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|expression_bit| expression_bit.clone())
+    }
+
+    /// Exorcise (remove) [`ExpressionBit`] from the store.
+    ///
+    pub fn exorcise_expression_bit(&mut self, id: &Uuid) -> Option<Arc<RwLock<ExpressionBit>>> {
+        self.expression_bit
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|expression_bit| expression_bit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExpressionBit>`.
+    ///
+    pub fn iter_expression_bit(&self) -> impl Iterator<Item = Arc<RwLock<ExpressionBit>>> + '_ {
+        let values: Vec<Arc<RwLock<ExpressionBit>>> = self
+            .expression_bit
+            .read()
+            .unwrap()
+            .values()
+            .map(|expression_bit| expression_bit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
     pub fn inter_expression_statement(
@@ -1334,6 +1390,94 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|for_loop| for_loop.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FormatBits`] into the store.
+    ///
+    pub fn inter_format_bits(&mut self, format_bits: Arc<RwLock<FormatBits>>) {
+        let read = format_bits.read().unwrap();
+        self.format_bits
+            .write()
+            .unwrap()
+            .insert(read.id(), format_bits.clone());
+    }
+
+    /// Exhume (get) [`FormatBits`] from the store.
+    ///
+    pub fn exhume_format_bits(&self, id: &Uuid) -> Option<Arc<RwLock<FormatBits>>> {
+        self.format_bits
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|format_bits| format_bits.clone())
+    }
+
+    /// Exorcise (remove) [`FormatBits`] from the store.
+    ///
+    pub fn exorcise_format_bits(&mut self, id: &Uuid) -> Option<Arc<RwLock<FormatBits>>> {
+        self.format_bits
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|format_bits| format_bits.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    ///
+    pub fn iter_format_bits(&self) -> impl Iterator<Item = Arc<RwLock<FormatBits>>> + '_ {
+        let values: Vec<Arc<RwLock<FormatBits>>> = self
+            .format_bits
+            .read()
+            .unwrap()
+            .values()
+            .map(|format_bits| format_bits.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FormatString`] into the store.
+    ///
+    pub fn inter_format_string(&mut self, format_string: Arc<RwLock<FormatString>>) {
+        let read = format_string.read().unwrap();
+        self.format_string
+            .write()
+            .unwrap()
+            .insert(read.id, format_string.clone());
+    }
+
+    /// Exhume (get) [`FormatString`] from the store.
+    ///
+    pub fn exhume_format_string(&self, id: &Uuid) -> Option<Arc<RwLock<FormatString>>> {
+        self.format_string
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|format_string| format_string.clone())
+    }
+
+    /// Exorcise (remove) [`FormatString`] from the store.
+    ///
+    pub fn exorcise_format_string(&mut self, id: &Uuid) -> Option<Arc<RwLock<FormatString>>> {
+        self.format_string
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|format_string| format_string.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatString>`.
+    ///
+    pub fn iter_format_string(&self) -> impl Iterator<Item = Arc<RwLock<FormatString>>> + '_ {
+        let values: Vec<Arc<RwLock<FormatString>>> = self
+            .format_string
+            .read()
+            .unwrap()
+            .values()
+            .map(|format_string| format_string.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3040,6 +3184,50 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`StringBit`] into the store.
+    ///
+    pub fn inter_string_bit(&mut self, string_bit: Arc<RwLock<StringBit>>) {
+        let read = string_bit.read().unwrap();
+        self.string_bit
+            .write()
+            .unwrap()
+            .insert(read.id, string_bit.clone());
+    }
+
+    /// Exhume (get) [`StringBit`] from the store.
+    ///
+    pub fn exhume_string_bit(&self, id: &Uuid) -> Option<Arc<RwLock<StringBit>>> {
+        self.string_bit
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|string_bit| string_bit.clone())
+    }
+
+    /// Exorcise (remove) [`StringBit`] from the store.
+    ///
+    pub fn exorcise_string_bit(&mut self, id: &Uuid) -> Option<Arc<RwLock<StringBit>>> {
+        self.string_bit
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|string_bit| string_bit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StringBit>`.
+    ///
+    pub fn iter_string_bit(&self) -> impl Iterator<Item = Arc<RwLock<StringBit>>> + '_ {
+        let values: Vec<Arc<RwLock<StringBit>>> = self
+            .string_bit
+            .read()
+            .unwrap()
+            .values()
+            .map(|string_bit| string_bit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
     pub fn inter_string_literal(&mut self, string_literal: Arc<RwLock<StringLiteral>>) {
@@ -3890,6 +4078,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            fs::create_dir_all(&path)?;
+            for expression_bit in self.expression_bit.read().unwrap().values() {
+                let path = path.join(format!("{}.json", expression_bit.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &expression_bit)?;
+            }
+        }
+
         // Persist Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -3986,6 +4186,30 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &for_loop)?;
+            }
+        }
+
+        // Persist Format Bits.
+        {
+            let path = path.join("format_bits");
+            fs::create_dir_all(&path)?;
+            for format_bits in self.format_bits.read().unwrap().values() {
+                let path = path.join(format!("{}.json", format_bits.read().unwrap().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &format_bits)?;
+            }
+        }
+
+        // Persist Format String.
+        {
+            let path = path.join("format_string");
+            fs::create_dir_all(&path)?;
+            for format_string in self.format_string.read().unwrap().values() {
+                let path = path.join(format!("{}.json", format_string.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &format_string)?;
             }
         }
 
@@ -4445,6 +4669,18 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &static_method_call)?;
+            }
+        }
+
+        // Persist String Bit.
+        {
+            let path = path.join("string_bit");
+            fs::create_dir_all(&path)?;
+            for string_bit in self.string_bit.read().unwrap().values() {
+                let path = path.join(format!("{}.json", string_bit.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &string_bit)?;
             }
         }
 
@@ -4920,6 +5156,24 @@ impl ObjectStore {
             }
         }
 
+        // Load Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let expression_bit: Arc<RwLock<ExpressionBit>> = serde_json::from_reader(reader)?;
+                store
+                    .expression_bit
+                    .write()
+                    .unwrap()
+                    .insert(expression_bit.read().unwrap().id, expression_bit.clone());
+            }
+        }
+
         // Load Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -5065,6 +5319,42 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(for_loop.read().unwrap().id, for_loop.clone());
+            }
+        }
+
+        // Load Format Bits.
+        {
+            let path = path.join("format_bits");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_bits: Arc<RwLock<FormatBits>> = serde_json::from_reader(reader)?;
+                store
+                    .format_bits
+                    .write()
+                    .unwrap()
+                    .insert(format_bits.read().unwrap().id(), format_bits.clone());
+            }
+        }
+
+        // Load Format String.
+        {
+            let path = path.join("format_string");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_string: Arc<RwLock<FormatString>> = serde_json::from_reader(reader)?;
+                store
+                    .format_string
+                    .write()
+                    .unwrap()
+                    .insert(format_string.read().unwrap().id, format_string.clone());
             }
         }
 
@@ -5761,6 +6051,24 @@ impl ObjectStore {
                     static_method_call.read().unwrap().id,
                     static_method_call.clone(),
                 );
+            }
+        }
+
+        // Load String Bit.
+        {
+            let path = path.join("string_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let string_bit: Arc<RwLock<StringBit>> = serde_json::from_reader(reader)?;
+                store
+                    .string_bit
+                    .write()
+                    .unwrap()
+                    .insert(string_bit.read().unwrap().id, string_bit.clone());
             }
         }
 

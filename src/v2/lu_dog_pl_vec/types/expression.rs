@@ -9,6 +9,7 @@ use crate::v2::lu_dog_pl_vec::types::argument::Argument;
 use crate::v2::lu_dog_pl_vec::types::block::Block;
 use crate::v2::lu_dog_pl_vec::types::call::Call;
 use crate::v2::lu_dog_pl_vec::types::empty_expression::EMPTY_EXPRESSION;
+use crate::v2::lu_dog_pl_vec::types::expression_bit::ExpressionBit;
 use crate::v2::lu_dog_pl_vec::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_pl_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_pl_vec::types::field_expression::FieldExpression;
@@ -494,6 +495,18 @@ impl Expression {
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-expression_bit"}}}
+    /// Navigate to [`ExpressionBit`] across R109(1-M)
+    pub fn r109_expression_bit<'a>(
+        &'a self,
+        store: &'a LuDogPlVecStore,
+    ) -> Vec<Arc<RwLock<ExpressionBit>>> {
+        store
+            .iter_expression_bit()
+            .filter(|expression_bit| expression_bit.read().expression == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-expression_statement"}}}
     /// Navigate to [`ExpressionStatement`] across R31(1-M)
     pub fn r31_expression_statement<'a>(
@@ -630,20 +643,22 @@ impl Expression {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
-    /// Navigate to [`Operator`] across R51(1-Mc)
-    pub fn r51_operator<'a>(&'a self, store: &'a LuDogPlVecStore) -> Vec<Arc<RwLock<Operator>>> {
-        store
-            .iter_operator()
-            .filter(|operator| operator.read().rhs == Some(self.id))
-            .collect()
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
     /// Navigate to [`Operator`] across R50(1-M)
     pub fn r50_operator<'a>(&'a self, store: &'a LuDogPlVecStore) -> Vec<Arc<RwLock<Operator>>> {
         store
             .iter_operator()
             .filter(|operator| operator.read().lhs == self.id)
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-operator"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_Mc-to-operator"}}}
+    /// Navigate to [`Operator`] across R51(1-Mc)
+    pub fn r51_operator<'a>(&'a self, store: &'a LuDogPlVecStore) -> Vec<Arc<RwLock<Operator>>> {
+        store
+            .iter_operator()
+            .filter(|operator| operator.read().rhs == Some(self.id))
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

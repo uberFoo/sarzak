@@ -87,7 +87,7 @@ is_meta_model = true
 is_sarzak = false
 persist = true
 persist_timestamps = false
-uber_store = "ParkingLotRwLock"
+uber_store = "StdRwLock"
 target = "domain"
 
 #

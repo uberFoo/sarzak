@@ -9,6 +9,7 @@ use crate::v2::lu_dog_vec_tracy::types::boolean_literal::BooleanLiteral;
 use crate::v2::lu_dog_vec_tracy::types::expression::Expression;
 use crate::v2::lu_dog_vec_tracy::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_vec_tracy::types::float_literal::FloatLiteral;
+use crate::v2::lu_dog_vec_tracy::types::format_string::FormatString;
 use crate::v2::lu_dog_vec_tracy::types::integer_literal::IntegerLiteral;
 use crate::v2::lu_dog_vec_tracy::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
@@ -35,6 +36,7 @@ pub struct Literal {
 pub enum LiteralEnum {
     BooleanLiteral(usize),
     FloatLiteral(usize),
+    FormatString(usize),
     IntegerLiteral(usize),
     StringLiteral(usize),
 }
@@ -68,6 +70,22 @@ impl Literal {
             Rc::new(RefCell::new(Literal {
                 bogus: bogus,
                 subtype: LiteralEnum::FloatLiteral(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_format_string"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_format_string(
+        bogus: bool,
+        subtype: &Rc<RefCell<FormatString>>,
+        store: &mut LuDogVecTracyStore,
+    ) -> Rc<RefCell<Literal>> {
+        store.inter_literal(|id| {
+            Rc::new(RefCell::new(Literal {
+                bogus: bogus,
+                subtype: LiteralEnum::FormatString(subtype.borrow().id), // b
                 id,
             }))
         })

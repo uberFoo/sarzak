@@ -22,6 +22,7 @@
 //! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
+//! * [`ExpressionBit`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
 //! * [`Field`]
@@ -30,6 +31,8 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FormatBits`]
+//! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
 //! * [`FunctionCall`]
@@ -68,6 +71,7 @@
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
+//! * [`StringBit`]
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
@@ -93,13 +97,13 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
     XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
@@ -142,6 +146,8 @@ pub struct ObjectStore {
     enumeration_id_by_name: Arc<RwLock<HashMap<String, usize>>>,
     expression_free_list: std::sync::Mutex<Vec<usize>>,
     expression: Arc<RwLock<Vec<Option<Arc<RwLock<Expression>>>>>>,
+    expression_bit_free_list: std::sync::Mutex<Vec<usize>>,
+    expression_bit: Arc<RwLock<Vec<Option<Arc<RwLock<ExpressionBit>>>>>>,
     expression_statement_free_list: std::sync::Mutex<Vec<usize>>,
     expression_statement: Arc<RwLock<Vec<Option<Arc<RwLock<ExpressionStatement>>>>>>,
     external_implementation_free_list: std::sync::Mutex<Vec<usize>>,
@@ -159,6 +165,10 @@ pub struct ObjectStore {
     float_literal: Arc<RwLock<Vec<Option<Arc<RwLock<FloatLiteral>>>>>>,
     for_loop_free_list: std::sync::Mutex<Vec<usize>>,
     for_loop: Arc<RwLock<Vec<Option<Arc<RwLock<ForLoop>>>>>>,
+    format_bits_free_list: std::sync::Mutex<Vec<usize>>,
+    format_bits: Arc<RwLock<Vec<Option<Arc<RwLock<FormatBits>>>>>>,
+    format_string_free_list: std::sync::Mutex<Vec<usize>>,
+    format_string: Arc<RwLock<Vec<Option<Arc<RwLock<FormatString>>>>>>,
     func_generic_free_list: std::sync::Mutex<Vec<usize>>,
     func_generic: Arc<RwLock<Vec<Option<Arc<RwLock<FuncGeneric>>>>>>,
     function_free_list: std::sync::Mutex<Vec<usize>>,
@@ -238,6 +248,8 @@ pub struct ObjectStore {
     statement: Arc<RwLock<Vec<Option<Arc<RwLock<Statement>>>>>>,
     static_method_call_free_list: std::sync::Mutex<Vec<usize>>,
     static_method_call: Arc<RwLock<Vec<Option<Arc<RwLock<StaticMethodCall>>>>>>,
+    string_bit_free_list: std::sync::Mutex<Vec<usize>>,
+    string_bit: Arc<RwLock<Vec<Option<Arc<RwLock<StringBit>>>>>>,
     string_literal_free_list: std::sync::Mutex<Vec<usize>>,
     string_literal: Arc<RwLock<Vec<Option<Arc<RwLock<StringLiteral>>>>>>,
     woog_struct_free_list: std::sync::Mutex<Vec<usize>>,
@@ -303,6 +315,8 @@ impl ObjectStore {
             enumeration_id_by_name: Arc::new(RwLock::new(HashMap::default())),
             expression_free_list: std::sync::Mutex::new(Vec::new()),
             expression: Arc::new(RwLock::new(Vec::new())),
+            expression_bit_free_list: std::sync::Mutex::new(Vec::new()),
+            expression_bit: Arc::new(RwLock::new(Vec::new())),
             expression_statement_free_list: std::sync::Mutex::new(Vec::new()),
             expression_statement: Arc::new(RwLock::new(Vec::new())),
             external_implementation_free_list: std::sync::Mutex::new(Vec::new()),
@@ -320,6 +334,10 @@ impl ObjectStore {
             float_literal: Arc::new(RwLock::new(Vec::new())),
             for_loop_free_list: std::sync::Mutex::new(Vec::new()),
             for_loop: Arc::new(RwLock::new(Vec::new())),
+            format_bits_free_list: std::sync::Mutex::new(Vec::new()),
+            format_bits: Arc::new(RwLock::new(Vec::new())),
+            format_string_free_list: std::sync::Mutex::new(Vec::new()),
+            format_string: Arc::new(RwLock::new(Vec::new())),
             func_generic_free_list: std::sync::Mutex::new(Vec::new()),
             func_generic: Arc::new(RwLock::new(Vec::new())),
             function_free_list: std::sync::Mutex::new(Vec::new()),
@@ -399,6 +417,8 @@ impl ObjectStore {
             statement: Arc::new(RwLock::new(Vec::new())),
             static_method_call_free_list: std::sync::Mutex::new(Vec::new()),
             static_method_call: Arc::new(RwLock::new(Vec::new())),
+            string_bit_free_list: std::sync::Mutex::new(Vec::new()),
+            string_bit: Arc::new(RwLock::new(Vec::new())),
             string_literal_free_list: std::sync::Mutex::new(Vec::new()),
             string_literal: Arc::new(RwLock::new(Vec::new())),
             woog_struct_free_list: std::sync::Mutex::new(Vec::new()),
@@ -1637,6 +1657,84 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`ExpressionBit`] into the store.
+    ///
+    #[inline]
+    pub fn inter_expression_bit<F>(&mut self, expression_bit: F) -> Arc<RwLock<ExpressionBit>>
+    where
+        F: Fn(usize) -> Arc<RwLock<ExpressionBit>>,
+    {
+        let _index = if let Some(_index) = self.expression_bit_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.expression_bit.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.expression_bit.write().unwrap().push(None);
+            _index
+        };
+
+        let expression_bit = expression_bit(_index);
+
+        let found = if let Some(expression_bit) =
+            self.expression_bit.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *expression_bit.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            expression_bit.clone()
+        } else {
+            None
+        };
+
+        if let Some(expression_bit) = found {
+            log::debug!(target: "store", "found duplicate {expression_bit:?}.");
+            self.expression_bit_free_list.lock().unwrap().push(_index);
+            expression_bit.clone()
+        } else {
+            log::debug!(target: "store", "interring {expression_bit:?}.");
+            self.expression_bit.write().unwrap()[_index] = Some(expression_bit.clone());
+            expression_bit
+        }
+    }
+
+    /// Exhume (get) [`ExpressionBit`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_expression_bit(&self, id: &usize) -> Option<Arc<RwLock<ExpressionBit>>> {
+        match self.expression_bit.read().unwrap().get(*id) {
+            Some(expression_bit) => expression_bit.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ExpressionBit`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_expression_bit(&mut self, id: &usize) -> Option<Arc<RwLock<ExpressionBit>>> {
+        log::debug!(target: "store", "exorcising expression_bit slot: {id}.");
+        let result = self.expression_bit.write().unwrap()[*id].take();
+        self.expression_bit_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExpressionBit>`.
+    ///
+    #[inline]
+    pub fn iter_expression_bit(&self) -> impl Iterator<Item = Arc<RwLock<ExpressionBit>>> + '_ {
+        let len = self.expression_bit.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.expression_bit.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.expression_bit.read().unwrap()[i]
+                    .as_ref()
+                    .map(|expression_bit| expression_bit.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
     #[inline]
@@ -2335,6 +2433,162 @@ impl ObjectStore {
                 self.for_loop.read().unwrap()[i]
                     .as_ref()
                     .map(|for_loop| for_loop.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FormatBits`] into the store.
+    ///
+    #[inline]
+    pub fn inter_format_bits<F>(&mut self, format_bits: F) -> Arc<RwLock<FormatBits>>
+    where
+        F: Fn(usize) -> Arc<RwLock<FormatBits>>,
+    {
+        let _index = if let Some(_index) = self.format_bits_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.format_bits.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.format_bits.write().unwrap().push(None);
+            _index
+        };
+
+        let format_bits = format_bits(_index);
+
+        let found = if let Some(format_bits) =
+            self.format_bits.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *format_bits.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            format_bits.clone()
+        } else {
+            None
+        };
+
+        if let Some(format_bits) = found {
+            log::debug!(target: "store", "found duplicate {format_bits:?}.");
+            self.format_bits_free_list.lock().unwrap().push(_index);
+            format_bits.clone()
+        } else {
+            log::debug!(target: "store", "interring {format_bits:?}.");
+            self.format_bits.write().unwrap()[_index] = Some(format_bits.clone());
+            format_bits
+        }
+    }
+
+    /// Exhume (get) [`FormatBits`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_format_bits(&self, id: &usize) -> Option<Arc<RwLock<FormatBits>>> {
+        match self.format_bits.read().unwrap().get(*id) {
+            Some(format_bits) => format_bits.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FormatBits`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_format_bits(&mut self, id: &usize) -> Option<Arc<RwLock<FormatBits>>> {
+        log::debug!(target: "store", "exorcising format_bits slot: {id}.");
+        let result = self.format_bits.write().unwrap()[*id].take();
+        self.format_bits_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    ///
+    #[inline]
+    pub fn iter_format_bits(&self) -> impl Iterator<Item = Arc<RwLock<FormatBits>>> + '_ {
+        let len = self.format_bits.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.format_bits.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.format_bits.read().unwrap()[i]
+                    .as_ref()
+                    .map(|format_bits| format_bits.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FormatString`] into the store.
+    ///
+    #[inline]
+    pub fn inter_format_string<F>(&mut self, format_string: F) -> Arc<RwLock<FormatString>>
+    where
+        F: Fn(usize) -> Arc<RwLock<FormatString>>,
+    {
+        let _index = if let Some(_index) = self.format_string_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.format_string.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.format_string.write().unwrap().push(None);
+            _index
+        };
+
+        let format_string = format_string(_index);
+
+        let found = if let Some(format_string) =
+            self.format_string.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *format_string.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            format_string.clone()
+        } else {
+            None
+        };
+
+        if let Some(format_string) = found {
+            log::debug!(target: "store", "found duplicate {format_string:?}.");
+            self.format_string_free_list.lock().unwrap().push(_index);
+            format_string.clone()
+        } else {
+            log::debug!(target: "store", "interring {format_string:?}.");
+            self.format_string.write().unwrap()[_index] = Some(format_string.clone());
+            format_string
+        }
+    }
+
+    /// Exhume (get) [`FormatString`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_format_string(&self, id: &usize) -> Option<Arc<RwLock<FormatString>>> {
+        match self.format_string.read().unwrap().get(*id) {
+            Some(format_string) => format_string.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FormatString`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_format_string(&mut self, id: &usize) -> Option<Arc<RwLock<FormatString>>> {
+        log::debug!(target: "store", "exorcising format_string slot: {id}.");
+        let result = self.format_string.write().unwrap()[*id].take();
+        self.format_string_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatString>`.
+    ///
+    #[inline]
+    pub fn iter_format_string(&self) -> impl Iterator<Item = Arc<RwLock<FormatString>>> + '_ {
+        let len = self.format_string.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.format_string.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.format_string.read().unwrap()[i]
+                    .as_ref()
+                    .map(|format_string| format_string.clone())
                     .unwrap()
             })
     }
@@ -5395,6 +5649,84 @@ impl ObjectStore {
                 self.static_method_call.read().unwrap()[i]
                     .as_ref()
                     .map(|static_method_call| static_method_call.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`StringBit`] into the store.
+    ///
+    #[inline]
+    pub fn inter_string_bit<F>(&mut self, string_bit: F) -> Arc<RwLock<StringBit>>
+    where
+        F: Fn(usize) -> Arc<RwLock<StringBit>>,
+    {
+        let _index = if let Some(_index) = self.string_bit_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.string_bit.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.string_bit.write().unwrap().push(None);
+            _index
+        };
+
+        let string_bit = string_bit(_index);
+
+        let found = if let Some(string_bit) =
+            self.string_bit.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *string_bit.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            string_bit.clone()
+        } else {
+            None
+        };
+
+        if let Some(string_bit) = found {
+            log::debug!(target: "store", "found duplicate {string_bit:?}.");
+            self.string_bit_free_list.lock().unwrap().push(_index);
+            string_bit.clone()
+        } else {
+            log::debug!(target: "store", "interring {string_bit:?}.");
+            self.string_bit.write().unwrap()[_index] = Some(string_bit.clone());
+            string_bit
+        }
+    }
+
+    /// Exhume (get) [`StringBit`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_string_bit(&self, id: &usize) -> Option<Arc<RwLock<StringBit>>> {
+        match self.string_bit.read().unwrap().get(*id) {
+            Some(string_bit) => string_bit.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`StringBit`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_string_bit(&mut self, id: &usize) -> Option<Arc<RwLock<StringBit>>> {
+        log::debug!(target: "store", "exorcising string_bit slot: {id}.");
+        let result = self.string_bit.write().unwrap()[*id].take();
+        self.string_bit_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StringBit>`.
+    ///
+    #[inline]
+    pub fn iter_string_bit(&self) -> impl Iterator<Item = Arc<RwLock<StringBit>>> + '_ {
+        let len = self.string_bit.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.string_bit.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.string_bit.read().unwrap()[i]
+                    .as_ref()
+                    .map(|string_bit| string_bit.clone())
                     .unwrap()
             })
     }

@@ -50,6 +50,8 @@ impl ListExpression {
     ) -> Vec<Arc<RwLock<ListElement>>> {
         match self.elements {
             Some(ref elements) => vec![store.exhume_list_element(&elements).unwrap()],
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"list_expression-struct-impl-nav-backward-one-bi-cond-to-format_string"}}}
             None => Vec::new(),
         }
     }

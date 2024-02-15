@@ -1,0 +1,75 @@
+// {"magic":"","directive":{"Start":{"directive":"allow-editing","tag":"string_bit-struct-definition-file"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-use-statements"}}}
+use no_deadlocks::RwLock;
+use std::sync::Arc;
+use uuid::Uuid;
+
+use crate::v2::lu_dog_ndrwlock_vec::types::format_bits::FormatBits;
+use crate::v2::lu_dog_ndrwlock_vec::types::format_bits::FormatBitsEnum;
+use crate::v2::lu_dog_ndrwlock_vec::types::string_literal::StringLiteral;
+use serde::{Deserialize, Serialize};
+
+use crate::v2::lu_dog_ndrwlock_vec::store::ObjectStore as LuDogNdrwlockVecStore;
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-struct-definition"}}}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct StringBit {
+    pub id: usize,
+    /// R108: [`StringBit`] 'refers to a' [`StringLiteral`]
+    pub z_string: usize,
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-implementation"}}}
+impl StringBit {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-struct-impl-new"}}}
+    /// Inter a new 'String Bit' in the store, and return it's `id`.
+    pub fn new(
+        z_string: &Arc<RwLock<StringLiteral>>,
+        store: &mut LuDogNdrwlockVecStore,
+    ) -> Arc<RwLock<StringBit>> {
+        store.inter_string_bit(|id| {
+            Arc::new(RwLock::new(StringBit {
+                id,
+                z_string: z_string.read().unwrap().id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-struct-impl-nav-forward-to-z_string"}}}
+    /// Navigate to [`StringLiteral`] across R108(1-*)
+    pub fn r108_string_literal<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<StringLiteral>>> {
+        vec![store.exhume_string_literal(&self.z_string).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-impl-nav-subtype-to-supertype-format_bits"}}}
+    // Navigate to [`FormatBits`] across R110(isa)
+    pub fn r110_format_bits<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<FormatBits>>> {
+        vec![store
+            .iter_format_bits()
+            .find(|format_bits| {
+                if let FormatBitsEnum::StringBit(id) = format_bits.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-implementation"}}}
+impl PartialEq for StringBit {
+    fn eq(&self, other: &Self) -> bool {
+        self.z_string == other.z_string
+    }
+}
+// {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+// {"magic":"","directive":{"End":{"directive":"allow-editing"}}}

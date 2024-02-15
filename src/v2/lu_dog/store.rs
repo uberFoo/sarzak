@@ -22,6 +22,7 @@
 //! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
+//! * [`ExpressionBit`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
 //! * [`Field`]
@@ -30,6 +31,8 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FormatBits`]
+//! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
 //! * [`FunctionCall`]
@@ -68,6 +71,7 @@
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
+//! * [`StringBit`]
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
@@ -98,13 +102,13 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
     XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
@@ -128,6 +132,7 @@ pub struct ObjectStore {
     enumeration: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Enumeration>>>>>,
     enumeration_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
     expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Expression>>>>>,
+    expression_bit: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExpressionBit>>>>>,
     expression_statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExpressionStatement>>>>>,
     external_implementation: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ExternalImplementation>>>>>,
     field: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Field>>>>>,
@@ -137,6 +142,8 @@ pub struct ObjectStore {
     field_expression: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FieldExpression>>>>>,
     float_literal: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FloatLiteral>>>>>,
     for_loop: Rc<RefCell<HashMap<Uuid, Rc<RefCell<ForLoop>>>>>,
+    format_bits: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FormatBits>>>>>,
+    format_string: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FormatString>>>>>,
     func_generic: Rc<RefCell<HashMap<Uuid, Rc<RefCell<FuncGeneric>>>>>,
     function: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Function>>>>>,
     function_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
@@ -178,6 +185,7 @@ pub struct ObjectStore {
     span: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Span>>>>>,
     statement: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Statement>>>>>,
     static_method_call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StaticMethodCall>>>>>,
+    string_bit: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StringBit>>>>>,
     string_literal: Rc<RefCell<HashMap<Uuid, Rc<RefCell<StringLiteral>>>>>,
     woog_struct: Rc<RefCell<HashMap<Uuid, Rc<RefCell<WoogStruct>>>>>,
     woog_struct_id_by_name: Rc<RefCell<HashMap<String, Uuid>>>,
@@ -214,6 +222,7 @@ impl ObjectStore {
             enumeration: Rc::new(RefCell::new(HashMap::default())),
             enumeration_id_by_name: Rc::new(RefCell::new(HashMap::default())),
             expression: Rc::new(RefCell::new(HashMap::default())),
+            expression_bit: Rc::new(RefCell::new(HashMap::default())),
             expression_statement: Rc::new(RefCell::new(HashMap::default())),
             external_implementation: Rc::new(RefCell::new(HashMap::default())),
             field: Rc::new(RefCell::new(HashMap::default())),
@@ -223,6 +232,8 @@ impl ObjectStore {
             field_expression: Rc::new(RefCell::new(HashMap::default())),
             float_literal: Rc::new(RefCell::new(HashMap::default())),
             for_loop: Rc::new(RefCell::new(HashMap::default())),
+            format_bits: Rc::new(RefCell::new(HashMap::default())),
+            format_string: Rc::new(RefCell::new(HashMap::default())),
             func_generic: Rc::new(RefCell::new(HashMap::default())),
             function: Rc::new(RefCell::new(HashMap::default())),
             function_id_by_name: Rc::new(RefCell::new(HashMap::default())),
@@ -264,6 +275,7 @@ impl ObjectStore {
             span: Rc::new(RefCell::new(HashMap::default())),
             statement: Rc::new(RefCell::new(HashMap::default())),
             static_method_call: Rc::new(RefCell::new(HashMap::default())),
+            string_bit: Rc::new(RefCell::new(HashMap::default())),
             string_literal: Rc::new(RefCell::new(HashMap::default())),
             woog_struct: Rc::new(RefCell::new(HashMap::default())),
             woog_struct_id_by_name: Rc::new(RefCell::new(HashMap::default())),
@@ -874,6 +886,46 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`ExpressionBit`] into the store.
+    ///
+    pub fn inter_expression_bit(&mut self, expression_bit: Rc<RefCell<ExpressionBit>>) {
+        let read = expression_bit.borrow();
+        self.expression_bit
+            .borrow_mut()
+            .insert(read.id, expression_bit.clone());
+    }
+
+    /// Exhume (get) [`ExpressionBit`] from the store.
+    ///
+    pub fn exhume_expression_bit(&self, id: &Uuid) -> Option<Rc<RefCell<ExpressionBit>>> {
+        self.expression_bit
+            .borrow()
+            .get(id)
+            .map(|expression_bit| expression_bit.clone())
+    }
+
+    /// Exorcise (remove) [`ExpressionBit`] from the store.
+    ///
+    pub fn exorcise_expression_bit(&mut self, id: &Uuid) -> Option<Rc<RefCell<ExpressionBit>>> {
+        self.expression_bit
+            .borrow_mut()
+            .remove(id)
+            .map(|expression_bit| expression_bit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExpressionBit>`.
+    ///
+    pub fn iter_expression_bit(&self) -> impl Iterator<Item = Rc<RefCell<ExpressionBit>>> + '_ {
+        let values: Vec<Rc<RefCell<ExpressionBit>>> = self
+            .expression_bit
+            .borrow()
+            .values()
+            .map(|expression_bit| expression_bit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
     pub fn inter_expression_statement(
@@ -1221,6 +1273,86 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|for_loop| for_loop.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FormatBits`] into the store.
+    ///
+    pub fn inter_format_bits(&mut self, format_bits: Rc<RefCell<FormatBits>>) {
+        let read = format_bits.borrow();
+        self.format_bits
+            .borrow_mut()
+            .insert(read.id(), format_bits.clone());
+    }
+
+    /// Exhume (get) [`FormatBits`] from the store.
+    ///
+    pub fn exhume_format_bits(&self, id: &Uuid) -> Option<Rc<RefCell<FormatBits>>> {
+        self.format_bits
+            .borrow()
+            .get(id)
+            .map(|format_bits| format_bits.clone())
+    }
+
+    /// Exorcise (remove) [`FormatBits`] from the store.
+    ///
+    pub fn exorcise_format_bits(&mut self, id: &Uuid) -> Option<Rc<RefCell<FormatBits>>> {
+        self.format_bits
+            .borrow_mut()
+            .remove(id)
+            .map(|format_bits| format_bits.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    ///
+    pub fn iter_format_bits(&self) -> impl Iterator<Item = Rc<RefCell<FormatBits>>> + '_ {
+        let values: Vec<Rc<RefCell<FormatBits>>> = self
+            .format_bits
+            .borrow()
+            .values()
+            .map(|format_bits| format_bits.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`FormatString`] into the store.
+    ///
+    pub fn inter_format_string(&mut self, format_string: Rc<RefCell<FormatString>>) {
+        let read = format_string.borrow();
+        self.format_string
+            .borrow_mut()
+            .insert(read.id, format_string.clone());
+    }
+
+    /// Exhume (get) [`FormatString`] from the store.
+    ///
+    pub fn exhume_format_string(&self, id: &Uuid) -> Option<Rc<RefCell<FormatString>>> {
+        self.format_string
+            .borrow()
+            .get(id)
+            .map(|format_string| format_string.clone())
+    }
+
+    /// Exorcise (remove) [`FormatString`] from the store.
+    ///
+    pub fn exorcise_format_string(&mut self, id: &Uuid) -> Option<Rc<RefCell<FormatString>>> {
+        self.format_string
+            .borrow_mut()
+            .remove(id)
+            .map(|format_string| format_string.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatString>`.
+    ///
+    pub fn iter_format_string(&self) -> impl Iterator<Item = Rc<RefCell<FormatString>>> + '_ {
+        let values: Vec<Rc<RefCell<FormatString>>> = self
+            .format_string
+            .borrow()
+            .values()
+            .map(|format_string| format_string.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -2717,6 +2849,46 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
+    /// Inter (insert) [`StringBit`] into the store.
+    ///
+    pub fn inter_string_bit(&mut self, string_bit: Rc<RefCell<StringBit>>) {
+        let read = string_bit.borrow();
+        self.string_bit
+            .borrow_mut()
+            .insert(read.id, string_bit.clone());
+    }
+
+    /// Exhume (get) [`StringBit`] from the store.
+    ///
+    pub fn exhume_string_bit(&self, id: &Uuid) -> Option<Rc<RefCell<StringBit>>> {
+        self.string_bit
+            .borrow()
+            .get(id)
+            .map(|string_bit| string_bit.clone())
+    }
+
+    /// Exorcise (remove) [`StringBit`] from the store.
+    ///
+    pub fn exorcise_string_bit(&mut self, id: &Uuid) -> Option<Rc<RefCell<StringBit>>> {
+        self.string_bit
+            .borrow_mut()
+            .remove(id)
+            .map(|string_bit| string_bit.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StringBit>`.
+    ///
+    pub fn iter_string_bit(&self) -> impl Iterator<Item = Rc<RefCell<StringBit>>> + '_ {
+        let values: Vec<Rc<RefCell<StringBit>>> = self
+            .string_bit
+            .borrow()
+            .values()
+            .map(|string_bit| string_bit.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
     pub fn inter_string_literal(&mut self, string_literal: Rc<RefCell<StringLiteral>>) {
@@ -3499,6 +3671,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            fs::create_dir_all(&path)?;
+            for expression_bit in self.expression_bit.borrow().values() {
+                let path = path.join(format!("{}.json", expression_bit.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &expression_bit)?;
+            }
+        }
+
         // Persist Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -3592,6 +3776,30 @@ impl ObjectStore {
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &for_loop)?;
+            }
+        }
+
+        // Persist Format Bits.
+        {
+            let path = path.join("format_bits");
+            fs::create_dir_all(&path)?;
+            for format_bits in self.format_bits.borrow().values() {
+                let path = path.join(format!("{}.json", format_bits.borrow().id()));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &format_bits)?;
+            }
+        }
+
+        // Persist Format String.
+        {
+            let path = path.join("format_string");
+            fs::create_dir_all(&path)?;
+            for format_string in self.format_string.borrow().values() {
+                let path = path.join(format!("{}.json", format_string.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &format_string)?;
             }
         }
 
@@ -4051,6 +4259,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist String Bit.
+        {
+            let path = path.join("string_bit");
+            fs::create_dir_all(&path)?;
+            for string_bit in self.string_bit.borrow().values() {
+                let path = path.join(format!("{}.json", string_bit.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &string_bit)?;
+            }
+        }
+
         // Persist String Literal.
         {
             let path = path.join("string_literal");
@@ -4507,6 +4727,23 @@ impl ObjectStore {
             }
         }
 
+        // Load Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let expression_bit: Rc<RefCell<ExpressionBit>> = serde_json::from_reader(reader)?;
+                store
+                    .expression_bit
+                    .borrow_mut()
+                    .insert(expression_bit.borrow().id, expression_bit.clone());
+            }
+        }
+
         // Load Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -4648,6 +4885,40 @@ impl ObjectStore {
                     .for_loop
                     .borrow_mut()
                     .insert(for_loop.borrow().id, for_loop.clone());
+            }
+        }
+
+        // Load Format Bits.
+        {
+            let path = path.join("format_bits");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_bits: Rc<RefCell<FormatBits>> = serde_json::from_reader(reader)?;
+                store
+                    .format_bits
+                    .borrow_mut()
+                    .insert(format_bits.borrow().id(), format_bits.clone());
+            }
+        }
+
+        // Load Format String.
+        {
+            let path = path.join("format_string");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_string: Rc<RefCell<FormatString>> = serde_json::from_reader(reader)?;
+                store
+                    .format_string
+                    .borrow_mut()
+                    .insert(format_string.borrow().id, format_string.clone());
             }
         }
 
@@ -5312,6 +5583,23 @@ impl ObjectStore {
                     .static_method_call
                     .borrow_mut()
                     .insert(static_method_call.borrow().id, static_method_call.clone());
+            }
+        }
+
+        // Load String Bit.
+        {
+            let path = path.join("string_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let string_bit: Rc<RefCell<StringBit>> = serde_json::from_reader(reader)?;
+                store
+                    .string_bit
+                    .borrow_mut()
+                    .insert(string_bit.borrow().id, string_bit.clone());
             }
         }
 

@@ -9,6 +9,7 @@ use crate::v2::lu_dog_vec::types::argument::Argument;
 use crate::v2::lu_dog_vec::types::block::Block;
 use crate::v2::lu_dog_vec::types::call::Call;
 use crate::v2::lu_dog_vec::types::empty_expression::EMPTY_EXPRESSION;
+use crate::v2::lu_dog_vec::types::expression_bit::ExpressionBit;
 use crate::v2::lu_dog_vec::types::expression_statement::ExpressionStatement;
 use crate::v2::lu_dog_vec::types::field_access::FieldAccess;
 use crate::v2::lu_dog_vec::types::field_expression::FieldExpression;
@@ -498,6 +499,18 @@ impl Expression {
         store
             .iter_call()
             .filter(|call| call.borrow().expression == Some(self.id))
+            .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression-struct-impl-nav-backward-1_M-to-expression_bit"}}}
+    /// Navigate to [`ExpressionBit`] across R109(1-M)
+    pub fn r109_expression_bit<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<ExpressionBit>>> {
+        store
+            .iter_expression_bit()
+            .filter(|expression_bit| expression_bit.borrow().expression == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

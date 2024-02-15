@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::literal::Literal;
 use crate::v2::lu_dog::types::literal::LiteralEnum;
+use crate::v2::lu_dog::types::string_bit::StringBit;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -34,6 +35,15 @@ impl StringLiteral {
         let new = Rc::new(RefCell::new(StringLiteral { id, x_value }));
         store.inter_string_literal(new.clone());
         new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-struct-impl-nav-backward-1_M-to-string_bit"}}}
+    /// Navigate to [`StringBit`] across R108(1-M)
+    pub fn r108_string_bit<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<StringBit>>> {
+        store
+            .iter_string_bit()
+            .filter(|string_bit| string_bit.borrow().z_string == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_literal-impl-nav-subtype-to-supertype-literal"}}}

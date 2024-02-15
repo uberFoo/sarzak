@@ -22,6 +22,7 @@
 //! * [`EnumGeneric`]
 //! * [`Enumeration`]
 //! * [`Expression`]
+//! * [`ExpressionBit`]
 //! * [`ExpressionStatement`]
 //! * [`ExternalImplementation`]
 //! * [`Field`]
@@ -30,6 +31,8 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
+//! * [`FormatBits`]
+//! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
 //! * [`FunctionCall`]
@@ -68,6 +71,7 @@
 //! * [`Span`]
 //! * [`Statement`]
 //! * [`StaticMethodCall`]
+//! * [`StringBit`]
 //! * [`StringLiteral`]
 //! * [`WoogStruct`]
 //! * [`StructExpression`]
@@ -98,13 +102,13 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_vec_tracy::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FuncGeneric, Function, FunctionCall, Grouped,
-    ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda, LambdaParameter,
-    LetStatement, List, ListElement, ListExpression, Literal, LocalVariable, MethodCall,
-    NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringLiteral,
+    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
+    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
+    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
+    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
     StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
     UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
     XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
@@ -147,6 +151,8 @@ pub struct ObjectStore {
     enumeration_id_by_name: HashMap<String, usize>,
     expression_free_list: Vec<usize>,
     expression: Vec<Option<Rc<RefCell<Expression>>>>,
+    expression_bit_free_list: Vec<usize>,
+    expression_bit: Vec<Option<Rc<RefCell<ExpressionBit>>>>,
     expression_statement_free_list: Vec<usize>,
     expression_statement: Vec<Option<Rc<RefCell<ExpressionStatement>>>>,
     external_implementation_free_list: Vec<usize>,
@@ -164,6 +170,10 @@ pub struct ObjectStore {
     float_literal: Vec<Option<Rc<RefCell<FloatLiteral>>>>,
     for_loop_free_list: Vec<usize>,
     for_loop: Vec<Option<Rc<RefCell<ForLoop>>>>,
+    format_bits_free_list: Vec<usize>,
+    format_bits: Vec<Option<Rc<RefCell<FormatBits>>>>,
+    format_string_free_list: Vec<usize>,
+    format_string: Vec<Option<Rc<RefCell<FormatString>>>>,
     func_generic_free_list: Vec<usize>,
     func_generic: Vec<Option<Rc<RefCell<FuncGeneric>>>>,
     function_free_list: Vec<usize>,
@@ -243,6 +253,8 @@ pub struct ObjectStore {
     statement: Vec<Option<Rc<RefCell<Statement>>>>,
     static_method_call_free_list: Vec<usize>,
     static_method_call: Vec<Option<Rc<RefCell<StaticMethodCall>>>>,
+    string_bit_free_list: Vec<usize>,
+    string_bit: Vec<Option<Rc<RefCell<StringBit>>>>,
     string_literal_free_list: Vec<usize>,
     string_literal: Vec<Option<Rc<RefCell<StringLiteral>>>>,
     woog_struct_free_list: Vec<usize>,
@@ -308,6 +320,8 @@ impl ObjectStore {
             enumeration_id_by_name: HashMap::default(),
             expression_free_list: Vec::new(),
             expression: Vec::new(),
+            expression_bit_free_list: Vec::new(),
+            expression_bit: Vec::new(),
             expression_statement_free_list: Vec::new(),
             expression_statement: Vec::new(),
             external_implementation_free_list: Vec::new(),
@@ -325,6 +339,10 @@ impl ObjectStore {
             float_literal: Vec::new(),
             for_loop_free_list: Vec::new(),
             for_loop: Vec::new(),
+            format_bits_free_list: Vec::new(),
+            format_bits: Vec::new(),
+            format_string_free_list: Vec::new(),
+            format_string: Vec::new(),
             func_generic_free_list: Vec::new(),
             func_generic: Vec::new(),
             function_free_list: Vec::new(),
@@ -404,6 +422,8 @@ impl ObjectStore {
             statement: Vec::new(),
             static_method_call_free_list: Vec::new(),
             static_method_call: Vec::new(),
+            string_bit_free_list: Vec::new(),
+            string_bit: Vec::new(),
             string_literal_free_list: Vec::new(),
             string_literal: Vec::new(),
             woog_struct_free_list: Vec::new(),
@@ -1519,6 +1539,77 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`ExpressionBit`] into the store.
+    ///
+    #[inline]
+    pub fn inter_expression_bit<F>(&mut self, expression_bit: F) -> Rc<RefCell<ExpressionBit>>
+    where
+        F: Fn(usize) -> Rc<RefCell<ExpressionBit>>,
+    {
+        let _index = if let Some(_index) = self.expression_bit_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.expression_bit.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.expression_bit.push(None);
+            _index
+        };
+
+        let expression_bit = expression_bit(_index);
+
+        if let Some(Some(expression_bit)) = self.expression_bit.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *expression_bit.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {expression_bit:?}.");
+            self.expression_bit_free_list.push(_index);
+            expression_bit.clone()
+        } else {
+            log::debug!(target: "store", "interring {expression_bit:?}.");
+            self.expression_bit[_index] = Some(expression_bit.clone());
+            expression_bit
+        }
+    }
+
+    /// Exhume (get) [`ExpressionBit`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_expression_bit(&self, id: &usize) -> Option<Rc<RefCell<ExpressionBit>>> {
+        match self.expression_bit.get(*id) {
+            Some(expression_bit) => expression_bit.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`ExpressionBit`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_expression_bit(&mut self, id: &usize) -> Option<Rc<RefCell<ExpressionBit>>> {
+        log::debug!(target: "store", "exorcising expression_bit slot: {id}.");
+        let result = self.expression_bit[*id].take();
+        self.expression_bit_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, ExpressionBit>`.
+    ///
+    #[inline]
+    pub fn iter_expression_bit(&self) -> impl Iterator<Item = Rc<RefCell<ExpressionBit>>> + '_ {
+        let len = self.expression_bit.len();
+        (0..len)
+            .filter(|i| self.expression_bit[*i].is_some())
+            .map(move |i| {
+                self.expression_bit[i]
+                    .as_ref()
+                    .map(|expression_bit| expression_bit.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`ExpressionStatement`] into the store.
     ///
     #[inline]
@@ -2123,6 +2214,148 @@ impl ObjectStore {
                 self.for_loop[i]
                     .as_ref()
                     .map(|for_loop| for_loop.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FormatBits`] into the store.
+    ///
+    #[inline]
+    pub fn inter_format_bits<F>(&mut self, format_bits: F) -> Rc<RefCell<FormatBits>>
+    where
+        F: Fn(usize) -> Rc<RefCell<FormatBits>>,
+    {
+        let _index = if let Some(_index) = self.format_bits_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.format_bits.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.format_bits.push(None);
+            _index
+        };
+
+        let format_bits = format_bits(_index);
+
+        if let Some(Some(format_bits)) = self.format_bits.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *format_bits.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {format_bits:?}.");
+            self.format_bits_free_list.push(_index);
+            format_bits.clone()
+        } else {
+            log::debug!(target: "store", "interring {format_bits:?}.");
+            self.format_bits[_index] = Some(format_bits.clone());
+            format_bits
+        }
+    }
+
+    /// Exhume (get) [`FormatBits`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_format_bits(&self, id: &usize) -> Option<Rc<RefCell<FormatBits>>> {
+        match self.format_bits.get(*id) {
+            Some(format_bits) => format_bits.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FormatBits`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_format_bits(&mut self, id: &usize) -> Option<Rc<RefCell<FormatBits>>> {
+        log::debug!(target: "store", "exorcising format_bits slot: {id}.");
+        let result = self.format_bits[*id].take();
+        self.format_bits_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    ///
+    #[inline]
+    pub fn iter_format_bits(&self) -> impl Iterator<Item = Rc<RefCell<FormatBits>>> + '_ {
+        let len = self.format_bits.len();
+        (0..len)
+            .filter(|i| self.format_bits[*i].is_some())
+            .map(move |i| {
+                self.format_bits[i]
+                    .as_ref()
+                    .map(|format_bits| format_bits.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`FormatString`] into the store.
+    ///
+    #[inline]
+    pub fn inter_format_string<F>(&mut self, format_string: F) -> Rc<RefCell<FormatString>>
+    where
+        F: Fn(usize) -> Rc<RefCell<FormatString>>,
+    {
+        let _index = if let Some(_index) = self.format_string_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.format_string.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.format_string.push(None);
+            _index
+        };
+
+        let format_string = format_string(_index);
+
+        if let Some(Some(format_string)) = self.format_string.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *format_string.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {format_string:?}.");
+            self.format_string_free_list.push(_index);
+            format_string.clone()
+        } else {
+            log::debug!(target: "store", "interring {format_string:?}.");
+            self.format_string[_index] = Some(format_string.clone());
+            format_string
+        }
+    }
+
+    /// Exhume (get) [`FormatString`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_format_string(&self, id: &usize) -> Option<Rc<RefCell<FormatString>>> {
+        match self.format_string.get(*id) {
+            Some(format_string) => format_string.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`FormatString`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_format_string(&mut self, id: &usize) -> Option<Rc<RefCell<FormatString>>> {
+        log::debug!(target: "store", "exorcising format_string slot: {id}.");
+        let result = self.format_string[*id].take();
+        self.format_string_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatString>`.
+    ///
+    #[inline]
+    pub fn iter_format_string(&self) -> impl Iterator<Item = Rc<RefCell<FormatString>>> + '_ {
+        let len = self.format_string.len();
+        (0..len)
+            .filter(|i| self.format_string[*i].is_some())
+            .map(move |i| {
+                self.format_string[i]
+                    .as_ref()
+                    .map(|format_string| format_string.clone())
                     .unwrap()
             })
     }
@@ -4876,6 +5109,77 @@ impl ObjectStore {
             })
     }
 
+    /// Inter (insert) [`StringBit`] into the store.
+    ///
+    #[inline]
+    pub fn inter_string_bit<F>(&mut self, string_bit: F) -> Rc<RefCell<StringBit>>
+    where
+        F: Fn(usize) -> Rc<RefCell<StringBit>>,
+    {
+        let _index = if let Some(_index) = self.string_bit_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.string_bit.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.string_bit.push(None);
+            _index
+        };
+
+        let string_bit = string_bit(_index);
+
+        if let Some(Some(string_bit)) = self.string_bit.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *string_bit.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {string_bit:?}.");
+            self.string_bit_free_list.push(_index);
+            string_bit.clone()
+        } else {
+            log::debug!(target: "store", "interring {string_bit:?}.");
+            self.string_bit[_index] = Some(string_bit.clone());
+            string_bit
+        }
+    }
+
+    /// Exhume (get) [`StringBit`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_string_bit(&self, id: &usize) -> Option<Rc<RefCell<StringBit>>> {
+        match self.string_bit.get(*id) {
+            Some(string_bit) => string_bit.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`StringBit`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_string_bit(&mut self, id: &usize) -> Option<Rc<RefCell<StringBit>>> {
+        log::debug!(target: "store", "exorcising string_bit slot: {id}.");
+        let result = self.string_bit[*id].take();
+        self.string_bit_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, StringBit>`.
+    ///
+    #[inline]
+    pub fn iter_string_bit(&self) -> impl Iterator<Item = Rc<RefCell<StringBit>>> + '_ {
+        let len = self.string_bit.len();
+        (0..len)
+            .filter(|i| self.string_bit[*i].is_some())
+            .map(move |i| {
+                self.string_bit[i]
+                    .as_ref()
+                    .map(|string_bit| string_bit.clone())
+                    .unwrap()
+            })
+    }
+
     /// Inter (insert) [`StringLiteral`] into the store.
     ///
     #[inline]
@@ -6142,6 +6446,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            fs::create_dir_all(&path)?;
+            for expression_bit in &self.expression_bit {
+                if let Some(expression_bit) = expression_bit {
+                    let path = path.join(format!("{}.json", expression_bit.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &expression_bit)?;
+                }
+            }
+        }
+
         // Persist Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -6250,6 +6568,34 @@ impl ObjectStore {
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
                     serde_json::to_writer_pretty(&mut writer, &for_loop)?;
+                }
+            }
+        }
+
+        // Persist Format Bits.
+        {
+            let path = path.join("format_bits");
+            fs::create_dir_all(&path)?;
+            for format_bits in &self.format_bits {
+                if let Some(format_bits) = format_bits {
+                    let path = path.join(format!("{}.json", format_bits.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &format_bits)?;
+                }
+            }
+        }
+
+        // Persist Format String.
+        {
+            let path = path.join("format_string");
+            fs::create_dir_all(&path)?;
+            for format_string in &self.format_string {
+                if let Some(format_string) = format_string {
+                    let path = path.join(format!("{}.json", format_string.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &format_string)?;
                 }
             }
         }
@@ -6786,6 +7132,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist String Bit.
+        {
+            let path = path.join("string_bit");
+            fs::create_dir_all(&path)?;
+            for string_bit in &self.string_bit {
+                if let Some(string_bit) = string_bit {
+                    let path = path.join(format!("{}.json", string_bit.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &string_bit)?;
+                }
+            }
+        }
+
         // Persist String Literal.
         {
             let path = path.join("string_literal");
@@ -7250,6 +7610,22 @@ impl ObjectStore {
             }
         }
 
+        // Load Expression Bit.
+        {
+            let path = path.join("expression_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let expression_bit: Rc<RefCell<ExpressionBit>> = serde_json::from_reader(reader)?;
+                store
+                    .expression_bit
+                    .insert(expression_bit.borrow().id, Some(expression_bit.clone()));
+            }
+        }
+
         // Load Expression Statement.
         {
             let path = path.join("expression_statement");
@@ -7383,6 +7759,38 @@ impl ObjectStore {
                 store
                     .for_loop
                     .insert(for_loop.borrow().id, Some(for_loop.clone()));
+            }
+        }
+
+        // Load Format Bits.
+        {
+            let path = path.join("format_bits");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_bits: Rc<RefCell<FormatBits>> = serde_json::from_reader(reader)?;
+                store
+                    .format_bits
+                    .insert(format_bits.borrow().id, Some(format_bits.clone()));
+            }
+        }
+
+        // Load Format String.
+        {
+            let path = path.join("format_string");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let format_string: Rc<RefCell<FormatString>> = serde_json::from_reader(reader)?;
+                store
+                    .format_string
+                    .insert(format_string.borrow().id, Some(format_string.clone()));
             }
         }
 
@@ -8000,6 +8408,22 @@ impl ObjectStore {
                     static_method_call.borrow().id,
                     Some(static_method_call.clone()),
                 );
+            }
+        }
+
+        // Load String Bit.
+        {
+            let path = path.join("string_bit");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let string_bit: Rc<RefCell<StringBit>> = serde_json::from_reader(reader)?;
+                store
+                    .string_bit
+                    .insert(string_bit.borrow().id, Some(string_bit.clone()));
             }
         }
 
