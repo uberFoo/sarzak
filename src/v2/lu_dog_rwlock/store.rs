@@ -1402,7 +1402,7 @@ impl ObjectStore {
         self.format_bits
             .write()
             .unwrap()
-            .insert(read.id(), format_bits.clone());
+            .insert(read.id, format_bits.clone());
     }
 
     /// Exhume (get) [`FormatBits`] from the store.
@@ -4194,7 +4194,7 @@ impl ObjectStore {
             let path = path.join("format_bits");
             fs::create_dir_all(&path)?;
             for format_bits in self.format_bits.read().unwrap().values() {
-                let path = path.join(format!("{}.json", format_bits.read().unwrap().id()));
+                let path = path.join(format!("{}.json", format_bits.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
                 serde_json::to_writer_pretty(&mut writer, &format_bits)?;
@@ -5336,7 +5336,7 @@ impl ObjectStore {
                     .format_bits
                     .write()
                     .unwrap()
-                    .insert(format_bits.read().unwrap().id(), format_bits.clone());
+                    .insert(format_bits.read().unwrap().id, format_bits.clone());
             }
         }
 

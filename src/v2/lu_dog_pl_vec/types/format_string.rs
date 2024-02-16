@@ -18,8 +18,6 @@ pub struct FormatString {
     pub id: usize,
     /// R112: [`FormatString`] 'needs to first' [`FormatBits`]
     pub first_format_bit: Option<usize>,
-    /// R111: [`FormatString`] 'is comprised of' [`FormatBits`]
-    pub format_bits: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-implementation"}}}
@@ -28,14 +26,12 @@ impl FormatString {
     /// Inter a new 'Format String' in the store, and return it's `id`.
     pub fn new(
         first_format_bit: Option<&Arc<RwLock<FormatBits>>>,
-        format_bits: Option<&Arc<RwLock<FormatBits>>>,
         store: &mut LuDogPlVecStore,
     ) -> Arc<RwLock<FormatString>> {
         store.inter_format_string(|id| {
             Arc::new(RwLock::new(FormatString {
                 id,
                 first_format_bit: first_format_bit.map(|format_bits| format_bits.read().id),
-                format_bits: format_bits.map(|format_bits| format_bits.read().id),
             }))
         })
     }
@@ -56,15 +52,16 @@ impl FormatString {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-forward-cond-to-format_bits"}}}
-    /// Navigate to [`FormatBits`] across R111(1-*c)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-backward-1_M-to-format_bits"}}}
+    /// Navigate to [`FormatBits`] across R111(1-M)
     pub fn r111_format_bits<'a>(
         &'a self,
         store: &'a LuDogPlVecStore,
     ) -> Vec<Arc<RwLock<FormatBits>>> {
-        match self.format_bits {
-            Some(ref format_bits) => vec![store.exhume_format_bits(&format_bits).unwrap()],
-            None => Vec::new(),
-        }
+        store
+            .iter_format_bits()
+            .filter(|format_bits| format_bits.read().format_string == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-impl-nav-subtype-to-supertype-literal"}}}
@@ -87,7 +84,7 @@ impl FormatString {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-implementation"}}}
 impl PartialEq for FormatString {
     fn eq(&self, other: &Self) -> bool {
-        self.first_format_bit == other.first_format_bit && self.format_bits == other.format_bits
+        self.first_format_bit == other.first_format_bit
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

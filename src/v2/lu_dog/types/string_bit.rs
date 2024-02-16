@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::format_bits::FormatBits;
+use crate::v2::lu_dog::types::format_bits::FormatBitsEnum;
 use crate::v2::lu_dog::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +49,16 @@ impl StringBit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-impl-nav-subtype-to-supertype-format_bits"}}}
     // Navigate to [`FormatBits`] across R110(isa)
     pub fn r110_format_bits<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FormatBits>>> {
-        vec![store.exhume_format_bits(&self.id).unwrap()]
+        vec![store
+            .iter_format_bits()
+            .find(|format_bits| {
+                if let FormatBitsEnum::StringBit(id) = format_bits.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

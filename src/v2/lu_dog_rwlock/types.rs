@@ -165,6 +165,7 @@ pub use crate::v2::lu_dog_rwlock::field_expression::FieldExpressionEnum;
 pub use crate::v2::lu_dog_rwlock::float_literal::FloatLiteral;
 pub use crate::v2::lu_dog_rwlock::for_loop::ForLoop;
 pub use crate::v2::lu_dog_rwlock::format_bits::FormatBits;
+pub use crate::v2::lu_dog_rwlock::format_bits::FormatBitsEnum;
 pub use crate::v2::lu_dog_rwlock::format_string::FormatString;
 pub use crate::v2::lu_dog_rwlock::from::From;
 pub use crate::v2::lu_dog_rwlock::from::FROM;

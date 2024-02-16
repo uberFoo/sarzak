@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog::types::expression::Expression;
 use crate::v2::lu_dog::types::format_bits::FormatBits;
+use crate::v2::lu_dog::types::format_bits::FormatBitsEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog::store::ObjectStore as LuDogStore;
@@ -45,7 +46,16 @@ impl ExpressionBit {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_bit-impl-nav-subtype-to-supertype-format_bits"}}}
     // Navigate to [`FormatBits`] across R110(isa)
     pub fn r110_format_bits<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FormatBits>>> {
-        vec![store.exhume_format_bits(&self.id).unwrap()]
+        vec![store
+            .iter_format_bits()
+            .find(|format_bits| {
+                if let FormatBitsEnum::ExpressionBit(id) = format_bits.borrow().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

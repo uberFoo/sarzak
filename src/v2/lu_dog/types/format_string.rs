@@ -18,8 +18,6 @@ pub struct FormatString {
     pub id: Uuid,
     /// R112: [`FormatString`] 'needs to first' [`FormatBits`]
     pub first_format_bit: Option<Uuid>,
-    /// R111: [`FormatString`] 'is comprised of' [`FormatBits`]
-    pub format_bits: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-implementation"}}}
@@ -28,14 +26,12 @@ impl FormatString {
     /// Inter a new 'Format String' in the store, and return it's `id`.
     pub fn new(
         first_format_bit: Option<&Rc<RefCell<FormatBits>>>,
-        format_bits: Option<&Rc<RefCell<FormatBits>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<FormatString>> {
         let id = Uuid::new_v4();
         let new = Rc::new(RefCell::new(FormatString {
             id,
-            first_format_bit: first_format_bit.map(|format_bits| format_bits.borrow().id()),
-            format_bits: format_bits.map(|format_bits| format_bits.borrow().id()),
+            first_format_bit: first_format_bit.map(|format_bits| format_bits.borrow().id),
         }));
         store.inter_format_string(new.clone());
         new
@@ -54,12 +50,13 @@ impl FormatString {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-forward-cond-to-format_bits"}}}
-    /// Navigate to [`FormatBits`] across R111(1-*c)
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-backward-1_M-to-format_bits"}}}
+    /// Navigate to [`FormatBits`] across R111(1-M)
     pub fn r111_format_bits<'a>(&'a self, store: &'a LuDogStore) -> Vec<Rc<RefCell<FormatBits>>> {
-        match self.format_bits {
-            Some(ref format_bits) => vec![store.exhume_format_bits(&format_bits).unwrap()],
-            None => Vec::new(),
-        }
+        store
+            .iter_format_bits()
+            .filter(|format_bits| format_bits.borrow().format_string == self.id)
+            .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-impl-nav-subtype-to-supertype-literal"}}}

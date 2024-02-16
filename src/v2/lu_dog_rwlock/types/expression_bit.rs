@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::format_bits::FormatBits;
+use crate::v2::lu_dog_rwlock::types::format_bits::FormatBitsEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -51,7 +52,16 @@ impl ExpressionBit {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FormatBits>>> {
-        vec![store.exhume_format_bits(&self.id).unwrap()]
+        vec![store
+            .iter_format_bits()
+            .find(|format_bits| {
+                if let FormatBitsEnum::ExpressionBit(id) = format_bits.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

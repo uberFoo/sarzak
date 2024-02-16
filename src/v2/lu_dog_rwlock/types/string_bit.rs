@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::format_bits::FormatBits;
+use crate::v2::lu_dog_rwlock::types::format_bits::FormatBitsEnum;
 use crate::v2::lu_dog_rwlock::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
 
@@ -51,7 +52,16 @@ impl StringBit {
         &'a self,
         store: &'a LuDogRwlockStore,
     ) -> Vec<Arc<RwLock<FormatBits>>> {
-        vec![store.exhume_format_bits(&self.id).unwrap()]
+        vec![store
+            .iter_format_bits()
+            .find(|format_bits| {
+                if let FormatBitsEnum::StringBit(id) = format_bits.read().unwrap().subtype {
+                    id == self.id
+                } else {
+                    false
+                }
+            })
+            .unwrap()]
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }

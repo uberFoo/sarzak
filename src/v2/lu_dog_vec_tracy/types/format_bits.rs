@@ -18,6 +18,10 @@ use crate::v2::lu_dog_vec_tracy::store::ObjectStore as LuDogVecTracyStore;
 pub struct FormatBits {
     pub subtype: FormatBitsEnum,
     pub id: usize,
+    /// R111: [`FormatBits`] 'comprise' [`FormatString`]
+    pub format_string: usize,
+    /// R113: [`FormatBits`] 'next' [`FormatBits`]
+    pub next: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-hybrid-enum-definition"}}}
@@ -32,11 +36,15 @@ impl FormatBits {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-new_expression_bit"}}}
     /// Inter a new FormatBits in the store, and return it's `id`.
     pub fn new_expression_bit(
+        format_string: &Rc<RefCell<FormatString>>,
+        next: Option<&Rc<RefCell<FormatBits>>>,
         subtype: &Rc<RefCell<ExpressionBit>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<FormatBits>> {
         store.inter_format_bits(|id| {
             Rc::new(RefCell::new(FormatBits {
+                format_string: format_string.borrow().id,
+                next: next.map(|format_bits| format_bits.borrow().id),
                 subtype: FormatBitsEnum::ExpressionBit(subtype.borrow().id), // b
                 id,
             }))
@@ -46,15 +54,58 @@ impl FormatBits {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-new_string_bit"}}}
     /// Inter a new FormatBits in the store, and return it's `id`.
     pub fn new_string_bit(
+        format_string: &Rc<RefCell<FormatString>>,
+        next: Option<&Rc<RefCell<FormatBits>>>,
         subtype: &Rc<RefCell<StringBit>>,
         store: &mut LuDogVecTracyStore,
     ) -> Rc<RefCell<FormatBits>> {
         store.inter_format_bits(|id| {
             Rc::new(RefCell::new(FormatBits {
+                format_string: format_string.borrow().id,
+                next: next.map(|format_bits| format_bits.borrow().id),
                 subtype: FormatBitsEnum::StringBit(subtype.borrow().id), // b
                 id,
             }))
         })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-nav-forward-to-format_string"}}}
+    /// Navigate to [`FormatString`] across R111(1-*)
+    pub fn r111_format_string<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<FormatString>>> {
+        span!("r111_format_string");
+        vec![store.exhume_format_string(&self.format_string).unwrap()]
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-nav-forward-cond-to-next"}}}
+    /// Navigate to [`FormatBits`] across R113(1-*c)
+    pub fn r113_format_bits<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<FormatBits>>> {
+        span!("r113_format_bits");
+        match self.next {
+            Some(ref next) => vec![store.exhume_format_bits(&next).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-nav-backward-one-bi-cond-to-format_bits"}}}
+    /// Navigate to [`FormatBits`] across R113(1c-1c)
+    pub fn r113c_format_bits<'a>(
+        &'a self,
+        store: &'a LuDogVecTracyStore,
+    ) -> Vec<Rc<RefCell<FormatBits>>> {
+        span!("r113_format_bits");
+        let format_bits = store
+            .iter_format_bits()
+            .find(|format_bits| format_bits.borrow().next == Some(self.id));
+        match format_bits {
+            Some(ref format_bits) => vec![format_bits.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-nav-backward-one-to-format_string"}}}
@@ -71,17 +122,6 @@ impl FormatBits {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_bits-struct-impl-nav-backward-one-to-format_string"}}}
-    /// Navigate to [`FormatString`] across R111(1-1)
-    pub fn r111_format_string<'a>(
-        &'a self,
-        store: &'a LuDogVecTracyStore,
-    ) -> Vec<Rc<RefCell<FormatString>>> {
-        span!("r111_format_string");
-        vec![store
-            .iter_format_string()
-            .find(|format_string| format_string.borrow().format_bits == Some(self.id))
-            .unwrap()]
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -89,6 +129,8 @@ impl FormatBits {
 impl PartialEq for FormatBits {
     fn eq(&self, other: &Self) -> bool {
         self.subtype == other.subtype
+            && self.format_string == other.format_string
+            && self.next == other.next
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
