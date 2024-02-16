@@ -5,8 +5,8 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_vec_tracy::types::format_bits::FormatBits;
-use crate::v2::lu_dog_vec_tracy::types::format_bits::FormatBitsEnum;
+use crate::v2::lu_dog_vec_tracy::types::format_bit::FormatBit;
+use crate::v2::lu_dog_vec_tracy::types::format_bit::FormatBitEnum;
 use crate::v2::lu_dog_vec_tracy::types::string_literal::StringLiteral;
 use serde::{Deserialize, Serialize};
 
@@ -48,16 +48,17 @@ impl StringBit {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-impl-nav-subtype-to-supertype-format_bits"}}}
-    // Navigate to [`FormatBits`] across R110(isa)
-    pub fn r110_format_bits<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"string_bit-impl-nav-subtype-to-supertype-format_bit"}}}
+    // Navigate to [`FormatBit`] across R110(isa)
+    pub fn r110_format_bit<'a>(
         &'a self,
         store: &'a LuDogVecTracyStore,
-    ) -> Vec<Rc<RefCell<FormatBits>>> {
-        span!("r110_format_bits");
+    ) -> Vec<Rc<RefCell<FormatBit>>> {
+        span!("r110_format_bit");
         vec![store
-            .iter_format_bits()
-            .find(|format_bits| {
-                if let FormatBitsEnum::StringBit(id) = format_bits.borrow().subtype {
+            .iter_format_bit()
+            .find(|format_bit| {
+                if let FormatBitEnum::StringBit(id) = format_bit.borrow().subtype {
                     id == self.id
                 } else {
                     false

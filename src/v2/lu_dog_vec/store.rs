@@ -31,7 +31,7 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
-//! * [`FormatBits`]
+//! * [`FormatBit`]
 //! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
@@ -104,7 +104,7 @@ use crate::v2::lu_dog_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
     FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
     LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
@@ -170,8 +170,8 @@ pub struct ObjectStore {
     float_literal: Vec<Option<Rc<RefCell<FloatLiteral>>>>,
     for_loop_free_list: Vec<usize>,
     for_loop: Vec<Option<Rc<RefCell<ForLoop>>>>,
-    format_bits_free_list: Vec<usize>,
-    format_bits: Vec<Option<Rc<RefCell<FormatBits>>>>,
+    format_bit_free_list: Vec<usize>,
+    format_bit: Vec<Option<Rc<RefCell<FormatBit>>>>,
     format_string_free_list: Vec<usize>,
     format_string: Vec<Option<Rc<RefCell<FormatString>>>>,
     func_generic_free_list: Vec<usize>,
@@ -339,8 +339,8 @@ impl ObjectStore {
             float_literal: Vec::new(),
             for_loop_free_list: Vec::new(),
             for_loop: Vec::new(),
-            format_bits_free_list: Vec::new(),
-            format_bits: Vec::new(),
+            format_bit_free_list: Vec::new(),
+            format_bit: Vec::new(),
             format_string_free_list: Vec::new(),
             format_string: Vec::new(),
             func_generic_free_list: Vec::new(),
@@ -2218,73 +2218,73 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`FormatBits`] into the store.
+    /// Inter (insert) [`FormatBit`] into the store.
     ///
     #[inline]
-    pub fn inter_format_bits<F>(&mut self, format_bits: F) -> Rc<RefCell<FormatBits>>
+    pub fn inter_format_bit<F>(&mut self, format_bit: F) -> Rc<RefCell<FormatBit>>
     where
-        F: Fn(usize) -> Rc<RefCell<FormatBits>>,
+        F: Fn(usize) -> Rc<RefCell<FormatBit>>,
     {
-        let _index = if let Some(_index) = self.format_bits_free_list.pop() {
+        let _index = if let Some(_index) = self.format_bit_free_list.pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.format_bits.len();
+            let _index = self.format_bit.len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.format_bits.push(None);
+            self.format_bit.push(None);
             _index
         };
 
-        let format_bits = format_bits(_index);
+        let format_bit = format_bit(_index);
 
-        if let Some(Some(format_bits)) = self.format_bits.iter().find(|stored| {
+        if let Some(Some(format_bit)) = self.format_bit.iter().find(|stored| {
             if let Some(stored) = stored {
-                *stored.borrow() == *format_bits.borrow()
+                *stored.borrow() == *format_bit.borrow()
             } else {
                 false
             }
         }) {
-            log::debug!(target: "store", "found duplicate {format_bits:?}.");
-            self.format_bits_free_list.push(_index);
-            format_bits.clone()
+            log::debug!(target: "store", "found duplicate {format_bit:?}.");
+            self.format_bit_free_list.push(_index);
+            format_bit.clone()
         } else {
-            log::debug!(target: "store", "interring {format_bits:?}.");
-            self.format_bits[_index] = Some(format_bits.clone());
-            format_bits
+            log::debug!(target: "store", "interring {format_bit:?}.");
+            self.format_bit[_index] = Some(format_bit.clone());
+            format_bit
         }
     }
 
-    /// Exhume (get) [`FormatBits`] from the store.
+    /// Exhume (get) [`FormatBit`] from the store.
     ///
     #[inline]
-    pub fn exhume_format_bits(&self, id: &usize) -> Option<Rc<RefCell<FormatBits>>> {
-        match self.format_bits.get(*id) {
-            Some(format_bits) => format_bits.clone(),
+    pub fn exhume_format_bit(&self, id: &usize) -> Option<Rc<RefCell<FormatBit>>> {
+        match self.format_bit.get(*id) {
+            Some(format_bit) => format_bit.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`FormatBits`] from the store.
+    /// Exorcise (remove) [`FormatBit`] from the store.
     ///
     #[inline]
-    pub fn exorcise_format_bits(&mut self, id: &usize) -> Option<Rc<RefCell<FormatBits>>> {
-        log::debug!(target: "store", "exorcising format_bits slot: {id}.");
-        let result = self.format_bits[*id].take();
-        self.format_bits_free_list.push(*id);
+    pub fn exorcise_format_bit(&mut self, id: &usize) -> Option<Rc<RefCell<FormatBit>>> {
+        log::debug!(target: "store", "exorcising format_bit slot: {id}.");
+        let result = self.format_bit[*id].take();
+        self.format_bit_free_list.push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBit>`.
     ///
     #[inline]
-    pub fn iter_format_bits(&self) -> impl Iterator<Item = Rc<RefCell<FormatBits>>> + '_ {
-        let len = self.format_bits.len();
+    pub fn iter_format_bit(&self) -> impl Iterator<Item = Rc<RefCell<FormatBit>>> + '_ {
+        let len = self.format_bit.len();
         (0..len)
-            .filter(|i| self.format_bits[*i].is_some())
+            .filter(|i| self.format_bit[*i].is_some())
             .map(move |i| {
-                self.format_bits[i]
+                self.format_bit[i]
                     .as_ref()
-                    .map(|format_bits| format_bits.clone())
+                    .map(|format_bit| format_bit.clone())
                     .unwrap()
             })
     }
@@ -6572,16 +6572,16 @@ impl ObjectStore {
             }
         }
 
-        // Persist Format Bits.
+        // Persist Format Bit.
         {
-            let path = path.join("format_bits");
+            let path = path.join("format_bit");
             fs::create_dir_all(&path)?;
-            for format_bits in &self.format_bits {
-                if let Some(format_bits) = format_bits {
-                    let path = path.join(format!("{}.json", format_bits.borrow().id));
+            for format_bit in &self.format_bit {
+                if let Some(format_bit) = format_bit {
+                    let path = path.join(format!("{}.json", format_bit.borrow().id));
                     let file = fs::File::create(path)?;
                     let mut writer = io::BufWriter::new(file);
-                    serde_json::to_writer_pretty(&mut writer, &format_bits)?;
+                    serde_json::to_writer_pretty(&mut writer, &format_bit)?;
                 }
             }
         }
@@ -7762,19 +7762,19 @@ impl ObjectStore {
             }
         }
 
-        // Load Format Bits.
+        // Load Format Bit.
         {
-            let path = path.join("format_bits");
+            let path = path.join("format_bit");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let format_bits: Rc<RefCell<FormatBits>> = serde_json::from_reader(reader)?;
+                let format_bit: Rc<RefCell<FormatBit>> = serde_json::from_reader(reader)?;
                 store
-                    .format_bits
-                    .insert(format_bits.borrow().id, Some(format_bits.clone()));
+                    .format_bit
+                    .insert(format_bit.borrow().id, Some(format_bit.clone()));
             }
         }
 

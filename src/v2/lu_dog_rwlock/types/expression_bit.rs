@@ -5,8 +5,8 @@ use std::sync::RwLock;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
-use crate::v2::lu_dog_rwlock::types::format_bits::FormatBits;
-use crate::v2::lu_dog_rwlock::types::format_bits::FormatBitsEnum;
+use crate::v2::lu_dog_rwlock::types::format_bit::FormatBit;
+use crate::v2::lu_dog_rwlock::types::format_bit::FormatBitEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
@@ -47,15 +47,16 @@ impl ExpressionBit {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_bit-impl-nav-subtype-to-supertype-format_bits"}}}
-    // Navigate to [`FormatBits`] across R110(isa)
-    pub fn r110_format_bits<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"expression_bit-impl-nav-subtype-to-supertype-format_bit"}}}
+    // Navigate to [`FormatBit`] across R110(isa)
+    pub fn r110_format_bit<'a>(
         &'a self,
         store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<FormatBits>>> {
+    ) -> Vec<Arc<RwLock<FormatBit>>> {
         vec![store
-            .iter_format_bits()
-            .find(|format_bits| {
-                if let FormatBitsEnum::ExpressionBit(id) = format_bits.read().unwrap().subtype {
+            .iter_format_bit()
+            .find(|format_bit| {
+                if let FormatBitEnum::ExpressionBit(id) = format_bit.read().unwrap().subtype {
                     id == self.id
                 } else {
                     false

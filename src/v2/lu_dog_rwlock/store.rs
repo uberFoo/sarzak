@@ -31,7 +31,7 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
-//! * [`FormatBits`]
+//! * [`FormatBit`]
 //! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
@@ -104,7 +104,7 @@ use crate::v2::lu_dog_rwlock::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
     FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
     LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
@@ -142,7 +142,7 @@ pub struct ObjectStore {
     field_expression: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FieldExpression>>>>>,
     float_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FloatLiteral>>>>>,
     for_loop: Arc<RwLock<HashMap<Uuid, Arc<RwLock<ForLoop>>>>>,
-    format_bits: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FormatBits>>>>>,
+    format_bit: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FormatBit>>>>>,
     format_string: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FormatString>>>>>,
     func_generic: Arc<RwLock<HashMap<Uuid, Arc<RwLock<FuncGeneric>>>>>,
     function: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Function>>>>>,
@@ -232,7 +232,7 @@ impl ObjectStore {
             field_expression: Arc::new(RwLock::new(HashMap::default())),
             float_literal: Arc::new(RwLock::new(HashMap::default())),
             for_loop: Arc::new(RwLock::new(HashMap::default())),
-            format_bits: Arc::new(RwLock::new(HashMap::default())),
+            format_bit: Arc::new(RwLock::new(HashMap::default())),
             format_string: Arc::new(RwLock::new(HashMap::default())),
             func_generic: Arc::new(RwLock::new(HashMap::default())),
             function: Arc::new(RwLock::new(HashMap::default())),
@@ -1395,45 +1395,45 @@ impl ObjectStore {
         (0..len).map(move |i| values[i].clone())
     }
 
-    /// Inter (insert) [`FormatBits`] into the store.
+    /// Inter (insert) [`FormatBit`] into the store.
     ///
-    pub fn inter_format_bits(&mut self, format_bits: Arc<RwLock<FormatBits>>) {
-        let read = format_bits.read().unwrap();
-        self.format_bits
+    pub fn inter_format_bit(&mut self, format_bit: Arc<RwLock<FormatBit>>) {
+        let read = format_bit.read().unwrap();
+        self.format_bit
             .write()
             .unwrap()
-            .insert(read.id, format_bits.clone());
+            .insert(read.id, format_bit.clone());
     }
 
-    /// Exhume (get) [`FormatBits`] from the store.
+    /// Exhume (get) [`FormatBit`] from the store.
     ///
-    pub fn exhume_format_bits(&self, id: &Uuid) -> Option<Arc<RwLock<FormatBits>>> {
-        self.format_bits
+    pub fn exhume_format_bit(&self, id: &Uuid) -> Option<Arc<RwLock<FormatBit>>> {
+        self.format_bit
             .read()
             .unwrap()
             .get(id)
-            .map(|format_bits| format_bits.clone())
+            .map(|format_bit| format_bit.clone())
     }
 
-    /// Exorcise (remove) [`FormatBits`] from the store.
+    /// Exorcise (remove) [`FormatBit`] from the store.
     ///
-    pub fn exorcise_format_bits(&mut self, id: &Uuid) -> Option<Arc<RwLock<FormatBits>>> {
-        self.format_bits
+    pub fn exorcise_format_bit(&mut self, id: &Uuid) -> Option<Arc<RwLock<FormatBit>>> {
+        self.format_bit
             .write()
             .unwrap()
             .remove(id)
-            .map(|format_bits| format_bits.clone())
+            .map(|format_bit| format_bit.clone())
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBit>`.
     ///
-    pub fn iter_format_bits(&self) -> impl Iterator<Item = Arc<RwLock<FormatBits>>> + '_ {
-        let values: Vec<Arc<RwLock<FormatBits>>> = self
-            .format_bits
+    pub fn iter_format_bit(&self) -> impl Iterator<Item = Arc<RwLock<FormatBit>>> + '_ {
+        let values: Vec<Arc<RwLock<FormatBit>>> = self
+            .format_bit
             .read()
             .unwrap()
             .values()
-            .map(|format_bits| format_bits.clone())
+            .map(|format_bit| format_bit.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -4189,15 +4189,15 @@ impl ObjectStore {
             }
         }
 
-        // Persist Format Bits.
+        // Persist Format Bit.
         {
-            let path = path.join("format_bits");
+            let path = path.join("format_bit");
             fs::create_dir_all(&path)?;
-            for format_bits in self.format_bits.read().unwrap().values() {
-                let path = path.join(format!("{}.json", format_bits.read().unwrap().id));
+            for format_bit in self.format_bit.read().unwrap().values() {
+                let path = path.join(format!("{}.json", format_bit.read().unwrap().id));
                 let file = fs::File::create(path)?;
                 let mut writer = io::BufWriter::new(file);
-                serde_json::to_writer_pretty(&mut writer, &format_bits)?;
+                serde_json::to_writer_pretty(&mut writer, &format_bit)?;
             }
         }
 
@@ -5322,21 +5322,21 @@ impl ObjectStore {
             }
         }
 
-        // Load Format Bits.
+        // Load Format Bit.
         {
-            let path = path.join("format_bits");
+            let path = path.join("format_bit");
             let entries = fs::read_dir(path)?;
             for entry in entries {
                 let entry = entry?;
                 let path = entry.path();
                 let file = fs::File::open(path)?;
                 let reader = io::BufReader::new(file);
-                let format_bits: Arc<RwLock<FormatBits>> = serde_json::from_reader(reader)?;
+                let format_bit: Arc<RwLock<FormatBit>> = serde_json::from_reader(reader)?;
                 store
-                    .format_bits
+                    .format_bit
                     .write()
                     .unwrap()
-                    .insert(format_bits.read().unwrap().id, format_bits.clone());
+                    .insert(format_bit.read().unwrap().id, format_bit.clone());
             }
         }
 

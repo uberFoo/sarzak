@@ -31,7 +31,7 @@
 //! * [`FieldExpression`]
 //! * [`FloatLiteral`]
 //! * [`ForLoop`]
-//! * [`FormatBits`]
+//! * [`FormatBit`]
 //! * [`FormatString`]
 //! * [`FuncGeneric`]
 //! * [`Function`]
@@ -99,7 +99,7 @@ use crate::v2::lu_dog_ndrwlock_vec::types::{
     AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
     DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
     ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBits, FormatString, FuncGeneric, Function,
+    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
     FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
     LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
     MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
@@ -165,8 +165,8 @@ pub struct ObjectStore {
     float_literal: Arc<RwLock<Vec<Option<Arc<RwLock<FloatLiteral>>>>>>,
     for_loop_free_list: std::sync::Mutex<Vec<usize>>,
     for_loop: Arc<RwLock<Vec<Option<Arc<RwLock<ForLoop>>>>>>,
-    format_bits_free_list: std::sync::Mutex<Vec<usize>>,
-    format_bits: Arc<RwLock<Vec<Option<Arc<RwLock<FormatBits>>>>>>,
+    format_bit_free_list: std::sync::Mutex<Vec<usize>>,
+    format_bit: Arc<RwLock<Vec<Option<Arc<RwLock<FormatBit>>>>>>,
     format_string_free_list: std::sync::Mutex<Vec<usize>>,
     format_string: Arc<RwLock<Vec<Option<Arc<RwLock<FormatString>>>>>>,
     func_generic_free_list: std::sync::Mutex<Vec<usize>>,
@@ -334,8 +334,8 @@ impl ObjectStore {
             float_literal: Arc::new(RwLock::new(Vec::new())),
             for_loop_free_list: std::sync::Mutex::new(Vec::new()),
             for_loop: Arc::new(RwLock::new(Vec::new())),
-            format_bits_free_list: std::sync::Mutex::new(Vec::new()),
-            format_bits: Arc::new(RwLock::new(Vec::new())),
+            format_bit_free_list: std::sync::Mutex::new(Vec::new()),
+            format_bit: Arc::new(RwLock::new(Vec::new())),
             format_string_free_list: std::sync::Mutex::new(Vec::new()),
             format_string: Arc::new(RwLock::new(Vec::new())),
             func_generic_free_list: std::sync::Mutex::new(Vec::new()),
@@ -2437,80 +2437,80 @@ impl ObjectStore {
             })
     }
 
-    /// Inter (insert) [`FormatBits`] into the store.
+    /// Inter (insert) [`FormatBit`] into the store.
     ///
     #[inline]
-    pub fn inter_format_bits<F>(&mut self, format_bits: F) -> Arc<RwLock<FormatBits>>
+    pub fn inter_format_bit<F>(&mut self, format_bit: F) -> Arc<RwLock<FormatBit>>
     where
-        F: Fn(usize) -> Arc<RwLock<FormatBits>>,
+        F: Fn(usize) -> Arc<RwLock<FormatBit>>,
     {
-        let _index = if let Some(_index) = self.format_bits_free_list.lock().unwrap().pop() {
+        let _index = if let Some(_index) = self.format_bit_free_list.lock().unwrap().pop() {
             log::trace!(target: "store", "recycling block {_index}.");
             _index
         } else {
-            let _index = self.format_bits.read().unwrap().len();
+            let _index = self.format_bit.read().unwrap().len();
             log::trace!(target: "store", "allocating block {_index}.");
-            self.format_bits.write().unwrap().push(None);
+            self.format_bit.write().unwrap().push(None);
             _index
         };
 
-        let format_bits = format_bits(_index);
+        let format_bit = format_bit(_index);
 
-        let found = if let Some(format_bits) =
-            self.format_bits.read().unwrap().iter().find(|stored| {
+        let found = if let Some(format_bit) =
+            self.format_bit.read().unwrap().iter().find(|stored| {
                 if let Some(stored) = stored {
-                    *stored.read().unwrap() == *format_bits.read().unwrap()
+                    *stored.read().unwrap() == *format_bit.read().unwrap()
                 } else {
                     false
                 }
             }) {
-            format_bits.clone()
+            format_bit.clone()
         } else {
             None
         };
 
-        if let Some(format_bits) = found {
-            log::debug!(target: "store", "found duplicate {format_bits:?}.");
-            self.format_bits_free_list.lock().unwrap().push(_index);
-            format_bits.clone()
+        if let Some(format_bit) = found {
+            log::debug!(target: "store", "found duplicate {format_bit:?}.");
+            self.format_bit_free_list.lock().unwrap().push(_index);
+            format_bit.clone()
         } else {
-            log::debug!(target: "store", "interring {format_bits:?}.");
-            self.format_bits.write().unwrap()[_index] = Some(format_bits.clone());
-            format_bits
+            log::debug!(target: "store", "interring {format_bit:?}.");
+            self.format_bit.write().unwrap()[_index] = Some(format_bit.clone());
+            format_bit
         }
     }
 
-    /// Exhume (get) [`FormatBits`] from the store.
+    /// Exhume (get) [`FormatBit`] from the store.
     ///
     #[inline]
-    pub fn exhume_format_bits(&self, id: &usize) -> Option<Arc<RwLock<FormatBits>>> {
-        match self.format_bits.read().unwrap().get(*id) {
-            Some(format_bits) => format_bits.clone(),
+    pub fn exhume_format_bit(&self, id: &usize) -> Option<Arc<RwLock<FormatBit>>> {
+        match self.format_bit.read().unwrap().get(*id) {
+            Some(format_bit) => format_bit.clone(),
             None => None,
         }
     }
 
-    /// Exorcise (remove) [`FormatBits`] from the store.
+    /// Exorcise (remove) [`FormatBit`] from the store.
     ///
     #[inline]
-    pub fn exorcise_format_bits(&mut self, id: &usize) -> Option<Arc<RwLock<FormatBits>>> {
-        log::debug!(target: "store", "exorcising format_bits slot: {id}.");
-        let result = self.format_bits.write().unwrap()[*id].take();
-        self.format_bits_free_list.lock().unwrap().push(*id);
+    pub fn exorcise_format_bit(&mut self, id: &usize) -> Option<Arc<RwLock<FormatBit>>> {
+        log::debug!(target: "store", "exorcising format_bit slot: {id}.");
+        let result = self.format_bit.write().unwrap()[*id].take();
+        self.format_bit_free_list.lock().unwrap().push(*id);
         result
     }
 
-    /// Get an iterator over the internal `HashMap<&Uuid, FormatBits>`.
+    /// Get an iterator over the internal `HashMap<&Uuid, FormatBit>`.
     ///
     #[inline]
-    pub fn iter_format_bits(&self) -> impl Iterator<Item = Arc<RwLock<FormatBits>>> + '_ {
-        let len = self.format_bits.read().unwrap().len();
+    pub fn iter_format_bit(&self) -> impl Iterator<Item = Arc<RwLock<FormatBit>>> + '_ {
+        let len = self.format_bit.read().unwrap().len();
         (0..len)
-            .filter(|i| self.format_bits.read().unwrap()[*i].is_some())
+            .filter(|i| self.format_bit.read().unwrap()[*i].is_some())
             .map(move |i| {
-                self.format_bits.read().unwrap()[i]
+                self.format_bit.read().unwrap()[i]
                     .as_ref()
-                    .map(|format_bits| format_bits.clone())
+                    .map(|format_bit| format_bit.clone())
                     .unwrap()
             })
     }

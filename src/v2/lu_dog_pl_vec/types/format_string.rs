@@ -4,7 +4,7 @@ use parking_lot::RwLock;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::v2::lu_dog_pl_vec::types::format_bits::FormatBits;
+use crate::v2::lu_dog_pl_vec::types::format_bit::FormatBit;
 use crate::v2::lu_dog_pl_vec::types::literal::Literal;
 use crate::v2::lu_dog_pl_vec::types::literal::LiteralEnum;
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,7 @@ use crate::v2::lu_dog_pl_vec::store::ObjectStore as LuDogPlVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FormatString {
     pub id: usize,
-    /// R112: [`FormatString`] 'needs to first' [`FormatBits`]
+    /// R112: [`FormatString`] 'needs to first' [`FormatBit`]
     pub first_format_bit: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
@@ -25,42 +25,41 @@ impl FormatString {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-new"}}}
     /// Inter a new 'Format String' in the store, and return it's `id`.
     pub fn new(
-        first_format_bit: Option<&Arc<RwLock<FormatBits>>>,
+        first_format_bit: Option<&Arc<RwLock<FormatBit>>>,
         store: &mut LuDogPlVecStore,
     ) -> Arc<RwLock<FormatString>> {
         store.inter_format_string(|id| {
             Arc::new(RwLock::new(FormatString {
                 id,
-                first_format_bit: first_format_bit.map(|format_bits| format_bits.read().id),
+                first_format_bit: first_format_bit.map(|format_bit| format_bit.read().id),
             }))
         })
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-forward-cond-to-list"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-forward-cond-to-first_format_bit"}}}
-    /// Navigate to [`FormatBits`] across R112(1-*c)
-    pub fn r112_format_bits<'a>(
+    /// Navigate to [`FormatBit`] across R112(1-*c)
+    pub fn r112_format_bit<'a>(
         &'a self,
         store: &'a LuDogPlVecStore,
-    ) -> Vec<Arc<RwLock<FormatBits>>> {
+    ) -> Vec<Arc<RwLock<FormatBit>>> {
         match self.first_format_bit {
-            Some(ref first_format_bit) => {
-                vec![store.exhume_format_bits(&first_format_bit).unwrap()]
-            }
+            Some(ref first_format_bit) => vec![store.exhume_format_bit(&first_format_bit).unwrap()],
             None => Vec::new(),
         }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-forward-cond-to-format_bits"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-backward-1_M-to-format_bits"}}}
-    /// Navigate to [`FormatBits`] across R111(1-M)
-    pub fn r111_format_bits<'a>(
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"format_string-struct-impl-nav-backward-1_M-to-format_bit"}}}
+    /// Navigate to [`FormatBit`] across R111(1-M)
+    pub fn r111_format_bit<'a>(
         &'a self,
         store: &'a LuDogPlVecStore,
-    ) -> Vec<Arc<RwLock<FormatBits>>> {
+    ) -> Vec<Arc<RwLock<FormatBit>>> {
         store
-            .iter_format_bits()
-            .filter(|format_bits| format_bits.read().format_string == self.id)
+            .iter_format_bit()
+            .filter(|format_bit| format_bit.read().format_string == self.id)
             .collect()
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
