@@ -15,6 +15,7 @@
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
+//! * [`CharLiteral`]
 //! * [`Comparison`]
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
@@ -101,18 +102,18 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec_tracy::types::{
-    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
-    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, CharLiteral,
+    Comparison, DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionBit, ExpressionStatement, ExternalImplementation, Field, FieldAccess,
+    FieldAccessTarget, FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString,
+    FuncGeneric, Function, FunctionCall, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringBit, StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast,
+    Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct,
+    XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION,
+    AND, ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
     GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL,
     MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO,
     TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
@@ -136,6 +137,8 @@ pub struct ObjectStore {
     boolean_operator: Vec<Option<Rc<RefCell<BooleanOperator>>>>,
     call_free_list: Vec<usize>,
     call: Vec<Option<Rc<RefCell<Call>>>>,
+    char_literal_free_list: Vec<usize>,
+    char_literal: Vec<Option<Rc<RefCell<CharLiteral>>>>,
     comparison_free_list: Vec<usize>,
     comparison: Vec<Option<Rc<RefCell<Comparison>>>>,
     data_structure_free_list: Vec<usize>,
@@ -305,6 +308,8 @@ impl ObjectStore {
             boolean_operator: Vec::new(),
             call_free_list: Vec::new(),
             call: Vec::new(),
+            char_literal_free_list: Vec::new(),
+            char_literal: Vec::new(),
             comparison_free_list: Vec::new(),
             comparison: Vec::new(),
             data_structure_free_list: Vec::new(),
@@ -1018,6 +1023,77 @@ impl ObjectStore {
         (0..len)
             .filter(|i| self.call[*i].is_some())
             .map(move |i| self.call[i].as_ref().map(|call| call.clone()).unwrap())
+    }
+
+    /// Inter (insert) [`CharLiteral`] into the store.
+    ///
+    #[inline]
+    pub fn inter_char_literal<F>(&mut self, char_literal: F) -> Rc<RefCell<CharLiteral>>
+    where
+        F: Fn(usize) -> Rc<RefCell<CharLiteral>>,
+    {
+        let _index = if let Some(_index) = self.char_literal_free_list.pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.char_literal.len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.char_literal.push(None);
+            _index
+        };
+
+        let char_literal = char_literal(_index);
+
+        if let Some(Some(char_literal)) = self.char_literal.iter().find(|stored| {
+            if let Some(stored) = stored {
+                *stored.borrow() == *char_literal.borrow()
+            } else {
+                false
+            }
+        }) {
+            log::debug!(target: "store", "found duplicate {char_literal:?}.");
+            self.char_literal_free_list.push(_index);
+            char_literal.clone()
+        } else {
+            log::debug!(target: "store", "interring {char_literal:?}.");
+            self.char_literal[_index] = Some(char_literal.clone());
+            char_literal
+        }
+    }
+
+    /// Exhume (get) [`CharLiteral`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_char_literal(&self, id: &usize) -> Option<Rc<RefCell<CharLiteral>>> {
+        match self.char_literal.get(*id) {
+            Some(char_literal) => char_literal.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`CharLiteral`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_char_literal(&mut self, id: &usize) -> Option<Rc<RefCell<CharLiteral>>> {
+        log::debug!(target: "store", "exorcising char_literal slot: {id}.");
+        let result = self.char_literal[*id].take();
+        self.char_literal_free_list.push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, CharLiteral>`.
+    ///
+    #[inline]
+    pub fn iter_char_literal(&self) -> impl Iterator<Item = Rc<RefCell<CharLiteral>>> + '_ {
+        let len = self.char_literal.len();
+        (0..len)
+            .filter(|i| self.char_literal[*i].is_some())
+            .map(move |i| {
+                self.char_literal[i]
+                    .as_ref()
+                    .map(|char_literal| char_literal.clone())
+                    .unwrap()
+            })
     }
 
     /// Inter (insert) [`Comparison`] into the store.
@@ -6348,6 +6424,20 @@ impl ObjectStore {
             }
         }
 
+        // Persist Char Literal.
+        {
+            let path = path.join("char_literal");
+            fs::create_dir_all(&path)?;
+            for char_literal in &self.char_literal {
+                if let Some(char_literal) = char_literal {
+                    let path = path.join(format!("{}.json", char_literal.borrow().id));
+                    let file = fs::File::create(path)?;
+                    let mut writer = io::BufWriter::new(file);
+                    serde_json::to_writer_pretty(&mut writer, &char_literal)?;
+                }
+            }
+        }
+
         // Persist Comparison.
         {
             let path = path.join("comparison");
@@ -7489,6 +7579,22 @@ impl ObjectStore {
                 let reader = io::BufReader::new(file);
                 let call: Rc<RefCell<Call>> = serde_json::from_reader(reader)?;
                 store.call.insert(call.borrow().id, Some(call.clone()));
+            }
+        }
+
+        // Load Char Literal.
+        {
+            let path = path.join("char_literal");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let char_literal: Rc<RefCell<CharLiteral>> = serde_json::from_reader(reader)?;
+                store
+                    .char_literal
+                    .insert(char_literal.borrow().id, Some(char_literal.clone()));
             }
         }
 

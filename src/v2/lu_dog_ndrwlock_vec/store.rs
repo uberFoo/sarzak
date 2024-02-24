@@ -15,6 +15,7 @@
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
+//! * [`CharLiteral`]
 //! * [`Comparison`]
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
@@ -96,18 +97,18 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_ndrwlock_vec::types::{
-    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
-    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION, AND,
-    ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, CharLiteral,
+    Comparison, DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionBit, ExpressionStatement, ExternalImplementation, Field, FieldAccess,
+    FieldAccessTarget, FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString,
+    FuncGeneric, Function, FunctionCall, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringBit, StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast,
+    Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct,
+    XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore, ADDITION,
+    AND, ASSIGNMENT, CHAR, DIVISION, EMPTY, EMPTY_EXPRESSION, EQUAL, FALSE_LITERAL, FROM, FULL,
     GREATER_THAN, GREATER_THAN_OR_EQUAL, INCLUSIVE, ITEM_STATEMENT, LESS_THAN, LESS_THAN_OR_EQUAL,
     MACRO_CALL, MULTIPLICATION, NEGATION, NOT, NOT_EQUAL, OR, RANGE, SUBTRACTION, TASK, TO,
     TO_INCLUSIVE, TRUE_LITERAL, UNKNOWN, X_DEBUGGER,
@@ -131,6 +132,8 @@ pub struct ObjectStore {
     boolean_operator: Arc<RwLock<Vec<Option<Arc<RwLock<BooleanOperator>>>>>>,
     call_free_list: std::sync::Mutex<Vec<usize>>,
     call: Arc<RwLock<Vec<Option<Arc<RwLock<Call>>>>>>,
+    char_literal_free_list: std::sync::Mutex<Vec<usize>>,
+    char_literal: Arc<RwLock<Vec<Option<Arc<RwLock<CharLiteral>>>>>>,
     comparison_free_list: std::sync::Mutex<Vec<usize>>,
     comparison: Arc<RwLock<Vec<Option<Arc<RwLock<Comparison>>>>>>,
     data_structure_free_list: std::sync::Mutex<Vec<usize>>,
@@ -300,6 +303,8 @@ impl ObjectStore {
             boolean_operator: Arc::new(RwLock::new(Vec::new())),
             call_free_list: std::sync::Mutex::new(Vec::new()),
             call: Arc::new(RwLock::new(Vec::new())),
+            char_literal_free_list: std::sync::Mutex::new(Vec::new()),
+            char_literal: Arc::new(RwLock::new(Vec::new())),
             comparison_free_list: std::sync::Mutex::new(Vec::new()),
             comparison: Arc::new(RwLock::new(Vec::new())),
             data_structure_free_list: std::sync::Mutex::new(Vec::new()),
@@ -1076,6 +1081,84 @@ impl ObjectStore {
                 self.call.read().unwrap()[i]
                     .as_ref()
                     .map(|call| call.clone())
+                    .unwrap()
+            })
+    }
+
+    /// Inter (insert) [`CharLiteral`] into the store.
+    ///
+    #[inline]
+    pub fn inter_char_literal<F>(&mut self, char_literal: F) -> Arc<RwLock<CharLiteral>>
+    where
+        F: Fn(usize) -> Arc<RwLock<CharLiteral>>,
+    {
+        let _index = if let Some(_index) = self.char_literal_free_list.lock().unwrap().pop() {
+            log::trace!(target: "store", "recycling block {_index}.");
+            _index
+        } else {
+            let _index = self.char_literal.read().unwrap().len();
+            log::trace!(target: "store", "allocating block {_index}.");
+            self.char_literal.write().unwrap().push(None);
+            _index
+        };
+
+        let char_literal = char_literal(_index);
+
+        let found = if let Some(char_literal) =
+            self.char_literal.read().unwrap().iter().find(|stored| {
+                if let Some(stored) = stored {
+                    *stored.read().unwrap() == *char_literal.read().unwrap()
+                } else {
+                    false
+                }
+            }) {
+            char_literal.clone()
+        } else {
+            None
+        };
+
+        if let Some(char_literal) = found {
+            log::debug!(target: "store", "found duplicate {char_literal:?}.");
+            self.char_literal_free_list.lock().unwrap().push(_index);
+            char_literal.clone()
+        } else {
+            log::debug!(target: "store", "interring {char_literal:?}.");
+            self.char_literal.write().unwrap()[_index] = Some(char_literal.clone());
+            char_literal
+        }
+    }
+
+    /// Exhume (get) [`CharLiteral`] from the store.
+    ///
+    #[inline]
+    pub fn exhume_char_literal(&self, id: &usize) -> Option<Arc<RwLock<CharLiteral>>> {
+        match self.char_literal.read().unwrap().get(*id) {
+            Some(char_literal) => char_literal.clone(),
+            None => None,
+        }
+    }
+
+    /// Exorcise (remove) [`CharLiteral`] from the store.
+    ///
+    #[inline]
+    pub fn exorcise_char_literal(&mut self, id: &usize) -> Option<Arc<RwLock<CharLiteral>>> {
+        log::debug!(target: "store", "exorcising char_literal slot: {id}.");
+        let result = self.char_literal.write().unwrap()[*id].take();
+        self.char_literal_free_list.lock().unwrap().push(*id);
+        result
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, CharLiteral>`.
+    ///
+    #[inline]
+    pub fn iter_char_literal(&self) -> impl Iterator<Item = Arc<RwLock<CharLiteral>>> + '_ {
+        let len = self.char_literal.read().unwrap().len();
+        (0..len)
+            .filter(|i| self.char_literal.read().unwrap()[*i].is_some())
+            .map(move |i| {
+                self.char_literal.read().unwrap()[i]
+                    .as_ref()
+                    .map(|char_literal| char_literal.clone())
                     .unwrap()
             })
     }

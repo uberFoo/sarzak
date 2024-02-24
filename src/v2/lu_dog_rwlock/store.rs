@@ -15,6 +15,7 @@
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
+//! * [`CharLiteral`]
 //! * [`Comparison`]
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
@@ -101,17 +102,17 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::{
-    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
-    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, CharLiteral,
+    Comparison, DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionBit, ExpressionStatement, ExternalImplementation, Field, FieldAccess,
+    FieldAccessTarget, FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString,
+    FuncGeneric, Function, FunctionCall, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringBit, StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast,
+    Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct,
+    XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,6 +125,7 @@ pub struct ObjectStore {
     boolean_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<BooleanLiteral>>>>>,
     boolean_operator: Arc<RwLock<HashMap<Uuid, Arc<RwLock<BooleanOperator>>>>>,
     call: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Call>>>>>,
+    char_literal: Arc<RwLock<HashMap<Uuid, Arc<RwLock<CharLiteral>>>>>,
     comparison: Arc<RwLock<HashMap<Uuid, Arc<RwLock<Comparison>>>>>,
     data_structure: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DataStructure>>>>>,
     dwarf_source_file: Arc<RwLock<HashMap<Uuid, Arc<RwLock<DwarfSourceFile>>>>>,
@@ -214,6 +216,7 @@ impl ObjectStore {
             boolean_literal: Arc::new(RwLock::new(HashMap::default())),
             boolean_operator: Arc::new(RwLock::new(HashMap::default())),
             call: Arc::new(RwLock::new(HashMap::default())),
+            char_literal: Arc::new(RwLock::new(HashMap::default())),
             comparison: Arc::new(RwLock::new(HashMap::default())),
             data_structure: Arc::new(RwLock::new(HashMap::default())),
             dwarf_source_file: Arc::new(RwLock::new(HashMap::default())),
@@ -626,6 +629,50 @@ impl ObjectStore {
             .unwrap()
             .values()
             .map(|call| call.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`CharLiteral`] into the store.
+    ///
+    pub fn inter_char_literal(&mut self, char_literal: Arc<RwLock<CharLiteral>>) {
+        let read = char_literal.read().unwrap();
+        self.char_literal
+            .write()
+            .unwrap()
+            .insert(read.id, char_literal.clone());
+    }
+
+    /// Exhume (get) [`CharLiteral`] from the store.
+    ///
+    pub fn exhume_char_literal(&self, id: &Uuid) -> Option<Arc<RwLock<CharLiteral>>> {
+        self.char_literal
+            .read()
+            .unwrap()
+            .get(id)
+            .map(|char_literal| char_literal.clone())
+    }
+
+    /// Exorcise (remove) [`CharLiteral`] from the store.
+    ///
+    pub fn exorcise_char_literal(&mut self, id: &Uuid) -> Option<Arc<RwLock<CharLiteral>>> {
+        self.char_literal
+            .write()
+            .unwrap()
+            .remove(id)
+            .map(|char_literal| char_literal.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, CharLiteral>`.
+    ///
+    pub fn iter_char_literal(&self) -> impl Iterator<Item = Arc<RwLock<CharLiteral>>> + '_ {
+        let values: Vec<Arc<RwLock<CharLiteral>>> = self
+            .char_literal
+            .read()
+            .unwrap()
+            .values()
+            .map(|char_literal| char_literal.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3994,6 +4041,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Char Literal.
+        {
+            let path = path.join("char_literal");
+            fs::create_dir_all(&path)?;
+            for char_literal in self.char_literal.read().unwrap().values() {
+                let path = path.join(format!("{}.json", char_literal.read().unwrap().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &char_literal)?;
+            }
+        }
+
         // Persist Comparison.
         {
             let path = path.join("comparison");
@@ -5023,6 +5082,24 @@ impl ObjectStore {
                     .write()
                     .unwrap()
                     .insert(call.read().unwrap().id, call.clone());
+            }
+        }
+
+        // Load Char Literal.
+        {
+            let path = path.join("char_literal");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let char_literal: Arc<RwLock<CharLiteral>> = serde_json::from_reader(reader)?;
+                store
+                    .char_literal
+                    .write()
+                    .unwrap()
+                    .insert(char_literal.read().unwrap().id, char_literal.clone());
             }
         }
 

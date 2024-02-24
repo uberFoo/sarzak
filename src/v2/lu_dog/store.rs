@@ -15,6 +15,7 @@
 //! * [`BooleanLiteral`]
 //! * [`BooleanOperator`]
 //! * [`Call`]
+//! * [`CharLiteral`]
 //! * [`Comparison`]
 //! * [`DataStructure`]
 //! * [`DwarfSourceFile`]
@@ -101,17 +102,17 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::v2::lu_dog::types::{
-    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, Comparison,
-    DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression, ExpressionBit,
-    ExpressionStatement, ExternalImplementation, Field, FieldAccess, FieldAccessTarget,
-    FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString, FuncGeneric, Function,
-    FunctionCall, Grouped, ImplementationBlock, Import, Index, IntegerLiteral, Item, Lambda,
-    LambdaParameter, LetStatement, List, ListElement, ListExpression, Literal, LocalVariable,
-    MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter, PathElement, Pattern,
-    RangeExpression, ResultStatement, Span, Statement, StaticMethodCall, StringBit, StringLiteral,
-    StructExpression, StructField, StructGeneric, TupleField, TypeCast, Unary, Unit,
-    UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct, XFuture, XIf,
-    XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
+    AWait, Argument, Binary, Block, Body, BooleanLiteral, BooleanOperator, Call, CharLiteral,
+    Comparison, DataStructure, DwarfSourceFile, EnumField, EnumGeneric, Enumeration, Expression,
+    ExpressionBit, ExpressionStatement, ExternalImplementation, Field, FieldAccess,
+    FieldAccessTarget, FieldExpression, FloatLiteral, ForLoop, FormatBit, FormatString,
+    FuncGeneric, Function, FunctionCall, Grouped, ImplementationBlock, Import, Index,
+    IntegerLiteral, Item, Lambda, LambdaParameter, LetStatement, List, ListElement, ListExpression,
+    Literal, LocalVariable, MethodCall, NamedFieldExpression, ObjectWrapper, Operator, Parameter,
+    PathElement, Pattern, RangeExpression, ResultStatement, Span, Statement, StaticMethodCall,
+    StringBit, StringLiteral, StructExpression, StructField, StructGeneric, TupleField, TypeCast,
+    Unary, Unit, UnnamedFieldExpression, ValueType, Variable, VariableExpression, WoogStruct,
+    XFuture, XIf, XMacro, XMatch, XPath, XPlugin, XPrint, XReturn, XValue, ZObjectStore,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,6 +125,7 @@ pub struct ObjectStore {
     boolean_literal: Rc<RefCell<HashMap<Uuid, Rc<RefCell<BooleanLiteral>>>>>,
     boolean_operator: Rc<RefCell<HashMap<Uuid, Rc<RefCell<BooleanOperator>>>>>,
     call: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Call>>>>>,
+    char_literal: Rc<RefCell<HashMap<Uuid, Rc<RefCell<CharLiteral>>>>>,
     comparison: Rc<RefCell<HashMap<Uuid, Rc<RefCell<Comparison>>>>>,
     data_structure: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DataStructure>>>>>,
     dwarf_source_file: Rc<RefCell<HashMap<Uuid, Rc<RefCell<DwarfSourceFile>>>>>,
@@ -214,6 +216,7 @@ impl ObjectStore {
             boolean_literal: Rc::new(RefCell::new(HashMap::default())),
             boolean_operator: Rc::new(RefCell::new(HashMap::default())),
             call: Rc::new(RefCell::new(HashMap::default())),
+            char_literal: Rc::new(RefCell::new(HashMap::default())),
             comparison: Rc::new(RefCell::new(HashMap::default())),
             data_structure: Rc::new(RefCell::new(HashMap::default())),
             dwarf_source_file: Rc::new(RefCell::new(HashMap::default())),
@@ -584,6 +587,46 @@ impl ObjectStore {
             .borrow()
             .values()
             .map(|call| call.clone())
+            .collect();
+        let len = values.len();
+        (0..len).map(move |i| values[i].clone())
+    }
+
+    /// Inter (insert) [`CharLiteral`] into the store.
+    ///
+    pub fn inter_char_literal(&mut self, char_literal: Rc<RefCell<CharLiteral>>) {
+        let read = char_literal.borrow();
+        self.char_literal
+            .borrow_mut()
+            .insert(read.id, char_literal.clone());
+    }
+
+    /// Exhume (get) [`CharLiteral`] from the store.
+    ///
+    pub fn exhume_char_literal(&self, id: &Uuid) -> Option<Rc<RefCell<CharLiteral>>> {
+        self.char_literal
+            .borrow()
+            .get(id)
+            .map(|char_literal| char_literal.clone())
+    }
+
+    /// Exorcise (remove) [`CharLiteral`] from the store.
+    ///
+    pub fn exorcise_char_literal(&mut self, id: &Uuid) -> Option<Rc<RefCell<CharLiteral>>> {
+        self.char_literal
+            .borrow_mut()
+            .remove(id)
+            .map(|char_literal| char_literal.clone())
+    }
+
+    /// Get an iterator over the internal `HashMap<&Uuid, CharLiteral>`.
+    ///
+    pub fn iter_char_literal(&self) -> impl Iterator<Item = Rc<RefCell<CharLiteral>>> + '_ {
+        let values: Vec<Rc<RefCell<CharLiteral>>> = self
+            .char_literal
+            .borrow()
+            .values()
+            .map(|char_literal| char_literal.clone())
             .collect();
         let len = values.len();
         (0..len).map(move |i| values[i].clone())
@@ -3587,6 +3630,18 @@ impl ObjectStore {
             }
         }
 
+        // Persist Char Literal.
+        {
+            let path = path.join("char_literal");
+            fs::create_dir_all(&path)?;
+            for char_literal in self.char_literal.borrow().values() {
+                let path = path.join(format!("{}.json", char_literal.borrow().id));
+                let file = fs::File::create(path)?;
+                let mut writer = io::BufWriter::new(file);
+                serde_json::to_writer_pretty(&mut writer, &char_literal)?;
+            }
+        }
+
         // Persist Comparison.
         {
             let path = path.join("comparison");
@@ -4600,6 +4655,23 @@ impl ObjectStore {
                     .call
                     .borrow_mut()
                     .insert(call.borrow().id, call.clone());
+            }
+        }
+
+        // Load Char Literal.
+        {
+            let path = path.join("char_literal");
+            let entries = fs::read_dir(path)?;
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                let file = fs::File::open(path)?;
+                let reader = io::BufReader::new(file);
+                let char_literal: Rc<RefCell<CharLiteral>> = serde_json::from_reader(reader)?;
+                store
+                    .char_literal
+                    .borrow_mut()
+                    .insert(char_literal.borrow().id, char_literal.clone());
             }
         }
 

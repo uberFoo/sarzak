@@ -5,6 +5,7 @@ use std::sync::RwLock;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_rwlock::types::boolean_literal::BooleanLiteral;
+use crate::v2::lu_dog_rwlock::types::char_literal::CharLiteral;
 use crate::v2::lu_dog_rwlock::types::expression::Expression;
 use crate::v2::lu_dog_rwlock::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_rwlock::types::float_literal::FloatLiteral;
@@ -36,6 +37,7 @@ pub struct Literal {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum LiteralEnum {
     BooleanLiteral(Uuid),
+    CharLiteral(Uuid),
     FloatLiteral(Uuid),
     FormatString(Uuid),
     IntegerLiteral(Uuid),
@@ -56,6 +58,23 @@ impl Literal {
         let new = Arc::new(RwLock::new(Literal {
             bogus: bogus,
             subtype: LiteralEnum::BooleanLiteral(subtype.read().unwrap().id), // b
+            id,
+        }));
+        store.inter_literal(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_char_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_char_literal(
+        bogus: bool,
+        subtype: &Arc<RwLock<CharLiteral>>,
+        store: &mut LuDogRwlockStore,
+    ) -> Arc<RwLock<Literal>> {
+        let id = Uuid::new_v4();
+        let new = Arc::new(RwLock::new(Literal {
+            bogus: bogus,
+            subtype: LiteralEnum::CharLiteral(subtype.read().unwrap().id), // b
             id,
         }));
         store.inter_literal(new.clone());

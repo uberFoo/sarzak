@@ -5,6 +5,7 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 use crate::v2::lu_dog_vec::types::boolean_literal::BooleanLiteral;
+use crate::v2::lu_dog_vec::types::char_literal::CharLiteral;
 use crate::v2::lu_dog_vec::types::expression::Expression;
 use crate::v2::lu_dog_vec::types::expression::ExpressionEnum;
 use crate::v2::lu_dog_vec::types::float_literal::FloatLiteral;
@@ -34,6 +35,7 @@ pub struct Literal {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum LiteralEnum {
     BooleanLiteral(usize),
+    CharLiteral(usize),
     FloatLiteral(usize),
     FormatString(usize),
     IntegerLiteral(usize),
@@ -53,6 +55,22 @@ impl Literal {
             Rc::new(RefCell::new(Literal {
                 bogus: bogus,
                 subtype: LiteralEnum::BooleanLiteral(subtype.borrow().id), // b
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"literal-struct-impl-new_char_literal"}}}
+    /// Inter a new Literal in the store, and return it's `id`.
+    pub fn new_char_literal(
+        bogus: bool,
+        subtype: &Rc<RefCell<CharLiteral>>,
+        store: &mut LuDogVecStore,
+    ) -> Rc<RefCell<Literal>> {
+        store.inter_literal(|id| {
+            Rc::new(RefCell::new(Literal {
+                bogus: bogus,
+                subtype: LiteralEnum::CharLiteral(subtype.borrow().id), // b
                 id,
             }))
         })
