@@ -33,8 +33,6 @@ pub struct Enumeration {
     pub x_path: String,
     /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
     pub first_generic: Option<Uuid>,
-    /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
-    pub implementation: Option<Uuid>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-implementation"}}}
@@ -45,7 +43,6 @@ impl Enumeration {
         name: String,
         x_path: String,
         first_generic: Option<&Rc<RefCell<EnumGeneric>>>,
-        implementation: Option<&Rc<RefCell<ImplementationBlock>>>,
         store: &mut LuDogStore,
     ) -> Rc<RefCell<Enumeration>> {
         let id = Uuid::new_v4();
@@ -54,8 +51,6 @@ impl Enumeration {
             name,
             x_path,
             first_generic: first_generic.map(|enum_generic| enum_generic.borrow().id),
-            implementation: implementation
-                .map(|implementation_block| implementation_block.borrow().id),
         }));
         store.inter_enumeration(new.clone());
         new
@@ -71,18 +66,6 @@ impl Enumeration {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-implementation"}}}
-    /// Navigate to [`ImplementationBlock`] across R84(1-*c)
-    pub fn r84_implementation_block<'a>(
-        &'a self,
-        store: &'a LuDogStore,
-    ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
-        match self.implementation {
-            Some(ref implementation) => {
-                vec![store.exhume_implementation_block(&implementation).unwrap()]
-            }
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_field"}}}
     /// Navigate to [`EnumField`] across R88(1-M)
@@ -100,6 +83,23 @@ impl Enumeration {
             .iter_enum_generic()
             .filter(|enum_generic| enum_generic.borrow().woog_enum == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-one-bi-cond-to-implementation_block"}}}
+    /// Navigate to [`ImplementationBlock`] across R84(1c-1c)
+    pub fn r84c_implementation_block<'a>(
+        &'a self,
+        store: &'a LuDogStore,
+    ) -> Vec<Rc<RefCell<ImplementationBlock>>> {
+        let implementation_block = store
+            .iter_implementation_block()
+            .find(|implementation_block| {
+                implementation_block.borrow().enumeration == Some(self.id)
+            });
+        match implementation_block {
+            Some(ref implementation_block) => vec![implementation_block.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-data_structure"}}}

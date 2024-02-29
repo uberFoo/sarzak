@@ -33,8 +33,6 @@ pub struct Enumeration {
     pub x_path: String,
     /// R105: [`Enumeration`] 'may have a first' [`EnumGeneric`]
     pub first_generic: Option<usize>,
-    /// R84: [`Enumeration`] 'may have an' [`ImplementationBlock`]
-    pub implementation: Option<usize>,
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-implementation"}}}
@@ -45,7 +43,6 @@ impl Enumeration {
         name: String,
         x_path: String,
         first_generic: Option<&Arc<RwLock<EnumGeneric>>>,
-        implementation: Option<&Arc<RwLock<ImplementationBlock>>>,
         store: &mut LuDogNdrwlockVecStore,
     ) -> Arc<RwLock<Enumeration>> {
         store.inter_enumeration(|id| {
@@ -54,8 +51,6 @@ impl Enumeration {
                 name: name.to_owned(),
                 x_path: x_path.to_owned(),
                 first_generic: first_generic.map(|enum_generic| enum_generic.read().unwrap().id),
-                implementation: implementation
-                    .map(|implementation_block| implementation_block.read().unwrap().id),
             }))
         })
     }
@@ -73,18 +68,6 @@ impl Enumeration {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-forward-cond-to-implementation"}}}
-    /// Navigate to [`ImplementationBlock`] across R84(1-*c)
-    pub fn r84_implementation_block<'a>(
-        &'a self,
-        store: &'a LuDogNdrwlockVecStore,
-    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
-        match self.implementation {
-            Some(ref implementation) => {
-                vec![store.exhume_implementation_block(&implementation).unwrap()]
-            }
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-one-to-enum_field"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-1_M-to-enum_field"}}}
@@ -109,6 +92,23 @@ impl Enumeration {
             .iter_enum_generic()
             .filter(|enum_generic| enum_generic.read().unwrap().woog_enum == self.id)
             .collect()
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-struct-impl-nav-backward-one-bi-cond-to-implementation_block"}}}
+    /// Navigate to [`ImplementationBlock`] across R84(1c-1c)
+    pub fn r84c_implementation_block<'a>(
+        &'a self,
+        store: &'a LuDogNdrwlockVecStore,
+    ) -> Vec<Arc<RwLock<ImplementationBlock>>> {
+        let implementation_block = store
+            .iter_implementation_block()
+            .find(|implementation_block| {
+                implementation_block.read().unwrap().enumeration == Some(self.id)
+            });
+        match implementation_block {
+            Some(ref implementation_block) => vec![implementation_block.clone()],
+            None => Vec::new(),
+        }
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"enumeration-impl-nav-subtype-to-supertype-data_structure"}}}
@@ -170,7 +170,6 @@ impl PartialEq for Enumeration {
         self.name == other.name
             && self.x_path == other.x_path
             && self.first_generic == other.first_generic
-            && self.implementation == other.implementation
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

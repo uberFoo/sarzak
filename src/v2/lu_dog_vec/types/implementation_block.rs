@@ -25,6 +25,8 @@ use crate::v2::lu_dog_vec::store::ObjectStore as LuDogVecStore;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ImplementationBlock {
     pub id: usize,
+    /// R84: [`ImplementationBlock`] 'may exist for an' [`Enumeration`]
+    pub enumeration: Option<usize>,
     /// R8: [`ImplementationBlock`] 'adds functions to a' [`WoogStruct`]
     pub model_type: Option<usize>,
     /// R83: [`ImplementationBlock`] 'may refer to an' [`ZObjectStore`]
@@ -36,6 +38,7 @@ impl ImplementationBlock {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-new"}}}
     /// Inter a new 'Implementation Block' in the store, and return it's `id`.
     pub fn new(
+        enumeration: Option<&Rc<RefCell<Enumeration>>>,
         model_type: Option<&Rc<RefCell<WoogStruct>>>,
         object_store: Option<&Rc<RefCell<ZObjectStore>>>,
         store: &mut LuDogVecStore,
@@ -43,6 +46,7 @@ impl ImplementationBlock {
         store.inter_implementation_block(|id| {
             Rc::new(RefCell::new(ImplementationBlock {
                 id,
+                enumeration: enumeration.map(|enumeration| enumeration.borrow().id),
                 model_type: model_type.map(|woog_struct| woog_struct.borrow().id),
                 object_store: object_store.map(|z_object_store| z_object_store.borrow().id),
             }))
@@ -50,6 +54,18 @@ impl ImplementationBlock {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-to-model_type"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-cond-to-enumeration"}}}
+    /// Navigate to [`Enumeration`] across R84(1-*c)
+    pub fn r84_enumeration<'a>(
+        &'a self,
+        store: &'a LuDogVecStore,
+    ) -> Vec<Rc<RefCell<Enumeration>>> {
+        match self.enumeration {
+            Some(ref enumeration) => vec![store.exhume_enumeration(&enumeration).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-cond-to-model_type"}}}
     /// Navigate to [`WoogStruct`] across R8(1-*c)
     pub fn r8_woog_struct<'a>(&'a self, store: &'a LuDogVecStore) -> Vec<Rc<RefCell<WoogStruct>>> {
@@ -72,19 +88,6 @@ impl ImplementationBlock {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-one-bi-cond-to-enumeration"}}}
-    /// Navigate to [`Enumeration`] across R84(1c-1c)
-    pub fn r84c_enumeration<'a>(
-        &'a self,
-        store: &'a LuDogVecStore,
-    ) -> Vec<Rc<RefCell<Enumeration>>> {
-        let enumeration = store
-            .iter_enumeration()
-            .find(|enumeration| enumeration.borrow().implementation == Some(self.id));
-        match enumeration {
-            Some(ref enumeration) => vec![enumeration.clone()],
-            None => Vec::new(),
-        }
-    }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-1_Mc-to-function"}}}
     /// Navigate to [`Function`] across R9(1-Mc)
@@ -117,7 +120,9 @@ impl ImplementationBlock {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-implementation"}}}
 impl PartialEq for ImplementationBlock {
     fn eq(&self, other: &Self) -> bool {
-        self.model_type == other.model_type && self.object_store == other.object_store
+        self.enumeration == other.enumeration
+            && self.model_type == other.model_type
+            && self.object_store == other.object_store
     }
 }
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}

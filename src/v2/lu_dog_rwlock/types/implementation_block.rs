@@ -25,6 +25,8 @@ use crate::v2::lu_dog_rwlock::store::ObjectStore as LuDogRwlockStore;
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ImplementationBlock {
     pub id: Uuid,
+    /// R84: [`ImplementationBlock`] 'may exist for an' [`Enumeration`]
+    pub enumeration: Option<Uuid>,
     /// R8: [`ImplementationBlock`] 'adds functions to a' [`WoogStruct`]
     pub model_type: Option<Uuid>,
     /// R83: [`ImplementationBlock`] 'may refer to an' [`ZObjectStore`]
@@ -36,6 +38,7 @@ impl ImplementationBlock {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-new"}}}
     /// Inter a new 'Implementation Block' in the store, and return it's `id`.
     pub fn new(
+        enumeration: Option<&Arc<RwLock<Enumeration>>>,
         model_type: Option<&Arc<RwLock<WoogStruct>>>,
         object_store: Option<&Arc<RwLock<ZObjectStore>>>,
         store: &mut LuDogRwlockStore,
@@ -43,6 +46,7 @@ impl ImplementationBlock {
         let id = Uuid::new_v4();
         let new = Arc::new(RwLock::new(ImplementationBlock {
             id,
+            enumeration: enumeration.map(|enumeration| enumeration.read().unwrap().id),
             model_type: model_type.map(|woog_struct| woog_struct.read().unwrap().id),
             object_store: object_store.map(|z_object_store| z_object_store.read().unwrap().id),
         }));
@@ -51,6 +55,18 @@ impl ImplementationBlock {
     }
     // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-to-model_type"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-cond-to-enumeration"}}}
+    /// Navigate to [`Enumeration`] across R84(1-*c)
+    pub fn r84_enumeration<'a>(
+        &'a self,
+        store: &'a LuDogRwlockStore,
+    ) -> Vec<Arc<RwLock<Enumeration>>> {
+        match self.enumeration {
+            Some(ref enumeration) => vec![store.exhume_enumeration(&enumeration).unwrap()],
+            None => Vec::new(),
+        }
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-forward-cond-to-model_type"}}}
     /// Navigate to [`WoogStruct`] across R8(1-*c)
     pub fn r8_woog_struct<'a>(
@@ -71,21 +87,8 @@ impl ImplementationBlock {
     ) -> Vec<Arc<RwLock<ZObjectStore>>> {
         match self.object_store {
             Some(ref object_store) => vec![store.exhume_z_object_store(&object_store).unwrap()],
-            None => Vec::new(),
-        }
-    }
-    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
-    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-one-bi-cond-to-enumeration"}}}
-    /// Navigate to [`Enumeration`] across R84(1c-1c)
-    pub fn r84c_enumeration<'a>(
-        &'a self,
-        store: &'a LuDogRwlockStore,
-    ) -> Vec<Arc<RwLock<Enumeration>>> {
-        let enumeration = store
-            .iter_enumeration()
-            .find(|enumeration| enumeration.read().unwrap().implementation == Some(self.id));
-        match enumeration {
-            Some(ref enumeration) => vec![enumeration.clone()],
+            // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
+            // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"implementation_block-struct-impl-nav-backward-one-bi-cond-to-enumeration"}}}
             None => Vec::new(),
         }
     }
