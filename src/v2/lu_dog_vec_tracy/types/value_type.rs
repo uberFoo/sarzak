@@ -5,6 +5,7 @@ use std::rc::Rc;
 use tracy_client::span;
 use uuid::Uuid;
 
+use crate::v2::lu_dog_vec_tracy::types::any_list::ANY_LIST;
 use crate::v2::lu_dog_vec_tracy::types::char::CHAR;
 use crate::v2::lu_dog_vec_tracy::types::empty::EMPTY;
 use crate::v2::lu_dog_vec_tracy::types::enum_generic::EnumGeneric;
@@ -66,6 +67,7 @@ pub struct ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum ValueTypeEnum {
+    AnyList(Uuid),
     Char(Uuid),
     Empty(Uuid),
     EnumGeneric(usize),
@@ -88,6 +90,18 @@ pub enum ValueTypeEnum {
 // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_any_list"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_any_list(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {
+        store.inter_value_type(|id| {
+            Rc::new(RefCell::new(ValueType {
+                bogus: bogus,
+                subtype: ValueTypeEnum::AnyList(ANY_LIST),
+                id,
+            }))
+        })
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_char(bogus: bool, store: &mut LuDogVecTracyStore) -> Rc<RefCell<ValueType>> {

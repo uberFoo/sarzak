@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use uuid::Uuid;
 
+use crate::v2::lu_dog::types::any_list::ANY_LIST;
 use crate::v2::lu_dog::types::char::CHAR;
 use crate::v2::lu_dog::types::empty::EMPTY;
 use crate::v2::lu_dog::types::enum_generic::EnumGeneric;
@@ -67,6 +68,7 @@ pub struct ValueType {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-hybrid-enum-definition"}}}
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ValueTypeEnum {
+    AnyList(Uuid),
     Char(Uuid),
     Empty(Uuid),
     EnumGeneric(Uuid),
@@ -90,6 +92,19 @@ pub enum ValueTypeEnum {
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-implementation"}}}
 impl ValueType {
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-new-impl"}}}
+    // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_any_list"}}}
+    /// Inter a new ValueType in the store, and return it's `id`.
+    pub fn new_any_list(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
+        let id = Uuid::new_v4();
+        let new = Rc::new(RefCell::new(ValueType {
+            bogus: bogus,
+            subtype: ValueTypeEnum::AnyList(ANY_LIST),
+            id,
+        }));
+        store.inter_value_type(new.clone());
+        new
+    }
+    // {"magic":"","directive":{"End":{"directive":"ignore-orig"}}}
     // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"value_type-struct-impl-new_char"}}}
     /// Inter a new ValueType in the store, and return it's `id`.
     pub fn new_char(bogus: bool, store: &mut LuDogStore) -> Rc<RefCell<ValueType>> {
