@@ -90,6 +90,7 @@
 // {"magic":"","directive":{"Start":{"directive":"ignore-orig","tag":"v2::lu_dog_ndrwlock_vec-object-store-definition"}}}
 use no_deadlocks::RwLock;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 use heck::ToUpperCamelCase;
 use rustc_hash::FxHashMap as HashMap;
@@ -284,6 +285,245 @@ pub struct ObjectStore {
     variable_expression: Arc<RwLock<Vec<Option<Arc<RwLock<VariableExpression>>>>>>,
 }
 
+impl Clone for ObjectStore {
+    fn clone(&self) -> Self {
+        ObjectStore {
+            argument_free_list: Mutex::new(self.argument_free_list.lock().unwrap().clone()),
+            argument: self.argument.clone(),
+            a_wait_free_list: Mutex::new(self.a_wait_free_list.lock().unwrap().clone()),
+            a_wait: self.a_wait.clone(),
+            binary_free_list: Mutex::new(self.binary_free_list.lock().unwrap().clone()),
+            binary: self.binary.clone(),
+            block_free_list: Mutex::new(self.block_free_list.lock().unwrap().clone()),
+            block: self.block.clone(),
+            body_free_list: Mutex::new(self.body_free_list.lock().unwrap().clone()),
+            body: self.body.clone(),
+            boolean_literal_free_list: Mutex::new(
+                self.boolean_literal_free_list.lock().unwrap().clone(),
+            ),
+            boolean_literal: self.boolean_literal.clone(),
+            boolean_operator_free_list: Mutex::new(
+                self.boolean_operator_free_list.lock().unwrap().clone(),
+            ),
+            boolean_operator: self.boolean_operator.clone(),
+            call_free_list: Mutex::new(self.call_free_list.lock().unwrap().clone()),
+            call: self.call.clone(),
+            char_literal_free_list: Mutex::new(self.char_literal_free_list.lock().unwrap().clone()),
+            char_literal: self.char_literal.clone(),
+            comparison_free_list: Mutex::new(self.comparison_free_list.lock().unwrap().clone()),
+            comparison: self.comparison.clone(),
+            data_structure_free_list: Mutex::new(
+                self.data_structure_free_list.lock().unwrap().clone(),
+            ),
+            data_structure: self.data_structure.clone(),
+            dwarf_source_file_free_list: Mutex::new(
+                self.dwarf_source_file_free_list.lock().unwrap().clone(),
+            ),
+            dwarf_source_file: self.dwarf_source_file.clone(),
+            enum_field_free_list: Mutex::new(self.enum_field_free_list.lock().unwrap().clone()),
+            enum_field: self.enum_field.clone(),
+            enum_generic_free_list: Mutex::new(self.enum_generic_free_list.lock().unwrap().clone()),
+            enum_generic: self.enum_generic.clone(),
+            enumeration_free_list: Mutex::new(self.enumeration_free_list.lock().unwrap().clone()),
+            enumeration: self.enumeration.clone(),
+            enumeration_id_by_name: self.enumeration_id_by_name.clone(),
+            expression_free_list: Mutex::new(self.expression_free_list.lock().unwrap().clone()),
+            expression: self.expression.clone(),
+            expression_bit_free_list: Mutex::new(
+                self.expression_bit_free_list.lock().unwrap().clone(),
+            ),
+            expression_bit: self.expression_bit.clone(),
+            expression_statement_free_list: Mutex::new(
+                self.expression_statement_free_list.lock().unwrap().clone(),
+            ),
+            expression_statement: self.expression_statement.clone(),
+            external_implementation_free_list: Mutex::new(
+                self.external_implementation_free_list
+                    .lock()
+                    .unwrap()
+                    .clone(),
+            ),
+            external_implementation: self.external_implementation.clone(),
+            field_free_list: Mutex::new(self.field_free_list.lock().unwrap().clone()),
+            field: self.field.clone(),
+            field_id_by_name: self.field_id_by_name.clone(),
+            field_access_free_list: Mutex::new(self.field_access_free_list.lock().unwrap().clone()),
+            field_access: self.field_access.clone(),
+            field_access_target_free_list: Mutex::new(
+                self.field_access_target_free_list.lock().unwrap().clone(),
+            ),
+            field_access_target: self.field_access_target.clone(),
+            field_expression_free_list: Mutex::new(
+                self.field_expression_free_list.lock().unwrap().clone(),
+            ),
+            field_expression: self.field_expression.clone(),
+            float_literal_free_list: Mutex::new(
+                self.float_literal_free_list.lock().unwrap().clone(),
+            ),
+            float_literal: self.float_literal.clone(),
+            for_loop_free_list: Mutex::new(self.for_loop_free_list.lock().unwrap().clone()),
+            for_loop: self.for_loop.clone(),
+            format_bit_free_list: Mutex::new(self.format_bit_free_list.lock().unwrap().clone()),
+            format_bit: self.format_bit.clone(),
+            format_string_free_list: Mutex::new(
+                self.format_string_free_list.lock().unwrap().clone(),
+            ),
+            format_string: self.format_string.clone(),
+            func_generic_free_list: Mutex::new(self.func_generic_free_list.lock().unwrap().clone()),
+            func_generic: self.func_generic.clone(),
+            function_free_list: Mutex::new(self.function_free_list.lock().unwrap().clone()),
+            function: self.function.clone(),
+            function_id_by_name: self.function_id_by_name.clone(),
+            function_call_free_list: Mutex::new(
+                self.function_call_free_list.lock().unwrap().clone(),
+            ),
+            function_call: self.function_call.clone(),
+            x_future_free_list: Mutex::new(self.x_future_free_list.lock().unwrap().clone()),
+            x_future: self.x_future.clone(),
+            grouped_free_list: Mutex::new(self.grouped_free_list.lock().unwrap().clone()),
+            grouped: self.grouped.clone(),
+            x_if_free_list: Mutex::new(self.x_if_free_list.lock().unwrap().clone()),
+            x_if: self.x_if.clone(),
+            implementation_block_free_list: Mutex::new(
+                self.implementation_block_free_list.lock().unwrap().clone(),
+            ),
+            implementation_block: self.implementation_block.clone(),
+            import_free_list: Mutex::new(self.import_free_list.lock().unwrap().clone()),
+            import: self.import.clone(),
+            index_free_list: Mutex::new(self.index_free_list.lock().unwrap().clone()),
+            index: self.index.clone(),
+            integer_literal_free_list: Mutex::new(
+                self.integer_literal_free_list.lock().unwrap().clone(),
+            ),
+            integer_literal: self.integer_literal.clone(),
+            item_free_list: Mutex::new(self.item_free_list.lock().unwrap().clone()),
+            item: self.item.clone(),
+            lambda_free_list: Mutex::new(self.lambda_free_list.lock().unwrap().clone()),
+            lambda: self.lambda.clone(),
+            lambda_parameter_free_list: Mutex::new(
+                self.lambda_parameter_free_list.lock().unwrap().clone(),
+            ),
+            lambda_parameter: self.lambda_parameter.clone(),
+            let_statement_free_list: Mutex::new(
+                self.let_statement_free_list.lock().unwrap().clone(),
+            ),
+            let_statement: self.let_statement.clone(),
+            list_free_list: Mutex::new(self.list_free_list.lock().unwrap().clone()),
+            list: self.list.clone(),
+            list_element_free_list: Mutex::new(self.list_element_free_list.lock().unwrap().clone()),
+            list_element: self.list_element.clone(),
+            list_expression_free_list: Mutex::new(
+                self.list_expression_free_list.lock().unwrap().clone(),
+            ),
+            list_expression: self.list_expression.clone(),
+            literal_free_list: Mutex::new(self.literal_free_list.lock().unwrap().clone()),
+            literal: self.literal.clone(),
+            local_variable_free_list: Mutex::new(
+                self.local_variable_free_list.lock().unwrap().clone(),
+            ),
+            local_variable: self.local_variable.clone(),
+            x_macro_free_list: Mutex::new(self.x_macro_free_list.lock().unwrap().clone()),
+            x_macro: self.x_macro.clone(),
+            x_match_free_list: Mutex::new(self.x_match_free_list.lock().unwrap().clone()),
+            x_match: self.x_match.clone(),
+            method_call_free_list: Mutex::new(self.method_call_free_list.lock().unwrap().clone()),
+            method_call: self.method_call.clone(),
+            named_field_expression_free_list: Mutex::new(
+                self.named_field_expression_free_list
+                    .lock()
+                    .unwrap()
+                    .clone(),
+            ),
+            named_field_expression: self.named_field_expression.clone(),
+            z_object_store_free_list: Mutex::new(
+                self.z_object_store_free_list.lock().unwrap().clone(),
+            ),
+            z_object_store: self.z_object_store.clone(),
+            z_object_store_id_by_name: self.z_object_store_id_by_name.clone(),
+            object_wrapper_free_list: Mutex::new(
+                self.object_wrapper_free_list.lock().unwrap().clone(),
+            ),
+            object_wrapper: self.object_wrapper.clone(),
+            operator_free_list: Mutex::new(self.operator_free_list.lock().unwrap().clone()),
+            operator: self.operator.clone(),
+            parameter_free_list: Mutex::new(self.parameter_free_list.lock().unwrap().clone()),
+            parameter: self.parameter.clone(),
+            x_path_free_list: Mutex::new(self.x_path_free_list.lock().unwrap().clone()),
+            x_path: self.x_path.clone(),
+            path_element_free_list: Mutex::new(self.path_element_free_list.lock().unwrap().clone()),
+            path_element: self.path_element.clone(),
+            pattern_free_list: Mutex::new(self.pattern_free_list.lock().unwrap().clone()),
+            pattern: self.pattern.clone(),
+            x_plugin_free_list: Mutex::new(self.x_plugin_free_list.lock().unwrap().clone()),
+            x_plugin: self.x_plugin.clone(),
+            x_plugin_id_by_name: self.x_plugin_id_by_name.clone(),
+            x_print_free_list: Mutex::new(self.x_print_free_list.lock().unwrap().clone()),
+            x_print: self.x_print.clone(),
+            range_expression_free_list: Mutex::new(
+                self.range_expression_free_list.lock().unwrap().clone(),
+            ),
+            range_expression: self.range_expression.clone(),
+            result_statement_free_list: Mutex::new(
+                self.result_statement_free_list.lock().unwrap().clone(),
+            ),
+            result_statement: self.result_statement.clone(),
+            x_return_free_list: Mutex::new(self.x_return_free_list.lock().unwrap().clone()),
+            x_return: self.x_return.clone(),
+            span_free_list: Mutex::new(self.span_free_list.lock().unwrap().clone()),
+            span: self.span.clone(),
+            statement_free_list: Mutex::new(self.statement_free_list.lock().unwrap().clone()),
+            statement: self.statement.clone(),
+            static_method_call_free_list: Mutex::new(
+                self.static_method_call_free_list.lock().unwrap().clone(),
+            ),
+            static_method_call: self.static_method_call.clone(),
+            string_bit_free_list: Mutex::new(self.string_bit_free_list.lock().unwrap().clone()),
+            string_bit: self.string_bit.clone(),
+            string_literal_free_list: Mutex::new(
+                self.string_literal_free_list.lock().unwrap().clone(),
+            ),
+            string_literal: self.string_literal.clone(),
+            woog_struct_free_list: Mutex::new(self.woog_struct_free_list.lock().unwrap().clone()),
+            woog_struct: self.woog_struct.clone(),
+            woog_struct_id_by_name: self.woog_struct_id_by_name.clone(),
+            struct_expression_free_list: Mutex::new(
+                self.struct_expression_free_list.lock().unwrap().clone(),
+            ),
+            struct_expression: self.struct_expression.clone(),
+            struct_field_free_list: Mutex::new(self.struct_field_free_list.lock().unwrap().clone()),
+            struct_field: self.struct_field.clone(),
+            struct_generic_free_list: Mutex::new(
+                self.struct_generic_free_list.lock().unwrap().clone(),
+            ),
+            struct_generic: self.struct_generic.clone(),
+            tuple_field_free_list: Mutex::new(self.tuple_field_free_list.lock().unwrap().clone()),
+            tuple_field: self.tuple_field.clone(),
+            type_cast_free_list: Mutex::new(self.type_cast_free_list.lock().unwrap().clone()),
+            type_cast: self.type_cast.clone(),
+            unary_free_list: Mutex::new(self.unary_free_list.lock().unwrap().clone()),
+            unary: self.unary.clone(),
+            unit_free_list: Mutex::new(self.unit_free_list.lock().unwrap().clone()),
+            unit: self.unit.clone(),
+            unnamed_field_expression_free_list: Mutex::new(
+                self.unnamed_field_expression_free_list
+                    .lock()
+                    .unwrap()
+                    .clone(),
+            ),
+            unnamed_field_expression: self.unnamed_field_expression.clone(),
+            x_value_free_list: Mutex::new(self.x_value_free_list.lock().unwrap().clone()),
+            x_value: self.x_value.clone(),
+            value_type_free_list: Mutex::new(self.value_type_free_list.lock().unwrap().clone()),
+            value_type: self.value_type.clone(),
+            variable_free_list: Mutex::new(self.variable_free_list.lock().unwrap().clone()),
+            variable: self.variable.clone(),
+            variable_expression_free_list: Mutex::new(
+                self.variable_expression_free_list.lock().unwrap().clone(),
+            ),
+            variable_expression: self.variable_expression.clone(),
+        }
+    }
+}
 impl ObjectStore {
     pub fn new() -> Self {
         let mut store = Self {
